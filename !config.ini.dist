@@ -1,0 +1,146 @@
+[DB]
+Database_name=LAMPCMS
+Database_host=localhost
+TCP_Port_number=
+Database_type=mysql
+Database_username=
+Database_password=
+Persistent = 0
+
+[MONGO]
+server = "mongodb://127.0.0.2:27017"
+db = "LAMPCMS"
+
+[CACHE_MONGO]
+; good option to use the same db as in "MONGO" section
+db = "LAMPCMS"
+collection = "C_Cache"
+
+[CONSTANTS]
+; set to true when debugging to enable
+; debug log and raize error reporting level
+DEBUG = false;
+; This will be used in some page as title as well as in some emails as 'From' name
+SITE_TITLE = "Site"
+SITE_NAME ="Site"
+
+; set LOG_FILE_PATH to point to your writable log file to enable logging
+; for example: /usr/local/apache/sites/qa.lampcms.com/logs/php.log
+LOG_FILE_PATH = php.log
+;/usr/local/apache/sites/lampcms.com/logs/cgiphp.log
+LOG_FILE_PATH_CGI = cgiphp.log
+;
+; base url of your main website. Required value!
+SITE_URL="http://localhost"
+; system path to root directory (the one that contains this file)
+LAMPCMS_PATH ="/"
+; system path to directory that is accessable via browser as /w/
+LAMPCMS_DATA_DIR =
+;
+POSTFIX_PATH = /usr/sbin/sendmail
+;
+; email address of developer. 
+; Developer will be notified of php errors and various bad situations on the site //message@ptd.net
+EMAIL_DEVELOPER = "me@me.me"
+; email address of admin. Admin will also be notified on important events and errors
+EMAIL_ADMIN = "me@me.me"
+;
+; emails to new registrations sent from this domain
+EMAIL_DOMAIN = 
+; Make sure to set the value of SALT to a random string of about 40 chars
+; then write it down and store it like gold!
+; and never change it again!
+; if it's lost, you will not be able to authenticate
+; any existing users - users will never be able to login!
+SALT = 'abcdefg';
+
+; If using Google friend connect, then you need to have the site id
+; sing up with Google Friend Connect first and get your site id
+; Create account here http://www.google.com/friendconnect/
+; After you signup and reviewing your site's settings,
+; the id will be in url of the browser, for example:
+; http://www.google.com/friendconnect/admin/site/overview?id=231123423423
+; 
+GFC_ID =
+;
+
+[CAPTCHA]
+; change this to something between 3 and 25
+secretposition = 15
+; Change this to any random string. CHANGE it to something unique!
+secretstring = "Stuff for captcha"
+; maximum captcha errors. After this ip will be blocked for awhile
+maxtry = 5
+
+[LOGIN_ERROR_LOCK]
+;in what number of seconds login errors occured.
+interval = 360
+;how many seconds since latest login error user must wait before allowed to try again
+wait = 300
+;number of login failures. After this many login failures withing interval
+max_errors = 4
+
+
+
+[MY_IP]
+; list values of ip addresses of developers
+; access from these ips will result in extra debugging console for javascript
+; as well as sql debugging data added to the pages
+; values should be added like this (one per line): 192.168.1.1=office
+; here the word office if for your own info, you can add another ip for 
+; your home and add it on another line: 192.168.1.2=home
+; You can add as many as you like
+24.238.90.139=home
+75.97.204.207=home1
+
+[TWITTER]
+; API_KEY is needed for the @anywhere JS library only
+; get api key and secret from here http://dev.twitter.com/apps/new
+;
+API_KEY = 
+; twitter consumer key and consumer secret for oauth
+TWITTER_OAUTH_KEY = 
+TWITTER_OAUTH_SECRET = 
+; account name that we use on twitter. We may tweet from it
+; we may also add new user to follow this account when they
+; join
+TWITTER_USERNAME = devcomments
+
+[FACEBOOK]
+; Get your APP_ID and API_SECRET here: 
+; http://developers.facebook.com/setup/
+; To setup new application and get API_KEY
+; go here: http://www.facebook.com/developers/
+;
+; user picture is not in any json, its simply this:
+; http://graph.facebook.com/$UID/picture
+API_KEY = 
+APP_ID = 
+APP_SECRET = 
+; YOU MUST at least require the email in EXTENDED_PERMS
+; so that you can create email record for facebook user
+; You should require publish_stream also if
+; you want to post something to user 'wall'
+EXTENDED_PERMS = "email,publish_stream,offline_access"
+POST_TO_WALL = true
+
+; Custom classes that extend LampcmsObserver
+; can be listed here and they will be automatically
+; registered as observers
+; see clsFloodCheck for an example on how to use it
+[OBSERVERS]
+;questionView = "Viewobserver"
+;
+; Order is important
+; since each observer can halt the processing
+; of script, make sure to put most important ones first
+; and most resource-intensive last
+[INPUT_FILTERS]
+floodCheck = "\\Lampcms\\Modules\\Observers\\FloodCheck"
+questionSimilar = "\\Lampcms\\Modules\\Observers\\Similars"
+
+[CURL]
+; primary ip address from which curl will connect
+ip = "127.0.0.1"
+; secondary ip address
+ip2 = "127.0.0.2"

@@ -1,0 +1,765 @@
+<?php
+
+
+
+/**
+ * PHP-Class hn_captcha_X1 Version 1.2.1, released 30-Apr-2009
+ *
+ * is an extension for PHP-Class hn_captcha, Version for PHP 5 !
+ *
+ * It adds a garbage-collector. (Useful, if you cannot use cronjobs.)
+ *
+ *
+ * Author: Horst Nogajski, coding@nogajski.de
+ *
+ * $Id: hn_captcha.class.x1.php5,v 1.4.2.2 2009/04/30 14:30:06 horst Exp $
+ *
+ * Download: http://hn273.users.phpclasses.org/browse/package/1569.html
+ *
+ * License: GNU LGPL (http://www.opensource.org/licenses/lgpl-license.html)
+ *
+ * This library is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 2.1 of the License, or (at your option) any later version.
+ *
+ * This library is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public
+ * License along with this library; if not, write to the Free Software
+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
+ *
+ *
+ * This class generates a picture to use in forms that perform CAPTCHA test
+ * (Completely Automated Public Turing to tell Computers from Humans Apart).
+ * After the test form is submitted a key entered by the user in a text field
+ * is compared by the class to determine whether it matches the text in the picture.
+ *
+ * The class is a fork of the original released at www.phpclasses.org
+ * by Julien Pachet with the name ocr_captcha.
+ *
+ * The following enhancements were added:
+ *
+ * - Support to make it work with GD library before version 2
+ * - Hacking prevention
+ * - Optional use of Web safe colors
+ * - Limit the number of users attempts
+ * - Display an optional refresh link to generate a new picture with a different key
+ *   without counting to the user attempts limit verification
+ * - Support the use of multiple random TrueType fonts
+ * - Control the output image by only three parameters: number of text characters
+ *   and minimum and maximum size preserving the size proportion
+ * - Preserve all request parameters passed to the page via the GET method,
+ *   so the CAPTCHA test can be added to existing scripts with minimal changes
+ * - Added a debug option for testing the current configuration
+ */
+
+namespace Lampcms;
+
+/**
+ * All the configuration settings are passed to the class in an array when the object instance is initialized.
+ *
+ * The class only needs two function calls to be used: display_form() and validate_submit().
+ *
+ * The class comes with an examplefile.
+ * If you don't have it: http://hn273.users.phpclasses.org/browse/package/1569.html
+ *
+ * Class that generate a captcha-image with text and a form to fill in this text
+ * @author Horst Nogajski, (mail: horst@nogajski.de)
+ * @version 1.3
+ *
+ */
+class Captcha extends LampcmsObject
+{
+
+	////////////////////////////////
+	//
+	//	PUBLIC PARAMS
+	//
+
+	/**
+	 * Absolute path to a Tempfolder (with trailing slash!).
+	 *  This must be writeable for PHP and also accessible via HTTP,
+	 *  because the image will be stored there.
+	 *
+	 * @var string
+	 *
+	 * @access public
+	 *
+	 */
+	protected $tempfolder;
+
+	/**
+	 *  Absolute path to folder with TrueTypeFonts (with trailing slash!).
+	 *  This must be readable by PHP.
+	 *
+	 * @var string
+	 *
+	 **/
+	protected $TTF_folder;
+
+	/**
+	 *  A List with available TrueTypeFonts for random char-creation.
+	 * @type mixed[array|string]
+	 * @access public
+	 *
+	 **/
+	var $TTF_RANGE  = array('BLOODGUT.TTF');
+
+	/**
+	 *  How many chars the generated text should have
+	 * @type integer
+	 * @access public
+	 *
+	 **/
+	var $chars		= 5;
+
+	/**
+	 *  The minimum size a Char should have
+	 * @type integer
+	 * @access public
+	 *
+	 **/
+	var $minsize	= 20;
+
+	/**
+	 *  The maximum size a Char can have
+	 * @type integer
+	 * @access public
+	 *
+	 **/
+	var $maxsize	= 30;
+
+	/**
+	 *  The maximum degrees a Char should be rotated. Set it to 30 means a random rotation between -30 and 30.
+	 * @type integer
+	 * @access public
+	 *
+	 **/
+	var $maxrotation = 25;
+
+	/**
+	 *  Background noise On/Off (if is Off, a grid will be created)
+	 * @type boolean
+	 * @access public
+	 *
+	 **/
+	var $noise		= true;
+
+	/**
+	 *  This will only use the 216 websafe color pallette for the image.
+	 * @type boolean
+	 * @access public
+	 *
+	 **/
+	var $websafecolors = false;
+
+	/**
+	 *  Switches language, available are 'en' and 'de'. You can easily add more. Look in CONSTRUCTOR.
+	 * @type string
+	 * @access public
+	 *
+	 **/
+	var $lang		= "en";
+
+	/**
+	 *  If a user has reached this number of try's without success, he will moved to the $badguys_url
+	 * @type integer
+	 * @access public
+	 *
+	 **/
+	var $maxtry		= 3;
+
+	/**
+	 *  Gives the user the possibility to generate a new captcha-image.
+	 * @type boolean
+	 * @access public
+	 *
+	 **/
+	var $refreshlink = true;
+
+	/**
+	 *  If a user has reached his maximum try's, he will located to this url.
+	 * @type boolean
+	 * @access public
+	 *
+	 **/
+	var $badguys_url = "/";
+
+	/**
+	 * Number between 1 and 32
+	 *
+	 *  Defines the position of 'current try number' in (32-char-length)-string generated by function get_try()
+	 * @type integer
+	 * @access public
+	 *
+	 **/
+	var $secretposition = 15;
+
+	/**
+	 *  The string is used to generate the md5-key.
+	 * @type string
+	 * @access public
+	 *
+	 **/
+	var $secretstring = "A very interesting string like 8 char password!";
+
+	/**
+	 *  Outputs configuration values for testing
+	 * @type boolean
+	 * @access public
+	 *
+	 **/
+	var $debug = false ;
+
+	/** @access public **/
+	public $msg1;
+	/** @access public **/
+	public $msg2;
+	////////////////////////////////
+	//
+	//	PRIVATE PARAMS
+	//
+
+	/** @private **/
+	private $lx;				// width of picture
+	/** @private **/
+	private $ly;				// height of picture
+	/** @private **/
+	private $jpegquality = 80;	// image quality
+	/** @private **/
+	private $noisefactor = 9;	// this will multiplyed with number of chars
+	/** @private **/
+	private $nb_noise;			// number of background-noise-characters
+	/** @private **/
+	private $TTF_file;			// holds the current selected TrueTypeFont
+	/** @private **/
+	private $buttontext;
+	/** @private **/
+	private $refreshbuttontext;
+	/** @private **/
+	private $public_K;
+	/** @private **/
+	private $private_K;
+	/** @private **/
+	private $key;				// md5-key
+	/** @private **/
+	private $public_key;    	// public key
+	/** @private **/
+	private $filename;			// filename of captcha picture
+	/** @private **/
+	private $gd_version;		// holds the Version Number of GD-Library
+	/** @private **/
+	// private $QUERY_STRING;		// keeps the ($_GET) Querystring of the original Request
+	/** @private **/
+	private $current_try = 0;
+	/** @private **/
+	private $r;
+	/** @private **/
+	private $g;
+	/** @private **/
+	private $b;
+
+
+
+	/**
+	 * Extracts the config array and generate needed params.
+	 *
+	 **/
+	function __construct(Registry $oRegistry, array $config = array(), $secure=true, $debug=false )
+	{
+
+		$this->oRegistry = $oRegistry;
+
+		$aConfig = (!empty($config)) ? $config : $oRegistry->Ini->sectionArr('CAPTCHA');
+		d('Captcha config: '.print_r($aConfig, 1));
+
+		// Test for GD-Library(-Version)
+		$this->checkGD();
+
+		d("Captcha-Debug: The available GD-Library has major version ".$this->gd_version);
+
+		$this->tempfolder = LAMPCMS_DATA_DIR.'img'.DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR;
+		$this->TTF_folder = LAMPCMS_PATH.DIRECTORY_SEPARATOR.'fonts'.DIRECTORY_SEPARATOR;
+
+		d('$this->tempfolder: '.$this->tempfolder.' $this->TTF_folder: '.$this->TTF_folder);
+
+		// Hackprevention
+		if(
+		(isset($_GET['maxtry']) || isset($_POST['maxtry']) || isset($_COOKIE['maxtry']))
+		||
+		(isset($_GET['debug']) || isset($_POST['debug']) || isset($_COOKIE['debug']))
+		||
+		(isset($_GET['captcharefresh']) || isset($_COOKIE['captcharefresh']))
+		||
+		(isset($_POST['captcharefresh']) && isset($_POST['private_key']))
+		)
+		{
+			d("Captcha-Debug: Buuh. You are a bad guy!");
+			if(isset($this->badguys_url) && !headers_sent()) header('location: '.$this->badguys_url);
+			//if(isset($this->badguys_url) && !headers_sent()) echo 'Hello '.print_r($_COOKIE, true);
+			else{
+				throw new LampcmsException('Sorry but something is not kosher about this form submittion.');
+			}
+		}
+
+		// extracts config array
+		if(!empty($aConfig)){
+			d("Captcha-Debug: Extracts Config-Array in secure-mode!");
+			$valid = get_object_vars($this);
+			// d('valid vars: '.print_r($valid, 1));
+			foreach($aConfig as $k=>$v){
+				if(array_key_exists($k, $valid)){
+					$this->$k = $v; // key/val from $config become instance variables here
+				}
+			}
+		}
+
+		// check vars for maxtry, secretposition and min-max-size
+		$this->maxtry = ($this->maxtry > 9 || $this->maxtry < 1) ? 3 : $this->maxtry;
+		$this->secretposition = ($this->secretposition > 32 || $this->secretposition < 1) ? $this->maxtry : $this->secretposition;
+		if($this->minsize > $this->maxsize){
+			$temp = $this->minsize;
+			$this->minsize = $this->maxsize;
+			$this->maxsize = $temp;
+			e("What do you think I mean with min and max? Switch minsize with maxsize.");
+		}
+
+		// check TrueTypeFonts
+		if(is_array($this->TTF_RANGE)){
+			d("Check given TrueType-Array! (".count($this->TTF_RANGE).")");
+			$temp = array();
+			foreach($this->TTF_RANGE as $k=>$v){
+				if(is_readable($this->TTF_folder.$v)) $temp[] = $v;
+			}
+			$this->TTF_RANGE = $temp;
+			d("Valid TrueType-files: (".count($this->TTF_RANGE).")");
+			if(count($this->TTF_RANGE) < 1){
+				throw new Exception('No Truetypefont available for the CaptchaClass.');
+			}
+		} else {
+			d("Check given TrueType-File! (".$this->TTF_RANGE.")");
+			if(!is_readable($this->TTF_folder.$this->TTF_RANGE)){
+				throw new LampcmsDevException('No Truetypefont available or TTF folder not readable ');
+			}
+		}
+
+		// select first TrueTypeFont
+		$this->change_TTF();
+		d("Set current TrueType-File: (".$this->TTF_file.")");
+
+
+		// get number of noise-chars for background if is enabled
+		$this->nb_noise = $this->noise ? ($this->chars * $this->noisefactor) : 0;
+		d("Set number of noise characters to: (".$this->nb_noise.")");
+
+
+		// set dimension of image
+		$this->lx = ($this->chars + 1) * (int)(($this->maxsize + $this->minsize) / 1.5);
+		$this->ly = (int)(2.4 * $this->maxsize);
+		d("Set image dimension to: (".$this->lx." x ".$this->ly.")");
+		d("Set messages to language: (".$this->lang.")");
+
+
+		// check Postvars
+		if(isset($_POST['public_key']))  $this->public_K = substr(strip_tags($_POST['public_key']),0,$this->chars);
+
+		/**
+		 * Replace Z with 0 for submitted captcha text
+		 * because we replace 0 with Z when generated image
+		 * So now we must make sure to replace it back to 0
+		 * str_replace('Z', '0', 
+		 */
+		if(isset($_POST['private_key'])) $this->private_K = substr(strip_tags($_POST['private_key']),0,$this->chars);
+		$this->current_try = isset($_POST['hncaptcha']) ? $this->get_try() : 0;
+		if(!isset($_POST['captcharefresh'])){
+			$this->current_try++;
+		}
+
+		d("Check POST-vars, current try is: (".$this->current_try.")");
+
+
+		// generate Keys
+		$this->key = md5($this->secretstring);
+		$this->public_key = substr(md5(uniqid(rand(),true)), 0, $this->chars);
+
+		d('public key is: '.$this->public_key);
+
+	} // end constructor
+
+
+	/**
+	 * validates POST-vars and return result
+	 * @return 0 = first call | 1 = valid submit | 2 = not valid | 3 = not valid and has reached maximum try's
+	 *
+	 **/
+	public function validate_submit()
+	{
+
+		$chk = $this->check_captcha($this->public_K, $this->private_K);
+
+		if( $chk ){
+			d("Captcha-Debug: Captcha is valid, validating submitted form returns: (1)");
+			return 1;
+		}else{
+			if($this->current_try > $this->maxtry){
+				d("Captcha-Debug:  Validating submitted form returns: (3)");
+				return 3;
+			}elseif($this->current_try > 0){
+				d("Captcha-Debug:  Validating submitted form returns: (2)");
+				return 2;
+			}else{
+				d("Captcha-Debug:  Validating submitted form returns: (0)");
+				return 0;
+			}
+		}
+	}
+
+
+
+	public function display_captcha()
+	{
+		$this->make_captcha();
+		$is = getimagesize($this->get_filename());
+
+		return "\n".'<img class="captchapict" src="'.$this->get_filename_url().'" '.$is[3].' alt="This is a captcha-picture. It is used to prevent mass-access by robots. (see: www.captcha.net)" title="">'."\n";
+
+	}
+
+
+	/** must be public to work on our project **/
+	public function make_captcha()
+	{
+		$private_key = $this->generate_private();
+		d("Captcha-Debug: <B>Generate private key</B>: ($private_key)");
+
+		// create Image and set the apropriate function depending on GD-Version & websafecolor-value
+		if($this->gd_version >= 2 && !$this->websafecolors){
+			$func1 = 'imagecreatetruecolor';
+			$func2 = 'imagecolorallocate';
+		}else{
+			$func1 = 'imageCreate';
+			$func2 = 'imagecolorclosest';
+		}
+		$image = $func1($this->lx,$this->ly);
+		d("Generate ImageStream with: ($func1())");
+		d("For colordefinitions we use: ($func2())");
+
+
+		// Set Backgroundcolor
+		$this->random_color(224, 255);
+		$back =  @imagecolorallocate($image, $this->r, $this->g, $this->b);
+		imagefilledrectangle($image,0,0,$this->lx,$this->ly,$back);
+		d("Captcha-Debug: We allocate one color for Background: (".$this->r."-".$this->g."-".$this->b.")");
+
+		// allocates the 216 websafe color palette to the image
+		if($this->gd_version < 2 || $this->websafecolors) $this->makeWebsafeColors($image);
+
+
+		// fill with noise or grid
+		if($this->nb_noise > 0){
+			// random characters in background with random position, angle, color
+			d("Captcha-Debug: Fill background with noise: (".$this->nb_noise.")");
+			for($i=0; $i < $this->nb_noise; $i++){
+				srand((double)microtime()*1000000);
+				$size	= intval(rand((int)($this->minsize / 2.3), (int)($this->maxsize / 1.7)));
+				srand((double)microtime()*1000000);
+				$angle	= intval(rand(0, 360));
+				srand((double)microtime()*1000000);
+				$x		= intval(rand(0, $this->lx));
+				srand((double)microtime()*1000000);
+				$y		= intval(rand(0, (int)($this->ly - ($size / 5))));
+				$this->random_color(160, 224);
+				$color	= $func2($image, $this->r, $this->g, $this->b);
+				srand((double)microtime()*1000000);
+				$text	= chr(intval(rand(45,250)));
+				@ImageTTFText($image, $size, $angle, $x, $y, $color, $this->change_TTF(), $text);
+			}
+		} else {
+			// generate grid
+			d("Captcha-Debug: Fill background with x-gridlines: (".(int)($this->lx / (int)($this->minsize / 1.5)).")");
+			for($i=0; $i < $this->lx; $i += (int)($this->minsize / 1.5)){
+				$this->random_color(160, 224);
+				$color	= $func2($image, $this->r, $this->g, $this->b);
+				@imageline($image, $i, 0, $i, $this->ly, $color);
+			}
+			d("Captcha-Debug: Fill background with y-gridlines: (".(int)($this->ly / (int)(($this->minsize / 1.8))).")");
+			for($i=0 ; $i < $this->ly; $i += (int)($this->minsize / 1.8)){
+				$this->random_color(160, 224);
+				$color	= $func2($image, $this->r, $this->g, $this->b);
+				@imageline($image, 0, $i, $this->lx, $i, $color);
+			}
+		}
+
+		// generate Text
+		d("Captcha-Debug: Fill forground with chars and shadows: (".$this->chars.")");
+		for($i=0, $x = intval(rand($this->minsize,$this->maxsize)); $i < $this->chars; $i++){
+			$text	= strtoupper(substr($private_key, $i, 1));
+			srand((double)microtime()*1000000);
+			$angle	= intval(rand(($this->maxrotation * -1), $this->maxrotation));
+			srand((double)microtime()*1000000);
+			$size	= intval(rand($this->minsize, $this->maxsize));
+			srand((double)microtime()*1000000);
+			$y		= intval(rand((int)($size * 1.5), (int)($this->ly - ($size / 7))));
+			$this->random_color(0, 127);
+			$color	=  $func2($image, $this->r, $this->g, $this->b);
+			$this->random_color(0, 127);
+			$shadow = $func2($image, $this->r + 127, $this->g + 127, $this->b + 127);
+			@ImageTTFText($image, $size, $angle, $x + (int)($size / 15), $y, $shadow, $this->change_TTF(), $text);
+			@ImageTTFText($image, $size, $angle, $x, $y - (int)($size / 15), $color, $this->TTF_file, $text);
+			$x += (int)($size + ($this->minsize / 5));
+		}
+
+		d('$image: '.gettype($image). ' image file: '.$this->get_filename().' $this->jpegquality: '.$this->jpegquality);
+		imagejpeg($image, $this->get_filename(), $this->jpegquality);
+		$res = file_exists($this->get_filename());
+		d("Captcha-Debug: Safe Image with quality [".$this->jpegquality."] as (".$this->get_filename().") returns: (".($res ? 'TRUE' : 'FALSE').")");
+		imagedestroy($image);
+		d("Captcha-Debug: Destroy Imagestream.");
+		if(!$res){
+			throw new LampcmsException('Unable to save captcha-image.');
+		}
+	}
+
+	/** @private **/
+	protected function makeWebsafeColors(&$image)
+	{
+		//$a = array();
+		for($r = 0; $r <= 255; $r += 51){
+			for($g = 0; $g <= 255; $g += 51){
+				for($b = 0; $b <= 255; $b += 51){
+					$color = imagecolorallocate($image, $r, $g, $b);
+				}
+			}
+		}
+		d("Captcha-Debug: Allocate 216 websafe colors to image: (".imagecolorstotal($image).")");
+		//return $a;
+	}
+
+	/** @private **/
+	protected function random_color($min,$max)
+	{
+		srand((double)microtime() * 1000000);
+		$this->r = intval(rand($min,$max));
+		srand((double)microtime() * 1000000);
+		$this->g = intval(rand($min,$max));
+		srand((double)microtime() * 1000000);
+		$this->b = intval(rand($min,$max));
+
+	}
+
+	/** @private **/
+	function change_TTF()
+	{
+		if(is_array($this->TTF_RANGE)){
+			srand((float)microtime() * 10000000);
+			$key = array_rand($this->TTF_RANGE);
+			$this->TTF_file = $this->TTF_folder.$this->TTF_RANGE[$key];
+		}else{
+			$this->TTF_file = $this->TTF_folder.$this->TTF_RANGE;
+		}
+
+		return $this->TTF_file;
+	}
+
+	/**
+	 * Check captcha
+	 *
+	 * @param string $public public key
+	 * @param string $private private key
+	 *
+	 * @return bool
+	 */
+	protected function check_captcha($public, $private)
+	{
+		$res = false;
+		/**
+		 * when check, destroy picture on disk
+		 */
+		if(file_exists($this->get_filename($public))){
+			$ret = @unlink($this->get_filename($public)) ? true : false;
+			if($this->debug){
+				d("Captcha-Debug: Delete image (".$this->get_filename($public).") returns: ($ret)");
+			}
+
+			$res = (strtolower($private) == strtolower($this->generate_private($public)));
+
+			d("Captcha-Debug: Comparing public with private key returns: ($res)");
+			d('PRIV: '.strtolower($private)." ? Generated-PRIVATE (from public=$public) : ".strtolower($this->generate_private($public)));
+
+		}else{
+
+			e('Captcha-Debug: file does not exist '.$this->get_filename($public));
+		}
+
+		return $res;
+	}
+
+
+	/**
+	 * must be public for sharedlog project
+	 */
+	public function get_filename($public="")
+	{
+		if($public==""){
+			$public = $this->public_key;
+		}
+
+		return $this->tempfolder.$public.".jpg";
+	}
+
+	/** @access public **/
+	public function get_filename_url($public="")
+	{
+		if($public==""){
+			$public = $this->public_key;
+		}
+
+		return '/w/img/tmp/'.$public.".jpg";
+	}
+
+
+	/**
+	 *
+	 * @return array with 3 elements: src = the web path (relative),
+	 * 'w' = width, 'h' = height
+	 */
+
+	public function getCaptchaImage()
+	{
+		$this->make_captcha();
+		$is = getimagesize($this->tempfolder.$this->public_key.'.jpg');
+
+		return array('src'=>'/w/img/tmp/'.$this->public_key.'.jpg',
+        'w' => $is[0],
+        'h' => $is[1]);
+	}
+
+	/** must be public to work on sharedlog project **/
+	public function get_try($in = true)
+	{
+		$s = array();
+		for($i = 1; $i <= $this->maxtry; $i++){
+			$s[$i] = $i;
+		}
+
+		if($in){
+			return (int)substr(strip_tags($_POST['hncaptcha']),($this->secretposition -1),1);
+		}else {
+			$a = "";
+			$b = "";
+			for($i = 1; $i < $this->secretposition; $i++){
+				srand((double)microtime()*1000000);
+				$a .= $s[intval(rand(1,$this->maxtry))];
+			}
+			for($i = 0; $i < (32 - $this->secretposition); $i++){
+				srand((double)microtime()*1000000);
+				$b .= $s[intval(rand(1,$this->maxtry))];
+			}
+
+			return $a.$this->current_try.$b;
+		}
+	}
+
+	/**
+	 * get version of php GD extension
+	 *
+	 * @return unknown
+	 */
+	private function checkGD()
+	{
+		if(!extension_loaded('gd')){
+			throw new LampcmsDevException('GD module not loaded. Cannot use Captcha class without GD library. Check your php info');
+		}
+
+		$gd_info = gd_info();
+		$gdv = $gd_info['GD Version'];
+		if(preg_match("/([0-9\.]+)(\s)/i", $gdv, $matches)){
+
+			return $matches[1];
+		}
+
+		throw new LampcmsDevException('There is no GD-Library-Support enabled. The Captcha-Class cannot be used!');
+	}
+
+	/**
+	 * 
+	 * The private key will be used
+	 * for the actual image of captcha
+	 * @param string $public
+	 */
+	protected function generate_private($public="")
+	{
+		if($public=="") {
+			$public = $this->public_key;
+		}
+
+		d("public key WHICH USED for generate private key $public");
+		d("\$this->public_key ". $this->public_key);
+
+		$key = substr(md5($this->key.$public), 16 - $this->chars / 2, $this->chars);
+		/**
+		 * 0 will be replaced with Z
+		 * because 0 renders badly in our font
+		 *
+		 */
+		$key = str_replace('0', 'Z', $key);
+		
+		return $key;
+	}
+
+
+	/**
+	 * getter method to get public_key
+	 * which is a private var
+	 *
+	 * @return string value of public_key
+	 */
+	public function getPublicKey(){
+		return $this->public_key;
+	}
+
+	/**
+	 * Returns array of values that we need for
+	 * the Captcha form.
+	 *
+	 * @return array with 'img' => complete html of img tag,
+	 * 'public_key' value of public key,
+	 * 'hncaptcha' value of hncaptcha
+	 */
+	public function getCaptchaArray()
+	{
+		$aRet = array(
+		'img' => $this->display_captcha(),
+		'public_key' => $this->getPublicKey(),
+		'hncaptcha' => $this->get_try(false));
+
+		return $aRet;
+
+	}
+
+
+	/**
+	 *
+	 * Create block with Label, Image and
+	 * input for captcha entry
+	 *
+	 * This block can just be dropped into an html template
+	 * of any form
+	 *
+	 * @return string html block with Captcha
+	 * @todo Translate string of label
+	 */
+	public function getCaptchaBlock(){
+		$aVals = $this->getCaptchaArray();
+		d('got captcha vals: '.print_r($aVals, 1));
+
+		$s = \tplCaptcha::parse($aVals, false);
+
+		return $s;
+	}
+
+} // end of class clsCaptcha

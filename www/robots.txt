@@ -1,0 +1,43 @@
+User-Agent: *
+Disallow: /ask/
+Disallow: /accept/
+Disallow: /vote/
+Disallow: /ansvote/
+Allow: /
+
+#
+# beware, the sections below WILL NOT INHERIT from the above!
+# http://www.google.com/support/webmasters/bin/answer.py?hl=en&answer=40360
+
+User-agent: Mediapartners-Google
+Disallow: /ask/
+Disallow: /accept/
+Disallow: /vote/
+Disallow: /ansvote/ 
+Allow: /
+
+#
+# Yahoo bot
+#
+User-agent: Slurp
+Disallow: /ask/
+Disallow: /accept/
+Disallow: /vote/
+Disallow: /ansvote/
+Allow: /
+
+#
+# Yahoo Pipes
+#
+User-agent: Yahoo Pipes 1.0
+Disallow: /ask/
+Disallow: /accept/
+Disallow: /vote/
+Disallow: /ansvote/
+
+#
+User-agent: Googlebot-Image
+Disallow: /ask/
+Disallow: /accept/
+Disallow: /vote/
+Disallow: /ansvote/
