@@ -400,7 +400,8 @@ abstract class WebPage extends Base
     	
     	
     	/**
-    	 * @todo change to $this->oRegistrty->Viewer->getStyleID()
+    	 * @todo later can change to something like 
+    	 * $this->oRegistrty->Viewer->getStyleID()
     	 * and also use CSS_SITE prefix or something like that
     	 */
     	$this->aPageVars['main_css'] = '/style/'.STYLE_ID.'/'.VTEMPLATES_DIR.'/main.css';

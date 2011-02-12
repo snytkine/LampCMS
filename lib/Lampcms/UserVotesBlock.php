@@ -83,11 +83,16 @@ class UserVotesBlock extends LampcmsObject
     "reduce" => $reduce,
     "query" => array("i_uid" => 39715)));
 
+		if(empty($votes) || empty($votes['result'])){
+			return '';
+		}
+		
 		$counter = $db->selectCollection($votes['result'])->find();
 
 		$total = 0;
 		$s = '';
 
+		
 		foreach ($counter as $vote) {
 			$vars = array('type' => $vote['_id'], 'count' => $vote['value']);
 			$total += $vote['value'];

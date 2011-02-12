@@ -92,9 +92,9 @@ class Responder
 	/**
 	 * Send the string to a browser and exit
 	 *
-	 * @todo move this to new class clsResponse
-	 *
 	 * @param array $arrJSON
+	 * @param int httpCode default is 200
+	 * @param array $headers
 	 * @param boolean $addJSTags if true, then
 	 * string will be sent as an HTML page that contains
 	 * javascript
@@ -103,21 +103,23 @@ class Responder
 	 * but only if parent object exists and contains
 	 * fParseQfJson script
 	 */
-	public static function sendJSON(array $aJSON, $addJSTags = false)
+	public static function sendJSON(array $aJSON, array $headers = null, $httpCode = 200, $addJSTags = false)
 	{
 
 		if ( Request::isIframe() || !empty($addJSTags)) {
 			self::sendJsonPage($aJSON);
 			exit;
 		}
-		$header = "Content-Type: text/json; charset=UTF-8";
+		
+		$contentType = "Content-Type: text/json; charset=UTF-8";
 		$res = json_encode($aJSON);
 
 		d('Sending json: '.$res);
-		header("HTTP/1.1 200 OK");
-		header($header);
+		header("HTTP/1.1 ".$httpCode." OK");
+		header($contentType);
 		echo($res);
 		fastcgi_finish_request();
+		
 		exit;
 	}
 
@@ -172,20 +174,20 @@ class Responder
 	 * Redirecting browser to a new url
 	 * using the header "Location" value
 	 *
-	 * @param string $strUrl url where to redirect. Default is '/' meaning to www root
+	 * @param string $url url where to redirect. Default is '/' meaning to www root
 	 */
-	public static function redirectToPage($strUrl = null)
+	public static function redirectToPage($url = null)
 	{
 		
-		if (null === $strUrl) {
-			$strUrl = ( empty($_SERVER['HTTP_REFERER'])) ? '/' : $_SERVER['HTTP_REFERER'];
+		if (null === $url) {
+			$url = ( empty($_SERVER['HTTP_REFERER'])) ? '/' : $_SERVER['HTTP_REFERER'];
 		}
 
 		if(Request::isAjax()){
-			self::sendJSON(array('redirect' => $strUrl));
+			self::sendJSON(array('redirect' => $url));
 		}
 
-		header("Location: ".$strUrl);
+		header("Location: ".$url);
 		exit(0);
 	}
 

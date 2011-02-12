@@ -138,7 +138,7 @@ function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
 		 * error reporting mask, then throw an ErrorException
 		 */
 		if ($errLevel & $errno) {
-			
+			//d('cp');
 			throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
 		}
 	}

@@ -245,10 +245,12 @@ class Accept extends WebPage
 	 * @return object $this
 	 */
 	protected function updateQuestion(){
+		$ansID = $this->oQuestion['i_sel_ans'];
+		d('$ansID: '.$ansID);
+		
+		if(!empty( $ansID ) ){
 
-		if(!empty($this->oQuestion['i_sel_ans'] ) ){
-
-			if($this->oQuestion['i_sel_ans'] == $this->aAnswer['_id']){
+			if($ansID == $this->aAnswer['_id']){
 				$err = 'This answer is already a selected answer';
 
 				/**
@@ -321,10 +323,11 @@ class Accept extends WebPage
 	 * @return object $this
 	 */
 	protected function updateOldAnswer(){
-
-		$this->aOldAnswer['accepted'] = false;
-		$this->oRegistry->Mongo->getCollection('ANSWERS')
-		->save($this->aOldAnswer);
+		if(!empty($this->aOldAnswer)){
+			$this->aOldAnswer['accepted'] = false;
+			$this->oRegistry->Mongo->getCollection('ANSWERS')
+			->save($this->aOldAnswer);
+		}
 
 		return $this;
 	}
@@ -341,18 +344,18 @@ class Accept extends WebPage
 	 * @return object $this
 	 */
 	protected function updateOldAnswerer(){
-		$uid = $this->aOldAnswer['i_uid'];
-		if(!empty($uid)){
-			try{
-				//$this->oRegistry->Mongo->getCollection('USERS')
-				//->update(array('_id' => (int)$this->aOldAnswer['i_uid']), array('$inc' => array("i_score" => (0 - Points::BEST_ANSWER))));
-				\Lampcms\User::factory($this->oRegistry)->by_id($uid)->setReputation((0 - Points::BEST_ANSWER));
-					
-			} catch(\MongoException $e ){
-				e('unable to update reputation for old answerer '.$e->getMessage());
+		if(!empty($this->aOldAnswer)){
+			$uid = $this->aOldAnswer['i_uid'];
+			if(!empty($uid)){
+				try{
+					\Lampcms\User::factory($this->oRegistry)->by_id($uid)->setReputation((0 - Points::BEST_ANSWER));
+
+				} catch(\MongoException $e ){
+					e('unable to update reputation for old answerer '.$e->getMessage());
+				}
 			}
 		}
-
+		
 		return $this;
 	}
 

@@ -54,28 +54,35 @@ namespace Lampcms;
 
 class ProfileDiv extends LampcmsObject
 {
-
+	/**
+	 * Created and returns html for the user profile div
+	 *
+	 * @todo translate string 'ago'
+	 *
+	 * @param Registry $oRegistry
+	 * @param User $oUser
+	 */
 	public static function get(Registry $oRegistry, User $oUser){
 
 		$lastActive = $oUser['i_lm_ts'];
 		$lastActive = (!empty($lastActive)) ? $lastActive : $oUser['i_reg_ts'];
 		$rep = $oUser->getReputation();
-		
+
 		d('rep: '.$rep);
-		
+
 		$vars = array(
 		'username' => $oUser->username,
 		'avatar' => $oUser->getAvatarImgSrc(),
 		'reputation' => $rep,
 		'name' => $oUser->getDisplayName(),
 		'since' => date('F j, Y', $oUser->i_reg_ts),
-		'lastActivity' => TimeAgo::format(new \DateTime(date('r', $lastActive))),
+		'lastActivity' => TimeAgo::format(new \DateTime(date('r', $lastActive))).' ago',
 		'website' => $oUser->getUrl(),
 		'twitter' => $oUser->getTwitterUrl(),
 		'facebook' => $oUser->getFacebookUrl(),
 		'location' => $oUser->getLocation()
 		);
-		
+
 		return \tplUserInfo::parse($vars);
 	}
 }

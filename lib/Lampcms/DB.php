@@ -153,14 +153,11 @@ class DB extends LampcmsObject
 
 		if ('mysql' === $this->aDB['Database_type']) {
 			$aOptions[PDO::MYSQL_ATTR_USE_BUFFERED_QUERY] = true;
-			$aOptions[PDO::MYSQL_ATTR_MAX_BUFFER_SIZE] = (1024 * 1024 * 6);
-			$aOptions[PDO::MYSQL_ATTR_INIT_COMMAND] = "SET NAMES utf8";
 		}
 		d('trying to connect to database with options: '.print_r($aOptions, true));
 
 		try {
-			$this->dbh = new PDO($sDsn, $this->aDB['Database_username'], $this->aDB['Database_password'],
-			$aOptions);
+			$this->dbh = new PDO($sDsn, $this->aDB['Database_username'], $this->aDB['Database_password'], $aOptions);
 			$this->dbh->setAttribute(PDO::ATTR_CASE, PDO::CASE_LOWER);
 			$this->dbh->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 			$this->dbh->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
@@ -175,7 +172,7 @@ class DB extends LampcmsObject
 			 * php is already in utf8 and will not try to convert it into utf8
 			 *
 			 */
-			//$this->dbh->query('SET NAMES utf8'); // now using this as connection option!
+			$this->dbh->exec('SET NAMES utf8'); // now using this as connection option!
 		} catch(\PDOException $e) {
 			
 			throw new DevException('Cannot connect to database: '.$e->getMessage());
@@ -675,7 +672,7 @@ class DB extends LampcmsObject
 	}
 
 
-	public function execPrepared(PDOStatement $sth)
+	public function execPrepared(\PDOStatement $sth)
 	{
 		$this->initTimer();
 		try{

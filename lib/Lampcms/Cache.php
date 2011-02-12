@@ -603,9 +603,9 @@ class Cache extends Observer
 	}
 
 	/**
-	 * Creates and returns clsAcl object
+	 * Creates and returns Acl object
 	 *
-	 * @return object of type Acl
+	 * @return object of type \Lampcms\Acl\Acl
 	 */
 	protected function Acl()
 	{

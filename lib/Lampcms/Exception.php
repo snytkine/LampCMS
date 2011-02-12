@@ -206,7 +206,7 @@ class Exception extends \Exception
 			}
 			d('json array of exception: '.print_r($a, 1));
 
-			Responder::sendJSON($a, $bHtml);
+			Responder::sendJSON($a);
 		}
 
 		d('$sError: '.$sError);

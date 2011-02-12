@@ -1609,3 +1609,11 @@ td.avatar img.iconfb,td.avatar img.icontw {
 .middle {
 	vertical-align: middle;
 }
+
+/**
+Alert overlay will have scrollbars
+instead of overflowing
+	*/
+#fbOverlay div.yui3-widget-bd {
+	overflow: auto;
+}
