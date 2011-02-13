@@ -590,7 +590,7 @@ class Utf8String extends String
 	 * leaving only the bytes valid
 	 * for an ASCII string
 	 * This is similar to stripLow() except
-	 * than unline stripLow(), high bytes are also
+	 * than unlike stripLow(), high bytes are also
 	 * stripped off, meaning that this function
 	 * should NEVER by used to sanitize a utf8 string
 	 * because it will basically remove all

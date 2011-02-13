@@ -61,7 +61,7 @@ namespace Lampcms;
  * @author Dmitri Snytkine
  *
  */
-class Question extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\UpDownRatable
+class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDownRatable
 {
 	/**
 	 * Currently not used, was going to have
@@ -165,13 +165,13 @@ class Question extends MongoDoc implements Interfaces\LampcmsResource, Interface
 	 * Set time, reason for when question was closed
 	 * as well as username and userid of user who closed it
 	 *
-	 * @param unknown_type $timestamp
-	 * @param unknown_type $reason
-	 * @param object $closer user who closed the question
+	 * @param int $timestamp
+	 * @param string $reason
+	 * @param object $closer User who closed the question
 	 *
 	 * @return object $this
 	 */
-	public function setClosed($timestamp, $reason, clsUserObject $closer){
+	public function setClosed($timestamp, $reason, User $closer){
 		$this->offsetSet('i_closed', (int)$timestamp);
 		$this->offsetSet('a_closed', array('username' => $closer->getDisplayName(),
 		'i_uid' => $closer->getUid(),
@@ -208,7 +208,7 @@ class Question extends MongoDoc implements Interfaces\LampcmsResource, Interface
 	 * Must set status to 'accptd'
 	 *
 	 * @param int $qid id of answer
-	 * @param bool updateTags if true then will decrease count
+	 * @param bool $updateTags if true then will decrease count
 	 * of unanswered tags in UNANSWERED_TAGS collection
 	 *
 	 */

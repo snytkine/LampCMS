@@ -157,7 +157,7 @@ interface Resource
 
 
 /**
- * clsUserObject implements this, thus
+ * User implements this, thus
  * this interface in this file, because
  * we know 100% that it will be used with every page request
  *
@@ -512,14 +512,14 @@ interface Question extends LampcmsResource
 	 * @param string $reason
 	 * @param object $closer user who closed the question
 	 */
-	public function setClosed($timestamp, $reason, clsUserObject $closer);
+	public function setClosed($timestamp, $reason, \Lampcms\User $closer);
 
 	/**
 	 * Must set the id of best_answer
 	 *
 	 * @param int $qid id of answer
 	 */
-	public function setBestAnswer($qid);
+	public function setBestAnswer($qid, $updateTags = true);
 
 	public function increaseAnswerCount($int = 1);
 

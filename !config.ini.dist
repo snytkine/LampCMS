@@ -54,6 +54,12 @@ EMAIL_DOMAIN =
 ; any existing users - users will never be able to login!
 SALT = 'abcdefg';
 
+;Enter some random string BEFORE launching your site
+;but DONT EVER CHANGE IT AFTER
+;you launched your site, otherwise users will not be
+;able to auto-login to site using the 'remember me' cookie
+COOKIE_SALT = 'abcde1234512345'
+
 ; If using Google friend connect, then you need to have the site id
 ; sing up with Google Friend Connect first and get your site id
 ; Create account here http://www.google.com/friendconnect/
@@ -90,8 +96,8 @@ max_errors = 4
 ; here the word office if for your own info, you can add another ip for 
 ; your home and add it on another line: 192.168.1.2=home
 ; You can add as many as you like
-24.238.90.139=home
-75.97.204.207=home1
+127.0.0.1=home
+127.0.0.2=home1
 
 [TWITTER]
 ; API_KEY is needed for the @anywhere JS library only

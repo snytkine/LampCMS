@@ -118,6 +118,7 @@ class SimilarItems extends LampcmsObject
 	protected function getSimilarQuestions($limit = 30, $ret = false){
 
 		$qid = (int)$this->oQuestion['_id'];
+		$html = '';
 
 		$sql = "SELECT *
 				FROM QUESTION_TITLE
@@ -135,8 +136,16 @@ class SimilarItems extends LampcmsObject
 		$sth->execute();
 		$aRes = $sth->fetchAll();
 		d('found '.count($aRes).' similar questions '.print_r($aRes, 1));
-		$tpl = ($ret) ? '\\tplSimquestions2' : '\\tplSimquestions';
-		$html = (!empty($aRes)) ? $tpl::loop($aRes) : '';
+		//$tpl = ($ret) ? '\\tplSimquestions2' : '\\tplSimquestions';
+		//$html = (!empty($aRes)) ? $tpl::loop($aRes) : '';
+		if(!empty($aRes)){
+			if($ret){
+				$html = \tplSimquestions2::loop($aRes);
+			} else {
+				$html = \tplSimquestions::loop($aRes);
+			}
+		}
+		
 		if($ret){
 			d('returning html for similar questions: '.$html);
 			return $html;
