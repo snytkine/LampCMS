@@ -211,17 +211,18 @@ class Answer extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\
 
 	/**
 	 * Get full (absolute) url for this question,
-	 * including the http and our domain.
-	 *
-	 * Currently it points only the the question for which
-	 * this is the answer. In the future we may
+	 * including the http and our domain
 	 * add the #answer to the url, but this has challenges
 	 * with pagination and some challanges with url rewrite rules
+	 * 
+	 * For example if this answer is not of the first page of the question
+	 * then the # anchor will not point to valid answer. 
+	 * It's not easy to determine on which page this answer is (currently)
 	 *
 	 * @return string url for this question
 	 */
 	public function getUrl(){
 
-		return $this->oRegistry->Ini->SITE_URL.'/q'.$this->offsetGet('i_qid').'/';
+		return $this->oRegistry->Ini->SITE_URL.'/q'.$this->offsetGet('i_qid').'/#ans'.$this->offsetGet('_id');
 	}
 }

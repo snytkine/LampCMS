@@ -74,7 +74,8 @@ class tplQuestion extends Lampcms\Template\Template
 	'i_views' => '0', // 11
 	'vw_s' => 's',  // 12
 	'vote_up' => "\xE2\x87\xA7", // 13 \xE2\x87\xA7
-	'vote_down' => "\xE2\x87\xA9"
+	'vote_down' => "\xE2\x87\xA9", // 14
+	'i_flags' => '' //15
 	);
 
 	protected static $tpl = '
@@ -114,7 +115,9 @@ class tplQuestion extends Lampcms\Template\Template
 		<td class="td_question">
 		<div class="question-body" id="qbody-%1$s">%2$s</div>
 		<div class="tgs">%5$s</div>
-		<div class="post_controls uid-%10$s"><span class="ajax flag" id="fq-%1$s">flag</span> | <span class="ajax deleteit" id="dq-%1$s">delete</span> | <span class="ajax editit"  id="eq-%1$s">edit</span></div>
+		<div class="question controls uid-%10$s" id="res_%1$s">
+		     <span class="flag" title="(%15$s)">flag</span>
+		</div>
 		<!-- // -->
 		<table class="foot">
           <tr>

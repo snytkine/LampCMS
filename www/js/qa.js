@@ -93,11 +93,25 @@ YUI({
 			write('Draft saved..');
 		});
 	}, //
+
 	eForm = Y.one('.qa_form'), //
 	/**
 	 * Ask Form Textarea
 	 */
 	eAskTA, //
+	/**
+	 * Current reputation score
+	 * of viewer
+	 */
+	reputation, //
+	/**
+	 * id of current viewer
+	 */
+	viewerId, // 
+	/**
+	 * Flag indicates viewer is moderator (or admin)
+	 */
+	bModerator, //
 	/**
 	 * Dom of Title input
 	 */
@@ -135,6 +149,11 @@ YUI({
 	editor, //
 	/**
 	 * Facebook style alert modal
+	 * 
+	 * Modal popup, usually contains some small
+	 * form or tools.
+	 * It usually should be closed onSuccess
+	 * of Ajax request
 	 */
 	oAlerter, //
 
@@ -176,6 +195,55 @@ YUI({
 		return ret;
 	}, //
 
+	/**
+	 * Get timezone offset based on user clock
+	 * 
+	 * @return number of secord from UTC time can be negative
+	 */
+	getTZO = function() {
+		var tzo, nd = new Date();
+		tzo = (0 - (nd.getTimezoneOffset() * 60));
+
+		return tzo;
+	}, //
+	/**
+	 * Get value of meta tag
+	 * @param string metaName 
+	 * @param bool asNode if true then return
+	 * the Node representing <meta> element
+	 * 
+	 * @return mixed false if meta tag does not exist
+	 * or string of meta element "content" or 
+	 * YUI3 Node object if asNode (true) is passed
+	 */
+	getMeta = function(metaName, asNode){
+		var ret, node = Y.one('meta[name=' + metaName +']');
+		Y.log('meta node for meta ' + metaName+ ' is: ' + node);
+		if(!node){
+			return false;
+		}
+		
+		if(asNode){
+			return node;
+		}
+		
+		return node.get('content');
+	},
+	
+	/**
+	 * Start Login with FriendConnect routine
+	 * 
+	 */
+	initGfcSignup = function(){
+		if (!google || !google.friendconnect) {
+			Y.log('No google or google.friendconnect', 'error');
+			return;
+		}
+		
+		google.friendconnect.requestSignIn();
+		
+		return;
+	},
 	/**
 	 * Handle click on thumbup/thumbdown link
 	 * 
@@ -250,18 +318,39 @@ YUI({
 			}
 		});
 	}, //
-
+	/**
+	 * Handle form submit for
+	 * forms inside the alerter (FB Overlay)
+	 */
+	handleModalForm = function(e){
+		var form = e.currentTarget;
+		e.halt();
+		Y.log('handleModalForm el is: ' + form);
+		var cfg = {
+				method : 'POST',
+				form : {
+					id : form,
+					useDisabled : true
+				}
+			};
+			oAlerter.hide();
+			oSL.modal.show();
+			
+			var request = Y.io('/index.php', cfg);
+	},
 	/**
 	 * This function executes onClick on any link with class 'ajax'
 	 */
 	handleAjaxLinks = function(e) {
-		var fbappid, fbcookie, el = e.currentTarget;
+		var ancestor, res, restype, resID, fbappid, fbcookie, el = e.currentTarget;
 		//alert('el is ' + el + '<br>id is: ' + el.get('id'));
 		var id = el.get('id');
 		e.halt();
 		switch (true) {
 		case el.test('.vote'):
-			handleVote(el);
+			if(ensureLogin()){
+				handleVote(el);
+			}
 			break;
 			
 		case el.test('.fbsignup'):
@@ -306,6 +395,19 @@ YUI({
 			window.location.assign('/logout/');
 			
 			break;
+			
+		case el.test('.flag'):
+			//ancestor = el.get('parentNode');
+			ancestor = el.ancestor("div.controls");
+		if(ancestor){
+		    restype = (ancestor.test('.question')) ? 'q' : 'a';
+		    resID = ancestor.get('id');
+		    resID = resID.substr(4);
+		    showFlagForm({'rid' : resID, 'rtype' : restype});
+			}
+		
+		
+		   break;
 		
 		}
 	}, //
@@ -347,7 +449,17 @@ YUI({
 		}
 
 		if (data.exception) {
-			alert(data.exception);
+			if(data.type && 'Lampcms\\MustLoginException' === data.type){
+				ensureLogin();
+			} else {
+				alert(data.exception);
+			}
+			return;
+		}
+		
+		
+		if (data.alert) {
+			alert(data.alert);
 			return;
 		}
 
@@ -409,7 +521,7 @@ YUI({
 	});
 
 	/**
-	 * Submit form via ajax
+	 * Submit question or answer form via ajax
 	 */
 	var MysubmitForm = function(e) {
 			
@@ -697,29 +809,33 @@ YUI({
 		
 	} // end if NOT com_hand, means if we going to use RTE
 	
-	/**
-	 * Get value of meta tag
-	 * @param string metaName 
-	 * @param bool asNode if true then return
-	 * the Node representing <meta> element
-	 * 
-	 * @return mixed false if meta tag does not exist
-	 * or string of meta element "content" or 
-	 * YUI3 Node object if asNode (true) is passed
-	 */
-	var getMeta = function(metaName, asNode){
-		var ret, node = Y.one('meta[name=' + metaName +']');
-		Y.log('meta node for meta ' + metaName+ ' is: ' + node);
-		if(!node){
-			return false;
+	var showFlagForm = function(o){
+		if(ensureLogin()){
+		var oAlert, form = '<div id="div_flag" style="text-align: left">'
++ '<form name="form_flag" id="id_flag" action="/index.php">'
++ '<input type="hidden" name="a" value="flagger">'
++ '<input type="hidden" name="rid" value="{rid}">'
++ '<input type="hidden" name="token" value="'+ getToken() +'">'
++ '<input type="hidden" name="qid" value="'+ getMeta('qid') +'">'
++ '<input type="hidden" name="rtype" value="{rtype}">'
++ '<input type="radio" name="reason" value="spam"><label> Spam</label><br>'
++ '<input type="radio" name="reason" value="inappropriate"><label> Inappropriate</label><br>'
++ '<hr>'
++ '<label for="id_note">Comments?</label>'
++ '<textarea name="note" cols="40" rows="2" style="display: block; z-index: 1;"></textarea>'
++ '<input type="submit" class="btn" value="Report">'
++ '</form>'
++ '</div>';
+		
+		form = Y.Lang.sub(form, o);
+		oAlert = getAlerter('<h3>Report to moderator</h3>');
+		//oAlert.set("headerContent", '<h3>Report to moderator</h3>');
+	     oAlert.set("bodyContent", form);
+	     oAlert.show(); 
+		//alert(form);
 		}
 		
-		if(asNode){
-			return node;
-		}
-		
-		return node.get('content');
-	};
+	}
 	
 	var setMeta = function(metaName, value){
 		var node = getMeta(metaName);
@@ -728,14 +844,26 @@ YUI({
 		}
 	};
 	
+	var ensureLogin = function(){
+		var message;
+		if(!isLoggedIn()){
+			message = '<div class="larger"><p>You must login to perform this action</p>'
+			+ '<p>Please login or <a class="close" href="#" onClick=oSL.getQuickRegForm(); return false;>Click here to register</a></div>';
+
+			getAlerter('Please Login').set("bodyContent", message).show();
+		 	
+		 	return false;
+		}
+		
+		return true;
+	};
+	
 	/**
 	 * Get value of 'mytoken' meta tag which serves as a security token for form
 	 * validation.
 	 */
 	var getToken = function() {		
-		var token = getMeta('version_id');
-		
-		return token;
+		return getMeta('version_id');
 	};
 	
 	/**
@@ -745,29 +873,97 @@ YUI({
 		setMeta('version_id', val);
 	};
 	
+	var getViewerId = function(){
+		var uid;
+		Y.log('looking for uid');
+		if(!viewerId){
+			Y.log('viewerId not set');
+			uid = getMeta('session_uid');
+			Y.log('uid: ' + uid);
+			viewerId = (!uid) ? 0 : parseInt(uid);
+		}
+		
+		return viewerId;
+	};
+	
 	 /**
 	 * Test to determine if page is being viewed by a logged in user a logged in
 	 * user has the session-tid meta tag set to value of twitter userid
 	 */
 	var isLoggedIn = function() {
 		
-		var ret, uid = getMeta('session-uid');
+		var ret, uid = getViewerId();
 		ret = (uid && (uid !== '') && (uid !== '0'));
 
 		return ret;
 	};
 	
+	
+	
 	/**
-	 * Get timezone offset based on user clock
+	 * Check if current viewer is moderator
 	 * 
-	 * @return number of secord from UTC time can be negative
+	 * @return bool true if moderator or admin
 	 */
-	var getTZO = function() {
-		var tzo, nd = new Date();
-		tzo = (0 - (nd.getTimezoneOffset() * 60));
-
-		return tzo;
+	var isModerator = function(){
+		var role;
+		if(!bModerator){
+			role = getMeta('role');
+			bModerator = (role && (('admin' == role)  || ('moderator' == role) ));
+		}
+		
+		return bModerator;
 	};
+	
+	/**
+	 * Get reputation score of current viewer
+	 * 
+	 * @return int reputation score
+	 */
+	var getReputation = function(){
+		var score;
+		if(!reputation){
+			score = getMeta('rep');
+			reputation = (!score) ? 1 : parseInt(score, 10);	
+		}
+		
+		return reputation;
+	};
+	
+	/**
+	 * Add <span> elements inside .contols
+	 * only if viewer is moderator or 
+	 * has enough reputation to use them
+	 */
+	var addAdminControls = function(){
+		
+		var controls = Y.all('div.controls');
+		Y.log('controls ' + controls);
+		if(controls){
+			Y.log('adding adminControls');
+			controls.each(function(){
+				Y.log('this is: ' + this);
+				if(this.test('.question')){
+					if(2>1 || isModerator() || 2000 < getReputation()){
+			         this.append(' | <span class="retag">retag</span>');
+		            }
+			 	}
+				/**
+				 * If is moderator or Owner of item,
+				 * meaning controls has class uid-1234
+				 * where 1234 is also id of viewer  + getViewerId()
+				 */
+				if(isModerator() || this.test('.uid-' + getViewerId())){
+					this.append(' | <span class="edit">edit</span> | <span class="del">delete</span>');
+				}
+				
+				
+			});
+			
+		}
+		
+	};
+
 	
 	/**
 	 * Start the Facebook Login process
@@ -803,26 +999,12 @@ YUI({
 
 		return;
 	};
-	
-	/**
-	 * Start Login with FriendConnect routine
-	 * 
-	 */
-	var initGfcSignup = function(){
-		if (!google || !google.friendconnect) {
-			Y.log('No google or google.friendconnect', 'error');
-			return;
-		}
-		
-		google.friendconnect.requestSignIn();
-		
-		return;
-	};
+
 	
 	/**
 	 * Get fbOverlay, reuse existing one
 	 */
-	var getAlerter = function(){
+	var getAlerter = function(header){
 		if(!oAlerter){
 			oAlerter = new Y.Overlay({
 				srcNode : '#fbOverlay',
@@ -844,9 +1026,14 @@ YUI({
 				]
 
 			});
-			
+
 			Y.one('#hide-fbOverlay').on('click', function(){oAlerter.hide();});
 		}
+		
+		if(!header){
+			header = 'Alert';
+		}
+		oAlerter.set("headerContent", '<h3>'+ header + '</h3>');
 		
 		return oAlerter;
 	};
@@ -961,14 +1148,24 @@ YUI({
 	
 	Y.on('submit', MysubmitForm, '.qa_form');
 	Y.on("click", handleAjaxLinks, ".ajax");
+	Y.delegate("click", handleAjaxLinks, ".delegate");
 	/**
 	 * Listening the clicks on links inside #lastdiv
 	 * allows us to dynamically add modals and panels
 	 * to lastdiv and already subscriebed listeners will
 	 * just work
 	 */
-	Y.delegate("click", handleAjaxLinks, ".delegate", "a");
-	
+	Y.delegate("click", handleAjaxLinks, "#qview-main", ".controls span"); //, "a"
+	/**
+	 * Any forms inside the alerter modal window will be
+	 * handled by handleModalForm()
+	 */
+	Y.delegate("submit", handleModalForm, "#fbOverlay", 'form');
+	/**
+	 * Any links with class .close inside the alerter modal
+	 * window will also cause the modal alerter to close
+	 */
+	Y.delegate("click", function(){Y.log('clicked close link');getAlerter().hide();}, "#fbOverlay", 'a.close');
 	/**
 	 * Replace default JS alert with out custom
 	 * Fb looking alerter
@@ -978,6 +1175,9 @@ YUI({
 	     oAlert.set("bodyContent", text);
 	     oAlert.show(); 
 	 };
+	 
+	 
+
 	 
 	 if(Y.one('#regdiv')) {
 
@@ -989,6 +1189,8 @@ YUI({
 				oSL.Regform.getInstance().show();
 			}
 		}
+	 
+	 addAdminControls();
 
 });
 

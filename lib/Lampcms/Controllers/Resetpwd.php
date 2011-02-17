@@ -104,7 +104,7 @@ You can also change your password after you log in.
 		->emailPwd();
 
 		$this->aPageVars['title'] = 'Password reset';
-		$this->aPageVars['body'] = '<div class="message">'.sprintf(self::TPL_SUCCESS, $this->email).'</div>';
+		$this->aPageVars['body'] = '<div class="frm1">'.sprintf(self::TPL_SUCCESS, $this->email).'</div>';
 
 	}
 
@@ -128,7 +128,7 @@ You can also change your password after you log in.
 	 */
 	protected function savePassword(){
 		d('$this->newPwd: '.$this->newPwd);
-		
+
 		$salted = String::hashPassword($this->newPwd);
 		$newdata = array('$set' => array("pwd" => $salted));
 
@@ -302,25 +302,10 @@ You can also change your password after you log in.
 	 */
 	protected function emailPwd()
 	{
-		$siteName = $this->oRegistry->Ini->SITE_NAME;
-		$sEmailAdmin = $this->oRegistry->Ini->EMAIL_ADMIN;
-
-
 		$body = vsprintf(self::EMAIL_BODY, array($this->oRegistry->Ini->SITE_NAME, $this->username, $this->newPwd));
 		$subject = sprintf(self::SUBJECT, $this->oRegistry->Ini->SITE_NAME);
-		$from = \Lampcms\String::prepareEmail($sEmailAdmin, $siteName);
 
-		$aHeaders = array();
-		$aHeaders['From'] = $from;
-		$aHeaders['Reply-To'] = $sEmailAdmin;
-
-		$headers = \Lampcms\prepareHeaders($aHeaders);
-		d(print_r($aHeaders, 1).' $headers: '.$headers);
-
-		if(true !== mail($this->email, $subject, $body, $headers)){
-
-			throw new \Lampcms\Exception('Server was unable to send out email at this time');
-		}
+		Mailer::factory($this->oRegistry)->mail($this->email, $subject, $body);
 
 		return $this;
 	}

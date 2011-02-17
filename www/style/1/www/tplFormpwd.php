@@ -49,7 +49,7 @@ class tplFormpwd extends Lampcms\Template\Template
 		you and to reset your password. When you fill in your registered email
 		address, you will be sent instructions on how to reset your password.',
 	'login_e' => '', // 6
-	'login_c' => 'ask_title', // 7
+	'login_c' => 'login_title', // 7
 	'formError' => '', // 8
 	'submit' => 'Submit', //9
 	'reset' => 'Reset', // 10

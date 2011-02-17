@@ -105,7 +105,11 @@ class DB extends LampcmsObject
 	/**
 	 * Constructor
 	 * Should NOT be used directly!
-	 * Always use getInstance()
+	 * Use getInstance()
+	 * 
+	 * Use directly ONLY if need to use
+	 * more than one instance of the class, for
+	 * example when need to connect to more than 1 DB
 	 *
 	 * @return object
 	 */
@@ -175,7 +179,7 @@ class DB extends LampcmsObject
 			$this->dbh->exec('SET NAMES utf8'); // now using this as connection option!
 		} catch(\PDOException $e) {
 			
-			throw new DevException('Cannot connect to database: '.$e->getMessage());
+			throw new DBException('Cannot connect to database: '.$e->getMessage());
 		}
 	}
 
@@ -197,7 +201,7 @@ class DB extends LampcmsObject
 	 * Singleton pattern implementation
 	 * Always use this method to get
 	 * instance of this class!
-	 * @return object of type clsDB
+	 * @return object of type DB
 	 */
 	public static function getInstance()
 	{
@@ -210,7 +214,7 @@ class DB extends LampcmsObject
 
 	public function __clone()
 	{
-		throw new DevException('cloning clsDB object not allowed');
+		throw new DevException('cloning DB object not allowed');
 	}
 
 
@@ -591,7 +595,7 @@ class DB extends LampcmsObject
 	public function deleteRow($sTableName, $whereCol, $whereVal, $whereType = PDO::PARAM_INT, $strErr2 = '')
 	{
 		if(!is_numeric($whereVal)){
-			throw new PDOException('$whereVal must be numeric. Was: '.$whereVal);
+			throw new DBException('$whereVal must be numeric. Was: '.$whereVal);
 		}
 
 		/**
@@ -864,109 +868,5 @@ class DB extends LampcmsObject
 
 	}
 
-	public function getFullTableColumns($strTableName, $strErr2 = '')
-	{
-		$strTableName = filter_var($strTableName, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
-		$strTableName = str_replace(';', '', $strTableName);
-		$strTableName = addslashes($strTableName);
 
-		$strSql = "SHOW FULL COLUMNS FROM $strTableName";
-
-		try {
-			$aRes = $this->initTimer()->getDbh()->query($strSql)->fetchAll(PDO::FETCH_GROUP);
-
-			$this->logQuery($strSql);
-			d('$aRes: '.print_r($aRes, true));
-		}
-		catch(\PDOException $e) {
-			$message = 'Line: '.$e->getLine().' PDO Error: '.$e->getMessage().' ERROR: '.print_r($e->errorInfo,
-			true)."\nSQL Error code: ".$e->getCode().' called from '.$strErr2;
-			e($message);
-
-			return false;
-		}
-
-		return $aRes;
-	}
-
-	/**
-	 * Increase count of specific $column
-	 * in the $table by $increaseCount
-	 *
-	 * @param string $table Name of table
-	 *
-	 * @param mixed $column name of column in table OR associative
-	 * array where keys are column names and values are integers
-	 * (by how much to increase the value in these column names)
-	 *
-	 * @param string $where name of column used in 'WHERE' clause
-	 * This column must be of type int, for example 'id' or userinfo_id
-	 * or something else that has integer value
-	 *
-	 * @param int $whereVal value in WHERE clause. This MUST be integer
-	 *
-	 * @param int $increaseCount by how much to increase the value of $column
-	 * This MUST be an integer
-	 *
-	 * @return int number of affected rows
-	 */
-	public function increaseCount($table, $column, $where, $whereVal, $increaseCount = 1)
-	{
-		$res = false;
-		$table = filter_var($table);
-
-		if(is_array($column)){
-			$set = $this->implodeColumns($column);
-			d('imploded $column: '.$set);
-		} else {
-			$column = filter_var($column);
-			$set = "$column = ($column + $increaseCount)";
-		}
-		$where = filter_var($where);
-		$whereVal = filter_var($whereVal, FILTER_SANITIZE_NUMBER_INT);
-		$increaseCount = filter_var($increaseCount, FILTER_SANITIZE_NUMBER_INT);
-			
-		$strSql = "UPDATE $table set $set WHERE $where = $whereVal";
-
-		d('$strSql: '.$strSql);
-
-		try {
-			$res = $this->initTimer()->getDbh()->exec($strSql);
-			$this->logQuery($strSql);
-			d('$res: '.$res);
-		}
-		catch(\PDOException $e) {
-			e('Line: '.$e->getLine().' PDO Error: '.
-			$e->getMessage().' ERROR: '.print_r($e->errorInfo, true).
-			"\nSQL Error code: ".$e->getCode());
-		}
-
-		return $res;
-	}
-
-	/**
-	 * Prepare part of sql statement
-	 * for the case where multiple columns
-	 * to be updated
-	 *
-	 * @var array $aColumns must be associative array
-	 * where keys are column names and vals are integers by which
-	 * to increase (or decrease) value of that column
-	 *
-	 * @return string
-	 */
-	protected function implodeColumns(array $aColumns)
-	{
-		$s = '';
-		foreach($aColumns as $name => $val){
-			if(is_numeric($name)){
-				
-				throw new DevException('Array key in $aColumns array cannot be numeric because they MUST be names or column in DB table'."\r\n".
-                'check what values you passed in second argument to the updateCount() method of hdlDb - it must be associative array with column_name => integer');
-			}
-			$s .= "$name  = ($name + $val), ";
-		}
-
-		return rtrim($s, ', ');
-	}
 }

@@ -747,17 +747,17 @@ div.t2 {
 	width: 100%;
 }
 
-.post_controls {
+.controls {
 	margin-top: 6px;
 	color: #888;
 }
 
-.post_controls span {
+.controls span {
 	padding: 0px 3px 3px;
 	cursor: pointer;
 }
 
-.post_controls span:hover {
+.controls span:hover {
 	background-color: #888;
 	color: #FFF;
 }
@@ -913,9 +913,6 @@ btn-m:hover,.btn-m:focus,input[type=submit].btn-m:hover,input[type=submit].btn-m
 
 .btn,input.btn[type="submit"],input.btn[type="button"] {
 	-moz-border-radius: 4px 4px 4px 4px;
-	background:
-		url("http://s.twimg.com/a/1289607957/images/buttons/bg-btn.gif")
-		repeat-x scroll 0 0 #DDDDDD;
 	border-color: #DDDDDD #DDDDDD #CCCCCC;
 	border-style: solid;
 	border-width: 1px;
@@ -1050,10 +1047,6 @@ blockquote {
 
 pre {
 	padding: 10px;
-	background-color: #EEE;
-	font-family: Consolas, Menlo, Monaco, 'Lucida Console',
-		'Liberation Mono', 'DejaVu Sans Mono', 'Bitstream Vera Sans Mono',
-		'Courier New', monospace, serif;
 	margin-bottom: 10px;
 	max-height: 600px;
 	overflow: auto;

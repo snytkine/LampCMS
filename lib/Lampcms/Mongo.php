@@ -97,7 +97,7 @@ class Mongo extends LampcmsObject
 		try{
 			$this->conn = new \Mongo($server, $aOptions);
 			d('$this->conn: '.get_class($this->conn)); // Mongo
-				
+
 		} catch (\MongoException $e){
 			$err = 'LampcmsError unable to connect to Mongo: '.$e->getMessage();
 			e($err);
@@ -205,7 +205,7 @@ class Mongo extends LampcmsObject
 	 * any existing values
 	 * the correct method is to use $set operator
 	 * MUST make sure tha arrValues include new values AND CURRENT
-	 * values that don't have to change. For example, if you 
+	 * values that don't have to change. For example, if you
 	 * only updating 'lastName', make sure arrValues also
 	 * includes 'firstName' with the current value, otherwise
 	 * the new object will have only the lastName
@@ -275,6 +275,20 @@ class Mongo extends LampcmsObject
 	 */
 	public function getCollection($collName){
 		return $this->conn->selectCollection($this->dbname, $collName);
+	}
+
+	/**
+	 * Magic getter to simplify selecting collection
+	 * Same as getCollection() but simpler code
+	 * $this->oRegistry->Mongo->USERS
+	 * the same as $this->oRegistry->Mongo->getCollection('USERS')
+	 *
+	 * @param string $name
+	 *
+	 * @return object of type MongoCollection
+	 */
+	public function __get($name){
+		return $this->conn->selectCollection($this->dbname, $name);
 	}
 
 

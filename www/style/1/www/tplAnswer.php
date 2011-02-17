@@ -74,7 +74,8 @@ class tplAnswer extends Lampcms\Template\Template
 	'vote_up' => "\xE2\x87\xA7", // 10 \xE2\x87\xA7
 	'vote_down' => "\xE2\x87\xA9", //11
 	'accept_link' => '&nbsp', // 12,
-	'accepted' => '' //13
+	'accepted' => '', //13
+	'i_flags' => '' // 14
 	);
 
 
@@ -98,7 +99,9 @@ class tplAnswer extends Lampcms\Template\Template
 		<td class="td_answer">
 		<div class="ans_body" id="ansbody-%1$s">%2$s</div>
 
-		<div class="post_controls uid-%7$s"><span class="ajax flag" id="fa-%1$s">flag</span> | <span class="ajax deleteit" id="da-%1$s">delete</span> | <span class="ajax editit"  id="ea-%1$s">edit</span></div>
+		<div class="answer controls uid-%7$s" id="res_%1$s">
+		   	<span class="flag" title="(%14$s)">flag</span>
+		</div>
 		<!-- // -->
 		<table class="foot">
             <tr>

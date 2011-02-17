@@ -53,6 +53,7 @@ namespace Lampcms\Controllers;
 
 use Lampcms\WebPage;
 use Lampcms\String;
+use Lampcms\Mailer;
 
 /**
  * Class responsible for
@@ -85,7 +86,7 @@ All the best,
 
 	';
 
-	const TPL_SUCCESS = '<div class="ok">Your username is <b>%1$s</b>
+	const TPL_SUCCESS = '<div class="frm1">Your username is <b>%1$s</b>
 Please write it down now!
 <br/><br/>
 Your password reset instructions have been emailed<br/> to the address
@@ -322,27 +323,12 @@ associated with your account.</div>';
 	 */
 	protected function emailCode()
 	{
-		$siteName = $this->oRegistry->Ini->SITE_NAME;
-		$sEmailAdmin = $this->oRegistry->Ini->EMAIL_ADMIN;
-
 		$link = $this->oRegistry->Ini->SITE_URL.'/index.php?a=resetpwd&uid='.$this->uid.'&r='.$this->randomString;
 		$body = vsprintf(self::EMAIL_BODY, array($this->login, $this->oRegistry->Ini->SITE_NAME, $link));
 		$subject = sprintf(self::SUBJECT, $this->oRegistry->Ini->SITE_NAME);
-		$from = \Lampcms\String::prepareEmail($sEmailAdmin, $siteName);
-
-		$aHeaders = array();
-		$aHeaders['From'] = $from;
-		$aHeaders['Reply-To'] = $sEmailAdmin;
-		$aHeaders['Return-Path'] = $sEmailAdmin;
-
-		$headers = \Lampcms\prepareHeaders($aHeaders);
-		d(print_r($aHeaders, 1).' $headers: '.$headers);;
-
-		if(true !== mail($this->emailAddress, $subject, $body, $headers)){
-
-			throw new \Lampcms\Exception('Server was unable to send out email at this time');
-		}
-
+		
+		Mailer::factory($this->oRegistry)->mail($this->emailAddress, $subject, $body);
+		
 		return $this;
 	}
 

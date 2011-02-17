@@ -123,8 +123,11 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 */
 	public function getUid()
 	{
+		d('$this->keyColumn: '.$this->keyColumn);
+		
 		if (true !== $this->checkOffset($this->keyColumn)) {
-
+			d('cp no key column '.$this->keyColumn);
+			
 			return 0;
 		}
 
@@ -158,9 +161,26 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * false if registered user
 	 */
 	public function isGuest(){
+		$uid = $this->getUid();
+		d('uid: '.$uid);
 
-		return 0 === $this->getUid();
+		return 0 === $uid;
 	}
+
+
+	/**
+	 * Check if user is moderator, which
+	 * includes all types of moderator or admin
+	 * or root
+	 *
+	 * @return bool true if moderator, falst otherwise
+	 */
+	public function isModerator(){
+		$role = $this->getRoleId();
+
+		return (('admin' === $role) || ('root' === $role) || strstr($role, 'moderator') );
+	}
+
 
 	/**
 	 * Get full name of user
@@ -583,21 +603,21 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return max(1, $this->offsetGet('i_rep'));
 	}
 
-	
+
 	public function getLocation(){
 		$country = $this->offsetGet('country');
 		$state = $this->offsetGet('state');
 		$city = $this->offsetGet('city');
-		
+
 		$ret = '';
 		if(!empty($city) && !empty($state)){
 			$ret .= $city.', '.$state;
 		}
-		
+
 		if(!empty($country)){
-				$ret .= ' '.$country;
+			$ret .= ' '.$country;
 		}
-		
+
 		return $ret;
 	}
 

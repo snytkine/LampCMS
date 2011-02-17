@@ -191,6 +191,8 @@ class Exception extends \Exception
 		if ( (E_USER_NOTICE === $e->getCode()) || Request::isAjax()) {
 
 			d('will be sending out exception as ajax');
+			
+			
 			/**
 			 * if this exception was thrown when uploading
 			 * file to iframe, then we need to add 'true' as
@@ -267,7 +269,7 @@ class DevException extends Exception
 class IniException extends DevException{}
 
 
-class PDOException extends DevException
+class DBException extends DevException
 {
 	protected $sqlState;
 
@@ -286,7 +288,7 @@ class PDOException extends DevException
  * @author Dmitri Snytkine
  *
  */
-class PDODuplicateException extends PDOException
+class PDODuplicateException extends DBException
 {
 	/**
 	 * This will be the value that caused the duplicate
@@ -350,6 +352,16 @@ class AclRoleRegistryException extends AclException{}
  *
  */
 class AccessException extends Exception{}
+
+/**
+ * 
+ * Exception indicates that user is
+ * not logged in but the action is only
+ * available to logged in users
+ * @author Dmitri Snytkine
+ *
+ */
+class MustLoginException extends Exception{}
 
 /**
  * This exception indicated that

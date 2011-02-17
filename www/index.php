@@ -91,7 +91,6 @@ try {
 
 } catch(\Exception $e) {
 	header("HTTP/1.0 500 Exception");
-	echo ' Boing ....';
 	try {
 		$strHtml = 'Ooopsy... '.\Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
 		$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';

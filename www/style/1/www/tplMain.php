@@ -73,7 +73,8 @@ class tplMain extends Lampcms\Template\Template
 	'qheader' => '', // 30
 	'tags' => '', // 31
 	'layoutID' => '1', // 32
-	'role' => 'guest' // 33
+	'role' => 'guest', // 33
+	'rep' => '1' // 34
 	);
 
 //<link rel="shortcut icon" href="/favicon.ico">
@@ -89,6 +90,7 @@ class tplMain extends Lampcms\Template\Template
 <meta name="session_uid" content="%6$s">
 <meta name="description" content="%7$s">
 <meta name="role" content="%33$s">
+<meta name="rep" content="%34$s">
 %8$s
 %9$s
 <link href="%10$s" rel="stylesheet" type="text/css">

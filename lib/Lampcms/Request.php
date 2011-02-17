@@ -55,6 +55,13 @@ namespace Lampcms;
 /**
  * Class for handling OUR Incoming HTTP Request
  * including headers and query string
+ * 
+ * @todo this class looks a little confused and
+ * unsure about itself.
+ * Why not just extend ArrayDefaults and use default value of 1?
+ * 
+ * Why do we even need getParam if it just delegates
+ * to getFiltered()?
  *
  * @author Dmitri Snytkine
  *
@@ -103,7 +110,11 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		if(!$this->offsetExists($name)){
 			$val = $default;
 		} else {
-			$val = $this->getParam($name);
+			/**
+			 * No need to pass $default to getParam
+			 * because we already now that offsetExists()!
+			 */
+			$val = $this->getFiltered($name);
 		}
 
 		switch(true){
@@ -227,6 +238,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 	/**
 	 * Changing offsetGet does not affect get()
+	 * 
 	 * @param string $offset
 	 */
 	public function offsetGet($offset){
@@ -333,8 +345,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 			$ret = (bool)$val;
 
-		}
-		elseif('token' === $name){
+		}elseif('token' === $name){
 			$ret = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
 		}
 		
@@ -346,11 +357,18 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		return $ret;
 	}
 
+	
+	/**
+	 * @return request method like "GET" or "POST" 
+	 * and always in UPPER CASE
+	 * 
+	 */
 	public static function getRequestMethod(){
 
 		return strtoupper($_SERVER['REQUEST_METHOD']);
 	}
 
+	
 	/**
 	 * Get value of specific request header
 	 *

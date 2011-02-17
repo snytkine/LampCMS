@@ -67,7 +67,7 @@ use Lampcms\LampcmsObject;
  * @author Dmitri Snytkine
  *
  */
-abstract class Form extends LampcmsObject
+class Form extends LampcmsObject
 {
 
 	/**
@@ -162,19 +162,22 @@ abstract class Form extends LampcmsObject
 		$this->useToken = $useToken;
 		$tpl = $this->template;
 		d('tpl: '.$tpl);
-		
-		
+
+
 		$this->aVars = $tpl::getVars();
 		d('$this->aVars: '.print_r($this->aVars, 1));
 		if('POST' === Request::getRequestMethod()){
 			$this->bSubmitted = true;
-			$this->validateToken();
+			if(true === $useToken){
+				self::validateToken($oRegistry);
+			}
 		} else {
 			$this->addToken();
 		}
 
 		$this->init();
 	}
+
 
 	/**
 	 * Check to see if form has been submitted
@@ -364,7 +367,7 @@ abstract class Form extends LampcmsObject
 		return $this;
 	}
 
-	
+
 	/**
 	 * Set error message for the form as a whole.
 	 * This error message is not specific to any form field,
@@ -389,16 +392,16 @@ abstract class Form extends LampcmsObject
 		return $this;
 	}
 
-	
+
 	/**
-	 * 
-	 * Set variable (any variable that 
+	 *
+	 * Set variable (any variable that
 	 * is present in form's template
-	 * 
+	 *
 	 * @param string $name
 	 * @param string $value
 	 * @throws \InvalidArgumentException
-	 * 
+	 *
 	 * @return object $this
 	 */
 	public function setVar($name, $value){
@@ -412,9 +415,9 @@ abstract class Form extends LampcmsObject
 		return $this;
 	}
 
-	
+
 	/**
-	 * 
+	 *
 	 * Magic setter
 	 * @param string $name
 	 * @param string $val
@@ -423,7 +426,7 @@ abstract class Form extends LampcmsObject
 		$this->setVar($name, $val);
 	}
 
-	
+
 	/**
 	 * Getter for $this->aErrors
 	 * @return array
@@ -433,7 +436,7 @@ abstract class Form extends LampcmsObject
 		return $this->aErrors;
 	}
 
-	
+
 	/**
 	 * Parse form template using vars/values we set
 	 * also if aErrors not empty, merge it with aVars
@@ -458,7 +461,7 @@ abstract class Form extends LampcmsObject
 		return $tpl::parse($this->aVars);
 	}
 
-	
+
 	/**
 	 * @todo here we can do translation of template vars
 	 * We will have translateArray() in oTr which will
@@ -478,7 +481,7 @@ abstract class Form extends LampcmsObject
 		return $this;
 	}
 
-	
+
 	/**
 	 * It makes sense to call this method ONLY after
 	 * you validated the form values yourself and
@@ -493,7 +496,7 @@ abstract class Form extends LampcmsObject
 		return 0 === count($this->aErrors);
 	}
 
-	
+
 	/**
 	 * If aErrors not empty then merge aVars with aErrors
 	 *
@@ -508,7 +511,7 @@ abstract class Form extends LampcmsObject
 		return $this;
 	}
 
-	
+
 	/**
 	 * Turn array of errors into string
 	 * in which each element from array becomes
@@ -532,7 +535,7 @@ abstract class Form extends LampcmsObject
 		return $ret;
 	}
 
-	
+
 	/**
 	 * Generate unique ID and store in session
 	 * The page will have the meta tag 'version'
@@ -584,23 +587,26 @@ abstract class Form extends LampcmsObject
 	 * Validate submitted 'token' value
 	 * agains generateToken()
 	 * they must match OR throw TokenException
+	 * 
+	 * Must be static because we use this sometimes
+	 * from outside this object.
+	 * 
+	 * @return true on success
 	 *
 	 */
-	public function validateToken(){
-		d('$this->useToken: '.$this->useToken);
-		if(true === $this->useToken){
-			if(empty($_SESSION['secret'])){
-				throw new \Lampcms\TokenException('Form token not found in session');
-			}
-				
-			$token = $this->oRegistry->Request->token;
-			d('submitted form token: '.$token);
-			if($token !== $this->generateToken()){
-				throw new \Lampcms\TokenException('Invalid security token. You need to reload the page in browser and try submitting this form again');
-			}
+	public static function validateToken(Registry $oRegistry){
+
+		if(empty($_SESSION['secret'])){
+			throw new \Lampcms\TokenException('Form token not found in session');
 		}
 
-		return $this;
+		$token = $oRegistry->Request['token'];
+		d('submitted form token: '.$token);
+		if($token !== $_SESSION['secret']){
+			throw new \Lampcms\TokenException('Invalid security token. You need to reload this page in browser and try submitting this form again');
+		}
+
+		return true;
 	}
 
 

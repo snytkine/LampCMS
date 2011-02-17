@@ -56,6 +56,7 @@ use \Lampcms\String;
 use \Lampcms\Cookie;
 use \Lampcms\Request;
 use \Lampcms\Captcha;
+use \Lampcms\Mailer;
 
 
 class Register extends WebPage
@@ -195,6 +196,7 @@ You can change your password after you log in.
 		 *
 		 */
 		$coll->ensureIndex(array('email' => 1));
+		$coll->ensureIndex(array('role' => 1));
 
 		$sid = \Lampcms\Cookie::getSidCookie();
 
@@ -282,26 +284,14 @@ You can change your password after you log in.
 	{
 		$sActivationLink = $this->makeActivationLink();
 
-		$adminEmail = $this->oRegistry->Ini->EMAIL_ADMIN;
 		$siteName = $this->oRegistry->Ini->SITE_NAME;
 
 		$body = vsprintf(self::EMAIL_BODY, array($siteName, $this->username, $this->pwd, $sActivationLink));
-		$from = \Lampcms\String::prepareEmail($adminEmail, $siteName);
-		$subject = sprintf(self::SUBJECT, $siteName);
+		$subject = sprintf(self::SUBJECT, $this->oRegistry->Ini->SITE_NAME);
 
-		d('body: '.$body.' subject: '.$subject.' from: '.$from);
-
-		$aHeaders = array();
-		$aHeaders['From'] = $from;
-		$aHeaders['Reply-To'] = $adminEmail;
-		//$aHeaders['Return-Path'] = $adminEmail;
-		$headers = \Lampcms\prepareHeaders($aHeaders);
-		d(print_r($aHeaders, 1).' $headers: '.$headers);
-
-		if(true !== mail($this->email, $subject, $body, $headers)){
-
-			throw new \Lampcms\Exception('Server was unable to send out email at this time');
-		}
+		d('body: '.$body.' subject: '.$subject);
+		
+		Mailer::factory($this->oRegistry)->mail($this->email, $subject, $body);
 
 		return $this;
 	}
