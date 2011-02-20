@@ -49,7 +49,7 @@
  *
  */
 
- 
+
 namespace Lampcms;
 
 
@@ -58,8 +58,6 @@ namespace Lampcms;
  * upserting (update or insert)
  * array of tags that belong to one question
  * into QUESTION_TAGS collection
- *
- * @todo this can be in Registry as Singleton
  *
  * @author Dmitri Snytkine
  *
@@ -106,7 +104,7 @@ class Qtagscounter extends LampcmsObject
 	 *
 	 *  @todo we can use this as post-echo method
 	 *
-	 * @param clsQuestion $oQuestion
+	 * @param Question $oQuestion
 	 * @return object $this
 	 */
 	public function parse(Question $oQuestion, array $aExtra = array()){
@@ -119,13 +117,52 @@ class Qtagscounter extends LampcmsObject
 				$set = $set + $aExtra;
 				d('new $set: '.print_r($set, 1));
 			}
-			
+
 			$this->coll->ensureIndex(array('tag' => 1), array('unique' => true));
+			$this->coll->ensureIndex(array('i_count' => 1));
+			
 			foreach($aTags as $tag){
 				try{
 					$this->coll->update(array("tag" => $tag), array('$inc' => array("i_count" => 1), '$set' => $set), array("upsert" => true));
 				} catch (\MongoException $e){
 					e('unable to upsert into QUESTION_TAGS : '.$e->getMessage());
+				}
+			}
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * When question is deleted or retagged
+	 * we must update the collection
+	 * to decrease number of tags count to account
+	 * for this removed question
+	 *
+	 * @param Question $oQuestion
+	 *
+	 * @return object $this;
+	 */
+	public function removeTags(Question $oQuestion){
+		$aTags = $oQuestion['a_tags'];
+
+		if(!empty($aTags)){
+			/**
+			 * In theory the $tag will exist
+			 * because it has been inserted there when
+			 * this question was created and the count is at least 1
+			 *
+			 *The only possible problem is that the count will be set
+			 *to 0 instead of deleting a tag, but this
+			 *is not really a problem we can just not show tags
+			 *that have 0 count
+			 */
+			foreach($aTags as $tag){
+				try{
+					$this->coll->update(array("tag" => $tag), array('$inc' => array("i_count" => -1)));
+				} catch (\MongoException $e){
+					e('unable to update (decrease count) QUESTION_TAGS : '.$e->getMessage());
 				}
 			}
 		}

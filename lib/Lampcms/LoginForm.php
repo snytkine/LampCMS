@@ -132,7 +132,34 @@ class LoginForm
 			$error );
 
 			d('cp');
-			$_SESSION['login_form'] = \tplLoginform::parse($aVals, false);//vsprintf(self::LOGIN_FORM, $aVals);
+			$html = \tplLoginform::parse($aVals, false);
+			
+			/**
+			 * If !empty($_SESSION['login_error']) is set
+			 * then don't store the login form in session
+			 * and just return it. 
+			 * Otherwise the form with the login error 
+			 * message will be cached and will be passed from
+			 * page to page even if user not trying to login again
+			 * 
+			 * In this case we unset login error from session
+			 * so it will not be reused on next page
+			 * and just return login form, so login
+			 * form is not caches in session and login error
+			 * is only show this one time!
+			 */
+			if(!empty($_SESSION['login_error'])){
+				unset($_SESSION['login_error']);
+				
+				return $html;
+			}
+			
+			/**
+			 * 
+			 * Enter description here ...
+			 * @var unknown_type
+			 */
+			$_SESSION['login_form'] = $html;
 			/**
 			 * Null the login_error in session
 			 * so that  it only shows once - this time ONLY
@@ -140,7 +167,7 @@ class LoginForm
 			 * just stay there. Hah, now the whole login form
 			 * is in session.
 			 */
-			$_SESSION['login_error'] = null;
+			
 			d('cp');
 		}
 

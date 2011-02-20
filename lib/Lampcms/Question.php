@@ -165,14 +165,13 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * Set time, reason for when question was closed
 	 * as well as username and userid of user who closed it
 	 *
-	 * @param int $timestamp
 	 * @param string $reason
 	 * @param object $closer User who closed the question
 	 *
 	 * @return object $this
 	 */
-	public function setClosed($timestamp, $reason, User $closer){
-		$this->offsetSet('i_closed', (int)$timestamp);
+	public function setClosed(User $closer, $reason = null){
+		$this->offsetSet('i_closed', time());
 		$this->offsetSet('a_closed', array('username' => $closer->getDisplayName(),
 		'i_uid' => $closer->getUid(),
 		'av' => $closer->getAvatarSrc(),
@@ -180,6 +179,34 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		return $this;
 	}
+
+
+	/**
+	 *
+	 * Mark this item as deleted but only
+	 * if not already marked as deleted
+	 *
+	 * @param object User $user user marking this
+	 * item as deleted
+	 *
+	 * @param string $reason optional reason for delete
+	 *
+	 * @return object $this
+	 */
+	public function setDeleted(User $user, $reason = null){
+		if(0 === $this->getDeletedTime()){
+			$this->offsetSet('i_del_ts', time());
+			$this->offsetSet('a_deleted', array(
+			'username' => $user->getDisplayName(),
+			'i_uid' => $user->getUid(),
+			'av' => $user->getAvatarSrc(),
+			'reason' => $reason,
+			'h_ts' => date('r')));
+		}
+
+		return $this;
+	}
+
 
 	/**
 	 * Must set the id of best_answer
@@ -249,8 +276,12 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 *
 	 * @param int $inc
 	 */
-	public function increaseAnswerCount($inc = 1){
+	public function updateAnswerCount($inc = 1){
 		$iAns = $this->offsetGet('i_ans');
+		d('$iAns '.$iAns );
+		$newCount = max(0, ($iAns + $inc));
+		d('$newCount: '.$newCount);
+
 		/**
 		 * Set new value of i_ans but make sure
 		 * it will never be less than 0
@@ -259,7 +290,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		 * is possible when we need to decrease answer count,
 		 * that's why we need this guard here.
 		 */
-		$this->offsetSet('i_ans', max(0, ($iAns + (int)$inc)) );
+		$this->offsetSet('i_ans',  $newCount);
 
 		/**
 		 * Change the status to answrd
@@ -268,13 +299,17 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		 * of div to not be red, but it still does not
 		 * make the question 'answered'
 		 */
-		$this->offsetSet('status', 'answrd');
+		if($newCount > 0){
+			$this->offsetSet('status', 'answrd');
+		} else {
+			$this->offsetSet('status', 'unans');
+		}
 
 		/**
 		 * If new value is NOT 1 then set
 		 * a_s (plural suffix) to 's'
 		 */
-		if(1 !== ($iAns + $inc)){
+		if(1 !== ($newCount)){
 			$this->offsetSet('ans_s', 's');
 		}
 

@@ -109,6 +109,7 @@ class Flagger extends WebPage
 
 
 	protected function main(){
+		$this->collection = ('q' == $this->oRequest['rtype']) ? 'QUESTIONS' : 'ANSWERS';
 		$this->checkReportFlood()
 		->getResource()
 		->updateResource()
@@ -124,11 +125,16 @@ class Flagger extends WebPage
 	 * @return object $this
 	 */
 	protected function getResource(){
-		$this->collection = ('q' == $this->oRequest['rtype']) ? 'QUESTIONS' : 'ANSWERS';
+
 		d('type: '.$this->collection);
 		$coll = $this->oRegistry->Mongo->getCollection($this->collection);
 		$a = $coll->findOne(array('_id' => (int)$this->oRequest['rid']));
 		d('a: '.print_r($a, 1));
+
+		if(empty($a)){
+				
+			throw new \Lampcms\Exception('Item not found');
+		}
 
 		$class = ('QUESTIONS' === $this->collection) ? '\\Lampcms\\Question' : '\\Lampcms\\Answer';
 

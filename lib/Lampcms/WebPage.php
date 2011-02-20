@@ -816,7 +816,9 @@ abstract class WebPage extends Base
 			$err = Exception::formatException($le);
 			/**
 			 * @todo if Login exception then present a login form!
+			 * 
 			 */
+			$this->aPageVars['layoutID'] = 1;
 			$this->aPageVars['body'] = \tplException::parse(array('message' => $err, 'class' => $class, 'title' => 'La La La...'));
 
 		} catch(\Exception $e) {

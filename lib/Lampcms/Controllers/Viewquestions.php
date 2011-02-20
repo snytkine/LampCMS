@@ -196,7 +196,14 @@ class Viewquestions extends WebPage
 				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQtypesdiv', 'newest');
 		}
 
-
+		/**
+		 * Exclude deleted items unless viewer
+		 * is a moderator
+		 */
+		if(!$this->oRegistry->Viewer->isModerator()){
+			$where['i_del_ts'] = null;
+		}
+		
 		$this->oCursor = $this->oRegistry->Mongo->getCollection('QUESTIONS')->find($where);
 		d('$this->oCursor: '.gettype($this->oCursor));
 		$this->oCursor->sort($sort);
@@ -269,7 +276,22 @@ class Viewquestions extends WebPage
 
 	protected function makeQlistBody(){
 		d('cp');
-		$sQdivs = \tplQrecent::loop($this->oCursor);
+		$func = null;
+		/**
+		 * If viewer is moderator then
+		 * Viewer will also be seeing deleted items
+		 * in which case we should add 'deleted' class
+		 * to items
+		 */
+		if($this->oRegistry->Viewer->isModerator()){
+			$func = function(&$a){
+				if(!empty($a['i_del_ts'])){
+					$a['deleted'] = ' deleted';
+				}
+			};
+		}
+		
+		$sQdivs = \tplQrecent::loop($this->oCursor, true, $func);
 
 		$sQlist = \tplQlist::parse(array($this->typeDiv, $sQdivs, $this->pagerLinks), false);
 		$this->aPageVars['body'] = $sQlist;

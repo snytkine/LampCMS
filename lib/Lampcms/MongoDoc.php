@@ -335,6 +335,8 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		$a = $this->getRegistry()->Mongo->getCollection($this->collectionName)->findOne(array($column => $value) );
 
 		if(!empty($a)){
+			d('got data a: '.print_r($a, 1));
+			
 			$this->reload($a);
 		}
 

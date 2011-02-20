@@ -143,7 +143,13 @@ class Unanswered extends Viewquestions
 				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQuntypes', 'newest');
 		}
 
-
+		/**
+		 * Exclude deleted items unless viewer
+		 * is a moderator
+		 */
+		if(!$this->oRegistry->Viewer->isModerator()){
+			$where['i_del_ts'] = null;
+		}
 		$this->oCursor = $this->oRegistry->Mongo->getCollection('QUESTIONS')->find($where);
 		$this->count = $this->oCursor->count(true);
 		d('$this->oCursor: '.gettype($this->oCursor).' $this->count: '.$this->count);

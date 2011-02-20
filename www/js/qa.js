@@ -397,7 +397,6 @@ YUI({
 			break;
 			
 		case el.test('.flag'):
-			//ancestor = el.get('parentNode');
 			ancestor = el.ancestor("div.controls");
 		if(ancestor){
 		    restype = (ancestor.test('.question')) ? 'q' : 'a';
@@ -406,8 +405,28 @@ YUI({
 		    showFlagForm({'rid' : resID, 'rtype' : restype});
 			}
 		
+		   break;
+		   
+		case el.test('.retag'):
+			ancestor = el.ancestor("div.controls");
+		if(ancestor){
+		    resID = ancestor.get('id');
+		    resID = resID.substr(4);
+		    showRetagForm(resID);
+			}
 		
 		   break;
+		   
+		case el.test('.del'):
+			ancestor = el.ancestor("div.controls");
+			if(ancestor){
+			    restype = (ancestor.test('.question')) ? 'q' : 'a';
+			    resID = ancestor.get('id');
+			    resID = resID.substr(4);
+			    showDeleteForm({'rid' : resID, 'rtype' : restype});
+				}
+			
+			break;
 		
 		}
 	}, //
@@ -450,17 +469,27 @@ YUI({
 
 		if (data.exception) {
 			if(data.type && 'Lampcms\\MustLoginException' === data.type){
-				ensureLogin();
+				ensureLogin(true);
 			} else {
 				alert(data.exception);
 			}
-			return;
+			//return;
 		}
 		
 		
 		if (data.alert) {
 			alert(data.alert);
-			return;
+			//return;
+		}
+		
+		if(data.reload){
+			if(data.reload > 0){
+				Y.later(data.reload, this, function(){
+					window.location.reload(true);
+				});
+			} else {
+				window.location.reload(true);
+			}
 		}
 
 		if (data.formError) {
@@ -810,8 +839,9 @@ YUI({
 	} // end if NOT com_hand, means if we going to use RTE
 	
 	var showFlagForm = function(o){
+		var oAlert, form;
 		if(ensureLogin()){
-		var oAlert, form = '<div id="div_flag" style="text-align: left">'
+		form = '<div id="div_flag" style="text-align: left">'
 + '<form name="form_flag" id="id_flag" action="/index.php">'
 + '<input type="hidden" name="a" value="flagger">'
 + '<input type="hidden" name="rid" value="{rid}">'
@@ -822,19 +852,77 @@ YUI({
 + '<input type="radio" name="reason" value="inappropriate"><label> Inappropriate</label><br>'
 + '<hr>'
 + '<label for="id_note">Comments?</label>'
-+ '<textarea name="note" cols="40" rows="2" style="display: block; z-index: 1;"></textarea>'
++ '<textarea name="note" cols="40" rows="2" style="display: block;"></textarea>'
 + '<input type="submit" class="btn" value="Report">'
 + '</form>'
 + '</div>';
 		
 		form = Y.Lang.sub(form, o);
 		oAlert = getAlerter('<h3>Report to moderator</h3>');
-		//oAlert.set("headerContent", '<h3>Report to moderator</h3>');
 	     oAlert.set("bodyContent", form);
 	     oAlert.show(); 
-		//alert(form);
 		}
 		
+	};
+	
+	
+	var showRetagForm = function(){
+		var oAlert, form, oTags, sTags = '';
+		if(2>1 || ensureLogin()){
+			oTags = Y.all('td.td_question > div.tgs a');
+			Y.log('oTags count: ' + oTags.size());
+			oTags.each(function(){
+				sTags += this.get('text') + ' ';
+			});
+			sTags = Y.Lang.trimRight(sTags);
+			Y.log('sTags: ' + sTags);
+			
+		form = '<div id="div_flag" style="text-align: left">'
++ '<form name="form_flag" id="id_flag" action="/index.php">'
++ '<input type="hidden" name="a" value="retag">'
++ '<input type="hidden" name="token" value="'+ getToken() +'">'
++ '<input type="hidden" name="qid" value="'+ getMeta('qid') +'">'
++ '<hr>'
++ '<label for="id_note">At least one tag, max 5 tags separated by spaces</label>'
++ '<input type="text" class="ta1" size="40" name="tags" value="'+sTags+'" style="display: block;"></input>'
++ '<br>'
++ '<input type="submit" class="btn" value="Save">'
++ '</form>'
++ '</div>';
+		
+		oAlert = getAlerter('<h3>Edit Tags</h3>');
+	     oAlert.set("bodyContent", form);
+	     oAlert.show(); 
+		}
+		
+	}
+	
+	var showDeleteForm = function(o){
+		var oAlert, form, banCheckbox = '';
+		if(ensureLogin()){
+			if(isModerator()){
+				banCheckbox = '<br><input type="checkbox" name="ban"><label> Ban poster</label><br>'
+			}
+			form = '<div id="div_del" style="text-align: left">'
+				+ '<form name="form_del" id="id_del" action="/index.php">'
+				+ '<input type="hidden" name="a" value="delete">'
+				+ '<input type="hidden" name="rid" value="{rid}">'
+				+ '<input type="hidden" name="token" value="'+ getToken() +'">'
+				+ '<input type="hidden" name="qid" value="'+ getMeta('qid') +'">'
+				+ '<input type="hidden" name="rtype" value="{rtype}">'
+				+ '<hr>'
+				+ '<label for="id_note">Reason for delete (optional)</label>'
+				+ '<textarea name="note" cols="40" rows="2" style="display: block;"></textarea>'
+				+ banCheckbox
+				+ '<br><input type="submit" class="btn" value="Delete">'
+				+ '</form>'
+				+ '</div>';
+						
+						form = Y.Lang.sub(form, o);
+						oAlert = getAlerter('<h3>Delete item</h3>');
+					     oAlert.set("bodyContent", form);
+					     oAlert.show(); 
+		}
 	}
 	
 	var setMeta = function(metaName, value){
@@ -844,9 +932,9 @@ YUI({
 		}
 	};
 	
-	var ensureLogin = function(){
+	var ensureLogin = function(bForceAlert){
 		var message;
-		if(!isLoggedIn()){
+		if(bForceAlert || !isLoggedIn()){
 			message = '<div class="larger"><p>You must login to perform this action</p>'
 			+ '<p>Please login or <a class="close" href="#" onClick=oSL.getQuickRegForm(); return false;>Click here to register</a></div>';
 
@@ -912,6 +1000,8 @@ YUI({
 			bModerator = (role && (('admin' == role)  || ('moderator' == role) ));
 		}
 		
+		Y.log('isModerator: ' + bModerator);
+		
 		return bModerator;
 	};
 	
@@ -944,7 +1034,7 @@ YUI({
 			controls.each(function(){
 				Y.log('this is: ' + this);
 				if(this.test('.question')){
-					if(2>1 || isModerator() || 2000 < getReputation()){
+					if(2>1 || isModerator() || this.test('.uid-' + getViewerId()) || 2000 < getReputation()){
 			         this.append(' | <span class="retag">retag</span>');
 		            }
 			 	}
@@ -956,10 +1046,7 @@ YUI({
 				if(isModerator() || this.test('.uid-' + getViewerId())){
 					this.append(' | <span class="edit">edit</span> | <span class="del">delete</span>');
 				}
-				
-				
-			});
-			
+			});	
 		}
 		
 	};

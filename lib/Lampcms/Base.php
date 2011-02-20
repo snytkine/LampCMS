@@ -363,7 +363,7 @@ class Base extends LampcmsObject
 				throw new UnactivatedException('You have not confirmed email address<br>Go to <a href="/settings/">Settings</a> and confirm your email');
 			}
 
-			throw new AccessException('Not_allowed_to_perform_this_action');
+			throw new AccessException("Your account does not have permission to perform this action");
 		}
 
 		return $this;

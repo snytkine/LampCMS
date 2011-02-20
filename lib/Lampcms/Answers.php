@@ -120,6 +120,11 @@ class Answers extends LampcmsObject
 		}
 
 		$where = array('i_qid' => $qid);
+		if(!$this->oRegistry->Viewer->isModerator()){
+			d('not moderator');
+			$where['i_del_ts'] = null;
+		}
+		
 		$sort = array($cond => 1);
 
 		$cursor = $this->oRegistry->Mongo->getCollection('ANSWERS')->find($where);

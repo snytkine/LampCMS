@@ -47,7 +47,7 @@ class tplUserAnswers extends Lampcms\Template\Template
 
 	protected static $vars = array(
 	'count' => '',
-	'label' => 'Answers',
+	'label' => 'Answer',
 	'answers' => '',
 	's' => '',
 	'pagination' => '');

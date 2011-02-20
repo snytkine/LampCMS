@@ -156,23 +156,54 @@ class Viewquestion extends WebPage
 	 */
 	protected function getQuestion(){
 
-		$this->oRequestuestion = $this->oRegistry->Mongo
+		$this->aQuestion = $this->oRegistry->Mongo
 		->getCollection('QUESTIONS')
 		->findOne(array('_id' => (int)$this->oRequest['qid']));
 
-		if(empty($this->oRequestuestion)){
+		/**
+		 * @todo Translate string
+		 */
+		if(empty($this->aQuestion)){
 			throw new \Lampcms\Lampcms404Exception('Question not found');
 		}
-		d('$this->oRequestuestion: '.print_r($this->oRequestuestion, 1));
+		d('$this->aQuestion: '.print_r($this->aQuestion, 1));
 
+		$isModerator = $this->oRegistry->Viewer->isModerator();
+		$func = null;
+		$deleted = (!empty($this->aQuestion['i_del_ts'])) ?  ' deleted' : false;
+
+		/**
+		 * @todo Translate string
+		 */
+		/*if($deleted && !$isModerator){
+			throw new \Lampcms\Lampcms404Exception('Question was deleted on '.date('F j Y', $this->aQuestion['i_del_ts']));
+			}*/
+
+
+		/**
+		 * Guests will have to see filtered
+		 * content
+		 */
 		if(!$this->isLoggedIn()){
-			$this->oRequestuestion['b'] = Badwords::filter($this->oRequestuestion['b'], true);
+			$this->aQuestion['b'] = Badwords::filter($this->aQuestion['b'], true);
 		}
 
-		$this->oQuestion = new Question($this->oRegistry, $this->oRequestuestion);
+		$this->oQuestion = new Question($this->oRegistry, $this->aQuestion);
+		/**
+		 * If Viewer is moderator, then viewer
+		 * will be able to view deleted item
+		 * This will add 'deleted' class to question table
+		 */
+		if(!$isModerator && $deleted){
 
+			$this->aQuestion['deleted'] = $deleted;
+			if(!empty($this->aQuestion['a_deleted'])){
+				$this->aQuestion['deletedby'] = \tplDeletedby::parse($this->aQuestion['a_deleted']);
+				d('deletedby: '.$this->aQuestion['deletedby']);
+			}
+		}
 
-		$this->aPageVars['body'] = \tplQuestion::parse($this->oRequestuestion);
+		$this->aPageVars['body'] = \tplQuestion::parse($this->aQuestion);
 
 		return $this;
 	}
@@ -316,8 +347,8 @@ class Viewquestion extends WebPage
 	 */
 	protected function setSimilar(){
 
-		if(!empty($this->oRequestuestion['sim_q'])){
-			$sim = \tplBoxrecent::parse(array('Similar questions', 'recent-tags', $this->oRequestuestion['sim_q']), false);
+		if(!empty($this->aQuestion['sim_q'])){
+			$sim = \tplBoxrecent::parse(array('Similar questions', 'recent-tags', $this->aQuestion['sim_q']), false);
 			$this->aPageVars['tags'] = $sim;
 		}
 

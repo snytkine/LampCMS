@@ -57,10 +57,10 @@ namespace Lampcms;
  * Helper class for presenting
  * the block with user's answers
  * on the profile page
- * 
- * This class can also be used when we need to see all 
+ *
+ * This class can also be used when we need to see all
  * user answers like on administation page
- * 
+ *
  *
  * @author Dmitri Snytkine
  *
@@ -72,7 +72,7 @@ class UserAnswers extends LampcmsObject
 
 
 	public static function get(Registry $oRegistry, User $oUser){
-		
+
 		$uid = $oUser->getUid();
 		if(0 === $uid){
 			d('not registered user');
@@ -125,10 +125,18 @@ class UserAnswers extends LampcmsObject
 	 */
 	protected static function getCursor(Registry $oRegistry, $uid)
 	{
+		$where = array('i_uid' => $uid);
 		$sort = $oRegistry->Request->get('sort', 's', '_id');
-
+		/**
+		 * Exclude deleted items unless viewer
+		 * is a moderator
+		 */
+		if(!$oRegistry->Viewer->isModerator()){
+			$where['i_del_ts'] = null;
+		}
+		
 		$cursor = $oRegistry->Mongo->getCollection('ANSWERS')
-		->find(array('i_uid' => $uid))->sort(array('_id' => -1));
+		->find($where)->sort(array('_id' => -1));
 
 		return $cursor;
 	}

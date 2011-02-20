@@ -57,11 +57,12 @@ class tplQrecent extends Lampcms\Template\Template
 	'i_ts' => '',//14
 	'vw_s' => 's',//15
 	'v_s' => '',//16
-	'ans_s' => ''//17
+	'ans_s' => '',//17
+	'deleted' => '' //18
 	);
 
 	protected static $tpl = '
-	<div class="qs" id="q-%1$s">  
+	<div class="qs%18$s" id="q-%1$s">  
     <div class="qstats">
         <div class="arrow1"></div>
         <div class="stats">

@@ -321,7 +321,7 @@ class Answerparser extends LampcmsObject
 	 */
 	protected function updateQuestion(){
 
-		$this->oQuestion->increaseAnswerCount();
+		$this->oQuestion->updateAnswerCount();
 
 		return $this;
 	}

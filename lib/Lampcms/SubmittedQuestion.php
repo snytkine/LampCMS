@@ -118,23 +118,7 @@ abstract class SubmittedQuestion extends LampcmsObject
 	public final function getTags(){
 		if(!isset($this->aTags)){
 			$a = $this->getRawTags();
-			array_walk($a, function(&$item){
-				$item = trim(strip_tags(strtolower($item)) );
-			});
-
-			$this->aTags = array_unique($a);
-
-			/**
-			 * It is important to sort the
-			 * array of tags so that
-			 * we can spot the 'same' tags
-			 * during the creation of 'hash'
-			 * This way the order of tags users lists
-			 * in tags form is not important - they will
-			 * be sorted alphabetically
-			 */
-			sort($this->aTags, SORT_STRING);
-
+			$this->aTags = TagsNormalizer::parse($a);
 		}
 
 		return $this->aTags;

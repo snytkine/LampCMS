@@ -56,7 +56,7 @@ namespace Lampcms;
 /**
  * Dependency injection based registry
  * object.
- * 
+ *
  * Pattern inspired by this slide show by Fabien Potencier
  * http://www.slideshare.net/fabpot/dependency-injectionzendcon2010
  *
@@ -95,6 +95,34 @@ class Registry extends LampcmsObject
 		$this->init();
 	}
 
+
+	/**
+	 * This is a clever way to pass
+	 * the login error to the next page buy
+	 * make sure that it's passed only once.
+	 *
+	 * So at the end of php execution 'login_error'
+	 * is always removed from SESSION
+	 *
+	 * but if login_error is set in this object,
+	 * it is then put into session
+	 *
+	 * This is a good way to pass variable
+	 * to next page and then make sure it's
+	 * removed from session on any page after that
+	 *
+	 */
+	public function __destruct(){
+
+		/*if(!empty($_SESSION) && !empty($_SESSION['login_error'])){
+			unset($_SESSION['login_error']);
+		}
+
+		if(!empty($this->values['login_error']) && isset($_SESSION)){
+			$_SESSION['login_error'] = $this->values['login_error'];
+		}*/
+	}
+
 	public function __clone(){
 		throw new \LogicException('Thau shall not clone the singleton object');
 	}
@@ -118,7 +146,7 @@ class Registry extends LampcmsObject
 		});
 
 		$this->values['Mongo'] = $this->asShared(function ($c) {
-			return new Mongo($c->Ini); 
+			return new Mongo($c->Ini);
 		});
 
 
@@ -206,7 +234,7 @@ class Registry extends LampcmsObject
 		$this->values[$id] = $value;
 	}
 
-	
+
 	public function __get($id) {
 
 		if('Mongo' === substr($id, 0, 5) && (strlen($id) > 5) ){
@@ -276,7 +304,7 @@ class Registry extends LampcmsObject
 		 */
 		$oViewer = $this->__get('Viewer');
 		if(!$oViewer->isGuest()){
-				
+
 			return $oViewer->offsetGet('lang');
 		}
 

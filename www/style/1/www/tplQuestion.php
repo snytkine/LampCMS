@@ -60,6 +60,7 @@
  */
 class tplQuestion extends Lampcms\Template\Template
 {
+	
 	protected static $vars = array(
 	'_id' => '', // 1
 	'b' => '', // 2
@@ -75,11 +76,13 @@ class tplQuestion extends Lampcms\Template\Template
 	'vw_s' => 's',  // 12
 	'vote_up' => "\xE2\x87\xA7", // 13 \xE2\x87\xA7
 	'vote_down' => "\xE2\x87\xA9", // 14
-	'i_flags' => '' //15
+	'i_flags' => '', //15
+	'deleted' => '', // 16
+	'deletedby' => '' //17
 	);
 
 	protected static $tpl = '
-	<table class="question_table">
+	<table class="question_table%16$s">
 	<tr>
 		<td class="td_votes" align="center" width="90px">
 		<div class="votebtns" id="vote%1$s">
@@ -115,7 +118,7 @@ class tplQuestion extends Lampcms\Template\Template
 		<td class="td_question">
 		<div class="question-body" id="qbody-%1$s">%2$s</div>
 		<div class="tgs">%5$s</div>
-		<div class="question controls uid-%10$s" id="res_%1$s">
+		<div class="question controls%16$s uid-%10$s" id="res_%1$s">
 		     <span class="flag" title="(%15$s)">flag</span>
 		</div>
 		<!-- // -->
@@ -139,6 +142,7 @@ class tplQuestion extends Lampcms\Template\Template
           </tr>
         </table>
         %6$s
+        %17$s
 		</td>
 	</tr>
 	</table>';

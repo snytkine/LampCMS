@@ -374,8 +374,6 @@ class UserAuth extends LampcmsObject
 		$indexed1 = $coll->ensureIndex(array('i_ts' => 1));
 		$indexed2 = $coll->ensureIndex(array('ip' => 1));
 
-		d('indexed1: '.$indexed1.' indexed2: '.$indexed2);
-
 		if ('cookie' === $login_type) {
 			$this->oRegistry->Dispatcher->post($this, 'onSidHack');
 		} elseif ('switch' === $login_type) {

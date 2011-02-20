@@ -507,13 +507,20 @@ interface Question extends LampcmsResource
 	/**
 	 * Set time, reason for when question was closed
 	 * as well as username and userid of user who closed it
-	 *
-	 * @param int $timestamp
+	 * 
 	 * @param string $reason
 	 * @param object $closer user who closed the question
 	 */
-	public function setClosed($timestamp, $reason, \Lampcms\User $closer);
+	public function setClosed(\Lampcms\User $closer, $reason = null);
 
+	/**
+	 * Mark Question as deleted
+	 * 
+	 * @param User $user
+	 * @param string $reason
+	 */
+	public function setDeleted(\Lampcms\User $user, $reason = null);
+	
 	/**
 	 * Must set the id of best_answer
 	 *
@@ -521,6 +528,6 @@ interface Question extends LampcmsResource
 	 */
 	public function setBestAnswer($qid, $updateTags = true);
 
-	public function increaseAnswerCount($int = 1);
+	public function updateAnswerCount($int = 1);
 
 }

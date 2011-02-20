@@ -373,6 +373,7 @@ class QuestionParser extends LampcmsObject
 	protected function addRelatedTags(){
 		Relatedtags::factory($this->oRegistry)->addTags($this->oQuestion);
 		d('cp');
+		
 		return $this;
 	}
 

@@ -165,16 +165,23 @@ legend {
 	font-weight: bold;
 }
 
-div.frm1 {
+div.frm1,.excsl {
 	width: 500px;
 	margin-left: auto;
 	margin-right: auto;
 	border: 2px solid;
 	border-color: #C0C0C0;
 	border-radius: 6px;
+	padding: 10px;
 	-moz-border-radius: 6px;
 	-webkit-border-radius: 6px;
 	-opera-border-radius: 6px;
+	-moz-border-radius: 6px;
+}
+
+.excsl {
+	color: red;
+	font-weight: bold;
 }
 
 div.tr {
@@ -1609,4 +1616,24 @@ instead of overflowing
 	*/
 #fbOverlay div.yui3-widget-bd {
 	overflow: auto;
+}
+
+.deleted {
+	background-color: pink;
+}
+
+input.ta1 {
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+	border-radius: 3px;
+	border: 1px solid #444;
+	margin-top: 6px;
+	padding: 6px;
+	font-size: 1.3em;
+	color: #4B4B4B;
+	width: 260px;
+	border-top-left-radius: 3px 3px;
+	border-top-right-radius: 3px 3px;
+	border-bottom-right-radius: 3px 3px;
+	border-bottom-left-radius: 3px 3px;
 }

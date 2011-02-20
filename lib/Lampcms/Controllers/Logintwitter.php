@@ -488,7 +488,7 @@ class Logintwitter extends WebPage
 			}
 
 			try{
-				$oTwitter->postMessage('Join me at '.$siteName. ' '.$stuff);
+				$oTwitter->postMessage('I Joined '.$siteName. ' '.$stuff);
 
 			} catch (\Lampcms\TwitterException $e){
 				$message = 'Exception in: '.$e->getFile(). ' line: '.$e->getLine().' message: '.$e->getMessage();

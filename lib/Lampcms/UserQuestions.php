@@ -69,28 +69,28 @@ class UserQuestions extends LampcmsObject
 		$cursor = self::getCursor($oRegistry, $uid);
 		$count = $cursor->count(true);
 		d('$count: '.$count);
-		
+
 		$pageID = $oRegistry->Request->get('pageID', 'i', 1);
 		$mode = $oRegistry->Request->mode;
 
 		if($count > self::PER_PAGE || ($pageID > 1 && 'questions' === $mode)){
-			$pagerPath = '';			
+			$pagerPath = '';
 			$oPaginator = Paginator::factory($oRegistry);
 			$oPaginator->paginate($cursor, self::PER_PAGE,
 			array('path' => $pagerPath));
-	
+
 			$pagerLinks = $oPaginator->getLinks();
 			d('links: '.$pagerLinks);
 		}
 
 		$questions = \tplUquestions::loop($cursor);
 		d('questions: '.$questions);
-		
+
 		$vals = array(
 		'count' => $count,
 		'questions' => $questions,
 		'pagination' => $pagerLinks);
-		
+
 		return \tplUserQuestions::parse($vals);
 	}
 
@@ -98,9 +98,17 @@ class UserQuestions extends LampcmsObject
 	protected static function getCursor(Registry $oRegistry, $uid)
 	{
 		$sort = $oRegistry->Request->get('sort', 'i', '_id');
-		
+		$where = array('i_uid' => $uid);
+		/**
+		 * Exclude deleted items unless viewer
+		 * is a moderator
+		 */
+		if(!$oRegistry->Viewer->isModerator()){
+			$where['i_del_ts'] = null;
+		}
+
 		$cursor = $oRegistry->Mongo->getCollection('QUESTIONS')
-		->find(array('i_uid' => $uid))->sort(array('_id' => -1));
+		->find($where)->sort(array('_id' => -1));
 
 		return $cursor;
 	}

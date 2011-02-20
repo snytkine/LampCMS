@@ -99,6 +99,33 @@ class Answer extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\
 	}
 
 
+
+	/**
+	 *
+	 * Mark this item as deleted but only
+	 * if not already marked as deleted
+	 *
+	 *
+	 * @param object User $user user marking this
+	 * item as deleted
+	 *
+	 * @param string $reason optional reason for delete
+	 *
+	 * @return object $this
+	 */
+	public function setDeleted(User $user, $reason = null){
+		if(0 === $this->getDeletedTime()){
+			$this->offsetSet('i_del_ts', time());
+			$this->offsetSet('a_deleted', array('username' => $user->getDisplayName(),
+			'i_uid' => $user->getUid(),
+			'av' => $user->getAvatarSrc(),
+			'reason' => $reason));
+		}
+
+		return $this;
+	}
+
+
 	/**
 	 * (non-PHPdoc)
 	 * @see LampcmsResourceInterface::getOwnerId()
@@ -214,9 +241,9 @@ class Answer extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\
 	 * including the http and our domain
 	 * add the #answer to the url, but this has challenges
 	 * with pagination and some challanges with url rewrite rules
-	 * 
+	 *
 	 * For example if this answer is not of the first page of the question
-	 * then the # anchor will not point to valid answer. 
+	 * then the # anchor will not point to valid answer.
 	 * It's not easy to determine on which page this answer is (currently)
 	 *
 	 * @return string url for this question

@@ -49,7 +49,7 @@
  *
  */
 
- 
+
 namespace Lampcms;
 
 /**
@@ -74,11 +74,12 @@ class UserTags extends LampcmsObject
 		$this->oRegistry = $oRegistry;
 	}
 
+
 	/**
 	 * Add array of tags to per-user tags collection
 	 *
 	 * @param int $uid
-	 * @param clsQuestion $oQuestion
+	 * @param Question $oQuestion
 	 */
 	public function addTags($uid, Question $oQuestion){
 		/**
@@ -93,7 +94,7 @@ class UserTags extends LampcmsObject
 		}
 
 		$uid = (int)$uid;
-		
+
 		$aTags = $oQuestion['a_tags'];
 		d('$aTags: '.var_export($aTags, true));
 
@@ -127,6 +128,57 @@ class UserTags extends LampcmsObject
 		}
 
 		$coll->save(array('_id' => $uid, 'tags' => $aTemp, 'i_count' => count($aTemp)), array('fsync' => true));
+
+		return $this;
+	}
+
+
+	/**
+	 *
+	 * When question is marked deleted OR is retaged
+	 * we must update the user tags to account
+	 * for all tags in the removed question
+	 *
+	 * @param Question $oQuestion
+	 */
+	public function removeTags(Question $oQuestion){
+		
+		/**
+		 * If question is deleted
+		 * then dont update anything
+		 * 
+		 */
+		$uid = $oQuestion->getOwnerId();
+		d('uid '.$uid);
+
+		$aTags = $oQuestion['a_tags'];
+		d('$aTags: '.var_export($aTags, true));
+
+		$coll = $this->oRegistry->Mongo->getCollection(self::USER_TAGS);
+		$a = $coll->findOne(array('_id' => $uid));
+
+		if(empty($a) || empty($a['tags'])){
+			d('strange, but there are not user tags');
+				
+			return $this;
+		}
+
+		$aUserTags = $a['tags'];
+
+		foreach($aTags as $t){
+			if(array_key_exists($t, $aUserTags)){
+				$aUserTags[$t] -= 1;
+				if(0 === $aUserTags[$t]){
+					unset($aUserTags[$t]);
+				}
+			}
+		}
+		
+		arsort($aUserTags, SORT_NUMERIC);
+
+		$coll->save(array('_id' => $uid, 'tags' => $aUserTags, 'i_count' => count($aUserTags)), array('fsync' => true));
+		
+		return $this;
 	}
 
 }
