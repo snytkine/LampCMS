@@ -61,7 +61,7 @@ namespace Lampcms;
  * This class does everything that has to be done
  * when new questions is submitted, regardless of how
  * it was submitted. It accepts an object of type
- * clsSubmittedQuestion which may be sub-classed to work with
+ * SubmittedQuestion which may be sub-classed to work with
  * many different ways question can be submitted: web, api, email, etc.
  *
  * @author Dmitri Snytkine
@@ -71,7 +71,7 @@ class QuestionParser extends LampcmsObject
 {
 
 	/**
-	 * Object of type clsSubmittedQuestion
+	 * Object of type SubmittedQuestion
 	 * (or any sub-class of it)
 	 *
 	 * @var Object SubmittedQuestion
@@ -389,6 +389,7 @@ class QuestionParser extends LampcmsObject
 		$o = new UnansweredTags($this->oRegistry);
 		$o->set($this->oQuestion);
 		d('cp');
+		
 		return $this;
 	}
 

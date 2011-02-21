@@ -80,9 +80,15 @@ class ProfileDiv extends LampcmsObject
 		'website' => $oUser->getUrl(),
 		'twitter' => $oUser->getTwitterUrl(),
 		'facebook' => $oUser->getFacebookUrl(),
-		'location' => $oUser->getLocation()
+		'location' => $oUser->getLocation(),
+		'editRole' => Usertools::getHtml($oRegistry, $oUser)
 		);
 
 		return \tplUserInfo::parse($vars);
+	}
+	
+	
+	public function getShredButton(Registry $oRegistry, User $oUser){
+		
 	}
 }

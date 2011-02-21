@@ -114,10 +114,10 @@ class RegBlock extends LampcmsObject
 	 * Makes an object which is sub-class of this
 	 * class, depending on the type of oViewer
 	 * we have: if user just logged in with Twitter
-	 * then we create object clsRegBlockTwitter
+	 * then we create object RegBlockTwitter
 	 * which has some specific html for Twitter user,
 	 * if it's a type of Google FriendConnect, then of type
-	 * clsRegBlockGfc, etc.
+	 * RegBlockGfc, etc.
 	 *
 	 * @param Registry oRegistry
 	 *

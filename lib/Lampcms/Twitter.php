@@ -89,8 +89,8 @@ class Twitter extends LampcmsObject
 	protected $oAuth;
 
 	/**
-	 * Instance of TwitterUserInterface which is also clsUserObject object
-	 * @var object clsUserObject
+	 * Instance of TwitterUserInterface which is also User object
+	 * @var object User
 	 */
 	protected $oUser;
 
@@ -139,7 +139,7 @@ class Twitter extends LampcmsObject
 	/**
 	 * Setter for $this->oUser
 	 *
-	 * @param clsUserObject $oUser
+	 * @param User $oUser
 	 * @return object $this
 	 */
 	public function setUser(TwitterUser $oUser)
@@ -185,12 +185,12 @@ class Twitter extends LampcmsObject
 	 * @return array of user profile on success
 	 * Nothing is ever returned on failure because failure
 	 * causes an exception to be thrown, so be ready to either
-	 * catch exception explicitely or let the clsWebPage to catch it
+	 * catch exception explicitely or let the WebPage to catch it
 	 * and generate web page or send json
 	 *
 	 * @throws \Lampcms\TwitterAuthException in case verification fails
 	 * This is helpful because this would cause this exception to be caught
-	 * in clsWebPage and returned in json array (in case request is by ajax)
+	 * in WebPage and returned in json array (in case request is by ajax)
 	 * and in turn it would present nice modal on page asking user
 	 * to start oAuth dance again.
 	 *
@@ -219,7 +219,7 @@ class Twitter extends LampcmsObject
 
 		if(is_object($token)){
 			if(!($token instanceof TwitterUser)){
-				throw new DevException('param $token is not a string and not instance of clsUserObject '. get_class($token));
+				throw new DevException('param $token is not a string and not instance of User '. get_class($token));
 			}
 
 			$oUser = $token;
@@ -255,7 +255,7 @@ class Twitter extends LampcmsObject
 	 * Post message (update) to Twitter
 	 * using oAuth credentials from oUser
 	 *
-	 * If post is successfull then we update the clsUserObject
+	 * If post is successfull then we update the User
 	 * with the latest profile data we get from Twitter
 	 * and call save(), so that our record will be updated
 	 * if profile data has changed
@@ -404,7 +404,7 @@ class Twitter extends LampcmsObject
 			}
 
 			/**
-			 * This exception should be caught all the way in clsWebPage and it will
+			 * This exception should be caught all the way in WebPage and it will
 			 * cause the ajax message with special key=>value which will
 			 * trigger the popup to be shown to user with link
 			 * to signing with Twitter
@@ -429,7 +429,7 @@ class Twitter extends LampcmsObject
 	{
 
 		if(!is_object($this->oUser)){
-			throw new TwitterException('Object of type clsUserTwitter was not set');
+			throw new TwitterException('Object of type UserTwitter was not set');
 		}
 
 		d('this->url: '.$this->url);

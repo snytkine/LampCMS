@@ -71,7 +71,7 @@ class Answerparser extends LampcmsObject
 	 * Object of type clsSubmittedAnswer
 	 * (or any sub-class of it)
 	 *
-	 * @var Object clsSubmittedAnswer
+	 * @var Object SubmittedAnswer
 	 */
 	protected $oSubmittedAnswer;
 
@@ -80,7 +80,7 @@ class Answerparser extends LampcmsObject
 	 * Object represents question for which
 	 * we are processing the answer
 	 *
-	 * @var object of type clsQuestion
+	 * @var object of type Question
 	 */
 	protected $oQuestion;
 
@@ -90,7 +90,7 @@ class Answerparser extends LampcmsObject
 	 * an object of type clsAnswer represents one
 	 * answer and is a MongoDoc object
 	 *
-	 * @var object of type clsAnswer (extends MongoDoc object)
+	 * @var object of type Answer (extends MongoDoc object)
 	 */
 	protected $oAnswer = null;
 
@@ -103,7 +103,7 @@ class Answerparser extends LampcmsObject
 	/**
 	 * Getter for oSubmittedAnswer
 	 *
-	 * @return object of type clsSubmittedAnswer
+	 * @return object of type SubmittedAnswer
 	 */
 	public function getSubmittedAnswer(){
 
@@ -114,7 +114,7 @@ class Answerparser extends LampcmsObject
 	/**
 	 * Getter for $this->oAnswer
 	 *
-	 * @return mixed object of type clsAnswer or null
+	 * @return mixed object of type Answer or null
 	 * if answer object has not yet been created
 	 */
 	public function getAnswer(){
@@ -127,13 +127,13 @@ class Answerparser extends LampcmsObject
 	 * Main entry point to parse
 	 * submitted answer
 	 *
-	 * @param object clsSubmittedAnswer $o
-	 * @param object clsQuestion $q represents the parent question
+	 * @param object SubmittedAnswer $o
+	 * @param object Question $q represents the parent question
 	 * this is optional, if not passed, this class will
 	 * find parent question based on 'qid' from submitted answer
 	 *
-	 * @return object of type clsAnswer representing the new
-	 * answer (which is also clsMongoDoc ArrayObject)
+	 * @return object of type Answer representing the new
+	 * answer (which is also MongoDoc ArrayObject)
 	 *
 	 */
 	public function parse(SubmittedAnswer $o, Question $q = null){
@@ -343,7 +343,7 @@ class Answerparser extends LampcmsObject
 	/**
 	 * Getter for $this->oQuestion
 	 *
-	 * @return object of type clsQuestion representing the Question
+	 * @return object of type Question representing the Question
 	 * for which we parsing the answer
 	 */
 	public function getQuestion(){

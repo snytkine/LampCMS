@@ -144,7 +144,7 @@ class Logintwitter extends WebPage
 	 *
 	 * No actual page generation will take place
 	 *
-	 * @see classes/clsWebPage#main()
+	 * @see classes/WebPage#main()
 	 */
 	protected function main()
 	{

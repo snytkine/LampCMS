@@ -135,7 +135,7 @@ class Answer extends Viewquestion
 
 		} catch (\Lampcms\AnswerParserException $e){
 			/**
-			 * The setFormError in clsForm sends our json in
+			 * The setFormError in Form sends our json in
 			 * case of Ajax request, so we don't have to
 			 * worry about it here
 			 */

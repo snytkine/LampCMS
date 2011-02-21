@@ -297,9 +297,9 @@ class LampcmsObject implements Interfaces\LampcmsObject
 	 * should alwasy take the oRegistry as the first param
 	 * and make all other params optional (have default values)
 	 *
-	 * @param object clsRegistry $oRegistry
+	 * @param object Registry $oRegistry
 	 */
-	/*public function __construct(clsRegistry $oRegistry){
+	/*public function __construct(Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
 		}*/
 
@@ -308,7 +308,7 @@ class LampcmsObject implements Interfaces\LampcmsObject
 	 * and it does not have to have its own factory
 	 * or constructor
 	 *
-	 * @param clsRegistry $oRegistry
+	 * @param Registry $oRegistry
 	 */
 	public static function factory(Registry $oRegistry){
 		$o = new static($oRegistry);

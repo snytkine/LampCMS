@@ -61,10 +61,10 @@ class Activate extends WebPage
 	protected $aRequired = array('eid', 'hash');
 
 	/**
-	 * Object of type clsUser
+	 * Object of type User
 	 * representing the user whose account is being activated
 	 *
-	 * @var object of type clsUserObject
+	 * @var object of type User
 	 */
 	protected $oActivatedUser;
 

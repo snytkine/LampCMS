@@ -75,10 +75,10 @@ namespace Lampcms;
 class SiteMap extends LampcmsObject
 {
 	/**
-	 * Object of type clsMongoDoc
+	 * Object of type MongoDoc
 	 * that holds array of latest IDs
 	 *
-	 * @var object clsMongoDoc
+	 * @var object MongoDoc
 	 */
 	protected $oLatest;
 

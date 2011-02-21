@@ -134,7 +134,7 @@ class Utf8String extends String
 		 * the name of charset of this string
 		 * the 'charset' is optional.
 		 *
-		 * This array is returned by our clsMessageParser class
+		 * This array is returned by our MessageParser class
 		 * when email is parsed.
 		 */
 		if(is_array($string)){
@@ -971,7 +971,7 @@ class Utf8String extends String
 			 * but still its good
 			 * as it at least guarantees to remove html
 			 */
-			e('unable to use clsH2t: '.$e->getMessage());
+			e('unable to use H2t: '.$e->getMessage());
 			//$ret = strip_tags($this->string);
 			$ret = $this->asPlainText();
 		}
@@ -1097,8 +1097,6 @@ class Utf8String extends String
 	/**
 	 * Truncate HTML string while making sure
 	 * not to cut in the middle of open html tag
-	 *
-	 * Used to be called cutText in clsStatic
 	 *
 	 * @param int $intCut desired max length of string
 	 *

@@ -203,7 +203,9 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 			'reason' => $reason,
 			'h_ts' => date('r')));
 		}
-
+		
+		$this->updateLastModified();
+		
 		return $this;
 	}
 
@@ -248,7 +250,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		 * then since we are not changing its status
 		 * to answered, we must update
 		 * the count of unanswered tags, which
-		 * is done via clsUnansweredTags object
+		 * is done via UnansweredTags object
 		 */
 		if($updateTags && ('accptd' !== $this->offsetGet('status'))){
 			UnansweredTags::factory($this->oRegistry)->remove($this);

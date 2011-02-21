@@ -122,7 +122,7 @@ class Mongo extends LampcmsObject
 	 * @todo must remove this soon because
 	 * now we always getting this object via Registry
 	 *
-	 * @return object of type clsDB
+	 * @return object of this class
 	 */
 	public static function getInstance()
 	{
@@ -136,7 +136,7 @@ class Mongo extends LampcmsObject
 
 	public function __clone()
 	{
-		throw new DevException('cloning clsMongo object is not allowed');
+		throw new DevException('cloning Mongo object is not allowed');
 	}
 
 	/**

@@ -66,10 +66,10 @@ abstract class SubmittedAnswer extends LampcmsObject
 	protected $oBody;
 
 	/**
-	 * Get object of type clsUserObject of user
+	 * Get object of type User of user
 	 * who posted the answer
 	 *
-	 * @return object of type clsUserObject
+	 * @return object of type User
 	 */
 	abstract public function getUserObject();
 
@@ -95,7 +95,7 @@ abstract class SubmittedAnswer extends LampcmsObject
 	/**
 	 * Concrete class may override this to provide
 	 * array of data that should be added to answer data
-	 * array from which the question object clsQuestion
+	 * array from which the question object Question
 	 * is created.
 	 *
 	 * @return associative array

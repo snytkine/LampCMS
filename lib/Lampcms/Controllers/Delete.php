@@ -162,7 +162,7 @@ class Delete extends WebPage
 	 * can quickly navigate to poster's profile
 	 * page and possibly delete other items
 	 * and maybe ban user too
-	 * 
+	 *
 	 * @return object $this
 	 */
 	protected function getUserData(){
@@ -230,7 +230,7 @@ class Delete extends WebPage
 
 		if(!empty($ban) && $this->checkAccessPermission('ban_user')){
 			$oUser = User::factory($this->oRegistry)->by_id($this->oResource->getOwnerId());
-			$oUser->offsetSet('role', 'banned');
+			$oUser->offsetSet('role', 'suspended');
 			$oUser->save();
 
 			$this->oRegistry->Dispatcher->post($oUser, 'onUserBanned');
@@ -314,14 +314,36 @@ class Delete extends WebPage
 	 */
 	protected function updateTags(){
 
-		if(!$this->requested && 'QUESTIONS' === $this->collection){
+		if(!$this->requested){
+			if('QUESTIONS' === $this->collection){
+				$oQuestion = $this->oResource;
 
-			\Lampcms\Qtagscounter::factory($this->oRegistry)->removeTags($this->oResource);
-			\Lampcms\UserTags::factory($this->oRegistry)->removeTags($this->oResource);
+				\Lampcms\Qtagscounter::factory($this->oRegistry)->removeTags($oQuestion);
+				if(0 === $this->oResource['i_sel_ans']){
+					d('going to add to Unanswered tags');
+					\Lampcms\UnansweredTags::factory($this->oRegistry)->set($oQuestion);
+				}
+			} else {
+				$oQuestion = new \Lampcms\Question($this->oRegistry);
+				$oQuestion->by_id($this->oResource['i_qid']);
+				d('tags: ' . print_r($oQuestion['a_tags'], 1));
+			}
+
+			/**
+			 * Must extract uid from $this->oResource because in case
+			 * the resource is an answer, then the
+			 * $oQuestion has different owner, thus
+			 * will remove user tags for the wrong user
+			 *
+			 */
+			$uid = $this->oResource->getOwnerId();
+			\Lampcms\UserTags::factory($this->oRegistry)->removeTags($oQuestion, $uid);
+
 		}
 
 		return $this;
 	}
+
 
 	/**
 	 * Email request for deleting item
@@ -358,10 +380,15 @@ class Delete extends WebPage
 		$this->requested = true;
 
 		return $this;
-
 	}
 
 
+	/**
+	 * Make body of the email
+	 * which will be sent to moderators
+	 *
+	 * @return string body of email
+	 */
 	protected function makeBody(){
 		$vars = array(
 		$this->oRegistry->Viewer->getDisplayName(),
@@ -397,7 +424,7 @@ class Delete extends WebPage
 
 			throw new \Lampcms\Exception('Item not found');
 		}
-		
+
 		/**
 		 * Very important to NOT proceed any further
 		 * if item already deleted because deleting

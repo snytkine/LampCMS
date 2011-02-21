@@ -138,6 +138,15 @@ class Retag extends WebPage
 		\Lampcms\Qtagscounter::factory($this->oRegistry)->removeTags($this->oQuestion);
 		\Lampcms\UserTags::factory($this->oRegistry)->removeTags($this->oQuestion);
 
+		/**
+		 * Also update UNANSWERED_TAGS if this question
+		 * is unanswered
+		 */
+		if(0 === $this->oQuestion['i_sel_ans']){
+			d('going to remove from Unanswered tags');
+			\Lampcms\UnansweredTags::factory($this->oRegistry)->remove($this->oQuestion);
+		}
+
 		return $this;
 	}
 
@@ -152,6 +161,11 @@ class Retag extends WebPage
 		\Lampcms\Qtagscounter::factory($this->oRegistry)->parse($this->oQuestion);
 		\Lampcms\UserTags::factory($this->oRegistry)->addTags($this->oQuestion['i_uid'], $this->oQuestion);
 
+		if(0 === $this->oQuestion['i_sel_ans']){
+			d('going to add to Unanswered tags');
+			\Lampcms\UnansweredTags::factory($this->oRegistry)->set($this->oQuestion);
+		}
+		
 		return $this;
 	}
 
@@ -167,7 +181,7 @@ class Retag extends WebPage
 		$this->oQuestion->offsetSet('tags_html', \tplQtags::loop($this->aSubmitted, false));
 		$this->oQuestion->offsetSet('tags_c', trim(\tplQtagsclass::loop($this->aSubmitted, false)));
 
-		$this->oQuestion->save();
+		$this->oQuestion->updateLastModified()->save();
 
 		return $this;
 	}
@@ -231,7 +245,7 @@ class Retag extends WebPage
 		$message = 'Question retagged successfully';
 
 		if(Request::isAjax()){
-			$ret = array('alert' => $message, 'reload' => 1500);
+			$ret = array('alert' => $message, 'reload' => 1000);
 
 			Responder::sendJSON($ret);
 		}

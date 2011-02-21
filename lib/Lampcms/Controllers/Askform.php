@@ -81,7 +81,7 @@ class Askform extends WebPage
 	 * Main entry point
 	 * for this class
 	 * (non-PHPdoc)
-	 * @see clsWebPage::main()
+	 * @see WebPage::main()
 	 */
 	protected function main(){
 		d('cp');
@@ -169,7 +169,7 @@ class Askform extends WebPage
 	 * which in turn will trigger popup on click
 	 * on the form element
 	 *
-	 * @todo move this into clsForm? Yes, but allow passing
+	 * @todo move this into Form? Yes, but allow passing
 	 * custom message for qbody
 	 *
 	 * @todo translate qbody

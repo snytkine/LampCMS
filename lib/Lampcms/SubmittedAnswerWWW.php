@@ -52,6 +52,7 @@
 
 namespace Lampcms;
 
+
 /**
  *
  * Concrete class represents answer data submitted
@@ -115,9 +116,19 @@ class SubmittedAnswerWWW extends SubmittedAnswer
 	 * @return int id of question for which this is an anwser
 	 *
 	 * (non-PHPdoc)
-	 * @see clsSubmittedAnswer::getQid()
+	 * @see SubmittedAnswer::getQid()
 	 */
 	public function getQid(){
 		return (int)$this->aData['qid'];
+	}
+
+	public function getExtraData(){
+		$oGeo = $this->oRegistry->Cache->{sprintf('geo_%s', Request::getIP())};
+		if(is_object($oGeo)){
+			$aRet = $oGeo->getData2();
+			d('aRet: '.print_r($aRet, 1));
+				
+			return $aRet;
+		}
 	}
 }

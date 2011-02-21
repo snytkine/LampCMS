@@ -120,7 +120,7 @@ class Qtagscounter extends LampcmsObject
 
 			$this->coll->ensureIndex(array('tag' => 1), array('unique' => true));
 			$this->coll->ensureIndex(array('i_count' => 1));
-			
+				
 			foreach($aTags as $tag){
 				try{
 					$this->coll->update(array("tag" => $tag), array('$inc' => array("i_count" => 1), '$set' => $set), array("upsert" => true));
@@ -144,8 +144,12 @@ class Qtagscounter extends LampcmsObject
 	 *
 	 * @return object $this;
 	 */
-	public function removeTags(Question $oQuestion){
-		$aTags = $oQuestion['a_tags'];
+	public function removeTags($oQuestion){
+		if(!is_array($oQuestion) && (!($oQuestion instanceof \Lampcms\Question))){
+			throw new \InvalidArgumentException('$oQuestion must be array OR instance of Question. was: '.gettype($oQuestion));
+		}
+		
+		$aTags = (is_array($oQuestion)) ? $oQuestion : $oQuestion['a_tags'];
 
 		if(!empty($aTags)){
 			/**

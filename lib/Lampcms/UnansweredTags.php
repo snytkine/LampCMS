@@ -49,7 +49,7 @@
  *
  */
 
- 
+
 namespace Lampcms;
 
 
@@ -88,20 +88,24 @@ class UnansweredTags extends LampcmsObject
 	 */
 	public function set(Question $oQuestion){
 		$aTags = $oQuestion->offsetGet('a_tags');
+		d('$aTags: '.print_r($aTags, 1));
+
 		if(!is_array($aTags) || empty($aTags)){
 			d('No tags in this question: '.print_r($oQuestion->getArrayCopy(), 1));
-			
+
 			return $this;
 		}
-		
+
 		foreach($aTags as $tag){
 			try{
+				d('adding to UNANSWERED tag: '.$tag);
 				$this->coll->update(array("tag" => $tag), array('$inc' => array("i_count" => 1), '$set' => array('i_ts' => time(), 'hts' => date('F j, Y, g:i a T'))), array("upsert" => true));
 			} catch (\MongoException $e){
 				e('unable to upsert UNANSWERED_TAGS: '.$e->getMessage());
 			}
 		}
 	}
+
 
 	/**
 	 * Decrseases count of tag for given question
@@ -113,10 +117,21 @@ class UnansweredTags extends LampcmsObject
 	 * this object/method should be invoked and pass
 	 * the question object to it
 	 *
-	 * @param clsQuestion $oQuestion
+	 * @param Question $oQuestion
 	 */
-	public function remove(Question $oQuestion){
-		$aTags = $oQuestion->offsetGet('tags');
+	public function remove($oQuestion){
+
+		if(!is_array($oQuestion) && (!($oQuestion instanceof \Lampcms\Question))){
+			throw new \InvalidArgumentException('$oQuestion must be array OR instance of Question. was: '.gettype($oQuestion));
+		}
+
+		$aTags = (is_array($oQuestion)) ? $oQuestion : $oQuestion['a_tags'];
+
+
+		if(empty($aTags) || !is_array($aTags)){
+			d('something is wrong, no tags in question');
+			return;
+		}
 
 		/**
 		 * If tag exists in collection and > 0 then decrsease count,

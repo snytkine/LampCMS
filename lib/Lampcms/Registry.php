@@ -129,10 +129,10 @@ class Registry extends LampcmsObject
 
 	/**
 	 * @todo
-	 * add clsSettings,
-	 * clsTr (needs clsLangs (needs Mongo))
+	 * add 
+	 * Tr (needs Langs (needs Mongo))
 	 * it will be using oMongo, no Cache, so... you know...
-	 * maybe we don't even need clsLangs anymore?
+	 * maybe we don't even need Langs anymore?
 	 *
 	 */
 	protected function init(){

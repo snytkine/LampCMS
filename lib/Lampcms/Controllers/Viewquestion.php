@@ -86,14 +86,14 @@ class Viewquestion extends WebPage
 	 * Object representing the question
 	 * that we currently viewing
 	 *
-	 * @var object of type clsQuestion
+	 * @var object of type Question
 	 */
 	protected $oQuestion;
 
 	/**
 	 * The "Answer" form object
 	 *
-	 * @var object of type clsAnswerform which is a clsForm
+	 * @var object of type Answerform which is a Form
 	 */
 	protected $oForm;
 
@@ -104,7 +104,7 @@ class Viewquestion extends WebPage
 	/**
 	 * Main entry point
 	 * (non-PHPdoc)
-	 * @see clsWebPage::main()
+	 * @see WebPage::main()
 	 */
 	protected function main(){
 		$this->pageID = $this->oRegistry->Request->get('pageID', 'i', 1);
@@ -295,7 +295,7 @@ class Viewquestion extends WebPage
 	 * sort tags
 	 * and under it add div id="answers"
 	 * and insert answers html into it
-	 * use clsAnswers::get(oQuestion, $sort, $pageID)
+	 * use Answers::get(oQuestion, $sort, $pageID)
 	 * it should return html with all answers
 	 *
 	 * OR if there are no answers, then a text saying

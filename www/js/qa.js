@@ -427,6 +427,13 @@ YUI({
 				}
 			
 			break;
+			
+		case el.test('.btn_shred'):
+			if(ensureLogin()){
+				//alert('clicked on shred for user' + el.get('id'));
+				showShredForm(el.get('id'));
+			}
+			break;
 		
 		}
 	}, //
@@ -923,7 +930,30 @@ YUI({
 					     oAlert.set("bodyContent", form);
 					     oAlert.show(); 
 		}
-	}
+	};
+	
+	var showShredForm = function(uid){
+		var id = uid.substr(5);
+		Y.log('uid: ' +id);
+		form = '<div id="div_del" style="text-align: left">'
+			+ '<form name="form_shred" id="id_shred" action="/index.php">'
+			+ '<input type="hidden" name="a" value="shred">'
+			+ '<input type="hidden" name="uid" value="'+ id + '">'
+			+ '<input type="hidden" name="token" value="'+ getToken() +'">'
+			+ '<p>Shredding user will completely delete all posts made by the user<br>'
+			+ 'as well as all user tags'
+			+ '<br>It will also change user status to *deleted*'
+			+ '<br>and ban all IP addresses ever used by that user</p>'
+			+ '<p>Proceed only if you absolutely sure you want to do this'
+			+ '<hr>'
+			+ '<input type="submit" class="btn_shred" value="Shred">'
+			+ '</form>'
+			+ '</div>';
+					
+				oAlert = getAlerter('<h3>Shred User</h3>');
+				oAlert.set("bodyContent", form);
+				oAlert.show(); 
+	};
 	
 	var setMeta = function(metaName, value){
 		var node = getMeta(metaName);

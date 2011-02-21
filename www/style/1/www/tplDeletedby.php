@@ -68,7 +68,7 @@ class tplDeletedby extends \Lampcms\Template\Template
              <img src="%3$s" height="32" width="32" alt="">
             </div>
             	<div class="usr_details">By: 
-            	 <a href="/user/%2$s/%1$s">%1$s</a><br>
+            	 <a href="/users/%2$s/%1$s">%1$s</a><br>
 				</div>
 			</div>';
 }

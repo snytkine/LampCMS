@@ -59,7 +59,7 @@ namespace Lampcms;
  * OR Logged in via Facebook connect
  * Technically this user is also just a regular user
  * Usually the next time the same user signs in,
- * he may be represented by a regular clsUserObject
+ * he may be represented by a regular User
  *
  * But when the user is represented by the object of
  * this class we know that user is signed in via

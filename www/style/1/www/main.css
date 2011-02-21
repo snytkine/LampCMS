@@ -1637,3 +1637,13 @@ input.ta1 {
 	border-bottom-right-radius: 3px 3px;
 	border-bottom-left-radius: 3px 3px;
 }
+
+input.btn_shred {
+	margin-top: 10px;
+	padding: 6px;
+	color: white;
+	font-size: 120%;
+	background-color: red;
+	font-weight: bold;
+	border: 2px solid black;
+}

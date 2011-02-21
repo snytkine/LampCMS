@@ -58,13 +58,6 @@ namespace Lampcms;
  * Class for pagination of array
  * or mongo Cursor
  *
- * @todo this is a replacement for
- * the paginateArray from clsWebPage, remove
- * the one from clsWebpage soon.
- *
- * @todo make this extend the new LampcmsObject, the
- * one that has factory using 'static' instead of 'self'
- *
  * @author Dmitri Snytkine
  *
  */

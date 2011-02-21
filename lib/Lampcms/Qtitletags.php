@@ -84,7 +84,7 @@ class Qtitletags extends LampcmsObject
 	 * using question's _id as value for _id in QUESTION_TITLE_TAGS
 	 *
 	 *
-	 * @param clsQuestion $oQuestion
+	 * @param Question $oQuestion
 	 * @return object $this;
 	 */
 	public function parse(Question $oQuestion){
@@ -121,7 +121,7 @@ class Qtitletags extends LampcmsObject
 	 * also use this for site search feature
 	 * to some extent.
 	 *
-	 * @param clsQuestion $oQuestion
+	 * @param Question $oQuestion
 	 */
 	public function indexTitle(Question $oQuestion){
 

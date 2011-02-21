@@ -126,7 +126,6 @@ class Viewqtags extends Viewquestions
 				 * uncache onQuestionVote, onQuestionComment
 				 */
 			case 'recent':
-				//$this->typeDiv = clsUrhere::factory($this->oRegistry)->get('tplQtypesdiv', 'active');
 				$this->title = 'Recent tags';
 				$sort = array('i_ts' => -1);
 				break;

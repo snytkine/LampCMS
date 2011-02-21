@@ -73,7 +73,7 @@ class UserAuth extends LampcmsObject
 	 * then actually checks username/password
 	 * against values in database
 	 *
-	 * @return object of type clsUserObject
+	 * @return object of type User
 	 *
 	 * @param string $sUsername username OR
 	 * email address entered in login form
@@ -207,7 +207,7 @@ class UserAuth extends LampcmsObject
 	 *
 	 * @param string $sPassword user password
 	 *
-	 * @return object of type clsUserObject
+	 * @return object of type User
 	 *
 	 * @throws LampcmsLoginException in case
 	 * some other object cancells the 'onBeforeLogin'

@@ -63,12 +63,12 @@ namespace Lampcms;
 class MongoDoc extends ArrayDefaults implements \Serializable
 {
 	/**
-	 * Object of type clsRegistry
+	 * Object of type Registry
 	 * We need Registry and not just oMongo
 	 * because we sometimes need to post events
 	 * and we can get Dispatcher from Registry
 	 *
-	 * @var object of type clsRegistry
+	 * @var object of type Registry
 	 */
 	protected $oRegistry;
 
@@ -199,7 +199,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 * or to boolean if key starts with 'b_'
 	 *
 	 * (non-PHPdoc)
-	 * @see clsArrayDefaults::offsetGet()
+	 * @see ArrayDefaults::offsetGet()
 	 */
 	public function offsetGet($name)
 	{
@@ -234,7 +234,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 * When object is instantiated the normal way
 	 * via constructor it has registry object.
 	 *
-	 * @return object of type clsRegistry
+	 * @return object of type Registry
 	 */
 	protected function getRegistry(){
 		if(!isset($this->oRegistry)){
@@ -266,8 +266,8 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 
 	/**
 	 * Use case:
-	 * class clsMongoComments {}
-	 * $article = clsMongoComments::byUid(123123);
+	 * class MongoComments {}
+	 * $article = MongoComments::byUid(123123);
 	 *
 	 * The class extending this class has to exist in order
 	 * for this method to even be used.
@@ -293,8 +293,8 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		}
 
 		$calledClass = get_called_class();
-		if('clsMongo' !== substr($calledClass, 0, 7)){
-			throw new \InvalidArgumentException('Class that extends clsMongoDoc must begin with "clsMongo" prefix followed by name of Mongo Collection. It was: '.$calledClass);
+		if('Mongo' !== substr($calledClass, 0, 5)){
+			throw new \InvalidArgumentException('Class that extends MongoDoc must begin with "Mongo" prefix followed by name of Mongo Collection. It was: '.$calledClass);
 		}
 
 		$collectionName = ucfirst(substr(strtolower($calledClass), 8 ));
@@ -580,12 +580,6 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 * @return mixed number of affected rows (which could be 0)
 	 * or false in case of some error during update sql statement
 	 *
-	 * The clsDB object may also throw a LampcmsPDODuplicateException
-	 * in case the data in row violates the unique index constraints
-	 * during the update. Since we are not catching exceptions here
-	 * the object that invokes or uses this object
-	 * should use this object (in particular this method)
-	 * from inside the try/catch block
 	 */
 	protected function update()
 	{
@@ -594,10 +588,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		$aData = $this->getArrayCopy();
 		$whereVal = $this->offsetGet($this->keyColumn);
 		try{
-			/**
-			 * @todo change this to clsRegistry::getInstance()->Mongo
-			 */
-
+			
 			$ret = $this->getRegistry()->Mongo->updateCollection($this->collectionName, $aData, $this->keyColumn, $whereVal, __METHOD__);
 		} catch (\Exception $e){
 			d('could not update MongoCollection $whereVal: '.$whereVal. ' $aData: '.print_r($aData, 1));

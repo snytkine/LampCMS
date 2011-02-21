@@ -108,7 +108,7 @@ abstract class WebPage extends Base
 	 * Object representing Array of QUERY_STRING params
 	 * this is GET or POST array
 	 *
-	 * @var object of type clsRequest
+	 * @var object of type Request
 	 */
 	protected $oRequest;
 
@@ -356,6 +356,10 @@ abstract class WebPage extends Base
 	 */
 	protected function initParams(){
 
+		if ($this->bRequirePost && ('POST' !== strtoupper($_SERVER['REQUEST_METHOD'])) ) {
+			throw new Exception('POST method required');
+		}
+			
 		$this->oRequest->setRequired($this->aRequired)->checkRequired();
 
 		if(true === $this->requireToken){
@@ -618,8 +622,8 @@ abstract class WebPage extends Base
 		 * New way just replace the $_SESSION['oViewer'] with this new object
 		 * Not sure if this will actually work, but....
 		 * have to try it, otherwise how else can we replace
-		 * the type of oViewer from clsUserObject to the new object
-		 * which may now be clsTwitterUser?
+		 * the type of oViewer from User to the new object
+		 * which may now be TwitterUser?
 		 *
 		 * An alternative would probably be to create a brand new object
 		 * of the same type and copy the underlying array to the new object
@@ -816,7 +820,7 @@ abstract class WebPage extends Base
 			$err = Exception::formatException($le);
 			/**
 			 * @todo if Login exception then present a login form!
-			 * 
+			 *
 			 */
 			$this->aPageVars['layoutID'] = 1;
 			$this->aPageVars['body'] = \tplException::parse(array('message' => $err, 'class' => $class, 'title' => 'La La La...'));
@@ -832,7 +836,7 @@ abstract class WebPage extends Base
 
 
 	/**
-	 * This method is called from clsLogin and
+	 * This method is called from Login and
 	 * from wwwOauth, thus its here in one place
 	 *
 	 * @return array of user profile and welcome html div

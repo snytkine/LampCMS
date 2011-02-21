@@ -141,14 +141,14 @@ class UserTags extends LampcmsObject
 	 *
 	 * @param Question $oQuestion
 	 */
-	public function removeTags(Question $oQuestion){
+	public function removeTags(Question $oQuestion, $uid = null){
 		
 		/**
 		 * If question is deleted
 		 * then dont update anything
 		 * 
 		 */
-		$uid = $oQuestion->getOwnerId();
+		$uid = ($uid) ? (int)$uid : $oQuestion->getOwnerId();
 		d('uid '.$uid);
 
 		$aTags = $oQuestion['a_tags'];
