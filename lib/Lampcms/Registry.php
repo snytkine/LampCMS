@@ -96,31 +96,8 @@ class Registry extends LampcmsObject
 	}
 
 
-	/**
-	 * This is a clever way to pass
-	 * the login error to the next page buy
-	 * make sure that it's passed only once.
-	 *
-	 * So at the end of php execution 'login_error'
-	 * is always removed from SESSION
-	 *
-	 * but if login_error is set in this object,
-	 * it is then put into session
-	 *
-	 * This is a good way to pass variable
-	 * to next page and then make sure it's
-	 * removed from session on any page after that
-	 *
-	 */
 	public function __destruct(){
 
-		/*if(!empty($_SESSION) && !empty($_SESSION['login_error'])){
-			unset($_SESSION['login_error']);
-		}
-
-		if(!empty($this->values['login_error']) && isset($_SESSION)){
-			$_SESSION['login_error'] = $this->values['login_error'];
-		}*/
 	}
 
 	public function __clone(){
