@@ -84,6 +84,8 @@ class Login extends WebPage
 	 * @var bool
 	 */
 	protected $bRequirePost = true;
+	
+	protected $permission = 'login';
 
 
 	public function main()
@@ -117,8 +119,6 @@ class Login extends WebPage
 			
 			$_SESSION['login_error'] = $e->getMessage();
 			d('$_SESSION[login_error] '.$_SESSION['login_error']);
-			
-			//$this->oRegistry->login_error = $e->getMessage();
 			
 			Responder::redirectToPage();
 

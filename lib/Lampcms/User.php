@@ -629,8 +629,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 */
 	public function setLastActive(){
 		$this->offsetSet('i_lm_ts', time());
-		//$this->save();
-
+		
 		return $this;
 	}
 

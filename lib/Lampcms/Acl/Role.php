@@ -12,6 +12,7 @@
  */
 
 namespace Lampcms\Acl;
+
 use \Lampcms\Interfaces\RoleInterface;
 
 /**
@@ -35,7 +36,7 @@ class Role implements RoleInterface
 	 */
 	public function __construct($roleId)
 	{
-		$this->_roleId = (string) $roleId;
+		$this->_roleId = (string)$roleId;
 	}
 
 	/**

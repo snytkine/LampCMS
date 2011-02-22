@@ -139,7 +139,6 @@ class Cache extends Observer
 			$this->setCacheEngine(MongoCache::factory($oRegistry));
 			$oRegistry->Dispatcher->attach($this);
 		}
-
 	}
 
 
@@ -511,16 +510,14 @@ class Cache extends Observer
 	protected function main(){
 		switch($this->eventName){
 			case 'onNewQuestions':
+			case 'onNewQuestion':
+			case 'onResourceDelete':
 				$this->__unset('qunanswered');
 				$this->__unset('qrecent');
 				break;
 
 			case 'onNewAnswer':
 				$this->__unset('qunanswered');
-				break;
-
-			case 'onNewQuestion':
-				$this->__unset('qrecent');
 				break;
 		}
 	}
@@ -542,7 +539,7 @@ class Cache extends Observer
 		d('cp');
 		$limit = 30;
 		$coll = $this->oRegistry->Mongo->getCollection('QUESTION_TAGS');
-		$cur = $coll->find(array(), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
+		$cur = $coll->find(array('i_count' => array('$gt' => 0)), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
 		d('got '.$cur->count(true).' tag results');
 
 		$html = \tplLinktag::loop($cur);

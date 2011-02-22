@@ -232,9 +232,8 @@ class Viewquestions extends WebPage
 
 
 	protected function makeRecentTags(){
-		d('cp');
+
 		$s = $this->oRegistry->Cache->get('qrecent');
-		d('cp');
 		$tags = \tplBoxrecent::parse(array('tags' => $s));
 		d('cp');
 		$this->aPageVars['tags'] = $tags;

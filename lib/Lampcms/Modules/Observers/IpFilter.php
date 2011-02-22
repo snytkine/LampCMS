@@ -50,71 +50,33 @@
  */
 
 
-namespace Lampcms;
 
-use \Lampcms\Acl\Acl;
-use \Lampcms\Forms\Form;
+namespace Lampcms\Modules\Observers;
 
-/**
- *
- * This class generates extra HTML to be added
- * on the user profile page
- * If Viewer has necessary permissions to
- * change user's role and/or to shred_user
- *
- * @author admin
- *
- */
-class Usertools
+class IpFilter extends \Lampcms\Observer
 {
 
-	/**
-	 *
-	 * Generates HTML with drop-down roles menu
-	 * and a Shred button if current Viewer has necessary
-	 * permissions
-	 *
-	 * @param Registry $oRegistry
-	 * @param User $oUser use whose profile is being viewed now
-	 * @return string html fragment with Form and button
-	 */
-	public static function getHtml(Registry $oRegistry, User $oUser){
-		$oACL = new Acl();
+	public function main(){
+		d('get some event');
+		switch ($this->eventName){
+			case 'onBeforeNewQuestion':
+			case 'onBeforeNewAnswer':
+				$this->checkIP();
+				break;
 
-		/*print_r($oACL);
-		 exit;*/
-
-		$options = '';
-		$shredButton = '';
-		$token = '';
-		$uid = $oUser->getUid();
-
-		$role = $oRegistry->Viewer->reload()->getRoleId();
-		d('role: '.$role);
-
-		if($oACL->isAllowed($role, null, 'change_user_role')){
-
-			d('change_user_role is allowed');
-			$userRole = $oUser->getRoleId();
-			$roles = $oACL->getRegisteredRoles();
-			$token = Form::generateToken();
-
-
-			foreach($roles as $roleName => $val){
-				$selected = ($roleName === $userRole) ? ' selected' : '';
-				$options .= "\n".vsprintf('<option value="%1$s"%2$s>%1$s</option>', array($roleName, $selected));
-			}
 		}
 
-		if($oACL->isAllowed($role, null, 'shred_user')){
-			d('getting shred button');
-			$shredButton = '<div class="fl cb"><input type="button" class="ajax btn_shred" value="Shred User" id="shred'.$uid.'"></div>';
-		}
-
-		if(empty($options) && empty($shredButton)){
-			return '';
-		}
-		
-		return \tplSelectrole::parse(array($token, $uid, $options, $shredButton), false);
 	}
+
+
+	protected function checkIP(){
+		$ip = \Lampcms\Request::getIP();
+		d('checking IP: '.$ip);
+		$res = $this->oRegistry->Mongo->BANNED_IP->findOne(array('_id' => $ip));
+		if(!empty($res)){
+			throw new \Lampcms\FilterException('Unable to add new content at this time');
+		}
+	}
+
+
 }

@@ -164,6 +164,6 @@ class UnansweredTags extends LampcmsObject
 		 * the tagsUnanswered have to be unset from cache
 		 * as well as posssibly some other cached items
 		 */
-		$this->oRegistry->Dispatcher->post($oQuestion, 'onRemovedUnansweredTags', $aTags);
+		$this->oRegistry->Dispatcher->post($this, 'onRemovedUnansweredTags', $aTags);
 	}
 }

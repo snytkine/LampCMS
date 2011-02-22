@@ -49,7 +49,7 @@
  *
  */
 
- 
+
 namespace Lampcms;
 
 /**
@@ -85,9 +85,16 @@ class QuestionParser extends LampcmsObject
 	 * @var object of type Question
 	 */
 	protected $oQuestion;
+	
+	protected $oCache;
 
 	public function __construct(Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
+		/**
+		 * Need to instantiate Cache so that it
+		 * will listen to event and unset some keys
+		 */
+		$this->oCache = $this->oRegistry->Cache;
 		$this->oRegistry->registerObservers('INPUT_FILTERS');
 	}
 
@@ -129,7 +136,7 @@ class QuestionParser extends LampcmsObject
 		return $this->oQuestion;
 	}
 
-	
+
 	/**
 	 *
 	 * @todo later can also add spam filter via observer!
@@ -200,7 +207,7 @@ class QuestionParser extends LampcmsObject
 		$this->checkForDuplicate($uid, $hash);
 
 		$username = $this->oSubmitted->getUserObject()->getDisplayName();
-		
+
 		/**
 		 *
 		 * @var array
@@ -250,8 +257,10 @@ class QuestionParser extends LampcmsObject
 		 */
 		$aExtraData = $this->oSubmitted->getExtraData();
 		d('$aExtraData: '.print_r($aExtraData, 1));
-
-		$aData = array_merge($aData, $aExtraData);
+		if(is_array($aExtraData) && !empty($aExtraData)){
+			$aData = array_merge($aData, $aExtraData);
+		}
+		
 		$this->oQuestion = new Question($this->oRegistry, $aData);
 
 		/**
@@ -267,7 +276,7 @@ class QuestionParser extends LampcmsObject
 		 * message from exception. This way the error will be shown to
 		 * the user right on the question form while question form's data
 		 * is preserved in form.
-		 * 
+		 *
 		 * Filter can also modify the data in oQuestion before
 		 * it is saved. This is convenient, we can even set different
 		 * username, i_uid if we want to 'post as alias'
@@ -287,7 +296,7 @@ class QuestionParser extends LampcmsObject
 		 * to add a new question.
 		 */
 		$this->ensureIndexes();
-		
+
 		$this->oQuestion->insert();
 
 		$this->oRegistry->Dispatcher->post($this->oQuestion, 'onNewQuestion');
@@ -295,7 +304,7 @@ class QuestionParser extends LampcmsObject
 		return $this;
 	}
 
-	
+
 	/**
 	 * Ensure indexes in all collections involved
 	 * in storing question data
@@ -315,7 +324,7 @@ class QuestionParser extends LampcmsObject
 		return $this;
 	}
 
-	
+
 	/**
 	 * Check to see if same user has already posted
 	 * exact same question
@@ -336,13 +345,13 @@ class QuestionParser extends LampcmsObject
 		}
 	}
 
-	
+
 	/**
 	 * Tokenize title and save into TITLE_TAGS
 	 * and also save into MySQL QUESTION_TITLE table
-	 * 
+	 *
 	 * @todo do this via shutdown function
-	 * 
+	 *
 	 * @return object $this
 	 */
 	protected function addTitleTags(){
@@ -350,11 +359,11 @@ class QuestionParser extends LampcmsObject
 		$oTitleTagParser = new Qtitletags($this->oRegistry);
 		$oTitleTagParser->parse($this->oQuestion);
 		d('cp');
-		
+
 		return $this;
 	}
 
-	
+
 	/**
 	 * Update TAGS
 	 * @return object $this
@@ -366,18 +375,18 @@ class QuestionParser extends LampcmsObject
 		return $this;
 	}
 
-	
+
 	/**
 	 * @todo do this via shutdown function
 	 */
 	protected function addRelatedTags(){
 		Relatedtags::factory($this->oRegistry)->addTags($this->oQuestion);
 		d('cp');
-		
+
 		return $this;
 	}
 
-	
+
 	/**
 	 * @todo do this via shutdown function
 	 * @todo skip if $this->oQuestion['status'] is answered
@@ -389,11 +398,11 @@ class QuestionParser extends LampcmsObject
 		$o = new UnansweredTags($this->oRegistry);
 		$o->set($this->oQuestion);
 		d('cp');
-		
+
 		return $this;
 	}
 
-	
+
 	/**
 	 * @todo do this via shutdown function
 	 */

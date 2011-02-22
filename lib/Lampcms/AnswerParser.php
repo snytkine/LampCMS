@@ -49,7 +49,7 @@
  *
  */
 
- 
+
 namespace Lampcms;
 
 /**
@@ -85,6 +85,8 @@ class Answerparser extends LampcmsObject
 	protected $oQuestion;
 
 
+	protected $oCache;
+
 	/**
 	 * Object of newly created answer
 	 * an object of type clsAnswer represents one
@@ -96,6 +98,11 @@ class Answerparser extends LampcmsObject
 
 	public function __construct(Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
+		/**
+		 * Need to instantiate Cache so that it
+		 * will listen to event and unset some keys
+		 */
+		$this->oCache = $this->oRegistry->Cache;
 		$this->oRegistry->registerObservers('INPUT_FILTERS');
 	}
 
@@ -155,7 +162,7 @@ class Answerparser extends LampcmsObject
 	 * and onNewAnswer events
 	 *
 	 * @throws AnswerParserException
-	 * 
+	 *
 	 * @return object $this
 	 */
 	protected function makeAnswer(){
@@ -169,7 +176,7 @@ class Answerparser extends LampcmsObject
 		$oBody = $this->oSubmittedAnswer->getBody()->tidy(array('drop-proprietary-attributes' => false, 'clean' => false))->safeHtml()->asHtml();
 
 		$htmlBody = DomFeedItem::loadFeedItem($oBody)->getFeedItem();
-		
+
 		d('after DomFeedItem: '.$htmlBody);
 
 		$username = $this->oSubmittedAnswer->getUserObject()->getDisplayName();
@@ -221,8 +228,9 @@ class Answerparser extends LampcmsObject
 		 */
 		$aExtraData = $this->oSubmittedAnswer->getExtraData();
 		d('$aExtraData: '.print_r($aExtraData, 1));
-
-		$aData = array_merge($aData, $aExtraData);
+		if(!empty($aExtraData)){
+			$aData = array_merge($aData, $aExtraData);
+		}
 		d('$aData: '.print_r($aData, 1));
 
 		$this->oAnswer = new Answer($this->oRegistry, $aData);

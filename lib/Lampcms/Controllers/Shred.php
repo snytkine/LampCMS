@@ -52,7 +52,9 @@
 
 namespace Lampcms\Controllers;
 
-use Lampcms\WebPage;
+use \Lampcms\WebPage;
+use \Lampcms\Request;
+use \Lampcms\Responder;
 
 class Shred extends WebPage
 {
@@ -66,13 +68,65 @@ class Shred extends WebPage
 
 	protected $aIPs = array();
 
+	protected $aCountries = array();
+
+	/**
+	 * Array of question IDs affected
+	 * if answers are deleted
+	 *
+	 * @var array
+	 */
+	protected $aQuestions = array();
+
+
+	protected $oCache;
+
+
 	protected function main(){
-		$this->deleteQuestions()
+		/**
+		 * Need to instantiate Cache so that it
+		 * will listen to event and unset some keys
+		 */
+		$this->oCache = $this->oRegistry->Cache;
+		$this->excludeAdmin()
+		->deleteQuestions()
 		->deleteAnswers()
 		->deleteUserTags()
 		->banIPs()
 		->deleteUser()
+		->postEvent()
 		->returnResult();
+	}
+
+
+	/**
+	 * Make sure we don't accidentely delete
+	 * administrator user
+	 *
+	 * @return object $this
+	 */
+	protected function excludeAdmin(){
+
+		$aUser = $this->oRegistry->Mongo->USERS->findOne(array('_id' => $this->oRequest['uid']));
+		if($aUser && ('administrator' === $aUser['role'])){
+			throw new \Lampcms\Exception('Dude! Not cool! You cannot shred the admin user');
+		}
+
+		return $this;
+	}
+
+	
+	/**
+	 * This is important as it will cause
+	 * the removal cached value of 'recent questions'
+	 * and 'unanswered' tags
+	 *
+	 * @return object $this
+	 */
+	protected function postEvent(){
+		$this->oRegistry->Dispatcher->post($this, 'onResourceDelete');
+
+		return $this;
 	}
 
 
@@ -90,49 +144,156 @@ class Shred extends WebPage
 	 * @return object $this
 	 */
 	protected function deleteQuestions(){
-		$cur = $this->oRegistry->Mongo->QUESTIONS->find(array('i_uid' => $this->oRequest['uid']));
+		$coll = $this->oRegistry->Mongo->QUESTIONS;
+		$uid = (int)$this->oRequest['uid'];
+		$cur = $coll->find(array('i_uid' => $uid));
 		if($cur && $cur->count() > 0){
 			d('got '.$cur->count().' questions to delete');
 			foreach($cur as $a){
+
 				if(!empty($a['ip'])){
 					$this->aIPs[$a['ip']] = 1;
 				}
 
+				/**
+				 * If this question is unanswered then also
+				 * remove from UNANSWERED_TAGS
+				 */
+				if(empty($a['i_sel_ans']) && !empty($a['a_tags']) ){
+					d('going to add to Unanswered tags');
+					\Lampcms\UnansweredTags::factory($this->oRegistry)->remove($a['a_tags']);
+				}
 
+				/**
+				 * Remove from QUESTION_TAGS
+				 */
+				if(!empty($a['a_tags'])){
+					\Lampcms\Qtagscounter::factory($this->oRegistry)->removeTags($a['a_tags']);
+				}
+
+			}
+
+			/**
+			 * Now delete actual question
+			 */
+			$res = $coll->remove(array('i_uid' => $uid), array('safe' => true));
+			d('questions removed: '.print_r($res, 1));
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Delete all answers made by user
+	 * Also update questions affected by
+	 * deletion of those answers
+	 *
+	 * @return object $this
+	 */
+	protected function deleteAnswers(){
+		$coll = $this->oRegistry->Mongo->ANSWERS;
+		$cur = $coll->find(array('i_uid' => $this->oRequest['uid']));
+		if($cur && ($cur->count() > 0)){
+
+			foreach($cur as $a){
+
+				$oQuestion = new \Lampcms\Question($this->oRegistry);
+				try{
+					$oQuestion->by_id((int)$a['i_qid']);
+					$oQuestion->updateAnswerCount(-1);
+
+					if((true === $a['accepted'])){
+						d('this was an accepted answer');
+						$oQuestion->offsetUnset('i_sel_ans');
+					}
+
+					$oQuestion->save();
+				} catch(\MongoException $e){
+					d('Question not found by _id: '.$a['i_qid']);
+				}
+
+					
+				if(!empty($a['cc'])){
+					$this->aCountries[] = $a['cc'];
+				}
+			}
+
+			$res = $coll->remove(array('i_uid' => $this->oRequest['uid']), array('safe' => true));
+			d('questions removed: '.print_r($res, 1));
+		}
+
+		return $this;
+	}
+
+
+
+	protected function deleteUserTags(){
+		$coll = $this->oRegistry->Mongo->USER_TAGS;
+		$res = $coll->remove(array('_id' => $this->oRequest['uid']), array('safe' => true));
+		d('questions removed: '.print_r($res, 1));
+
+		return $this;
+	}
+
+
+	/**
+	 * Change role of user to 'deleted'
+	 * This is better than actually deleting the user
+	 * since it's still possible to 'undelete' user
+	 * if necessary and also it makes it more difficult
+	 * for this user to just re-register beause
+	 * user will not be able to reuse email address
+	 *
+	 * @return object $this
+	 */
+	protected function deleteUser(){
+
+		$this->oRegistry->Mongo->USERS->update(array('_id' => $this->oRequest['uid']),
+		array('$set' => array('role' => 'deleted')),
+		array('safe' => true));
+
+		return $this;
+	}
+
+
+	/**
+	 * Add IPs from user posted to the
+	 * BANNED_IP collection
+	 *
+	 * @return object $this
+	 */
+	protected function banIPs(){
+		d('aIPs: '.print_r($this->aIPs, 1));
+		if(!empty($this->aIPs)){
+			$IPS = array_keys($this->aIPs);
+			foreach($IPS as $val){
+				d('banning IP '.$val);
+				try{
+					$this->oRegistry->Mongo->BANNED_IP->insert(array('_id' => $val), array('safe' => true));
+				} catch (\MongoException $e){
+					d('IP address '.$val.' already banned');
+				}
 			}
 		}
 
 		return $this;
 	}
 
-	protected function deleteAnswers(){
-
-
-		return $this;
-	}
-
-	protected function deleteUserTags(){
-
-
-		return $this;
-	}
-
-	protected function deleteUser(){
-
-
-		return $this;
-	}
-
-	protected function banIPs(){
-
-
-		return $this;
-	}
 
 
 	protected function returnResult(){
 
+		if(Request::isAjax()){
 
+			$message = 'User Shredded<hr>Banned IPs:'.implode('<br>', array_keys($this->aIPs)).
+			'<hr><br>Countries: '.implode('<br>', array_keys($this->aCountries));
+
+			Responder::sendJSON(array('alert' => $message));
+		}
+
+		Responder::redirectToPage();
 
 	}
+
 }

@@ -594,8 +594,8 @@ YUI({
 		 * separate code previews
 		 */
 		mbody = mbody.replace(/"codepreview"/g, '"code"');
-		if (20 > mbody.length) {
-			alert('Questions and answers must be at least 20 characters long');
+		if (10 > mbody.length) {
+			alert('Questions and answers must be at least 10 characters long');
 			e.halt();
 			return;
 		}

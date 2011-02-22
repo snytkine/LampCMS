@@ -334,11 +334,14 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 
 		$a = $this->getRegistry()->Mongo->getCollection($this->collectionName)->findOne(array($column => $value) );
 
-		if(!empty($a)){
+		if(empty($a)){
+			throw new \MongoException('Unable to find data in collection '.$this->collectionName.' by '.$column.' = '.$value);
+		}
+		/*if(!empty($a)){
 			d('got data a: '.print_r($a, 1));
 			
 			$this->reload($a);
-		}
+		}*/
 
 		return $this;
 	}

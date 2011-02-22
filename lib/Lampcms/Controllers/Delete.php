@@ -124,6 +124,10 @@ class Delete extends WebPage
 	 */
 	protected $requested = false;
 
+
+
+	protected $oCache;
+
 	/**
 	 *
 	 * Extra info about number of
@@ -141,6 +145,11 @@ class Delete extends WebPage
 
 
 	protected function main(){
+		/**
+		 * Need to instantiate Cache so that it
+		 * will listen to event and unset some keys
+		 */
+		$this->oCache = $this->oRegistry->Cache;
 		$this->collection = ('q' == $this->oRequest['rtype']) ? 'QUESTIONS' : 'ANSWERS';
 		$this->permission = ('QUESTIONS' === $this->collection) ? 'delete_question' : 'delete_answer';
 
@@ -320,8 +329,8 @@ class Delete extends WebPage
 
 				\Lampcms\Qtagscounter::factory($this->oRegistry)->removeTags($oQuestion);
 				if(0 === $this->oResource['i_sel_ans']){
-					d('going to add to Unanswered tags');
-					\Lampcms\UnansweredTags::factory($this->oRegistry)->set($oQuestion);
+					d('going to remove to Unanswered tags');
+					\Lampcms\UnansweredTags::factory($this->oRegistry)->remove($oQuestion);
 				}
 			} else {
 				$oQuestion = new \Lampcms\Question($this->oRegistry);

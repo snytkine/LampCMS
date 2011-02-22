@@ -141,7 +141,9 @@ POST_TO_WALL = true
 ; since each observer can halt the processing
 ; of script, make sure to put most important ones first
 ; and most resource-intensive last
+; Make sure Names are Unique - cannot use same filter name twice!
 [INPUT_FILTERS]
+ipFilter= "\\Lampcms\\Modules\\Observers\\IpFilter"
 floodCheck = "\\Lampcms\\Modules\\Observers\\FloodCheck"
 questionSimilar = "\\Lampcms\\Modules\\Observers\\Similars"
 
