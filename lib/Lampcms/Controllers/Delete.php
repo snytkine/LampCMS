@@ -95,6 +95,8 @@ class Delete extends WebPage
 	protected $membersOnly = true;
 
 	protected $requireToken = true;
+	
+	protected $bRequirePost = true;
 
 	protected $aRequired = array('rid', 'rtype');
 
@@ -178,6 +180,8 @@ class Delete extends WebPage
 
 		if($this->oRegistry->Viewer->isModerator()){
 			$uid = $this->oResource['i_uid'];
+			d('uid: '.$uid);
+			
 			$oUser = \Lampcms\User::factory($this->oRegistry)->by_id($uid);
 			$q = $this->oRegistry->Mongo->QUESTIONS->find(array('i_uid' => $uid, 'i_del_ts' => null));
 			$a = $this->oRegistry->Mongo->ANSWERS->find(array('i_uid' => $uid, 'i_del_ts' => null));
@@ -205,6 +209,7 @@ class Delete extends WebPage
 	 * @return object $this;
 	 */
 	protected function updateQuestion(){
+		
 		if(('ANSWERS' === $this->collection)){
 
 			$oQuestion = new \Lampcms\Question($this->oRegistry);
@@ -218,7 +223,7 @@ class Delete extends WebPage
 				$oQuestion->offsetUnset('i_sel_ans');
 			}
 
-			$oQuestion->save();
+			$oQuestion->updateLastModified()->save();
 		}
 
 		return $this;
@@ -263,7 +268,7 @@ class Delete extends WebPage
 	 */
 	protected function checkPermission(){
 
-		if($this->oRegistry->Viewer->getUid() != $this->oResource->getOwnerId()){
+		if(!\Lampcms\isOwner($this->oRegistry->Viewer, $this->oResource)){
 
 			$this->checkAccessPermission($this->permission);
 		}

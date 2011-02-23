@@ -51,33 +51,72 @@
 
 
 
-namespace Lampcms\Modules\Observers;
-
-class IpFilter extends \Lampcms\Observer
+class tplFormedit extends Lampcms\Template\Template
 {
+	/**
+	 * Important: names of form fields
+	 * must match the keys in this array
+	 * for example 'title', 'body', 'tags'
+	 * must be names of form fields
+	 *
+	 * @var array
+	 */
+	protected static $vars = array(
+	'token' => '', //1
+	'required' => 'required', //2
+	'title' => '', //3
+	'title_l' => 'Title', // 4
+	'title_d' => '',
+	'title_e' => '', // 6
+	'title_c' => 'title', // 7
+	'qbody' => '', //8
+	'qbody_e' => '', //9
+	'reason' => '', //10
+	'reason_l' => 'Reason for editing', //11
+	'reason_d' => 'Enter short summary of reason for this edit', //12
+	'reason_e' => '', //13
+	'submit' => 'Save', //14
+	'rtype' => 'q', //15
+	'formError' => '',// 16
+	'hidden' => '', //17
+	'id_title' => 'title_off', //18
+	'id' => '' //19
+	); 
 
-	public function main(){
-		d('get some event');
-		switch ($this->eventName){
-			case 'onBeforeNewQuestion':
-			case 'onBeforeNewAnswer':
-			case 'onBeforeEdit':
-				$this->checkIP();
-				break;
-
-		}
-
-	}
-
-
-	protected function checkIP(){
-		$ip = \Lampcms\Request::getIP();
-		d('checking IP: '.$ip);
-		$res = $this->oRegistry->Mongo->BANNED_IP->findOne(array('_id' => $ip));
-		if(!empty($res)){
-			throw new \Lampcms\FilterException('Unable to add new content at this time');
-		}
-	}
-
-
+	protected static $tpl = '
+	<div id="edit_form">
+	<div class="form_error">%16$s</div>
+		<form class="qa_form" name="editor" method="POST" action="/index.php" accept-charset="utf-8">
+		<input type="hidden" name="a" value="editor">	
+		<input type="hidden" name="token" value="%1$s">
+		<input type="hidden" name="rtype" value="%15$s">
+		<input type="hidden" name="rid" value="%19$s">
+		<div class="form_el%17$s"> 
+                <label for="id_title">%4$s</label>: <span class="f_err">%6$s</span><br> 
+                <input autocomplete="off" id="%18$s" class="title_c" type="text" name="title" size="80" value="%3$s"> 
+                <div id="title_d" class="caption">%5$s</div> 
+       </div>
+       <!-- // el title -->
+            <div class="form_el" id="iedit"> 
+                <textarea id="id_qbody" rows="10" cols="40" class="com_body white" name="qbody">%8$s</textarea><br>
+                <span class="f_err">%9$s</span>
+                <div id="body_preview"></div>
+                <span class="label">Preview</span>
+                <div id="tmp_preview"></div>
+            </div>
+            <!-- // el body -->
+            
+            <div class="form_el"> 
+            	<label for="id_reason">%11$s</label>: (* %2$s) <span class="f_err">%13$s</span><br> 
+                <input autocomplete="off" id="id_reason" type="text" name="reason" class="reason_c" size="80" value="%10$s">  
+            	<div id="reason_d" class="caption">%12$s</div> 
+            </div>
+            <!-- // el tags -->
+            
+            <div class="form_el">
+            	<input id="dostuff" name="submit" type="submit" value="%14$s" class="btn btn-m"> 
+            </div>
+            <!-- // el submit -->
+		</form>
+	</div>';
 }

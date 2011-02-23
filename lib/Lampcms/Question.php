@@ -54,6 +54,7 @@ namespace Lampcms;
 
 
 /**
+ *
  * Class represeints one question stored
  * in Mongo QUESTIONS collection
  * implements LampcmsResourceInterface
@@ -196,16 +197,72 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	public function setDeleted(User $user, $reason = null){
 		if(0 === $this->getDeletedTime()){
 			$this->offsetSet('i_del_ts', time());
-			$this->offsetSet('a_deleted', array(
+			$this->offsetSet('a_deleted',
+			array(
 			'username' => $user->getDisplayName(),
 			'i_uid' => $user->getUid(),
 			'av' => $user->getAvatarSrc(),
 			'reason' => $reason,
-			'h_ts' => date('r')));
+			'hts' => date('F j, Y g:i a T')
+			)
+			);
 		}
-		
+
 		$this->updateLastModified();
-		
+
+		return $this;
+	}
+
+
+	/**
+	 *
+	 * Adds a_edited array of data to Question
+	 *
+	 * @param User $user
+	 * @param string $reason reason for editing
+	 *
+	 * @return object $this
+	 */
+	public function setEdited(User $user, $reason = ''){
+
+		$aEdited = $this->offsetGet('a_edited');
+		if(empty($aEdited) || !is_array($aEdited)){
+			$aEdited = array();
+		}
+
+		$aEdited[] = array(
+			'username' => $user->getDisplayName(),
+			'i_uid' => $user->getUid(),
+			'av' => $user->getAvatarSrc(),
+			'reason' => $reason,
+			'hts' => date('F j, Y g:i a T'));
+
+		$this->offsetSet('a_edited', $aEdited);
+
+		$this->updateLastModified();
+
+		return $this;
+	}
+
+	/**
+	 *
+	 * Set tags for this question
+	 * It will also update "a_edited" array
+	 * to record the retag action, records
+	 * user who retagged, and "Retag" as reason for edit
+	 * Will also update lastModified
+	 *
+	 * @param User $user object User who retagged this question
+	 * @param array $tags array of tags
+	 */
+	public function retag(User $user, array $tags){
+
+		$this->offsetSet('a_tags', $tags);
+		$this->offsetSet('tags_html', \tplQtags::loop($tags, false));
+		$this->offsetSet('tags_c', trim(\tplQtagsclass::loop($tags, false)));
+
+		$this->setEdited($user, 'Retagged');
+
 		return $this;
 	}
 

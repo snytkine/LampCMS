@@ -54,6 +54,7 @@ namespace Lampcms;
 
 
 /**
+ *
  * Class represents on item
  * from the ANSWERS collection
  *
@@ -116,11 +117,49 @@ class Answer extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\
 	public function setDeleted(User $user, $reason = null){
 		if(0 === $this->getDeletedTime()){
 			$this->offsetSet('i_del_ts', time());
-			$this->offsetSet('a_deleted', array('username' => $user->getDisplayName(),
+			$this->offsetSet('a_deleted',
+			array(
+			'username' => $user->getDisplayName(),
 			'i_uid' => $user->getUid(),
 			'av' => $user->getAvatarSrc(),
-			'reason' => $reason));
+			'reason' => $reason,
+			'hts' => date('F j, Y g:i a T')
+			)
+			);
+				
+			$this->updateLastModified();
 		}
+
+		return $this;
+	}
+
+
+	/**
+	 *
+	 * Adds a_edited array of data to Question
+	 *
+	 * @param User $user
+	 * @param string $reason reason for editing
+	 *
+	 * @return object $this
+	 */
+	public function setEdited(User $user, $reason = ''){
+
+		$aEdited = $this->offsetGet('a_edited');
+		if(empty($aEdited) || !is_array($aEdited)){
+			$aEdited = array();
+		}
+
+		$aEdited[] = array(
+			'username' => $user->getDisplayName(),
+			'i_uid' => $user->getUid(),
+			'av' => $user->getAvatarSrc(),
+			'reason' => $reason,
+			'hts' => date('F j, Y g:i a T'));
+
+		$this->offsetSet('a_edited', $aEdited);
+
+		$this->updateLastModified();
 
 		return $this;
 	}

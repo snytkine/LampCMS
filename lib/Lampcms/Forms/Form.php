@@ -359,7 +359,7 @@ class Form extends LampcmsObject
 	 */
 	public function setError($field, $message){
 		if(Request::isAjax()){
-			\Lampcms\Responder::sendJSON(array('formElementError' => array($field => $messasge)));
+			\Lampcms\Responder::sendJSON(array('formElementError' => array($field => $message)));
 		} else {
 			$this->aErrors[$field.'_e'][] = $message;
 		}

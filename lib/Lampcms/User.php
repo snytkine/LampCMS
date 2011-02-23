@@ -79,6 +79,15 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	protected $avtrSrc;
 
 	/**
+	 *
+	 * Store value of resolved isModerator() call
+	 * for memoization
+	 *
+	 * @var bool
+	 */
+	protected $bIsModerator;
+
+	/**
 	 * Factory method
 	 *
 	 * @todo MUST pass Registry here!
@@ -124,10 +133,10 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	public function getUid()
 	{
 		d('$this->keyColumn: '.$this->keyColumn);
-		
+
 		if (true !== $this->checkOffset($this->keyColumn)) {
 			d('cp no key column '.$this->keyColumn);
-			
+				
 			return 0;
 		}
 
@@ -176,9 +185,16 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * @return bool true if moderator, falst otherwise
 	 */
 	public function isModerator(){
-		$role = $this->getRoleId();
 
-		return (('admin' === $role) || ('root' === $role) || strstr($role, 'moderator') );
+		if(!isset($this->bIsModerator)){
+			$role = $this->getRoleId();
+
+			$this->bIsModerator = (('administrator' === $role) || strstr($role, 'moderator') );
+
+		}
+
+		return $this->bIsModerator;
+
 	}
 
 
@@ -629,7 +645,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 */
 	public function setLastActive(){
 		$this->offsetSet('i_lm_ts', time());
-		
+
 		return $this;
 	}
 

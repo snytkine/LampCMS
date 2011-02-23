@@ -50,34 +50,130 @@
  */
 
 
+namespace Lampcms\Controllers;
 
-namespace Lampcms\Modules\Observers;
 
-class IpFilter extends \Lampcms\Observer
+use \Lampcms\Responder;
+use \Lampcms\Request;
+use \Lampcms\Utf8String;
+use \Lampcms\DomFeedItem;
+
+/**
+ * Controller for processing "Edit"
+ * form for editing Question or Answer
+ *
+ * @author Dmitri Snytkine
+ *
+ */
+class Editor extends Edit
 {
 
-	public function main(){
-		d('get some event');
-		switch ($this->eventName){
-			case 'onBeforeNewQuestion':
-			case 'onBeforeNewAnswer':
-			case 'onBeforeEdit':
-				$this->checkIP();
-				break;
+	protected $membersOnly = true;
 
-		}
+	protected $requireToken = true;
 
-	}
+	protected $bRequirePost = true;
+
+	protected $aRequired = array('rid', 'rtype');
 
 
-	protected function checkIP(){
-		$ip = \Lampcms\Request::getIP();
-		d('checking IP: '.$ip);
-		$res = $this->oRegistry->Mongo->BANNED_IP->findOne(array('_id' => $ip));
-		if(!empty($res)){
-			throw new \Lampcms\FilterException('Unable to add new content at this time');
+	protected function main(){
+		$this->getResource()
+		->checkPermission()
+		->makeForm();
+
+		if($this->oForm->validate()){
+			$this->process()->updateQuestion()->returnResult();
+		} else {
+			$this->returnErrors();
 		}
 	}
 
 
+	protected function returnErrors(){
+		d('cp');
+
+		if(Request::isAjax()){
+			d('cp');
+			$aErrors = $this->oForm->getErrors();
+
+			Responder::sendJSON(array('formErrors' => $aErrors));
+		}
+
+		$this->makeTopTabs()
+		->makeMemo()
+		->setForm();
+	}
+
+
+	/**
+	 *
+	 * Process submitted form values
+	 */
+	protected function process()
+	{
+		$this->oRegistry->Dispatcher->post($this->oResource, 'onBeforeEdit');
+		
+		$formVals = $this->oForm->getSubmittedValues();
+		d('formVals: '.print_r($formVals, 1));
+
+		$this->oResource['b'] = $this->makeBody($formVals['qbody']);
+		$this->oResource['title'] = $this->makeTitle($formVals['title']);
+		$this->oResource->setEdited($this->oRegistry->Viewer, strip_tags($formVals['reason']));
+		$this->oResource->save();
+		
+		$this->oRegistry->Dispatcher->post($this->oResource, 'onEdit');
+
+		return $this;
+	}
+
+
+	protected function makeBody($body){
+		$oBody = Utf8String::factory($body)
+		->makeClickable()
+		->tidy()
+		->safeHtml()
+		->asHtml();
+
+		$htmlBody = DomFeedItem::loadFeedItem($oBody)->getFeedItem();
+		d('after DomFeedItem: '.$htmlBody);
+
+		return $htmlBody;
+	}
+
+
+	protected function makeTitle($title){
+		$ret = Utf8String::factory($title)->htmlentities()->valueOf();
+		d('ret '.$ret);
+
+		return $ret;
+
+	}
+
+
+	/**
+	 * If Edited resource was an ANSWER then we must update
+	 * last-modified of its QUESTION
+	 *
+	 * @return object $this
+	 */
+	protected function updateQuestion(){
+		if('ANSWERS' === $this->collection){
+			d('need to update QUESTION');
+			
+			try{
+				$this->oRegistry->Mongo->QUESTIONS
+				->update(array('_id' => $this->oResource['i_qid']), array('$set' => array('i_lm_ts' => time())));
+			} catch(\MongoException $e){
+				d('unable to update question '.$e->getMessage());
+			}
+		}
+		
+		return $this;
+	}
+	
+	
+	protected function returnResult(){
+		Responder::redirectToPage($this->oResource->getUrl());
+	}
 }

@@ -203,7 +203,7 @@ class Vote extends WebPage
 	 */
 	protected function checkIsOwner(){
 
-		if($this->oResource->getOwnerId() == $this->oRegistry->Viewer->getUid()){
+		if(\Lampcms\isOwner($this->oRegistry->Viewer, $this->oResource)){
 			throw new \Lampcms\Exception('Cannot rate own questions or answers');
 		}
 

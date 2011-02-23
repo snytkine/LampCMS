@@ -246,7 +246,7 @@ class Flagger extends WebPage
 	protected function notifyModerators(){
 
 		$cur = $this->oRegistry->Mongo->USERS->find(array(
-  			'role' => array('$in' => array('moderator', 'admin'))
+  			'role' => array('$in' => array('moderator', 'administrator'))
 		), array('email'));
 
 		d('found '.$cur->count().' moderators');

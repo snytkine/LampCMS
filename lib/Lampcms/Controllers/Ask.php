@@ -69,7 +69,6 @@ class Ask extends Askform
 	
 	protected $membersOnly = true;
 
-	protected $aAllowedVars = array('title', 'qbody', 'tags');
 
 	protected function main(){
 

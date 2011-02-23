@@ -61,6 +61,12 @@
 class tplQuestion extends Lampcms\Template\Template
 {
 	
+	protected static function func(&$a){
+		if(array_key_exists('a_edited', $a)){
+			$a['edits'] = \tplEditedby::parse(end($a['a_edited']), false);
+		}
+	}
+	
 	protected static $vars = array(
 	'_id' => '', // 1
 	'b' => '', // 2
@@ -78,7 +84,8 @@ class tplQuestion extends Lampcms\Template\Template
 	'vote_down' => "\xE2\x87\xA9", // 14
 	'i_flags' => '', //15
 	'deleted' => '', // 16
-	'deletedby' => '' //17
+	'deletedby' => '', //17
+	'edits' => '' //18
 	);
 
 	protected static $tpl = '
@@ -124,8 +131,8 @@ class tplQuestion extends Lampcms\Template\Template
 		<!-- // -->
 		<table class="foot">
           <tr>
-            <td class="post_menu">
-                
+            <td class="edits">
+                %18$s
             </td>
             <td class="td_poster owner">
             <div class="usr_info">

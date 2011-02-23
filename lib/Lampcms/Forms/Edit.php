@@ -49,35 +49,70 @@
  *
  */
 
+ 
+
+namespace Lampcms\Forms;
 
 
-namespace Lampcms\Modules\Observers;
-
-class IpFilter extends \Lampcms\Observer
+/**
+ * Class responsible
+ * for processing the "Ask" form
+ *
+ *
+ * @author Dmitri Snytkine
+ *
+ */
+class Edit extends Form
 {
 
-	public function main(){
-		d('get some event');
-		switch ($this->eventName){
-			case 'onBeforeNewQuestion':
-			case 'onBeforeNewAnswer':
-			case 'onBeforeEdit':
-				$this->checkIP();
-				break;
 
-		}
+	/**
+	 * Name of form template file
+	 * The name of actual template should be
+	 * set in sub-class
+	 *
+	 * @var string
+	 */
+	protected $template = 'tplFormedit';
+
+	
+	/**
+	 * Concrete form validator for this form
+	 * (non-PHPdoc)
+	 * @see clsForm::doValidate()
+	 */
+	protected function doValidate(){
+
+		$this->validateBody()->validateReason();
 
 	}
 
-
-	protected function checkIP(){
-		$ip = \Lampcms\Request::getIP();
-		d('checking IP: '.$ip);
-		$res = $this->oRegistry->Mongo->BANNED_IP->findOne(array('_id' => $ip));
-		if(!empty($res)){
-			throw new \Lampcms\FilterException('Unable to add new content at this time');
+	
+	protected function validateBody(){
+		$body = $this->oRegistry->Request->qbody;
+		if(strlen($body) < 10){
+			$this->setError('qbody', 'Question must contain at least 10 letters');
 		}
+
+		$aWords = explode(' ', $body);
+		if(count($aWords) < 3){
+			$this->setError('qbody', 'Question must contain at least 3 words');
+		}
+
+		return $this;
 	}
 
+	
+	protected function validateReason(){
+		$s = $this->oRegistry->Request->reason;
+		$s = trim($s);
+		if(empty($s)){
+			$this->setError('reason', 'You must include reason for editing');
+		}
+
+		
+
+		return $this;
+	}
 
 }

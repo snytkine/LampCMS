@@ -49,35 +49,30 @@
  *
  */
 
+ 
 
-
-namespace Lampcms\Modules\Observers;
-
-class IpFilter extends \Lampcms\Observer
+class tplEditedby extends \Lampcms\Template\Template
 {
 
-	public function main(){
-		d('get some event');
-		switch ($this->eventName){
-			case 'onBeforeNewQuestion':
-			case 'onBeforeNewAnswer':
-			case 'onBeforeEdit':
-				$this->checkIP();
-				break;
-
-		}
-
-	}
+	protected static $vars = array(
+			'username' => '', //1
+			'i_uid' => '', //2
+			'av' => '', //3
+			'reason' => '', //4
+			'hts' => '' // 5
+	        );
 
 
-	protected function checkIP(){
-		$ip = \Lampcms\Request::getIP();
-		d('checking IP: '.$ip);
-		$res = $this->oRegistry->Mongo->BANNED_IP->findOne(array('_id' => $ip));
-		if(!empty($res)){
-			throw new \Lampcms\FilterException('Unable to add new content at this time');
-		}
-	}
-
-
+	protected static $tpl = '
+	<div class="usr_info">
+            <div class="qtime">Edited <span title="%5$s" class="ts">%5$s</span></div>
+            <div class="avtr32">
+            	 <img src="%3$s" height="32" width="32" alt="">
+            </div>
+            <div class="usr_details"> 
+            	 <a href="/users/%2$s/%1$s">%1$s</a><br>
+			</div>
+			<div class="reason cb fl">%4$s</div>
+	</div>';
+	
 }

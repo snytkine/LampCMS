@@ -264,6 +264,19 @@ function prepareHeaders(array $aHeaders){
 }
 
 /**
+ * Check to see if User $user is owner of Resource $resource
+ * @param Resource $resource
+ * @param User $user
+ * 
+ * @return bool true if User is owner of Resource
+ */
+function isOwner(User $user, \Lampcms\Interfaces\LampcmsResource $resource ){
+	$uid = $user->getUid();
+	
+	return (($uid > 0 )  && $uid === $resource->getOwnerId());
+}
+
+/**
  * Base class for all custom objects
  * well, not really all, but
  * many of them, especially

@@ -157,14 +157,13 @@ YUI({
 	 */
 	oAlerter, //
 
-	getStorageKey = function() {
-		var formName;
-		if (!eForm) {
-			return null;
-		}
+	getStorageKey = function() {	
+			var formName;
+			if (!eForm) {
+				return null;
+			}
 
-		return eForm.get('name');
-
+			return eForm.get('name');
 	}, //
 
 	/**
@@ -428,6 +427,18 @@ YUI({
 			
 			break;
 			
+		case el.test('.edit'):
+			ancestor = el.ancestor("div.controls");
+			if(ancestor){
+			    restype = (ancestor.test('.question')) ? 'q' : 'a';
+			    resID = ancestor.get('id');
+			    resID = resID.substr(4);
+			    Y.log('restype: ' + restype + ' resID: ' + resID);
+			    window.location.assign('/index.php?a=edit&rid='+resID+'&rtype='+restype);
+				}
+			
+			break;
+			
 		case el.test('.btn_shred'):
 			if(ensureLogin()){
 				//alert('clicked on shred for user' + el.get('id'));
@@ -523,7 +534,7 @@ YUI({
 			if (data.redirect || data.answer) {
 				Y.StorageLite.removeItem(getStorageKey());
 				if (data.redirect) {
-					alert('Question posted! Redirecting to <br><a href="' + data.redirect + '">' + data.redirect + '</a>');
+					alert('Item saved! Redirecting to <br><a href="' + data.redirect + '">' + data.redirect + '</a>');
 					// redirect in 1 second
 					Y.later(1000, this, function() {
 						window.location.assign(data.redirect);
@@ -561,7 +572,7 @@ YUI({
 	 */
 	var MysubmitForm = function(e) {
 			
-		var mbody, title, tags, form = e.currentTarget;
+		var mbody, title, tags, reason, form = e.currentTarget;
 		
 		Y.log('form is: ' + form);
 		// var title_d = Y.one("#title_d").get("value"); // wtf?
@@ -579,6 +590,14 @@ YUI({
 			e.halt();
 			return;
 		}
+		
+		reason = form.one("#id_reason");
+		if (reason && (1 > reason.get("value").length)) {
+			alert('You must include reason for editing');
+			e.halt();
+			return;
+		}
+		//
 
 		mbody = getEditedText();
 		/**
@@ -593,7 +612,7 @@ YUI({
 		 * question/answers that are already on the page, thus we need 2
 		 * separate code previews
 		 */
-		mbody = mbody.replace(/"codepreview"/g, '"code"');
+		//mbody = mbody.replace(/"codepreview"/g, '"code"');
 		if (10 > mbody.length) {
 			alert('Questions and answers must be at least 10 characters long');
 			e.halt();
@@ -802,26 +821,30 @@ YUI({
 			}, editor, true);
 		});
 
+		
+		Y.log('doing some storage lite stuff ' + !Y.one('#iedit'));
+		if(!Y.one('#iedit')){
 		Y.later(5000, editor, function() {
-			if (editor.editorDirty) {
+				if (editor.editorDirty) {
 				editor.editorDirty = null;
 				saveToStorage();
 			}
 		}, {}, true);
+		}
 
 		Y.StorageLite.on('storage-lite:ready', function() {
-			var body = Y.one('#id_qbody');
-			var editorValue = Y.StorageLite.getItem(getStorageKey());
-			if (body && null !== editorValue && '' !== editorValue) {
+			var editorValue, body = Y.one('#id_qbody');
+			editorValue = Y.StorageLite.getItem(getStorageKey());
+			if (body && !Y.one('#iedit') && null !== editorValue && '' !== editorValue) {
 				body.set('value', editorValue);
 				write('Loaded content draft from Local Storage');
 			} else {
 				write('Editor ready');
 			}
 
-			editor.render();
-		});
-
+				editor.render();
+			});
+		
 		/**
 		 * Preview result html from editor
 		 */
@@ -1027,7 +1050,7 @@ YUI({
 		var role;
 		if(!bModerator){
 			role = getMeta('role');
-			bModerator = (role && (('admin' == role)  || ('moderator' == role) ));
+			bModerator = (role && (('administrator' == role)  || ('moderator' == role) ));
 		}
 		
 		Y.log('isModerator: ' + bModerator);
@@ -1064,17 +1087,27 @@ YUI({
 			controls.each(function(){
 				Y.log('this is: ' + this);
 				if(this.test('.question')){
-					if(2>1 || isModerator() || this.test('.uid-' + getViewerId()) || 2000 < getReputation()){
+					if(isModerator() || this.test('.uid-' + getViewerId()) || 500 < getReputation()){
 			         this.append(' | <span class="retag">retag</span>');
 		            }
 			 	}
+				
+				/**
+				 * If is moderator or Owner of item,
+				 * meaning controls has class uid-1234
+				 * where 1234 is also id of viewer  + getViewerId()
+				 */
+				if(isModerator() || this.test('.uid-' + getViewerId())  || 2000 < getReputation()){
+					this.append(' | <span class="edit">edit</span>');
+				}
+				
 				/**
 				 * If is moderator or Owner of item,
 				 * meaning controls has class uid-1234
 				 * where 1234 is also id of viewer  + getViewerId()
 				 */
 				if(isModerator() || this.test('.uid-' + getViewerId())){
-					this.append(' | <span class="edit">edit</span> | <span class="del">delete</span>');
+					this.append(' | <span class="del">delete</span>');
 				}
 			});	
 		}

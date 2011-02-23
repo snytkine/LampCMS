@@ -118,7 +118,7 @@ class Retag extends WebPage
 	 */
 	protected function checkPermission(){
 
-		if($this->oRegistry->Viewer->getUid() != $this->oQuestion->getOwnerId()
+		if(!\Lampcms\isOwner($this->oRegistry->Viewer, $this->oQuestion)
 		&& ($this->oRegistry->Viewer->getReputation() < ReputationAcl::RETAG)){
 
 			$this->checkAccessPermission('retag');
@@ -177,11 +177,8 @@ class Retag extends WebPage
 	 * @return object $this
 	 */
 	protected function updateQuestion(){
-		$this->oQuestion->offsetSet('a_tags', $this->aSubmitted);
-		$this->oQuestion->offsetSet('tags_html', \tplQtags::loop($this->aSubmitted, false));
-		$this->oQuestion->offsetSet('tags_c', trim(\tplQtagsclass::loop($this->aSubmitted, false)));
-
-		$this->oQuestion->updateLastModified()->save();
+		
+		$this->oQuestion->retag($this->oRegistry->Viewer, $this->aSubmitted)->save();
 
 		return $this;
 	}

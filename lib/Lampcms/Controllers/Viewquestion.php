@@ -155,6 +155,7 @@ class Viewquestion extends WebPage
 	 * @return object $this
 	 */
 	protected function getQuestion(){
+		$isModerator = $this->oRegistry->Viewer->isModerator();
 
 		$this->aQuestion = $this->oRegistry->Mongo
 		->getCollection('QUESTIONS')
@@ -168,16 +169,14 @@ class Viewquestion extends WebPage
 		}
 		d('$this->aQuestion: '.print_r($this->aQuestion, 1));
 
-		$isModerator = $this->oRegistry->Viewer->isModerator();
-		$func = null;
-		$deleted = (!empty($this->aQuestion['i_del_ts'])) ?  ' deleted' : false;
-
 		/**
-		 * @todo Translate string
+		 * Only moderators can see ip address
 		 */
-		/*if($deleted && !$isModerator){
-			throw new \Lampcms\Lampcms404Exception('Question was deleted on '.date('F j Y', $this->aQuestion['i_del_ts']));
-			}*/
+		if(!$isModerator && !empty($this->aQuestion['ip'])){
+			unset($this->aQuestion['ip']);
+		}
+		
+		$deleted = (!empty($this->aQuestion['i_del_ts'])) ?  ' deleted' : false;
 
 
 		/**
@@ -189,19 +188,29 @@ class Viewquestion extends WebPage
 		}
 
 		$this->oQuestion = new Question($this->oRegistry, $this->aQuestion);
+
 		/**
-		 * If Viewer is moderator, then viewer
-		 * will be able to view deleted item
-		 * This will add 'deleted' class to question table
+		 * @todo Translate string
 		 */
-		if(!$isModerator && $deleted){
+		if($deleted){
+			if(!$isModerator && !\Lampcms\isOwner($this->oRegistry->Viewer, $this->oQuestion)){
+				throw new \Lampcms\Lampcms404Exception('Question was deleted on '.date('F j Y', $this->aQuestion['i_del_ts']));
+			}
+
+			/**
+			 * If Viewer is moderator, then viewer
+			 * will be able to view deleted item
+			 * This will add 'deleted' class to question table
+			 */
 
 			$this->aQuestion['deleted'] = $deleted;
 			if(!empty($this->aQuestion['a_deleted'])){
-				$this->aQuestion['deletedby'] = \tplDeletedby::parse($this->aQuestion['a_deleted']);
+				$this->aQuestion['deletedby'] = \tplDeletedby::parse($this->aQuestion['a_deleted'], false);
 				d('deletedby: '.$this->aQuestion['deletedby']);
 			}
 		}
+
+
 
 		$this->aPageVars['body'] = \tplQuestion::parse($this->aQuestion);
 
@@ -309,7 +318,7 @@ class Viewquestion extends WebPage
 	 */
 	protected function setAnswers(){
 		$answers = '';
-		if($this->oQuestion['i_ans'] > 0){
+		if($this->oQuestion['i_ans'] > 0 || $this->oRegistry->Viewer->isModerator()){
 			$answers = Answers::factory($this->oRegistry)->getAnswers($this->oQuestion);
 		}
 

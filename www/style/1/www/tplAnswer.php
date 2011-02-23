@@ -61,6 +61,20 @@
 class tplAnswer extends Lampcms\Template\Template
 {
 
+	protected static function func(&$a){
+		if(array_key_exists('a_edited', $a)){
+			$a['edits'] = \tplEditedby::parse(end($a['a_edited']), false);
+		}
+		
+		if(!empty($a['i_del_ts'])){
+			$a['deleted'] = ' deleted';
+		}
+		
+		if(!empty($a['a_deleted'])){
+			$a['deletedby'] = \tplDeletedby::parse($a['a_deleted'], false);
+		}
+	}
+
 	protected static $vars = array(
 	'_id' => '', // 1
 	'b' => '', // 2
@@ -75,11 +89,14 @@ class tplAnswer extends Lampcms\Template\Template
 	'vote_down' => "\xE2\x87\xA9", //11
 	'accept_link' => '&nbsp', // 12,
 	'accepted' => '', //13
-	'i_flags' => '' // 14
+	'i_flags' => '', // 14
+	'edits' => '', // 15
+	'deleted' => '', //16
+	'deletedby' => '', //17
 	);
 
 
-	protected static $tpl = '<table class="ans_table" id="ans%1$s">
+	protected static $tpl = '<table class="ans_table%16$s" id="ans%1$s">
 	<tr>
 		<td class="td_votes" width="60px">
 		<div class="votebtns" id="vote%1$s">
@@ -105,12 +122,8 @@ class tplAnswer extends Lampcms\Template\Template
 		<!-- // -->
 		<table class="foot">
             <tr>
-            <td class="post_menu">
-            <!--
-                <div class="flag">                
-                <a id="flag-%1$s" href="/flag/a/%1$s" class="flag" title="flag this post for serious problems or moderator attention">flag</a>
-                </div>
-                -->
+            <td class="edits" valign="top">
+            %15$s
             </td>
             <td class="td_poster">
             <div class="usr_info">
@@ -123,6 +136,7 @@ class tplAnswer extends Lampcms\Template\Template
             	<span class="reputation" title="reputation score"></span>
 				</div>
 			</div>
+			%17$s
             </td>
             </tr>
             </table>

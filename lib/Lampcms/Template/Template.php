@@ -105,10 +105,6 @@ class Template
 		 * it MUST accept array by reference
 		 * and modify original input array
 		 *
-		 * does not work:
-		 * function_exists(static::func)
-		 * isset(static::func) is not even syntatically correct
-		 *
 		 */
 		if( is_callable(array('static', 'func')) ){
 			d('Have static func');

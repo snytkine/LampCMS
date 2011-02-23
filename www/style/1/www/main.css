@@ -512,6 +512,20 @@ div.vws {
 	width: 225px;
 }
 
+#qview-side > div, #recent-tags > div {
+	padding-left: 10px;
+}
+
+.usr_info {
+	background-color: #E7E7E7;
+	padding: 2px;
+	margin-top: 2px;
+}
+
+.deletedby {
+	border: 2px solid black;
+}
+
 .usrinfo {
 	height: 35px;
 	width: 225px;
@@ -1059,6 +1073,15 @@ pre {
 	overflow: auto;
 	padding: 5px;
 	width: 600px;
+}
+
+.hidden {
+	visibility: hidden;
+	display: none;
+}
+
+.white {
+	color: #FFF;
 }
 
 span.label {
