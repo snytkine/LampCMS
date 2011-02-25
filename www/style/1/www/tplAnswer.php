@@ -126,7 +126,7 @@ class tplAnswer extends Lampcms\Template\Template
             %15$s
             </td>
             <td class="td_poster">
-            <div class="usr_info">
+            <div class="usr_info2">
             <div class="qtime">answered <span title="%5$s" class="ts">%5$s</span></div>
             <div class="avtr32">
              <img src="%4$s" height="32" width="32" alt="">

@@ -50,6 +50,7 @@
  */
 
 
+define('INIT_TIMESTAMP', microtime());
 
 include '../!inc.php';
 require($lampcmsClasses.'Base.php');
@@ -57,8 +58,6 @@ require($lampcmsClasses.'WebPage.php');
 require($lampcmsClasses.'Forms'.DIRECTORY_SEPARATOR.'Form.php');
 require($lampcmsClasses.'Cookie.php');
 require($lampcmsClasses.'LoginForm.php');
-
-
 
 try {
 
@@ -69,11 +68,6 @@ try {
 	}
 
 	d('session: '.print_r($_SESSION, 1));
-	if(!empty($_SESSION['oViewer'])){
-		d('isNew: '.$_SESSION['oViewer']->isNewUser().' is External: '.($_SESSION['oViewer'] instanceof \Lampcms\UserExternal));
-	} else {
-		d('No Viewer in session');
-	}
 
 	$oRequest = $oRegistry->Request;
 	$a = $oRequest->getParam('a', 'viewquestions');
@@ -81,12 +75,11 @@ try {
 	d('a: '.$a.' $oRequest: '.print_r($oRequest->getArray(), 1));
 	$controller = ucfirst($a);
 	include($lampcmsClasses.'Controllers'.DIRECTORY_SEPARATOR.$controller.'.php');
-
 	$class = '\Lampcms\\Controllers\\'.$controller;
-	$o = new $class($oRegistry);
+	//$o = new $class($oRegistry);
 
 	header('Content-Type: text/html; charset=utf-8');
-	echo $o->getResult();
+	echo new $class($oRegistry);
 	fastcgi_finish_request();
 
 } catch(\Exception $e) {

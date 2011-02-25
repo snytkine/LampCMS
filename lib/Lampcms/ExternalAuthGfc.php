@@ -107,7 +107,9 @@ class ExternalAuthGfc extends ExternalAuth
 
 
 	public function __construct(Registry $oRegistry, $gfcSiteId){
-
+		if(!extension_loaded('curl')){
+			throw new \Lampcms\Exception('Cannot use this class because php extension "curl" is not loaded');
+		}
 		parent::__construct($oRegistry);
 		$this->gfcSiteId = $gfcSiteId;
 		$this->getGfcCookieVal();
@@ -126,7 +128,7 @@ class ExternalAuthGfc extends ExternalAuth
 	protected function getGfcData()
 	{
 		$url = 'http://www.google.com/friendconnect/api/people/@viewer/@self?fcauth='.$this->fcauth;
-		
+
 		$oHTTP = new Curl();
 
 		try{
@@ -195,7 +197,7 @@ class ExternalAuthGfc extends ExternalAuth
 		}
 	}
 
-	
+
 	/**
 	 * Set fcauth to NULL
 	 * in USERS_GFC table
@@ -217,7 +219,7 @@ class ExternalAuthGfc extends ExternalAuth
 
 		$this->oUser->offsetSet('fcauth', null);
 		$this->oUser->save();
-		
+
 		$this->oRegistry->Dispatcher->post($this, 'onGfcUserDelete');
 
 		Cookie::delete(array('fcauth'.$this->gfcSiteId.'-s', 'fcauth'.$this->gfcSiteId));

@@ -204,7 +204,7 @@ You can change your password after you log in.
 		$aData['username_lc'] = strtolower($this->username);
 		$aData['email'] = $this->email;
 		$aData['rs'] = (false !== $sid) ? $sid : \Lampcms\String::makeSid();
-		$aData['role'] = 'unactivated';
+		$aData['role'] = $this->getRole();
 		$aData['tz'] = \Lampcms\TimeZone::getTZbyoffset($this->oRequest->get('tzo'));
 
 		$aData['pwd'] = String::hashPassword($this->pwd);
@@ -228,7 +228,7 @@ You can change your password after you log in.
 			'zip' => $oGeoData->postalCode);
 			d('aProfile: '.print_r($aProfile, 1));
 		}
-		
+
 		$aUser = array_merge($aData, $aProfile);
 
 		d('aUser: '.print_r($aUser, 1));
@@ -244,7 +244,22 @@ You can change your password after you log in.
 	}
 
 
+	/**
+	 * Normally the role of newly registered user
+	 * is 'unactivated' unless
+	 * the email address matches that of the EMAIL_ADMIN
+	 * in settings, in which case the account will 
+	 * automatically become an administrator account
+	 * 
+	 * 
+	 * @param string $email email address
+	 */
+	protected function getRole(){
 
+		return ($this->oRegistry->Ini->EMAIL_ADMIN === $this->email) ? 'administrator' : 'unactivated';
+	}
+
+	
 	protected function createEmailRecord(){
 
 		$coll = $this->oRegistry->Mongo->getCollection('EMAILS');
@@ -283,14 +298,10 @@ You can change your password after you log in.
 	protected function sendActivationEmail()
 	{
 		$sActivationLink = $this->makeActivationLink();
-
 		$siteName = $this->oRegistry->Ini->SITE_NAME;
-
 		$body = vsprintf(self::EMAIL_BODY, array($siteName, $this->username, $this->pwd, $sActivationLink));
 		$subject = sprintf(self::SUBJECT, $this->oRegistry->Ini->SITE_NAME);
 
-		d('body: '.$body.' subject: '.$subject);
-		
 		Mailer::factory($this->oRegistry)->mail($this->email, $subject, $body);
 
 		return $this;

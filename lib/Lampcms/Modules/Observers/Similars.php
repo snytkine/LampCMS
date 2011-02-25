@@ -49,7 +49,7 @@
  *
  */
 
- 
+
 namespace Lampcms\Modules\Observers;
 
 use \Lampcms\SimilarItems;
@@ -60,11 +60,11 @@ use \Lampcms\SimilarItems;
  * and add them to oQuestion object
  * the object will then be auto-saved to Mongo from
  * __destructor
- * 
+ *
  * The ways it was supposed to work is to add
  * simtabs via a registered observer (this class)
- * 
- * 
+ *
+ *
  *
  * @author Dmitri Snytkine
  *
@@ -72,18 +72,11 @@ use \Lampcms\SimilarItems;
 class Similars extends \Lampcms\Observer
 {
 	protected function main(){
-		$sHtml = '';
 		d('cp');
 		if('onNewQuestion' === $this->eventName){
-			/**
-			 * @todo if NOT cgi or cli version of php
-			 * then use via shutdown function, otherwise just do it
-			 * if((substr(PHP_SAPI, 0, 3) === 'cli') || (substr(PHP_SAPI, 0, 3) === 'cgi')){
-			 * @var unknown_type
-			 */
-			d('SAPI: '. PHP_SAPI );
-
-			$oParser = SimilarItems::factory($this->oRegistry)->parse($this->obj);
+			$oQuestion = $this->obj;
+			$oParser = SimilarItems::factory($this->oRegistry);
+			$oParser->parse($oQuestion);
 		}
 	}
 }

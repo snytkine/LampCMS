@@ -88,6 +88,7 @@ class Qtitletags extends LampcmsObject
 	 * @return object $this;
 	 */
 	public function parse(Question $oQuestion){
+
 		$title = $oQuestion->offsetGet('title');
 		$aTags = $this->tokenizer->tokenize($title);
 		$aTags = array_unique($aTags);
@@ -119,12 +120,18 @@ class Qtitletags extends LampcmsObject
 	 * so we can easily find 'similar'
 	 * questions based on titles and can
 	 * also use this for site search feature
-	 * to some extent.
+	 * to some extent. Cool
 	 *
 	 * @param Question $oQuestion
 	 */
 	public function indexTitle(Question $oQuestion){
+		if(!extension_loaded('pdo_mysql')){
+			d('pdo_mysql not loaded '.extension_loaded('pdo_mysql'));
 
+			return $this;
+		}
+
+		$res = false;
 		$qid = $oQuestion->offsetGet('_id');
 		$title = $oQuestion->offsetGet('title');
 		$url = $oQuestion->offsetGet('url');
@@ -133,7 +140,7 @@ class Qtitletags extends LampcmsObject
 
 		d($qid.' title: '. $title. ' url: '. $url.' intro: '.$intro.' date: '.$date);
 
-		$sql = 'INSERT INTO QUESTION_TITLE
+		$sql = 'INSERT INTO question_title
 		(
 		qid, 
 		q_title, 
@@ -147,15 +154,30 @@ class Qtitletags extends LampcmsObject
 		:qintro, 
 		:qdate)';
 
-		$sth = $this->oRegistry->Db->makePrepared($sql);
+		try{
+			$sth = $this->oRegistry->Db->makePrepared($sql);
 
-		$sth->bindParam(':qid', $qid, PDO::PARAM_INT);
-		$sth->bindParam(':qtitle', $title, PDO::PARAM_STR);
-		$sth->bindParam(':qurl', $url, PDO::PARAM_STR);
-		$sth->bindParam(':qintro', $intro, PDO::PARAM_STR);
-		$sth->bindParam(':qdate', $date, PDO::PARAM_STR);
+			$sth->bindParam(':qid', $qid, PDO::PARAM_INT);
+			$sth->bindParam(':qtitle', $title, PDO::PARAM_STR);
+			$sth->bindParam(':qurl', $url, PDO::PARAM_STR);
+			$sth->bindParam(':qintro', $intro, PDO::PARAM_STR);
+			$sth->bindParam(':qdate', $date, PDO::PARAM_STR);
 
-		$res = $sth->execute();
+			$res = $sth->execute();
+		} catch (\Exception $e){
+
+			$err = ('Exception: '.get_class($e).' Unable to insert into mysql because: '.$e->getMessage().' Err Code: '.$e->getCode().' trace: '.$e->getTraceAsString());
+			d('mysql error: '.$err);
+
+			if('42S02' === $e->getCode()){
+				if(true === TitleTageTable::create($this->oRegistry)){
+					$this->indexTitle($oQuestion);
+				}
+			} else {
+				throw $e;
+			}
+
+		}
 		d('res: '.$res);
 
 		return $this;

@@ -108,6 +108,9 @@ class ExternalAuthFb extends Facebook
 
 	protected function __construct(Registry $oRegistry, array $aFacebookConf, array $aCookieParams)
 	{
+		if(!extension_loaded('curl')){
+			throw new \Lampcms\Exception('Cannot use this class because php extension "curl" is not loaded');
+		}
 		parent::__construct($oRegistry);
 		d('$this->oUser: '.get_class($this->oUser).' '.print_r($this->oUser->getArrayCopy(), 1));
 		$this->sAccessToken = $aCookieParams['access_token'];
@@ -377,7 +380,7 @@ class ExternalAuthFb extends Facebook
 		//$oHTTP = new Http();
 		d('cp');
 		//$oHTTP->setOption('timeout', 12);
-		
+
 		$oHTTP = new Curl();
 
 		try{
@@ -534,7 +537,7 @@ class ExternalAuthFb extends Facebook
 		if(!empty($this->aFbUserData['locale'])){
 			$aUser['locate'] = $this->aFbUserData['locale'];
 		}
-		
+
 		if(!empty($this->aFbUserData['link'])){
 			$aUser['fb_url'] = $this->aFbUserData['link'];
 		}

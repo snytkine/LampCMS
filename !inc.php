@@ -45,7 +45,9 @@ ini_set('display_startup_errors', 1);
  * functions to use UTF-8
  * as internal encoding
  */
-mb_internal_encoding("UTF-8");
+if(function_exists('mb_internal_encoding')){
+	mb_internal_encoding("UTF-8");
+}
 
 function exception_handler($e)
 {
@@ -124,11 +126,11 @@ function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
 		%3$s<br>';
 
 		$err = vsprintf($e, array($errfile, $errline, $errstr));
-		
+
 		throw new Lampcms\DevException($err);
-		
+
 	} else {
-		
+
 		if ($errLevel === 0) {
 
 			return;
@@ -156,7 +158,7 @@ $old_error_handler = set_error_handler("LampcmsErrorHandler");
 function templateLoader($className){
 
 	//d('className: '.$className);
-	
+
 	/**
 	 * This is important
 	 * This autoloader will be the first
@@ -184,7 +186,7 @@ function templateLoader($className){
 	/**
 	 * Smart fallback to www dir
 	 * if template does not exist in mobile version
-	 * But if template file also does not exist in www 
+	 * But if template file also does not exist in www
 	 * and in mobile dir, then it will raise an error
 	 * beause we using require this time instead in include  && ('www' !== $dir)
 	 */

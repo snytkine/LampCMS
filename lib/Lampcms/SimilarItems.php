@@ -97,6 +97,11 @@ class SimilarItems extends LampcmsObject
 	 * @param clsQuestion $oQuestion
 	 */
 	public function parse(Question $oQuestion){
+		if(!extension_loaded('pdo_mysql')){
+			d('pdo or pdo_mysql not loaded skipping parsing of similar items');
+			return $this;
+		}
+
 		$this->oQuestion = $oQuestion;
 		$this->title = $oQuestion['title'];
 		$this->qid = $oQuestion['_id'];
@@ -121,7 +126,7 @@ class SimilarItems extends LampcmsObject
 		$html = '';
 
 		$sql = "SELECT *
-				FROM QUESTION_TITLE
+				FROM question_title
 				WHERE 
 				qid != :qid
  				AND 
@@ -130,14 +135,27 @@ class SimilarItems extends LampcmsObject
 				LIMIT $limit";
 
 		d('$sql: '.$sql);
-		$sth = $this->oRegistry->Db->makePrepared($sql);
-		$sth->bindParam(':qid', $this->qid, PDO::PARAM_INT);
-		$sth->bindParam(':subj', $this->title, PDO::PARAM_STR);
-		$sth->execute();
-		$aRes = $sth->fetchAll();
+		try{
+			$sth = $this->oRegistry->Db->makePrepared($sql);
+			$sth->bindParam(':qid', $this->qid, PDO::PARAM_INT);
+			$sth->bindParam(':subj', $this->title, PDO::PARAM_STR);
+			$sth->execute();
+			$aRes = $sth->fetchAll();
+		} catch (\Exception $e){
+			$err = ('Exception: '.get_class($e).' Unable to insert into mysql because: '.$e->getMessage().' Err Code: '.$e->getCode().' trace: '.$e->getTraceAsString());
+			d('mysql error: '.$err);
+
+			if('42S02' === $e->getCode()){
+				if(true === TitleTageTable::create($this->oRegistry)){
+					$this->getSimilarQuestions($limit, $ret);
+				}
+			} else {
+				throw $e;
+			}
+		}
+
 		d('found '.count($aRes).' similar questions '.print_r($aRes, 1));
-		//$tpl = ($ret) ? '\\tplSimquestions2' : '\\tplSimquestions';
-		//$html = (!empty($aRes)) ? $tpl::loop($aRes) : '';
+
 		if(!empty($aRes)){
 			if($ret){
 				$html = \tplSimquestions2::loop($aRes);
@@ -145,7 +163,7 @@ class SimilarItems extends LampcmsObject
 				$html = \tplSimquestions::loop($aRes);
 			}
 		}
-		
+
 		if($ret){
 			d('returning html for similar questions: '.$html);
 			return $html;

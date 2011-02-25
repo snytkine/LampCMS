@@ -106,7 +106,7 @@ class DB extends LampcmsObject
 	 * Constructor
 	 * Should NOT be used directly!
 	 * Use getInstance()
-	 * 
+	 *
 	 * Use directly ONLY if need to use
 	 * more than one instance of the class, for
 	 * example when need to connect to more than 1 DB
@@ -178,7 +178,7 @@ class DB extends LampcmsObject
 			 */
 			$this->dbh->exec('SET NAMES utf8'); // now using this as connection option!
 		} catch(\PDOException $e) {
-			
+				
 			throw new DBException('Cannot connect to database: '.$e->getMessage());
 		}
 	}
@@ -233,12 +233,12 @@ class DB extends LampcmsObject
 		$this->aDB = $this->oIni->sectionArr('DB');
 
 		if (null === $this->aDB) {
-			
+				
 			throw new IniException('section "DB" does not exist in aIni');
 		}
 
 		if (!isset($this->aDB['Database_username']) || !isset($this->aDB['Database_password'])) {
-			
+				
 			throw new IniException('Database_username OR Database_password not set');
 		}
 
@@ -259,7 +259,7 @@ class DB extends LampcmsObject
 
 		if ( empty($this->aDB['Database_name']) || empty($this->aDB['Database_host']) ||
 		empty ($this->aDB['Database_type'])) {
-			
+				
 			throw new IniException('Cannot create dsn because some required dns params are missing: '.
 			print_r($this->aDB, true));
 		}
@@ -270,7 +270,7 @@ class DB extends LampcmsObject
 		if ('localhost' !== $dbhost) {
 
 			if ( empty ($this->aDB['TCP_Port_number'])) {
-				
+
 				throw new IniException('If Database_host is not "localhost" then "TCP_Port_number" MUST be defined');
 			}
 
@@ -320,10 +320,10 @@ class DB extends LampcmsObject
 		$aRes = array();
 
 		if (true === $force_array) {
-			
+				
 			return $this->getKeyVal($strSql, $strErr2);
 		} elseif ($rekey) {
-			
+				
 			return $this->getRekeyed($strSql, $strErr2);
 		}
 
@@ -403,224 +403,6 @@ class DB extends LampcmsObject
 		}
 
 		return $aRes;
-	}
-
-
-	public function autoExecute($strTableName, array $arrValues = array(), $strQueryType,
-	$strWhere = null, $arrFieldTypes = '', $strErr2 = '')
-	{
-		if ('sqlUpdate' === $strQueryType) {
-			$aWhere = explode('=', $strWhere);
-			$colName = trim($aWhere[0]);
-			$whereVal = trim($aWhere[1]);
-
-			return $this->updateTable($strTableName, $arrValues, $colName, $whereVal, $strErr2);
-
-		} elseif ('sqlInsert' === $strQueryType) {
-
-			return $this->insertData($strTableName, $arrValues, $strErr2);
-
-		} else {
-			
-			throw new DevException('invalid value of "sqlQueryType"');
-		}
-	}
-
-
-	/**
-	 *
-	 * @return string part of prepared statement
-	 * made from associative array
-	 *
-	 * @param array $arrValues
-	 */
-	protected function generatePrepared($arrValues)
-	{
-		$sql = '';
-		foreach ($arrValues as $colName=>$val) {
-			$colName = filter_var($colName, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
-			$colName = str_replace(';', '', $colName);
-			$colName = addslashes($colName);
-			$sql .= $colName.' = ?, ';
-		}
-
-		return rtrim($sql, ' ,');
-	}
-
-	/**
-	 * Update table using the associative array
-	 * where keys are column names
-	 * and values are column values
-	 *
-	 * @return mixed int number of affected rows (which can be 0)
-	 * or boolean false on failure
-	 *
-	 * @param string $tableName
-	 * @param array $arrValues
-	 * @param string $whereCol
-	 * @param string $whereVal
-	 * @param string $strErr2[optional] extra info for logging (for debugging)
-	 * usually this is name of class/method and line from which this
-	 * method was called
-	 */
-	public function updateTable($tableName, array $arrValues, $whereCol, $whereVal, $strErr2 = '')
-	{
-		$strTableName = filter_var($tableName, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
-		$strTableName = str_replace(';', '', $strTableName);
-		$strTableName = addslashes($strTableName);
-
-		$whereCol = filter_var($whereCol, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
-		$whereCol = str_replace(';', '', $whereCol);
-		$whereCol = addslashes($whereCol);
-
-		$ret = false;
-		$sql = "UPDATE $strTableName SET ";
-		$sql .= $this->generatePrepared($arrValues)." WHERE $whereCol = ?";
-		$arrUpdate = array_values(array_merge($arrValues, (array)$whereVal));
-		d('prepared sql: '.$sql."\r\n".'vals: '.print_r($arrUpdate, 1));
-		try {
-			$sth = $this->initTimer()->getDbh()->prepare($sql);
-			$ret = $sth->execute($arrUpdate);
-			$this->logQuery($sql);
-			d('$ret: '.$ret);
-			if(false !== $ret){
-				$ret = $sth->rowCount();
-			}
-
-			$sth = null;
-			unset($sth);
-
-		} catch(\PDOException $e) {
-			d('Line: '.$e->getLine().' PDO Error: '.$e->getMessage().' ERROR: '.print_r($e->errorInfo,
-			true)."\nSQL Error code: ".$e->getCode().' called from '.$strErr2);
-
-			if('23000' == $e->errorInfo[0] && '1062' == $e->errorInfo[1] && !empty($e->errorInfo[3])){
-				$dupkey = $dupval = '';
-
-				if(preg_match('/^(?:Duplicate entry )\'(.*)(?:\' for key )([0-9]+)$/', $s, $matches)){
-					$dupval = $matches[1];
-					$dupkey = $matches[2];
-				}
-
-				throw new PDODuplicateException($e->getMessage(), $dupval, $dupkey);
-			}
-
-			$sth = null;
-			unset($sth);
-
-			return false;
-		}
-
-		return $ret;
-	}
-
-	/**
-	 * Insert data into table using the associative array
-	 * where keys are column names
-	 * and values are column values
-	 *
-	 * @return mixed last_insert_id on success or false on failure
-	 *
-	 * @param object $tableName
-	 * @param object $arrValues
-	 * @param object $strErr2[optional]
-	 * @throws LampcmsPDODuplicateException in case the insert statement
-	 * failed due to duplicate key violation. This is a special case,
-	 * and can be used to conveniently insert a row of data while at the same time
-	 * testing for uniqueness of value - all in one insert instead of doing a
-	 * select first to see if value exists and then inserting.
-	 *
-	 * Now it's possible to just do one insert but do it inside the try/catch block
-	 * and if LampcmsPDODuplicateException is caught
-	 * then you now that insert had failed due to duplicate key violation
-	 */
-	public function insertData($tableName, array $arrValues, $strErr2 = '')
-	{
-		$strTableName = filter_var($tableName, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
-		$strTableName = str_replace(';', '', $strTableName);
-		$strTableName = addslashes($strTableName);
-
-		$ret = false;
-		$sql = "INSERT INTO $strTableName SET ";
-		$sql .= $this->generatePrepared($arrValues);
-		d('prepared sql: '.$sql);
-		try {
-			$ret = $this->initTimer()->getDbh()->prepare($sql)->execute(array_values($arrValues));
-			$this->logQuery($sql);
-			d('$ret: '.$ret);
-			$ret = $this->dbh->lastInsertId();
-		} catch(\PDOException $e) {
-			e('LampcmsError insertData error: Line: '.$e->getLine().' PDO Error: '.$e->getMessage()."\nTrace: ".$e->getTraceAsString(). "\n ERROR: ".print_r($e->errorInfo,
-			true)."\nSQL Error code: ".$e->getCode().' called from '.$strErr2."\nprepared sql was: ".$sql."\n arrValues was: ".print_r($arrValues, 1));
-
-			if(('23000' == $e->errorInfo[0]) && ('1062' == $e->errorInfo[1])){
-				$dupkey = $dupval = '';
-				d('duplicate detected');
-
-				if(!empty($e->errorInfo[3])){
-					$s = $e->errorInfo[3];
-
-					if(preg_match('/^(?:Duplicate entry )\'(.*)(?:\' for key )([0-9]+)$/', $s, $matches)){
-						$dupval = $matches[1];
-						$dupkey = $matches[2];
-						d('$dupval: '.$dupval);
-					}
-				}
-
-				throw new PDODuplicateException($e->getMessage(), $dupval, $dupkey);
-			} else {
-				d('$e->errorInfo[0]: '.$e->errorInfo[0].' $e->errorInfo[1]: '.$e->errorInfo[1].' ');
-			}
-
-			return false;
-		}
-
-		return $ret;
-	}
-
-	/**
-	 * Performes a delete operation
-	 * of one or more table row
-	 *
-	 * @param string $sTableName
-	 * @param string $whereCol
-	 * @param string $whereVal
-	 * @param string $whereType
-	 * @param string $strErr2 [optional]
-	 *
-	 * @return mixed int number of affected rows (can be 0) | or false
-	 * on error
-	 *
-	 */
-	public function deleteRow($sTableName, $whereCol, $whereVal, $whereType = PDO::PARAM_INT, $strErr2 = '')
-	{
-		if(!is_numeric($whereVal)){
-			throw new DBException('$whereVal must be numeric. Was: '.$whereVal);
-		}
-
-		/**
-		 * Security measures
-		 */
-		$whereCol = filter_var($whereCol, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
-		$whereCol = str_replace(';', '', $whereCol);
-		$whereCol = str_replace(' ', '', $whereCol);
-		$whereCol = addslashes($whereCol);
-
-		$whereVal = (int)$whereVal;
-
-		$ret = false;
-		$val = $this->getDbh()->quote($whereVal, $whereType);
-		$sql = "DELETE from $sTableName where $whereCol = $val";
-		try {
-			$ret = $this->initTimer()->dbh->exec($sql);
-			$this->logQuery($sql);
-			d('$ret: '.$ret);
-		} catch(\PDOException $e) {
-			e('Line: '.$e->getLine().' PDO Error: '.$e->getMessage().' ERROR: '.print_r($e->errorInfo,
-			true)."\nSQL Error code: ".$e->getCode().' called from '.$strErr2);
-		}
-
-		return $ret;
 	}
 
 
@@ -716,7 +498,7 @@ class DB extends LampcmsObject
 	protected function logQuery($sql, $endTs = null)
 	{
 		if (null === $this->ts) {
-			
+				
 			throw new DevException('valus of $this->ts was not set. Unable to log query');
 		}
 		$endTs = (null === $endTs) ? microtime(true) : $endTs;
@@ -818,8 +600,13 @@ class DB extends LampcmsObject
 		try {
 			$count = $this->getDbh()->exec($strSql);
 		} catch(\PDOException $e) {
-			e('Line: '.$e->getLine().' PDO Error: '.$e->getMessage().' ERROR: '.print_r($e->errorInfo,
-			true)."\nSQL Error code: ".$e->getCode().' called from '.$strErr2);
+			$err = ('Line: '.$e->getLine().
+			' PDO Error: '.$e->getMessage().
+			' ERROR: '.print_r($e->errorInfo, true).
+			"\nSQL Error code: ".$e->getCode().' called from '.$strErr2);
+
+			throw new \Lampcms\DevException($err);
+
 		}
 
 		return $count;

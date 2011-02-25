@@ -109,6 +109,10 @@ class Twitter extends LampcmsObject
 	 */
 	public function __construct(Registry $oRegistry)
 	{
+		if(!extension_loaded('oauth')){
+			throw new \Lampcms\Exception('Cannot use this class because php extension "oauth" is not loaded');
+		}
+		
 		$this->oRegistry = $oRegistry;
 		$oViewer = $oRegistry->Viewer;
 		if($oViewer instanceof TwitterUser){

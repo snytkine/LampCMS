@@ -64,7 +64,7 @@ class tplEditedby extends \Lampcms\Template\Template
 
 
 	protected static $tpl = '
-	<div class="usr_info">
+	<div class="usr_info3">
             <div class="qtime">Edited <span title="%5$s" class="ts">%5$s</span></div>
             <div class="avtr32">
             	 <img src="%3$s" height="32" width="32" alt="">

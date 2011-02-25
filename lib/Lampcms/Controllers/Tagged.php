@@ -93,6 +93,15 @@ class Tagged extends Unanswered
 		 */
 		$this->title = $this->oRequest['tags'];
 		$where = array('a_tags' => array('$all' => $this->aTags) );
+		
+		/**
+		 * Exclude deleted items unless viewer
+		 * is a moderator
+		 */
+		if(!$this->oRegistry->Viewer->isModerator()){
+			$where['i_del_ts'] = null;
+		}
+		
 		/**
 		 * @todo
 		 * translate 'Tagged'

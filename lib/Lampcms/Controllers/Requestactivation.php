@@ -118,13 +118,13 @@ IMPORTANT: You Must use the link below to activate your account
 		}
 
 		$code = $this->oEmail['code'];
-		
+
 		if(empty($code)){
 			$this->oEmail['code'] = substr(hash('md5', uniqid(mt_rand())), 0, 12);
 		}
-		
+
 		$this->oEmail['i_code_ts'] = time();
-		
+
 		$this->oEmail['i_vts'] = null;
 		$this->oEmail->save();
 
@@ -144,24 +144,26 @@ IMPORTANT: You Must use the link below to activate your account
 		$tpl = $this->oRegistry->Ini->SITE_URL.'/aa/%d/%s';
 		$link = sprintf($tpl, $this->oEmail->_id, $this->oEmail->code);
 
-		$adminEmail = $this->oRegistry->Ini->EMAIL_ADMIN;
+		//$adminEmail = $this->oRegistry->Ini->EMAIL_ADMIN;
 		$siteName = $this->oRegistry->Ini->SITE_NAME;
 
 		$body = vsprintf(self::EMAIL_BODY, array($siteName, $link));
-		$from = \Lampcms\String::prepareEmail($adminEmail, $siteName);
+		//$from = \Lampcms\String::prepareEmail($adminEmail, $siteName);
 		$subject = sprintf(self::SUBJECT, $siteName);
 
-		d('body: '.$body.' subject: '.$subject.' from: '.$from);
+		//d('body: '.$body.' subject: '.$subject.' from: '.$from);
+		/*
+		 $aHeaders = array();
+		 $aHeaders['From'] = $from;
+		 $aHeaders['Reply-To'] = $adminEmail;
+		 $headers = \Lampcms\prepareHeaders($aHeaders);*/
 
-		$aHeaders = array();
-		$aHeaders['From'] = $from;
-		$aHeaders['Reply-To'] = $adminEmail;
-		$headers = \Lampcms\prepareHeaders($aHeaders);
+		/*if(true !== mail($this->email, $subject, $body, $headers)){
 
-		if(true !== mail($this->email, $subject, $body, $headers)){
+		throw new \Lampcms\Exception('Server was unable to send out email at this time');
+		}*/
 
-			throw new \Lampcms\Exception('Server was unable to send out email at this time');
-		}
+		Mailer::factory($this->oRegistry)->mail($this->email, $subject, $body);
 
 		return $this;
 	}

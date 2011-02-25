@@ -59,7 +59,11 @@ SALT = 'abcdefg';
 ;you launched your site, otherwise users will not be
 ;able to auto-login to site using the 'remember me' cookie
 COOKIE_SALT = 'abcde1234512345'
-
+;
+; Show page render time in footer? 
+; set to true to have "Page generated in .... seconds
+; added to bottom of pages
+SHOW_TIMER = false;
 ; If using Google friend connect, then you need to have the site id
 ; sing up with Google Friend Connect first and get your site id
 ; Create account here http://www.google.com/friendconnect/
@@ -110,7 +114,7 @@ TWITTER_OAUTH_SECRET =
 ; account name that we use on twitter. We may tweet from it
 ; we may also add new user to follow this account when they
 ; join
-TWITTER_USERNAME = devcomments
+TWITTER_USERNAME = 
 
 [FACEBOOK]
 ; Get your APP_ID and API_SECRET here: 

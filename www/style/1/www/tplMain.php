@@ -127,6 +127,7 @@ class tplMain extends Lampcms\Template\Template
     </div>
 	<div id="ft" class="footer">%19$s
 	<div id="ccwiki-copyright">Questions and Answers are licensed under <a href="http://creativecommons.org/licenses/by-sa/2.5/" rel="nofollow" target="_blank">cc-wiki</a> license.</div>
+	<div class="timer">{timer}</div>
 	</div> 
 </div>
 

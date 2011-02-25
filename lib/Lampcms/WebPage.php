@@ -704,7 +704,10 @@ abstract class WebPage extends Base
 
 		$this->addLoginBlock()->addLastJs()->addExtraCss();
 
-		return \tplMain::parse($this->aPageVars);
+		$tpl = \tplMain::parse($this->aPageVars);
+		$scriptTime = ($this->oRegistry->Ini->SHOW_TIMER) ? 'Page generated in '.abs((microtime() - INIT_TIMESTAMP)).' seconds' : '';
+		
+		return str_replace('{timer}', $scriptTime, $tpl);
 
 	}
 
@@ -716,10 +719,13 @@ abstract class WebPage extends Base
 	 */
 	protected function addLastJs()
 	{
+		d('cp');
 		if(!empty($this->lastJs)){
+			d('cp');
 			foreach ((array)$this->lastJs as $val) {
 				$this->aPageVars['last_js'] .= CRLF.sprintf('<script type="text/javascript" src="%s"></script>', $val);
 			}
+			d('cp');
 		}
 
 		return $this;
@@ -734,7 +740,9 @@ abstract class WebPage extends Base
 	 */
 	protected function addExtraCss()
 	{
+		d('cp');
 		if(!empty($this->extraCss)){
+			d('cp');
 			foreach ((array)$this->extraCss as $val) {
 				$this->aPageVars['extra_css'] .= CRLF.sprintf('<link rel="stylesheet" type="text/css" href="%s">', $val);
 			}
@@ -751,8 +759,9 @@ abstract class WebPage extends Base
 	 */
 	protected function addLoginBlock()
 	{
-
+		d('cp');
 		$this->aPageVars['header'] = LoginForm::makeWelcomeMenu($this->oRegistry);
+		d('cp');
 
 		return $this;
 	}

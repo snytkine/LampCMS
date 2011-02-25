@@ -85,7 +85,7 @@ class QuestionParser extends LampcmsObject
 	 * @var object of type Question
 	 */
 	protected $oQuestion;
-	
+
 	protected $oCache;
 
 	public function __construct(Registry $oRegistry){
@@ -138,12 +138,10 @@ class QuestionParser extends LampcmsObject
 
 
 	/**
-	 *
-	 * @todo later can also add spam filter via observer!
-	 *
-	 * @todo post onNewQuestion() event
-	 * This will actually be posted from MongoDoc onCollectionInsert
-	 *
+	 * Prepares data for the question object,
+	 * creates the $this->oQuestion object
+	 * and saves data to QUESTIONS collection
+	 * 
 	 * @return object $this
 	 *
 	 * @throws QuestionParserException in case a filter (which is an observer)
@@ -260,7 +258,7 @@ class QuestionParser extends LampcmsObject
 		if(is_array($aExtraData) && !empty($aExtraData)){
 			$aData = array_merge($aData, $aExtraData);
 		}
-		
+
 		$this->oQuestion = new Question($this->oRegistry, $aData);
 
 		/**
@@ -350,8 +348,6 @@ class QuestionParser extends LampcmsObject
 	 * Tokenize title and save into TITLE_TAGS
 	 * and also save into MySQL QUESTION_TITLE table
 	 *
-	 * @todo do this via shutdown function
-	 *
 	 * @return object $this
 	 */
 	protected function addTitleTags(){
@@ -365,64 +361,88 @@ class QuestionParser extends LampcmsObject
 
 
 	/**
-	 * Update TAGS
+	 * Update QUESTION_TAGS tags counter
+	 *
 	 * @return object $this
 	 */
 	protected function addTags(){
 
-		Qtagscounter::factory($this->oRegistry)->parse($this->oQuestion);
+		$o = Qtagscounter::factory($this->oRegistry);
+		$oQuestion = $this->oQuestion;
+
+		register_shutdown_function(function() use($o, $oQuestion){
+			$o->parse($oQuestion);
+			d('cp');
+		});
+
 		d('cp');
+
 		return $this;
 	}
 
 
 	/**
-	 * @todo do this via shutdown function
+	 * Calculates related tags
+	 * via shutdown function
+	 *
+	 * @return object $this
 	 */
 	protected function addRelatedTags(){
-		Relatedtags::factory($this->oRegistry)->addTags($this->oQuestion);
-		d('cp');
+
+		$oRelated = Relatedtags::factory($this->oRegistry);
+		$oQuestion = $this->oQuestion;
+
+		register_shutdown_function(function() use ($oRelated, $oQuestion){
+			$oRelated->addTags($oQuestion);
+		});
 
 		return $this;
 	}
 
 
 	/**
-	 * @todo do this via shutdown function
-	 * @todo skip if $this->oQuestion['status'] is answered
+	 * Skip if $this->oQuestion['status'] is accptd
 	 * which would be the case when question came from API
 	 * and is already answered
 	 *
+	 * @return object $this
 	 */
 	protected function addUnansweredTags(){
-		$o = new UnansweredTags($this->oRegistry);
-		$o->set($this->oQuestion);
-		d('cp');
+		if('accptd' !== $this->oQuestion['status']){
+			$o = new UnansweredTags($this->oRegistry);
+			$oQuestion = $this->oQuestion;
 
+			register_shutdown_function(function() use ($o, $oQuestion){
+				$o->set($this->oQuestion);
+				d('cp');
+			});
+
+			d('cp');
+		}
+		
 		return $this;
 	}
 
 
 	/**
-	 * @todo do this via shutdown function
+	 * Update USER_TAGS collection
+	 *
+	 * @return object $this
 	 */
 	protected function addUserTags(){
 
-		UserTags::factory($this->oRegistry)
-		->addTags($this->oSubmitted->getUserObject()->getUid(), $this->oQuestion);
+		$oUserTags = UserTags::factory($this->oRegistry);
+		$uid = $this->oSubmitted->getUserObject()->getUid();
+		$oQuestion = $this->oQuestion;
+
+		register_shutdown_function(function() use ($oUserTags, $uid, $oQuestion){
+			$oUserTags->addTags($uid, $oQuestion);
+			d('cp');
+		});
+
 		d('cp');
-		return $this;
-	}
-
-
-	/**
-	 * @todo finish this, we don't have this in USER table yet
-	 * This may not even be necessary at all
-	 *
-	 */
-	protected function updateUserQCount(){
-
 
 		return $this;
 	}
+
 }

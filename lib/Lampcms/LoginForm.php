@@ -79,12 +79,12 @@ class LoginForm
 			$linkForgot = '/remindpwd/';
 			d('cp');
 
-			$linkReg = '/register';
+			$linkReg = '/register/';
 			$gfcButton = $twitterButton = $fbButton = '';
 
 
 			$GfcSiteID = $oIni->GFC_ID;
-			if(!empty($GfcSiteID)){
+			if(extension_loaded('curl') && !empty($GfcSiteID)){
 				d('cp '.strlen($gfcButton));
 
 				$gfcButton =  '<tr><td></td>
@@ -95,7 +95,7 @@ class LoginForm
 
 			}
 
-			if(isset($oIni->TWITTER)){
+			if(extension_loaded('oauth') && isset($oIni->TWITTER)){
 				$aTW = $oIni['TWITTER'];
 				if(!empty($aTW['TWITTER_OAUTH_KEY']) && !empty($aTW['TWITTER_OAUTH_SECRET'])){
 					d('$aTW: '.print_r($aTW, 1));
@@ -104,7 +104,7 @@ class LoginForm
 			}
 
 
-			if(isset($oIni->FACEBOOK)){
+			if(extension_loaded('curl') && isset($oIni->FACEBOOK)){
 				$aFB = $oIni['FACEBOOK'];
 
 				if(!empty($aFB['APP_ID'])){
@@ -122,10 +122,10 @@ class LoginForm
 			'Password',
 			'Remember',
 			$linkForgot,
-			'Forgot_password',
+			'Forgot password',
 			$linkReg,
-			'Create_account',
-			'Log_in',
+			'Create account',
+			'Log in',
 			$gfcButton,
 			$twitterButton,
 			$fbButton,
@@ -153,22 +153,8 @@ class LoginForm
 				
 				return $html;
 			}
-			
-			/**
-			 * 
-			 * Enter description here ...
-			 * @var unknown_type
-			 */
+
 			$_SESSION['login_form'] = $html;
-			/**
-			 * Null the login_error in session
-			 * so that  it only shows once - this time ONLY
-			 * If user keeps browsing the error will not
-			 * just stay there. Hah, now the whole login form
-			 * is in session.
-			 */
-			
-			d('cp');
 		}
 
 		d('login form: '.$_SESSION['login_form']);
@@ -233,10 +219,7 @@ class LoginForm
 			d('Welcome menu already existed! : '.$_SESSION['welcome']);
 		}
 
-		$ret = $_SESSION['welcome'];
-		d('cp $ret '.$ret);
-
-		return $ret;
+		return $_SESSION['welcome'];
 	}
 
 	/**
@@ -267,6 +250,5 @@ class LoginForm
 
 		return $ret;
 	}
-
 
 }
