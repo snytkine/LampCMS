@@ -413,7 +413,7 @@ class QuestionParser extends LampcmsObject
 			$oQuestion = $this->oQuestion;
 
 			register_shutdown_function(function() use ($o, $oQuestion){
-				$o->set($this->oQuestion);
+				$o->set($oQuestion);
 				d('cp');
 			});
 

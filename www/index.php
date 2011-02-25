@@ -76,7 +76,6 @@ try {
 	$controller = ucfirst($a);
 	include($lampcmsClasses.'Controllers'.DIRECTORY_SEPARATOR.$controller.'.php');
 	$class = '\Lampcms\\Controllers\\'.$controller;
-	//$o = new $class($oRegistry);
 
 	header('Content-Type: text/html; charset=utf-8');
 	echo new $class($oRegistry);
