@@ -70,7 +70,7 @@ try {
 	d('session: '.print_r($_SESSION, 1));
 
 	$oRequest = $oRegistry->Request;
-	$a = $oRequest->getParam('a', 'viewquestions');
+	$a = $oRequest['a'];
 
 	d('a: '.$a.' $oRequest: '.print_r($oRequest->getArray(), 1));
 	$controller = ucfirst($a);

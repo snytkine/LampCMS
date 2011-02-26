@@ -109,7 +109,7 @@ class Askform extends Form
 
 	
 	protected function validateBody(){
-		$body = $this->oRegistry->Request->qbody;
+		$body = $this->oRegistry->Request['qbody'];
 		if(strlen($body) < 20){
 			$this->setError('qbody', 'Question must contain at least 20 letters');
 		}
@@ -124,7 +124,7 @@ class Askform extends Form
 
 	
 	protected function validateTags(){
-		$tags = $this->oRegistry->Request->tags;
+		$tags = $this->oRegistry->Request->get('tags', 's', '');
 		$tags = trim($tags);
 		if(empty($tags)){
 			$this->setError('tags', 'You must include at least one tag');

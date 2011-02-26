@@ -223,7 +223,7 @@ class Join extends Register
 	<br/>
 	<p>
 	<a class="regok" href="#" onClick="oSL.hideRegForm()">&lt;-- Return to site</a>&nbsp;
-	<a class="regok" href="/index.php?a=options"> Edit profile --&gt;</a>
+	<a class="regok" href="/settings/"> Edit profile --&gt;</a>
 	</p> ';
 
 		$ret = sprintf($tpl, $this->oRegistry->Ini->SITE_NAME);

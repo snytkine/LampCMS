@@ -86,7 +86,7 @@ class UserAnswers extends LampcmsObject
 		d('$count: '.$count);
 
 		$pageID = $oRegistry->Request->get('pageID', 'i', 1);
-		$mode = $oRegistry->Request->mode;
+		$mode = $oRegistry->Request->get('mode', 's', '');
 
 		if($count > self::PER_PAGE || ($pageID > 1 && 'answers' === $mode)){
 			$pagerPath = '';

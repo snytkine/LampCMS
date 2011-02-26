@@ -63,8 +63,7 @@ class Validate
 	 */
 	public static function validateToken()
 	{
-		$oRequest = Request::getInstance();
-		$token = $oRequest['token'];
+		$token = $_REQUEST['token'];
 		if(empty($token)){
 			throw new Exception('Form token not found');
 		}

@@ -296,7 +296,7 @@ class Form extends LampcmsObject
 			throw new \Lampcms\DevException('field '.$field.' does not exist');
 		}
 
-		return $this->oRegistry->Request->getParam($field);
+		return $this->oRegistry->Request[$field];
 	}
 
 

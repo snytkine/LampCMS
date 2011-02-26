@@ -143,6 +143,7 @@ class Userinfo extends WebPage
 	protected function addQuestions(){
 
 		$this->aPageVars['body'] .= UserQuestions::get($this->oRegistry, $this->oUser);
+		
 		return $this;
 	}
 

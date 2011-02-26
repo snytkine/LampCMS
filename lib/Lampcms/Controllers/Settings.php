@@ -69,8 +69,11 @@ class Settings extends WebPage
 	protected function main(){
 		$this->aPageVars['title'] = 'Edit settings';
 		$vals = array(
+		'confirmation' => $this->makeConfirmBlock(),
 		'change_password' => 'Change Password',
-		'confirmation' => $this->makeConfirmBlock());
+		'profile' => 'Profile',
+		'profileUrl' => $this->oRegistry->Viewer->getProfileUrl()
+		);
 		$this->aPageVars['body'] = \tplSettings::parse($vals);
 
 	}

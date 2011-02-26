@@ -104,12 +104,6 @@ class DB extends LampcmsObject
 
 	/**
 	 * Constructor
-	 * Should NOT be used directly!
-	 * Use getInstance()
-	 *
-	 * Use directly ONLY if need to use
-	 * more than one instance of the class, for
-	 * example when need to connect to more than 1 DB
 	 *
 	 * @return object
 	 */
@@ -197,20 +191,6 @@ class DB extends LampcmsObject
 		return $this->dbh;
 	}
 
-	/**
-	 * Singleton pattern implementation
-	 * Always use this method to get
-	 * instance of this class!
-	 * @return object of type DB
-	 */
-	public static function getInstance()
-	{
-		if (!isset(self::$oDb)) {
-			self::$oDb = self::factory();
-		}
-
-		return self::$oDb;
-	}
 
 	public function __clone()
 	{

@@ -89,7 +89,7 @@ class Edit extends Form
 
 	
 	protected function validateBody(){
-		$body = $this->oRegistry->Request->qbody;
+		$body = $this->oRegistry->Request['qbody'];
 		if(strlen($body) < 10){
 			$this->setError('qbody', 'Question must contain at least 10 letters');
 		}
@@ -104,7 +104,7 @@ class Edit extends Form
 
 	
 	protected function validateReason(){
-		$s = $this->oRegistry->Request->reason;
+		$s = $this->oRegistry->Request->get('reason', 's', '');
 		$s = trim($s);
 		if(empty($s)){
 			$this->setError('reason', 'You must include reason for editing');

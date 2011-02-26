@@ -288,7 +288,7 @@ abstract class WebPage extends Base
 	{
 		if ($this->membersOnly && !$this->isLoggedIn()) {
 			d('cp must login');
-			throw new MustLoginException('Must_login');
+			throw new MustLoginException('You must login to access this page');
 		}
 
 		return $this;
@@ -706,7 +706,7 @@ abstract class WebPage extends Base
 
 		$tpl = \tplMain::parse($this->aPageVars);
 		$scriptTime = ($this->oRegistry->Ini->SHOW_TIMER) ? 'Page generated in '.abs((microtime() - INIT_TIMESTAMP)).' seconds' : '';
-		
+
 		return str_replace('{timer}', $scriptTime, $tpl);
 
 	}
@@ -923,7 +923,7 @@ abstract class WebPage extends Base
 		if(!Request::isAjax() && ('remindpwd' !== $this->oRequest['a'])){
 			$cookie = Cookie::get('dnd');
 			d('dnd: '.$cookie);
-			if(2>1 || !$cookie){
+			if(!$cookie){
 				$isNewUser = $this->oRegistry->Viewer->isNewUser();
 				d('isNewUser: '.$isNewUser.' $this->oRegistry->Viewer: '.print_r($this->oRegistry->Viewer->getArrayCopy(), 1));
 

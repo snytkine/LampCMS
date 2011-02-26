@@ -68,14 +68,14 @@ try {
 		throw new Lampcms\Exception('session_start_error');
 	}
 
-	$oRequest = $oRegistry->Request;
-	$oRequest->set(array('a'=> 'twitter'));
+	//$oRequest = $oRegistry->Request;
+	//$oRequest['a'] = 'twitter';
 	include($lampcmsClasses.'Controllers'.DIRECTORY_SEPARATOR.'Logintwitter.php');
 
 	$o = new \Lampcms\Controllers\Logintwitter($oRegistry);
 	header('Content-Type: text/html; charset=utf-8');
 	echo $o->getResult();
-	//fastcgi_finish_request();
+	fastcgi_finish_request();
 
 } catch(\Exception $e) {
 

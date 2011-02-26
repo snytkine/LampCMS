@@ -106,33 +106,6 @@ class Mongo extends LampcmsObject
 
 	}
 
-	public static function factory(){
-		d('in mongo factory');
-		$oIni = Registry::getInstance()->Ini;
-		d('oIni: '.get_class($oIni));
-		return new self($oIni);
-	}
-
-
-	/**
-	 * Singleton pattern implementation
-	 * Always use this method to get
-	 * instance of this class!
-	 *
-	 * @todo must remove this soon because
-	 * now we always getting this object via Registry
-	 *
-	 * @return object of this class
-	 */
-	public static function getInstance()
-	{
-		if (!isset(self::$oMongo)) {
-			d('before mongo factory');
-			self::$oMongo = self::factory();
-		}
-
-		return self::$oMongo;
-	}
 
 	public function __clone()
 	{

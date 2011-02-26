@@ -49,6 +49,13 @@
  *
  */
 
+if (version_compare(PHP_VERSION, '5.3.0')< 0) {
+	$err = '<div class="err"><h2>Minimal requirement not met!</h2><h3>No soup for you!</h3>
+	<br>This program requires at least PHP version 5.3.0, your version of php: ' . PHP_VERSION. '</div>';
+	$s = sprintf($tpl, $err);
+	exit($s);
+}
+
 $tpl = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head>
@@ -137,12 +144,6 @@ array_walk($aInstalled, function(&$i){
 	$i = strtolower($i);
 });
 
-if (version_compare(PHP_VERSION, '5.3.0')< 0) {
-	$err = '<div class="err"><h2>Minimal requirement not met!</h2><h3>No soup for you!</h3>
-	<br>This program requires at least PHP version 5.3.0, your version of php: ' . PHP_VERSION. '</div>';
-	$s = sprintf($tpl, $err);
-	exit($s);
-}
 
 foreach($aRequired as $ext => $err){
 	$error = '';

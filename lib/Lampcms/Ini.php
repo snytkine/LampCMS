@@ -88,20 +88,6 @@ class Ini extends LampcmsArray
 		parent::__construct($aIni);
 	}
 
-	/**
-	 * @todo remove this but then make sure
-	 * to also remove getSection, get() methods
-	 * and make sure no other scripts using this
-	 */
-	public static function getInstance()
-	{
-		if (null === self::$oIni) {
-			self::$oIni = new self();
-		}
-
-		return self::$oIni;
-	}
-
 
 	/**
 	 * Magic method to get

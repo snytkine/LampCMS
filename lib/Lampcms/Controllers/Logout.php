@@ -48,7 +48,7 @@
  *
  *
  */
- 
+
 namespace Lampcms\Controllers;
 
 use Lampcms\WebPage;
@@ -101,13 +101,21 @@ class Logout extends WebPage
 		 *
 		 */
 		if($this->oRegistry->Viewer instanceof UserGfc){
-			
+				
 			$GfcSiteID = $this->oRegistry->Ini->GFC_ID;
 			if(!empty($GfcSiteID)){
 				$fcauthSession = 'fcauth'.$GfcSiteID.'-s';
 				$fcauthRegular = 'fcauth'.$GfcSiteID;
 				Cookie::delete($fcauthSession);
 				Cookie::delete($fcauthRegular);
+			}
+		}
+
+		if($this->oRegistry->Viewer instanceof UserFacebook){
+				
+			$aFB = $this->oRegistry->Ini->FACEBOOK;
+			if(!empty($aFB['APP_ID'])){
+				Cookie::delete('fbs_'.$aFB['APP_ID']);
 			}
 		}
 

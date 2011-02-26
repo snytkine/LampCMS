@@ -49,17 +49,17 @@
  *
  */
 
- 
+
 namespace Lampcms;
 
 /**
  * Class for handling OUR Incoming HTTP Request
  * including headers and query string
- * 
+ *
  * @todo this class looks a little confused and
  * unsure about itself.
  * Why not just extend ArrayDefaults and use default value of 1?
- * 
+ *
  * Why do we even need getParam if it just delegates
  * to getFiltered()?
  *
@@ -68,12 +68,6 @@ namespace Lampcms;
  */
 class Request extends LampcmsArray implements Interfaces\LampcmsObject
 {
-	/**
-	 * Instance of this class
-	 * @var object of this class
-	 */
-	public static $instance = null;
-
 
 	/**
 	 * Array of required query string params
@@ -110,10 +104,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		if(!$this->offsetExists($name)){
 			$val = $default;
 		} else {
-			/**
-			 * No need to pass $default to getParam
-			 * because we already now that offsetExists()!
-			 */
+			
 			$val = $this->getFiltered($name);
 		}
 
@@ -134,7 +125,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		return $val;
 	}
 
-	
+
 	/**
 	 * Singleton method
 	 *
@@ -144,36 +135,27 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 * @throws BadFunctionCallException if any of required
 	 * params are missing
 	 */
-	public static function getInstance(array $aRequired = array()){
-		if (null === self::$instance) {
+	public static function factory(array $aRequired = array()){
 
-			$a = null;
-			/**
-			 * Since HttpQueryString does not parse
-			 * $_POST, only $_GET, we have to manually
-			 * submit the $_POST array to constructor
-			 * as additional values
-			 */
-			if('POST' === self::getRequestMethod()){
-
-				$a = $_POST;
-			} elseif ('GET' ===  self::getRequestMethod()){
-
-				$a = $_GET;
-			}
-
-			$o = self::$instance = new self($a);
-			$o->setRequired($aRequired);
-			$o->checkRequired();
+		$a = null;
+		$req = self::getRequestMethod();
+		if('POST' === $req){
+			$a = $_POST;
+		} elseif ('GET' === $req){
+			$a = $_GET;
 		}
 
-		return self::$instance;
+		$o = new self($a);
+		$o->setRequired($aRequired);
+		$o->checkRequired();
+
+		return $o;
 	}
 
 	/**
 	 * Set array of params that are required
 	 * to be in request
-	 * 
+	 *
 	 * @param array $aRequired array of param names
 	 */
 	public function setRequired(array $aRequired = array()){
@@ -184,9 +166,9 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 
 	/**
-	 * 
+	 *
 	 * Getter for $this->aRequired
-	 * 
+	 *
 	 * @return array
 	 */
 	public function getRequired(){
@@ -238,14 +220,30 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 	/**
 	 * Changing offsetGet does not affect get()
-	 * 
+	 *
 	 * @param string $offset
 	 */
 	public function offsetGet($offset){
+		/**
+		 * For 'a' and 'pageID' return
+		 * default values and don't go through
+		 * getFiltered() if values don't exist
+		 *
+		 */
+		if(!$this->offsetExists($offset)){
+			if('a' === $offset){
+				return 'viewquestions';
+			} elseif('pageID' === $offset){
+				return 1;
+			} else {
+				throw new DevException('Request param '.$offset.' does not exist');
+			}
+		}
 
 		return $this->getFiltered($offset);
 	}
 
+	
 	/**
 	 *
 	 * @param $key
@@ -258,6 +256,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		parent::offsetSet($key, $val);
 	}
 
+	
 	/**
 	 * Get value of query string param
 	 * if it exists or return $default
@@ -266,26 +265,34 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 * @param string $var name of query string
 	 * param
 	 *
+	 * @todo remove this and use get() or normal offsetGet() instead!
+	 *
 	 * @return mixed string|bool|int filtered value of param
 	 * or value of supplied $default
 	 *
 	 *
 	 */
-	public function getParam($var, $default = 1){
+	/*public function getParam($var, $default = 1){
 
 		if(!$this->offsetExists($var)){
 			$this->offsetSet($var, $default);
-			
+
 			return $default;
 		}
 
 		return $this->getFiltered($var);
-	}
+	}*/
 
-	public function __get($param){
+	
+	/**
+	 * @todo remove this soon
+	 *
+	 */
+	/*public function __get($param){
+		e('trying to get '.$param.' via __get');
 
-		return $this->getParam($param);
-	}
+		return $this->offsetGet($param);
+		}*/
 
 	/**
 	 * Get filtered value of query string
@@ -348,7 +355,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		}elseif('token' === $name){
 			$ret = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
 		}
-		
+
 		else {
 			//$ret = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
 			$ret = $val;
@@ -357,18 +364,18 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		return $ret;
 	}
 
-	
+
 	/**
-	 * @return request method like "GET" or "POST" 
+	 * @return request method like "GET" or "POST"
 	 * and always in UPPER CASE
-	 * 
+	 *
 	 */
 	public static function getRequestMethod(){
 
 		return strtoupper($_SERVER['REQUEST_METHOD']);
 	}
 
-	
+
 	/**
 	 * Get value of specific request header
 	 *
@@ -401,6 +408,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		return false;
 	}
 
+	
 	/**
 	 *
 	 * @return bool true if request is via Ajax, false otherwise
@@ -425,6 +433,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		return self::$ajax;
 	}
 
+	
 	/**
 	 * Check to see if iframeid param exists in query string
 	 *
@@ -432,33 +441,9 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 */
 	public static function isIframe(){
 
-		$o = self::getInstance();
-
-		return $o->offsetExists('iframeid');
+		return !empty($_REQUEST['iframeid']);
 	}
 
-	/**
-	 * Get unique hash code for the object
-	 * This code uniquely identifies an object,
-	 * even if 2 objects are of the same class
-	 * and have exactly the same properties, they still
-	 * are uniquely identified by php
-	 *
-	 * @return string
-	 */
-	public function hashCode()
-	{
-		return spl_object_hash($this);
-	}
-
-	/**
-	 * Getter of the class name
-	 * @return string the class name of this object
-	 */
-	public function getClass()
-	{
-		return get_class($this);
-	}
 
 	/**
 	 * Returns ip address of client
@@ -486,4 +471,5 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 		return $sUserAgent;
 	}
+	
 }

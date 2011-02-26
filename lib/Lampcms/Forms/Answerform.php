@@ -155,7 +155,7 @@ class Answerform extends Form
 	}
 
 	protected function doValidate(){
-		$body = $this->oRegistry->Request->qbody;
+		$body = $this->oRegistry->Request['qbody'];
 		if(strlen($body) < 10){
 			$this->setError('qbody', 'Answer must contain at least 10 letters');
 		}

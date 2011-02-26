@@ -74,6 +74,8 @@ class Activate extends WebPage
 	 */
 	protected $aEmail;
 
+	protected $layoutID = 1;
+
 	/**
 	 * Maximum number of days after which
 	 * validation code is no longer valid
@@ -114,7 +116,7 @@ class Activate extends WebPage
 		return $this;
 	}
 
-	
+
 	/**
 	 * Make sure that validation code is not
 	 * expired
@@ -133,7 +135,7 @@ class Activate extends WebPage
 		return $this;
 	}
 
-	
+
 	/**
 	 * Change user's user_group_id to registered
 	 * and set validation_time to now in EMAILS record
@@ -150,7 +152,17 @@ class Activate extends WebPage
 		}
 
 		$this->oActivatedUser = User::factory($this->oRegistry, $aUser);
-		$this->oActivatedUser->activate();
+		$this->oActivatedUser->activate()->save();
+
+		/**
+		 * Now IF Viewer is actually the user that was just activated
+		 * we must also update the Viewer!
+		 * If we don't then the Viewer object is not updated
+		 * and the Viewer in session is still unactivated
+		 */
+		if($this->oRegistry->Viewer->getUid() === $this->oActivatedUser->getUid()){
+			$this->processLogin($this->oActivatedUser);
+		}
 
 		$this->oRegistry->Dispatcher->post($this->oActivatedUser, 'onUserUpdate');
 
@@ -162,13 +174,13 @@ class Activate extends WebPage
 
 	/**
 	 * @todo translate string
-	 * 
+	 *
 	 */
 	protected function setReturn()
 	{
 		$this->aPageVars['title'] = 'Account activation complete';
 
-		$this->aPageVars['body'] = '<div class="message">Account activation complete<br/>The account <b>'.$this->oActivatedUser->username.'</b> now has all the privileges<br/>
+		$this->aPageVars['body'] = '<div class="tools larger">Account activation complete<br/>The account <b>'.$this->oActivatedUser->username.'</b> now has all the privileges<br/>
 		of a registered user on our website.<br/>
 		<br/>If you not already logged in, please login using<br/>
 		the form above</div>';

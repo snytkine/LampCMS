@@ -51,7 +51,7 @@ if(function_exists('mb_internal_encoding')){
 
 function exception_handler($e)
 {
-	//echo 'Eeeeee ';
+	echo 'Eeeeee '.$e->getMessage()."\n<br>";
 	try {
 		$strHtml =  'ooopsy... '.Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
 		$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';

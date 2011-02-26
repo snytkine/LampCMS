@@ -115,7 +115,7 @@ class Registry extends LampcmsObject
 	protected function init(){
 
 		$this->values['Request'] = $this->asShared(function ($c) {
-			return Request::getInstance();
+			return Request::factory();
 		});
 
 		$this->values['Ini'] = $this->asShared(function ($c) {

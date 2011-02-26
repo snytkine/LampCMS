@@ -106,7 +106,7 @@ class Changepwd extends Resetpwd
 	protected function saveNewPassword(){
 		$this->email = $this->oRegistry->Viewer['email'];
 		$this->username = $this->oRegistry->Viewer['username'];
-		$this->newPwd = $this->oRequest->pwd1;
+		$this->newPwd = $this->oRequest['pwd1'];
 
 		$this->oRegistry->Viewer['pwd'] = String::hashPassword($this->newPwd);
 		$this->oRegistry->Viewer->save();

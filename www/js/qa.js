@@ -238,7 +238,7 @@ YUI({
 			Y.log('No google or google.friendconnect', 'error');
 			return;
 		}
-		
+		Y.log('have google and google.friendconnect');
 		google.friendconnect.requestSignIn();
 		
 		return;
@@ -357,6 +357,7 @@ YUI({
 			break;
 			
 		case el.test('.gfcsignin'):
+			Y.log('clicked gfcsignin');
 			initGfcSignup();
 			break;
 			
@@ -376,14 +377,17 @@ YUI({
 			initFbInvite(el);
 			break;
 			
-		case (id == 'twinvite'):
+		case (id === 'twinvite'):
 			oTweet = oSL.tweet.getInstance();
 		    oTweet.show();
 			break;
 			
 		case (id === 'logout'):
+			Y.log('clicked logout');
 			if(FB){
+				Y.log('has FB');
 				fbappid = getMeta('fbappid');
+				Y.log('fbappid: ' + fbappid);
 				FB.logout(function(response) {});
 				if (fbappid) {
 					fbcookie = "fbs_" + fbappid;
@@ -1327,15 +1331,15 @@ YUI({
 	 };
 	 
 	 
-
-	 
 	 if(Y.one('#regdiv')) {
-
+            Y.log('have regdiv');
 			dnd = Y.Cookie.get("dnd");
+			Y.log('dnd: ' + dnd);
 			/**
 			 * Don't show regform if use has 'dnd' (do not disturb) cookie
 			 */
 			if (!dnd) {
+				Y.log('going to show regform');
 				oSL.Regform.getInstance().show();
 			}
 		}

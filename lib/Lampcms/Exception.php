@@ -164,7 +164,7 @@ class Exception extends \Exception
 		$intCode = ($e instanceof \ErrorException) ? $e->getSeverity() : $e->getCode();
 
 		$strLogMessage = 'LampcmsError exception caught: '.$sMessage."\n".'error code: '.$intCode."\n".'file: '.$strFile."\n".'line: '.$intLine."\n".'stack: '.$sTrace."\n";
-		d('vars: '.print_r(Request::getInstance()->toArray(), true)."\n".$strLogMessage);
+		d('vars: '.print_r($_REQUEST, true)."\n".$strLogMessage);
 
 		$sError .= $sMessage."\n";
 
