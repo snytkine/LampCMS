@@ -80,7 +80,7 @@ class RegBlockQuickReg extends RegBlock
 	{
 
 		$this->aVars = array(
-		'titleBar' => 'Join us!',
+		'titleBar' => 'Welcome to '.$this->oRegistry->Ini->SITE_NAME,
 		'token' => Form::generateToken(), /*$this->oGlobal->addFormToken(),*/
 		'title' => 'Welcome to '.$this->oRegistry->Ini->SITE_NAME,
 		'header2' => '<div class="step2">Join us! It\'s super easy and free!</div>',

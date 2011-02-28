@@ -38,6 +38,13 @@
 
 class tplMain extends Lampcms\Template\Template
 {
+
+	/* css1: <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?3.3.0/build/cssreset/reset-min.css&3.3.0/build/cssfonts/fonts-min.css&3.3.0/build/cssgrids/grids-min.css">
+	 * <script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.0r4/build/utilities/utilities.js&2.8.0r4/build/container/container-min.js&2.8.0r4/build/menu/menu-min.js&2.8.0r4/build/button/button-min.js&2.8.0r4/build/datasource/datasource-min.js&2.8.0r4/build/editor/editor-min.js&2.8.0r4/build/json/json-min.js&2.8.0r4/build/resize/resize-min.js&2.8.0r4/build/tabview/tabview-min.js&2.8.0r4/build/cookie/cookie-min.js&2.8.1/build/imageloader/imageloader-min.js"></script>', //12
+	 '
+	 <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.8.0r4/build/reset-fonts-grids/reset-fonts-grids.css&2.8.0r4/build/base/base-min.css&2.8.0r4/build/assets/skins/sam/skin.css">
+	 gfc_js' => '', //13
+	 */
 	protected static $vars = array(
 	'title' => 'title', //1
 	'site_url' => '', //2
@@ -47,12 +54,10 @@ class tplMain extends Lampcms\Template\Template
 	'session_uid' => '', //6
 	'description' => '', //7
 	'extra_metas' => '', //8
-	'css1' => ' 
-	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?3.3.0/build/cssreset/reset-min.css&3.3.0/build/cssfonts/fonts-min.css&3.3.0/build/cssgrids/grids-min.css">
-	<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.8.0r4/build/reset-fonts-grids/reset-fonts-grids.css&amp;2.8.0r4/build/base/base-min.css&amp;2.8.0r4/build/assets/skins/sam/skin.css">', //9 //<link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?3.3.0/build/cssreset/reset-min.css&3.3.0/build/cssfonts/fonts-min.css&3.3.0/build/cssgrids/grids-min.css">
+	'css1' => '', // 9
 	'main_css' => '/css/main.css', //10
 	'extra_css' => '', //11
-	'js' => '<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.0r4/build/utilities/utilities.js&2.8.0r4/build/container/container-min.js&2.8.0r4/build/menu/menu-min.js&2.8.0r4/build/button/button-min.js&2.8.0r4/build/datasource/datasource-min.js&2.8.0r4/build/editor/editor-min.js&2.8.0r4/build/json/json-min.js&2.8.0r4/build/resize/resize-min.js&2.8.0r4/build/tabview/tabview-min.js&2.8.0r4/build/cookie/cookie-min.js&2.8.1/build/imageloader/imageloader-min.js"></script>', //12
+	'js' => '<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.0r4/build/utilities/utilities.js&2.8.0r4/build/container/container-min.js&2.8.0r4/build/button/button-min.js&2.8.0r4/build/json/json-min.js&2.8.0r4/build/cookie/cookie-min.js"></script>', //12
 	'gfc_js' => '', //13
 	'fb_js' => '', //14
 	'template_id' => 'yui-t6', //15
@@ -77,7 +82,7 @@ class tplMain extends Lampcms\Template\Template
 	'rep' => '1' // 34
 	);
 
-//<link rel="shortcut icon" href="/favicon.ico">
+	//<link rel="shortcut icon" href="/favicon.ico">
 	protected static $tpl = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns:fb="http://www.facebook.com/2008/fbml">
 <head>
@@ -149,5 +154,5 @@ class tplMain extends Lampcms\Template\Template
 %22$s
 </body>
 </html>';
-	
+
 }

@@ -147,7 +147,7 @@ You can change your password after you log in.
 		$this->oForm->setVar('divID', 'registration');
 		$this->oForm->setVar('className', 'registration');
 		$this->oForm->setVar('header2', 'Join us!');
-		$this->oForm->setVar('button', '<input name="submit" value="Register!" type="submit" class="btnRegister">');
+		$this->oForm->setVar('button', '<input name="submit" value="Register!" type="submit" class="btn btn-m">');
 		$this->oForm->setVar('captcha', Captcha::factory($this->oRegistry)->getCaptchaBlock());
 		$this->oForm->setVar('title', 'Create an Account');
 		$this->oForm->setVar('titleBar', '');

@@ -713,9 +713,11 @@ oSL.Regform = (function() {
 					visible : false,
 					constraintoviewport : false,
 					hideaftersubmit : false,
-					draggable : true,
+					draggable : false,
 					close : false,
 					modal : true,
+					x: 150,
+					y: 10,
 					buttons : [ {
 						text : "Create Your Account",
 						handler : handleSubmit,

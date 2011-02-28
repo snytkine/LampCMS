@@ -342,7 +342,7 @@ YUI({
 	 */
 	handleAjaxLinks = function(e) {
 		var ancestor, res, restype, resID, fbappid, fbcookie, el = e.currentTarget;
-		//alert('el is ' + el + '<br>id is: ' + el.get('id'));
+		Y.log('el is ' + el + ' id is: ' + el.get('id'));
 		var id = el.get('id');
 		e.halt();
 		switch (true) {
@@ -362,6 +362,8 @@ YUI({
 			break;
 			
 		case el.test('.twsignin'):
+			Y.log('clicked on twsignin.');
+			Y.log('Twitter: ' + Twitter);
 			Twitter.startDance();
 			break;
 			
@@ -370,6 +372,7 @@ YUI({
 			break;
 			
 		case (id == 'gfcinvite'):
+			Y.log('clicked on gfcinvite.');
 			google.friendconnect.requestInvite();
 			break;
 			
@@ -1344,7 +1347,7 @@ YUI({
 	
 	Y.on('submit', MysubmitForm, '.qa_form');
 	Y.on("click", handleAjaxLinks, ".ajax");
-	Y.delegate("click", handleAjaxLinks, ".delegate");
+	Y.delegate("click", handleAjaxLinks, "#lastdiv", 'a');
 	/**
 	 * Listening the clicks on links inside #lastdiv
 	 * allows us to dynamically add modals and panels
@@ -1361,7 +1364,7 @@ YUI({
 	 * Any links with class .close inside the alerter modal
 	 * window will also cause the modal alerter to close
 	 */
-	Y.delegate("click", function(){Y.log('clicked close link');getAlerter().hide();}, "#fbOverlay", 'a.close');
+	Y.delegate("click", function(){getAlerter().hide();}, "#fbOverlay", 'a.close');
 	/**
 	 * Replace default JS alert with out custom
 	 * Fb looking alerter

@@ -88,9 +88,9 @@ class tplFormpwd extends Lampcms\Template\Template
 		<td align="left" valign="top">
 		<table class="subres">
 			<tr>
-				<td width="50%%"><input class="btnsubmit" type="submit"
+				<td width="50%%"><input class="btn btn-m" type="submit"
 					name="dostuff" value="%9$s"></td>
-				<td><input class="btnreset" type="reset"
+				<td><input class="btn btn-m" type="reset"
 					name="reset" value="%10$s"></td>
 			</tr>
 		</table>

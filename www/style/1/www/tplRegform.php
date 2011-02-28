@@ -70,7 +70,7 @@ class tplRegform extends Lampcms\Template\Template
 	<div id="%22$s" class="%23$s">
 	<div class="hd">%1$s</div> 
 	<div class="bd"> 
-	<h3>%2$s</h3>
+	<!-- <h3>%2$s</h3> -->
 	<div class="regheader2">%3$s</div>
 	<div id="form_error">%21$s</div>
 	<div id="eprog"></div>
