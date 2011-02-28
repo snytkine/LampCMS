@@ -39,6 +39,12 @@
 class tplQrecent extends Lampcms\Template\Template
 {
 	
+	protected static function func(&$a){
+		if(!empty($a['a_closed'])){
+			$a['title'] = $a['title'].' [closed]';
+			$a['closed'] = ' closed';
+		}
+	}
 	
 	protected static $vars = array(
 	'_id' => '0', //1
@@ -58,7 +64,8 @@ class tplQrecent extends Lampcms\Template\Template
 	'vw_s' => 's',//15
 	'v_s' => '',//16
 	'ans_s' => '',//17
-	'deleted' => '' //18
+	'deleted' => '', //18
+	'closed' => '' //19
 	);
 
 	protected static $tpl = '
@@ -78,7 +85,7 @@ class tplQrecent extends Lampcms\Template\Template
     </div>
     <!-- //statsdiv -->
     <div class="smmry">
-        <h2><a href="/q%1$s/%5$s" class="ql">%7$s</a></h2>
+        <h2><a href="/q%1$s/%5$s" class="ql%19$s">%7$s</a></h2>
         <div class="intro">%6$s</div>
         <div class="tgs %8$s">%9$s</div>
         <div class="pstr">

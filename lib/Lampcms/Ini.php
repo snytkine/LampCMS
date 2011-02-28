@@ -49,16 +49,20 @@
  *
  */
 
- 
+
+
 namespace Lampcms;
 
 
 /**
- * Parses the ini file
- * defined as LAMPCMS_INI_FILE
- *
- * This is also serializable object, so it can
- * be stored in SESSION for extra speed
+ * Object represents the parsed !config.ini file
+ * has accessorts for the whole section via getSection
+ * or access values from the CONSTANTS section via 
+ * the magic __get method like this:
+ * oIni->ADMIN_EMAIL
+ * 
+ * 
+ * @author admin
  *
  */
 class Ini extends LampcmsArray
@@ -69,15 +73,7 @@ class Ini extends LampcmsArray
 
 	public function __construct()
 	{
-		if (!defined('LAMPCMS_PATH')) {
-			throw new IniException('LAMPCMS_PATH is not defined');
-		}
-
 		$iniFile = LAMPCMS_PATH.DIRECTORY_SEPARATOR.'!config.ini';
-
-		if (!is_readable($iniFile)) {
-			throw new IniException('LAMPCMS_INI_FILE '.$iniFile.' is not found or not readable');
-		}
 
 		$aIni = parse_ini_file($iniFile, true);
 
@@ -197,64 +193,19 @@ class Ini extends LampcmsArray
 		return $ret;
 	}
 
-	/**
-	 * Same functionality as
-	 * using __get() on object
-	 * with the only difference that this
-	 * one is a static method, so it can
-	 * be used like this:
-	 *
-	 * Ini::get($name);
-	 *
-	 * @return value of $name from
-	 * ini's CONSTANTS section
-	 *
-	 * @param string $name
-	 *
-	 *
-	 */
-	public static function get($name)
-	{
-		$instance = self::getInstance();
-
-		return $instance->__get($name);
-	}
 
 	/**
-	 *
-	 * @todo remove this and no longer use static methods
-	 * Always use this class via Registry and then only
-	 * non-static methods
-	 *
-	 * Same functionality as
-	 * using __get() on object
-	 * with the only difference that this
-	 * one is a static method, so it can
-	 * be used like this:
-	 *
-	 * Ini::get($name);
-	 *
-	 * @return value of $name from
-	 * ini's CONSTANTS section
-	 *
-	 * @param string $name
-	 *
-	 *
+	 * 
+	 * @param string $name name of section in !config.ini file
+	 * 
+	 * @return array associative array of
+	 * param => val of all params belonging to
+	 * one section in !config.ini file
 	 */
-	public static function getSection($name)
+	public function getSection($name)
 	{
-		$instance = self::getInstance();
-
-		if (!$instance->offsetExists($name)) {
-			return null;
-		}
-
-		return $instance->offsetGet($name);
-	}
-
-	public function sectionArr($name){
 		if(!$this->offsetExists($name)){
-			
+				
 			throw new IniException('Section '.$name.' does not exist in config');
 		}
 
@@ -309,6 +260,5 @@ class Ini extends LampcmsArray
 		return $a;
 	}
 
-
 }
-?>
+

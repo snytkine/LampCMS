@@ -100,7 +100,7 @@ class MongoCache implements Interfaces\Cache
 	public static function factory(Registry $oRegistry)
 	{
 		$oIni = $oRegistry->Ini;
-		$aConfig = $oIni->sectionArr('CACHE_MONGO');
+		$aConfig = $oIni->getSection('CACHE_MONGO');
 		d('cp');
 		$oMongo = $oRegistry->Mongo->getMongo();
 
@@ -316,18 +316,21 @@ class MongoCache implements Interfaces\Cache
 			$value = serialize($value);
 			$isSerialized = true;
 		}
-
+		d('cp');
 		if($this->bCompress){
+			d('cp');
 			$data = new \MongoBinData(gzdeflate($value));
 		} else {
+			d('cp');
 			$data = $value;
 		}
-
+		d('cp');
 		$aData = array('_id'     => $this->nameSpace.$key,
             		   'd'       => $data,
                        'created' => $now,
                        'exp'     => $exp);
 
+		d('aData: '.print_r($aData, true));
 		if($isSerialized){
 			$aData['s'] = true;
 		}
@@ -337,6 +340,8 @@ class MongoCache implements Interfaces\Cache
 		}
 
 		$res = $this->_collection->save($aData);
+		
+		d('res: '.$res);
 
 		return $res;
 

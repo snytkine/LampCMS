@@ -88,7 +88,7 @@ class Mongo extends LampcmsObject
 	public function __construct(Ini $oIni){
 
 		$aOptions = array('connect' => true);
-		$aConfig = $oIni->sectionArr('MONGO');
+		$aConfig = $oIni->getSection('MONGO');
 		d('$aConfig: '.print_r($aConfig, 1));
 
 		$server = $aConfig['server'];

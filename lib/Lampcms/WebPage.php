@@ -407,7 +407,7 @@ abstract class WebPage extends Base
 			$this->addGFCCode($gfcID);
 		}
 
-		$aFacebookConf = $oIni->sectionArr('FACEBOOK');
+		$aFacebookConf = $oIni->getSection('FACEBOOK');
 
 		if(!empty($aFacebookConf)){
 			if(!empty($aFacebookConf['APP_ID'])){
@@ -596,7 +596,7 @@ abstract class WebPage extends Base
 	protected function processLogin(User $oUser, $bResetSession = false)
 	{
 
-		d('cp');
+		d('protessing user hashCode: '.$oUser->hashCode().' userHash: '.$oUser->hashCode());
 
 		if(!isset($_SESSION)){
 			$_SESSION = array();
@@ -635,7 +635,7 @@ abstract class WebPage extends Base
 		 * Just a precaution to make sure
 		 * descructor will not try to save the object that we no longer need.
 		 */
-		d('old SESSION oViewer hash code was: '.$_SESSION['oViewer']->hashCode());
+		d('old SESSION oViewer hash code was: '.$_SESSION['oViewer']->hashCode().' old userHash: '.$_SESSION['oViewer']->hashCode());
 
 		/**
 		 * Update i_ts_login which
@@ -651,7 +651,7 @@ abstract class WebPage extends Base
 		 */
 		unset($this->bLoggedIn);
 
-		d('SESSION oViewer is now of type '.$_SESSION['oViewer']->getClass().' hash: '.$_SESSION['oViewer']->hashCode());
+		d('SESSION oViewer is now of type '.$_SESSION['oViewer']->getClass().' hash: '.$_SESSION['oViewer']->hashCode().' new userHash: '.$_SESSION['oViewer']->hashCode());
 
 
 		$_SESSION['oViewer']->setTimezone();

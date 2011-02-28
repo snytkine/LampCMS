@@ -60,7 +60,7 @@ use \Lampcms\Points;
 /**
  * Controller for processing a vote
  * for question or answer
- * 
+ *
  * @todo require post and token
  * send via Ajax by post only!
  * Otherwise it's too easy to fake a vote
@@ -131,6 +131,7 @@ class Vote extends WebPage
 			->checkIsOwner()
 			->getIncrementValue()
 			->increaseVoteCount()
+			->updateQuestion()
 			->setOwnerReputation()
 			->postEvent();
 		} catch (\Exception $e){
@@ -171,7 +172,7 @@ class Vote extends WebPage
 		return $this;
 	}
 
-	
+
 	/**
 	 * Instantiate the resource object
 	 *
@@ -223,7 +224,7 @@ class Vote extends WebPage
 		$coll = $this->oRegistry->Mongo->getCollection('VOTES');
 		$coll->ensureIndex(array('i_uid' => 1));
 		$coll->ensureIndex(array('i_res' => 1));
-		
+
 
 		$uid = $this->oRegistry->Viewer->getUid();
 		$aData = array(
@@ -309,6 +310,31 @@ class Vote extends WebPage
 			$this->oResource->addUpVote($this->inc);
 		} else {
 			$this->oResource->addDownVote($this->inc);
+		}
+
+		return $this;
+	}
+
+	
+	/**
+	 * If vote was on the ANSWER
+	 * we still need to update i_lm_ts of question
+	 * to prevent browser displaying cached version
+	 *
+	 * @return object $this
+	 */
+	protected function updateQuestion(){
+		if('ANSWERS' === $this->resType){
+			try{
+				$this->oRegistry->Mongo->QUESTIONS
+				->update(
+				array('_id' => $this->oResource['i_qid']),
+					array('$set' =>
+						array('i_lm_ts' => time())));
+
+			} catch (\Exception $e){
+				e('unable to update question after vote for answer is received '.$this->oResource['i_qid']);
+			}
 		}
 
 		return $this;

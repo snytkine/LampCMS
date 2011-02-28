@@ -175,7 +175,7 @@ class Viewquestion extends WebPage
 		if(!$isModerator && !empty($this->aQuestion['ip'])){
 			unset($this->aQuestion['ip']);
 		}
-		
+
 		$deleted = (!empty($this->aQuestion['i_del_ts'])) ?  ' deleted' : false;
 
 
@@ -209,8 +209,6 @@ class Viewquestion extends WebPage
 				d('deletedby: '.$this->aQuestion['deletedby']);
 			}
 		}
-
-
 
 		$this->aPageVars['body'] = \tplQuestion::parse($this->aQuestion);
 
@@ -261,6 +259,13 @@ class Viewquestion extends WebPage
 	protected function setTitle(){
 		$title = $this->oQuestion['title'];
 		$title = (!$this->isLoggedIn()) ? Badwords::filter($title) : $title;
+
+		/**
+		 * @todo Translate string "closed"
+		 */
+		if(!empty($this->aQuestion['a_closed'])){
+			$title .= ' [closed]';
+		}
 		$this->aPageVars['title'] = $title;
 		$this->aPageVars['qheader'] = '<h1>'.$title.'</h1>';
 
@@ -289,8 +294,9 @@ class Viewquestion extends WebPage
 		}
 
 		$latestReplyTime = $this->oQuestion['i_lm_ts'];
-		$userID = $this->oRegistry->Viewer->getUserHash();
-		$etag = '"'.hash('md5', $this->oRequest['qid'].'-'.$this->pageID.'-'.$latestReplyTime.'-' .$userID).'"';
+		$userHash = $this->oRegistry->Viewer->hashCode();
+		d('user Hash: '.$userHash);
+		$etag = '"'.hash('md5', $this->oRequest['qid'].'-'.$this->pageID.'-'.$latestReplyTime.'-' .$userHash).'"';
 		$lastModified = gmdate("D, d M Y H:i:s", $latestReplyTime)." GMT";
 
 		CacheHeaders::processCacheHeaders($etag, $lastModified);

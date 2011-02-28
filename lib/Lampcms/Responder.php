@@ -110,7 +110,7 @@ class Responder
 			self::sendJsonPage($aJSON);
 			exit;
 		}
-		
+
 		$contentType = "Content-Type: text/json; charset=UTF-8";
 		$res = json_encode($aJSON);
 
@@ -119,7 +119,7 @@ class Responder
 		header($contentType);
 		echo($res);
 		fastcgi_finish_request();
-		
+
 		exit;
 	}
 
@@ -178,7 +178,7 @@ class Responder
 	 */
 	public static function redirectToPage($url = null)
 	{
-		
+
 		if (null === $url) {
 			$url = ( empty($_SERVER['HTTP_REFERER'])) ? '/' : $_SERVER['HTTP_REFERER'];
 		}
@@ -186,7 +186,8 @@ class Responder
 		if(Request::isAjax()){
 			self::sendJSON(array('redirect' => $url));
 		}
-
+		
+		//sleep(1);
 		header("Location: ".$url);
 		exit(0);
 	}

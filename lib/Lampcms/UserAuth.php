@@ -238,7 +238,7 @@ class UserAuth extends LampcmsObject
 	{
 		d('cp');
 
-		$aLockParams = $this->oRegistry->Ini->sectionArr('LOGIN_ERROR_LOCK');
+		$aLockParams = $this->oRegistry->Ini->getSection('LOGIN_ERROR_LOCK');
 		d('$aLockParams: '.print_r($aLockParams, 1));
 		/**
 		 * If LOGIN_ERROR_LOCK was not set

@@ -68,8 +68,6 @@ try {
 		throw new Lampcms\Exception('session_start_error');
 	}
 
-	//$oRequest = $oRegistry->Request;
-	//$oRequest['a'] = 'twitter';
 	include($lampcmsClasses.'Controllers'.DIRECTORY_SEPARATOR.'Logintwitter.php');
 
 	$o = new \Lampcms\Controllers\Logintwitter($oRegistry);

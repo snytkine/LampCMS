@@ -126,7 +126,7 @@ class Qtitletags extends LampcmsObject
 	 */
 	public function indexTitle(Question $oQuestion){
 		if(!extension_loaded('pdo_mysql')){
-			d('pdo_mysql not loaded '.extension_loaded('pdo_mysql'));
+			d('pdo_mysql not loaded ');
 
 			return $this;
 		}
@@ -156,7 +156,6 @@ class Qtitletags extends LampcmsObject
 
 		try{
 			$sth = $this->oRegistry->Db->makePrepared($sql);
-
 			$sth->bindParam(':qid', $qid, PDO::PARAM_INT);
 			$sth->bindParam(':qtitle', $title, PDO::PARAM_STR);
 			$sth->bindParam(':qurl', $url, PDO::PARAM_STR);
@@ -170,7 +169,7 @@ class Qtitletags extends LampcmsObject
 			d('mysql error: '.$err);
 
 			if('42S02' === $e->getCode()){
-				if(true === TitleTageTable::create($this->oRegistry)){
+				if(true === TitleTagsTable::create($this->oRegistry)){
 					$this->indexTitle($oQuestion);
 				}
 			} else {

@@ -193,7 +193,7 @@ class Registry extends LampcmsObject
 	 */
 	public function registerObservers($section = 'OBSERVERS'){
 
-		$aObservers = $this->__get('Ini')->sectionArr($section);
+		$aObservers = $this->__get('Ini')->getSection($section);
 
 		if(!empty($aObservers)){
 			foreach($aObservers as $key => $className){

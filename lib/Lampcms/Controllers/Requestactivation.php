@@ -69,6 +69,8 @@ IMPORTANT: You Must use the link below to activate your account
 
 
 	protected $membersOnly = true;
+	
+	protected $layoutID = 1;
 
 	protected $oEmail;
 
@@ -81,7 +83,7 @@ IMPORTANT: You Must use the link below to activate your account
 		->makeActivationCode()
 		->sendActivationEmail();
 
-		$this->aPageVars['body'] = '<div class="message">'.sprintf(self::SUCCESS, $this->email).'</div>';
+		$this->aPageVars['body'] = '<div id="tools">'.sprintf(self::SUCCESS, $this->email).'</div>';
 	}
 
 
@@ -143,27 +145,10 @@ IMPORTANT: You Must use the link below to activate your account
 	{
 		$tpl = $this->oRegistry->Ini->SITE_URL.'/aa/%d/%s';
 		$link = sprintf($tpl, $this->oEmail->_id, $this->oEmail->code);
-
-		//$adminEmail = $this->oRegistry->Ini->EMAIL_ADMIN;
 		$siteName = $this->oRegistry->Ini->SITE_NAME;
-
 		$body = vsprintf(self::EMAIL_BODY, array($siteName, $link));
-		//$from = \Lampcms\String::prepareEmail($adminEmail, $siteName);
 		$subject = sprintf(self::SUBJECT, $siteName);
-
-		//d('body: '.$body.' subject: '.$subject.' from: '.$from);
-		/*
-		 $aHeaders = array();
-		 $aHeaders['From'] = $from;
-		 $aHeaders['Reply-To'] = $adminEmail;
-		 $headers = \Lampcms\prepareHeaders($aHeaders);*/
-
-		/*if(true !== mail($this->email, $subject, $body, $headers)){
-
-		throw new \Lampcms\Exception('Server was unable to send out email at this time');
-		}*/
-
-		Mailer::factory($this->oRegistry)->mail($this->email, $subject, $body);
+		\Lampcms\Mailer::factory($this->oRegistry)->mail($this->email, $subject, $body);
 
 		return $this;
 	}

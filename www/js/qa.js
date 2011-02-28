@@ -388,14 +388,16 @@ YUI({
 				Y.log('has FB');
 				fbappid = getMeta('fbappid');
 				Y.log('fbappid: ' + fbappid);
-				FB.logout(function(response) {});
+				FB.logout(function(response) {
+					Y.log('FB response ' + response);
+				});
 				if (fbappid) {
 					fbcookie = "fbs_" + fbappid;
 					Y.Cookie.remove(fbcookie);
 				}
 			}
 		
-			window.location.assign('/logout/');
+			window.location.assign('/index.php?a=logout');
 			
 			break;
 			
@@ -416,6 +418,16 @@ YUI({
 		    resID = ancestor.get('id');
 		    resID = resID.substr(4);
 		    showRetagForm(resID);
+			}
+		
+		   break;
+		   
+		case el.test('.close'):
+			ancestor = el.ancestor("div.controls");
+		if(ancestor){
+		    resID = ancestor.get('id');
+		    resID = resID.substr(4);
+		    showCloseForm(resID);
 			}
 		
 		   break;
@@ -900,9 +912,36 @@ YUI({
 	};
 	
 	
+	var showCloseForm = function(qid){
+		var oAlert, form;
+		if(ensureLogin()){
+		form = '<div style="text-align: left">'
++ '<form name="form_close" id="id_close" action="/index.php">'
++ '<input type="hidden" name="a" value="close">'
++ '<input type="hidden" name="token" value="'+ getToken() +'">'
++ '<input type="hidden" name="qid" value="'+ qid +'">'
++ '<input type="radio" name="reason" value="Not a question" checked><label>Not a real question</label><br>'
++ '<input type="radio" name="reason" value="Off topic"><label>Way off Topic</label><br>'
++ '<input type="radio" name="reason" value="Unproductive debate"><label>Turned into unproductive debate</label><br>'
++ '<input type="radio" name="reason" value="Duplicate"><label>Duplicate question</label><br>'
++ '<hr>'
++ '<label for="id_note">Comments?</label>'
++ '<textarea name="note" cols="40" rows="2" style="display: block;"></textarea>'
++ '<input type="submit" class="btn" value="Close this question">'
++ '</form>'
++ '</div>';
+		
+		oAlert = getAlerter('<h3>Close this question</h3>');
+	     oAlert.set("bodyContent", form);
+	     oAlert.show(); 
+		}
+		
+	};
+	
+	
 	var showRetagForm = function(){
 		var oAlert, form, oTags, sTags = '';
-		if(2>1 || ensureLogin()){
+		if(ensureLogin()){
 			oTags = Y.all('td.td_question > div.tgs a');
 			Y.log('oTags count: ' + oTags.size());
 			oTags.each(function(){
@@ -1091,9 +1130,12 @@ YUI({
 			controls.each(function(){
 				Y.log('this is: ' + this);
 				if(this.test('.question')){
-					if(isModerator() || this.test('.uid-' + getViewerId()) || 500 < getReputation()){
-			         this.append(' | <span class="retag">retag</span>');
-		            }
+					if(isModerator() || this.test('.uid-' + getViewerId()) || (500 < getReputation()) ){
+							this.append(' | <span class="retag">retag</span>');
+					}
+					if(!Y.one('#closed') && (isModerator() || this.test('.uid-' + getViewerId()) ) ){
+						this.append(' | <span class="close">close</span>');
+					}
 			 	}
 				
 				/**

@@ -67,6 +67,14 @@ class Settings extends WebPage
 	protected $layoutID = 1;
 
 	protected function main(){
+		/**
+		 * Must reload viewer object
+		 * to pickup the current role
+		 * in case user activated account from
+		 * different browser
+		 */
+		$this->oRegistry->Viewer->reload();
+		
 		$this->aPageVars['title'] = 'Edit settings';
 		$vals = array(
 		'confirmation' => $this->makeConfirmBlock(),

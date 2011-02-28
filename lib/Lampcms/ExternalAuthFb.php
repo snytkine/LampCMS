@@ -137,7 +137,7 @@ class ExternalAuthFb extends Facebook
 	{
 
 		$oIni = $oRegistry->Ini;
-		$aFacebookConf = $oIni->sectionArr('FACEBOOK');
+		$aFacebookConf = $oIni->getSection('FACEBOOK');
 
 		if(empty($aFacebookConf) ||
 		(is_array($aFacebookConf) && (empty($aFacebookConf['APP_ID']) || empty($aFacebookConf['APP_SECRET']) ) )){
@@ -388,7 +388,7 @@ class ExternalAuthFb extends Facebook
 			$this->oResponse = $oHTTP->getDocument($url);
 			$json = $this->oResponse->getResponseBody();
 
-			$retCode = $oHTTP->getResponseCode();
+			$retCode = $oHTTP->getHttpResponseCode();
 			d('json '.$json.' http code: '.$retCode);
 
 			$this->aFbUserData = json_decode($json, true);

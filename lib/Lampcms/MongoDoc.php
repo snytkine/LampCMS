@@ -212,7 +212,15 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 				break;
 
 			case 'a_':
-				$ret = (array)$ret;
+				/**
+				 * 
+				 * Casting empty string to array
+				 * produces array(0 => '')
+				 * which is not what we want.
+				 * for empty result we want 
+				 * an empty array
+				 */
+				$ret = (empty($ret)) ? array() : (array)$ret;
 				break;
 
 			case 'b_':
@@ -226,6 +234,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		return $ret;
 	}
 
+	
 	/**
 	 * Internal getter of Registry object
 	 * We need this for when the object is unserialized

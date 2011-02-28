@@ -36,8 +36,25 @@
  *
  */
 
+/**
+ *
+ * Generates block with list of
+ * links to questions.
+ *
+ * This block is shown or user details page
+ * when viewing user profile
+ *
+ * @author Dmitri Snytkine
+ *
+ */
 class tplUquestions extends \Lampcms\Template\Template
 {
+
+	protected static function func(&$a){
+		if(!empty($a['a_closed'])){
+			$a['title'] = $a['title'].' [closed]';
+		}
+	}
 
 	protected static $vars = array(
 	'_id' => '0', //1

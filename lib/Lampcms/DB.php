@@ -210,7 +210,7 @@ class DB extends LampcmsObject
 	 */
 	protected function makeDsn()
 	{
-		$this->aDB = $this->oIni->sectionArr('DB');
+		$this->aDB = $this->oIni->getSection('DB');
 
 		if (null === $this->aDB) {
 				

@@ -709,9 +709,9 @@ oSL.Regform = (function() {
 				$L('cp 17', 'warn');
 				oDialog = new $W.Dialog("regdiv", {
 					width : "50em",
-					fixedcenter : true,
+					fixedcenter : false,
 					visible : false,
-					constraintoviewport : true,
+					constraintoviewport : false,
 					hideaftersubmit : false,
 					draggable : true,
 					close : false,

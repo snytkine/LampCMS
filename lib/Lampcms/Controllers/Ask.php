@@ -102,7 +102,7 @@ class Ask extends Askform
 		try{
 			$oQuestion = $oAdapter->parse(new SubmittedQuestionWWW($this->oRegistry, $formVals));
 			d('cp created new question');
-			d('title: '.$oQuestion->title);
+			d('title: '.$oQuestion['title']);
 
 			Responder::redirectToPage($oQuestion->getUrl());
 

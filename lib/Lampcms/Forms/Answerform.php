@@ -105,9 +105,14 @@ class Answerform extends Form
 			return '';
 		}
 		d('cp');
-		if(false !== $closed = $oQuestion->isClosed()){
-
-			return $this->getClosedMessage($closed);
+		/**
+		 * If questions is closed then
+		 * instead of answer form return
+		 * the div with "closed" message
+		 */
+		if(false !== $aClosed = $oQuestion->isClosed()){
+			
+			return \tplClosedby::parse($aClosed);
 		}
 		d('cp');
 
@@ -136,23 +141,6 @@ class Answerform extends Form
 
 	}
 
-	/**
-	 * Return special <div> with message that
-	 * question has been closed and new answers are
-	 * not accepted
-	 *
-	 * @todo we may return actual message telling why
-	 * answer form is not available, but this is not
-	 * really necessary
-	 *
-	 * @param mixed $closed bool or int timestamp of when message was
-	 * closed
-	 */
-	protected function getClosedMessage($closed){
-		d('Question closed to new answers');
-
-		return '';
-	}
 
 	protected function doValidate(){
 		$body = $this->oRegistry->Request['qbody'];

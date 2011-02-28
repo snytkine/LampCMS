@@ -49,18 +49,18 @@
  *
  */
 
-
+ 
 /**
- * Makes special div about who
- * deleted the question when and why
- * This div will be added to the question
- * template and shown to users that have
- * permission to see deleted questions
+ * Make div with info telling
+ * that this question has been closed
+ * This div will be placed in place
+ * where the "Answer" form normally appears
+ * Under the question and answers
  * 
  * @author Dmitri Snytkine
  *
  */
-class tplDeletedby extends \Lampcms\Template\Template
+class tplClosedby extends \Lampcms\Template\Template
 {
 
 	protected static $vars = array(
@@ -73,15 +73,10 @@ class tplDeletedby extends \Lampcms\Template\Template
 
 
 	protected static $tpl = '
-	<div class="usr_info deletedby">
-            <div class="qtime">Deleted on %5$s</div>
-            <div class="avtr32">
-             <img src="%3$s" height="32" width="32" alt="">
-            </div>
-            	<div class="usr_details">By: 
-            	 <a href="/users/%2$s/%1$s">%1$s</a><br>
-				</div>
-				<div class="reason cb fl">%4$s</div>
-			</div>';
+	<div id="closed">
+            <div class="cb fl larger bold">Closed by <a href="/users/%2$s/%1$s">%1$s</a> <img src="%3$s" height="32" width="32" alt=""></div>
+            <div class="fl cb"><span title="%5$s" class="ts" rel="time">%5$s</span></div>
+            <div class="cb fl"><span class="fl bold">Reason: </span><span class="reason">&nbsp; %4$s</span></div>
+     </div>';
 	
 }

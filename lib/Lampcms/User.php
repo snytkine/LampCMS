@@ -557,7 +557,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * @return string unique to each user
 	 *
 	 */
-	public function getUserHash(){
+	public function hashCode(){
 		$a = $this->getArrayCopy();
 
 		return hash('md5', json_encode($a).$this->getClass().$this->bNewUser);

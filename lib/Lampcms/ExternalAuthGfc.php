@@ -167,7 +167,7 @@ class ExternalAuthGfc extends ExternalAuth
 
 			 )
 
-			 [displayName] => Dmitri Snytkine
+			 [displayName] => David Smith
 			 )
 
 			 )

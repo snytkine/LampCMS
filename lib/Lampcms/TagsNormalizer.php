@@ -80,7 +80,7 @@ class TagsNormalizer
 	 */
 	public static function parse(array $a){
 		array_walk($a, function(&$item){
-			$item = trim(strip_tags(strtolower($item)) );
+			$item = trim(strip_tags(strtolower($item)), ',; ' );
 		});
 
 		$aTags = array_unique($a);

@@ -315,7 +315,7 @@ class CookieAuth extends UserAuth
 
 		d('$cur: '.gettype($cur).' found count: '.$cur->count());
 
-		$aLockParams = $this->oRegistry->Ini->sectionArr('LOGIN_ERROR_LOCK');
+		$aLockParams = $this->oRegistry->Ini->getSection('LOGIN_ERROR_LOCK');
 		d('$aLockParams: '.print_r($aLockParams, 1));
 
 		if ($cur->count() > (int)$aLockParams['max_errors']) {

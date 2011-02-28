@@ -51,7 +51,7 @@
 
 namespace Lampcms;
 
-class TitleTageTable
+class TitleTagsTable
 {
 	const SQL = 'CREATE TABLE `question_title` (
   `qid` int(9) NOT NULL,

@@ -37,6 +37,17 @@
  */
 
 
+/**
+ * 
+ * Generates block with list of 
+ * links to questions in which user posted answer(s).
+ * 
+ * This block is shown or user details page
+ * when viewing user profile
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class tplUserAnswers extends Lampcms\Template\Template
 {
 	protected static function func(&$a){
@@ -44,6 +55,8 @@ class tplUserAnswers extends Lampcms\Template\Template
 			$a['s'] = 's';
 		}
 	}
+
+
 
 	protected static $vars = array(
 	'count' => '',

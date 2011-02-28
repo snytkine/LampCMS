@@ -274,7 +274,7 @@ class Captcha extends LampcmsObject
 
 		$this->oRegistry = $oRegistry;
 
-		$aConfig = (!empty($config)) ? $config : $oRegistry->Ini->sectionArr('CAPTCHA');
+		$aConfig = (!empty($config)) ? $config : $oRegistry->Ini->getSection('CAPTCHA');
 		d('Captcha config: '.print_r($aConfig, 1));
 
 		// Test for GD-Library(-Version)

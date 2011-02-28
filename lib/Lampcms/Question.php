@@ -148,9 +148,9 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * offsets that start with 'i_' or end with 'id')
 	 */
 	public function isClosed(){
-		$closed = $this->offsetGet('i_closed');
+		$a = $this->offsetGet('a_closed');
 
-		return (empty($closed)) ? false : (int)$closed;
+		return (empty($a)) ? false : $a;
 	}
 
 
@@ -172,11 +172,18 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * @return object $this
 	 */
 	public function setClosed(User $closer, $reason = null){
-		$this->offsetSet('i_closed', time());
-		$this->offsetSet('a_closed', array('username' => $closer->getDisplayName(),
-		'i_uid' => $closer->getUid(),
-		'av' => $closer->getAvatarSrc(),
-		'reason' => $reason));
+		
+		if(!$this->checkOffset('a_closed')){
+			$this->offsetSet('a_closed', array(
+				'username' => $closer->getDisplayName(),
+				'i_uid' => $closer->getUid(),
+				'av' => $closer->getAvatarSrc(),
+				'reason' => $reason,
+				'hts' => date('F j, Y g:i a T')
+			)
+			);
+
+		}
 
 		return $this;
 	}

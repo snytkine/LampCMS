@@ -122,6 +122,13 @@ class Cache extends Observer
 
 
 	protected $oCacheInterface;
+	
+	/**
+	 * Array of identifying tags for cache
+	 * 
+	 * @var array
+	 */
+	protected $aTags = null;
 
 	/**
 	 * @param clsRegistry $oRegistry
@@ -421,7 +428,6 @@ class Cache extends Observer
 		if (!$this->skipCache) {
 			if (is_string($key)) {
 				/**
-				 * @todo
 				 * must have a way to
 				 * set an empty result into cache
 				 * this is important if
@@ -433,7 +439,7 @@ class Cache extends Observer
 				 */
 				if (!empty($val) || (0 === $val)) {
 
-					return $this->oCacheInterface->set($key, $val, $this->oTtl[$key]);
+					return $this->oCacheInterface->set($key, $val, $this->oTtl[$key], $this->aTags);
 				}
 			} elseif (!empty($key)) {
 
@@ -590,12 +596,14 @@ class Cache extends Observer
 		try{
 			$oGeoIP = Geoip::getGeoData($strIp);
 			$this->oTtl->offsetSet($strKey, 1800);
-		} catch (Exception $e){
+		} catch (DevException $e){
 			e('Unable to get geo record for ip: '.$strIp.' error: ' .$e->getMessage());
 
-			return false;
+			throw $e;
 		}
 
+		$this->aTags = array('geo');
+		
 		return $oGeoIP;
 	}
 

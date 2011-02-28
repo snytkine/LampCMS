@@ -308,7 +308,17 @@ class Logintwitter extends WebPage
 		} catch(\OAuthException $e) {
 			e('OAuthException: '.$e->getMessage().' '.print_r($e, 1));
 
-			throw new \Lampcms\Exception('Something went wrong during authorization. Please try again later'.$e->getMessage());
+			// throw new \Lampcms\Exception('Something went wrong during authorization. Please try again later'.$e->getMessage());
+			/*
+			 /**
+			 * Cannot throw exception because then it would be
+			 * displayed as regular page, with login block
+			 * but the currently opened window is a popup window
+			 * for showing twitter oauth page and we don't need
+			 * a login form or any other elements of regular page there
+			 */
+			$err = 'Something went wrong during authorization. Please try again later'.$e->getMessage();
+			exit(\Lampcms\Responder::makeErrorPage($err));
 		}
 
 		return $this;
@@ -393,7 +403,7 @@ class Logintwitter extends WebPage
 		$aUser['oauth_token_secret'] = $this->aUserData['oauth_token_secret'];
 		$aUser['twitter_uid'] = $this->aUserData['_id'];
 		$aUser['i_rep'] = 1;
-		
+
 		$oGeoData = $this->oRegistry->Cache->{sprintf('geo_%s', Request::getIP())};
 		$aProfile = array(
 		'cc' => $oGeoData->countryCode,

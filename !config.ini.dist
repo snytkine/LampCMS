@@ -106,6 +106,8 @@ max_errors = 4
 [TWITTER]
 ; API_KEY is needed for the @anywhere JS library only
 ; get api key and secret from here http://dev.twitter.com/apps/new
+; When creating new application on Twitter Website MAKE SURE 
+; to select READ AND WRITE access (not just READ, else it would not work)
 ;
 API_KEY = 
 ; twitter consumer key and consumer secret for oauth

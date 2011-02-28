@@ -215,7 +215,7 @@ class Join extends Register
 	{
 		$tpl = '
 	<h1>Welcome to %s!</h1>
-	<p>We have just emailed you 
+	<p class="larger">We have just emailed you 
 	a temporary password and an account activation link</p>
 	<p>Please make sure to follow instructions in that email and
 	activate your new account</p>

@@ -128,9 +128,9 @@ class Logout extends WebPage
 		 */
 		$aUser = $this->oRegistry->Viewer->getArrayCopy();
 		$this->oRegistry->Viewer = null;
-
-		$_SESSION = array();
+	
 		session_destroy();
+		$_SESSION = array();
 
 		$this->oRegistry->Dispatcher->post($this, 'onUserLogout', $aUser);
 
@@ -144,7 +144,9 @@ class Logout extends WebPage
 
 		}
 
-		Responder::redirectToPage();
+		Responder::redirectToPage('/');
+		
+		//exit('done');
 
 	}
 

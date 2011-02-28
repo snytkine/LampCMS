@@ -371,24 +371,16 @@ class Delete extends WebPage
 	 */
 	protected function requestDelete(){
 		$cur = $this->oRegistry->Mongo->USERS->find(array(
-  			'role' => array('$in' => array('moderator', 'admin'))
+  			'role' => array('$in' => array('moderator', 'administrator'))
 		), array('email'));
 
 		d('found '.$cur->count().' moderators');
 
 		if($cur && $cur->count() > 0){
-			$Mailer = Mailer::factory($this->oRegistry);
-			$subject = self::SUBJECT;
-			$body = $this->makeBody();
-			register_shutdown_function(function() use ($cur, $Mailer, $subject, $body){
-				try{
-					foreach($cur as $row){
-						$Mailer->mail($row['email'], $subject, $body);
-					}
-				} catch (\Exception $e){
-					e('Unable to send email to moderator: '.$e->getMessage());
-				}
-			});
+			$aTo = iterator_to_array($cur, false);
+			$Mailer = \Lampcms\Mailer::factory($this->oRegistry);
+			$body = $this->makeBody();			
+			$Mailer->mail($aTo, self::SUBJECT, $body);
 		}
 
 		$this->requested = true;

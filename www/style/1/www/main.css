@@ -347,7 +347,6 @@ h3 {
 	background-position: -238px -28px;
 }
 
-
 #recent-tags {
 	padding-left: 10px;
 }
@@ -1237,6 +1236,26 @@ td.td_question {
 .cb {
 	clear: both;
 	margin-top: 5px;
+}
+
+.larger {
+	font-size: 120%;
+}
+
+#closed {
+	position: relative;
+	float: left;
+	clear: both; padding : 12px;
+	background-color: #EEE;
+	padding: 12px; background-color : #EEE;
+	margin-left: auto;
+	margin-right: auto;
+	width: 90%;
+	color: #333;
+}
+
+.bold {
+	font-weight: bold;
 }
 
 .rq {

@@ -180,7 +180,7 @@ class Activate extends WebPage
 	{
 		$this->aPageVars['title'] = 'Account activation complete';
 
-		$this->aPageVars['body'] = '<div class="tools larger">Account activation complete<br/>The account <b>'.$this->oActivatedUser->username.'</b> now has all the privileges<br/>
+		$this->aPageVars['body'] = '<div id="tools" class="larger">Account activation complete<br/>The account <b>'.$this->oActivatedUser->username.'</b> now has all the privileges<br/>
 		of a registered user on our website.<br/>
 		<br/>If you not already logged in, please login using<br/>
 		the form above</div>';

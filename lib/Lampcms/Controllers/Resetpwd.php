@@ -305,7 +305,7 @@ You can also change your password after you log in.
 		$body = vsprintf(self::EMAIL_BODY, array($this->oRegistry->Ini->SITE_NAME, $this->username, $this->newPwd));
 		$subject = sprintf(self::SUBJECT, $this->oRegistry->Ini->SITE_NAME);
 
-		Mailer::factory($this->oRegistry)->mail($this->email, $subject, $body);
+		\Lampcms\Mailer::factory($this->oRegistry)->mail($this->email, $subject, $body);
 
 		return $this;
 	}

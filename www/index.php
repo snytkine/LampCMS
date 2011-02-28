@@ -64,7 +64,7 @@ try {
 	ini_set('session.use_only_cookies', true);
 	ini_set('session.use_trans_sid', false);
 	if (true !== session_start()) {
-		throw new Lampcms\Exception('session_start_error');
+		throw new Lampcms\Exception('session start error');
 	}
 
 	d('session: '.print_r($_SESSION, 1));

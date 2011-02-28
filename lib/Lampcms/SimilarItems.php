@@ -117,6 +117,10 @@ class SimilarItems extends LampcmsObject
 	 * these questions and save in oQuestion
 	 * under the sim_q key
 	 *
+	 * @param bool $ret indicats that this is a retry
+	 * and prevents against retrying calling itself
+	 * more than once
+	 *
 	 * @return object $this
 	 *
 	 */
@@ -124,7 +128,8 @@ class SimilarItems extends LampcmsObject
 
 		$qid = (int)$this->oQuestion['_id'];
 		$html = '';
-
+		$aRes = array();
+		
 		$sql = "SELECT *
 				FROM question_title
 				WHERE 
@@ -145,9 +150,11 @@ class SimilarItems extends LampcmsObject
 			$err = ('Exception: '.get_class($e).' Unable to insert into mysql because: '.$e->getMessage().' Err Code: '.$e->getCode().' trace: '.$e->getTraceAsString());
 			d('mysql error: '.$err);
 
-			if('42S02' === $e->getCode()){
-				if(true === TitleTageTable::create($this->oRegistry)){
-					$this->getSimilarQuestions($limit, $ret);
+			if('42S02' === $e->getCode() && !$ret){
+				if(true === TitleTagsTable::create($this->oRegistry)){
+					return $this->getSimilarQuestions($limit, true);
+				} else {
+					throw $e;
 				}
 			} else {
 				throw $e;

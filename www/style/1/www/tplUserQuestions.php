@@ -35,8 +35,19 @@
  *
  *
  */
- 
 
+
+/**
+ *
+ * Generates block with 
+ * details about User Questions
+ * This block will contain a list
+ * of questions which is parsed by the
+ * tplUquestions template
+ *
+ * @author Dmitri Snytkine
+ *
+ */
 class tplUserQuestions extends Lampcms\Template\Template
 {
 	protected static function func(&$a){
@@ -44,14 +55,14 @@ class tplUserQuestions extends Lampcms\Template\Template
 			$a['s'] = 's';
 		}
 	}
-	
+
 	protected static $vars = array(
 	'count' => '',
 	'label' => 'Question',
 	'questions' => '',
 	's' => '',
 	'pagination' => '');
-	
+
 	protected static $tpl = '
 	<div class="user_tags">
 	<h3><span class="counter">%1$s</span> %2$s%4$s</h3>

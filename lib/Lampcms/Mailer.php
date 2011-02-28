@@ -56,11 +56,11 @@ class Mailer extends LampcmsObject
 {
 
 	protected $adminEmail;
-	
+
 	protected $siteName;
-	
+
 	protected $from;
-	
+
 	public function __construct(Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
 		$this->adminEmail = $this->oRegistry->Ini->EMAIL_ADMIN;
@@ -68,20 +68,57 @@ class Mailer extends LampcmsObject
 		$this->from = \Lampcms\String::prepareEmail($this->adminEmail, $this->siteName);
 	}
 
-	
+
+	/**
+	 *
+	 * Sends our emails using the mail()
+	 * but inside the register_shutdown_function()
+	 * This way function returns immediately
+	 *
+	 * @param unknown_type $to
+	 * @param unknown_type $subject
+	 * @param unknown_type $body
+	 * @throws DevException
+	 */
 	public function mail($to, $subject, $body){
-		
+
+		if(!is_string($to) && !is_array($to)){
+			throw new DevException('$to can be only string or array. Was: '.gettype($to));
+		}
+
+		$aTo = (array)($to);
+
 		$aHeaders = array();
 		$aHeaders['From'] = $this->from;
 		$aHeaders['Reply-To'] = $this->adminEmail;
 		$headers = \Lampcms\prepareHeaders($aHeaders);
-		d(print_r($aHeaders, 1).' $headers: '.$headers.' to: '.$to);
+		d(print_r($aHeaders, 1).' $headers: '.$headers.' aTo: '.print_r($aTo, 1));
+		$s = $subject;
+		$b = $body;
 
-		if(true !== \mail($to, $subject, $body, $headers)){
+		register_shutdown_function(function() use ($s, $b, $headers, $aTo){
+			
+			foreach($aTo as $to){
+				/**
+				 * Deal with format of array when array
+				 * is result of iterator_to_array($cur)
+				 * where $cur is MongoCursor - result of
+				 * find()
+				 */
+				if(is_array($to) && !empty($to['email']) ){
+					$to = $to['email'];
+				}
 
-			throw new \Lampcms\Exception('Server was unable to send out email at this time');
-		}
+				if(true !== \mail($to, $s, $b, $headers)){
+
+					\d('Server was unable to send out email at this time');
+				}
+			}
+
+		} );
+
 
 		return true;
 	}
+
 }
