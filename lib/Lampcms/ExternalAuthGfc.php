@@ -214,15 +214,18 @@ class ExternalAuthGfc extends ExternalAuth
 	protected function revokeFcauth()
 	{
 
-		$this->oRegistry->Mongo->getCollection('USERS_GFC')
-		->update(array('_id' => $this->aGfcData['id']), array('$set' => array('fcauth' => null)));
-
-		$this->oUser->offsetSet('fcauth', null);
+		if(!empty($this->aGfcData['id'])){
+			$this->oRegistry->Mongo->getCollection('USERS_GFC')
+			->update(array('_id' => $this->aGfcData['id']), array('$set' => array('fcauth' => null)));
+			d('cp');
+		}
+		
+		$this->oUser->offsetUnset('fcauth');
 		$this->oUser->save();
-
 		$this->oRegistry->Dispatcher->post($this, 'onGfcUserDelete');
-
+		d('cp');
 		Cookie::delete(array('fcauth'.$this->gfcSiteId.'-s', 'fcauth'.$this->gfcSiteId));
+
 	}
 
 

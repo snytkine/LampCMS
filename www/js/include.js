@@ -713,7 +713,7 @@ oSL.Regform = (function() {
 					visible : false,
 					constraintoviewport : false,
 					hideaftersubmit : false,
-					draggable : false,
+					draggable : true,
 					close : false,
 					modal : true,
 					x: 150,

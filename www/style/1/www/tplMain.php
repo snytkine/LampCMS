@@ -146,10 +146,10 @@ class tplMain extends Lampcms\Template\Template
 </div>
 %20$s
 <div id="lastdiv" class="delegate"></div>
+%13$s
 <script type="text/javascript" src="/js/include.js"></script>
 <script type="text/javascript" src="/js/qa.js"></script>
 <!-- GFC JS -->
-%13$s
 %21$s
 %22$s
 </body>

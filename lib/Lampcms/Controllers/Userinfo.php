@@ -108,10 +108,10 @@ class Userinfo extends WebPage
 		$supplied = $this->oRequest['username'];
 		if(!empty($supplied)){
 			$username = $this->oUser->username;
-			if(!empty($username) && (strtolower($username) != $supplied )){
+			if(!empty($username) && (strtolower($username) !== strtolower($supplied) )){
 				d('supplied username '.$supplied.' is not the same as actual username: '.$username);
 
-				throw new \Lampcms\RedirectException('/user/'.$this->oRequest['uid'].'/'.$username);
+				throw new \Lampcms\RedirectException('/users/'.$this->oRequest['uid'].'/'.$username);
 			}
 		}
 

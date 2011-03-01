@@ -54,7 +54,7 @@ class tplGfcCode extends Lampcms\Template\Template
 <script type="text/javascript"> 
 	var initGfc = function(times) {
 		if (times > 1) {
-			window.top.location.reload(true);
+			 window.top.location.reload(true);
 			}
 		};
 			

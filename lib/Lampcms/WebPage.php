@@ -921,6 +921,18 @@ abstract class WebPage extends Base
 	protected function addJoinForm()
 	{
 		if(!Request::isAjax() && ('remindpwd' !== $this->oRequest['a'])){
+			/**
+			 * If user opted out of continuing
+			 * registration, the special 'dnd' or "Do not disturb"
+			 * cookie was set via Javascritp
+			 * We will respect that and will not show that same
+			 * nagging prompt again
+			 * 
+			 * This cookie is deleted on Logout
+			 * @todo set ttl for this cookie to last only a couple of days
+			 * so we can keep nagging user again after awhile until user
+			 * finally enters email address
+			 */
 			$cookie = Cookie::get('dnd');
 			d('dnd: '.$cookie);
 			if(!$cookie){

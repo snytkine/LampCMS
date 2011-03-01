@@ -520,6 +520,7 @@ YUI({
 		}
 		
 		if(data.reload){
+			Y.log('have data.reload');
 			if(data.reload > 0){
 				Y.later(data.reload, this, function(){
 					window.location.reload(true);
@@ -565,7 +566,9 @@ YUI({
 				 * @todo update answers count, change collor
 				 * scrollIntoView
 				 */
-				Y.one("#answers").append(data.answer);
+				if(Y.one("#answers")){
+					Y.one("#answers").append(data.answer);
+				}
 			}
 		}
 	}, //
@@ -1347,7 +1350,7 @@ YUI({
 	
 	Y.on('submit', MysubmitForm, '.qa_form');
 	Y.on("click", handleAjaxLinks, ".ajax");
-	Y.delegate("click", handleAjaxLinks, "#lastdiv", 'a');
+	Y.delegate("click", handleAjaxLinks, "#lastdiv", 'a.ajax');
 	/**
 	 * Listening the clicks on links inside #lastdiv
 	 * allows us to dynamically add modals and panels
