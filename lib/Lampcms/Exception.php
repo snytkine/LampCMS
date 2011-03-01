@@ -475,7 +475,7 @@ class WrongPasswordException extends LoginException{}
 class MultiLoginException extends LoginException{}
 
 /**
- * Base Exception class for the clsHttp class
+ * Base Exception class for the \Lampcms\Curl class
  * used to extend HttpException
  * @author Dmitri Snytkine <cms@lampcms.com>
  *
@@ -608,7 +608,7 @@ class HttpRedirectException extends HttpResponseCodeException
 }
 
 /**
- * Thrown by clsQuestionparser in case question could not be
+ * Thrown by Questionparser in case question could not be
  * added for some reason.
  *
  * Question filter can also throw this exception or
@@ -621,7 +621,7 @@ class HttpRedirectException extends HttpResponseCodeException
 class QuestionParserException extends Exception{}
 
 /**
- * Thrown by clsAnswerParser in case question could not be
+ * Thrown by AnswerParser in case question could not be
  * added for some reason, for example in case of detecting
  * a duplicate answer
  *

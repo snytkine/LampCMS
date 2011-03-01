@@ -99,7 +99,7 @@ class Askform extends Form
 	/**
 	 * Concrete form validator for this form
 	 * (non-PHPdoc)
-	 * @see clsForm::doValidate()
+	 * @see Form::doValidate()
 	 */
 	protected function doValidate(){
 

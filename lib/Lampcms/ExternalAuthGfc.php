@@ -230,7 +230,7 @@ class ExternalAuthGfc extends ExternalAuth
 
 
 	/**
-	 * Get object of type clsUserObjectGfc which extends clsUserObject
+	 * Get object of type UserGfc which extends User Object
 	 *
 	 * @return object of type UserGfc which is either a newly
 	 * created user or existing user found by GFC id

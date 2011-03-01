@@ -625,7 +625,7 @@ class Acl implements \Serializable
 	 * @param  AclRole|string|array     $roles
 	 * @param  ResourceInterface|string|array $resources
 	 * @param  string|array                             $privileges
-	 * @param  clsAssertInterface                $assert
+	 * @param  AssertInterface                $assert
 	 * @throws AclException
 	 * @uses   RoleRegistry::get()
 	 * @uses   Acl::get()
@@ -854,7 +854,7 @@ class Acl implements \Serializable
 	 * If no Role registry has been created yet, a new default Role registry
 	 * is created and returned.
 	 *
-	 * @return clsAclRoleRegistry
+	 * @return AclRoleRegistry
 	 */
 	protected function _getRoleRegistry()
 	{

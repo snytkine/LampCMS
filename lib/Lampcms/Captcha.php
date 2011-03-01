@@ -762,4 +762,4 @@ class Captcha extends LampcmsObject
 		return $s;
 	}
 
-} // end of class clsCaptcha
+}

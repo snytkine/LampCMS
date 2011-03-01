@@ -74,7 +74,7 @@ class Cache extends Observer
 	 * arrayObject used for storing results
 	 * of found values when using __isset() method
 	 *
-	 * @var object of type clsArrayDefaults
+	 * @var object of type ArrayDefaults
 	 */
 	protected $oTmp;
 
@@ -82,7 +82,7 @@ class Cache extends Observer
 	 * arrayObject where key is cache key
 	 * and value is integer number of seconds to cache that key
 	 * when adding to cache.
-	 * @var object of type clsArrayDefaults
+	 * @var object of type ArrayDefaults
 	 */
 	protected $oTtl;
 
@@ -131,7 +131,7 @@ class Cache extends Observer
 	protected $aTags = null;
 
 	/**
-	 * @param clsRegistry $oRegistry
+	 * @param Registry $oRegistry
 	 */
 	public function __construct(Registry $oRegistry)
 	{
@@ -556,6 +556,7 @@ class Cache extends Observer
 
 	}
 
+	
 	/**
 	 * Generated html string
 	 * of links to unanswered tags fom QA module

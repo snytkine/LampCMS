@@ -63,7 +63,7 @@ namespace Lampcms;
  * (for example with twitter ID for Twitter user, or with GFC id for
  * Google Friend connect user)
  *
- * If exists, then create clsUserObject based on given type/id
+ * If exists, then create User object based on given type/id
  * This is specific to the external auth type and defined in sub-class
  * Then addArray of fresh data that we have just received from external
  * source and then save the data if necessary (if there are any changes, then save

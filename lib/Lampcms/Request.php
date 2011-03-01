@@ -449,7 +449,6 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 * Returns ip address of client
 	 * and falls back to localhost address
 	 *
-	 * @todo move to clsRequest
 	 *
 	 * @return string ip address
 	 */

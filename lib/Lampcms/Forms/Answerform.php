@@ -79,7 +79,7 @@ class Answerform extends Form
 	 * and also setting the 'mustLogin' related elements
 	 * if user not logged in
 	 *
-	 * @param clsQuestion $oQuestion
+	 * @param Question $oQuestion
 	 *
 	 * @return string html of form or message block
 	 */

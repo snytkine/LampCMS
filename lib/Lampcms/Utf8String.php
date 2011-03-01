@@ -986,7 +986,7 @@ class Utf8String extends String
 	 */
 	public function asHtml(){
 		if(!$this->isHtml()){
-			return $this->wrapInTag();
+			return $this->wrapInTag('span');
 		}
 
 		return $this->handleReturn($this->string);

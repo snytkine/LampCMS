@@ -245,7 +245,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 *
 	 * @return object of type Registry
 	 */
-	protected function getRegistry(){
+	public function getRegistry(){
 		if(!isset($this->oRegistry)){
 			$this->oRegistry = Registry::getInstance();
 		}

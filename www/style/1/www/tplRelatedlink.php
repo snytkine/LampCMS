@@ -36,7 +36,7 @@
  *
  */
 /**
- * This template is called from clsRelatedtags class
+ * This template is called from \Lampcms\Relatedtags class
  * when new tags are added and we need to
  * generate html of related tags.
  *

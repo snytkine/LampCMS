@@ -68,7 +68,7 @@ class Answerparser extends LampcmsObject
 {
 
 	/**
-	 * Object of type clsSubmittedAnswer
+	 * Object of type SubmittedAnswer
 	 * (or any sub-class of it)
 	 *
 	 * @var Object SubmittedAnswer
@@ -89,7 +89,7 @@ class Answerparser extends LampcmsObject
 
 	/**
 	 * Object of newly created answer
-	 * an object of type clsAnswer represents one
+	 * an object of type Answer represents one
 	 * answer and is a MongoDoc object
 	 *
 	 * @var object of type Answer (extends MongoDoc object)

@@ -77,11 +77,11 @@ class Urhere extends LampcmsObject
 	'voted_t' => 'Questions with most votes');
 
 	/**
-	 * @todo instead of registry pass clsI18n here
+	 * @todo instead of registry pass I18n here
 	 * we going to use it to translate strings
 	 * in template
 	 *
-	 * @param clsRegistry $oRegistry
+	 * @param Registry $oRegistry
 	 */
 	public function __construct(Registry $oRegistry){
 		$this->oRegistry = $oRegistry;

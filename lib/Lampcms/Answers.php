@@ -94,7 +94,7 @@ class Answers extends LampcmsObject
 	 * Enclose result in <div> and add pagination to bottom
 	 * of div if there is any pagination necessary!
 	 *
-	 * @param clsQuestion $oQuestion
+	 * @param Question $oQuestion
 	 *
 	 * @param string desired format of result. Possible
 	 * options are: html, array or json object

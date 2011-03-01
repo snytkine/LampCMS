@@ -75,10 +75,8 @@ class tplBoxrecent extends Lampcms\Template\Template
 	'tags' => '');
 
 	protected static $tpl = '
-	<div class="box" id="%2$s">
+	<div class="box fl cb" id="%2$s">
     	<div class="title">%1$s</div>
-    		
-    		%3$s
-    		
+    		%3$s	
 	</div>';
 }

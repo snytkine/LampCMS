@@ -60,6 +60,7 @@ use \Lampcms\Question;
 use \Lampcms\Answers;
 use \Lampcms\Template\Urhere;
 use \Lampcms\Forms\Answerform;
+use \Lampcms\QuestionInfo;
 
 class Viewquestion extends WebPage
 {
@@ -119,6 +120,7 @@ class Viewquestion extends WebPage
 		->setSimilar()
 		->makeForm()
 		->setAnswerForm()
+		->setQuestionInfo()
 		->setFooter()
 		->increaseView()
 		->makeTopTabs();
@@ -126,6 +128,13 @@ class Viewquestion extends WebPage
 		$this->oRegistry->Dispatcher->post($this->oQuestion, 'onQuestionView');
 	}
 
+
+	protected function setQuestionInfo(){
+
+		$this->aPageVars['side'] = QuestionInfo::factory($this->oRegistry)->getHtml($this->oQuestion);
+		
+		return $this;
+	}
 
 
 	/**

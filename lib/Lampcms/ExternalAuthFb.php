@@ -62,9 +62,8 @@ namespace Lampcms;
  * if just adding record to USERS_FACEBOOK for existing user
  * or if updating user data in any way.
  *
- * @todo run post-registration email to user
+ * @todo 
  * run post-registration post to wall if Admin set this in config
- * for this must create clsFacebook class
  *
  * @todo set the fbid as meta tag if facebook user
  * this way we will be able to know that user is facebook user
@@ -121,12 +120,12 @@ class ExternalAuthFb extends Facebook
 
 	/**
 	 * Get user data from Facebook, do whatever is necessary
-	 * and return either null or object of type clsUserFacebook
-	 * which extends clsUserObject
+	 * and return either null or object of type UserFacebook
+	 * which extends User Object
 	 *
-	 * @param clsGlobal $oGlobal
+	 * @param Registry $oRegistry
 	 *
-	 * @return mixed null of failure or object clsUserFacebook
+	 * @return mixed null of failure or object UserFacebook
 	 *
 	 * @throws FacebookAuthException in case user does not have
 	 * fbs_ cookie or in case this site config does not have
@@ -262,11 +261,11 @@ class ExternalAuthFb extends Facebook
 	}
 
 	/**
-	 * Return object of type clsFacebookObject
+	 * Return object of type FacebookUser
 	 * this is either the existing user or newly created
 	 * user
 	 *
-	 * @return object of type clsUserFacebook which extends clsUserObject
+	 * @return object of type UserFacebook which extends User Object
 	 *
 	 * @throws FacebookAuthException in case something goes wrong
 	 */
@@ -479,7 +478,7 @@ class ExternalAuthFb extends Facebook
 		 * Time zone offset in seconds
 		 * @var int
 		 */
-		$tzo = (array_key_exists('timezone', $this->aFbUserData)) ? $this->aFbUserData['timezone'] * 3600 : clsCookie::get('tzo', 0);
+		$tzo = (array_key_exists('timezone', $this->aFbUserData)) ? $this->aFbUserData['timezone'] * 3600 : Cookie::get('tzo', 0);
 
 		/**
 		 * User language

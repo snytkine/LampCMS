@@ -52,10 +52,11 @@
 
 namespace Lampcms\Controllers;
 
-use Lampcms\WebPage;
-use Lampcms\User;
-use Lampcms\Request;
-use Lampcms\Responder;
+use \Lampcms\WebPage;
+use \Lampcms\User;
+use \Lampcms\Request;
+use \Lampcms\Responder;
+use \Lampcms\Indexer;
 
 class Delete extends WebPage
 {
@@ -95,7 +96,7 @@ class Delete extends WebPage
 	protected $membersOnly = true;
 
 	protected $requireToken = true;
-	
+
 	protected $bRequirePost = true;
 
 	protected $aRequired = array('rid', 'rtype');
@@ -181,7 +182,7 @@ class Delete extends WebPage
 		if($this->oRegistry->Viewer->isModerator()){
 			$uid = $this->oResource['i_uid'];
 			d('uid: '.$uid);
-			
+				
 			$oUser = \Lampcms\User::factory($this->oRegistry)->by_id($uid);
 			$q = $this->oRegistry->Mongo->QUESTIONS->find(array('i_uid' => $uid, 'i_del_ts' => null));
 			$a = $this->oRegistry->Mongo->ANSWERS->find(array('i_uid' => $uid, 'i_del_ts' => null));
@@ -209,7 +210,7 @@ class Delete extends WebPage
 	 * @return object $this;
 	 */
 	protected function updateQuestion(){
-		
+
 		if(('ANSWERS' === $this->collection)){
 
 			$oQuestion = new \Lampcms\Question($this->oRegistry);
@@ -310,11 +311,30 @@ class Delete extends WebPage
 		 *
 		 */
 		$this->updateTags();
+		$this->removeFromIndex();
 		$this->oResource->setDeleted($this->oRegistry->Viewer, $this->oRequest['note']);
 
 		d('new resource data: '.print_r($this->oResource->getArrayCopy(), 1));
 
 		$this->oRegistry->Dispatcher->post($this->oResource, 'onResourceDelete');
+
+		return $this;
+	}
+
+
+	/**
+	 * Remove data from search index
+	 * if question is deleted
+	 *
+	 * @todo later if we also index Answers, then
+	 * run removeAnswer() if resource is answer.
+	 *
+	 * @return object $this
+	 */
+	protected function removeFromIndex(){
+		if($this->oResource instanceof \Lampcms\Question){
+			Indexer::factory($this->oRegistry)->removeQuestion($this->oResource);
+		}
 
 		return $this;
 	}
@@ -379,7 +399,7 @@ class Delete extends WebPage
 		if($cur && $cur->count() > 0){
 			$aTo = iterator_to_array($cur, false);
 			$Mailer = \Lampcms\Mailer::factory($this->oRegistry);
-			$body = $this->makeBody();			
+			$body = $this->makeBody();
 			$Mailer->mail($aTo, self::SUBJECT, $body);
 		}
 

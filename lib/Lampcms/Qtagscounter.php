@@ -120,7 +120,7 @@ class Qtagscounter extends LampcmsObject
 
 			$this->coll->ensureIndex(array('tag' => 1), array('unique' => true));
 			$this->coll->ensureIndex(array('i_count' => 1));
-				
+
 			foreach($aTags as $tag){
 				try{
 					$this->coll->update(array("tag" => $tag), array('$inc' => array("i_count" => 1), '$set' => $set), array("upsert" => true));
@@ -148,7 +148,7 @@ class Qtagscounter extends LampcmsObject
 		if(!is_array($oQuestion) && (!($oQuestion instanceof \Lampcms\Question))){
 			throw new \InvalidArgumentException('$oQuestion must be array OR instance of Question. was: '.gettype($oQuestion));
 		}
-		
+
 		$aTags = (is_array($oQuestion)) ? $oQuestion : $oQuestion['a_tags'];
 
 		if(!empty($aTags)){
@@ -164,7 +164,21 @@ class Qtagscounter extends LampcmsObject
 			 */
 			foreach($aTags as $tag){
 				try{
-					$this->coll->update(array("tag" => $tag), array('$inc' => array("i_count" => -1)));
+					/**
+					 * Do this extra step to find current count
+					 * then remove tag if count is NOT positive integer,
+					 * otherwise decrease it
+					 *
+					 * This way we avoid the possibility of setting
+					 * the i_count to 0 or -1
+					 */
+					$a = $this->coll->findOne(array('tag' => $tag), array('i_count'));
+					d('a: '.var_export($a, 1));
+					if($a && ($a['i_count'] > 0)){
+						$this->coll->update(array("tag" => $tag), array('$inc' => array("i_count" => -1)));
+					} else {
+						$this->coll->remove(array("tag" => $tag), array('safe' => true));
+					}
 				} catch (\MongoException $e){
 					e('unable to update (decrease count) QUESTION_TAGS : '.$e->getMessage());
 				}

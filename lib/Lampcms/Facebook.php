@@ -96,14 +96,14 @@ class Facebook extends ExternalAuth
 
 
 	/**
-	 * Object returned by clsHttp
+	 * Object returned by \Lampcms\Curl
 	 *
 	 * @var object
 	 */
 	protected $oResponse;
 
 	/**
-	 * Object of type clsHttp;
+	 * Object of type \Lampcms\Curl;
 	 * @var object
 	 */
 	protected $oHTTP;

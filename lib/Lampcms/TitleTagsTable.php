@@ -53,14 +53,17 @@ namespace Lampcms;
 
 class TitleTagsTable
 {
-	const SQL = 'CREATE TABLE `question_title` (
-  `qid` int(9) NOT NULL,
-  `q_title` varchar(200) character set utf8 NOT NULL,
-  `q_url` varchar(500) NOT NULL,
-  `q_intro` char(200) NOT NULL,
-  `q_date` varchar(20) NOT NULL COMMENT \'Just a string like December 12, 2010\',
-  FULLTEXT KEY `q_title` (`q_title`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;';
+	const SQL = '
+CREATE TABLE question_title (
+  qid int(9) NOT NULL,
+  q_title varchar(200) NOT NULL,
+  q_url varchar(500) NOT NULL,
+  q_intro char(200) NOT NULL,
+  q_date varchar(20) NOT NULL COMMENT \'Just a string like December 12, 2010\',
+  UNIQUE KEY qid (qid),
+  FULLTEXT KEY q_title (q_title)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT=\'Table used for full text indexing of question title\';
+	';
 
 	public static function create(Registry $oRegistry){
 		d('Table QUESTION_TITLE not found going to create it now');

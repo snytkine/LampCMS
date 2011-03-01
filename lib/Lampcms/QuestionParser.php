@@ -52,7 +52,9 @@
 
 namespace Lampcms;
 
+
 /**
+ * 
  * Class responsible for adding a new question
  * to QUESTIONS collection as well as updating
  * all Tags-related collections as well as increasing
@@ -125,7 +127,7 @@ class QuestionParser extends LampcmsObject
 		$this->oSubmitted = $o;
 
 		$this->makeQuestion()
-		->addTitleTags()
+		->addToSearchIndex()
 		->addTags()
 		->addUnansweredTags()
 		->addRelatedTags()
@@ -141,7 +143,7 @@ class QuestionParser extends LampcmsObject
 	 * Prepares data for the question object,
 	 * creates the $this->oQuestion object
 	 * and saves data to QUESTIONS collection
-	 * 
+	 *
 	 * @return object $this
 	 *
 	 * @throws QuestionParserException in case a filter (which is an observer)
@@ -345,17 +347,16 @@ class QuestionParser extends LampcmsObject
 
 
 	/**
-	 * Tokenize title and save into TITLE_TAGS
-	 * and also save into MySQL QUESTION_TITLE table
+	 * Index question
+	 * 
+	 * @todo do this via register_shutdown_function
 	 *
 	 * @return object $this
 	 */
-	protected function addTitleTags(){
+	protected function addToSearchIndex(){
 
-		$oTitleTagParser = new Qtitletags($this->oRegistry);
-		$oTitleTagParser->parse($this->oQuestion);
-		d('cp');
-
+		Indexer::factory($this->oRegistry)->indexQuestion($this->oQuestion);
+		
 		return $this;
 	}
 
@@ -419,7 +420,7 @@ class QuestionParser extends LampcmsObject
 
 			d('cp');
 		}
-		
+
 		return $this;
 	}
 

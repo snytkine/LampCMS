@@ -59,12 +59,12 @@ namespace Lampcms;
  *
  * Use it like this:
  *
- * $oHTML2TEXT = clsH2t::factory($inputHTML);
+ * $oHTML2TEXT = H2t::factory($inputHTML);
  * echo $oHTML; // will output formatted plaintext
  *
  * or to get the result as a string call getText() method
  *
- * $oHTML2TEXT = clsH2t::factory($inputHTML);
+ * $oHTML2TEXT = H2t::factory($inputHTML);
  * $text = $oHTML->getText(); // will return formatted plaintext
  *
  *

@@ -226,7 +226,7 @@ class LoginForm
 	 * Make extra links like 'Invite Friends' based
 	 * on what type of user is currently logged in
 	 *
-	 * @param clsUserObject $oUser
+	 * @param User $oUser
 	 *
 	 * @return string HTML string for links
 	 */

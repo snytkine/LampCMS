@@ -119,11 +119,6 @@ class Base extends LampcmsObject
 	 * It also checks that IP address is valid and public. Local, private, reserved or non-valid addresses will
 	 * be ignored.
 	 *
-	 * @param mixed integer $resourceId RESOURCE.id of resource
-	 * a special case - this first argument can be an instance of clsMessage object or
-	 * clsFile object
-	 * in which case no other argumets are required.
-	 *
 	 * @param string $ip ip address or host name from where resource was submitted
 	 *
 	 * @param array $arrExtra associative array of key=>value can be passed here with extra data
