@@ -53,6 +53,7 @@
 namespace Lampcms\Forms;
 
 
+use Lampcms\LoginForm;
 /**
  * Class responsible for processing the
  * Answer form as well as rendering the ask form
@@ -111,7 +112,7 @@ class Answerform extends Form
 		 * the div with "closed" message
 		 */
 		if(false !== $aClosed = $oQuestion->isClosed()){
-			
+				
 			return \tplClosedby::parse($aClosed);
 		}
 		d('cp');
@@ -131,8 +132,13 @@ class Answerform extends Form
 
 			$oQuickReg = new \Lampcms\RegBlockQuickReg($this->oRegistry);
 			d('cp');
-			$this->connectBlock = '<div class="com_connect">'.$oQuickReg->makeSocialAuthBlock('').'</div>';
-
+			$socialButtons = LoginForm::makeSocialButtons($this->oRegistry);
+			/**
+			 * @todo Translate string
+			 */
+			if(!empty($socialButtons)){
+				$this->connectBlock = '<div class="com_connect"><h3>Join with account you already have</h3>'.$socialButtons.'</div>';
+			}
 		}
 		d('cp');
 		$form = $this->getForm();

@@ -39,10 +39,14 @@
 
 class tplSocial extends Lampcms\Template\Template
 {
-	protected static $vars = array('', '');
+	// %3$s was <h3>Join with account you already have</h3>
+	protected static $vars = array(
+	'', 
+	'',
+	'');
 
 	protected static $tpl ='%2$s
-	<h3>Join with account you already have</h3>
+	%3$s
 	<hr class="line1"/>
 	%1$s';
 }

@@ -282,7 +282,7 @@ class Captcha extends LampcmsObject
 
 		d("Captcha-Debug: The available GD-Library has major version ".$this->gd_version);
 
-		$this->tempfolder = LAMPCMS_DATA_DIR.'img'.DIRECTORY_SEPARATOR.'tmp'.DIRECTORY_SEPARATOR;
+		$this->tempfolder = LAMPCMS_DATA_DIR.'img'.DIRECTORY_SEPARATOR.'c'.DIRECTORY_SEPARATOR;
 		$this->TTF_folder = LAMPCMS_PATH.DIRECTORY_SEPARATOR.'fonts'.DIRECTORY_SEPARATOR;
 
 		d('$this->tempfolder: '.$this->tempfolder.' $this->TTF_folder: '.$this->TTF_folder);
@@ -618,7 +618,7 @@ class Captcha extends LampcmsObject
 			$public = $this->public_key;
 		}
 
-		return '/w/img/tmp/'.$public.".jpg";
+		return '/w/img/c/'.$public.".jpg";
 	}
 
 
@@ -633,7 +633,7 @@ class Captcha extends LampcmsObject
 		$this->make_captcha();
 		$is = getimagesize($this->tempfolder.$this->public_key.'.jpg');
 
-		return array('src'=>'/w/img/tmp/'.$this->public_key.'.jpg',
+		return array('src'=>'/w/img/c/'.$this->public_key.'.jpg',
         'w' => $is[0],
         'h' => $is[1]);
 	}

@@ -55,6 +55,7 @@ use Lampcms\WebPage;
 use Lampcms\RegBlockQuickReg;
 use Lampcms\RegBlock;
 use Lampcms\Template\Urhere;
+use Lampcms\LoginForm;
 
 /**
  * Class for displaying the "Ask question" Form
@@ -72,7 +73,7 @@ class Askform extends WebPage
 	protected $qtab = 'ask';
 
 	protected $title;
-	
+
 	protected $layoutID = 1;
 
 
@@ -85,7 +86,7 @@ class Askform extends WebPage
 	 */
 	protected function main(){
 		d('cp');
-		$this->title = 'Ask a question';
+		$this->aPageVars['title'] = $this->title = 'Ask a question';
 		$this->makeForm()
 		->setMustLogin()
 		->setForm()
@@ -113,7 +114,7 @@ class Askform extends WebPage
 		return $this;
 	}
 
-	
+
 	protected function makeTopTabs(){
 
 		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', $this->qtab);
@@ -171,8 +172,14 @@ class Askform extends WebPage
 			$this->oForm->disabled = ' disabled="disabled"';
 
 			$oQuickReg = new RegBlockQuickReg($this->oRegistry);
-			$this->oForm->connectBlock = '<div class="com_connect">'.$oQuickReg->makeSocialAuthBlock('').'</div>';
-
+			
+			$socialButtons = LoginForm::makeSocialButtons($this->oRegistry);
+			/**
+			 * @todo Translate string
+			 */
+			if(!empty($socialButtons)){
+				$this->oForm->connectBlock = '<div class="com_connect"><h3>Join with account you already have</h3>'.$socialButtons.'</div>';
+			}
 		}
 		d('cp');
 		return $this;

@@ -117,29 +117,10 @@ class MySQL implements Search
 	public function search($term = null){
 
 		$this->term = (!empty($term)) ? $term : $this->oRegistry->Request['q'];
-		try{
+		
 			$this->getCondition()
 			->getCount()
 			->getResults();
-		} catch (\Exception $e){
-			$err = ('Exception: '.get_class($e).' Unable to insert into mysql because: '.$e->getMessage().' Err Code: '.$e->getCode().' trace: '.$e->getTraceAsString());
-			d('mysql error: '.$err);
-
-			if('42S02' === $e->getCode()){
-				if(true === \Lampcms\TitleTagsTable::create($this->oRegistry)){
-					/**
-					 * If Table was just created, no need to retry the select
-					 * because we know table is empty now, so just
-					 * return
-					 */
-					return $this;
-				} else {
-					throw $e;
-				}
-			} else {
-				throw $e;
-			}
-		}
 
 		return $this;
 	}

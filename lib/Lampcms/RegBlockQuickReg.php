@@ -173,7 +173,7 @@ class RegBlockQuickReg extends RegBlock
 			$s  .=  '<div class="extauth"><a href="#" onClick="google.friendconnect.requestSignIn(); return false;"><img class="hand" src="/images/gfcbutton.jpg" width="226" height="40" alt="Sign in with Google Friend Connect"/></a></div>';
 		}
 
-		return \tplSocial::parse(array($s, $or), false);
+		return \tplSocial::parse(array($s, '', '<h3>Join with account you already have</h3>'), false);
 	}
 
 }

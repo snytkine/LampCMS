@@ -130,7 +130,7 @@ class Cookie
 			return;
 		}
 
-		$strDomain = COOKIE_DOMAIN; //strtolower($_SERVER['HTTP_HOST']);
+		$strDomain = COOKIE_DOMAIN; 
 
 		$t = time() + $ttl;
 		d('Setting cookie '.$name.' val '.$val.' ttl: '.$ttl. ' time: '.$t.' domain: '.$strDomain);

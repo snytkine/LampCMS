@@ -396,11 +396,30 @@ YUI({
 				});
 				if (fbappid) {
 					fbcookie = "fbs_" + fbappid;
+					Y.log('fbcookie: ' + fbcookie);
 					Y.Cookie.remove(fbcookie);
 				}
 			}
-		
-			window.location.assign('/index.php?a=logout');
+			
+			if(google && google.friendconnect){
+				Y.log('has GFC for logout');
+				if (!window.gfc_timesloaded) {
+				      window.gfc_timesloaded = 1;
+				      //google.friendconnect.requestSignOut();
+				    } else {
+				      window.gfc_timesloaded++;
+				    }
+				    if (window.gfc_timesloaded > 1) {
+				    	Y.log('gfc_timesloaded > 1');
+				     // window.top.location.href = "/index.php?a=logout";
+				    }
+
+			}
+			
+			Y.later(500, this, function() {
+				window.location.assign('/index.php?a=logout');
+			});
+			//window.location.assign('/index.php?a=logout');
 			
 			break;
 			

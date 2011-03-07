@@ -52,7 +52,7 @@
 
 namespace Lampcms\Modules\Observers;
 
-use \Lampcms\SimilarItems;
+use \Lampcms\SearchFactory;
 
 /**
  * Observer listends to onNewQuestion

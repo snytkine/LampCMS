@@ -79,7 +79,8 @@ class tplMain extends Lampcms\Template\Template
 	'tags' => '', // 31
 	'layoutID' => '1', // 32
 	'role' => 'guest', // 33
-	'rep' => '1' // 34
+	'rep' => '1', // 34
+	'JS_PREFIX' => '' //35
 	);
 
 	//<link rel="shortcut icon" href="/favicon.ico">
@@ -153,8 +154,8 @@ class tplMain extends Lampcms\Template\Template
 %20$s
 <div id="lastdiv" class="delegate"></div>
 %13$s
-<script type="text/javascript" src="/js/include.js"></script>
-<script type="text/javascript" src="/js/qa.js"></script>
+<script type="text/javascript" src="%35$s/js/include.js"></script>
+<script type="text/javascript" src="%35$s/js/qa.js"></script>
 <!-- GFC JS -->
 %21$s
 %22$s

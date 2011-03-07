@@ -136,7 +136,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 
 		if (true !== $this->checkOffset($this->keyColumn)) {
 			d('cp no key column '.$this->keyColumn);
-				
+
 			return 0;
 		}
 
@@ -252,10 +252,10 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 */
 	public function getAvatarImgSrc($sSize = 'medium', $noCache = false)
 	{
-
-		$width = AVATAR_SQUARE_SIZE;
-
-		$strAvatar = '<img src="' . $this->getAvatarSrc($noCache) . '" class="imgAvatar" width="' . $width . '" height="'.$width.'" border="0" alt="avatar"/>';
+		d('cp');
+		//$width =  $this->getRegistry()->Ini->AVATAR_SQUARE_SIZE;
+		//d('width: '.width);
+		$strAvatar = '<img src="' . $this->getAvatarSrc($noCache) . '" class="imgAvatar" width="40" height="40" border="0" alt="avatar"/>';
 
 		return $strAvatar;
 

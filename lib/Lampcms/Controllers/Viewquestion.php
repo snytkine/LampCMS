@@ -306,9 +306,9 @@ class Viewquestion extends WebPage
 		$userHash = $this->oRegistry->Viewer->hashCode();
 		d('user Hash: '.$userHash);
 		$etag = '"'.hash('md5', $this->oRequest['qid'].'-'.$this->pageID.'-'.$latestReplyTime.'-' .$userHash).'"';
-		$lastModified = gmdate("D, d M Y H:i:s", $latestReplyTime)." GMT";
+		//$lastModified = gmdate("D, d M Y H:i:s", $latestReplyTime)." GMT";
 
-		CacheHeaders::processCacheHeaders($etag, $lastModified);
+		CacheHeaders::processCacheHeaders($etag); //, $lastModified
 
 		return $this;
 	}

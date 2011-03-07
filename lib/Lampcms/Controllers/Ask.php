@@ -66,12 +66,13 @@ class Ask extends Askform
 {
 
 	protected $permission = 'ask';
-	
+
 	protected $membersOnly = true;
 
 
 	protected function main(){
-
+		$this->aPageVars['title'] = "Ask a Question";
+		
 		$this->makeForm();
 
 		if($this->oForm->validate()){

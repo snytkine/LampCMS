@@ -60,26 +60,7 @@ const HR = '<hr/>';
 const LINE = "\n---------------------------------------------------------------\n";
 const BR = '<br/>';
 const LB = "\n<br/>";
-/**
- * Some configuration constants
- * Leave black if you host images, css and js
- * on the same server as this program,
- * otherwise defile the full path to domain + dir
- * where the files reside, without the '/' at the end
- */
-const IMAGE_SITE = '';
-const CSS_SITE = '';
-const JS_SITE = '';
-const AVATAR_IMG_SITE = '';
-// site of square avatar in pixels
-const AVATAR_SQUARE_SIZE= 40;
 
-/**
- * set timezone of the server.
- * Must be correct name,
- * see names here: http://us2.php.net/manual/en/timezones.php
- */
-const SERVER_TIMEZONE = 'America/Chicago';
 
 
 /**
@@ -93,55 +74,6 @@ const SERVER_TIMEZONE = 'America/Chicago';
  * put 'htdocs' as a value of WWW_DIR here
  */
 const WWW_DIR = 'www';
-
-/**
- *
- * Leave at null unless
- * you need to set cookie under some
- * global domain.
- * For example if your Q and A site is on
- * qa.oursite.com
- * but you want to be able to access cookie
- * of oursite.com, then you
- * should set this value
- */
-const COOKIE_DOMAIN = null;
-
-/**
- * Default language
- */
-const DEFAULT_LANG = 'en';
-
-/**
- * system path to temporary directory. Must we writable to php
- */
-const TEMP_DIR = '/tmp';
-
-
-/**
- * set this to true if you dont want to use cache
- * or if you think cache is causing problems
- * or if you are developing new feature
- * of if you dont have memcache at all
- */
-const SKIP_CACHE = false;
-
-/**
- * Set the LOG_PER_SCRIPT to true (default)
- * to always reset log fine for
- * each new script
- * Logging is enabled in debugging mode only
- */
-const LOG_PER_SCRIPT = true;
-
-/**
- * Name of GeoIP file - must be in the LAMPCMS_DIR (root dir of program)
- * Download it from maxmind.com
- * http://www.maxmind.com/app/geolitecity
- *
- * @var string
- */
-const GEOIP_FILE = 'GeoLiteCity.dat';
 
 
 /**

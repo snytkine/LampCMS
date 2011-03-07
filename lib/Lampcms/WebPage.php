@@ -400,15 +400,16 @@ abstract class WebPage extends Base
 		$this->aPageVars['site_title'] = $oIni->SITE_TITLE;
 		$this->aPageVars['site_url'] = $oIni->SITE_URL;
 		$this->aPageVars['site_description'] = $oIni->SITE_NAME;
+		$this->aPageVars['JS_PREFIX'] = $oIni->JS_SITE;
 		$this->aPageVars['layoutID'] = $this->layoutID;
 			
 			
 		/**
 		 * @todo later can change to something like
 		 * $this->oRegistrty->Viewer->getStyleID()
-		 * and also use CSS_SITE prefix or something like that
+		 *
 		 */
-		$this->aPageVars['main_css'] = '/style/'.STYLE_ID.'/'.VTEMPLATES_DIR.'/main.css';
+		$this->aPageVars['main_css'] = $oIni->CSS_SITE.'/style/'.STYLE_ID.'/'.VTEMPLATES_DIR.'/main.css';
 
 		if('' !== $gfcID = $oIni->GFC_ID){
 			$this->addGFCCode($gfcID);
@@ -578,7 +579,7 @@ abstract class WebPage extends Base
 	protected function loginByFacebookCookie()
 	{
 		if ($this->isLoggedIn() || 'logout' === $this->oRequest['a']) {
-			d('cp');
+			d('action is logout');
 			return $this;
 		}
 
@@ -767,9 +768,11 @@ abstract class WebPage extends Base
 	protected function addLoginBlock()
 	{
 		d('cp');
-		$this->aPageVars['header'] = LoginForm::makeWelcomeMenu($this->oRegistry);
-		d('cp');
-
+		if('logout' !== $this->oRequest['a']){
+			$this->aPageVars['header'] = LoginForm::makeWelcomeMenu($this->oRegistry);
+			d('cp');
+		}
+		
 		return $this;
 	}
 

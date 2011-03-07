@@ -139,7 +139,7 @@ class Cache extends Observer
 		parent::__construct($oRegistry);
 		$this->oTtl = new ArrayDefaults(array(), 0);
 		$this->oTmp = new ArrayDefaults(array());
-		$this->skipCache = SKIP_CACHE;
+		$this->skipCache = $oRegistry->Ini->SKIP_CACHE;
 		d('cp');
 		if(!$this->skipCache){
 			d('cp');

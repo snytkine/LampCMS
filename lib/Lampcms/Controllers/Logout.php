@@ -60,6 +60,25 @@ use Lampcms\UserGfc;
 class Logout extends WebPage
 {
 
+	const GFC_SIGNOUT = '
+	<script>
+	google.friendconnect.container.loadOpenSocialApi({
+  site: "%s",
+  onload: function(securityToken) {
+    if (!window.timesloaded) {
+      window.timesloaded = 1;
+      google.friendconnect.requestSignOut();
+    } else {
+      window.timesloaded++;
+    }
+    if (window.timesloaded > 1) {
+      window.top.location.href = "/";
+    }
+  }
+});
+	</script>
+	';
+	
 	/**
 	 * Unsets all session variables and unsets some cookies
 	 * This is all that is needed to logout
@@ -144,6 +163,11 @@ class Logout extends WebPage
 
 		}
 
+		/**
+		 * Let the session update
+		 * before redirecting
+		 */
+		sleep(1);
 		Responder::redirectToPage('/');
 		
 		//exit('done');

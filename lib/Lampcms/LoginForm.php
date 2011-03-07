@@ -65,15 +65,25 @@ class LoginForm
 	protected static function forMember(Registry $oRegistry){
 		if(empty($_SESSION['welcome'])){
 			$oViewer = $oRegistry->Viewer;
-			d('cp');
+			d('cp $oViewer: '.get_class($oViewer));
 
+			$invite = self::makeInviteLink($oViewer);
+			d('invite: '.$invite);
+			$url = $oViewer->getProfileUrl();
+			d('url: '.$url);
+			
+			$avatar = $oViewer->getAvatarImgSrc();
+			d('avatar: '.$avatar);
+			
+			$displayName = $oViewer->getDisplayName();
+				
 			$a = array(
-			$oViewer->getAvatarImgSrc(),
-			$oViewer->getDisplayName(),
+			$avatar,
+			$displayName,
 			'Logout',
-			self::makeInviteLink($oViewer),
+			$invite,
 			'settings' => 'Settings',
-			'url' => $oViewer->getProfileUrl()
+			'url' => $url
 			);
 
 			d('cp aVals: '.print_r($a, 1));
@@ -87,34 +97,19 @@ class LoginForm
 	}
 
 
+	/**
+	 * Make contents of login or welcome
+	 * block, depending on status of user
+	 *
+	 * @param Registry $oRegistry
+	 *
+	 * @return html of the Welcome or Login Block
+	 * that will be shown on top of page (in header)
+	 */
 	public static function makeWelcomeMenu(Registry $oRegistry)
 	{
-
-		$oViewer = $oRegistry->Viewer;
-
-		/**
-		 * @todo Also is isNewRegistration
-		 * then also only make a login form and NO WELCOME MENU
-		 * because this means that user has not finished the registration yet
-		 * But.... then it would mean that if user joined with Twitter
-		 * and have not finished registration he cannot login?
-		 *
-		 * This is probably not possible because when user is joined with
-		 * external auth, then his uid is already not 0, so
-		 * automatically it will evaluate to false.
-		 *
-		 * It's not really possible (Not now at least) to have
-		 * isNewUser set to true in user object but not have uid
-		 *
-		 * Used to be false === (0 < $oViewer->getUid())
-		 * If not logged it then uid === 0
-		 * 0 < 0 is false, means it evaluates to true
-		 *
-		 * if logged in then 0 < 34 is true,
-		 * means it evaluates to false
-		 *
-		 */
-		if($oViewer->isGuest()){
+		//d('makeWelcomeMenu')
+		if($oRegistry->Viewer->isGuest()){
 			d('going to make login form');
 
 			return self::forGuest($oRegistry);
@@ -140,7 +135,7 @@ class LoginForm
 
 		d('SESSION: '.print_r($_SESSION, 1));
 
-		if( true || empty($_SESSION['guest_block']) || !empty($_SESSION['login_error'])) {
+		if( empty($_SESSION['guest_block']) || !empty($_SESSION['login_error'])) {
 
 			$html = '';
 
@@ -203,38 +198,42 @@ class LoginForm
 	 *
 	 * @return string html
 	 */
-	public function makeSocialButtons(Registry $oRegistry){
-		$oIni = $oRegistry->Ini;
-		$html = '';
-		$socialBtns = '';
-		$gfcButton = $twitterButton = $fbButton = '';
+	public static function makeSocialButtons(Registry $oRegistry){
+		if(empty($_SESSION['social_buttons'])){
+			$oIni = $oRegistry->Ini;
+			$html = '';
+			$socialBtns = '';
+			$gfcButton = $twitterButton = $fbButton = '';
 
-		if(extension_loaded('curl') && isset($oIni->FACEBOOK)){
-			$aFB = $oIni['FACEBOOK'];
+			if(extension_loaded('curl') && isset($oIni->FACEBOOK)){
+				$aFB = $oIni['FACEBOOK'];
 
-			if(!empty($aFB['APP_ID'])){
-				d('$aFB: '.print_r($aFB, 1));
-				$socialBtns .= '<img id="fbsignup" class="ajax fbsignup hand" src='.IMAGE_SITE.'"/images/facebook_32.png" width="32" height="32" alt="Facebook" title="Sign in with Facebook account">';
+				if(!empty($aFB['APP_ID'])){
+					d('$aFB: '.print_r($aFB, 1));
+					$socialBtns .= '<img id="fbsignup" class="ajax fbsignup hand" src='.IMAGE_SITE.'"/images/facebook_32.png" width="32" height="32" alt="Facebook" title="Sign in with Facebook account">';
 
+				}
 			}
-		}
 
-		if(extension_loaded('oauth') && isset($oIni->TWITTER)){
-			$aTW = $oIni['TWITTER'];
-			if(!empty($aTW['TWITTER_OAUTH_KEY']) && !empty($aTW['TWITTER_OAUTH_SECRET'])){
-				d('$aTW: '.print_r($aTW, 1));
-				$socialBtns .= '<img id="twsignin" class="ajax twsignin hand" src='.IMAGE_SITE.'"/images/twitter_32.png" width="32" height="32" alt="Twitter" title="Sign in with Twitter account">';
+			if(extension_loaded('oauth') && isset($oIni->TWITTER)){
+				$aTW = $oIni['TWITTER'];
+				if(!empty($aTW['TWITTER_OAUTH_KEY']) && !empty($aTW['TWITTER_OAUTH_SECRET'])){
+					d('$aTW: '.print_r($aTW, 1));
+					$socialBtns .= '<img id="twsignin" class="ajax twsignin hand" src='.IMAGE_SITE.'"/images/twitter_32.png" width="32" height="32" alt="Twitter" title="Sign in with Twitter account">';
+				}
 			}
+
+			$GfcSiteID = $oIni->GFC_ID;
+			if(extension_loaded('curl') && !empty($GfcSiteID)){
+				d('cp '.strlen($gfcButton));
+
+				$socialBtns .= '<img class="ajax gfcsignin hand" src='.IMAGE_SITE.'"/images/google_32.png" width="32" height="32" alt="Google" title="Sign in with Google"><img class="ajax gfcsignin hand" src='.IMAGE_SITE.'"/images/openid_32.png" width="32" height="32" alt="Open ID" title="Sign in with OpenID"><img class="ajax gfcsignin hand" src='.IMAGE_SITE.'"/images/aim_32.png" width="32" height="32" alt="AIM" title="Sign in with AOL"><img class="ajax gfcsignin hand" src='.IMAGE_SITE.'"/images/yahoo_32.png" width="32" height="32" alt="Yahoo" title="Sign in with Yahoo">';
+			}
+
+			$_SESSION['social_buttons'] = $socialBtns;
 		}
 
-		$GfcSiteID = $oIni->GFC_ID;
-		if(extension_loaded('curl') && !empty($GfcSiteID)){
-			d('cp '.strlen($gfcButton));
-
-			$socialBtns .= '<img class="ajax gfcsignin hand" src='.IMAGE_SITE.'"/images/google_32.png" width="32" height="32" alt="Google" title="Sign in with Google"><img class="ajax gfcsignin hand" src='.IMAGE_SITE.'"/images/openid_32.png" width="32" height="32" alt="Open ID" title="Sign in with OpenID"><img class="ajax gfcsignin hand" src='.IMAGE_SITE.'"/images/aim_32.png" width="32" height="32" alt="AIM" title="Sign in with AOL"><img class="ajax gfcsignin hand" src='.IMAGE_SITE.'"/images/yahoo_32.png" width="32" height="32" alt="Yahoo" title="Sign in with Yahoo">';
-		}
-
-		return $socialBtns;
+		return $_SESSION['social_buttons'];
 	}
 
 
@@ -278,19 +277,23 @@ class LoginForm
 	 */
 	protected static function makeInviteLink(User $oUser)
 	{
-
+		d('cp');
 		switch(true){
 			case ($oUser instanceof UserGfc):
+				d('cp');
 				$ret = '<div class="gfclinks"><a href="#" id="gfcset" class="ajax">FriendConnect settings</a> | <a href="#" class="ajax" id="gfcinvite">Invite friends</a></div>';
 				break;
 			case ($oUser instanceof UserFacebook):
+				d('cp');
 				$ret = '<div class="gfclinks"><a href="#" class="ajax" id="fbinvite" title="I\'ve registered at this site, and think you will enjoy your stay here too! Please check it out!">Invite your facebook friends</a></div>';
 				break;
 
 			case ($oUser instanceof UserTwitter):
+				d('cp');
 				$ret = '<div class="gfclinks"><a href="#" class="ajax" id="twinvite" title="Hey everyone! Join me at this site (Use the *Sign in with Twitter* button) ">Invite your Twitter friends</a></div>';
 				break;
 			default:
+				d('cp');
 				$ret = '';
 		}
 

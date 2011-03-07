@@ -19,10 +19,57 @@ collection = "C_Cache"
 [CONSTANTS]
 ; set to true when debugging to enable
 ; debug log and raize error reporting level
-DEBUG = false;
+DEBUG = true;
 ; This will be used in some page as title as well as in some emails as 'From' name
-SITE_TITLE = "Site"
-SITE_NAME ="Site"
+SITE_TITLE = "LampCms Q and A site"
+SITE_NAME ="LampCMS project"
+;Default language
+DEFAULT_LANG = en
+;set timezone of the server.
+;Must be correct name,
+;see names here: http://us2.php.net/manual/en/timezones.php
+SERVER_TIMEZONE = America/Chicago
+;
+;Set this to true if you dont want to use cache
+;or if you think cache is causing problems
+;or if you are developing new feature
+;of if you dont have memcache at all
+;
+SKIP_CACHE = false
+;
+;Leave at null unless
+;you need to set cookie under some
+;global domain.
+;For example if your Q and A site is on
+;qa.oursite.com
+;but you want to be able to access cookie
+;of oursite.com, then you
+;should set this value
+;
+COOKIE_DOMAIN = null
+;
+;system path to temporary directory. Must we writable to php
+;
+TEMP_DIR = /tmp
+;
+;Some configuration constants
+;Leave black if you host images, css and js
+;on the same server as this program,
+;otherwise defile the full path to domain + dir
+;where the files reside, without the '/' at the end
+;
+IMAGE_SITE = ""
+CSS_SITE = ""
+JS_SITE = ""
+AVATAR_IMG_SITE = ""
+;site of square avatar in pixels
+AVATAR_SQUARE_SIZE= 40
+;
+;Name of GeoIP file - must be in the LAMPCMS_DIR (root dir of program)
+;Download it from maxmind.com
+;http://www.maxmind.com/app/geolitecity
+;
+GEOIP_FILE = GeoLiteCity.dat
 
 ; set LOG_FILE_PATH to point to your writable log file to enable logging
 ; for example: /usr/local/apache/sites/qa.lampcms.com/logs/php.log
