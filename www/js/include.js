@@ -709,15 +709,15 @@ oSL.Regform = (function() {
 				$L('cp 17', 'warn');
 				oDialog = new $W.Dialog("regdiv", {
 					width : "50em",
-					fixedcenter : false,
+					fixedcenter : "contained",
 					visible : false,
 					constraintoviewport : false,
 					hideaftersubmit : false,
 					draggable : true,
 					close : false,
 					modal : true,
-					x: 150,
-					y: 10,
+					/*x: 150,
+					y: 10,*/
 					buttons : [ {
 						text : "Create Your Account",
 						handler : handleSubmit,

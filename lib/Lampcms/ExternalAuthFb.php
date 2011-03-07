@@ -62,7 +62,7 @@ namespace Lampcms;
  * if just adding record to USERS_FACEBOOK for existing user
  * or if updating user data in any way.
  *
- * @todo 
+ * @todo
  * run post-registration post to wall if Admin set this in config
  *
  * @todo set the fbid as meta tag if facebook user
@@ -196,7 +196,9 @@ class ExternalAuthFb extends Facebook
 				d('$aU[i_uid]: '.$aU['i_uid']);
 				$uid = (int)$aU['i_uid'];
 				$aUser = $oRegistry->Mongo->getCollection('USERS')->findOne(array('_id' => $uid));
-				$oUser = UserFacebook::factory($oRegistry, $aUser);
+				if(!empty($aUser)){
+					$oUser = UserFacebook::factory($oRegistry, $aUser);
+				}
 			}
 
 			/**

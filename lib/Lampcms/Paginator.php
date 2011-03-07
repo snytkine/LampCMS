@@ -128,8 +128,6 @@ class Paginator extends LampcmsObject
 			include_once(LAMPCMS_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'Pear'.DIRECTORY_SEPARATOR.'Pager'.DIRECTORY_SEPARATOR.'Common.php');
 		
 			$this->oPager = \Pager::factory($arrParams);
-			//var_dump($this->oPager);
-			//exit;
 
 			if(null !== $mongoCursor){
 				$curPage = $this->oPager->getCurrentPageID();

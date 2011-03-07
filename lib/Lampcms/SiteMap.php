@@ -199,15 +199,12 @@ class SiteMap extends LampcmsObject
 		$id = (int)$this->oLatest['i_qid'];
 		d('latest QID: '.$id);
 		$urlPrefix = $this->oRegistry->Ini->SITE_URL.'/';
-		/**
-		 * @todo change this to $this->oRegistry->Mongo
-		 */
 		$oMongo = $this->oRegistry->Mongo;
 		$coll = $oMongo->getCollection('QUESTIONS');
 		$cursor = $coll->find(array('_id' => array( '$gt' => $id)), array('_id', 'url', 'i_ts'))->limit(12000);
 
 		d('cursor: '.get_class($cursor));
-		if($cursor && ($cursor instanceof MongoCursor) && ($cursor->count() > 0)){
+		if($cursor && ($cursor instanceof \MongoCursor) && ($cursor->count() > 0)){
 			d('cursor count: '.$cursor->count());
 			foreach($cursor as $aMessage){
 				if(!empty($aMessage)){

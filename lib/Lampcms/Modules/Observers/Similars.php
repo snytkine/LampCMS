@@ -75,8 +75,8 @@ class Similars extends \Lampcms\Observer
 		d('cp');
 		if('onNewQuestion' === $this->eventName){
 			$oQuestion = $this->obj;
-			$oParser = SimilarItems::factory($this->oRegistry);
-			$oParser->parse($oQuestion);
+			$oParser = SearchFactory::factory($this->oRegistry);
+			$oParser->getSimilarQuestions($oQuestion);
 		}
 	}
 }

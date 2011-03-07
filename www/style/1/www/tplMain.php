@@ -107,10 +107,16 @@ class tplMain extends Lampcms\Template\Template
 </head>
 <body class="yui-skin-sam">
 %14$s
+<div id="hd" class="dheader">
+	 <div id="loginHead" class="doc3">
+	 	<div class="fl w40">
+	 	<div class="icn home"></div>
+	 		<a href="/">Home</a>
+	 	</div>
+	 	%16$s
+	 </div>
+</div>
 <div id="doc3" class="gbox %15$s">
-	<div id="hd" class="dheader">
-	 <div id="loginHead">%16$s</div>
-	</div>
 	%24$s
 	<div class="yui3-g" id="layout%32$s">
 <div class="yui3-u-3-4" id="qview-main">			

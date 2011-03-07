@@ -530,3 +530,34 @@ interface Question extends LampcmsResource
 	public function updateAnswerCount($int = 1);
 
 }
+
+
+interface Search
+{
+	public function __construct(\Lampcms\Registry $oRegistry);
+	
+	public function search($term = null);
+	
+	public function count();
+	
+	/**
+	 * Find titles similar to the title
+	 * This will be used for showing
+	 * hints during composing of new question
+	 * as well as for auto-complete for search
+	 * 
+	 * @param bool $bBoolMode indicates that search
+	 * should return items matching all words
+	 * 
+	 * @param string title term used in search
+	 */
+	//public function getSimilarTitles($title, $bBoolMode = true);
+	
+	
+	public function getSimilarQuestions(\Lampcms\Question $oQuestion);
+	
+	public function getHtml();
+	
+	public function getPagerLinks();
+	
+}

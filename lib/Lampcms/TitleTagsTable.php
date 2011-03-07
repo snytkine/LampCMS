@@ -51,22 +51,40 @@
 
 namespace Lampcms;
 
+/**
+ * 
+ * This class is responsible for creating
+ * the "question_title" table in MySQL database
+ * 
+ * It is usually called the first time the insert
+ * is about to be made into that table
+ *
+ */
 class TitleTagsTable
 {
 	const SQL = '
-CREATE TABLE question_title (
-  qid int(9) NOT NULL,
-  q_title varchar(200) NOT NULL,
-  q_url varchar(500) NOT NULL,
-  q_intro char(200) NOT NULL,
-  q_date varchar(20) NOT NULL COMMENT \'Just a string like December 12, 2010\',
-  UNIQUE KEY qid (qid),
-  FULLTEXT KEY q_title (q_title)
+  CREATE TABLE `question_title` (
+  `qid` int(9) NOT NULL,
+  `title` varchar(200) NOT NULL,
+  `q_body` text COMMENT \'body of the question\',
+  `url` varchar(500) NOT NULL,
+  `intro` char(200) NOT NULL,
+  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `uid` int(9) NOT NULL DEFAULT \'0\' COMMENT \'user id\',
+  `username` varchar(50) NOT NULL,
+  `userlink` varchar(60) NOT NULL COMMENT \'path to user profile, usually looks like this: /users/123/someuser\',
+  `avtr` text NOT NULL COMMENT \'path to user avatar at time of posting\',
+  `tags_c` varchar(100) NOT NULL,
+  `tags_html` text NOT NULL,
+  UNIQUE KEY `qid` (`qid`),
+  KEY `uid` (`uid`),
+  FULLTEXT KEY `title_body` (`title`,`q_body`),
+  FULLTEXT KEY `title` (`title`)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT=\'Table used for full text indexing of question title\';
 	';
 
 	public static function create(Registry $oRegistry){
-		d('Table QUESTION_TITLE not found going to create it now');
+		d('Table "question_title" not found going to create it now');
 		$res = $oRegistry->Db->exec(self::SQL);
 		d('res: '.$res);
 		

@@ -52,7 +52,7 @@
 
 namespace Lampcms;
 
-use \PDO;
+use \Lampcms\Interfaces\Search;
 /**
  * Creates html of 'similar mailing list items'
  * for one new question
@@ -68,23 +68,46 @@ use \PDO;
  * of seconds delay during meta redirect, user will most likely
  * See the question complete with the similar items by the time
  * browser actually redirects user to the question.
+ * 
+ * @todo remove this, we now use search provider
+ * instantiated via SearchFactory class
  *
  * @author Dmitri Snytkine
  *
  */
-class SimilarItems extends LampcmsObject
+class SimilarItems
 {
-	protected $title;
+	/*protected $title;
 
 	protected $qid = 0;
 
 	protected $oQuestion;
 
-	protected $threadID = 1;
+	protected $threadID = 1;*/
 
 
-	public function __construct(Registry $oRegistry){
+	/*public function __construct(Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
+		}*/
+
+	public static function factory(Registry $oRegistry){
+
+		if(extension_loaded('pdo_mysql')){
+			$o = new \Lampcms\Modules\Search\MySQL($oRegistry);
+		}
+
+
+
+		if(!isset($o)){
+			throw new \Lampcms\DevException('Search feature is not implemented because no search providers are defined');
+		}
+
+		if(!($o instanceof Search)){
+			throw new \Lampcms\DevException('Search provider class '.get_class($o).' does not implement Search interface');
+		}
+
+
+		return $o;
 	}
 
 	/**
@@ -92,6 +115,8 @@ class SimilarItems extends LampcmsObject
 	 * of new question, in which case 2 separate
 	 * fields are added to oQuestion object:
 	 * one for similar threads and one for similar questions
+	 * 
+	 * @todo remove this
 	 *
 	 * @param Question $oQuestion
 	 */
@@ -119,6 +144,8 @@ class SimilarItems extends LampcmsObject
 	 * @param bool $ret indicats that this is a retry
 	 * and prevents against retrying calling itself
 	 * more than once
+	 * 
+	 * @todo remove this
 	 *
 	 * @return object $this
 	 *
@@ -128,7 +155,7 @@ class SimilarItems extends LampcmsObject
 		$qid = (int)$this->oQuestion['_id'];
 		$html = '';
 		$aRes = array();
-		
+
 		$sql = "SELECT *
 				FROM question_title
 				WHERE 
@@ -151,7 +178,12 @@ class SimilarItems extends LampcmsObject
 
 			if('42S02' === $e->getCode() && !$ret){
 				if(true === TitleTagsTable::create($this->oRegistry)){
-					return $this->getSimilarQuestions($limit, true);
+					/**
+					 * If Table was just created, no need to retry the select
+					 * because we know table is empty now, so just
+					 * return
+					 */
+					return $this;
 				} else {
 					throw $e;
 				}

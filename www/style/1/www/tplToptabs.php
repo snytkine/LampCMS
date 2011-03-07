@@ -38,6 +38,11 @@
  
 class tplToptabs extends Lampcms\Template\Template
 {
+	
+	protected static function func(&$a){
+		$a['search'] = \tplSearchForm::parse(array());
+	}
+	
 	protected static $vars = array(
 	'questions_c' => '',
 	'unanswered_c' => '',
@@ -46,15 +51,18 @@ class tplToptabs extends Lampcms\Template\Template
 	'questions' => 'Questions',
 	'unanswered' => 'Unanswered',
 	'tags' => 'Tags',
-	'ask' => 'Ask Question');
+	'ask' => 'Ask Question',
+	'search' => '' //9
+	);
 	
 	
-	protected static $tpl = '<div id="navtabs">
+	protected static $tpl = '<div id="navtabs" class="doc3">
                     <ul>
                         <li class="ttab%1$s"><a id="tab-q" href="/questions/">%5$s</a></li>
                         <li class="ttab%2$s"><a id="tab-un" href="/unanswered/">%6$s</a></li>
                         <li class="ttab%3$s"><a id="tab-t" href="/tags/">%7$s</a></li>
                         <li class="ttab%4$s"><a id="tab-ask" href="/ask/">%8$s</a></li>
+                        <li class="tsearch">%9$s</li>
                     </ul>
                 </div>';
 }

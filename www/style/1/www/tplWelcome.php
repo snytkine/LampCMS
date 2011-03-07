@@ -35,13 +35,13 @@
  *
  *
  */
- 
+
 class tplWelcome extends Lampcms\Template\Template
 {
-	
+
 	protected static $vars = array();
-	
-	protected static $tpl = '<table class="tblwelcome">
+
+	protected static $_tpl = '<table class="tblwelcome">
 					<tr>
 					<td width="64px" class="avatar">
 					%1$s
@@ -55,4 +55,20 @@ class tplWelcome extends Lampcms\Template\Template
 					</td>
 					</tr>
 					</table>';
+
+	protected static $tpl = '<div class="fl uwelcome">
+					<table class="tblwelcome">
+					  <tr>
+						<td width="58px" class="avatar">
+							%1$s
+						</td>
+						<td>
+							<div class="greetings">
+								<a href="%6$s">%2$s</a> | <a href="/settings/">%5$s</a> | <a href="/logout/" id="logout" class="ajax">%3$s</a>
+							</div>
+							%4$s
+						</td>
+					  </tr>
+					</table>
+					</div>';
 }

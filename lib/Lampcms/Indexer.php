@@ -103,37 +103,61 @@ class Indexer
 			return $this;
 		}
 
-		$res   = false;
-		$qid   = $oQuestion->offsetGet('_id');
-		$title = $oQuestion->offsetGet('title');
-		$url   = $oQuestion->offsetGet('url');
-		$intro = $oQuestion->offsetGet('intro');
-		$date = date('F j, Y', $oQuestion->offsetGet('i_ts'));
+		$res       = false;
+		$qid       = $oQuestion['_id'];
+		$title     = $oQuestion['title'];
+		$body      = $oQuestion['b'];
+		$url       = $oQuestion['url'];
+		$intro     = $oQuestion['intro'];
+		$uid       = $oQuestion['i_uid'];
+		$username  = $oQuestion['username'];
+		$ulink     = $oQuestion['ulink'];
+		$avatar    = $oQuestion['avtr'];
+		$tags_c    = $oQuestion['tags_c'];
+		$tags_html = $oQuestion['tags_html'];
 
-		d($qid.' title: '. $title. ' url: '. $url.' intro: '.$intro.' date: '.$date);
+		d($qid.' title: '. $title. ' url: '. $url.' intro: '.$intro.' tags_c: '.$tags_c);
 
 		$sql = 'INSERT INTO question_title
 		(
 		qid, 
-		q_title, 
-		q_url, 
-		q_intro, 
-		q_date)
+		title,
+		q_body, 
+		url, 
+		intro, 
+		uid,
+		username,
+		userlink,
+		avtr,
+		tags_c,
+		tags_html)
 		VALUES (
 		:qid, 
 		:qtitle, 
+		:qbody,
 		:qurl, 
 		:qintro, 
-		:qdate)';
+		:uid,
+		:username,
+		:userlink,
+		:avatar,
+		:tags_c,
+		:tags_html)';
 
-		
+
 		try{
 			$sth = $this->oRegistry->Db->makePrepared($sql);
 			$sth->bindParam(':qid', $qid, \PDO::PARAM_INT);
 			$sth->bindParam(':qtitle', $title, \PDO::PARAM_STR);
+			$sth->bindParam(':qbody', $body, \PDO::PARAM_STR);
 			$sth->bindParam(':qurl', $url, \PDO::PARAM_STR);
 			$sth->bindParam(':qintro', $intro, \PDO::PARAM_STR);
-			$sth->bindParam(':qdate', $date, \PDO::PARAM_STR);
+			$sth->bindParam(':tags_c', $tags_c, \PDO::PARAM_STR);
+			$sth->bindParam(':tags_html', $tags_html, \PDO::PARAM_STR);
+			$sth->bindParam(':uid', $uid, \PDO::PARAM_INT);
+			$sth->bindParam(':username', $username, \PDO::PARAM_STR);
+			$sth->bindParam(':userlink', $ulink, \PDO::PARAM_STR);
+			$sth->bindParam(':avatar', $avatar, \PDO::PARAM_STR);
 
 			$res = $sth->execute();
 		} catch (\Exception $e){
@@ -173,10 +197,118 @@ class Indexer
 		$qid   = $oQuestion->offsetGet('_id');
 		$sql = 'DELETE FROM question_title WHERE qid = :qid';
 		d('about to remove question with qid: '.$qid);
-		
+
 		try{
 			$sth = $sth = $this->oRegistry->Db->makePrepared($sql);
 			$sth->bindParam(':qid', $qid, \PDO::PARAM_INT);
+			$res = $sth->execute();
+			d('res: '.$res);
+		} catch(\Exception $e){
+			$err = ('Exception: '.get_class($e).' Unable to delete question because: '.$e->getMessage().' Err Code: '.$e->getCode().' trace: '.$e->getTraceAsString());
+			d('mysql error: '.$err);
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * When question is edited in any way we will
+	 * run this method to also update
+	 * the index.
+	 *
+	 * @param Question $oQuestion
+	 */
+	public function updateQuestion(Question $oQuestion){
+
+		if(!extension_loaded('pdo_mysql')){
+			d('pdo_mysql not loaded ');
+
+			return $this;
+		}
+
+		$res   = false;
+		$qid   = $oQuestion->offsetGet('_id');
+		$title = $oQuestion->offsetGet('title');
+		$url   = $oQuestion->offsetGet('url');
+		$intro = $oQuestion->offsetGet('intro');
+		$username = $oQuestion['username'];
+		$ulink = $oQuestion['ulink'];
+		$avatar = $oQuestion['avtr'];
+		$tags_c = $oQuestion['tags_c'];
+		$tags_html = $oQuestion['tags_html'];
+		$body = $oQuestion['body'];
+
+		d($qid.' title: '. $title. ' url: '. $url.' intro: '.$intro.' tags_c: '.$tags_c);
+
+		$sql = 'UPDATE question_title
+		SET 
+		title = :qtitle,
+		q_body = :qbody,
+		url = :qurl, 
+		intro = :qintro, 
+		username = :username,
+		userlink = :userlink,
+		avtr = :avatar,
+		tags_c = :tags_c,
+		tags_html = :tags_html
+		WHERE qid = :qid';
+
+
+		try{
+			$sth = $this->oRegistry->Db->makePrepared($sql);
+			$sth->bindParam(':qid', $qid, \PDO::PARAM_INT);
+			$sth->bindParam(':qtitle', $title, \PDO::PARAM_STR);
+			$sth->bindParam(':qbody', $body, \PDO::PARAM_STR);
+			$sth->bindParam(':qurl', $url, \PDO::PARAM_STR);
+			$sth->bindParam(':qintro', $intro, \PDO::PARAM_STR);
+			$sth->bindParam(':tags_c', $tags_c, \PDO::PARAM_STR);
+			$sth->bindParam(':tags_html', $tags_html, \PDO::PARAM_STR);
+			$sth->bindParam(':username', $username, \PDO::PARAM_STR);
+			$sth->bindParam(':userlink', $ulink, \PDO::PARAM_STR);
+			$sth->bindParam(':avatar', $avatar, \PDO::PARAM_STR);
+
+			$res = $sth->execute();
+		} catch (\Exception $e){
+
+			$err = ('Exception: '.get_class($e).' Unable to insert into mysql because: '.$e->getMessage().' Err Code: '.$e->getCode().' trace: '.$e->getTraceAsString());
+			d('mysql error: '.$err);
+
+			if('42S02' === $e->getCode()){
+				if(true === TitleTagsTable::create($this->oRegistry)){
+					$this->indexTitle($oQuestion);
+				}
+			} else {
+				throw $e;
+			}
+
+		}
+		d('res: '.$res);
+
+		return $this;
+	}
+
+
+	/**
+	 * Remove record belonging to one user
+	 *
+	 * @param int $uid id of user (value of _id from USERS collection)
+	 * @return object $this
+	 */
+	public function removeByUserId($uid){
+		if(!extension_loaded('pdo_mysql')){
+			d('pdo_mysql not loaded ');
+
+			return $this;
+		}
+
+		$uid   = (int)$uid;
+		$sql = 'DELETE FROM question_title WHERE uid = :uid';
+		d('about to remove question with uid: '.$uid);
+
+		try{
+			$sth = $sth = $this->oRegistry->Db->makePrepared($sql);
+			$sth->bindParam(':uid', $uid, \PDO::PARAM_INT);
 			$res = $sth->execute();
 			d('res: '.$res);
 		} catch(\Exception $e){

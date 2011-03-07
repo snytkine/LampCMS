@@ -69,8 +69,6 @@ class Viewquestions extends WebPage
 
 	protected $pagerPath = '/questions';
 
-	protected $pagerLinks = '';
-
 	protected $aAllowedVars = array('cond', 'tags');
 
 	/**
@@ -227,6 +225,7 @@ class Viewquestions extends WebPage
 		$this->pagerLinks = $oPaginator->getLinks();
 
 		d('$this->pagerLinks: '.$this->pagerLinks);
+		
 		return $this;
 	}
 
