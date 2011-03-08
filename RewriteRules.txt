@@ -35,3 +35,4 @@ RewriteRule ^/register /index.php?a=register
 RewriteRule ^/([a-zA-Z\-]+)/page([0-9]+)\.html$ /index.php?a=$1&pageID=$2
 RewriteRule ^/aa/([0-9]+)/([a-f0-9]+)$ /index.php?a=activate&eid=$1&hash=$2
 RewriteRule ^/([a-zA-Z\-]+)/$ /index.php?a=$1
+RewriteRule ^/search/(m|r)/(.*)/page([0-9]+)\.html$ /index.php?a=search&ord=$1&q=$2&pageID=$3

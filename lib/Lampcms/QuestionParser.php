@@ -355,7 +355,7 @@ class QuestionParser extends LampcmsObject
 	 */
 	protected function addToSearchIndex(){
 
-		Indexer::factory($this->oRegistry)->indexQuestion($this->oQuestion);
+		IndexerFactory::factory($this->oRegistry)->indexQuestion($this->oQuestion);
 		
 		return $this;
 	}

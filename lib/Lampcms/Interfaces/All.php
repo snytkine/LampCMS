@@ -561,3 +561,35 @@ interface Search
 	public function getPagerLinks();
 	
 }
+
+/**
+ * Indexer interface
+ * Class implementing this interface
+ * is responsible for adding
+ * the contents of question (and maybe answer)
+ * to the search index, removing question
+ * from Search index and updating Search index
+ * when contents of question change
+ *
+ * @author Dmitri Snytkine
+ *
+ */
+interface Indexer
+{
+	public function __construct(\Lampcms\Registry $oRegistry);
+	
+	public function indexQuestion(\Lampcms\Question $oQuestion);
+	
+	public function removeQuestion(\Lampcms\Question $oQuestion);
+	
+	public function updateQuestion(\Lampcms\Question $oQuestion);
+	
+	/**
+	 * Remove all records from Search index
+	 * that belong to particular user by user id
+	 * 
+	 * 
+	 * @param int $uid
+	 */
+	public function removeByUserId($uid);
+}

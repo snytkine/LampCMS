@@ -50,7 +50,10 @@
  */
 
 
-namespace Lampcms;
+namespace Lampcms\Modules\Search;
+
+use \Lampcms\Interfaces\Indexer;
+use \Lampcms\Registry;
 
 /**
  * Wrapper class for adding Questions
@@ -70,16 +73,16 @@ namespace Lampcms;
  * @author Dmitri Snytkine
  *
  */
-class Indexer
+class IndexerMySQL implements Indexer
 {
+	/**
+	 * Registry Object
+	 * @var object of type Registry
+	 */
+	protected $oRegistry;
 
-	public function __construct(Registry $oRegistry){
+	public function __construct(\Lampcms\Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
-	}
-
-
-	public static function factory(Registry $oRegistry){
-		return new self($oRegistry);
 	}
 
 
@@ -96,7 +99,7 @@ class Indexer
 	 *
 	 * @param Question $oQuestion
 	 */
-	public function indexQuestion(Question $oQuestion){
+	public function indexQuestion(\Lampcms\Question $oQuestion){
 		if(!extension_loaded('pdo_mysql')){
 			d('pdo_mysql not loaded ');
 
@@ -187,7 +190,7 @@ class Indexer
 	 * @param Question $oQuestion
 	 * @return object $this
 	 */
-	public function removeQuestion(Question $oQuestion){
+	public function removeQuestion(\Lampcms\Question $oQuestion){
 		if(!extension_loaded('pdo_mysql')){
 			d('pdo_mysql not loaded ');
 
@@ -219,7 +222,7 @@ class Indexer
 	 *
 	 * @param Question $oQuestion
 	 */
-	public function updateQuestion(Question $oQuestion){
+	public function updateQuestion(\Lampcms\Question $oQuestion){
 
 		if(!extension_loaded('pdo_mysql')){
 			d('pdo_mysql not loaded ');

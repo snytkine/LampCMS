@@ -769,7 +769,7 @@ class Geoip
 				$org_buf = fread($this->filehandle, self::MAX_ORG_RECORD_LENGTH);
 			}
 			$org_buf = substr($org_buf, 0, strpos($org_buf, 0));
-			
+
 			return $org_buf;
 		}
 
@@ -809,7 +809,7 @@ class Geoip
 					$country_code = self::$COUNTRY_CODES[($seek_region - self::WORLD_OFFSET) / self::FIPS_RANGE];
 					$region = "";
 				}
-				
+
 				return array ($country_code,$region);
 			}
 		}
@@ -944,8 +944,21 @@ class Geoip
 		 */
 		public static function getGeoData($strIp)
 		{
+			if(!defined('GEOIP_FILE')){
+				e('GEOIP_FILE not defined');
+				return null;
+			}
+
+			$file == trim(constant('GEOIP_FILE'));
+			if(empty($file)){
+				e('GEOIP_FILE is empty');
+
+				return null;
+			}
+				
 			if (!is_string($strIp)) {
-				throw new DevException('$strIp MUST be a string. Supplied value was: '.gettype($strIp));
+				throw new \Lampcms\DevException('$strIp MUST be a string. Supplied value was: '.gettype($strIp));
+					
 			}
 
 			$objGeoData = null;

@@ -126,8 +126,7 @@ class Search extends WebPage
 
 
 	protected function makeBody(){
-		$aTerms = explode(' ', $this->term);
-		d('$aTerms: '.print_r($aTerms, 1));
+		
 
 		$this->aPageVars['body'] = \tplQlist::parse(array('', $this->oSearch->getHtml(), $this->oSearch->getPagerLinks()), false);
 

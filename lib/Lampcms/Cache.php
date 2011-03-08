@@ -122,10 +122,10 @@ class Cache extends Observer
 
 
 	protected $oCacheInterface;
-	
+
 	/**
 	 * Array of identifying tags for cache
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $aTags = null;
@@ -556,7 +556,7 @@ class Cache extends Observer
 
 	}
 
-	
+
 	/**
 	 * Generated html string
 	 * of links to unanswered tags fom QA module
@@ -591,6 +591,7 @@ class Cache extends Observer
 	 */
 	protected function geo($strIp)
 	{
+			
 		d('getting geodata for ip: '.$strIp);
 
 		$strKey = 'geo_'.$strIp;
@@ -604,7 +605,7 @@ class Cache extends Observer
 		}
 
 		$this->aTags = array('geo');
-		
+
 		return $oGeoIP;
 	}
 

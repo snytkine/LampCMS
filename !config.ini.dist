@@ -94,6 +94,9 @@ EMAIL_ADMIN = "me@me.me"
 ;
 ; emails to new registrations sent from this domain
 EMAIL_DOMAIN = 
+; number of items per page
+; on search results page
+PER_PAGE_SEARCH = 10
 ; Make sure to set the value of SALT to a random string of about 40 chars
 ; then write it down and store it like gold!
 ; and never change it again!

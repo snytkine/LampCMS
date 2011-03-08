@@ -73,14 +73,10 @@ class MySQL implements Search
 
 	/**
 	 * Results per page
-	 * @todo this could be in settings
-	 * and could apply universally to every
-	 * function that need to know how many
-	 * items we usually display per page
 	 *
 	 * @var int
 	 */
-	protected $perPage = 4;
+	protected $perPage;
 
 	protected $order = '';
 
@@ -108,6 +104,7 @@ class MySQL implements Search
 	public function __construct(Registry $oRegistry){
 
 		$this->oRegistry = $oRegistry;
+		$this->perPage = $perPage = $this->oRegistry->Ini->PER_PAGE_SEARCH;
 		if('recent' == $this->oRegistry->Request->get('ord', 's', '')){
 			$this->order = 'ORDER by ts DESC';
 		}
@@ -117,10 +114,10 @@ class MySQL implements Search
 	public function search($term = null){
 
 		$this->term = (!empty($term)) ? $term : $this->oRegistry->Request['q'];
-		
-			$this->getCondition()
-			->getCount()
-			->getResults();
+
+		$this->getCondition()
+		->getCount()
+		->getResults();
 
 		return $this;
 	}
@@ -192,6 +189,7 @@ class MySQL implements Search
 		if(!isset($this->countResults)){
 			throw new \Lampcms\DevException('count not available. You must run search() before running getCount()');
 		}
+
 		
 		/**
 		 * If we already know that there are no results
@@ -200,7 +198,7 @@ class MySQL implements Search
 		 */
 		if(0 === $this->countResults){
 			d('count is 0, no need to run search query');
-			
+
 			return $this;
 		}
 
@@ -262,7 +260,27 @@ class MySQL implements Search
 			throw new \Lampcms\DevException('search results not set. You must run search() before calling getHtml()');
 		}
 
-		$html = \tplSearchresults::loop($this->aRes, true);
+		$aTerms = array();
+		$aHighlight = array();
+
+		$func = null;
+		if(!empty($this->aRes)){
+			$aTerms = explode(' ', $this->term);
+			d('$aTerms: '.print_r($aTerms, 1));
+
+			foreach($aTerms as $term){
+				$aHighlight[] = '<span class="match">'.trim($term).'</span>';
+			}
+			
+			d('aTerms: '.print_r($aTerms, 1).' aHightlight: '.print_r($aHighlight, 1));
+			
+			$func = function(&$a) use ($aTerms, $aHighlight){
+				$a['title'] = str_replace($aTerms, $aHighlight, $a['title']);
+				$a['intro'] = str_replace($aTerms, $aHighlight, $a['intro']);
+			};
+		}
+
+		$html = \tplSearchresults::loop($this->aRes, true, $func);
 
 		return $html;
 	}
