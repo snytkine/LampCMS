@@ -139,7 +139,7 @@ class Answers extends LampcmsObject
 
 		$func = null;
 		$ownerId = $oQuestion['i_uid'];
-		$showLink = (($ownerId > 0) && ($ownerId == $this->oRegistry->Viewer->getUid()) );
+		$showLink = (($ownerId > 0) && ($this->oRegistry->Viewer->isModerator() || $ownerId == $this->oRegistry->Viewer->getUid()) );
 
 		d('adding accept link callback function');
 		/**

@@ -146,18 +146,20 @@ class Accept extends WebPage
 	 */
 	protected function checkVoteHack(){
 
-		$timeOffset = time() - 172800; // 2 days
-		$coll = $this->oRegistry->Mongo->getCollection('VOTE_HACKS');
+		if(!$this->oRegistry->Viewer->isModerator()){
+			$timeOffset = time() - 172800; // 2 days
+			$coll = $this->oRegistry->Mongo->getCollection('VOTE_HACKS');
 
-		$cur = $coll->find(array('i_ts' => array('$gt' => $timeOffset)));
+			$cur = $coll->find(array('i_ts' => array('$gt' => $timeOffset)));
 
-		if($cur && $cur->count(true)  > 0){
-			$ip = Request::getIP();
-			$uid = $this->oRegistry->Viewer->getUid();
+			if($cur && $cur->count(true)  > 0){
+				$ip = Request::getIP();
+				$uid = $this->oRegistry->Viewer->getUid();
 
-			foreach($cur as $aRec){
-				if($ip === $aRec['ip'] || $uid == $uid){
-					throw new \Lampcms\Exception('This action is disabled at this time');
+				foreach($cur as $aRec){
+					if($ip === $aRec['ip'] || $uid == $uid){
+						throw new \Lampcms\Exception('This action is disabled at this time');
+					}
 				}
 			}
 		}
@@ -216,16 +218,20 @@ class Accept extends WebPage
 		 * If Viewer is not the owner of the question
 		 * then this is some type of a vote hack
 		 * We should record it
+		 *
+		 * This does not apply to moderators as moderators
+		 * can also accept the best answer
 		 */
+		if(!$this->oRegistry->Viewer->isModerator()){
+			if(empty($aQuestion['i_uid']) || ($aQuestion['i_uid'] != $this->oRegistry->Viewer->getUid() )){
 
-		if(empty($aQuestion['i_uid']) || ($aQuestion['i_uid'] != $this->oRegistry->Viewer->getUid() )){
+				d('cp voting for someone else question');
 
-			d('cp voting for someone else question');
+				$this->recordVoteHack();
 
-			$this->recordVoteHack();
+				throw new \Lampcms\Exception('You can only accept answer for your own question');
 
-			throw new \Lampcms\Exception('You can only accept answer for your own question');
-
+			}
 		}
 
 		$this->oQuestion = new Question($this->oRegistry, $aQuestion);
@@ -247,7 +253,7 @@ class Accept extends WebPage
 	protected function updateQuestion(){
 		$ansID = $this->oQuestion['i_sel_ans'];
 		d('$ansID: '.$ansID);
-		
+
 		if(!empty( $ansID ) ){
 
 			if($ansID == $this->aAnswer['_id']){
@@ -276,7 +282,8 @@ class Accept extends WebPage
 		}
 
 		$this->oQuestion['i_sel_ans'] = (int)$this->aAnswer['_id'];
-		$this->oQuestion['i_lm_ts'] = time();
+		$this->oQuestion['i_sel_uid'] = $this->oRegistry->Viewer->getUid();
+		$this->oQuestion->updateLastModified();
 
 		return $this;
 	}
@@ -348,14 +355,14 @@ class Accept extends WebPage
 			$uid = $this->aOldAnswer['i_uid'];
 			if(!empty($uid)){
 				try{
-					\Lampcms\User::factory($this->oRegistry)->by_id($uid)->setReputation((0 - Points::BEST_ANSWER));
+					\Lampcms\User::factory($this->oRegistry)->by_id($uid)->setReputation((0 - Points::BEST_ANSWER))->save();
 
 				} catch(\MongoException $e ){
 					e('unable to update reputation for old answerer '.$e->getMessage());
 				}
 			}
 		}
-		
+
 		return $this;
 	}
 
@@ -370,7 +377,8 @@ class Accept extends WebPage
 	 * @return object $this
 	 */
 	protected function updateUser(){
-
+		d('$this->aAnswer[i_uid]:. '.$this->aAnswer['i_uid']);
+		
 		if(!empty($this->aAnswer['i_uid']) && ($this->oQuestion['i_uid'] == $this->aAnswer['i_uid']) ){
 			d('Answered own question, this does not count');
 
@@ -378,8 +386,7 @@ class Accept extends WebPage
 		}
 
 		try{
-			$this->oRegistry->Mongo->getCollection('USERS')
-			->update(array('_id' => (int)$this->aAnswer['_id']), array('$inc' => array("i_score" => Points::BEST_ANSWER)));
+			$this->oRegistry->Mongo->USERS->update(array('_id' => (int)$this->aAnswer['i_uid']), array('$inc' => array("i_rep" => Points::BEST_ANSWER)));
 		} catch(\MongoException $e ){
 			e('unable to increase reputation for answerer '.$e->getMessage());
 		}
@@ -398,7 +405,15 @@ class Accept extends WebPage
 	 */
 	protected function rewardViewer(){
 
-		$this->oRegistry->Viewer->setReputation(Points::ACCEPT_ANSWER);
+		/**
+		 * Check that accepted by owner of question
+		 * In case it was accepted by a moderator
+		 * we don't reward moderator by accpeting
+		 * the answer for someone else's question
+		 */
+		if($this->oQuestion['i_uid'] == $this->oRegistry->Viewer->getUid()){
+			$this->oRegistry->Viewer->setReputation(Points::ACCEPT_ANSWER);
+		}
 
 		return $this;
 	}

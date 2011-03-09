@@ -61,7 +61,7 @@ class tplFormanswer extends Lampcms\Template\Template
 	);
 
 	protected static $tpl = '
-	<div id="answer_form">
+	<div id="answer_form" class="form_wrap">
 	<h4 class="form_title">%11$s</h4>
 	<div class="form_error">%10$s</div>
 		<form class="qa_form" name="ansForm" method="POST" action="/index.php" accept-charset="utf-8">

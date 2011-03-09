@@ -17,8 +17,9 @@ LampcmsException = function(message, exceptionName) {
 	this.name = exceptionName || "LampcmsException";
 };
 
-oSL = {};
-oSL.Regform = function() {
+oSL = {
+	Regform : function() {
+	}
 };
 
 /**
@@ -355,45 +356,6 @@ oSL = {
 }; //
 
 /**
- * Modal is the object to show 'loading modal' when ajax call starts and to hide
- * it when it ends
- */
-oSL.modal = (function() {
-	var oModal;
-
-	return {
-		show : function(sText) {
-			$L('modal show');
-			if (!oModal) {
-				$L('1189 cp');
-				oModal = new $W.Panel("mywait", {
-					width : "240px",
-					fixedcenter : true,
-					close : false,
-					draggable : false,
-					zindex : 4,
-					modal : true,
-					visible : false
-				});
-				$L('1199 cp');
-
-				oModal.setHeader('');
-				oModal.setBody("<img src=\"/images/loading-bar.gif\"/>");
-				oModal.render(document.body);
-			}
-
-			sText = (sText) ? sText : 'Loading, please wait...';
-			oModal.setHeader(sText);
-			oModal.show();
-		},
-		hide : function() {
-			if (oModal) {
-				oModal.hide();
-			}
-		}
-	};
-})();
-/**
  * Dialog used for Tweeting from our site Should display modal window with a
  * short form to send tweet.
  */
@@ -564,12 +526,12 @@ oSL.Regform = (function() {
 		this.hide();
 		oSL.Regform.getInstance().hide();
 		/**
-		 *  don't set dnd cookie if this is not part of "Join" form
+		 * don't set dnd cookie if this is not part of "Join" form
 		 */
-		if(eAvatar){
-		$COOKIE.set("dnd", "1", {
-			path : "/"
-		});
+		if (eAvatar) {
+			$COOKIE.set("dnd", "1", {
+				path : "/"
+			});
 		}
 	};
 	/**
@@ -626,24 +588,24 @@ oSL.Regform = (function() {
 	};
 
 	var setError = function(oError) {
-		
+
 		var errDiv = $('form_error');
-		//alert('errDiv: ' + errDiv);
+		// alert('errDiv: ' + errDiv);
 		var aInputs, message = oError.exception, //
 		oRegform = oSL.Regform.getInstance(); //
 		var myForm = oRegform.form;
-		//alert('setting error: ' + message);
-		//alert('cp 1825');
+		// alert('setting error: ' + message);
+		// alert('cp 1825');
 		errDiv.innerHTML = message;
-		//alert('cp 1828');
+		// alert('cp 1828');
 		oSL.fColorChange(errDiv, '#FFFFFF', '#FF0000');
-		//alert('cp 1830');
+		// alert('cp 1830');
 		if (oError.type && ('LampcmsCaptchaLimitException' === oError.type)) {
 			$LANG.later(2000, oRegform, 'destroy');
 		}
-		//alert('cp 1832');
+		// alert('cp 1832');
 		if (oError.hasOwnProperty('fields')) {
-			//alert('cp 1834');
+			// alert('cp 1834');
 			aInputs = oError.fields;
 			for ( var i = 0; i < aInputs.length; i += 1) {
 				if (myForm.hasOwnProperty(aInputs[i])) {
@@ -672,8 +634,8 @@ oSL.Regform = (function() {
 				myForm.private_key.disabled = true;
 			}
 		}
-		
-		//alert('cp 1864');
+
+		// alert('cp 1864');
 	};
 	/**
 	 * Buttons to be used on the "Registration complete" panel These buttons
@@ -716,8 +678,9 @@ oSL.Regform = (function() {
 					draggable : true,
 					close : false,
 					modal : true,
-					/*x: 150,
-					y: 10,*/
+					/*
+					 * x: 150, y: 10,
+					 */
 					buttons : [ {
 						text : "Create Your Account",
 						handler : handleSubmit,
@@ -734,7 +697,7 @@ oSL.Regform = (function() {
 				};
 
 				oDialog.validate = function() {
-					//alert('validating');
+					// alert('validating');
 					var message, //
 					aInputs = [], //
 					myForm = this.form, //
@@ -815,7 +778,7 @@ oSL.Regform = (function() {
 
 				};
 				oDialog.asyncSubmitEvent.subscribe(function(type, args) {
-					
+
 					var connectionObject = args[0];
 					startProgress();
 
@@ -908,4 +871,3 @@ oSL.Regform = (function() {
 
 	};
 })();
-

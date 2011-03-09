@@ -65,7 +65,7 @@ function exception_handler($e)
 /**
  * if php NOT running as fastcgi
  * then we need to create a dummy function
- * 
+ *
  */
 if(!function_exists('fastcgi_finish_request')){
 	function fastcgi_finish_request(){}
@@ -221,7 +221,7 @@ try{
 	define('DEFAULT_LANG', $oINI->DEFAULT_LANG);
 	define('COOKIE_DOMAIN', $oINI->COOKIE_DOMAIN);
 	define('IMAGE_SITE', $oINI->IMAGE_SITE);
-	define('GEOIP_FILE', $oINI->GEOIP_FILE); 
+	define('GEOIP_FILE', $oINI->GEOIP_FILE);
 	define('AVATAR_IMG_SITE', $oINI->AVATAR_IMG_SITE);
 
 	if (!empty($dataDir)) {
@@ -273,13 +273,12 @@ define('LOG_FILE_PATH', $oINI->LOG_FILE_PATH);
  * Empty the log file if
  * necessary
  */
-
 /**
  * LOG_PER_SCRIPT
  * will return string '1' for true
  * or empty string for false
  */
-if((true === LAMPCMS_DEBUG) && ('' !== LOG_FILE_PATH) && (true === $oINI->LOG_PER_SCRIPT) && !\Lampcms\Request::isAjax()){
+if((true === LAMPCMS_DEBUG) && ('' !== LOG_FILE_PATH) && (true === (bool)$oINI->LOG_PER_SCRIPT) && !\Lampcms\Request::isAjax()){
 
 	file_put_contents(LOG_FILE_PATH, PHP_SAPI.' '.print_r($_SERVER, 1), LOCK_EX);
 }

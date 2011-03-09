@@ -253,8 +253,6 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	public function getAvatarImgSrc($sSize = 'medium', $noCache = false)
 	{
 		d('cp');
-		//$width =  $this->getRegistry()->Ini->AVATAR_SQUARE_SIZE;
-		//d('width: '.width);
 		$strAvatar = '<img src="' . $this->getAvatarSrc($noCache) . '" class="imgAvatar" width="40" height="40" border="0" alt="avatar"/>';
 
 		return $strAvatar;
@@ -277,7 +275,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 			}
 
 			if(empty($srcAvatar)){
-				$srcAvatar = 'user.jpg';
+				return IMAGE_SITE.'/images/avatar.png';
 			}
 
 			/**

@@ -73,8 +73,19 @@ if (top !== self) {
 }
 
 YUI({
-	gallery : 'gallery-2010.08.18-17-12'
-		}).use('node', 'event', 'gallery-storage-lite', 'gallery-overlay-extras', 'dd-plugin', 'yui2-editor', 'yui2-resize', 'yui2-animation', 'io-form', 'json', 'cookie', function(Y, result) {
+	gallery : 'gallery-2010.08.18-17-12',
+	modules : {
+		'gallery-aui-skin-base' : {
+			fullpath : 'http://yui.yahooapis.com/gallery-2010.08.18-17-12/build/gallery-aui-skin-base/css/gallery-aui-skin-base-min.css',
+			type : 'css'
+		},
+		'gallery-aui-skin-classic' : {
+			fullpath : 'http://yui.yahooapis.com/gallery-2010.08.18-17-12/build/gallery-aui-skin-classic/css/gallery-aui-skin-classic-min.css',
+			type : 'css',
+			requires : [ 'gallery-aui-skin-base' ]
+		}
+	}
+		}).use('node', 'event', 'gallery-storage-lite', 'gallery-overlay-extras', 'gallery-aui-loading-mask', 'dd-plugin', 'yui2-editor', 'yui2-resize', 'yui2-animation', 'io-form', 'json', 'imageloader', 'cookie', function(Y, result) {
 	/**
 	 * Dom Element of comment form
 	 */
@@ -156,6 +167,10 @@ YUI({
 	 * of Ajax request
 	 */
 	oAlerter, //
+	/**
+	 * Array of loading masks widgets
+	 */
+	loadingMasks = [], //
 
 	getStorageKey = function() {	
 			var formName;
@@ -227,7 +242,49 @@ YUI({
 		}
 		
 		return node.get('content');
-	},
+	}, //
+	/**
+	 * Attach loading mask to node
+	 * and show it
+	 * Also add loadingMask object
+	 * to Y.LoadingMasks array
+	 * so that later we can access them
+	 * in order to hide masks
+	 */
+	showLoading = function(node) {
+		var mymask;
+		node = (!node) ? Y.one('.gbox') : node;
+		mymask = node.plug(Y.LoadingMask, {
+			background : '#000',
+			strings : {
+				loading : 'Loading'
+			}
+		}).loadingmask;
+		if(!Y.loadingMasks){
+			Y.loadingMasks = [];
+		}
+		Y.loadingMasks.push(mymask);
+		mymask.show();
+		
+	}, //
+	 /**
+	  * Hide loading mask attached to node
+	  * if no node is provided then
+	  * hide all loadingMasks
+	  * 
+	  */
+	hideLoading = function(node) {
+		var mymask;			
+		if (node && node.loadingmask) {
+			node.loadingmask.hide();
+		}
+		if(Y.loadingMasks){
+			while(Y.loadingMasks.length > 0){
+				mymask = Y.loadingMasks.pop();
+				mymask.hide();
+			}
+		}
+	}, //
 	
 	/**
 	 * Start Login with FriendConnect routine
@@ -333,7 +390,7 @@ YUI({
 				}
 			};
 			oAlerter.hide();
-			oSL.modal.show();
+			showLoading();
 			
 			var request = Y.io('/index.php', cfg);
 	},
@@ -491,6 +548,7 @@ YUI({
 
 	// A function handler to use for successful requests:
 	handleSuccess = function(ioId, o) {
+		hideLoading();
 		var scoreDiv, comDivID, eDiv, eRepliesDiv, sContentType = Y.Lang.trim(o.getResponseHeader("Content-Type"));
 		if ('text/json; charset=UTF-8' !== sContentType) {
 			alert('Invalid Content-Type header: ' + sContentType);
@@ -507,7 +565,6 @@ YUI({
 		}
 
 		Y.log('Content-Type: ' + sContentType, "info");
-
 		Y.log("The success handler was called.  Id: " + ioId + ".", "info", "example");
 
 		/**
@@ -524,6 +581,7 @@ YUI({
 		}
 
 		if (data.exception) {
+			
 			if(data.type && 'Lampcms\\MustLoginException' === data.type){
 				ensureLogin(true);
 			} else {
@@ -593,6 +651,7 @@ YUI({
 	}, //
 
 	handleFailure = function(ioId, o) {
+		hideLoading();
 		Y.log("The failure handler was called.  Id: " + ioId + ".", "info", "example");
 		alert('Error occured. Server returned status ' + o.status + ' response: ' + o.statusText);
 	};
@@ -600,13 +659,7 @@ YUI({
 	// Subscribe our handlers to IO's global custom events:
 	Y.on('io:success', handleSuccess);
 	Y.on('io:failure', handleFailure);
-	/*
-	 * Y.on('io:start', function(o) { oSL.modal.show(); });
-	 */
-
-	Y.on('io:complete', function(o) {
-		oSL.modal.hide();
-	});
+	//Y.on('io:complete', hideLoading);
 
 	/**
 	 * Submit question or answer form via ajax
@@ -687,7 +740,7 @@ YUI({
 			}
 		};
 
-		oSL.modal.show();
+		showLoading(Y.one(".form_wrap"));
 		var request = Y.io('/index.php', cfg);
 
 		e.halt();
@@ -708,7 +761,7 @@ YUI({
 		editor = new YAHOO.widget.Editor('id_qbody', {
 			dompath : true, // without dompath resize does not work
 			width : '660px',
-			height : '250px',
+			height : '180px',
 			autoHeight : true,
 			extracss : 'pre { margin-left: 10px; margin-right: 10px; padding: 2px; background-color: #EEE; } ',
 			animate : true,
@@ -1410,6 +1463,13 @@ YUI({
 				oSL.Regform.getInstance().show();
 			}
 		}
+	 
+	var foldGroup = new Y.ImgLoadGroup({
+		   foldDistance: 2
+		
+		});
+	 foldGroup.set('className', 'imgloader');
+	 //folderGroup.addTrigger('#hd', 'mouseover');
 	 
 	 addAdminControls();
 

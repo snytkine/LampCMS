@@ -58,7 +58,7 @@ class tplQrecent extends Lampcms\Template\Template
 	'tags_html' => '', //9
 	'status' => 'un', //10
 	'username' => '', //11
-	'avtr' => '/w/img/avatar/sqr/user.jpg',//12
+	'avtr' => '/images/avatar.png',//12
 	'hts' => '',//13
 	'i_ts' => '',//14
 	'vw_s' => 's',//15
@@ -92,7 +92,7 @@ class tplQrecent extends Lampcms\Template\Template
         <div class="pstr">
             <div class="usrinfo">
             	<div class="asked"><span rel="in">%20$s </span><span title="%13$s" class="ts" rel="time">%13$s</span></div>
-            	<div class="avtr32"><img src="%12$s" height="32" width="32" alt=""></div>
+            	<div class="avtr_bg imgloader" style=\'background-image:url("%12$s");\'>&nbsp;</div>
             	<div class="username">%11$s</div>
             </div>
         </div>

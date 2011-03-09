@@ -68,7 +68,7 @@ class tplFormask extends Lampcms\Template\Template
 	/* 19 */ 'formError' => ''); // 19
 
 	protected static $tpl = '
-	<div id="ask_form">
+	<div id="ask_form"  class="form_wrap">
 	<div class="form_error">%19$s</div>
 		<form class="qa_form" name="qaForm" method="POST" action="/index.php" accept-charset="utf-8">
 		<input type="hidden" name="a" value="ask">	
@@ -82,7 +82,7 @@ class tplFormask extends Lampcms\Template\Template
        <!-- // el title -->
             <div id="similar_questions"></div> 
             <div class="form_el"> 
-                <textarea id="id_qbody" rows="10" cols="40" class="com_body%15$s" name="qbody" %16$s>%8$s</textarea><br>
+                <textarea id="id_qbody" rows="6" cols="40" class="com_body%15$s" name="qbody" %16$s>%8$s</textarea><br>
                 <span class="f_err">%9$s</span>
                 <div id="body_preview"></div>
                 <span class="label">Preview</span>

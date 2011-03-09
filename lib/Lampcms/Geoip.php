@@ -949,7 +949,7 @@ class Geoip
 				return null;
 			}
 
-			$file == trim(constant('GEOIP_FILE'));
+			$file = trim(constant('GEOIP_FILE'));
 			if(empty($file)){
 				e('GEOIP_FILE is empty');
 
