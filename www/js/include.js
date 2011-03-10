@@ -66,7 +66,7 @@ oAjaxObject = {
 				eLastDiv = document.createElement('div');
 				eLastDiv.innerHTML = json.quickreg;
 				document.body.appendChild(eLastDiv);
-				oSL.modal.hide();
+				//oSL.modal.hide();
 				oSL.Regform.getInstance().show();
 				break;
 
@@ -89,9 +89,9 @@ oSL = {
 			/**
 			 * &ajaxid=1&tplflag=1
 			 */
-			if (oSL.modal) {
+			/*if (oSL.modal) {
 				oSL.modal.show();
-			}
+			}*/
 			$CONN.asyncRequest("GET", "/index.php?a=getregform", oSL.oCallback);
 		}
 
@@ -419,16 +419,16 @@ oSL.tweet = (function() {
 				});
 				oDialog.beforeSubmitEvent.subscribe(function() {
 					$L('before submit tweet');
-					oSL.modal.show();
+					//oSL.modal.show();
 				});
 				oDialog.callback = {
 					success : function(o) {
 						alert('Tweet sent');
-						oSL.modal.hide();
+						//oSL.modal.hide();
 					},
 					failure : function(o) {
 						alert('Tweet not sent');
-						oSL.modal.hide();
+						//oSL.modal.hide();
 					}
 				};
 				oDialog.setHeader("Invite Your Friends");
@@ -546,7 +546,7 @@ oSL.Regform = (function() {
 	var handleSuccess = function(o) {
 		// $L('39 success ' + this, 'warn');
 		var oMyDialog = oSL.Regform.getInstance();
-		oSL.modal.hide();
+		//oSL.modal.hide();
 		oSL.Regform.enableButtons();
 		// oSL.Regform.getInstance().setBody('');
 		// oSL.Regform.getInstance().setFooter('<p>stuff and stuff</p>');
@@ -572,7 +572,7 @@ oSL.Regform = (function() {
 			}
 
 		} catch (e) {
-			oSL.modal.hide();
+			//oSL.modal.hide();
 			alert("Invalid json data in responceText " + $LANG.dump(e)
 					+ "\noRespnose: " + $LANG.dump(o.responseText));
 		}
@@ -580,7 +580,7 @@ oSL.Regform = (function() {
 	};
 
 	var handleFailure = function(o) {
-		oSL.modal.hide();
+		//oSL.modal.hide();
 		oSL.Regform.enableButtons();
 		oSL.Regform.getInstance().setBody('<p>boo hoo, something is wrong</p>');
 		// setError('failed');
@@ -659,7 +659,7 @@ oSL.Regform = (function() {
 	 */
 	var startProgress = function(o) {
 		oSL.Regform.disableButtons();
-		oSL.modal.show('Please wait...');
+		//oSL.modal.show('Please wait...');
 	};
 
 	return {

@@ -501,6 +501,16 @@ YUI({
 		
 		   break;
 		   
+		case el.test('.stick'):
+			window.location.assign('/index.php?a=stick&qid=' + getMeta('qid'));
+		
+		   break;
+		   
+		case el.test('.unstick'):
+			window.location.assign('/index.php?a=unstick&qid=' + getMeta('qid'));
+		
+		   break;
+		   
 		case el.test('.close'):
 			ancestor = el.ancestor("div.controls");
 		if(ancestor){
@@ -1213,6 +1223,13 @@ YUI({
 					}
 					if(!Y.one('#closed') && (isModerator() || this.test('.uid-' + getViewerId()) ) ){
 						this.append(' | <span class="close">close</span>');
+					}
+					if('administrator' == getMeta('role')){
+						if(!this.test('.sticky')){
+							this.append(' | <span class="stick">stick</span>');
+						} else {
+							this.append(' | <span class="unstick">unstick</span>');
+						}
 					}
 			 	}
 				

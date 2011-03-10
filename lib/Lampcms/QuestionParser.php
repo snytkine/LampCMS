@@ -313,12 +313,19 @@ class QuestionParser extends LampcmsObject
 	 */
 	protected function ensureIndexes(){
 		$quest = $this->oRegistry->Mongo->getCollection('QUESTIONS');
+		$quest->ensureIndex(array('i_sticky' => 1));
 		$quest->ensureIndex(array('i_ts' => 1));
 		$quest->ensureIndex(array('i_votes' => 1));
 		$quest->ensureIndex(array('i_ans' => 1));
 		$quest->ensureIndex(array('a_tags' => 1));
 		$quest->ensureIndex(array('i_uid' => 1));
 		$quest->ensureIndex(array('hash' => 1));
+		/**
+		 * Need ip index to use flood filter by ip
+		 * and to quickly find all posts by ip
+		 * in case of deleting a spam.
+		 * 
+		 */
 		$quest->ensureIndex(array('ip' => 1));
 
 		return $this;

@@ -136,7 +136,7 @@ class Viewquestions extends WebPage
 		 * meaning most recent should be on top
 		 *
 		 */
-		$sort = array('i_ts' => -1);
+		$sort = array('i_sticky' => -1, 'i_lm_ts' => -1); // 'is_sticky' => 1, 
 		/**
 		 * @todo translate this title later
 		 *

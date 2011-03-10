@@ -224,6 +224,7 @@ class Viewquestion extends WebPage
 		return $this;
 	}
 
+	
 	/**
 	 * Create header div for answers block.
 	 * This div is independant of answers

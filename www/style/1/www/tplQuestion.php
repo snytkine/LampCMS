@@ -65,6 +65,10 @@ class tplQuestion extends Lampcms\Template\Template
 		if(array_key_exists('a_edited', $a)){
 			$a['edits'] = \tplEditedby::parse(end($a['a_edited']), false);
 		}
+		
+		if(!empty($a['i_sticky'])){
+			$a['sticky'] = ' sticky';
+		}
 	}
 	
 	protected static $vars = array(
@@ -85,7 +89,8 @@ class tplQuestion extends Lampcms\Template\Template
 	'i_flags' => '', //15
 	'deleted' => '', // 16
 	'deletedby' => '', //17
-	'edits' => '' //18
+	'edits' => '', //18
+	'sticky' => '' //19
 	);
 
 	protected static $tpl = '
@@ -125,7 +130,7 @@ class tplQuestion extends Lampcms\Template\Template
 		<td class="td_question">
 		<div class="question-body" id="qbody-%1$s">%2$s</div>
 		<div class="tgs">%5$s</div>
-		<div class="question controls%16$s uid-%10$s" id="res_%1$s">
+		<div class="question%19$s controls%16$s uid-%10$s" id="res_%1$s">
 		     <span class="flag" title="(%15$s)">flag</span>
 		</div>
 		<!-- // -->

@@ -209,17 +209,19 @@ class LoginForm
 				$aFB = $oIni['FACEBOOK'];
 
 				if(!empty($aFB['APP_ID'])){
+					//id="fbsignup" 
 					d('$aFB: '.print_r($aFB, 1));
-					$socialBtns .= '<img id="fbsignup" class="ajax fbsignup hand" src='.IMAGE_SITE.'"/images/facebook_32.png" width="32" height="32" alt="Facebook" title="Sign in with Facebook account">';
+					$socialBtns .= '<img class="ajax fbsignup hand" src='.IMAGE_SITE.'"/images/f_32.png" width="32" height="32" alt="F" title="Sign in with an account">';
 
 				}
 			}
 
 			if(extension_loaded('oauth') && isset($oIni->TWITTER)){
+				//id="twsignin" 
 				$aTW = $oIni['TWITTER'];
 				if(!empty($aTW['TWITTER_OAUTH_KEY']) && !empty($aTW['TWITTER_OAUTH_SECRET'])){
 					d('$aTW: '.print_r($aTW, 1));
-					$socialBtns .= '<img id="twsignin" class="ajax twsignin hand" src='.IMAGE_SITE.'"/images/twitter_32.png" width="32" height="32" alt="Twitter" title="Sign in with Twitter account">';
+					$socialBtns .= '<img class="ajax twsignin hand" src='.IMAGE_SITE.'"/images/t_32.png" width="32" height="32" alt="T" title="Sign in with account">';
 				}
 			}
 
