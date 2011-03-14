@@ -36,6 +36,16 @@
  *
  */
 
+/**
+ * This is NOT for question/answer comments
+ * This is for adding comment to article
+ * or other type of resource
+ * this is left over template from previous project
+ * and not yet implemented here
+ * 
+ * @author admin
+ *
+ */
 class tplComdiv extends Lampcms\Template\Template
 {
 

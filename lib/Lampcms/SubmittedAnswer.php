@@ -49,8 +49,9 @@
  *
  */
 
- 
+
 namespace Lampcms;
+
 
 /**
  * abstract class representing submitted answer
@@ -61,9 +62,12 @@ namespace Lampcms;
  */
 abstract class SubmittedAnswer extends LampcmsObject
 {
+
 	protected $oUser;
 
+
 	protected $oBody;
+
 
 	/**
 	 * Get object of type User of user
@@ -73,11 +77,13 @@ abstract class SubmittedAnswer extends LampcmsObject
 	 */
 	abstract public function getUserObject();
 
+
 	/**
 	 * @return object of type Utf8String representing
 	 * the body of the answer
 	 */
 	abstract public function getBody();
+
 
 	/**
 	 * @return string ip address from where
@@ -86,11 +92,13 @@ abstract class SubmittedAnswer extends LampcmsObject
 	 */
 	abstract public function getIP();
 
+
 	/**
 	 * @return int id of question for which
 	 * this answer is submitted
 	 */
 	abstract public function getQid();
+
 
 	/**
 	 * Concrete class may override this to provide
@@ -101,7 +109,9 @@ abstract class SubmittedAnswer extends LampcmsObject
 	 * @return associative array
 	 */
 	public function getExtraData(){
+
 		return array();
+
 	}
 
 }

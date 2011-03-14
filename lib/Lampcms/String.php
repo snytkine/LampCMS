@@ -106,8 +106,8 @@ class String extends LampcmsObject implements \Serializable
 
 		if(is_object($string)){
 
-			if(!($string instanceof LampcmsString)){
-				$err = '$string must be instance of LampcmsString class';
+			if(!($string instanceof \Lampcms\String)){
+				$err = '$string must be instance of \Lampcms\String class';
 				e($err);
 				throw new \InvalidArgumentException($err);
 			}
@@ -318,9 +318,6 @@ class String extends LampcmsObject implements \Serializable
 	/**
 	 * Generates random alphanumeric string
 	 * of predetermined length
-	 *
-	 * @todo move to LampcmsString as this really belongs
-	 * in string class!
 	 *
 	 * @param intered $len
 	 * @return string a string of random letters and numbers.

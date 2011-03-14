@@ -397,7 +397,7 @@ class Logintwitter extends WebPage
 		$aUser['date_reg'] = date('r');
 		$aUser['role'] = 'external_auth';
 		$aUser['tz'] = \Lampcms\TimeZone::getTZbyoffset($this->aUserData['utc_offset']);
-		$aUser['rs'] =  (false !== $sid) ? $sid : LampcmsString::makeSid();
+		$aUser['rs'] =  (false !== $sid) ? $sid : \Lampcms\String::makeSid();
 		$aUser['twtr_username'] = $this->aUserData['screen_name'];
 		$aUser['oauth_token'] = $this->aUserData['oauth_token'];
 		$aUser['oauth_token_secret'] = $this->aUserData['oauth_token_secret'];

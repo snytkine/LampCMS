@@ -79,8 +79,29 @@ class FloodCheck extends \Lampcms\Observer
 					$this->byUser('ANSWERS')->byIp('ANSWERS');
 					break;
 
+				case 'onBeforeNewComment':
+					$this->checkComment();
+					break;
+
 			}
 		}
+	}
+
+
+	protected function checkComment(){
+
+		/*if(!$this->oRegistry->Viewer->isModerator()){
+			$since = time() - ($this->minutesToWait * 60);
+			$uid = $this->oRegistry->Viewer->getUid();
+
+			$a = $this->oRegistry->Mongo->COMMENTS->findOne(array('i_uid' => $uid, 'i_ts' => array('$gt' => $since)));
+
+			d('existing: '.print_r($a, 1));
+
+			if(!empty($a)){
+				throw new \Lampcms\Exception('You are posting too fast.<br>You must wait 1 minute between comments');
+			}
+		}*/
 	}
 
 	/**

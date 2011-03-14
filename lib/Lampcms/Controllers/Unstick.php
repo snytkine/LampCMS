@@ -49,27 +49,30 @@
  *
  */
 
+namespace Lampcms\Controllers;
  
-namespace Lampcms;
+use Lampcms\Controllers\Stick;
 
 /**
- * Constants or Actions
- * mapped to reputation score required
- * to perform this action
+ * Controller responsible for removing
+ * the 'sticky' attribute from a question
+ * 
  * 
  * @author Dmitri Snytkine
  *
  */
-class ReputationAcl
+class Unstick extends Stick
 {
+	protected function main(){
+		$this->getQuestion()
+		->unsetSticky()
+		->redirect();
+	}
 	
-	const RETAG = 500;
-	
-	const VOTE_UP = 15;
-	
-	const VOTE_DOWN = 125;
-	
-	const EDIT = 2000;
-	
-	const COMMENT = 25;
+	protected function unsetSticky(){
+		$this->oQuestion->offsetUnset('i_sticky');
+		$this->oQuestion->touch()->save();
+
+		return $this;
+	}
 }

@@ -85,7 +85,7 @@ YUI({
 			requires : [ 'gallery-aui-skin-base' ]
 		}
 	}
-		}).use('node', 'event', 'gallery-storage-lite', 'gallery-overlay-extras', 'gallery-aui-loading-mask', 'dd-plugin', 'yui2-editor', 'yui2-resize', 'yui2-animation', 'io-form', 'json', 'imageloader', 'cookie', function(Y, result) {
+		}).use('node', 'event', 'gallery-storage-lite', 'gallery-overlay-extras', 'gallery-aui-loading-mask', 'dd-plugin', 'transition', 'yui2-editor', 'yui2-resize', 'yui2-animation', 'io-form', 'json', 'imageloader', 'cookie', function(Y, result) {
 	/**
 	 * Dom Element of comment form
 	 */
@@ -394,11 +394,49 @@ YUI({
 			
 			var request = Y.io('/index.php', cfg);
 	},
+	
+	/**
+	 * Handle form submit 
+	 * comment form
+	 */
+	handleCommentForm = function(e){
+		Y.log('handling handleCommentForm');
+		
+		var body, numChars, form = e.currentTarget;
+		e.halt();
+		e.preventDefault();
+		Y.log('handleModalForm el is: ' + form);
+		
+		body = form.one("textarea[name=com_body]");
+		numChars = body.get("value").length;
+		if (body && (numChars < 10 )) {
+			alert('Comment must be at least 10 characters long');
+			return;
+		}
+		if (body && (numChars > 600 )) {
+			alert('Comment must be at under 600 chars long. Please remove ' 
+					+ (numChars - 600) + ' characters from your comment');
+			return;
+		}
+		
+		var cfg = {
+				method : 'POST',
+				form : {
+					id : form,
+					useDisabled : true
+				}
+			};
+			if(oAlerter){
+				oAlerter.hide();
+			}
+			showLoading(form.ancestor('div'));
+            var request = Y.io('/index.php', cfg);
+	},
 	/**
 	 * This function executes onClick on any link with class 'ajax'
 	 */
 	handleAjaxLinks = function(e) {
-		var ancestor, res, restype, resID, fbappid, fbcookie, el = e.currentTarget;
+		var ancestor, res, rtype, restype, resID, fbappid, fbcookie, el = e.currentTarget;
 		Y.log('el is ' + el + ' id is: ' + el.get('id'));
 		var id = el.get('id');
 		e.halt();
@@ -483,7 +521,14 @@ YUI({
 		case el.test('.flag'):
 			ancestor = el.ancestor("div.controls");
 		if(ancestor){
-		    restype = (ancestor.test('.question')) ? 'q' : 'a';
+		    //restype = (ancestor.test('.question')) ? 'q' : 'a';
+			restype = 'a';
+			if(ancestor.test('.question')){
+				restype = 'q';
+			} 
+			if(ancestor.test('.com_tools')){
+				restype = 'c';
+			}
 		    resID = ancestor.get('id');
 		    resID = resID.substr(4);
 		    showFlagForm({'rid' : resID, 'rtype' : restype});
@@ -524,10 +569,15 @@ YUI({
 		case el.test('.del'):
 			ancestor = el.ancestor("div.controls");
 			if(ancestor){
-			    restype = (ancestor.test('.question')) ? 'q' : 'a';
-			    resID = ancestor.get('id');
+				resID = ancestor.get('id');
 			    resID = resID.substr(4);
-			    showDeleteForm({'rid' : resID, 'rtype' : restype});
+			    
+				if(ancestor.test('.com_tools')){
+					deleteComment(resID);
+				} else{
+						rtype = (ancestor.test('.question')) ? 'q' : 'a';
+					    showDeleteForm({'rid' : resID, 'rtype' : rtype});
+					}
 				}
 			
 			break;
@@ -535,18 +585,26 @@ YUI({
 		case el.test('.edit'):
 			ancestor = el.ancestor("div.controls");
 			if(ancestor){
-			    restype = (ancestor.test('.question')) ? 'q' : 'a';
-			    resID = ancestor.get('id');
+				resID = ancestor.get('id');
 			    resID = resID.substr(4);
-			    Y.log('restype: ' + restype + ' resID: ' + resID);
-			    window.location.assign('/index.php?a=edit&rid='+resID+'&rtype='+restype);
+			    //
+				if(ancestor.test('.com_tools')){
+					showEditComment(resID);
+				} else {
+					restype = (ancestor.test('.question')) ? 'q' : 'a';
+				    Y.log('restype: ' + restype + ' resID: ' + resID);
+				    window.location.assign('/index.php?a=edit&rid='+resID+'&rtype='+restype);
+					}
 				}
+			break;
 			
+		case el.test('.com_link'):
+			e.preventDefault();
+			showCommentForm(el);
 			break;
 			
 		case el.test('.btn_shred'):
 			if(ensureLogin()){
-				//alert('clicked on shred for user' + el.get('id'));
 				showShredForm(el.get('id'));
 			}
 			break;
@@ -626,6 +684,28 @@ YUI({
 			Y.log('Form Error: ' + data.formError);
 			alert(data.formError);
 			return;
+		}
+		
+		
+		if(data.comment && data.comment.res && data.comment.html){
+			Y.log('got comment');
+			//Y.log('com_wrap is: ' + Y.one('#comm_wrap_' + data.comment.res));
+			/**
+			 * If data.comment has id 
+			 * and div with comment-id exists
+			 * then it is an edit,
+			 * otherwise it is a new comment
+			 */
+			if(data.comment.id && Y.one('#comment-' + data.comment.id)){
+				Y.log('this is an edit');
+				Y.one('#comment-' + data.comment.id).replace(data.comment.html);
+			} else {
+				Y.one('#comm_wrap_' + data.comment.res).remove();
+				Y.one('#comments-' + data.comment.res).insert(data.comment.html, Y.one('#comments-' + data.comment.res).one('.add_com'));
+			}
+			
+			return;
+			
 		}
 
 		if (data.vote && data.vote.hasOwnProperty('v') && data.vote.rid) {
@@ -973,11 +1053,14 @@ YUI({
 	} // end if NOT com_hand, means if we going to use RTE
 	
 	var showFlagForm = function(o){
-		var oAlert, form;
+		var oAlert, form, faction = 'flagger';
 		if(ensureLogin()){
+			if(o.rtype && 'c' === o.rtype){
+				faction = 'flagcomment';
+			}
 		form = '<div id="div_flag" style="text-align: left">'
-+ '<form name="form_flag" id="id_flag" action="/index.php">'
-+ '<input type="hidden" name="a" value="flagger">'
++ '<form name="form_flag" action="/index.php">'
++ '<input type="hidden" name="a" value="' +faction+'">'
 + '<input type="hidden" name="rid" value="{rid}">'
 + '<input type="hidden" name="token" value="'+ getToken() +'">'
 + '<input type="hidden" name="qid" value="'+ getMeta('qid') +'">'
@@ -1056,17 +1139,53 @@ YUI({
 	     oAlert.show(); 
 		}
 		
-	}
+	};
+	
+	var deleteComment = function(resID){
+		var comment, f, myform, cfg, request;
+		if(confirm('Really delete this comment?')){
+			comment = Y.one("#comment-" + resID);
+			if(comment){
+				myform = '<form name="form_del" action="/index.php">'
+				+ '<input type="hidden" name="a" value="deletecomment">'
+				+ '<input type="hidden" name="rid" value="' + resID + '">'
+				+ '<input type="hidden" name="token" value="'+ getToken() +'">';
+				
+				f=comment.appendChild(myform);
+				Y.log('f is: ' + f);
+				cfg = {
+					method : 'POST',
+					form : {
+						id : f,
+						useDisabled : true
+					}
+				};
+				
+	            request = Y.io('/index.php', cfg);
+	            Y.log('request: ' + request);
+				comment.hide('fadeOut');
+				
+				Y.later(1000, comment, function(){
+					comment.remove();
+				});
+				
+			}
+		}	
+	};
 	
 	var showDeleteForm = function(o){
-		var oAlert, form, banCheckbox = '';
+		var oAlert, form, banCheckbox = '', a='delete';
 		if(ensureLogin()){
+			if(o.rtype && 'c' === o.rtype){
+				a = 'deletecomment';
+			}
+			
 			if(isModerator()){
 				banCheckbox = '<br><input type="checkbox" name="ban"><label> Ban poster</label><br>'
 			}
 			form = '<div id="div_del" style="text-align: left">'
-				+ '<form name="form_del" id="id_del" action="/index.php">'
-				+ '<input type="hidden" name="a" value="delete">'
+				+ '<form name="form_del" action="/index.php">'
+				+ '<input type="hidden" name="a" value="'+ a +'">'
 				+ '<input type="hidden" name="rid" value="{rid}">'
 				+ '<input type="hidden" name="token" value="'+ getToken() +'">'
 				+ '<input type="hidden" name="qid" value="'+ getMeta('qid') +'">'
@@ -1083,6 +1202,92 @@ YUI({
 						oAlert = getAlerter('<h3>Delete item</h3>');
 					     oAlert.set("bodyContent", form);
 					     oAlert.show(); 
+		}
+	};
+	
+	var showCommentForm = function(el){
+		var form, resID;
+		Y.log('el: ' + el);
+		Y.log('rid' + el.get('id'));
+		if(ensureLogin()){
+		if( ('administrator' == getMeta('role')) || (getReputation() > 24) || el.test('.uid-' + getViewerId())){
+			resID = el.get('id');
+		    resID = resID.substr(8);
+		    Y.log('resID ' + resID);
+		
+		    form = Y.one('#add-comment-' + resID);
+		    if(!form){
+		    	form = '<div id="comm_wrap_' + resID + '" class="fl cb">'
+		    	+ '<form action="/index.php" id="add-comment-' + resID + '" class="comform" method="post">'
+		    	+ '<input type="hidden" name="a" value="addcomment">'
+		    	+ '<input type="hidden" name="rid" value="' + resID + '">'
+		    	+ '<input type="hidden" name="token" value="'+ getToken() +'">'
+		    	+ '<table class="cb fr tbl_comment">'
+		    	+ '<tr><td width="60px" class="com_icons" valign="top"></td>'
+		    	+ '<td class="com_main">'
+		    	+ '<textarea name="com_body" cols="60" rows="3" class="com_bo" style="display: block; padding: 2px;"></textarea>'
+		    	+ '</td>'
+		    	+ '<td class="com_button" valign="top">'
+		    	+ '<input type="submit" name="doit" class="btn_comment" value="comment">'
+		    	+ '</td>'
+		    	+ '</tr><tr><td></td><td colspan="2" class="lighttext">Enter at least 16 characters</td></tr>'
+		    	+ '</table>'
+		    	+ '</form></div>';
+		
+		    	el.insert(form, 'after');
+		    	
+		    } else {
+		    	if(form._isHidden()){
+		    		form.show('fadeIn');
+		    	} else {
+		    		form.hide('fadeOut');
+		    	}
+		    }
+		
+		
+		} else {
+			alert('You must have a reputation of at least 25<br>to be able to add comments');
+			return;
+			}
+		}
+		
+		
+	};
+	
+	var showEditComment = function(resID){
+		var form, wrapDiv, body, content;
+		/**
+		 * Check for comment edit timeout
+		 * and don't allow editing comments
+		 * older than 5 minutes
+		 */
+		
+		wrapDiv = Y.one("#comment-" + resID);
+		Y.log('wrapDiv: ' + wrapDiv);
+		if(wrapDiv){
+			body = wrapDiv.one('.com_b');
+			content = body.get('text');
+			Y.log('body: ' + body);
+			Y.log('text: ' + content);
+			
+			form = '<div id="comm_wrap_' + resID + '" class="fl cb">'
+	    	+ '<form action="/index.php" id="edit-comment-' + resID + '" class="comform" method="post">'
+	    	+ '<input type="hidden" name="a" value="editcomment">'
+	    	+ '<input type="hidden" name="commentid" value="' + resID + '">'
+	    	+ '<input type="hidden" name="token" value="'+ getToken() +'">'
+	    	+ '<table class="cb fr tbl_comment">'
+	    	+ '<tr><td width="60px" class="com_icons" valign="top"></td>'
+	    	+ '<td class="com_main">'
+	    	+ '<textarea name="com_body" cols="60" rows="4" class="com_bo" style="display: block; padding: 2px;">'+content+'</textarea>'
+	    	+ '</td>'
+	    	+ '<td class="com_button" valign="top">'
+	    	+ '<input type="submit" name="doit" class="btn_comment" value="save">'
+	    	+ '</td>'
+	    	+ '</tr><tr><td></td><td colspan="2" class="lighttext">Enter at least 16 characters</td></tr>'
+	    	+ '</table>'
+	    	+ '</form></div>';
+			
+			wrapDiv.insert(form, 'replace');
 		}
 	};
 	
@@ -1239,7 +1444,16 @@ YUI({
 				 * where 1234 is also id of viewer  + getViewerId()
 				 */
 				if(isModerator() || this.test('.uid-' + getViewerId())  || 2000 < getReputation()){
-					this.append(' | <span class="edit">edit</span>');
+					
+					/**
+					 * If this is a comment tool
+					 * then check the timeout 
+					 * and don't add edit link if comment
+					 * is older than 5 minutes
+					 */	
+					if(!controls.test('.com_tools') || isEditable(controls)){
+						this.append(' | <span class="edit">edit</span>');
+					}
 				}
 				
 				/**
@@ -1252,6 +1466,25 @@ YUI({
 				}
 			});	
 		}
+		
+	};
+	
+	
+	/**
+	 * Check that comment is not older
+	 * than 5 minutes.
+	 * Comments older than 5 minutes are not editable
+	 * unless viewer is moderator
+	 */
+	var isEditable = function(controls){
+		var commentTile, timeNow, timeout = getMeta('comments_timeout');
+		Y.log('timeout: ' + timeout);
+		
+		if(isModerator()){
+			return true;
+		}
+		
+		
 		
 	};
 
@@ -1452,6 +1685,11 @@ YUI({
 	 * handled by handleModalForm()
 	 */
 	Y.delegate("submit", handleModalForm, "#fbOverlay", 'form');
+	/**
+	 * Any forms inside the add_com will be
+	 * handled by handleModalForm() //handleCommentForm
+	 */
+	Y.delegate("submit", handleCommentForm, "#qview-body", '.comform');
 	/**
 	 * Any links with class .close inside the alerter modal
 	 * window will also cause the modal alerter to close

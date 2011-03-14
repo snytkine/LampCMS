@@ -65,13 +65,17 @@ class tplAnswer extends Lampcms\Template\Template
 		if(array_key_exists('a_edited', $a)){
 			$a['edits'] = \tplEditedby::parse(end($a['a_edited']), false);
 		}
-		
+
 		if(!empty($a['i_del_ts'])){
 			$a['deleted'] = ' deleted';
 		}
-		
+
 		if(!empty($a['a_deleted'])){
 			$a['deletedby'] = \tplDeletedby::parse($a['a_deleted'], false);
+		}
+
+		if(!empty($a['comments'])){
+			$a['comments_html'] = tplComment::loop($a['comments']);
 		}
 	}
 
@@ -93,6 +97,7 @@ class tplAnswer extends Lampcms\Template\Template
 	'edits' => '', // 15
 	'deleted' => '', //16
 	'deletedby' => '', //17
+	'comments_html' => '' //18
 	);
 
 
@@ -141,6 +146,15 @@ class tplAnswer extends Lampcms\Template\Template
             </tr>
             </table>
 		</td>
+	</tr>
+	<tr>
+	<td></td>
+	<td class="comments" id="comments-%1$s">
+	%18$s
+	<div class="add_com cb fl">
+	<a href="#" class="ajax com_link uid-%7$s" id="comlink_%1$s">add comment</a>
+	</div>
+	</td>
 	</tr>
 	</table>';
 }

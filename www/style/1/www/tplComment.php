@@ -49,27 +49,42 @@
  *
  */
 
- 
-namespace Lampcms;
-
 /**
- * Constants or Actions
- * mapped to reputation score required
- * to perform this action
+ * Template for generating div
+ * with one comment
  * 
- * @author Dmitri Snytkine
+ * @author admin
  *
  */
-class ReputationAcl
+class tplComment extends \Lampcms\Template\Template
 {
-	
-	const RETAG = 500;
-	
-	const VOTE_UP = 15;
-	
-	const VOTE_DOWN = 125;
-	
-	const EDIT = 2000;
-	
-	const COMMENT = 25;
+
+	protected static $vars = array(
+	'_id' => '', //1
+	'b' => '', //2
+	'ts' => '', //3
+	'username' => '', //4
+	'i_uid' => '', //5
+	't' => '', //6
+	'i_prnt' => 0, //7
+	'b_owner' => '', //8
+	'edit_delete' => '' //9
+	);
+
+
+	protected static $tpl = '
+	<div class="fl cb com_wrap reply-%7$s" id="comment-%1$s">
+	    <a name="c%1$s"></a>
+		<div class="com_1 fl cb">
+			<div class="fl com_like">&nbsp</div>
+			<div class="fl com_b">%2$s</div>
+		</div>
+		<div class="com_i fl cb">
+			<div class="com_tools controls uid-%5$s" id="res_%1$s">
+				<span class="flag" title="Flag this comment as inappropriate">flag</span>%9$s
+				<div title="%3$s" class="com_ts ts fr">%6$s</div>
+				<div class="com_auth fr"><a href="/users/%5$s/" class="commentor%8$s">%4$s</a></div>	
+			</div>	
+		</div>
+	</div>';
 }

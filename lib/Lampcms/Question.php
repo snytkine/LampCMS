@@ -62,7 +62,7 @@ namespace Lampcms;
  * @author Dmitri Snytkine
  *
  */
-class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDownRatable
+class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDownRatable, Interfaces\CommentedResource
 {
 	/**
 	 * Currently not used, was going to have
@@ -114,7 +114,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 */
 	public function getOwnerId(){
 
-		return $this->offsetGet('i_uid');
+		return (int)$this->offsetGet('i_uid');
 	}
 
 	/**
@@ -172,7 +172,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * @return object $this
 	 */
 	public function setClosed(User $closer, $reason = null){
-		
+
 		if(!$this->checkOffset('a_closed')){
 			$this->offsetSet('a_closed', array(
 				'username' => $closer->getDisplayName(),
@@ -215,7 +215,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 			);
 		}
 
-		$this->updateLastModified();
+		$this->touch();
 
 		return $this;
 	}
@@ -246,7 +246,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		$this->offsetSet('a_edited', $aEdited);
 
-		$this->updateLastModified();
+		$this->touch();
 
 		return $this;
 	}
@@ -379,15 +379,29 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 			$this->offsetSet('ans_s', 's');
 		}
 
-		$this->updateLastModified();
+		$this->touch();
 	}
 
 	/**
 	 * Set last modified timestamp (i_lm_ts)
 	 *
+	 * @deprecated now use touch()
+	 *
 	 * @return object $this
 	 */
 	public function updateLastModified(){
+		$this->offsetSet('i_lm_ts', time());
+
+		return $this;
+	}
+
+	/**
+	 * Updates last modified timestamp
+	 * A replacement for updateLastModified() method
+	 *
+	 * @return object $this
+	 */
+	public function touch(){
 		$this->offsetSet('i_lm_ts', time());
 
 		return $this;
@@ -537,5 +551,111 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 	public function getScore(){
 		return $this->offsetGet('i_votes');
+	}
+
+
+	public function addComment(CommentParser $oComment){
+		$aKeys = array('_id', 'i_uid', 'i_prnt', 'username', 'b_owner', 'b', 't', 'ts');
+
+		$aComments = $this->getComments();
+		d('aComments: '.print_r($aComments, 1));
+		/**
+		 * Only keep the keys that we need
+		 * get rid of keys like hash, i_res
+		 * because we don't need them here
+		 */
+		$aComment = $oComment->getArrayCopy();
+		$aComment = array_intersect_key($aComment, array_flip($aKeys));
+
+		$aComments[] = $aComment;
+
+		$this->offsetSet('comments', $aComments);
+		$this->increaseCommentsCount();
+
+		return $this;
+
+	}
+
+
+	public function getCommentsCount(){
+		$aComments = $this->getComments();
+
+		return count($aComments);
+	}
+
+
+	public function increaseCommentsCount(){
+		/**
+		 * Now increase comments count
+		 */
+		$commentsCount = $this->getCommentsCount();
+		d('$commentsCount '.$commentsCount);
+
+		$this->offsetSet('i_comments', ($commentsCount + 1) );
+
+		return $this;
+	}
+
+
+
+	/**
+	 * Remove one comment from array of comments
+	 * then re-save the new array of comments
+	 * the numerical keys of array will be reset
+	 * Also i_comments value will be updated to the
+	 * new count of comments
+	 *
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.CommentedResource::deleteComment()
+	 */
+	public function deleteComment($id){
+
+		if(!$this->checkOffset('comments')){
+			e('This question does not have any comments');
+
+			return $this;
+		}
+
+		$aComments = $this->offsetGet('comments');
+
+		for($i = 0; $i<count($aComments); $i+=1){
+			if($aComments[$i]['_id'] == $id){
+				d('unsetting comment: '.$i);
+				array_splice($aComments, $i, 1);
+				break;
+			}
+		}
+
+		$newCount = count($aComments);
+		if( 0 === $newCount){
+			$this->offsetUnset('comments');
+		} else {
+			$this->offsetSet('comments', $aComments);
+		}
+
+		$this->offsetSet('i_comments', $newCount );
+
+		return $this;
+	}
+
+
+	/**
+	 * Getter for 'comments' element
+	 * @return array of comments or empty array if
+	 * 'comments' element not present in the object
+	 *
+	 */
+	public function getComments(){
+		return $this->getFallback('comments', array());
+	}
+
+
+	/**
+	 * Get id of question asker
+	 *
+	 * @return int id of user who asked (owner) of the question
+	 */
+	public function getQuestionOwnerId(){
+		return $this->getOwnerId();
 	}
 }

@@ -49,27 +49,69 @@
  *
  */
 
- 
-namespace Lampcms;
 
-/**
- * Constants or Actions
- * mapped to reputation score required
- * to perform this action
- * 
- * @author Dmitri Snytkine
- *
- */
-class ReputationAcl
+namespace Lampcms\Controllers;
+
+use Lampcms\WebPage;
+
+class Editcomment extends Addcomment
 {
+	protected $membersOnly = true;
+
+	protected $requireToken = true;
+
+	protected $bRequirePost = true;
+
+	protected $aRequired = array('commentid');
+
+	/**
+	 * Id of viewer
+	 * Initially set to null, which will
+	 * be passed to CommentParser->delete() as second param
+	 * and in case it's null, the ownership of comment will
+	 * not be checked in the CommentParser->delete() method
+	 *
+	 * @var int
+	 */
+	protected $viewerId = null;
+
+
+	protected function main(){
+		$this->oRegistry->registerObservers('INPUT_FILTERS');
+		$this->permission = 'edit_comment';
+
+		$this->checkPermission()
+		->validateBody()
+		->saveEdit()
+		->returnResult();
+	}
+
+
+	/**
+	 * If Viewer has permission to delete_comment
+	 * then do nothing, else sets the $this->viewerId to uid of viewer
+	 * which is passed to CommentParser->delete() as 2nd param
+	 * and causes the comment ownership check
+	 *
+	 * @return object $this
+	 */
+	protected function checkPermission(){
+		try{
+			$this->checkAccessPermission($this->permission);
+
+		} catch (\Exception $e){
+			$this->viewerId = $this->oRegistry->Viewer->getUid();
+		}
+
+		return $this;
+	}
+
+
+	protected function saveEdit(){
+		$this->oCommentParser = new \Lampcms\CommentParser($this->oRegistry);
+		$this->oCommentParser->edit(new \Lampcms\SubmittedCommentWWW($this->oRegistry), $this->viewerId);
+
+		return $this;
+	}
 	
-	const RETAG = 500;
-	
-	const VOTE_UP = 15;
-	
-	const VOTE_DOWN = 125;
-	
-	const EDIT = 2000;
-	
-	const COMMENT = 25;
 }

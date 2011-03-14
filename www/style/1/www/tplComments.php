@@ -38,6 +38,11 @@
 
 /**
  * Template for one comment block
+ * This is from the previous project and not
+ * for the currenct Question/Answer comments feature
+ * This can be useful if we add some other types
+ * of content like blog posts or articles or videos
+ * 
  * @author admin
  *
  */

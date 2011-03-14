@@ -49,27 +49,55 @@
  *
  */
 
- 
-namespace Lampcms;
 
-/**
- * Constants or Actions
- * mapped to reputation score required
- * to perform this action
- * 
- * @author Dmitri Snytkine
- *
- */
-class ReputationAcl
+namespace Lampcms\Controllers;
+
+class Flagcomment extends Flagger
 {
-	
-	const RETAG = 500;
-	
-	const VOTE_UP = 15;
-	
-	const VOTE_DOWN = 125;
-	
-	const EDIT = 2000;
-	
-	const COMMENT = 25;
+	protected $SUBJECT = 'Flagged comment';
+
+
+	protected $aComment;
+
+	protected function main(){
+		$this->checkReportFlood()
+		->getCommentData()
+		->logReport()
+		->notifyModerators()
+		->returnResult();
+	}
+
+
+	protected function getCommentData(){
+		$this->aComment = $this->oRegistry->Mongo->COMMENTS->findOne(array('_id' => (int)$this->oRequest['rid']));
+		if(empty($this->aComment)){
+
+			throw new \Lampcms\Exception('Item not found');
+		}
+
+		return $this;
+	}
+
+
+	protected function makeBody(){
+		$vars = array(
+		$this->oRegistry->Viewer->getDisplayName(),
+		$this->oRegistry->Ini->SITE_URL.$this->oRegistry->Viewer->getProfileUrl(),
+		'Comment',
+		$this->oRegistry->Ini->SITE_URL.'/q'.$this->aComment['i_qid'].'/#comment-'.$this->oRequest['rid'],
+		'[Visit url to view comment]',
+		$this->oRequest->get('reason', 's', 'not given'),
+		$this->oRequest['note']
+		);
+
+		d('vars: '.print_r($vars, 1));
+
+		$body = vsprintf($this->EMAIL_BODY, $vars);
+
+		d('body '.$body);
+
+		return $body;
+	}
+
+
 }

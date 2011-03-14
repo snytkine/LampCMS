@@ -132,7 +132,7 @@ class Viewquestion extends WebPage
 	protected function setQuestionInfo(){
 
 		$this->aPageVars['side'] = QuestionInfo::factory($this->oRegistry)->getHtml($this->oQuestion);
-		
+
 		return $this;
 	}
 
@@ -165,10 +165,13 @@ class Viewquestion extends WebPage
 	 */
 	protected function getQuestion(){
 		$isModerator = $this->oRegistry->Viewer->isModerator();
-
+		$noComments = (false === (bool)$this->oRegistry->Ini->SHOW_COMMENTS);
+		d('no comments: '.$noComments);
+		$aFields = ($noComments) ? array('comments' => 0) : array();
+		
 		$this->aQuestion = $this->oRegistry->Mongo
 		->getCollection('QUESTIONS')
-		->findOne(array('_id' => (int)$this->oRequest['qid']));
+		->findOne(array('_id' => (int)$this->oRequest['qid']), $aFields);
 
 		/**
 		 * @todo Translate string
@@ -224,7 +227,7 @@ class Viewquestion extends WebPage
 		return $this;
 	}
 
-	
+
 	/**
 	 * Create header div for answers block.
 	 * This div is independant of answers

@@ -283,7 +283,7 @@ class Accept extends WebPage
 
 		$this->oQuestion['i_sel_ans'] = (int)$this->aAnswer['_id'];
 		$this->oQuestion['i_sel_uid'] = $this->oRegistry->Viewer->getUid();
-		$this->oQuestion->updateLastModified();
+		$this->oQuestion->touch();
 
 		return $this;
 	}

@@ -105,7 +105,7 @@ class Stick extends WebPage
 	 */
 	protected function setSticky(){
 		$this->oQuestion['i_sticky'] = 1;
-		$this->oQuestion->updateLastModified()->save();
+		$this->oQuestion->touch()->save();
 
 		return $this;
 	}

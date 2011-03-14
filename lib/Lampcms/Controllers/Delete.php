@@ -224,7 +224,7 @@ class Delete extends WebPage
 				$oQuestion->offsetUnset('i_sel_ans');
 			}
 
-			$oQuestion->updateLastModified()->save();
+			$oQuestion->touch()->save();
 		}
 
 		return $this;

@@ -69,6 +69,10 @@ class tplQuestion extends Lampcms\Template\Template
 		if(!empty($a['i_sticky'])){
 			$a['sticky'] = ' sticky';
 		}
+		
+		if(!empty($a['comments'])){
+			$a['comments_html'] = tplComment::loop($a['comments']);
+		}
 	}
 	
 	protected static $vars = array(
@@ -90,7 +94,8 @@ class tplQuestion extends Lampcms\Template\Template
 	'deleted' => '', // 16
 	'deletedby' => '', //17
 	'edits' => '', //18
-	'sticky' => '' //19
+	'sticky' => '', //19
+	'comments_html' => '' //20
 	);
 
 	protected static $tpl = '
@@ -156,6 +161,15 @@ class tplQuestion extends Lampcms\Template\Template
         %6$s
         %17$s
 		</td>
+	</tr>
+	<tr>
+	<td></td>
+	<td class="comments" id="comments-%1$s">
+	%20$s
+	<div class="add_com cb fl">
+	<a href="#" class="ajax com_link uid-%10$s" id="comlink_%1$s">add comment</a>
+	</div>
+	</td>
 	</tr>
 	</table>';
 }

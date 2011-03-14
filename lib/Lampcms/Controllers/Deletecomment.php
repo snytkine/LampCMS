@@ -49,27 +49,93 @@
  *
  */
 
- 
-namespace Lampcms;
 
-/**
- * Constants or Actions
- * mapped to reputation score required
- * to perform this action
- * 
- * @author Dmitri Snytkine
- *
- */
-class ReputationAcl
+namespace Lampcms\Controllers;
+
+use \Lampcms\WebPage;
+use \Lampcms\Request;
+use \Lampcms\Responder;
+
+class Deletecomment extends WebPage
 {
+	protected $membersOnly = true;
+
+	protected $requireToken = true;
+
+	protected $bRequirePost = true;
+
+	protected $aRequired = array('rid');
+
+	/**
+	 * Id of viewer
+	 * Initially set to null, which will
+	 * be passed to CommentParser->delete() as second param
+	 * and in case it's null, the ownership of comment will
+	 * not be checked in the CommentParser->delete() method
+	 *
+	 * @var int
+	 */
+	protected $viewerId = null;
+
+
+	protected function main(){
+		$this->permission = 'delete_comment';
+
+		$this->checkPermission()
+		->delete()
+		->returnResult();
+	}
+
 	
-	const RETAG = 500;
+	/**
+	 * If Viewer has permission to delete_comment
+	 * then do nothing, else sets the $this->viewerId to uid of viewer
+	 * which is passed to CommentParser->delete() as 2nd param
+	 * and causes the comment ownership check
+	 *
+	 * @return object $this
+	 */
+	protected function checkPermission(){
+		try{
+			$this->checkAccessPermission($this->permission);
+
+		} catch (\Exception $e){
+			$this->viewerId = $this->oRegistry->Viewer->getUid();
+		}
+
+		return $this;
+	}
+
 	
-	const VOTE_UP = 15;
+	/**
+	 * 
+	 * Use CommentParser to delete a comment
+	 * Using CommentParser is the only way to delete
+	 * comment. This way API can use it too without
+	 * duplicationg lots of code
+	 * 
+	 * @return object this
+	 */
+	protected function delete(){
+		$oCommentParser = new \Lampcms\CommentParser($this->oRegistry);
+		$oCommentParser->delete($this->oRequest['rid'], $this->viewerId);
+
+		return $this;
+	}
 	
-	const VOTE_DOWN = 125;
 	
-	const EDIT = 2000;
-	
-	const COMMENT = 25;
+	/**
+	 * Return empty array via Ajax
+	 * this way UI will not have to do anything
+	 * 
+	 * 
+	 */
+	protected function returnResult(){
+		if(Request::isAjax()){
+			Responder::sendJSON(array());
+		}
+		
+		Responder::redirectToPage();
+	}
 }
+

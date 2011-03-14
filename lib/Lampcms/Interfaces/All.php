@@ -213,15 +213,11 @@ interface LampcmsResource extends Resource
 {
 	
 	/**
-	 * Returns id from RESOURCE_TYPE table
-	 * this way we can find out what type of resource this
-	 * is and then lookup on RESOURCE_TYPE table
-	 * Things like resource type name,
-	 * possibly the name of table where ratings for this
-	 * resource are stored, where the comments
-	 * for this resource are stored, etc.
+	 * Returns type of resource
+	 * the type of resource is a string stored in RESOURCE
+	 * collection as res_type
 	 *
-	 * @return int
+	 * @return string
 	 */
 	public function getResourceTypeId();
 
@@ -271,6 +267,12 @@ interface LampcmsResource extends Resource
 	 * was marked as deleted
 	 */
 	public function getDeletedTime();
+	
+	/**
+	 * Updates last modified timestamp
+	 * 
+	 */
+	public function touch();
 
 }
 
@@ -284,51 +286,21 @@ interface LampcmsResource extends Resource
  * @author Dmitri Snytkine
  *
  */
-interface CommentedResource extends Resource
+interface CommentedResource
 {
 
 	/**
-	 * For blog posts
-	 * (just an example) a blog owner can decide to close
-	 * comments on the blog post
-	 * The value will be unix timestamp
-	 * of when resource comments have ended.
-	 * The default value of 0 means
-	 * comments are allowed, provided
-	 * all other accertions are true.
-	 *
-	 * @return string 'none' means comments not allowed,
-	 * 'all' means from all users, including anonymous,
-	 * 'members' means only from logged in members,
-	 * 'friends' means only from friends
-	 */
-	public function getCommentsPermission();
-
-	/**
 	 * Get total number of comments
-	 * This one does not have to be 100% accurate,
-	 * but should be as accurate as possible.
-	 * This info will be displayed next to the
-	 * total comments on blog page
 	 *
 	 * @return int
 	 */
 	public function getCommentsCount();
-
-	/**
-	 * Increase comments count by 1
-	 * which will also reset last activity
-	 *
-	 * This is hard to implement in same object
-	 * as actual message because it does not belong
-	 * in the same table. Better to not increase comments count directly
-	 * and just do it by directly increasing
-	 * count in database table RESOURCE (for example) and
-	 * then cache observer will unset the bp_ (blog post)
-	 *
-	 * @return object $this
-	 */
-	public function increaseCommentsCount();
+	
+	
+	public function addComment(\Lampcms\CommentParser $oComment);
+	
+	
+	public function deleteComment($id);
 }
 
 /**
@@ -592,4 +564,91 @@ interface Indexer
 	 * @param int $uid
 	 */
 	public function removeByUserId($uid);
+}
+
+/**
+ * Submitted comment must
+ * implement this interface
+ * 
+ * Comment may be submitted via web, or 
+ * via some type of API client or possibly
+ * via email
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
+interface SubmittedComment extends LampcmsResource
+{
+	public function __construct(\Lampcms\Registry $oRegistry, \Lampcms\Interfaces\LampcmsResource $oResource = null);
+	
+	/**
+	 * 
+	 * Must return parsed body
+	 * body must be sanitized and parsed
+	 * for Markdown and in guaranteed
+	 * utf8 encoding
+	 * 
+	 * @return string utf8 html
+	 */
+	public function getBody();
+	
+	
+	/**
+	 * Get value of _id of question
+	 * In case this comment if for an answer,
+	 * it must return value of i_qid from the
+	 * Answer object
+	 * 
+	 * @return int
+	 */
+	public function getQuestionId();
+	
+	
+	/**
+	 * Get Resource object for which
+	 * this comment is made
+	 * This is either Answer or Question resoure
+	 * 
+	 * @return object of type Question or Answer
+	 */
+	public function getResource();
+	
+	/**
+	 * Get IP address from where
+	 * the comment was submitted
+	 * 
+	 * @return string ip address
+	 */
+	public function getIP();
+	
+	/**
+	 * 
+	 * Get id of parent comment
+	 * will return null if not a reply
+	 * or value of _id of comment for which
+	 * this comment is a reply
+	 */
+	public function getParentId();
+	
+	/**
+	 * Get object of type User of user
+	 * who posted the answer
+	 *
+	 * @return object of type User
+	 */
+	public function getUserObject();
+	
+	/**
+	 * Implemeting class may return
+	 * some extra data like name of API
+	 * that was used to submit comment
+	 * 
+	 * At minumum it must return empty array
+	 * 
+	 * @return array associative array
+	 */
+	public function getExtraData();
+	
+	public function getCollectionName();
+	
 }

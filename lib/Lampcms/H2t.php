@@ -49,7 +49,7 @@
  *
  */
 
- 
+
 namespace Lampcms;
 
 
@@ -117,6 +117,11 @@ class H2t
 	 */
 	protected function __construct()
 	{
+		if(!extension_loaded('xsl')){
+			
+			throw new Exception('php_xsl extension not loaded. If you are on Windows, please uncomment ;extension=php_xsl.dll in your php.ini');
+		}
+		
 		$this->oInputDom = new \DOMDocument();
 		$this->oInputDom->recover = true;
 		$this->makeXslProcessor();
@@ -200,7 +205,7 @@ class H2t
 			throw new HTML2TextException('XSL template not found here: '.$tpl);
 		}
 
-		
+
 		if(!$xsl->load($tpl)){
 			throw new HTML2TextException('Unable to load xsl template: '.$this->templateFile);
 		}
@@ -212,15 +217,6 @@ class H2t
 		return $this;
 	}
 
-	/**
-	 * Finds the location of the xsl template file
-	 *
-	 * @return string location of the template file
-	 */
-	protected function getTemplate()
-	{
-		return LAMPCMS_PATH.DIRECTORY_SEPARATOR.'templates'.DIRECTORY_SEPARATOR.$this->templateFile;
-	}
 
 	/**
 	 * Performes the transformation

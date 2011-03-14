@@ -629,7 +629,7 @@ class Utf8String extends String
 
 		d('cp');
 		if(!is_string($string) && !is_object($string)){
-			throw new \InvalidArgumentException('$string must be a string or object of type LampcmsString');
+			throw new \InvalidArgumentException('$string must be a string or object of type \Lampcms\String');
 		}
 
 		/**
@@ -637,12 +637,12 @@ class Utf8String extends String
 		 * if instance of this class then just return
 		 * it since it's already a utf8 string
 		 *
-		 * otherwise it's an instance of LampcmsString class
+		 * otherwise it's an instance of \Lampcms\String class
 		 * in which case we don't know charset,
 		 * so we will call detectCharset, then convert
 		 */
-		if(is_object($string) && !($string instanceof LampcmsString)){
-			throw new \InvalidArgumentException('$string is not instance of LampcmsString class');
+		if(is_object($string) && !($string instanceof \Lampcms\String)){
+			throw new \InvalidArgumentException('$string is not instance of \Lampcms\String class');
 		}
 
 		$ret = false;
@@ -701,8 +701,6 @@ class Utf8String extends String
 	 * Returns number of chars in a string
 	 * this is not necessaraly the number of bytes
 	 * because string of this class may be multibyte
-	 *
-	 * @see classes/base/LampcmsString#length()
 	 */
 	public function length()
 	{
@@ -729,6 +727,7 @@ class Utf8String extends String
 	 * only on word boundary
 	 *
 	 * @param int $max max length after which string to be cut
+	 * 
 	 * @param string $link optional link
 	 * to be added if string is cut (like link to 'read more')
 	 *
@@ -773,7 +772,7 @@ class Utf8String extends String
 	 * @param $cut
 	 * @return unknown_type
 	 */
-	public function wordwrap($width = 75, $break = "\n", $cut = false)
+	public function wordWrap($width = 75, $break = "\n", $cut = false)
 	{
 		/**
 		 * The wordwrap is basically already utf8 safe unless the
@@ -956,26 +955,29 @@ class Utf8String extends String
 		if(!$this->isHtml()){
 
 			$ret = $this->string;
+		} else {
+
+			d('looks like is HTML');
+
+			try{
+				$oHTML2TEXT = H2t::factory($this->tidy(array('show-body-only' => false))->valueOf());
+				$ret =  $oHTML2TEXT->getText();
+			} catch(\Lampcms\Exception $e){
+				throw $e;
+			} catch (\Exception $e){
+				/**
+				 * strip_tags seems like the best option
+				 * its not going to be as nice as converting
+				 * to plaintext and preserving some formatting
+				 * but still its good
+				 * as it at least guarantees to remove html
+				 */
+				e('unable to use H2t: '.$e->getMessage());
+				//$ret = strip_tags($this->string);
+				$ret = $this->asPlainText();
+			}
 		}
-
-		d('looks like is HTML');
-
-		try{
-			$oHTML2TEXT = H2t::factory($this->tidy(array('show-body-only' => false))->valueOf());
-			$ret =  $oHTML2TEXT->getText();
-		} catch (\Exception $e){
-			/**
-			 * strip_tags seems like the best option
-			 * its not going to be as nice as converting
-			 * to plaintext and preserving some formatting
-			 * but still its good
-			 * as it at least guarantees to remove html
-			 */
-			e('unable to use H2t: '.$e->getMessage());
-			//$ret = strip_tags($this->string);
-			$ret = $this->asPlainText();
-		}
-
+		
 		return $this->handleReturn($ret);
 	}
 
@@ -1312,6 +1314,14 @@ class Utf8String extends String
 		}
 
 		return '"'.$ret.'"';
+	}
+
+
+	public function parseMarkdown(){
+		$md = new \Lampcms\Markdown();
+		$ret = $md->transform($this->string);
+
+		return $this->handleReturn($ret);
 	}
 
 }

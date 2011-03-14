@@ -199,6 +199,7 @@ class Answerparser extends LampcmsObject
 		'_id' => $this->oRegistry->Resource->create('ANSWER'),
 		'i_qid' => $qid,
 		'i_uid' => $uid,
+		'i_quid' => $this->oQuestion->getOwnerId(),
 		'title' => $this->oQuestion->title,	
 		'hash' => $hash,
 		'uname' => $username,
@@ -371,4 +372,6 @@ class Answerparser extends LampcmsObject
 
 		return $this->oQuestion;
 	}
+
 }
+

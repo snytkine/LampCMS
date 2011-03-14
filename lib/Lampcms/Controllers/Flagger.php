@@ -70,7 +70,7 @@ class Flagger extends WebPage
 	 *
 	 * @var string
 	 */
-	const EMAIL_BODY = '
+	protected $EMAIL_BODY = '
 	User: %1$s
 	Profile: %2$s
 	
@@ -85,7 +85,7 @@ class Flagger extends WebPage
 	
 	';
 
-	const SUBJECT = 'Flagged item';
+	protected $SUBJECT = 'Flagged item';
 
 	const TIME_PERIOD = 86400;
 
@@ -171,8 +171,7 @@ class Flagger extends WebPage
 		if(!$oViewer->isModerator()){
 
 			$since = time() - self::TIME_PERIOD; // 24 hours
-			$cur = $this->oRegistry->Mongo
-			->getCollection('REPORTED_ITEMS')
+			$cur = $this->oRegistry->Mongo->REPORTED_ITEMS
 			->find(array('i_uid' => $this->oRegistry->Viewer->getUid(), 'i_ts' => array('$gt' => $since)), array('i_ts', 'hts'));
 
 			if($cur && ($cur->count(true) > self::MAX_FLAGS) ){
@@ -201,7 +200,7 @@ class Flagger extends WebPage
 		'note' => $this->oRequest['note']
 		);
 
-		$coll = $this->oRegistry->Mongo->getCollection('REPORTED_ITEMS');
+		$coll = $this->oRegistry->Mongo->REPORTED_ITEMS;
 		$coll->ensureIndex(array('i_uid' => 1));
 
 		$coll->insert($data);
@@ -229,7 +228,7 @@ class Flagger extends WebPage
 
 		d('vars: '.print_r($vars, 1));
 
-		$body = vsprintf(self::EMAIL_BODY, $vars);
+		$body = vsprintf($this->EMAIL_BODY, $vars);
 
 		d('body '.$body);
 
@@ -253,9 +252,16 @@ class Flagger extends WebPage
 
 		if($cur && $cur->count() > 0){
 			$Mailer = Mailer::factory($this->oRegistry);
-			$subject = self::SUBJECT;
+			$subject = $this->SUBJECT;
 			$body = $this->makeBody();
-			register_shutdown_function(function() use ($cur, $Mailer, $subject, $body){
+			$aTo = array();
+			foreach($cur as $row){
+				$aTo[] = $row['email'];
+			}
+			
+			d('aTo: '.print_r($aTo, 1));
+			$Mailer->mail($aTo, $subject, $body);
+			/*register_shutdown_function(function() use ($cur, $Mailer, $subject, $body){
 				try{
 					foreach($cur as $row){
 						$Mailer->mail($row['email'], $subject, $body);
@@ -263,7 +269,7 @@ class Flagger extends WebPage
 				} catch (\Exception $e){
 					e('Unable to send email to moderator: '.$e->getMessage());
 				}
-			});
+			});*/
 		}
 
 		return $this;

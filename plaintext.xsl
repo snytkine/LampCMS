@@ -9,7 +9,7 @@
 	<xsl:variable name="tab" select="'&#9;'" />
 	<xsl:variable name="spacer" select="'&#160;'" />
 	<xsl:variable name="hr"
-		select="'&#xA;----------------------------------------------------------------------&#xA;'" />
+		select="'&#xA;_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _&#xA;'" />
 	<xsl:variable name="li" select="'&#xA;&#9;'" />
 	<xsl:variable name="quote"
 		select="'QUOTE: &#xA;++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++&#xA;'" />
@@ -53,26 +53,29 @@
 	</xsl:template>
 
 	<xsl:template match="h1">
-		<xsl:value-of select="$p" />
-		<xsl:text>-= </xsl:text>
+		<xsl:value-of select="$p" /> 
+		<!-- <xsl:text> # </xsl:text> -->
 		<xsl:value-of select="normalize-space(php:function('strtoupper', string(.)))" />
-		<xsl:text> =-</xsl:text>
+		<xsl:apply-templates />
+		<!-- <xsl:text> # </xsl:text> -->
 		<xsl:value-of select="$lf" />
 	</xsl:template>
 
 
 	<xsl:template match="h2">
 		<xsl:value-of select="$p" />
-		<xsl:text>* </xsl:text>
+		<xsl:text> </xsl:text>
 		<xsl:value-of select="normalize-space(php:function('strtoupper', string(.)))" />
-		<xsl:text> *</xsl:text>
+		<xsl:text> </xsl:text>
 		<xsl:value-of select="$lf" />
 	</xsl:template>
 
 
 	<xsl:template match="h3|h4|h5|h6">
 		<xsl:value-of select="$p" />
+		<xsl:text> </xsl:text>
 		<xsl:value-of select="normalize-space(php:function('ucwords', string(.)))" />
+		<xsl:text> </xsl:text>
 		<xsl:value-of select="$lf" />
 	</xsl:template>
 
@@ -95,7 +98,10 @@
 
 	<xsl:template match="b|strong|big">
 		<xsl:text> </xsl:text>
-		<xsl:value-of select="php:function('strtoupper', string(.))" />
+		<!-- <xsl:value-of select="php:function('strtoupper', string(.))" />  -->
+		<xsl:text>**</xsl:text>
+		<xsl:apply-templates />
+		<xsl:text>**</xsl:text>
 		<xsl:text> </xsl:text>
 	</xsl:template>
 
