@@ -70,13 +70,13 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 	 * @var object of type Registry
 	 */
 	protected $oRegistry;
-	
-	
+
+
 	/**
 	 * ID of ANSWER or QUESTIONS resource
 	 * (NOT COMMENT RESOURCE)
-	 * 
-	 * 
+	 *
+	 *
 	 * @var int
 	 */
 	protected $resourceID;
@@ -97,7 +97,7 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 	 *
 	 * @var string
 	 */
-	protected $collection = 'QUESTIONS';
+	protected $collection;
 
 
 	/**
@@ -108,7 +108,10 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 	 */
 	public function __construct(\Lampcms\Registry $oRegistry, \Lampcms\Interfaces\LampcmsResource $oResource = null){
 		$this->oRegistry = $oRegistry;
-		$this->setResource($oResource);
+		if($oResource){
+			$this->setResource($oResource);
+			$this->getResourceCollection();
+		}
 	}
 
 
@@ -121,13 +124,28 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 	public function setResource(\Lampcms\Interfaces\LampcmsResource $oResource = null){
 		if(null !== $oResource){
 			$this->oResource = $oResource;
-			if($this->oResource instanceof \Lampcms\Answer){
-				$this->collection = 'ANSWERS';
-			}
+			$this->getResourceCollection();
 		} else {
 			$this->findCollection();
 			$this->initResource();
 		}
+	}
+
+
+
+	protected function getResourceCollection(){
+
+		if(!isset($this->collection)){
+			$this->getResource();
+
+			if($this->oResource instanceof \Lampcms\Answer){
+				$this->collection = 'ANSWERS';
+			} else {
+				$this->collection = 'QUESTIONS';
+			}
+		}
+
+		return $this->collection;
 	}
 
 
@@ -149,7 +167,7 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 	 * @return object $this
 	 */
 	protected function initResource(){
-		
+
 		$coll = $this->oRegistry->Mongo->getCollection($this->collection);
 		$a = $coll->findOne(array('_id' => $this->resourceID));
 		d('a: '.print_r($a, 1));
@@ -186,8 +204,10 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 
 		if(!empty($a['res_type']) && ('ANSWER' === $a['res_type'] )){
 			$this->collection = 'ANSWERS';
+		} else {
+			$this->collection = 'QUESTIONS';
 		}
-		
+
 		$this->resourceID = $resID;
 
 		return $this;
@@ -235,6 +255,10 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 	 * this comment is submitted
 	 */
 	public function getQuestionId(){
+		if(!$this->oResource){
+			$this->setResource();
+		}
+
 		if($this->oResource instanceof \Lampcms\Question){
 			$ret = $this->oResource->getResourceId();
 		} elseif($this->oResource instanceof \Lampcms\Answer){
@@ -382,7 +406,7 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 		$id = $this->oRegistry->Request->get('commentid', 'i', 0);
 		if(!empty($id)){
 			d('got commentid: '.$id);
-			
+
 			return $id;
 		}
 
@@ -391,6 +415,10 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 
 
 	public function getResource(){
+		if(!$this->oResource){
+			d('resource not yet set... setting one now');
+			$this->setResource();
+		}
 
 		return $this->oResource;
 	}
@@ -398,6 +426,6 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 
 	public function getCollectionName(){
 
-		return $this->collection;
+		return $this->getResourceCollection();
 	}
 }

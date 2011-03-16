@@ -221,7 +221,7 @@ class Addcomment extends WebPage
 		 * must alreayd be included in the returned html
 		 * 
 		 */
-		$aComment['edit_delete'] = ' | <span class="edit" title="Edit">edit</span>  | <span class="del" title="Delete">delete</span>';
+		$aComment['edit_delete'] = ' <span class="ico edit" title="Edit">edit</span> <span class="ico del" title="Delete">delete</span>';
 		$aRet = array(
 		'comment' => array('id' => $aComment['_id'],
 		'res' =>  $aComment['i_res'],

@@ -97,14 +97,17 @@ class tplAnswer extends Lampcms\Template\Template
 	'edits' => '', // 15
 	'deleted' => '', //16
 	'deletedby' => '', //17
-	'comments_html' => '' //18
+	'comments_html' => '', //18
+	'edit_delete' => '', // 19
+	'i_comments' => '0', // 20
+	'nocomments' => '' //21
 	);
 
 
 	protected static $tpl = '<table class="ans_table%16$s" id="ans%1$s">
 	<tr>
 		<td class="td_votes" width="60px">
-		<div class="votebtns" id="vote%1$s">
+		<div class="votebtns cb" id="vote%1$s">
 		<a id="upvote-%1$s"
 			title="I like this answer (click again to cancel)"
 			class="ajax vote thumbup" href="/ansvote/%1$s/up" rel="nofollow">%10$s</a>
@@ -122,7 +125,7 @@ class tplAnswer extends Lampcms\Template\Template
 		<div class="ans_body" id="ansbody-%1$s">%2$s</div>
 
 		<div class="answer controls uid-%7$s" id="res_%1$s">
-		   	<span class="flag" title="(%14$s)">flag</span>
+		   	<span class="ico flag" title="Flag this item as inappropriate (%14$s)">flag</span>%19$s
 		</div>
 		<!-- // -->
 		<table class="foot">
@@ -136,7 +139,7 @@ class tplAnswer extends Lampcms\Template\Template
             <div class="avtr32">
              <img src="%4$s" height="32" width="32" alt="">
             </div>
-            	<div class="usr_details">
+            	<div class="usr_details usr usr_%7$s">
             	%3$s<br>
             	<span class="reputation" title="reputation score"></span>
 				</div>
@@ -149,11 +152,13 @@ class tplAnswer extends Lampcms\Template\Template
 	</tr>
 	<tr>
 	<td></td>
-	<td class="comments" id="comments-%1$s">
-	%18$s
-	<div class="add_com cb fl">
-	<a href="#" class="ajax com_link uid-%7$s" id="comlink_%1$s">add comment</a>
-	</div>
+	<td>
+		<div class="comments%21$s i_comments_%20$s" id="comments-%1$s">
+		%18$s
+			<div class="add_com cb fl">
+				<span class="ico comment fl"> </span><a href="#" class="ajax com_link uid-%7$s" id="comlink_%1$s">add comment</a>
+			</div>
+		</div>
 	</td>
 	</tr>
 	</table>';

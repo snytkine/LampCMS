@@ -69,7 +69,7 @@ class Answer extends Viewquestion
 {
 
 	protected $permission = 'answer';
-	
+
 	protected $membersOnly = true;
 
 	protected $aAllowedVars = array('qbody');
@@ -124,7 +124,18 @@ class Answer extends Viewquestion
 			 * hopefull the new answer will show up there too
 			 */
 			if(Request::isAjax()){
-				$a = array('answer' => \tplAnswer::parse($oAnswer->getArrayCopy()));
+				$aAnswer = $oAnswer->getArrayCopy();
+				/**
+				 * Add edit and delete tools because
+				 * Viewer already owns this comment and is
+				 * allowed to edit or delete it right away.
+				 * Javascript that usually dynamically adds these tools
+				 * is not going to be fired, so these tools
+				 * must alreayd be included in the returned html
+				 *
+				 */
+				$aAnswer['edit_delete'] = ' | <span class="edit" title="Edit">edit</span>  | <span class="del" title="Delete">delete</span>';
+				$a = array('answer' => \tplAnswer::parse($aAnswer));
 				d('before sending out $a: '.print_r($a, 1));
 
 				Responder::sendJSON($a);

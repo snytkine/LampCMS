@@ -95,7 +95,9 @@ class tplQuestion extends Lampcms\Template\Template
 	'deletedby' => '', //17
 	'edits' => '', //18
 	'sticky' => '', //19
-	'comments_html' => '' //20
+	'comments_html' => '', //20
+	'i_comments' => '0', //21
+	'nocomments' => '' //22
 	);
 
 	protected static $tpl = '
@@ -136,7 +138,7 @@ class tplQuestion extends Lampcms\Template\Template
 		<div class="question-body" id="qbody-%1$s">%2$s</div>
 		<div class="tgs">%5$s</div>
 		<div class="question%19$s controls%16$s uid-%10$s" id="res_%1$s">
-		     <span class="flag" title="(%15$s)">flag</span>
+		     <span class="ico flag" title="Flag this item as inappropriate (%15$s)"> </span>
 		</div>
 		<!-- // -->
 		<table class="foot">
@@ -164,11 +166,13 @@ class tplQuestion extends Lampcms\Template\Template
 	</tr>
 	<tr>
 	<td></td>
-	<td class="comments" id="comments-%1$s">
-	%20$s
-	<div class="add_com cb fl">
-	<a href="#" class="ajax com_link uid-%10$s" id="comlink_%1$s">add comment</a>
-	</div>
+	<td>
+		<div class="comments%22$s i_comments_%21$s" id="comments-%1$s">
+			%20$s
+			<div class="add_com cb fl">
+				<span class="ico comment fl"> </span><a href="#" class="ajax com_link uid-%10$s" id="comlink_%1$s">add comment</a>
+			</div>
+		</div>
 	</td>
 	</tr>
 	</table>';

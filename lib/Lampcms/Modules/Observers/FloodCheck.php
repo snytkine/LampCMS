@@ -61,7 +61,10 @@ class FloodCheck extends \Lampcms\Observer
 	 */
 	protected $minutesToWait = 1;
 
+
 	public function main(){
+
+		$this->minutesToWait = (int)$this->oRegistry->Ini->FLOOD_CHECK_TIME;
 		/**
 		 * Do not apply this filter
 		 * to moderators (and admins)
@@ -89,20 +92,26 @@ class FloodCheck extends \Lampcms\Observer
 
 
 	protected function checkComment(){
-
-		/*if(!$this->oRegistry->Viewer->isModerator()){
-			$since = time() - ($this->minutesToWait * 60);
+		d('cp');
+		if(!$this->oRegistry->Viewer->isModerator()){
+			d('cp');
 			$uid = $this->oRegistry->Viewer->getUid();
-
-			$a = $this->oRegistry->Mongo->COMMENTS->findOne(array('i_uid' => $uid, 'i_ts' => array('$gt' => $since)));
+			$timeout = (int)$this->oRegistry->Ini->COMMENTS_FLOOD_TIME;
+			d('timeout: '.$timeout);
+			$since = time() - $timeout;
+			$where = array('i_uid' => $uid, 'i_ts' => array('$gt' => $since));
+			d('where: '.print_r($where, 1));
+			
+			$a = $this->oRegistry->Mongo->COMMENTS->findOne($where);
 
 			d('existing: '.print_r($a, 1));
 
 			if(!empty($a)){
-				throw new \Lampcms\Exception('You are posting too fast.<br>You must wait 1 minute between comments');
+				throw new \Lampcms\Exception('You are posting too fast.<br>You must wait '.$timeout.' seconds between comments');
 			}
-		}*/
+		}
 	}
+
 
 	/**
 	 * @todo
@@ -112,31 +121,34 @@ class FloodCheck extends \Lampcms\Observer
 	 */
 	protected function byIp($collName){
 		d('$collName: '.$collName);
+		if(!$this->oRegistry->Viewer->isModerator()){
+			$since = time() - ($this->minutesToWait * 60);
+			$byIP = $this->oRegistry->Mongo
+			->getCollection($collName)
+			->findOne(array('ip' => $this->obj['ip'], 'i_ts' => array('$gt' => $since)), array('i_ts', 'hts'));
 
-		$since = time() - ($this->minutesToWait * 60);
-		$byIP = $this->oRegistry->Mongo
-		->getCollection($collName)
-		->findOne(array('ip' => $this->obj['ip'], 'i_ts' => array('$gt' => $since)), array('i_ts', 'hts'));
+			d('a: '.print_r($byIP, 1));
 
-		d('a: '.print_r($byIP, 1));
-
-		if(!empty($byIP)){
-			throw new \Lampcms\FilterException('You are posting too fast. Please wait '.$this->minutesToWait.' minutes between posting');
+			if(!empty($byIP)){
+				throw new \Lampcms\FilterException('You are posting too fast. Please wait '.$this->minutesToWait.' minutes between posting');
+			}
 		}
 
 		return $this;
 	}
 
 	protected function byUser($collName){
-		$since = time() - ($this->minutesToWait * 60);
-		$byUid = $this->oRegistry->Mongo
-		->getCollection($collName)
-		->findOne(array('i_uid' => $this->obj['i_uid'], 'i_ts' => array('$gt' => $since)), array('i_ts', 'hts'));
+		if(!$this->oRegistry->Viewer->isModerator()){
+			$since = time() - ($this->minutesToWait * 60);
+			$byUid = $this->oRegistry->Mongo
+			->getCollection($collName)
+			->findOne(array('i_uid' => $this->obj['i_uid'], 'i_ts' => array('$gt' => $since)), array('i_ts', 'hts'));
 
-		d('a: '.print_r($byUid, 1));
+			d('a: '.print_r($byUid, 1));
 
-		if(!empty($byUid)){
-			throw new \Lampcms\FilterException('You are posting too fast. Please wait '.$this->minutesToWait.' minutes between posting');
+			if(!empty($byUid)){
+				throw new \Lampcms\FilterException('You are posting too fast. Please wait '.$this->minutesToWait.' minutes between posting');
+			}
 		}
 
 		return $this;

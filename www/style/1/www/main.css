@@ -768,17 +768,17 @@ button,input[type="checkbox"],input[type="radio"],input[type="reset"],input[type
 	background: #000;
 	-moz-opacity: .10;
 	opacity: .10;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    10);
+		                                 10);
 	z-index: 9049;
 }
 
 .yui-skin-sam .yui-ac iframe {
 	opacity: 0;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    0);
+		                                 0);
 	padding-right: .3em;
 	padding-bottom: .3em;
 }
@@ -1327,9 +1327,9 @@ p#clear {
 .yui-skin-sam .yui-calcontainer .yui-cal-nav-mask {
 	background-color: #000;
 	opacity: .25;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    25);
+		                                 25);
 }
 
 .yui-skin-sam .yui-calcontainer .yui-cal-nav {
@@ -1720,9 +1720,14 @@ p#clear {
 
 * html .yui-picker-bg {
 	background-image: none;
-	filter: progid :                                                       
+	filter: progid :           
+		                                                        
 		                           
-		             DXImageTransform.Microsoft.AlphaImageLoader ( 
+		                          DXImageTransform.Microsoft.AlphaImageLoader
+		( 
+		 
+		   
+		      
 		              
 		 
 		   
@@ -1730,19 +1735,24 @@ p#clear {
 		             
 		 
 		    
-		                                              src =             
+		                                                           src = 
+		       
+		                
 		                                 
 		
 		                      
 		                      
-		  '../../build/colorpicker/assets/picker_mask.png', sizingMethod =  
-		                
+		               '../../build/colorpicker/assets/picker_mask.png',
+		sizingMethod =         
 		 
 		   
 		                
 		 
 		   
-		                                                'scale' );
+		                
+		 
+		   
+		                                                             'scale' );
 }
 
 .yui-picker-mask {
@@ -1917,9 +1927,9 @@ p#clear {
 .yui-skin-sam .mask {
 	background-color: #000;
 	opacity: .25;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    25);
+		                                 25);
 }
 
 .yui-skin-sam .yui-panel-container {
@@ -2024,9 +2034,9 @@ p#clear {
 	_margin-left: -1px;
 	background-color: #000;
 	opacity: .12;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    12);
+		                                 12);
 }
 
 .yui-skin-sam .yui-dialog .ft {
@@ -2131,9 +2141,9 @@ p#clear {
 
 .yui-skin-sam .yui-tt-shadow-visible {
 	opacity: .12;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    12);
+		                                 12);
 }
 
 .yui-skin-sam .yui-dt-mask {
@@ -2195,9 +2205,9 @@ th.yui-dt-resizeable .yui-dt-resizerliner {
 	cursor: col-resize;
 	background-color: #CCC;
 	opacity: 0;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    0);
+		                                 0);
 }
 
 .yui-dt-resizerproxy {
@@ -2206,9 +2216,9 @@ th.yui-dt-resizeable .yui-dt-resizerliner {
 	z-index: 9000;
 	background-color: #CCC;
 	opacity: 0;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    0);
+		                                 0);
 }
 
 th.yui-dt-hidden .yui-dt-liner,td.yui-dt-hidden .yui-dt-liner,th.yui-dt-hidden .yui-dt-resizer
@@ -2304,9 +2314,9 @@ th.yui-dt-hidden .yui-dt-liner,td.yui-dt-hidden .yui-dt-liner,th.yui-dt-hidden .
 .yui-skin-sam .yui-dt-mask {
 	background-color: #000;
 	opacity: .25;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    25);
+		                                 25);
 }
 
 .yui-skin-sam .yui-dt-message {
@@ -2693,17 +2703,17 @@ tbody .yui-dt-editable {
 
 .yui-toolbar-container .yui-button-disabled .yui-toolbar-icon {
 	opacity: .5;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    50);
+		                                 50);
 }
 
 .yui-toolbar-container .yui-button-disabled .up,.yui-toolbar-container .yui-button-disabled .down
 	{
 	opacity: .5;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    50);
+		                                 50);
 }
 
 .yui-toolbar-container .yui-button a {
@@ -2801,9 +2811,9 @@ tbody .yui-dt-editable {
 	top: 0;
 	left: 0;
 	opacity: .5;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    50);
+		                                 50);
 }
 
 .yui-editor-container iframe {
@@ -3904,9 +3914,9 @@ h2.yui-editor-skipheader,h3.yui-editor-skipheader {
 .yui-skin-sam .yui-crop .yui-crop-mask {
 	background-color: #000;
 	opacity: .5;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    50);
+		                                 50);
 }
 
 .yui-skin-sam .yui-crop .yui-resize {
@@ -4673,9 +4683,9 @@ body.yui-layout {
 .yui-skin-sam .yui-menu-shadow-visible {
 	background-color: #000;
 	opacity: .12;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    12);
+		                                 12);
 }
 
 .yui-skin-sam .yuimenuitem-selected {
@@ -5186,16 +5196,16 @@ body.yui-layout {
 .yui-resize-hover .yui-resize-handle,.yui-resize-hidden .yui-resize-handle
 	{
 	opacity: 0;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    0);
+		                                 0);
 }
 
 .yui-resize-ghost {
 	opacity: .5;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    50);
+		                                 50);
 }
 
 .yui-resize-knob .yui-resize-handle {
@@ -5283,9 +5293,9 @@ body.yui-layout {
 
 .yui-skin-sam .yui-resize-hover .yui-resize-handle-active {
 	opacity: 1;
-	filter: alpha(opacity =                 
+	filter: alpha(opacity =                              
 		                                                         
-		                     100);
+		                                  100);
 }
 
 .yui-skin-sam .yui-resize-proxy {
@@ -5541,17 +5551,17 @@ body.yui-layout {
 
 .yui-toolbar-container .yui-button-disabled .yui-toolbar-icon {
 	opacity: .5;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    50);
+		                                 50);
 }
 
 .yui-toolbar-container .yui-button-disabled .up,.yui-toolbar-container .yui-button-disabled .down
 	{
 	opacity: .5;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    50);
+		                                 50);
 }
 
 .yui-toolbar-container .yui-button a {
@@ -5649,9 +5659,9 @@ body.yui-layout {
 	top: 0;
 	left: 0;
 	opacity: .5;
-	filter: alpha(opacity =                  
+	filter: alpha(opacity =                               
 		                                                         
-		                    50);
+		                                 50);
 }
 
 .yui-editor-container iframe {
@@ -7705,15 +7715,23 @@ a#asignup {
 	background-color: #19558D;
 	-ms-filter:
 		"progid:DXImageTransform.Microsoft.gradient(startColorstr='#0000FF', endColorstr='#19558D')";
-	filter: progid :                                             
-		                       DXImageTransform.Microsoft.gradient (       
+	filter: progid : 
+		                                                        
+		                                   
+		DXImageTransform.Microsoft.gradient (   
+		
+		 
+		    
+		        
 		                 
-		                                startColorstr =     
+		                                             startColorstr =   
+		              
 		                            
-		         "#0000FF", endColorstr =               
+		                      "#0000FF", endColorstr = 
+		                          
 		 
 		      
-		                   "#19558D" );
+		                                "#19558D" );
 	background: -webkit-gradient(linear, left top, left bottom, from(#0000FF),
 		to(#19558D) );
 	background: -moz-linear-gradient(top, #0000FF, #19558D);
@@ -7917,7 +7935,6 @@ h3 {
 	margin-right: auto;
 	margin-left: auto;
 	width: 58px;
-	text-align: center;
 }
 
 #fbshare,#meme {
@@ -8083,6 +8100,7 @@ div.vws {
 
 .usr_info3 {
 	background-color: #EDEDED;
+	color: #666;
 }
 
 .deletedby {
@@ -8281,14 +8299,17 @@ li.tsearch {
 	background: -moz-linear-gradient(top, #A7BBCC, #879BAD);
 	-ms-filter:
 		"progid:DXImageTransform.Microsoft.gradient(startColorstr='#A7BBCC', endColorstr='#879BAD')";
-	filter: progid :                                
-		          DXImageTransform.Microsoft.gradient (            
+	filter: progid :                                             
+		                       DXImageTransform.Microsoft.gradient (       
+		                 
 		  
 		       
-		                   startColorstr =                     
-		                     "#A7BBCC", endColorstr =    
+		                                startColorstr =     
+		                            
+		                                  "#A7BBCC", endColorstr =  
+		              
 		                             
-		        "#879BAD" );
+		                     "#879BAD" );
 	background: -webkit-gradient(linear, left top, left bottom, from(#A7BBCC),
 		to(#879BAD) );
 	background: -moz-linear-gradient(top, #A7BBCC, #879BAD);
@@ -8408,8 +8429,11 @@ div.t2 {
 }
 
 .controls {
-	margin-top: 6px;
 	color: #888;
+}
+
+td.td_question div.controls {
+	margin-top: 6px;
 }
 
 .lighttext {
@@ -8417,13 +8441,119 @@ div.t2 {
 }
 
 .controls span {
-	padding: 0px 3px 3px;
+	opacity: 0.5;
+}
+
+span.ico {
+	margin-right: 4px;
+	white-space: nowrap;
+	display: inline-block;
+	vertical-align: middle;
+	overflow: hidden;
+	text-indent: -99999em;
+	height: 16px;
+	width: 16px;
+	min-width: 16px;
+	background: url("/images/sprite_bw.png") no-repeat scroll 0 0
+		transparent;
 	cursor: pointer;
 }
 
-.controls span:hover {
-	background-color: #888;
-	color: #FFF;
+.controls span.retag {
+	background-position: -240px -96px;
+}
+
+.com_flag span {
+	background: url("/images/sprite_bw.png") no-repeat scroll 0 0
+		transparent;
+	float: right !important;
+	opacity: 0.5;
+}
+
+div.com_flag {
+	padding-right: 4px;
+}
+
+.controls span.flag,.com_flag span {
+	background-position: -16px -112px;
+}
+
+.controls span.close {
+	background-position: -192px -96px;
+}
+
+.controls span.del {
+	background-position: -32px -192px;
+}
+
+.controls span.edit {
+	background-position: -64px -112px;
+}
+
+.controls span.stick {
+	background-position: -144px -144px;
+}
+
+.controls span.unstick {
+	background-position: -128px -144px;
+}
+
+/*
+
+
+.controls span.edit:hover {
+	background: url("/images/icon_sprite.png") no-repeat scroll 0 0;
+	
+	background-position: -64px -112px;
+}
+
+.controls span.unstick:hover {
+	background: url("/images/icon_sprite.png") no-repeat scroll 0 0;
+	background-position: -128px -144px;
+}
+
+
+.controls span.stick:hover {
+	background: url("/images/icon_sprite.png") no-repeat scroll 0 0;
+	background-position: -144px -144px;
+}
+
+.controls span.del:hover {
+	background: url("/images/icon_sprite.png") no-repeat scroll 0 0;
+	background-position: -32px -192px;
+}
+
+
+.controls span.close:hover {
+	background: url("/images/icon_sprite.png") no-repeat scroll 0 0;
+	background-position: -192px -96px;
+}
+
+
+.controls span.flag:hover {
+	background: url("/images/icon_sprite.png") no-repeat scroll 0 0;
+	background-position: -16px -112px;
+}
+
+
+.controls span.retag:hover {
+	background: url("/images/icon_sprite.png") no-repeat scroll 0 0;
+	background-position: -240px -96px;
+}
+
+
+*/
+span.comment {
+	background-position: -128px -96px;
+}
+
+.controls span:hover,div.com_flag span.flag:hover {
+	background-image: url("/images/icon_sprite.png") !important;
+	opacity: 0.9 !important;
+}
+
+.controls span:active,div.com_flag span:active {
+	opacity: 1.0 !important;
 }
 
 div.tag1 span {
@@ -8431,8 +8561,6 @@ div.tag1 span {
 	top: 5px;
 	padding: 5px;
 	font-weight: bold;
-	/*vertical-align: bottom;
-*/
 }
 
 #recent-tags .tags-list div.t2 span {
@@ -8863,8 +8991,11 @@ td.td_question {
 	float: left;
 }
 
-.cb {
+.cb,.cb1 {
 	clear: both;
+}
+
+.cb {
 	margin-top: 5px;
 }
 
@@ -9295,6 +9426,11 @@ td.avatar img.iconfb,td.avatar img.icontw {
 	margin-right: 3px;
 }
 
+div.avtr32,div.usr_details {
+	position: relative;
+	float: left;
+}
+
 .usr_details a {
 	padding-left: 3px;
 	margin-left: 3px;
@@ -9390,19 +9526,6 @@ div.imgloader {
 	background: none !important;
 }
 
-/*
-
-.sprite {
-	margin-top: 0;
-	vertical-align: middle;
-	display: inline-block;
-	background-repeat: no-repeat;
-	background: url(/images/icon_sprite.png) no-repeat 0 0;
-	height: 16px;
-	overflow: hidden;
-	text-indent: -99999em;
-	width: 16px;
-}*/
 a.pri1:before {
 	content: url('/images/pin.png');
 	*/
@@ -9420,6 +9543,7 @@ a.closed:after {
 	margin-left: 1em;
 	background: url('/images/bg.png');
 	border-color: #304369 !important;
+	background-color: blue !important;
 	background-position: 0 -1400px;
 	color: white !important;
 	font-size: 1em !important;
@@ -9430,15 +9554,16 @@ a.closed:after {
 	-moz-border-radius: 3px;
 	-webkit-border-radius: 3px;
 	font-weight: bold;
+	background-position: 0 -1400px;
 }
 
 a.com_link {
 	float: left;
-	clear: both;
+	/*clear: both;
+	*/
 	padding: 3px;
 	text-decoration: none;
 	color: #888;
-	text-decoration: none;
 }
 
 a.com_link:hover {
@@ -9448,12 +9573,16 @@ a.com_link:hover {
 
 div.com_wrap {
 	width: 100% !important;
-	border-bottom: 1px dotted #999 !important;
-	padding-bottom: 6px !important;
+	border-bottom: 1px dotted #AAA !important;
+	padding-bottom: 3px !important;
 }
 
-td.comments {
-	border-top: 1px dashed #666;
+div.comments {
+	border-top: 1px dotted #888;
+}
+
+div.nocomments {
+	display: none;
 }
 
 div.com_1,div.com_i {
@@ -9461,9 +9590,9 @@ div.com_1,div.com_i {
 	color: #444;
 }
 
-div.com_like {
+div.com_left,div.com_flag {
 	min-width: 60px !important;
-	width: 60px;
+	width: 64px;
 }
 
 div.com_auth {
@@ -9480,4 +9609,63 @@ div.com_b {
 
 table.tbl_comment td {
 	padding: 0 !important;
+}
+
+a.commentor,a.commentor1 {
+	font-size: 90% !important;
+	border-bottom: none;
+	text-decoration: none !important;
+	white-space: nowrap;
+}
+
+textarea.com_bo {
+	color: #444;
+}
+
+a.commentor:hover,a.commentor1:hover {
+	border-bottom: 1px #19558D dotted !important;
+}
+
+a.commentor1 {
+	padding-left: 6px;
+	padding-right: 6px;
+	border-bottom: 0 !important;
+	background-color: #C1D4BE;
+}
+
+a.commentor1:hover {
+	border-bottom: 0 !important;
+}
+
+div.com_like {
+	margin-top: 2px;
+	margin-bottom: 2px;
+	margin-right: 4px;
+	height: 18px;
+	width: 20px !important;
+	overflow: hidden !important;
+}
+
+div.com_like a,a.c_like {
+	white-space: nowrap !important;
+	display: inline-block !important;
+	vertical-align: middle !important;
+	overflow: hidden;
+	width: 20px !important;
+	text-indent: -99999em !important;
+}
+
+.c_likes {
+	margin: 2px;
+	height: 18px;
+	min-height: 18px; 
+	font-weight: bold;
+	padding-right: 5px;
+	color: #999;
+	vertical-align: middle !important;
+	text-align: right;
+}
+
+.c_likes span.vmiddle {
+	vertical-align: middle !important;
 }

@@ -20,6 +20,25 @@ collection = "C_Cache"
 ; set to true when debugging to enable
 ; debug log and raize error reporting level
 DEBUG = true
+; maximum commets per item
+; set to 0 to disable comments feature
+MAX_COMMENTS = 25
+; max comments to show per item
+SHOW_COMMENTS = 5
+;
+; Time interval in minutes in which poster can edit
+; the comment. After this time editing
+; is no longer allowed
+; set to 0 to disable edit timeout
+COMMENT_EDIT_TIME = 5
+; time to wait between comments
+; in seconds
+COMMENTS_FLOOD_TIME = 30
+;
+; time to wait between posting
+; questions and answers in minutes
+;
+FLOOD_CHECK_TIME = 1
 ; number of items per page
 ; on search results page
 PER_PAGE_SEARCH = 10

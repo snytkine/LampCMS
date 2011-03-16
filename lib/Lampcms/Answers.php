@@ -82,6 +82,7 @@ class Answers extends LampcmsObject
 	 */
 	protected $oCursor;
 
+
 	public function __construct(Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
 	}
@@ -109,6 +110,9 @@ class Answers extends LampcmsObject
 		d('url: '.$url);
 		$cond = $this->oRegistry->Request->get('cond', 's', 'i_ts');
 		d('cond: '.$cond);
+		$noComments = (false === (bool)$this->oRegistry->Ini->MAX_COMMENTS);
+		d('no comments: '.$noComments);
+		$aFields = ($noComments || false === (bool)$this->oRegistry->Ini->SHOW_COMMENTS) ? array('comments' => 0) : array();
 		/**
 		 * Extra security validation,
 		 * IMPORTANT because we should never use
@@ -127,7 +131,7 @@ class Answers extends LampcmsObject
 		
 		$sort = array($cond => 1);
 
-		$cursor = $this->oRegistry->Mongo->getCollection('ANSWERS')->find($where);
+		$cursor = $this->oRegistry->Mongo->getCollection('ANSWERS')->find($where, $aFields);
 		d('$cursor: '.gettype($cursor));
 		$cursor->sort($sort);
 		$oPager = Paginator::factory($this->oRegistry);
@@ -147,7 +151,9 @@ class Answers extends LampcmsObject
 		 */
 		$accept = 'Accept';
 		$alt = 'Click to accept this as best answer';
-		$func = function(&$a) use ($accept, $alt, $showLink){
+		$noComments = ($noComments) ? ' nocomments' : '';
+		
+		$func = function(&$a) use ($accept, $alt, $showLink, $noComments){
 			/**
 			 * Don't show Accept link for
 			 * already accepted answer
@@ -159,6 +165,8 @@ class Answers extends LampcmsObject
 			} else {
 				$a['accepted'] = '<img src="/images/accepted.png" alt="Best answer" title="Owner of the question accepted this as best answer">';
 			}
+			
+			$a['nocomments'] = $noComments;
 		};
 		
 		/**

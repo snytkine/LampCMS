@@ -401,6 +401,7 @@ abstract class WebPage extends Base
 		$this->aPageVars['site_url'] = $oIni->SITE_URL;
 		$this->aPageVars['site_description'] = $oIni->SITE_NAME;
 		$this->aPageVars['show_comments'] = $oIni->SHOW_COMMENTS;
+		$this->aPageVars['max_comments'] = $oIni->MAX_COMMENTS;
 		$this->aPageVars['comments_timeout'] = $oIni->COMMENT_EDIT_TIME;
 		
 		$this->aPageVars['JS_PREFIX'] = $oIni->JS_SITE;

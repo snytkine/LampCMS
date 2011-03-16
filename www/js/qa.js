@@ -86,10 +86,13 @@ YUI({
 		}
 	}
 		}).use('node', 'event', 'gallery-storage-lite', 'gallery-overlay-extras', 'gallery-aui-loading-mask', 'dd-plugin', 'transition', 'yui2-editor', 'yui2-resize', 'yui2-animation', 'io-form', 'json', 'imageloader', 'cookie', function(Y, result) {
-	/**
-	 * Dom Element of comment form
-	 */
-	var YAHOO = Y.YUI2, //
+	
+	
+	
+	var oMetas = {}, // cache storage for resolved meta tags
+	foldGroup, //
+	revealComments, //
+	YAHOO = Y.YUI2, //
 	dnd = false, //
 	res = Y.one('#body_preview'), //
 	write = function(str) {
@@ -122,7 +125,7 @@ YUI({
 	/**
 	 * Flag indicates viewer is moderator (or admin)
 	 */
-	bModerator, //
+	bModerator = 1, //
 	/**
 	 * Dom of Title input
 	 */
@@ -190,14 +193,12 @@ YUI({
 	 *         reached.
 	 */
 	incrementVoteCounter = function(qid) {
-		// Y.log('incrementVoteCounter', 'warn');
-		// Y.log('oVotes: ' + $LANG.dump(oVotes));
 		var ret;
 		Y.log('qid: ' + qid, 'warn');
 		if (!oVotes.hasOwnProperty(qid)) {
-			// Y.log('no qid yet ', 'error');
+			
 			oVotes[qid] = 1;
-			// Y.log('oVotes: ' + $LANG.dump(oVotes));
+			
 		} else {
 
 			oVotes[qid] = (oVotes[qid] + 1);
@@ -220,17 +221,21 @@ YUI({
 
 		return tzo;
 	}, //
+	
+	
 	/**
 	 * Get value of meta tag
 	 * @param string metaName 
 	 * @param bool asNode if true then return
 	 * the Node representing <meta> element
 	 * 
+	 * @todo use memoizer to cache resolved metas
+	 * 
 	 * @return mixed false if meta tag does not exist
 	 * or string of meta element "content" or 
 	 * YUI3 Node object if asNode (true) is passed
 	 */
-	getMeta = function(metaName, asNode){
+	_getMeta = function(metaName, asNode){
 		var ret, node = Y.one('meta[name=' + metaName +']');
 		Y.log('meta node for meta ' + metaName+ ' is: ' + node);
 		if(!node){
@@ -243,6 +248,8 @@ YUI({
 		
 		return node.get('content');
 	}, //
+	
+	
 	/**
 	 * Attach loading mask to node
 	 * and show it
@@ -335,6 +342,35 @@ YUI({
 		if (incrementVoteCounter(id)) {
 			var request = Y.io(el.get('href'));
 		}
+	}, //
+	/**
+	 * Handles click on "like comment" icon
+	 * Increases the likes count but only once
+	 * per user per comment
+	 * 
+	 * @todo finish this to pass data to server
+	 */
+	handleLikeComment = function(el){
+		var parent, likesdiv, likes, id = el.get('id');
+		Y.log('liked comment id: ' + id);
+		if(el.test('.thumbupon')){
+			Y.log('already liked this comment');
+			return;
+		}
+		el.addClass('thumbupon');
+		id = id.substr(7);
+		Y.log('processing like count for comment: ' + id);
+		//likes = 
+		parent = el.ancestor("div");
+		Y.log('parent" ' + parent);
+		likesdiv = parent.next(".c_likes");
+		likes = likesdiv.get("text");
+		
+		likes = (!likes) ? 0 : parseInt(likes, 10);
+		Y.log('likes: ' + likes);
+		likesdiv.set("text",  (likes + 1));
+		Y.io('/index.php?a=likecomment&commentid=' + id);
+		
 	}, //
 	/**
 	 * Use Facebook UI to initiate
@@ -440,10 +476,17 @@ YUI({
 		Y.log('el is ' + el + ' id is: ' + el.get('id'));
 		var id = el.get('id');
 		e.halt();
+		e.preventDefault();
 		switch (true) {
 		case el.test('.vote'):
 			if(ensureLogin()){
 				handleVote(el);
+			}
+			break;
+			
+		case el.test('.c_like'):
+			if(ensureLogin()){
+				handleLikeComment(el);
 			}
 			break;
 			
@@ -520,18 +563,23 @@ YUI({
 			
 		case el.test('.flag'):
 			ancestor = el.ancestor("div.controls");
+	
 		if(ancestor){
-		    //restype = (ancestor.test('.question')) ? 'q' : 'a';
-			restype = 'a';
-			if(ancestor.test('.question')){
-				restype = 'q';
-			} 
-			if(ancestor.test('.com_tools')){
-				restype = 'c';
-			}
+		    restype = (ancestor.test('.question')) ? 'q' : 'a';
 		    resID = ancestor.get('id');
 		    resID = resID.substr(4);
-		    showFlagForm({'rid' : resID, 'rtype' : restype});
+		    
+			} else {
+				ancestor = el.ancestor("div.com_flag");
+				if(ancestor){
+					restype = 'c';
+					resID = el.get('id');
+				    resID = resID.substr(6);
+				}
+			}
+		
+			if(ancestor){
+				showFlagForm({'rid' : resID, 'rtype' : restype});
 			}
 		
 		   break;
@@ -587,9 +635,14 @@ YUI({
 			if(ancestor){
 				resID = ancestor.get('id');
 			    resID = resID.substr(4);
-			    //
+			    
 				if(ancestor.test('.com_tools')){
-					showEditComment(resID);
+					if(!isEditable(ancestor)){
+						alert('You cannot edit comments that are older than ' + getMeta('comments_timeout') + ' minutes');
+						return;
+					} else {
+						showEditComment(resID);
+					}
 				} else {
 					restype = (ancestor.test('.question')) ? 'q' : 'a';
 				    Y.log('restype: ' + restype + ' resID: ' + resID);
@@ -644,7 +697,7 @@ YUI({
 		try {
 			var data = Y.JSON.parse(o.responseText);
 		} catch (e) {
-			alert("Error parsing response object");
+			alert("Error parsing response object" + e);
 			return;
 		}
 
@@ -1315,7 +1368,7 @@ YUI({
 	};
 	
 	var setMeta = function(metaName, value){
-		var node = getMeta(metaName);
+		var node = getMeta(metaName, true);
 		if(node && value){
 			node.set('content', value);
 		}
@@ -1352,7 +1405,7 @@ YUI({
 	
 	var getViewerId = function(){
 		var uid;
-		Y.log('looking for uid');
+		//Y.log('looking for uid');
 		if(!viewerId){
 			Y.log('viewerId not set');
 			uid = getMeta('session_uid');
@@ -1384,14 +1437,21 @@ YUI({
 	 */
 	var isModerator = function(){
 		var role;
-		if(!bModerator){
+		//Y.log('bModerator now : ' + bModerator, 'error');
+		if(bModerator < 2){
 			role = getMeta('role');
-			bModerator = (role && (('administrator' == role)  || ('moderator' == role) ));
-		}
+			if(role && (('administrator' == role)  || ('moderator' == role) )){
+				bModerator = 3;
+			} else {
+				bModerator = 2;
+			}
+		} /*else {
+			Y.log('bModerator is resolved to ' + bModerator, 'warn');
+		}*/
 		
-		Y.log('isModerator: ' + bModerator);
+		//Y.log('isModerator: ' + (3 === bModerator), 'warn');
 		
-		return bModerator;
+		return (3 === bModerator);
 	};
 	
 	/**
@@ -1424,16 +1484,16 @@ YUI({
 				Y.log('this is: ' + this);
 				if(this.test('.question')){
 					if(isModerator() || this.test('.uid-' + getViewerId()) || (500 < getReputation()) ){
-							this.append(' | <span class="retag">retag</span>');
+							this.append(' <span class="ico retag" title="Retag this item">retag</span>');
 					}
 					if(!Y.one('#closed') && (isModerator() || this.test('.uid-' + getViewerId()) ) ){
-						this.append(' | <span class="close">close</span>');
+						this.append(' <span class="ico close"  title="Close this question">close</span>');
 					}
 					if('administrator' == getMeta('role')){
 						if(!this.test('.sticky')){
-							this.append(' | <span class="stick">stick</span>');
+							this.append(' <span class="ico stick"  title="Make sticky">stick</span>');
 						} else {
-							this.append(' | <span class="unstick">unstick</span>');
+							this.append(' <span title="Unstick" class="ico unstick">unstick</span>');
 						}
 					}
 			 	}
@@ -1449,10 +1509,10 @@ YUI({
 					 * If this is a comment tool
 					 * then check the timeout 
 					 * and don't add edit link if comment
-					 * is older than 5 minutes
+					 * is older than 5 minutes // || isEditable(this)
 					 */	
-					if(!controls.test('.com_tools') || isEditable(controls)){
-						this.append(' | <span class="edit">edit</span>');
+					if(!this.test('.com_tools') || isEditable(this)){
+						this.append(' <span  title="Edit" class="ico edit">edit</span>');
 					}
 				}
 				
@@ -1462,7 +1522,7 @@ YUI({
 				 * where 1234 is also id of viewer  + getViewerId()
 				 */
 				if(isModerator() || this.test('.uid-' + getViewerId())){
-					this.append(' | <span class="del">delete</span>');
+					this.append(' <span title="Delete "class="ico del">delete</span>');
 				}
 			});	
 		}
@@ -1477,14 +1537,44 @@ YUI({
 	 * unless viewer is moderator
 	 */
 	var isEditable = function(controls){
-		var commentTile, timeNow, timeout = getMeta('comments_timeout');
-		Y.log('timeout: ' + timeout);
+		
+		var timeOfComment, timeDiff, maxDiff;
+		Y.log('controls passed to isEditable: ' + controls);
 		
 		if(isModerator()){
+			Y.log('isEditable does not apply to moderators');
 			return true;
 		}
 		
+		maxDiff = getMeta('comments_timeout');
+		Y.log('maxDiff: ' + maxDiff);
+		if(!maxDiff){
+			Y.log('unable to resolve comments_timeout meta tag');
+			return true;
+		}
 		
+		/**
+		 * Convert minutes to milliseconds
+		 */
+		maxDiff = maxDiff * 60000;
+		timeOfComment = controls.one('div.com_ts').get('title');
+		if(!timeOfComment){
+			Y.log('unable to resolve timeOfComment meta tag');
+			return true;
+		}
+
+		timeOfComment = new Date(timeOfComment);
+		Y.log('timeOfComment: ' + timeOfComment);
+		timeDiff = (Date.now() - timeOfComment.getTime());
+		Y.log('timeDiff: ' +  timeDiff);
+		
+		if(timeDiff > maxDiff){
+			Y.log('comment is older than maxDiff', 'warn');
+			
+			return false;
+		}
+		
+		return true;
 		
 	};
 
@@ -1561,6 +1651,43 @@ YUI({
 		
 		return oAlerter;
 	};
+	
+	var getMeta = function(metaName, asNode){
+		var ret, node;	
+		Y.log('looking for meta: ' + metaName + ' oMetas ' + oMetas);
+		if(!oMetas[metaName]){
+			node = Y.one('meta[name=' + metaName +']');
+			Y.log('meta node for meta ' + metaName+ ' is: ' + node);
+			oMetas[metaName] = node;
+		} else {
+			Y.log('meta is already resolved to ' + oMetas[metaName], 'info');
+		}
+		
+		if(!oMetas[metaName]){
+			Y.log('no value in oMetas.metaName for ' + metaName);
+			return false;
+		}
+		
+		if(asNode){
+			return oMetas[metaName];
+		} 
+		
+		ret = oMetas[metaName].get('content');
+		Y.log('ret: ' + ret);
+		
+		return ret;
+		
+	};
+	
+	revealComments = function(){
+		var comments, limit = getMeta('max_comments');
+		if(limit && 0<parseInt(limit)){
+			comments = Y.all('div.nocomments');
+			if(comments){
+				comments.removeClass('nocomments');
+			}
+		}
+	}
 	
 	var Twitter = {
 			/**
@@ -1669,9 +1796,9 @@ YUI({
 			}
 		};
 	
-	
+	revealComments();
 	Y.on('submit', MysubmitForm, '.qa_form');
-	Y.on("click", handleAjaxLinks, ".ajax");
+	//Y.on("click", handleAjaxLinks, ".ajax");
 	Y.delegate("click", handleAjaxLinks, "#lastdiv", 'a.ajax');
 	/**
 	 * Listening the clicks on links inside #lastdiv
@@ -1679,7 +1806,7 @@ YUI({
 	 * to lastdiv and already subscriebed listeners will
 	 * just work
 	 */
-	Y.delegate("click", handleAjaxLinks, "#qview-main", ".controls span"); //, "a"
+	Y.delegate("click", handleAjaxLinks, "#qview-main", ".controls span, .ajax"); //, "a"
 	/**
 	 * Any forms inside the alerter modal window will be
 	 * handled by handleModalForm()
@@ -1718,13 +1845,12 @@ YUI({
 				oSL.Regform.getInstance().show();
 			}
 		}
+	
 	 
-	var foldGroup = new Y.ImgLoadGroup({
+	 foldGroup = new Y.ImgLoadGroup({
 		   foldDistance: 2
-		
 		});
 	 foldGroup.set('className', 'imgloader');
-	 //folderGroup.addTrigger('#hd', 'mouseover');
 	 
 	 addAdminControls();
 

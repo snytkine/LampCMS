@@ -49,69 +49,40 @@
  *
  */
 
-
+ 
 namespace Lampcms\Controllers;
 
 use Lampcms\WebPage;
+use Lampcms\CommentParser;
+use Lampcms\Request;
+use Lampcms\Responder;
+use Lampcms\SubmittedCommentWWW;
 
-class Editcomment extends Addcomment
+class Likecomment extends WebPage
 {
 	protected $membersOnly = true;
 
-	protected $requireToken = true;
-
-	protected $bRequirePost = true;
+	protected $permission = 'vote';
 
 	protected $aRequired = array('commentid');
-
-	/**
-	 * Id of viewer
-	 * Initially set to null, which will
-	 * be passed to CommentParser->delete() as second param
-	 * and in case it's null, the ownership of comment will
-	 * not be checked in the CommentParser->delete() method
-	 *
-	 * @var int
-	 */
-	protected $viewerId = null;
-
-
+	
+	
+	
 	protected function main(){
 		$this->oRegistry->registerObservers('INPUT_FILTERS');
-		$this->permission = 'edit_any_comment';
-
-		$this->checkPermission()
-		->validateBody()
-		->saveEdit()
-		->returnResult();
-	}
-
-
-	/**
-	 * If Viewer has permission to delete_comment
-	 * then do nothing, else sets the $this->viewerId to uid of viewer
-	 * which is passed to CommentParser->delete() as 2nd param
-	 * and causes the comment ownership check
-	 *
-	 * @return object $this
-	 */
-	protected function checkPermission(){
-		try{
-			$this->checkAccessPermission($this->permission);
-
-		} catch (\Exception $e){
-			$this->viewerId = $this->oRegistry->Viewer->getUid();
-		}
-
-		return $this;
-	}
-
-
-	protected function saveEdit(){
-		$this->oCommentParser = new \Lampcms\CommentParser($this->oRegistry);
-		$this->oCommentParser->edit(new \Lampcms\SubmittedCommentWWW($this->oRegistry), $this->viewerId);
-
-		return $this;
+		
+		$oParser = new CommentParser($this->oRegistry);
+		$oParser->addLike(new SubmittedCommentWWW($this->oRegistry));
+		
+		$this->returnResult();
 	}
 	
+	
+	protected function returnResult(){
+		if(Request::isAjax()){
+			Responder::sendJSON(array());
+		}
+		
+		Responder::redirectToPage();
+	}
 }

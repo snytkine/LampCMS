@@ -224,9 +224,7 @@ class Accept extends WebPage
 		 */
 		if(!$this->oRegistry->Viewer->isModerator()){
 			if(empty($aQuestion['i_uid']) || ($aQuestion['i_uid'] != $this->oRegistry->Viewer->getUid() )){
-
 				d('cp voting for someone else question');
-
 				$this->recordVoteHack();
 
 				throw new \Lampcms\Exception('You can only accept answer for your own question');

@@ -68,22 +68,33 @@ class tplComment extends \Lampcms\Template\Template
 	't' => '', //6
 	'i_prnt' => 0, //7
 	'b_owner' => '', //8
-	'edit_delete' => '' //9
+	'edit_delete' => '', //9
+	'i_likes' => '', // 10
+	'edited' => '' //11
 	);
 
 
 	protected static $tpl = '
 	<div class="fl cb com_wrap reply-%7$s" id="comment-%1$s">
 	    <a name="c%1$s"></a>
-		<div class="com_1 fl cb">
-			<div class="fl com_like">&nbsp</div>
+		<div class="com_1 fl cb1">
+			<div class="fl com_left">
+				<div class="fr com_like votebtns">
+					<a id="c_like_%1$s" title="I Like this comment!" class="ajax thumbup c_like" href="#">Good</a>
+				</div>
+				<div class="c_likes fr">%10$s</div>
+			</div>
 			<div class="fl com_b">%2$s</div>
 		</div>
-		<div class="com_i fl cb">
+		<div class="com_i fl cb1">
+			<div class="fl com_flag">
+				<span class="ico flag ajax" id="cflag_%1$s" title="Flag this comment as inappropriate">flag</span>
+			</div>
 			<div class="com_tools controls uid-%5$s" id="res_%1$s">
-				<span class="flag" title="Flag this comment as inappropriate">flag</span>%9$s
+				%9$s
 				<div title="%3$s" class="com_ts ts fr">%6$s</div>
-				<div class="com_auth fr"><a href="/users/%5$s/" class="commentor%8$s">%4$s</a></div>	
+				<div class="com_auth usr usr_%5$s fr"><a href="/users/%5$s/" class="usrpop commentor%8$s">%4$s</a></div>	
+				%11$s
 			</div>	
 		</div>
 	</div>';

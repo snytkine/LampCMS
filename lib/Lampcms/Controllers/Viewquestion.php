@@ -101,6 +101,16 @@ class Viewquestion extends WebPage
 	protected $aTplVars = array();
 
 	protected $pageID = 1;
+	
+	/**
+	 * Flag indicates that comments have
+	 * been disabled, causing a special 'nocomments' css
+	 * class to be added to answer template, hiding
+	 * "comments" div, which also hides the "add comments" link
+	 * 
+	 * @var bool
+	 */
+	protected $noComments = false;
 
 	/**
 	 * Main entry point
@@ -165,9 +175,9 @@ class Viewquestion extends WebPage
 	 */
 	protected function getQuestion(){
 		$isModerator = $this->oRegistry->Viewer->isModerator();
-		$noComments = (false === (bool)$this->oRegistry->Ini->SHOW_COMMENTS);
-		d('no comments: '.$noComments);
-		$aFields = ($noComments) ? array('comments' => 0) : array();
+		$this->noComments = (false === (bool)$this->oRegistry->Ini->MAX_COMMENTS);
+		d('no comments: '.$this->noComments);
+		$aFields = ($this->noComments || false === (bool)$this->oRegistry->Ini->SHOW_COMMENTS) ? array('comments' => 0) : array();
 		
 		$this->aQuestion = $this->oRegistry->Mongo
 		->getCollection('QUESTIONS')
@@ -222,6 +232,9 @@ class Viewquestion extends WebPage
 			}
 		}
 
+		if($this->noComments){
+			$this->aQuestion['nocomments'] = ' nocomments';
+		}
 		$this->aPageVars['body'] = \tplQuestion::parse($this->aQuestion);
 
 		return $this;

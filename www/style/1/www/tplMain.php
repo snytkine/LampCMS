@@ -82,7 +82,8 @@ class tplMain extends Lampcms\Template\Template
 	'rep' => '1', // 34
 	'JS_PREFIX' => '', //35
 	'show_comments' => '5', //36
-	'comments_timeout' => '5'//37
+	'comments_timeout' => '5',//37
+	'max_comments' => '0' // 38
 	);
 
 	//<link rel="shortcut icon" href="/favicon.ico">
@@ -101,6 +102,7 @@ class tplMain extends Lampcms\Template\Template
 <meta name="rep" content="%34$s">
 <meta name="show_comments" content="%36$s">
 <meta name="comments_timeout" content="%37$s">
+<meta name="max_comments" content="%38$s">
 %8$s
 %9$s
 <link href="%10$s" rel="stylesheet" type="text/css">

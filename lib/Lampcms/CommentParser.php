@@ -200,8 +200,9 @@ class CommentParser extends LampcmsObject
 
 		$this->oComment = $oComment;
 		$this->oResource = $this->oComment->getResource();
+		$this->checkCommentsLimit();
 
-		$res_id = $this->oComment->getResource()->getResourceId();
+		$res_id = $this->oResource->getResourceId();
 		$body = $this->oComment->getBody();
 		$uid = $this->oComment->getOwnerId();
 
@@ -272,6 +273,28 @@ class CommentParser extends LampcmsObject
 
 
 	/**
+	 * Usually there is a limit to how many comments an item
+	 * can have. This is to prevent run-away discussion
+	 *
+	 * @return object $this
+	 *
+	 * @throws \Lampcms\Exception if Resource already
+	 * has reached the comments limit
+	 */
+	protected function checkCommentsLimit(){
+		if(0 !== $limit = (int)$this->oRegistry->Ini->MAX_COMMENTS){
+			if($this->oResource->getCommentsCount() > $limit){
+				throw new \Lampcms\Exception('Unable to add comment because the limit of '.$limit.' comments per item has been reached.<br>Consider adding another answer instead');
+			}
+		} else {
+			throw new \Lampcms\Exception('Comments feature has been disabled by administrator');
+		}
+
+		return $this;
+	}
+
+
+	/**
 	 *
 	 * Process edited comment
 	 * It will: get comment record from COMMENTS
@@ -301,6 +324,7 @@ class CommentParser extends LampcmsObject
 	 * @return object $this
 	 */
 	public function edit(\Lampcms\Interfaces\SubmittedComment $oComment, $viewerID = null){
+		$this->oComment = $oComment;
 		$id = $oComment->getResourceId();
 
 		$this->findCommentRecord($id)
@@ -344,14 +368,15 @@ class CommentParser extends LampcmsObject
 			d('changes made');
 			$this->oRegistry->Mongo->COMMENTS->update(array('_id' => $id),
 			array('$set' => array('i_lm_ts' => time(), 'i_editor' => $viewerID)));
-				
+
 			$this->oResource['comments'] = $aComments;
 			$this->touchQuestion();
 			$this->oResource->save();
 			d('changes saved to resource');
+			$this->oRegistry->Dispatcher->post($this->oResource, 'onCommentEdit', $aComments[$i]);
+
 		}
 
-		$this->oRegistry->Dispatcher->post($this->oResource, 'onCommentEdit', $aComments[$i]);
 
 		return $this;
 	}
@@ -361,18 +386,18 @@ class CommentParser extends LampcmsObject
 	protected function checkEditTimeout($viewerID){
 		if(null === $viewerID){
 			d('Timeout does not apply to user with edit_comment permission');
-				
+
 			return $this;
 		}
 
 		$timeout = $this->oRegistry->Ini->COMMENT_EDIT_TIME;
 		if(empty($timeout)){
 			d('edit timeout disabled in !config.ini');
-				
+
 			return $this;
 		}
 
-		
+
 		if((time() -  $this->aComment['i_ts']) > ($timeout * 60)){
 			throw new \Lampcms\Exception('You cannot edit comments that are older than '.$timeout.' minutes');
 		}
@@ -483,20 +508,152 @@ class CommentParser extends LampcmsObject
 	}
 
 
-
+	/**
+	 * Check that id of $viewerID param
+	 * is the id of comment owner (from the COMMENTS i_uid)
+	 *
+	 *
+	 * @param int $viewerID value of userid of Viewer
+	 * @throws AccessException
+	 * 
+	 * @return object $this
+	 */
 	protected function checkIsOwner($viewerID){
+		d('$viewerID: '.var_export($viewerID, true));
+
 		if( (null !== $viewerID) && ((int)$viewerID !== $this->aComment['i_uid'])){
-			throw new AccessException('Delete action failed because you are not the author of this comment.');
+			throw new AccessException('Action failed because you are not the author of this comment.');
 		}
 
 		return $this;
 	}
 
 
+	/**
+	 * Find and set array of one comment record
+	 * $this->aComments
+	 * from the COMMENTS collection
+	 *
+	 * @param int $id value of comment id
+	 *
+	 * @throws \Lampcms\Exception if record not found
+	 *
+	 * @return object $this
+	 */
 	protected function findCommentRecord($id){
 		$this->aComment = $this->oRegistry->Mongo->COMMENTS->findOne(array('_id' => $id));
 		if(empty($this->aComment)){
 			throw new \Lampcms\Exception('Unable to delete comment because comment not found');
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Get Resource from COMMENTS by rid
+	 * postOnBefore,
+	 * insert like into VOTES
+	 * update i_likes in Resource[comments][$i]
+	 * post onCommentLike
+	 *
+	 *
+	 * Enter description here ...
+	 */
+	public function addLike(\Lampcms\Interfaces\SubmittedComment $oComment){
+		$this->oComment = $oComment;
+		$id = $oComment->getResourceId();
+		$this->oRegistry->Dispatcher->post($oComment, 'onBeforeCommentLike');
+
+		/**
+		 * In case of duplicate vote
+		 * OR vote for own comment
+		 * the \LogicException will be thrown
+		 * in which case we just don't record
+		 * the "Like" but it will not
+		 * generate any errors to the user
+		 */
+		try{
+			$this->findCommentRecord($id)
+			->getResourceArray()
+			->addCommentLike($id)
+			->makeResourceObject();
+		} catch (\LogicException $e){
+			d($e->getMessage());
+			return;
+		}
+
+		$bEdited = false;
+		$aComments = $this->oResource->getComments();
+
+		if(!empty($aComments)){
+			for($i = 0; $i<count($aComments); $i+=1){
+				if($aComments[$i]['_id'] == $id){
+					d('comment found: '.$i);
+					if(empty($aComments[$i]['i_likes'])){
+						$aComments[$i]['i_likes'] = 1;
+					} else {
+						$aComments[$i]['i_likes'] += 1;
+					}
+
+					$bEdited = true;
+					break;
+				}
+			}
+		}
+
+		if($bEdited){
+			$this->oResource['comments'] = $aComments;
+			$this->touchQuestion();
+			$this->oResource->save();
+			d('changes saved to resource');
+			$this->oRegistry->Dispatcher->post($this->oResource, 'onCommentLike', $aComments[$i]);
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Insert record into COMMENTS_LIKES collection
+	 * also serves as a check for duplicate likes
+	 * since uid,i_res is unique
+	 *
+	 *
+	 * @param int $id id of comment
+	 *
+	 * @return object $this
+	 *
+	 */
+	protected function addCommentLike($resID){
+
+		$uid = $this->oComment->getUserObject()->getUid();
+		$ownerID = $this->aComment['i_uid'];
+
+		if($uid == $ownerID){
+			throw new \LogicException('Likes of own comment do not cound');
+		}
+
+		$coll = $this->oRegistry->Mongo->getCollection('COMMENTS_LIKES');
+		$coll->ensureIndex(array('i_uid' => 1));
+		$coll->ensureIndex(array('i_owner' => 1));
+
+		$id = $uid.'.'.$resID;
+
+		$aData = array(
+		'_id' => $id,
+		'i_uid' => $uid,
+		'i_res' => $resID,
+		'i_ts' => time(),
+		'i_owner' => $ownerID);
+
+		d('aData: '.print_r($aData, 1));
+
+		try{
+			$coll->insert($aData, array('safe' => true));
+		} catch(\MongoException $e){
+			d('Unable to add record to COMMENTS_LIKES collection: '.$e->getMessage());
+			throw new \LogicException('Duplicate Like detected');
 		}
 
 		return $this;
