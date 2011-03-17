@@ -1391,6 +1391,7 @@ YUI({
 	};
 	
 	var ensureLogin = function(bForceAlert){
+		Y.log('ensureLogin');
 		var message;
 		if(bForceAlert || !isLoggedIn()){
 			message = '<div class="larger"><p>You must login to perform this action</p>'
@@ -1421,7 +1422,8 @@ YUI({
 	
 	var getViewerId = function(){
 		var uid;
-		if(null !== viewerId){
+		Y.log('starting getViewerId');
+		if(null === viewerId){
 			Y.log('viewerId not set');
 			uid = getMeta('session_uid');
 			Y.log('uid: ' + uid);
@@ -1438,6 +1440,7 @@ YUI({
 	var isLoggedIn = function() {
 		
 		var ret, uid = getViewerId();
+		Y.log('isLoggedIn uid: ' + uid);
 		ret = (uid && (uid !== '') && (uid !== '0'));
 
 		return ret;
