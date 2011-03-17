@@ -138,7 +138,7 @@ class tplQuestion extends Lampcms\Template\Template
 		<div class="question-body" id="qbody-%1$s">%2$s</div>
 		<div class="tgs">%5$s</div>
 		<div class="question%19$s controls%16$s uid-%10$s" id="res_%1$s">
-		     <span class="ico flag" title="Flag this item as inappropriate (%15$s)"> </span>
+		     <span class="ico flag ajax" title="Flag this item as inappropriate (%15$s)"> </span>
 		</div>
 		<!-- // -->
 		<table class="foot">

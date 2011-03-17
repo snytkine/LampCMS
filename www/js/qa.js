@@ -1498,16 +1498,16 @@ YUI({
 				Y.log('this is: ' + this);
 				if(this.test('.question')){
 					if(isModerator() || this.test('.uid-' + getViewerId()) || (500 < getReputation()) ){
-							this.append(' <span class="ico retag" title="Retag this item">retag</span>');
+							this.append(' <span class="ico retag ajax" title="Retag this item">retag</span>');
 					}
 					if(!Y.one('#closed') && (isModerator() || this.test('.uid-' + getViewerId()) ) ){
-						this.append(' <span class="ico close"  title="Close this question">close</span>');
+						this.append(' <span class="ico close ajax"  title="Close this question">close</span>');
 					}
 					if('administrator' == getMeta('role')){
 						if(!this.test('.sticky')){
-							this.append(' <span class="ico stick"  title="Make sticky">stick</span>');
+							this.append(' <span class="ico stick ajax"  title="Make sticky">stick</span>');
 						} else {
-							this.append(' <span title="Unstick" class="ico unstick">unstick</span>');
+							this.append(' <span title="Unstick" class="ico unstick ajax">unstick</span>');
 						}
 					}
 			 	}
@@ -1525,7 +1525,7 @@ YUI({
 					 * where 1234 is also id of viewer  + getViewerId()
 					 */
 					if(isModerator() || this.test('.uid-' + getViewerId())){
-						this.append(' <span title="Delete "class="ico del">delete</span>');
+						this.append(' <span title="Delete "class="ico del ajax">delete</span>');
 					}
 					
 					/**
@@ -1535,7 +1535,7 @@ YUI({
 					 * is older than 5 minutes // || isEditable(this)
 					 */	
 					if(!this.test('.com_tools') || isEditable(this)){
-						this.append(' <span  title="Edit" class="ico edit">edit</span>');
+						this.append(' <span  title="Edit" class="ico edit ajax">edit</span>');
 					}
 				}
 				

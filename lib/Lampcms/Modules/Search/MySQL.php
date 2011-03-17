@@ -145,12 +145,13 @@ class MySQL implements Search
 		$sql = 'SELECT count(*)
 					FROM question_title
 					WHERE '.$this->condition;
+		d('sql: '.$sql.' $this->term: '.$this->term);
 		try{
 			$sth = $this->oRegistry->Db->makePrepared($sql);
 			$sth->bindParam(':subj', $this->term, \PDO::PARAM_STR);
 			$sth->execute();
 		} catch(\Exception $e){
-			$err = ('Exception: '.get_class($e).' Unable to insert into mysql because: '.$e->getMessage().' Err Code: '.$e->getCode().' trace: '.$e->getTraceAsString());
+			$err = ('Exception: '.get_class($e).' Unable to select mysql because: '.$e->getMessage().' Err Code: '.$e->getCode().' trace: '.$e->getTraceAsString());
 			d('mysql error: '.$err);
 
 			if('42S02' === $e->getCode()){

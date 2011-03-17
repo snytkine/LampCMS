@@ -564,6 +564,12 @@ class CommentParser extends LampcmsObject
 	 * insert like into VOTES
 	 * update i_likes in Resource[comments][$i]
 	 * post onCommentLike
+	 * 
+	 * @todo this can be done without creating
+	 * Resource object by using in-place update
+	 * of nested array element right in Mongo
+	 * @see http://www.mongodb.org/display/DOCS/Updating#Updating-The%24positionaloperator
+	 * 
 	 *
 	 *
 	 * Enter description here ...
