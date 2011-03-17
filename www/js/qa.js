@@ -121,7 +121,7 @@ YUI({
 	/**
 	 * id of current viewer
 	 */
-	viewerId, // 
+	viewerId = null, // 
 	/**
 	 * Flag indicates viewer is moderator (or admin)
 	 */
@@ -360,7 +360,7 @@ YUI({
 		el.addClass('thumbupon');
 		id = id.substr(7);
 		Y.log('processing like count for comment: ' + id);
-		//likes = 
+		
 		parent = el.ancestor("div");
 		Y.log('parent" ' + parent);
 		likesdiv = parent.next(".c_likes");
@@ -524,7 +524,9 @@ YUI({
 			break;
 			
 		case (id === 'logout'):
+			e.preventDefault();
 			Y.log('clicked logout');
+
 			if(FB){
 				Y.log('has FB');
 				fbappid = getMeta('fbappid');
@@ -543,13 +545,26 @@ YUI({
 				Y.log('has GFC for logout');
 				if (!window.gfc_timesloaded) {
 				      window.gfc_timesloaded = 1;
-				      //google.friendconnect.requestSignOut();
+				      Y.log('requesting gfc signout');
+				      google.friendconnect.requestSignOut();
+				      /**
+				       * Must logout NOW!
+				       * because we also have js in actual html page
+				       * which is loaded BEFORE this script and it will
+				       * reload the page WHEN it detects
+				       * the FriendCoect callback (GFC will issue callback
+				       * after the request signout)
+				       * and so we will never get to 
+				       * this script, thus will never call logout controller
+				       * 
+				       */
+				      window.location.assign('/index.php?a=logout');
 				    } else {
 				      window.gfc_timesloaded++;
 				    }
 				    if (window.gfc_timesloaded > 1) {
 				    	Y.log('gfc_timesloaded > 1');
-				     // window.top.location.href = "/index.php?a=logout";
+				     //window.top.location.href = "/index.php?a=logout";
 				    }
 
 			}
@@ -557,7 +572,7 @@ YUI({
 			Y.later(500, this, function() {
 				window.location.assign('/index.php?a=logout');
 			});
-			//window.location.assign('/index.php?a=logout');
+			
 			
 			break;
 			
@@ -1259,11 +1274,12 @@ YUI({
 	};
 	
 	var showCommentForm = function(el){
-		var form, resID;
-		Y.log('el: ' + el);
+		var form, reputation, resID;
+		reputation = getReputation();
+		Y.log('el: ' + el + 'reputation: ' + reputation);
 		Y.log('rid' + el.get('id'));
 		if(ensureLogin()){
-		if( ('administrator' == getMeta('role')) || (getReputation() > 24) || el.test('.uid-' + getViewerId())){
+		if( isModerator() || (reputation > 0) || el.test('.uid-' + getViewerId())){
 			resID = el.get('id');
 		    resID = resID.substr(8);
 		    Y.log('resID ' + resID);
@@ -1299,7 +1315,7 @@ YUI({
 		
 		
 		} else {
-			alert('You must have a reputation of at least 25<br>to be able to add comments');
+			alert('You must have a reputation of at least 1<br>to be able to add comments');
 			return;
 			}
 		}
@@ -1405,12 +1421,11 @@ YUI({
 	
 	var getViewerId = function(){
 		var uid;
-		//Y.log('looking for uid');
-		if(!viewerId){
+		if(null !== viewerId){
 			Y.log('viewerId not set');
 			uid = getMeta('session_uid');
 			Y.log('uid: ' + uid);
-			viewerId = (!uid) ? 0 : parseInt(uid);
+			viewerId = (!uid) ? 0 : parseInt(uid, 10);
 		}
 		
 		return viewerId;
@@ -1445,11 +1460,7 @@ YUI({
 			} else {
 				bModerator = 2;
 			}
-		} /*else {
-			Y.log('bModerator is resolved to ' + bModerator, 'warn');
-		}*/
-		
-		//Y.log('isModerator: ' + (3 === bModerator), 'warn');
+		} 
 		
 		return (3 === bModerator);
 	};
@@ -1506,6 +1517,15 @@ YUI({
 				if(isModerator() || this.test('.uid-' + getViewerId())  || 2000 < getReputation()){
 					
 					/**
+					 * If is moderator or Owner of item,
+					 * meaning controls has class uid-1234
+					 * where 1234 is also id of viewer  + getViewerId()
+					 */
+					if(isModerator() || this.test('.uid-' + getViewerId())){
+						this.append(' <span title="Delete "class="ico del">delete</span>');
+					}
+					
+					/**
 					 * If this is a comment tool
 					 * then check the timeout 
 					 * and don't add edit link if comment
@@ -1516,14 +1536,6 @@ YUI({
 					}
 				}
 				
-				/**
-				 * If is moderator or Owner of item,
-				 * meaning controls has class uid-1234
-				 * where 1234 is also id of viewer  + getViewerId()
-				 */
-				if(isModerator() || this.test('.uid-' + getViewerId())){
-					this.append(' <span title="Delete "class="ico del">delete</span>');
-				}
 			});	
 		}
 		
@@ -1681,13 +1693,13 @@ YUI({
 	
 	revealComments = function(){
 		var comments, limit = getMeta('max_comments');
-		if(limit && 0<parseInt(limit)){
+		if(limit && 0 < parseInt(limit)){			
 			comments = Y.all('div.nocomments');
 			if(comments){
 				comments.removeClass('nocomments');
 			}
 		}
-	}
+	};
 	
 	var Twitter = {
 			/**
@@ -1799,14 +1811,15 @@ YUI({
 	revealComments();
 	Y.on('submit', MysubmitForm, '.qa_form');
 	//Y.on("click", handleAjaxLinks, ".ajax");
-	Y.delegate("click", handleAjaxLinks, "#lastdiv", 'a.ajax');
+	//Y.delegate("click", handleAjaxLinks, "#lastdiv", 'a.ajax');
+	Y.delegate("click", handleAjaxLinks, "body", '.ajax');
 	/**
 	 * Listening the clicks on links inside #lastdiv
 	 * allows us to dynamically add modals and panels
 	 * to lastdiv and already subscriebed listeners will
 	 * just work
 	 */
-	Y.delegate("click", handleAjaxLinks, "#qview-main", ".controls span, .ajax"); //, "a"
+	//Y.delegate("click", handleAjaxLinks, "#qview-main", ".controls span, .ajax"); //, "a"
 	/**
 	 * Any forms inside the alerter modal window will be
 	 * handled by handleModalForm()

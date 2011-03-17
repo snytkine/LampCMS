@@ -110,12 +110,12 @@ class tplAnswer extends Lampcms\Template\Template
 		<div class="votebtns cb" id="vote%1$s">
 		<a id="upvote-%1$s"
 			title="I like this answer (click again to cancel)"
-			class="ajax vote thumbup" href="/ansvote/%1$s/up" rel="nofollow">%10$s</a>
+			class="tu ajax vote thumbup" href="/ansvote/%1$s/up" rel="nofollow">%10$s</a>
 		<div id="score%1$s" class="qscore">%6$s</div>
 
 		<a id="downvote-%1$s"
 			title="I dont like this answer (click again to cancel)"
-			class="ajax vote thumbdown down" href="/ansvote/%1$s/down" rel="nofollow">%11$s</a>
+			class="tu ajax vote thumbdown down" href="/ansvote/%1$s/down" rel="nofollow">%11$s</a>
 		</div>
 		<div class="acceptit anstype">%13$s</div>
 		<div class="acceptit">%12$s</div>

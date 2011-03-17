@@ -22,7 +22,7 @@ collection = "C_Cache"
 DEBUG = true
 ; maximum commets per item
 ; set to 0 to disable comments feature
-MAX_COMMENTS = 25
+MAX_COMMENTS = 20
 ; max comments to show per item
 SHOW_COMMENTS = 5
 ;
@@ -38,7 +38,7 @@ COMMENTS_FLOOD_TIME = 30
 ; time to wait between posting
 ; questions and answers in minutes
 ;
-FLOOD_CHECK_TIME = 1
+FLOOD_CHECK_TIME = 2
 ; number of items per page
 ; on search results page
 PER_PAGE_SEARCH = 10

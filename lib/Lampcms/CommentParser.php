@@ -202,6 +202,7 @@ class CommentParser extends LampcmsObject
 		$this->oResource = $this->oComment->getResource();
 		$this->checkCommentsLimit();
 
+		$oCommentor = $this->oComment->getUserObject();
 		$res_id = $this->oResource->getResourceId();
 		$body = $this->oComment->getBody();
 		$uid = $this->oComment->getOwnerId();
@@ -210,7 +211,7 @@ class CommentParser extends LampcmsObject
 		$this->aComment['i_res'] = $res_id;
 		$this->aComment['i_qid'] = $this->oComment->getQuestionId();
 		$this->aComment['b'] = $body;
-		$this->aComment['username'] = $this->oComment->getUserObject()->getDisplayName();
+		$this->aComment['username'] = $oCommentor->getDisplayName();
 		$this->aComment['ip'] = $this->oComment->getIP();
 		$this->aComment['i_uid'] = $uid;
 		$this->aComment['i_prnt'] = $this->oComment->getParentId();
@@ -219,6 +220,7 @@ class CommentParser extends LampcmsObject
 		$this->aComment['i_ts'] = time();
 		$this->aComment['ts'] = date('r');
 		$this->aComment['t'] = date('M j \'y \a\\t G:i'); // must escape t with 2 backslashes because \t means tab
+		$this->aComment['avtr'] = $oCommentor->getAvatarSrc();
 
 		/**
 		 * If comment is made by the same user as Question owner
@@ -341,9 +343,15 @@ class CommentParser extends LampcmsObject
 		if(!empty($aComments)){
 			for($i = 0; $i<count($aComments); $i+=1){
 				if($aComments[$i]['_id'] == $id){
+					$oEditor =  $this->oComment->getUserObject();
+					$date = date('r');
+					$editor =$oEditor->getDisplayName();
+					$editor_url = $oEditor->getProfileUrl();
+					$uid = $oEditor->getUid();
+						
 					d('comment found: '.$i);
 					$aComments[$i]['b'] = $body;
-					$aComments[$i]['i_lm_ts'] = time();
+					$aComments[$i]['e'] = '<a class="ce" href="'.$editor_url.'"><span class="ico edited tu" title="This comment was edited by '.$editor.' on '.$date.'"></span></a>';
 					$bEdited = true;
 					break;
 				}
@@ -515,7 +523,7 @@ class CommentParser extends LampcmsObject
 	 *
 	 * @param int $viewerID value of userid of Viewer
 	 * @throws AccessException
-	 * 
+	 *
 	 * @return object $this
 	 */
 	protected function checkIsOwner($viewerID){

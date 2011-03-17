@@ -259,6 +259,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 
 	}
 
+	
 	/**
 	 * Get only the http path to avatar without
 	 * any of the img tag.
@@ -503,6 +504,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return '<a rel="nofollow" href="'.$url.'">'.$url.'</a>';
 	}
 
+	
 	/**
 	 * (non-PHPdoc)
 	 * @see Lampcms\Interfaces.FacebookUser::getFacebookToken()
@@ -511,11 +513,13 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $this->offsetGet('fb_token');
 	}
 
+	
 	public function __toString()
 	{
 		return 'object of type '.$this->getClass().' for userid: '.$this->getUid();
 	}
 
+	
 	/**
 	 * Setter for bNewUser
 	 *
@@ -528,6 +532,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $this;
 	}
 
+	
 	/**
 	 * Getter for this->bNewUser
 	 *
@@ -539,6 +544,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $this->bNewUser;
 	}
 
+	
 	/**
 	 * Unique hash code for one user
 	 * This is useful for generating etag of cache headers

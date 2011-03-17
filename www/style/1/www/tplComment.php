@@ -70,7 +70,7 @@ class tplComment extends \Lampcms\Template\Template
 	'b_owner' => '', //8
 	'edit_delete' => '', //9
 	'i_likes' => '', // 10
-	'edited' => '' //11
+	'e' => '' //11
 	);
 
 
@@ -91,10 +91,10 @@ class tplComment extends \Lampcms\Template\Template
 				<span class="ico flag ajax" id="cflag_%1$s" title="Flag this comment as inappropriate">flag</span>
 			</div>
 			<div class="com_tools controls uid-%5$s" id="res_%1$s">
-				%9$s
-				<div title="%3$s" class="com_ts ts fr">%6$s</div>
-				<div class="com_auth usr usr_%5$s fr"><a href="/users/%5$s/" class="usrpop commentor%8$s">%4$s</a></div>	
+				<div class="com_auth usr usr_%5$s fl"><a href="/users/%5$s/" class="iu usr-%5$s commentor%8$s">%4$s</a></div>	
+				<div title="%3$s" class="com_ts ts fl">%6$s</div>
 				%11$s
+				%9$s
 			</div>	
 		</div>
 	</div>';

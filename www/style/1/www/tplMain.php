@@ -112,7 +112,7 @@ class tplMain extends Lampcms\Template\Template
 %12$s
 <link rel="shortcut icon" href="/favicon.ico">
 </head>
-<body class="yui-skin-sam">
+<body class="yui-skin-sam" id="doc_body">
 %14$s
 <div id="hd" class="dheader">
 	 <div id="loginHead" class="doc3">

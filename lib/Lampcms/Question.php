@@ -555,7 +555,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 
 	public function addComment(CommentParser $oComment){
-		$aKeys = array('_id', 'i_uid', 'i_prnt', 'username', 'b_owner', 'b', 't', 'ts');
+		$aKeys = array('_id', 'i_uid', 'i_prnt', 'username', 'avtr', 'b_owner', 'b', 't', 'ts');
 
 		$aComments = $this->getComments();
 		d('aComments: '.print_r($aComments, 1));
