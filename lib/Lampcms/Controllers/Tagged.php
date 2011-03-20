@@ -64,7 +64,6 @@ class Tagged extends Unanswered
 	 */
 	protected $qtab = 'questions';
 
-	protected $aTags;
 
 	/**
 	 * Select items according to conditions passed in GET
@@ -159,7 +158,10 @@ class Tagged extends Unanswered
 			$this->aPageVars['tags'] = $tags;
 		}
 
+		$this->makeFollowTagButton();
+		
 		return $this;
 	}
+
 }
 

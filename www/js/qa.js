@@ -472,9 +472,9 @@ YUI({
 	 * This function executes onClick on any link with class 'ajax'
 	 */
 	handleAjaxLinks = function(e) {
-		var ancestor, res, rtype, restype, resID, fbappid, fbcookie, el = e.currentTarget;
+		var ancestor, id, res, rtype, restype, resID, fbappid, fbcookie, el = e.currentTarget;
 		Y.log('el is ' + el + ' id is: ' + el.get('id'));
-		var id = el.get('id');
+		id = el.get('id');
 		e.halt();
 		e.preventDefault();
 		switch (true) {
@@ -676,11 +676,186 @@ YUI({
 				showShredForm(el.get('id'));
 			}
 			break;
+			
+		case el.test('.btnfollow'):
+			handleFollow(el);
+			
+			break;
 		
 		}
 	}, //
-
 	
+	handleFollow = function(el){	
+		el.removeClass('unfollow');
+		var title, controls, id, resID, ftype = 'q', follow = 'on', form, //
+		oLabels = {'q' : 'question', 'u' : 'user', 't' : 'tag'};
+		id = el.get('id');
+		resID = id.substr(3);
+	    Y.log('resID ' + resID);
+	    switch(true){
+		case ('fq' === id.substr(0, 2)):
+			Y.log('got fq');
+			ftype = 'q';
+			break;
+		
+		case ('fu' === id.substr(0, 2)):
+			ftype = 'u';
+			break;
+		
+		case('ft' === id.substr(0, 2)):
+			ftype = 't';
+			break;
+	    }
+	    
+	    Y.log('ftype: ' + ftype);
+		
+		if(el.test('.following')){
+			
+			// check if viewer is trying to unfollow own question
+			controls = Y.one('#res_' + resID);
+			Y.log('controls: ' + controls);
+			if(controls){
+				Y.log('got controls for qid: ' + resID);
+				if(controls.test('.uid-' + getViewerId())){
+					if(!confirm('Are you sure you want to unfollow your own question?')){
+						Y.log('Unfollow cancelled');
+						el.one('span.icoc').removeClass('del').addClass('check');
+						el.one('span.flabel').set('text', 'Following');
+						return;
+					}
+				}
+			}
+			title = (ftype === 'u') ? 'Follow' : 'Follow this ' + oLabels[ftype];
+			el.removeClass('following').addClass('follow');
+			el.set('title', title);
+			el.one('span.icoc').removeClass('check').addClass('cplus');
+			el.one('span.flabel').set('text', title);
+			follow = 'off';
+			
+		} else {
+			title = 'You are following this ' + oLabels[ftype];
+			el.removeClass('follow').addClass('following');
+			el.set('title', title);
+			el.one('span.icoc').removeClass('cplus').removeClass('del').addClass('check');
+			el.one('span.flabel').set('text', 'Following');
+			follow = 'on';
+		}
+
+			form = '<form name="form_f" action="/index.php">'
+			+ '<input type="hidden" name="a" value="follow">'
+			+ '<input type="hidden" name="ftype" value="'+ftype+'">'
+			+ '<input type="hidden" name="follow" value="'+follow+'">'
+			+ '<input type="hidden" name="f" value="' + resID + '">'
+			+ '<input type="hidden" name="token" value="'+ getToken() +'">';
+			
+			form=Y.one('body').appendChild(form);
+			Y.log('before setting form ');
+			cfg = {
+					method : 'POST',
+					form : {
+						id : form
+					}
+			};
+			
+			Y.log('after setting form ');
+			request = Y.io('/index.php', cfg);
+			Y.log('request: ' + request);
+		
+		return;
+	},
+    /**
+     * Handles mouseover event for any element
+     * that has 'mo' class
+     */
+	handleOver = function(e){
+		var sFlw = '<span class="icoc del">&nbsp;</span><span> Unfollow</span>',
+		el = e.currentTarget;
+		Y.log('mouseenter el: ' + el);
+		switch (true){
+		case el.test('.following'):
+			if(!el.hasClass('unfollow')){
+				el.addClass('unfollow');
+				el.one('span.icoc').removeClass('check').addClass('del');
+				el.one('span.flabel').set('text', 'Unfollow');
+			}
+		    
+			break;
+		}
+		
+	}, //
+	/**
+	 * Handles mouseleave from the 
+	 * Follow button
+	 */
+	handleOut = function(e){
+		var sFlw = '<span class="icoc check">&nbsp;</span><span> Following</span>',
+		el = e.currentTarget;
+		Y.log('mouseleave el: ' + el);
+		switch (true){
+		case (el.test('.following')):
+			el.removeClass('unfollow');
+			el.one('span.icoc').removeClass('dev').addClass('check');
+			el.one('span.flabel').set('text', 'Following');
+			break;
+		}
+	}, //
+	/**
+	 * Highlights the divs in view questions page(s)
+	 * to highlight the rows that contain questions
+	 * tagged with any of the tags that viewer
+	 * follows
+	 */
+	hiFollowedTags = function(){
+		if(Y.one("div.qlist")){
+			sel = getFollowedTagsSelectors();
+			eNodes = Y.all(sel);
+			if(eNodes && (eNodes.size() > 0)){
+				eNodes.each(function(){
+					var parent = this.ancestor("div.qs");
+					Y.log('parent: '+parent);
+					if(parent){
+						parent.addClass('followed_tag');
+					}
+				});
+			}
+		}
+	}, //
+	/**
+	 * Get values of tag names that 
+	 * user follows.
+	 * These values are extracted from the a tag
+	 * inside the span inside the #usrtags div
+	 * Then a string of css class selectors
+	 * is generated using the names of the tags
+	 * 
+	 * @todo replace # . and + with some special chars
+	 * but then we must also replace these same special chars
+	 * during the creation of tags links and during adding
+	 * to followed tags
+	 * This is mostly important for programming related
+	 * tags, no really used in other types of forums
+	 * But we should be able to use unicode in tag values!
+	 * Basically unicode chars in urls are allowed but....
+	 * We can still replace them with entities using
+	 * some type of mb_convert_encoding and using
+	 * html entities are the "to" option
+	 */
+	getFollowedTagsSelectors = function(){
+		var sel = '', numTags, eTags = Y.all("div#usrtags > div > span > a");
+		Y.log('eTags: ' + eTags);
+		if(eTags){
+			numTags = eTags.size();
+			Y.log('numTags: ' + numTags);
+			for(var i = 0; i<numTags; i+=1){
+				sel += 'div.t-' + eTags.item(i).get('text') + ',';
+			}
+			
+			sel = (sel.length > 0) ? sel.substring(0, sel.length - 1) : sel;
+			Y.log('sel: ' + sel);
+		}
+		
+		return sel;
+	},
 
 	// A function handler to use for successful requests:
 	handleSuccess = function(ioId, o) {
@@ -1170,7 +1345,7 @@ YUI({
 + '</form>'
 + '</div>';
 		
-		oAlert = getAlerter('<h3>Close this question</h3>');
+		 oAlert = getAlerter('<h3>Close this question</h3>');
 	     oAlert.set("bodyContent", form);
 	     oAlert.show(); 
 		}
@@ -1202,7 +1377,7 @@ YUI({
 + '</form>'
 + '</div>';
 		
-		oAlert = getAlerter('<h3>Edit Tags</h3>');
+		 oAlert = getAlerter('<h3>Edit Tags</h3>');
 	     oAlert.set("bodyContent", form);
 	     oAlert.show(); 
 		}
@@ -1266,8 +1441,8 @@ YUI({
 				+ '</form>'
 				+ '</div>';
 						
-						form = Y.Lang.sub(form, o);
-						oAlert = getAlerter('<h3>Delete item</h3>');
+						 form = Y.Lang.sub(form, o);
+						 oAlert = getAlerter('<h3>Delete item</h3>');
 					     oAlert.set("bodyContent", form);
 					     oAlert.show(); 
 		}
@@ -1455,7 +1630,6 @@ YUI({
 	 */
 	var isModerator = function(){
 		var role;
-		//Y.log('bModerator now : ' + bModerator, 'error');
 		if(bModerator < 2){
 			role = getMeta('role');
 			if(role && (('administrator' == role)  || ('moderator' == role) )){
@@ -1812,10 +1986,14 @@ YUI({
 		};
 	
 	revealComments();
+	hiFollowedTags();
 	Y.on('submit', MysubmitForm, '.qa_form');
 	//Y.on("click", handleAjaxLinks, ".ajax");
 	//Y.delegate("click", handleAjaxLinks, "#lastdiv", 'a.ajax');
 	Y.delegate("click", handleAjaxLinks, "body", '.ajax');
+	//Y.delegate("mouseover", handleOver, "body", '.following');
+	//Y.delegate("mouseout", handleOut, "body", '.following');
+	Y.one('body').delegate("hover", handleOver, handleOut, '.following');
 	/**
 	 * Listening the clicks on links inside #lastdiv
 	 * allows us to dynamically add modals and panels

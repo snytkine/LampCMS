@@ -101,13 +101,13 @@ class Viewquestion extends WebPage
 	protected $aTplVars = array();
 
 	protected $pageID = 1;
-	
+
 	/**
 	 * Flag indicates that comments have
 	 * been disabled, causing a special 'nocomments' css
 	 * class to be added to answer template, hiding
 	 * "comments" div, which also hides the "add comments" link
-	 * 
+	 *
 	 * @var bool
 	 */
 	protected $noComments = false;
@@ -130,6 +130,7 @@ class Viewquestion extends WebPage
 		->setSimilar()
 		->makeForm()
 		->setAnswerForm()
+		->makeFollowButton()
 		->setQuestionInfo()
 		->setFooter()
 		->increaseView()
@@ -141,7 +142,7 @@ class Viewquestion extends WebPage
 
 	protected function setQuestionInfo(){
 
-		$this->aPageVars['side'] = QuestionInfo::factory($this->oRegistry)->getHtml($this->oQuestion);
+		$this->aPageVars['side'] .= QuestionInfo::factory($this->oRegistry)->getHtml($this->oQuestion);
 
 		return $this;
 	}
@@ -178,7 +179,7 @@ class Viewquestion extends WebPage
 		$this->noComments = (false === (bool)$this->oRegistry->Ini->MAX_COMMENTS);
 		d('no comments: '.$this->noComments);
 		$aFields = ($this->noComments || false === (bool)$this->oRegistry->Ini->SHOW_COMMENTS) ? array('comments' => 0) : array();
-		
+
 		$this->aQuestion = $this->oRegistry->Mongo
 		->getCollection('QUESTIONS')
 		->findOne(array('_id' => (int)$this->oRequest['qid']), $aFields);
@@ -235,6 +236,7 @@ class Viewquestion extends WebPage
 		if($this->noComments){
 			$this->aQuestion['nocomments'] = ' nocomments';
 		}
+
 		$this->aPageVars['body'] = \tplQuestion::parse($this->aQuestion);
 
 		return $this;
@@ -465,11 +467,40 @@ class Viewquestion extends WebPage
 		return $this;
 	}
 
+	
 	protected function makeTopTabs(){
 
 		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', 'questions');
 		$this->aPageVars['topTabs'] = $tabs;
 
+		return $this;
+	}
+
+
+	
+	protected function makeFollowButton(){
+
+		$qid = $this->oQuestion->getResourceId();
+		d('qid: '.$qid);
+
+		$aVars = array(
+		'id' => $qid,
+		'icon' => 'cplus',
+		'label' => 'Follow this question',
+		'class' => 'follow',
+		'type' => 'fq',
+		'title' => 'Follow this question to be notified of new answers, comments and edits'
+		);
+
+		if(in_array($qid, $this->oRegistry->Viewer['a_f_q'])){
+			$aVars['label'] = 'Following';
+			$aVars['class'] = 'following';
+			$aVars['icon'] = 'check';
+			$aVars['title'] = 'You are following this question';
+		}
+
+		$this->aPageVars['side'] = '<div class="fr cb w90 lg rounded3 pl10 mb10"><div class="follow_wrap">'.\tplFollowButton::parse($aVars, false).'</div></div>';
+				
 		return $this;
 	}
 

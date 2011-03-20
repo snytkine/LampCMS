@@ -117,6 +117,7 @@ class Viewquestions extends WebPage
 		->makeQlistHeader()
 		->makeQlistBody()
 		->makeCounterBlock()
+		->makeFollowedTags()
 		->makeRecentTags();
 
 	}
@@ -136,7 +137,7 @@ class Viewquestions extends WebPage
 		 * meaning most recent should be on top
 		 *
 		 */
-		$sort = array('i_sticky' => -1, 'i_lm_ts' => -1); // 'is_sticky' => 1, 
+		$sort = array('i_sticky' => -1, 'i_lm_ts' => -1); // 'is_sticky' => 1,
 		/**
 		 * @todo translate this title later
 		 *
@@ -201,7 +202,7 @@ class Viewquestions extends WebPage
 		if(!$this->oRegistry->Viewer->isModerator()){
 			$where['i_del_ts'] = null;
 		}
-		
+
 		$this->oCursor = $this->oRegistry->Mongo->getCollection('QUESTIONS')->find($where);
 		d('$this->oCursor: '.gettype($this->oCursor));
 		$this->oCursor->sort($sort);
@@ -225,11 +226,27 @@ class Viewquestions extends WebPage
 		$this->pagerLinks = $oPaginator->getLinks();
 
 		d('$this->pagerLinks: '.$this->pagerLinks);
-		
+
 		return $this;
 	}
 
-
+	
+	/**
+	 * Generates html of the "recent tags"
+	 * block
+	 *
+	 * @todo If user is logged in AND
+	 * has 'followed tags' then don't use
+	 * cache and instead do this:
+	 * get array of recent tags, sort in a way
+	 * than user's tags are on top and then render
+	 * This way user's tags will always be on top
+	 * at a cost of couple of milliseconds we get
+	 * a nice personalization that does increase
+	 * the click rate!
+	 *
+	 * @return object $this
+	 */
 	protected function makeRecentTags(){
 
 		$s = $this->oRegistry->Cache->get('qrecent');
@@ -272,6 +289,7 @@ class Viewquestions extends WebPage
 		return $this;
 	}
 
+	
 	protected function makeQlistBody(){
 		d('cp');
 		$func = null;
@@ -288,7 +306,7 @@ class Viewquestions extends WebPage
 				}
 			};
 		}
-		
+
 		$sQdivs = \tplQrecent::loop($this->oCursor, true, $func);
 
 		$sQlist = \tplQlist::parse(array($this->typeDiv, $sQdivs, $this->pagerLinks), false);
@@ -308,6 +326,33 @@ class Viewquestions extends WebPage
 	 */
 	protected function makeCounterBlock(){
 		$this->aPageVars['topRight'] = \tplCounterblock::parse(array($this->oCursor->count(), 'Questions and counting', ''), false);
+
+		return $this;
+	}
+
+
+	/**
+	 * Creates div with tags user follows
+	 * The values from the tag links in that div
+	 * are also used by Javascript to highlight
+	 * the divs with questions that contain these tags
+	 *
+	 * This block is only added if user follows
+	 * at least one tag
+	 *
+	 * @todo Translate string Tags you follow
+	 *
+	 * @return object $this
+	 */
+	protected function makeFollowedTags(){
+
+		$aFollowed = $this->oRegistry->Viewer['a_f_t'];
+		d('$aFollowed: '.print_r($aFollowed, 1));
+		if(!empty($aFollowed)){
+				
+			$this->aPageVars['side'] = '<div id="usrtags" class="fl cb w90 pl10 mb10"><div class="pad8 lg cb fr rounded3 w90"><h4>Tags you follow</h4>'.\tplFollowedTags::loop($aFollowed, false).'</div></div>';
+
+		}
 
 		return $this;
 	}

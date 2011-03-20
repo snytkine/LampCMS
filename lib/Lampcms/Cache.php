@@ -544,8 +544,7 @@ class Cache extends Observer
 	public function qrecent(){
 		d('cp');
 		$limit = 30;
-		$coll = $this->oRegistry->Mongo->getCollection('QUESTION_TAGS');
-		$cur = $coll->find(array('i_count' => array('$gt' => 0)), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
+		$cur = $this->oRegistry->Mongo->QUESTION_TAGS->find(array('i_count' => array('$gt' => 0)), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
 		d('got '.$cur->count(true).' tag results');
 
 		$html = \tplLinktag::loop($cur);

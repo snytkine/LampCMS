@@ -63,6 +63,18 @@ class QuestionInfo extends LampcmsObject
 
 
 
+	/**
+	 * Generates html block with question info.
+	 * 
+	 * @todo also get count and N first
+	 * followers
+	 * Followers to be selected from USERS collection
+	 * using find() by a_f_q and using limit 5 
+	 * and then link to 'show more' if i_flwrs in oQuestion is > 5
+	 * 
+	 * 
+	 * @param Question $oQuestion
+	 */
 	public function getHtml(Question $oQuestion){
 		$this->oQuestion = $oQuestion;
 
@@ -85,7 +97,8 @@ class QuestionInfo extends LampcmsObject
 				'tags' => $tagsBlock,
 				'asked' => TimeAgo::format(new \DateTime($oQuestion['hts'])).' ago',
 				'updated' => TimeAgo::format(new \DateTime(date('r', $oQuestion['i_lm_ts']))).' ago',
-				'views' => $this->oQuestion['i_views']
+				'views' => $this->oQuestion['i_views'],
+		        'ans_count' => $this->oQuestion->getAnswerCount() 
 				)
 		);
 		

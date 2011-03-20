@@ -54,7 +54,7 @@ namespace Lampcms;
 
 
 /**
- * 
+ *
  * Class responsible for adding a new question
  * to QUESTIONS collection as well as updating
  * all Tags-related collections as well as increasing
@@ -243,7 +243,8 @@ class QuestionParser extends LampcmsObject
 		'v_s' => 's',
 		'f_s' => 's',
 		'ip' => $this->oSubmitted->getIP(),
-		'app' => 'web'
+		'app' => 'web',
+		'i_flwrs' => 1 // initially question has 1 follower - its author
 		);
 
 		/**
@@ -298,8 +299,37 @@ class QuestionParser extends LampcmsObject
 		$this->ensureIndexes();
 
 		$this->oQuestion->insert();
+		$this->followQuestion();
 
 		$this->oRegistry->Dispatcher->post($this->oQuestion, 'onNewQuestion');
+
+		return $this;
+	}
+
+
+	/**
+	 * Adds Question to array of user's followed
+	 * questions
+	 * and adds user details to array of Question's followers
+	 *
+	 * @return object $this
+	 */
+	protected function followQuestion(){
+		$qid = $this->oQuestion->getResourceId();
+		d('qid: '.$qid);
+		
+		$aFollowedQuestions = $this->oRegistry->Viewer['a_f_q'];
+		d('$aFollowedQuestions: '.$aFollowedQuestions);
+		if(in_array($qid, $aFollowedQuestions)){
+			e( 'User '.$this->oRegistry->Viewer->getUid().'is already following question $qid '.$qid);
+				
+			return $this;
+		}
+		
+		$aFollowedQuestions[] = $qid;
+		$this->oRegistry->Viewer['a_f_q'] = $aFollowedQuestions;
+		$this->oRegistry->Viewer['i_f_q'] = count($aFollowedQuestions);
+		$this->oRegistry->Viewer->save();
 
 		return $this;
 	}
@@ -320,13 +350,20 @@ class QuestionParser extends LampcmsObject
 		$quest->ensureIndex(array('a_tags' => 1));
 		$quest->ensureIndex(array('i_uid' => 1));
 		$quest->ensureIndex(array('hash' => 1));
+		
 		/**
 		 * Need ip index to use flood filter by ip
 		 * and to quickly find all posts by ip
 		 * in case of deleting a spam.
-		 * 
+		 *
 		 */
 		$quest->ensureIndex(array('ip' => 1));
+		
+		/**
+		 * Index a_f_q in USERS (array of followed question ids)
+		 * @todo move this to when the user is created!
+		 */
+		$this->oRegistry->Mongo->USERS->ensureIndex(array('a_f_q' => 1));
 
 		return $this;
 	}
@@ -355,7 +392,7 @@ class QuestionParser extends LampcmsObject
 
 	/**
 	 * Index question
-	 * 
+	 *
 	 * @todo do this via register_shutdown_function
 	 *
 	 * @return object $this
@@ -363,7 +400,7 @@ class QuestionParser extends LampcmsObject
 	protected function addToSearchIndex(){
 
 		IndexerFactory::factory($this->oRegistry)->indexQuestion($this->oQuestion);
-		
+
 		return $this;
 	}
 

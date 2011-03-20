@@ -186,8 +186,7 @@ class Responder
 		if(Request::isAjax()){
 			self::sendJSON(array('redirect' => $url));
 		}
-		
-		//sleep(1);
+
 		header("Location: ".$url);
 		exit(0);
 	}

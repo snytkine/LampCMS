@@ -69,18 +69,22 @@ class tplQuestionInfo extends Lampcms\Template\Template
 	'views' => '', //4
 	'asked_label' => 'Asked', //5
 	'views_label' => 'Views', // 6
-	'updated_label' => 'Last updated' //7
+	'updated_label' => 'Last updated', //7
+	'ans_count_label' => 'Answers', // 8
+	'ans_count' => '0' //9
 	);
 	
 	
 	protected static $tpl = '
-	<div class="box" id="question_details">
+	<div class="box pl10" id="question_details">
 		%1$s
 		<div class="box fl cb qinfo">
 			%5$s<br>
 			<strong>%2$s</strong><br><br>
 			%6$s<br>
 			<strong>%4$s</strong><br><br>
+			%8$s<br>
+			<strong>%9$s</strong><br><br>
 			%7$s<br>
 			<strong>%3$s</strong>
 		</div>

@@ -74,16 +74,18 @@ class tplUserInfo extends Lampcms\Template\Template
 	'ageLabel' => 'Age', //20
 	'description' => '', //21
 	'editRole' => '', // 22
+	'followButton' => '' // 23
 	);
 	
 	
 	protected static $tpl = '
 <div class="yui3-g" id="view_profile">
-<div class="yui3-u-1-5" id="profileLeft">
-	<div class="profile_avatar">%2$s</div>
-	<div class="user_score">%3$s<br><span>%4$s</span></div>
-	%22$s
-</div>
+	<div class="yui3-u-1-5" id="profileLeft">
+		<div class="profile_avatar">%2$s</div>
+		<div class="user_score">%3$s<br><span>%4$s</span></div>
+		%23$s
+		%22$s
+	</div>
 <div class="yui3-u-2-5" id="profileMiddle">
 <table class="user_stuff">
 	<tr>

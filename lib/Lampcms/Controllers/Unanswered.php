@@ -80,6 +80,9 @@ class Unanswered extends Viewquestions
 
 	protected $pagerPath = '/unanswered';
 
+
+	protected $aTags;
+
 	/**
 	 * Select items according to conditions passed in GET
 	 * Conditions can be == 'unanswered', 'hot', 'recent' (default)
@@ -131,6 +134,8 @@ class Unanswered extends Viewquestions
 				 *
 				 * @var unknown_type
 				 */
+
+				$this->makeFollowTagButton();
 				$this->counterTaggedText = \tplCounterblocksub::parse(array(str_replace(' ', ' + ', $this->oRequest['tags']), 'Tagged'), false);
 				break;
 
@@ -165,16 +170,17 @@ class Unanswered extends Viewquestions
 	 * @return array of tags passed in query string
 	 */
 	protected function getTags(){
-		$s = $this->oRequest['tags'];
+		if(empty($this->aTags)){
+			$s = $this->oRequest['tags'];
+			if(empty($s)){
+				return array();
+			}
 
-		if(empty($s)){
-			return array();
+			$this->aTags = explode(' ', $s);
+			d('aTags: '.print_r($this->aTags, 1));
 		}
-
-		$aTags = explode(' ', $s);
-		d('aTags: '.print_r($aTags, 1));
-
-		return $aTags;
+		
+		return $this->aTags;
 	}
 
 	/**
@@ -193,6 +199,56 @@ class Unanswered extends Viewquestions
 
 	protected function makeCounterBlock(){
 		$this->aPageVars['topRight'] = \tplCounterblock::parse(array($this->count, $this->title, $this->counterTaggedText), false);
+
+		return $this;
+	}
+
+
+	/**
+	 * Make html of the 'Follow this tag' button
+	 * Check is user is already following it, then
+	 * shows 'Following' button
+	 * Sets the value of $this->aPageVars['side']
+	 * to be the div with follow button
+	 * 
+	 * @return object $this
+	 * 
+	 */
+	protected function makeFollowTagButton(){
+
+		/**
+		 * Only show the follow tag button
+		 * if viewing page about only one tag
+		 * a page about multiple tags
+		 * will not show follow tag because
+		 * it's not clear which tag to follow
+		 * 
+		 */
+		if(count($this->aTags) === 1){
+			$tag = $this->aTags[0];
+			d('tag: '.$tag);
+			
+			$aFollowed = $this->oRegistry->Viewer['a_f_t'];
+			d('$aFollowed: '.print_r($aFollowed, 1));
+			
+			$aVars = array(
+			'id' => $tag,
+			'icon' => 'cplus',
+			'label' => 'Follow this tag',
+			'class' => 'follow',
+			'type' => 'ft',
+			'title' => 'Follow this tag to be notified when new questions are added'
+			);
+
+			if(in_array($tag, $aFollowed)){
+				$aVars['label'] = 'Following';
+				$aVars['class'] = 'following';
+				$aVars['icon'] = 'check';
+				$aVars['title'] = 'You are following this tag';
+			}
+
+			$this->aPageVars['side'] = '<div class="fr cb w90 lg rounded3 pl10 mb10"><div class="follow_wrap">'.\tplFollowButton::parse($aVars, false).'</div></div>';
+		}
 
 		return $this;
 	}
