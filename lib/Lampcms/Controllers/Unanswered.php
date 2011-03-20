@@ -179,7 +179,7 @@ class Unanswered extends Viewquestions
 			$this->aTags = explode(' ', $s);
 			d('aTags: '.print_r($this->aTags, 1));
 		}
-		
+
 		return $this->aTags;
 	}
 
@@ -189,8 +189,25 @@ class Unanswered extends Viewquestions
 	 * @see wwwViewquestions::makeRecentTags()
 	 */
 	protected function makeRecentTags(){
+		
+		/**
+		 * If user is logged in AND
+		 * has 'followed tags' then don't use
+		 * cache and instead do this:
+		 * get array of recent tags, sort in a way
+		 * than user's tags are on top and then render
+		 * This way user's tags will always be on top
+		 * at a cost of couple of milliseconds we get
+		 * a nice personalization that does increase
+		 * the click rate!
+		 * */
+		$aUserTags = $this->oRegistry->Viewer['a_f_t'];
+		if(!empty($aUserTags)){
+			$s = $this->getSortedRecentTags($aUserTags, 'unanswered');
+		} else {
+			$s = $this->oRegistry->Cache->qunanswered;
+		}
 
-		$s = $this->oRegistry->Cache->qunanswered;
 		$tags = \tplBoxrecent::parse(array('tags' => $s, 'title' => 'Unanswered tags'));
 		$this->aPageVars['tags'] = $tags;
 
@@ -210,9 +227,9 @@ class Unanswered extends Viewquestions
 	 * shows 'Following' button
 	 * Sets the value of $this->aPageVars['side']
 	 * to be the div with follow button
-	 * 
+	 *
 	 * @return object $this
-	 * 
+	 *
 	 */
 	protected function makeFollowTagButton(){
 
@@ -222,15 +239,15 @@ class Unanswered extends Viewquestions
 		 * a page about multiple tags
 		 * will not show follow tag because
 		 * it's not clear which tag to follow
-		 * 
+		 *
 		 */
 		if(count($this->aTags) === 1){
 			$tag = $this->aTags[0];
 			d('tag: '.$tag);
-			
+
 			$aFollowed = $this->oRegistry->Viewer['a_f_t'];
 			d('$aFollowed: '.print_r($aFollowed, 1));
-			
+
 			$aVars = array(
 			'id' => $tag,
 			'icon' => 'cplus',

@@ -230,12 +230,12 @@ class Viewquestions extends WebPage
 		return $this;
 	}
 
-	
+
 	/**
 	 * Generates html of the "recent tags"
 	 * block
 	 *
-	 * @todo If user is logged in AND
+	 * If user is logged in AND
 	 * has 'followed tags' then don't use
 	 * cache and instead do this:
 	 * get array of recent tags, sort in a way
@@ -249,7 +249,12 @@ class Viewquestions extends WebPage
 	 */
 	protected function makeRecentTags(){
 
-		$s = $this->oRegistry->Cache->get('qrecent');
+		$aUserTags = $this->oRegistry->Viewer['a_f_t'];
+		if(!empty($aUserTags)){
+			$s = $this->getSortedRecentTags($aUserTags);
+		} else {
+			$s = $this->oRegistry->Cache->get('qrecent');
+		}
 		$tags = \tplBoxrecent::parse(array('tags' => $s));
 		d('cp');
 		$this->aPageVars['tags'] = $tags;
@@ -289,7 +294,7 @@ class Viewquestions extends WebPage
 		return $this;
 	}
 
-	
+
 	protected function makeQlistBody(){
 		d('cp');
 		$func = null;
@@ -349,12 +354,67 @@ class Viewquestions extends WebPage
 		$aFollowed = $this->oRegistry->Viewer['a_f_t'];
 		d('$aFollowed: '.print_r($aFollowed, 1));
 		if(!empty($aFollowed)){
-				
+
 			$this->aPageVars['side'] = '<div id="usrtags" class="fl cb w90 pl10 mb10"><div class="pad8 lg cb fr rounded3 w90"><h4>Tags you follow</h4>'.\tplFollowedTags::loop($aFollowed, false).'</div></div>';
 
 		}
 
 		return $this;
+	}
+
+
+	/**
+	 * Creates html for the recent tags block
+	 * but user's followed tags will always be
+	 * on top
+	 *
+	 *
+	 * @param array $aUserTags array of tags user follows
+	 *
+	 * @return string html with parsed tags links
+	 */
+	protected function getSortedRecentTags(array $aUserTags, $type = 'recent'){
+
+		$limit = 30;
+		if('unanswered' === $type){
+			$cur = $this->oRegistry->Mongo->UNANSWERED_TAGS->find(array(), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
+		} else {
+			$cur = $this->oRegistry->Mongo->QUESTION_TAGS->find(array('i_count' => array('$gt' => 0)), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
+		}
+		
+		d('got '.$cur->count(true).' tag results');
+		$aTags = iterator_to_array($cur);
+
+		d('aTags: '.print_r($aTags, 1));
+		/**
+		 * $aTags now looks like array of
+		 * elements like this one:
+		 * [4d84c3693630000000003820] => Array
+		 (
+		 [_id] => MongoId Object
+		 (
+		 [$id] => 4d84c3693630000000003820
+		 )
+
+		 [i_count] => 1
+		 [tag] => pop
+		 )
+		 */
+
+		if(!empty($aTags)){
+			usort($aTags, function($a, $b) use ($aUserTags){
+				return (in_array($a['tag'], $aUserTags)) ? -1 : 1;
+			});
+		};
+
+		d('$aTags now: '.print_r($aTags, 1));
+
+		$html = \tplLinktag::loop($aTags);
+
+		d('html recent tags: '.$html);
+
+		return '<div class="tags-list">'.$html.'</div>';
+
 	}
 
 }

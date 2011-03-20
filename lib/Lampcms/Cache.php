@@ -564,8 +564,7 @@ class Cache extends Observer
 	 */
 	public function qunanswered(){
 		$limit = 30;
-		$coll = $this->oRegistry->Mongo->getCollection('UNANSWERED_TAGS');
-		$cur = $coll->find(array(), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
+		$cur = $this->oRegistry->Mongo->UNANSWERED_TAGS->find(array(), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
 		$count = $cur->count(true);
 		d('got '.$count.' tag results');
 
