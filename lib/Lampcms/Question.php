@@ -658,4 +658,13 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	public function getQuestionOwnerId(){
 		return $this->getOwnerId();
 	}
+
+	/**
+	 * Get username of asker
+	 *
+	 * @return string
+	 */
+	public function getUsername(){
+		return $this->offsetGet('username');
+	}
 }

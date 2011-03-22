@@ -64,8 +64,8 @@ class tplFormask extends Lampcms\Template\Template
 	'com_hand' => '', // 15
 	'readonly' => '', // 16
 	'disabled' => '', // 17
-	/* 18 */ 'connectBlock' => '',
-	/* 19 */ 'formError' => ''); // 19
+	'connectBlock' => '', //18
+	'formError' => ''); // 19
 
 	protected static $tpl = '
 	<div id="ask_form"  class="form_wrap">
@@ -75,15 +75,15 @@ class tplFormask extends Lampcms\Template\Template
 		<input type="hidden" name="token" value="%1$s">
 		%18$s
 		<div class="form_el"> 
-                <label for="id_title">%4$s</label>: <span class="f_err">%6$s</span><br> 
+                <label for="id_title">%4$s</label>: <span class="f_err" id="title_e">%6$s</span><br> 
                 <input autocomplete="off" id="id_title" class="title_c%15$s" type="text" name="title" size="80" value="%3$s" %16$s> 
                 <div id="title_d" class="caption">%5$s</div> 
        </div>
        <!-- // el title -->
             <div id="similar_questions"></div> 
             <div class="form_el"> 
-                <textarea id="id_qbody" rows="6" cols="40" class="com_body%15$s" name="qbody" %16$s>%8$s</textarea><br>
-                <span class="f_err">%9$s</span>
+                <textarea id="id_qbody" rows="6" cols="40" class="com_body%15$s" name="qbody" %16$s>%8$s</textarea>
+                <span class="f_err fl cb" id="qbody_e">%9$s</span>
                 <div id="body_preview"></div>
                 <span class="label">Preview</span>
                 <div id="tmp_preview"></div>
@@ -91,7 +91,7 @@ class tplFormask extends Lampcms\Template\Template
             <!-- // el body -->
             
             <div class="form_el"> 
-            	<label for="id_tags">%11$s</label>: (* %2$s) <span class="f_err">%13$s</span><br> 
+            	<label for="id_tags">%11$s</label>: (* %2$s) <span class="f_err"  id="tags_e">%13$s</span><br> 
                 <input autocomplete="off" id="id_tags" type="text" name="tags" class="tags_c%15$s" size="80" value="%10$s" %16$s>  
             	<div id="tags_d" class="caption">%12$s</div> 
             </div>

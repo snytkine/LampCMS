@@ -446,6 +446,7 @@ YUI({
 		body = form.one("textarea[name=com_body]");
 		numChars = body.get("value").length;
 		if (body && (numChars < 10 )) {
+			Y.log('comment form body too short');
 			alert('Comment must be at least 10 characters long');
 			return;
 		}
@@ -684,8 +685,15 @@ YUI({
 		
 		}
 	}, //
-	
-	handleFollow = function(el){	
+	/**
+	 * Handles clicks on follow button
+	 * 
+	 */
+	handleFollow = function(el){
+		if(!ensureLogin()){
+			return;
+		}
+		
 		el.removeClass('unfollow');
 		var title, controls, id, resID, ftype = 'q', follow = 'on', form, //
 		oLabels = {'q' : 'question', 'u' : 'user', 't' : 'tag'};
@@ -919,13 +927,24 @@ YUI({
 		}
 
 		if (data.formError) {
+			Y.log('Form Error: ' + data.formError);
 			/**
 			 * @todo write setFormError function to test if we have div with
 			 *       form_err id then set its innerHTML otherwise just alert
 			 *       error;
 			 */
-			Y.log('Form Error: ' + data.formError);
-			alert(data.formError);
+			if(Y.one(".form_error")){
+				Y.one(".form_error").set('innerHTML', data.formError);
+			} else {
+				alert(data.formError);
+			}
+			
+			return;
+		}
+		
+		if(data.formElementError){
+			setFormError(data.formElementError);
+			
 			return;
 		}
 		
@@ -982,6 +1001,36 @@ YUI({
 			}
 		}
 	}, //
+	/**
+	 * Set error message for the form element
+	 * The form should have div or span 
+	 * with id name like 'formField_e'
+	 * where formField is the actual field like
+	 * 'title', so error div for title will be
+	 * title_d
+	 * If such div/span cannot be found, then
+	 * set form-wide error inside the div/span
+	 * with form_error class and if that cannot
+	 * be found then just show error in alert
+	 */
+	setFormError = function(o){
+		var field, eErr, eFormErr;
+		for(field in o){
+			if(o.hasOwnProperty(field)){
+				eErr = (Y.one("#" + field + "_e"));
+				if(eErr){
+					eErr.set('text', o[field]);
+				} else{
+					eFormErr = Y.one(".form_error");
+					if(eFormErr){
+						eFormErr.set('text: ' + o[field]);
+					} else {
+						alert(o[field]);
+					}
+				}
+			}
+		}
+	}, //
 
 	handleFailure = function(ioId, o) {
 		hideLoading();
@@ -998,14 +1047,15 @@ YUI({
 	 * Submit question or answer form via ajax
 	 */
 	var MysubmitForm = function(e) {
-			
-		var mbody, title, tags, reason, form = e.currentTarget;
 		
+		var mbody, title, tags, reason, form = e.currentTarget;
+		Y.log('starting MysubmitForm');
 		Y.log('form is: ' + form);
 		// var title_d = Y.one("#title_d").get("value"); // wtf?
 
 		title = form.one("#id_title");
 		if (title && (10 > title.get("value").length)) {
+			Y.log('title too short');
 			alert('Please enter a descriptive title at least 10 characters long');
 			e.halt();
 			return;
@@ -1040,7 +1090,8 @@ YUI({
 		 * separate code previews
 		 */
 		//mbody = mbody.replace(/"codepreview"/g, '"code"');
-		if (10 > mbody.length) {
+		if (mbody.length < 10) {
+			Y.log('body too short');
 			alert('Questions and answers must be at least 10 characters long');
 			e.halt();
 			return;
@@ -1063,7 +1114,7 @@ YUI({
 		/*
 		 * e.halt(); return;
 		 */
-		Y.log('mbody: ' + mbody);
+		Y.log('1069 mbody: ' + mbody);
 
 		var cfg = {
 			method : 'POST',
@@ -1075,7 +1126,8 @@ YUI({
 
 		showLoading(Y.one(".form_wrap"));
 		var request = Y.io('/index.php', cfg);
-
+		Y.log('request: ' + request);
+		
 		e.halt();
 		return false;
 

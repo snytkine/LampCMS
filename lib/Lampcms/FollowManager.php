@@ -119,7 +119,7 @@ class FollowManager extends LampcmsObject
 		$aFollowedQuestions = $oUser['a_f_q'];
 		d('$aFollowedQuestions: '.print_r($aFollowedQuestions, 1));
 		if(in_array($qid, $aFollowedQuestions)){
-			e( 'User '.$oUser->getUid().' is already following question $qid '.$qid);
+			d( 'User '.$oUser->getUid().' is already following question $qid '.$qid);
 
 			return $this;
 		}

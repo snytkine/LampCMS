@@ -110,7 +110,7 @@ class Askform extends Form
 	
 	protected function validateBody(){
 		$body = $this->oRegistry->Request['qbody'];
-		if(strlen($body) < 20){
+		if(strlen($body) < 10){
 			$this->setError('qbody', 'Question must contain at least 20 letters');
 		}
 

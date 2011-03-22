@@ -75,18 +75,41 @@ class Mailer extends LampcmsObject
 	 * but inside the register_shutdown_function()
 	 * This way function returns immediately
 	 *
-	 * @param unknown_type $to
-	 * @param unknown_type $subject
-	 * @param unknown_type $body
+	 * Also accept Iteractor so we can use the
+	 * cursor in place of $to
+	 *
+	 * Has the ability to pass in
+	 * callback function and that function
+	 * would return email address or false
+	 * if email should not be sent
+	 * This will be used if $to is iterator or array
+	 * and contains fields like e_ft = null or does not exist
+	 * So we can check if (empty($a['e_ft']){
+	 *  return flase // skip this one
+	 * } else {
+	 *  return $a['email'];
+	 * }
+	 *
+	 *
+	 * @param mixed $to
+	 * @param string $subject
+	 * @param string $body
+	 *
+	 * @param function $func callback function to be applied
+	 * to each record of the array.
+	 *
 	 * @throws DevException
 	 */
-	public function mail($to, $subject, $body){
+	public function mail($to, $subject, $body, $func = null){
 
-		if(!is_string($to) && !is_array($to)){
-			throw new DevException('$to can be only string or array. Was: '.gettype($to));
+		if(!is_string($to) && !is_array($to) && (!is_object($to) || !($to instanceof \Iterator))){
+				
+			$class = (is_object($to)) ? get_class($to) : 'not an object';
+				
+			throw new DevException('$to can be only string or array or object implementing Iterator. Was: '.gettype($to).' class: '.$class);
 		}
 
-		$aTo = (array)($to);
+		$aTo = (is_string($to)) ? (array)($to) : $to;
 
 		$aHeaders = array();
 		$aHeaders['From'] = $this->from;
@@ -96,17 +119,63 @@ class Mailer extends LampcmsObject
 		$s = $subject;
 		$b = $body;
 
-		register_shutdown_function(function() use ($s, $b, $headers, $aTo){
-			
+		register_shutdown_function(function() use ($s, $b, $headers, $aTo, $func){
+
+			$total = (is_array($aTo)) ? count($aTo) : $aTo->count();
+			d('total '.$total);
+			/**
+			 * @todo deal with breaking up
+			 * the long array/cursor into
+			 * smaller chunks and send emails
+			 * in groups on N then wait N seconds
+			 * This is handled differently for cursors and for arrays
+			 */
+
 			foreach($aTo as $to){
+				d('$to: '.print_r($to, 1));
 				/**
 				 * Deal with format of array when array
 				 * is result of iterator_to_array($cur)
 				 * where $cur is MongoCursor - result of
 				 * find()
 				 */
-				if(is_array($to) && !empty($to['email']) ){
-					$to = $to['email'];
+				if(is_array($to)){
+					/**
+					 * If callback function is passed to mail()
+					 * then it must accept array or
+					 * one user record as argument and must
+					 * return either email address (string)
+					 * or false if record should be skipped
+					 * For example, if array contains something like this
+					 * 'email' => user@email.com,
+					 * 'e_ft' => null
+					 *
+					 * Which indicates that user does not want
+					 * to receive emails on followed tag
+					 *
+					 * This is a way to pass callback to serve
+					 * as a filter - to users who opted out
+					 * or receiving emails on specific events
+					 * will not receive them
+					 *
+					 * Since each opt-out flag is different, the
+					 * each callback for specific type of mailing
+					 * will also be different.
+					 *
+					 */
+					if(is_callable($func)) {
+						$to = $func($to);
+					} else {
+						if(!empty($to['email'])) {
+							$to = $to['email'];
+						}
+					}
+
+				}
+
+				if(empty($to) || !is_string($to)) {
+					d('skipping email '.$to);
+					continue;
 				}
 
 				if(true !== \mail($to, $s, $b, $headers)){

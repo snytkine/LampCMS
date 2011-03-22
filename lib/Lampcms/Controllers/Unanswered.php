@@ -83,6 +83,7 @@ class Unanswered extends Viewquestions
 
 	protected $aTags;
 
+	
 	/**
 	 * Select items according to conditions passed in GET
 	 * Conditions can be == 'unanswered', 'hot', 'recent' (default)
@@ -163,6 +164,7 @@ class Unanswered extends Viewquestions
 		return $this;
 	}
 
+	
 	/**
 	 * Extract value of tags from
 	 * query string and turn into array
@@ -183,6 +185,7 @@ class Unanswered extends Viewquestions
 		return $this->aTags;
 	}
 
+	
 	/**
 	 * @todo translate word "Unanswered"
 	 *
@@ -214,6 +217,8 @@ class Unanswered extends Viewquestions
 		return $this;
 	}
 
+	
+	
 	protected function makeCounterBlock(){
 		$this->aPageVars['topRight'] = \tplCounterblock::parse(array($this->count, $this->title, $this->counterTaggedText), false);
 

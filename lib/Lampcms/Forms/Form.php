@@ -115,6 +115,17 @@ class Form extends LampcmsObject
 	 * Name of form template file
 	 * The name of actual template should be
 	 * set in sub-class
+	 * 
+	 * Templates must have these placeholders:
+	 * filedName, fieldName_e for setting 
+	 * error specific to form field
+	 * 
+	 * and also 'formError'
+	 * with corresponding html in template: <div class="form_error">%%</div>
+	 * for setting form error
+	 * via javascript %% should correspond to 'formError' 
+	 * position in vars array, for example %19$s
+	 * 
 	 *
 	 * @var string
 	 */

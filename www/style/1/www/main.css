@@ -8757,7 +8757,7 @@ input.submit,button,input[type="submit"],input[type="button"],input[type="file"]
 	padding: 6px;
 }
 
-#form_error li,.form_error li,.f_err li {
+#form_error li,.form_error li,.f_err {
 	color: red;
 	font-size: 120%;
 }

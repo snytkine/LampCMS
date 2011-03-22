@@ -100,7 +100,15 @@ class Answer extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\
 	}
 
 
-
+	/**
+	 * Get username of answerer
+	 * 
+	 * @return string
+	 */
+	public function getUsername(){
+		return $this->offsetGet('username');
+	}
+	
 	/**
 	 *
 	 * Mark this item as deleted but only
@@ -387,7 +395,7 @@ class Answer extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\
 		return $this;
 	}
 
-	
+
 	/**
 	 * Getter for 'comments' element
 	 * @return array of comments or empty array if

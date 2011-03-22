@@ -53,6 +53,15 @@
 
 namespace Lampcms\Modules\Observers;
 
+/**
+ * This filter watches
+ * the IP address of request
+ * and can throw exception if 
+ * request came from banned IP
+ * 
+ * @author admin
+ *
+ */
 class IpFilter extends \Lampcms\Observer
 {
 

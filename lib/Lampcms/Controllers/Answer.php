@@ -134,7 +134,7 @@ class Answer extends Viewquestion
 				 * must alreayd be included in the returned html
 				 *
 				 */
-				$aAnswer['edit_delete'] = ' | <span class="edit" title="Edit">edit</span>  | <span class="del" title="Delete">delete</span>';
+				$aAnswer['edit_delete'] = ' <span class="ico del ajax" title="Delete">delete</span>  <span class="ico edit ajax" title="Edit">edit</span>';
 				$a = array('answer' => \tplAnswer::parse($aAnswer));
 				d('before sending out $a: '.print_r($a, 1));
 

@@ -149,6 +149,7 @@ class Answerparser extends LampcmsObject
 		$this->oQuestion = (null !== $q) ? $q : $this->getQuestion();
 
 		$this->makeAnswer()
+		->followQuestion()
 		->updateQuestion();
 
 		return $this->oAnswer;
@@ -202,7 +203,7 @@ class Answerparser extends LampcmsObject
 		'i_quid' => $this->oQuestion->getOwnerId(),
 		'title' => $this->oQuestion->title,	
 		'hash' => $hash,
-		'uname' => $username,
+		'username' => $username,
 		'ulink' => '<a href="'.$this->oSubmittedAnswer->getUserObject()->getProfileUrl().'">'.$username.'</a>',
 		'avtr' => $this->oSubmittedAnswer->getUserObject()->getAvatarSrc(),
 		'i_up' => 0,
@@ -269,7 +270,7 @@ class Answerparser extends LampcmsObject
 
 		$this->oAnswer->insert();
 
-		$this->oRegistry->Dispatcher->post($this->oAnswer, 'onNewAnswer');
+		$this->oRegistry->Dispatcher->post($this->oAnswer, 'onNewAnswer', array('question' => $this->oQuestion));
 
 		/**
 		 * Reuse $uid since we already resolved it here,
@@ -332,6 +333,22 @@ class Answerparser extends LampcmsObject
 
 		$this->oQuestion->updateAnswerCount();
 
+		return $this;
+	}
+	
+	
+	/**
+	 * Answer author will automatically
+	 * start following this question
+	 * 
+	 * @return object $this
+	 */
+	protected function followQuestion(){
+		d('cp');
+		
+		$oFollowManager = new FollowManager($this->oRegistry);
+		$oFollowManager->followQuestion($this->oRegistry->Viewer, $this->oQuestion);
+	
 		return $this;
 	}
 
