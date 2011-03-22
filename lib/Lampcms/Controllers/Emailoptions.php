@@ -60,7 +60,8 @@ use \Lampcms\Responder;
 class Emailoptions extends WebPage
 {
 	protected $membersOnly = true;
-
+	
+	protected $permission = 'edit_profile';
 
 	protected $layoutID = 1;
 
