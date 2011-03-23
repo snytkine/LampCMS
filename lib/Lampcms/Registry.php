@@ -76,7 +76,7 @@ namespace Lampcms;
  * @author Dmitri Snytkine
  *
  */
-class Registry extends LampcmsObject
+class Registry implements Interfaces\LampcmsObject
 {
 	protected static $instance;
 
@@ -106,7 +106,7 @@ class Registry extends LampcmsObject
 
 	/**
 	 * @todo
-	 * add 
+	 * add
 	 * Tr (needs Langs (needs Mongo))
 	 * it will be using oMongo, no Cache, so... you know...
 	 * maybe we don't even need Langs anymore?
@@ -197,8 +197,8 @@ class Registry extends LampcmsObject
 
 		if(!empty($aObservers)){
 			foreach($aObservers as $key => $className){
-				$observer = new $className($this);
-				$this->__get('Dispatcher')->attach($observer);
+				//$observer = new $className($this);
+				$this->__get('Dispatcher')->attach($className::factory($this));
 			}
 		}
 
@@ -306,6 +306,38 @@ class Registry extends LampcmsObject
 		}
 
 		return $defaultLang;
+	}
+
+	/**
+	 * Get unique hash code for the object
+	 * This code uniquely identifies an object,
+	 * even if 2 objects are of the same class
+	 * and have exactly the same properties, they still
+	 * are uniquely identified by php
+	 *
+	 * @return string
+	 */
+	public function hashCode()
+	{
+		return spl_object_hash($this);
+	}
+
+	/**
+	 * Getter of the class name
+	 * @return string the class name of this object
+	 */
+	public function getClass()
+	{
+		return get_class($this);
+	}
+
+	/**
+	 * Outputs the name and uniqe code of this object
+	 * @return string
+	 */
+	public function __toString()
+	{
+		return 'object of type: '.$this->getClass().' hashCode: '.$this->hashCode();
 	}
 }
 

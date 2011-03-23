@@ -77,7 +77,33 @@ class Observer implements \SplObserver
 	public function __construct(Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
 	}
+	
+	/**
+	 * Factory method.
+	 * All Observers are instantiated via
+	 * a factory method.
+	 * This way an observer may have own
+	 * factory method and have a login inside it
+	 * to return instance of different class depending
+	 * on some conditions. This extra abstruction
+	 * makes writing custom Observer even
+	 * more flexible
+	 * 
+	 * 
+	 * @param Registry $oRegistry
+	 */
+	public static function factory(Registry $oRegistry){
+		return new static($oRegistry);
+	}
+	
 
+	/**
+	 * Implementation of
+	 * SplSubject::update method
+	 * 
+	 * (non-PHPdoc)
+	 * @see SplObserver::update()
+	 */
 	public function update(\SplSubject $oNotification){
 
 		$this->eventName = $oNotification->getNotificationName();

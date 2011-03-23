@@ -222,34 +222,7 @@ YUI({
 		return tzo;
 	}, //
 	
-	
-	/**
-	 * Get value of meta tag
-	 * @param string metaName 
-	 * @param bool asNode if true then return
-	 * the Node representing <meta> element
-	 * 
-	 * @todo use memoizer to cache resolved metas
-	 * 
-	 * @return mixed false if meta tag does not exist
-	 * or string of meta element "content" or 
-	 * YUI3 Node object if asNode (true) is passed
-	 */
-	_getMeta = function(metaName, asNode){
-		var ret, node = Y.one('meta[name=' + metaName +']');
-		Y.log('meta node for meta ' + metaName+ ' is: ' + node);
-		if(!node){
-			return false;
-		}
-		
-		if(asNode){
-			return node;
-		}
-		
-		return node.get('content');
-	}, //
-	
-	
+
 	/**
 	 * Attach loading mask to node
 	 * and show it
@@ -298,7 +271,7 @@ YUI({
 	 * 
 	 */
 	initGfcSignup = function(){
-		if (!google || !google.friendconnect) {
+		if ((typeof google === 'undefined') || !google.friendconnect) {
 			Y.log('No google or google.friendconnect', 'error');
 			return;
 		}
@@ -378,7 +351,7 @@ YUI({
 	 * an invitation to join this site
 	 */
 	initFbInvite = function(target){
-		if (!FB) {
+		if (typeof FB === 'undefined') {
 			Y.log('No FB object', 'error');
 			return;
 		}
@@ -507,12 +480,16 @@ YUI({
 			break;
 			
 		case (id == 'gfcset'):
-			google.friendconnect.requestSettings();
+			if((typeof google !=='undefined') && google.friendconnect){
+				google.friendconnect.requestSettings();
+			}
 			break;
 			
 		case (id == 'gfcinvite'):
 			Y.log('clicked on gfcinvite.');
-			google.friendconnect.requestInvite();
+			if((typeof google !=='undefined') && google.friendconnect){
+				google.friendconnect.requestInvite();
+			}
 			break;
 			
 		case (id === 'fbinvite'):
@@ -528,7 +505,7 @@ YUI({
 			e.preventDefault();
 			Y.log('clicked logout');
 
-			if(FB){
+			if(typeof FB !== 'undefined'){
 				Y.log('has FB');
 				fbappid = getMeta('fbappid');
 				Y.log('fbappid: ' + fbappid);
@@ -542,7 +519,7 @@ YUI({
 				}
 			}
 			
-			if(google && google.friendconnect){
+			if((typeof google !=='undefined') && google.friendconnect){
 				Y.log('has GFC for logout');
 				if (!window.gfc_timesloaded) {
 				      window.gfc_timesloaded = 1;
@@ -1051,7 +1028,6 @@ YUI({
 		var mbody, title, tags, reason, form = e.currentTarget;
 		Y.log('starting MysubmitForm');
 		Y.log('form is: ' + form);
-		// var title_d = Y.one("#title_d").get("value"); // wtf?
 
 		title = form.one("#id_title");
 		if (title && (10 > title.get("value").length)) {
@@ -1105,16 +1081,8 @@ YUI({
 		 * properly parsed, especially cleaned inside the 'pre' tags
 		 */
 		form.one("textarea[name=qbody]").set("value", mbody);
-		/**
-		 * Now run save to set the body of the form back from the editor into
-		 * form
-		 * 
-		 * Maybe via set('value', html)? Will it work?
-		 */
-		/*
-		 * e.halt(); return;
-		 */
-		Y.log('1069 mbody: ' + mbody);
+		
+		Y.log('1117 mbody: ' + mbody);
 
 		var cfg = {
 			method : 'POST',
@@ -1123,8 +1091,11 @@ YUI({
 				useDisabled : true
 			}
 		};
-
-		showLoading(Y.one(".form_wrap"));
+		
+		if(Y.one("#dostuff") && Y.one("#dostuff").ancestor('div')){
+			showLoading(Y.one("#dostuff").ancestor('div'));
+		}
+		
 		var request = Y.io('/index.php', cfg);
 		Y.log('request: ' + request);
 		
@@ -1146,7 +1117,7 @@ YUI({
 		editor = new YAHOO.widget.Editor('id_qbody', {
 			dompath : true, // without dompath resize does not work
 			width : '660px',
-			height : '180px',
+			height : '120px',
 			autoHeight : true,
 			extracss : 'pre { margin-left: 10px; margin-right: 10px; padding: 2px; background-color: #EEE; } ',
 			animate : true,
@@ -1829,7 +1800,7 @@ YUI({
 		if (!fbPerms) {
 			fbPerms = '';
 		}
-		if (FB) {
+		if (typeof FB !== 'undefined') {
 			FB.login(function(response) {
 				if (response.session) {
 					Y.log('FB Signed in');
@@ -2040,19 +2011,16 @@ YUI({
 	revealComments();
 	hiFollowedTags();
 	Y.on('submit', MysubmitForm, '.qa_form');
-	//Y.on("click", handleAjaxLinks, ".ajax");
 	//Y.delegate("click", handleAjaxLinks, "#lastdiv", 'a.ajax');
-	Y.delegate("click", handleAjaxLinks, "body", '.ajax');
-	//Y.delegate("mouseover", handleOver, "body", '.following');
-	//Y.delegate("mouseout", handleOut, "body", '.following');
-	Y.one('body').delegate("hover", handleOver, handleOut, '.following');
 	/**
 	 * Listening the clicks on links inside #lastdiv
 	 * allows us to dynamically add modals and panels
 	 * to lastdiv and already subscriebed listeners will
 	 * just work
 	 */
-	//Y.delegate("click", handleAjaxLinks, "#qview-main", ".controls span, .ajax"); //, "a"
+	Y.delegate("click", handleAjaxLinks, "body", '.ajax');
+	Y.one('body').delegate("hover", handleOver, handleOut, '.following');
+	
 	/**
 	 * Any forms inside the alerter modal window will be
 	 * handled by handleModalForm()
@@ -2060,7 +2028,7 @@ YUI({
 	Y.delegate("submit", handleModalForm, "#fbOverlay", 'form');
 	/**
 	 * Any forms inside the add_com will be
-	 * handled by handleModalForm() //handleCommentForm
+	 * handled by handleCommentForm
 	 */
 	Y.delegate("submit", handleCommentForm, "#qview-body", '.comform');
 	/**

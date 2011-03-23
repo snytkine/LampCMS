@@ -43,7 +43,9 @@ class tplSettings extends \Lampcms\Template\Template
 	'confirmation' => '', // 1
 	'change_password' => 'Change password', // 2
 	'profile' => 'Profile', //3
-	'profileUrl' => '' //4
+	'profileUrl' => '', //4
+	'profileUrl' => '', //4
+	'emailPrefs' => 'Email stuff' // 5
 	);
 
 
@@ -51,11 +53,15 @@ class tplSettings extends \Lampcms\Template\Template
 	<div id="tools"> 
 	%1$s
 		<div class="tool"> 
-			<div class="icn profile"> </div> 
+			<div class="icn profile">&nbsp;</div> 
 			<div class="tool_link"><a href="%4$s">%3$s</a></div> 
-		</div> 
+		</div>
 		<div class="tool"> 
-			<div class="icn changepass"> </div> 
+			<div class="icn emailprefs">&nbsp;</div> 
+			<div class="tool_link"><a href="/emailoptions/">%5$s</a></div> 
+		</div>  
+		<div class="tool"> 
+			<div class="icn changepass">&nbsp;</div> 
 			<div class="tool_link"><a href="/changepwd/">%2$s</a></div> 
 		</div> 
 		

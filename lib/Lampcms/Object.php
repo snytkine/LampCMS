@@ -234,7 +234,8 @@ class LampcmsObject implements Interfaces\LampcmsObject
 	 *
 	 * @todo We really MUST require all LampcmsObjects to
 	 * follow the same constructor patters where it only accepts
-	 * Registry object. But requiring it by making this method 'final'
+	 * Registry object. 
+	 * But requiring it by making this method 'final'
 	 * will make this object a lot less flexible.
 	 * So, for now it is up to the concrete class to make
 	 * their own constructor
@@ -256,9 +257,8 @@ class LampcmsObject implements Interfaces\LampcmsObject
 	 * @param Registry $oRegistry
 	 */
 	public static function factory(Registry $oRegistry){
-		$o = new static($oRegistry);
-
-		return $o;
+		
+		return new static($oRegistry);
 	}
 
 	/**

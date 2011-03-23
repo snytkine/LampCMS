@@ -286,7 +286,14 @@ class FollowManager extends LampcmsObject
 	}
 
 
-
+	/**
+	 * Process follow user request
+	 *
+	 * @param Object $oUser object of type User user who follows
+	 * @param int $userid id user being followed (followee)
+	 *
+	 * @return object $this
+	 */
 	public function followUser(User $oUser, $userid){
 
 		if(!is_int($userid)){
@@ -317,7 +324,15 @@ class FollowManager extends LampcmsObject
 	}
 
 
-
+	/**
+	 * Process unfollow user request
+	 *
+	 * @param User $oUser who is following
+	 * @param int $userid id user user being unfollowed
+	 * @throws \InvalidArgumentException
+	 *
+	 * @return object $this
+	 */
 	public function unfollowUser(User $oUser, $userid){
 
 		if(!is_int($userid)){
@@ -337,6 +352,26 @@ class FollowManager extends LampcmsObject
 		} else {
 			d('tag '.$tag.' is not among the followed tags of this userID: '.$oUser->getUid());
 		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Ensure indexes on nested arrays and
+	 * on email optins/optouts
+	 * Yes, USERS collection may seem like it has
+	 * too many indexes but it is still be efficient
+	 * than working without indexes and then filtering
+	 * out the optouts during the email notifications
+	 *
+	 * @return object $this
+	 */
+	protected function ensureIndexes(){
+		$coll = $this->oRegistry->Mongo->USERS;
+		$coll->ensureIndex(array('a_f_t' => 1));
+		$coll->ensureIndex(array('a_f_u' => 1));
+		$coll->ensureIndex(array('a_f_q' => 1));
 
 		return $this;
 	}

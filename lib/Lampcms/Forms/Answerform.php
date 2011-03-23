@@ -150,6 +150,14 @@ class Answerform extends Form
 
 	protected function doValidate(){
 		$body = $this->oRegistry->Request['qbody'];
+		/**
+		 * We really need to check the length of 
+		 * the content not couning html tags
+		 * otherwise it's possible to submit
+		 * even an empty question as long as it
+		 * has some line breaks and empty tags
+		 */
+		$body = trim(strip_tags($body));
 		if(strlen($body) < 10){
 			$this->setError('qbody', 'Answer must contain at least 10 letters');
 		}

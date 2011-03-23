@@ -121,6 +121,7 @@ class Emailoptions extends WebPage
 		$this->oRegistry->Viewer['e_fu'] = (!empty($formVals['e_fu']));
 		$this->oRegistry->Viewer['e_fq'] = (!empty($formVals['e_fq']));
 		$this->oRegistry->Viewer['e_ft'] = (!empty($formVals['e_ft']));
+		$this->oRegistry->Viewer['e_fc'] = (!empty($formVals['e_fc']));
 		$this->oRegistry->Viewer['e_ok'] = (!empty($formVals['e_ok']));
 
 		$this->oRegistry->Viewer->save();
@@ -146,6 +147,7 @@ class Emailoptions extends WebPage
 		$this->oForm->e_fu = (false !== $this->oRegistry->Viewer->e_fu) ? 'checked' : '';
 		$this->oForm->e_ft = (false !== $this->oRegistry->Viewer->e_ft) ? 'checked' : '';
 		$this->oForm->e_fq = (false !== $this->oRegistry->Viewer->e_fq) ? 'checked' : '';
+		$this->oForm->e_fc = (false !== $this->oRegistry->Viewer->e_fc) ? 'checked' : '';
 		$this->oForm->e_ok = (false !== $this->oRegistry->Viewer->e_ok) ? 'checked' : '';
 
 		return $this;

@@ -54,9 +54,81 @@ namespace Lampcms\Modules\Observers;
 
 use \Lampcms\Mailer;
 
+/**
+ * This class is an observer
+ * It monitors events that trigger
+ * sending out of emails to users
+ * who are subscribed to certain things.
+ *
+ * For example users who follow specific tag
+ * will all be sent emails telling them that
+ * a new question with that tag has been added.
+ *
+ * The sending our of emails is done via the shutdown_function
+ * which means that it will not delay the rendering of the page
+ * that posted the event. Even the find() from the database
+ * will be done inside the shutdown function just in case
+ * the find() takes longer than a couple of seconds, it will
+ * never affect the page rendering time
+ *
+ * Of cause for this to work the php must be running as
+ * a fastcgi controlled by php fpm which is part of php 5.3.X
+ * Talk to me if you need clarification on this one
+ * Ask your question at http://support.lampcms.com
+ *
+ *
+ * @todo For a super busy and popular site
+ * that has over 10,000 followers for some
+ * tags or for some users this class has to be re-written to run
+ * very differently.
+ *
+ * Basically such sites should have separate dedicated server
+ * for sending out mass emails. The most efficient way then would
+ * be to invoke the script on that other server and only pass
+ * the params there. So the notifyTagFollowers
+ * will just be invoking the remore script
+ * and passing comma separated list
+ * of tags as param
+ * notifyUserFollowers will be invoking remote script and passing
+ * userID of user as just one param.
+ *
+ * That remote script will
+ * konw what to do it will normally do this:
+ * get own cursor, get that huge number of results like maybe 25000 followers
+ * and then send then in chunks of 1000 and sleep 2 minutes in between
+ * It's perfectly fine for one script to take sometimes 1 hours to send out such
+ * large number of emails.
+ *
+ * Another possible way to do this is to just add
+ * the email notification jobs to the
+ * PENDING_NOTIFICATIONS collection as
+ * a nested object via $addToSet operation of Mongo
+ *
+ * @todo The dedicated server will periodically check
+ * that collection and will pop the notifications off
+ * the nested array and process them.
+ * This is probably a very effective way to deal
+ * with frequent notifications and where notification
+ * jobs can potentially jobs that need to send very large
+ * number of emails - like when a user or topic is followed
+ * by tens of thousands of other users.
+ * This type of solution will not require invoking
+ * a remote script, instead a remove server will be
+ * checking the PENDING_NOTIFICATIONS collection
+ * via cron script
+ * In order for this to work you need to extend this class
+ * and the factory() must return the instance of
+ * that sub-class instead of this class.
+ *
+ * @todo more all the email and subject templates
+ * into the I18N class when such class is ready
+ *
+ * @author Dmitri Snytkine
+ *
+ */
 class EmailNotifier extends \Lampcms\Observer
 {
-	const QUESTION_BY_USER_BODY = '
+	protected static $QUESTION_BY_USER_BODY = '
 	%1$s has asked a question:
 	%2$s
 	
@@ -69,17 +141,17 @@ class EmailNotifier extends \Lampcms\Observer
 	and try to answer it if you can.
 	
 	
-	====
+	----
 	You receive this message because you are following
 	the user %1$s.
 	
 	You can change your email preferences by signing in to 
-	site %5$s and navigating to Settings > Email preferences
+	site %5$s and navigating to Settings > Email Preferences
 	
 	';
 
 
-	const ANSWER_BY_USER_BODY = '
+	protected static $ANSWER_BY_USER_BODY = '
 	%1$s has answered a question:
 	%2$s
 
@@ -94,12 +166,12 @@ class EmailNotifier extends \Lampcms\Observer
 	the user %1$s.
 	
 	You can change your email preferences by signing in to 
-	site %5$s and navigating to Settings > Email preferences
+	site %5$s and navigating to Settings > Email Preferences
 	
 	';
 
 
-	const QUESTION_BY_TAG_BODY = '
+	protected static $QUESTION_BY_TAG_BODY = '
 	%1$s has asked a question:
 	%2$s
 	
@@ -117,12 +189,12 @@ class EmailNotifier extends \Lampcms\Observer
 	of the tags you follow
 	
 	You can change your email preferences by signing in to 
-	site %5$s and navigating to Settings > Email preferences
+	site %5$s and navigating to Settings > Email Preferences
 	
 	';
-	
-	
-	const QUESTION_FOLLOW_BODY = '
+
+
+	protected static $QUESTION_FOLLOW_BODY = '
 	%1$s has added a %2$s
 	to a question you follow:
 	%3$s
@@ -141,11 +213,11 @@ class EmailNotifier extends \Lampcms\Observer
 	
 	';
 
-	const QUESTION_BY_USER_SUBJ = 'New %s by %s';
+	protected static $QUESTION_BY_USER_SUBJ = 'New %s by %s';
 
-	const QUESTION_BY_TAG_SUBJ = 'New question tagged: [%s]';
-	
-	const QUESTION_FOLLOW_SUBJ = 'New %s to a question you following';
+	protected static $QUESTION_BY_TAG_SUBJ = 'New question tagged: [%s]';
+
+	protected static $QUESTION_FOLLOW_SUBJ = 'New %s to a question you following';
 
 
 	/**
@@ -158,30 +230,69 @@ class EmailNotifier extends \Lampcms\Observer
 
 	protected $oQuestion;
 
-	
 	/**
-	 * @todo Finish this by adding handling 
+	 * Mongo USERS collection
+	 * this collection is used from
+	 * every method, so it's an instance
+	 * variable, here in one place
+	 *
+	 * @var object of type MongoCollection
+	 */
+	protected $collUsers;
+
+
+	/**
+	 * Factory
+	 * This is not required for the default operation - to instantiate
+	 * this class because \Lampcms\Observer already has
+	 * the same factory but
+	 * in case you need a more fancier implementation of all the
+	 * Email notification methods - like instead of actually
+	 * sending out emails right away you can
+	 * just add the pending jobs to some Mongo Collection
+	 * what you can do is extend this class and have this factory
+	 * return your new sub-class
+	 *
+	 * Another thing you can do (maybe even better) is to write
+	 * a totally new EmailNotifier-type of class and then
+	 * in !config.ini replace the path to this class
+	 * with the path to your own new class. This is better
+	 * because in case of upgrades your changes will not
+	 * be overritten since !config.ini is never overritten in
+	 * upgrade - it's not included in the distro
+	 *
+	 *
+	 * @param \Lampcms\Registry $oRegistry
+	 */
+	public static function factory(\Lampcms\Registry $oRegistry){
+		return new self($oRegistry);
+	}
+
+	/**
+	 * @todo Finish this by adding handling
 	 * updates onNewComment, onEditedQuestion, onQuestionVote,
 	 * onAcceptAnswer, etc...
-	 * 
+	 * and later deal with comment replies
+	 *
 	 * (non-PHPdoc)
 	 * @see Lampcms.Observer::main()
 	 */
 	public function main(){
-		d('get some event: '.$this->eventName);
+		d('get event: '.$this->eventName);
 		switch ($this->eventName){
 			case 'onNewQuestion':
+				$this->collUsers = $this->oRegistry->Mongo->USERS;
 				$this->oQuestion = $this->obj;
 				$this->notifyUserFollowers();
 				$this->notifyTagFollowers();
 				break;
 
 			case 'onNewAnswer':
+				$this->collUsers = $this->oRegistry->Mongo->USERS;
 				$this->oQuestion = $this->aInfo['question'];
 				$this->notifyUserFollowers();
 				$this->notifyQuestionFollowers();
 				break;
-
 		}
 
 	}
@@ -208,26 +319,39 @@ class EmailNotifier extends \Lampcms\Observer
 	 */
 	protected function notifyTagFollowers(){
 		$askerID = $this->oQuestion->getOwnerId();
-		$cur = $this->oRegistry->Mongo->USERS
-		->find(array('a_f_t' => array('$in' => $this->oQuestion['a_tags'] ), 'a_f_u' => array('$ne' => $askerID ), '_id' => array('$ne' => $askerID) ), array('email', 'e_ft')  );
+		$oMailer = new Mailer($this->oRegistry);
+		$subj = sprintf(static::$QUESTION_BY_TAG_SUBJ, implode(', ', $this->oQuestion['a_tags']) );
+		$body = vsprintf(static::$QUESTION_BY_TAG_BODY, array($this->oQuestion['username'], $this->oQuestion['title'], $this->oQuestion['intro'], $this->oQuestion->getUrl(), $this->oRegistry->Ini->SITE_URL));
+		$aTags = $this->oQuestion['a_tags'];
+		$coll = $this->collUsers;
+		d('before shutdown function in TagFollowers');
+		register_shutdown_function(function() use($askerID, $oMailer, $subj, $body, $aTags, $coll){
 
-
-		$count = $cur->count();
-		d('found: '.$count.' items ');
-
-		if($count > 0){
-			$subj = sprintf(self::QUESTION_BY_TAG_SUBJ, implode(', ', $this->oQuestion['a_tags']) );
-			$body = vsprintf(self::QUESTION_BY_TAG_BODY, array($this->oQuestion['username'], $this->oQuestion['title'], $this->oQuestion['intro'], $this->oQuestion->getUrl(), $this->oRegistry->Ini->SITE_URL));
-
-			$oMailer = new Mailer($this->oRegistry);
 			/**
-			 * @todo pass callback function
-			 * to exclude mailing to those who
-			 * opted out on Email On Followed Tag
+			 * Find all who follow any of the tags
+			 * but not following the asker
+			 * and not themselve the asker
 			 */
-			$oMailer->mail($cur, $subj, $body);
-		}
-		
+			$cur = $coll->find(array('a_f_t' => array('$in' => $aTags ), 'a_f_u' => array('$ne' => $askerID ), '_id' => array('$ne' => $askerID) ), array('email', 'e_ft')  );
+			$count = $cur->count();
+
+			if($count > 0){
+
+				/**
+				 * Passing callback function
+				 * to exclude mailing to those who
+				 * opted out on Email On Followed Tag
+				 */
+				$oMailer->mailFromCursor($cur, $subj, $body, function($a){
+					if(!empty($a['email']) && (!array_key_exists('e_ft', $a) || false !== $a['e_ft'])){
+						return $a['email'];
+					}
+
+					return null;
+				});
+			}
+		});
+
 		return $this;
 	}
 
@@ -242,39 +366,52 @@ class EmailNotifier extends \Lampcms\Observer
 
 		$uid = $this->obj->getOwnerId();
 		d('uid: '.$uid);
-		
-		$cur = $this->oRegistry->Mongo->USERS
-		->find(array('a_f_u' => $uid ), array('email', 'e_fu')  );
+		/**
+		 * In case of Answer use different
+		 * templates for SUBJ and BODY
+		 *
+		 */
+		$tpl = static::$ANSWER_BY_USER_BODY;
+		$updateType = 'answer';
+		$body = '';
+		if('onNewQuestion' === $this->eventName){
 
-		$count = $cur->count();
-		d('found: '.$count.' items ');
-
-		if($count > 0){
-			/**
-			 * @todo in case of Answer use different
-			 * templates for SUBJ and BODY
-			 *
-			 * @var unknown_type
-			 */
-			$tpl = self::QUESTION_BY_USER_BODY;
+			$body = $this->obj['intro'];
+			$tpl = static::$QUESTION_BY_USER_BODY;
 			$updateType = 'question';
-			if('onNewAnswer' === $this->eventName){
-				$tpl = self::ANSWER_BY_USER_BODY;
-				$updateType = 'answer';
-			}
-			
- 			$subj = sprintf(self::QUESTION_BY_USER_SUBJ, $updateType, $this->obj['username']);
-			$body = vsprintf($tpl, array($this->obj['username'], $this->oQuestion['title'], '', $this->obj->getUrl(), $this->oRegistry->Ini->SITE_URL));
-
-			$oMailer = new Mailer($this->oRegistry);
-			/**
-			 * @todo pass callback function
-			 * to exclude mailing to those who
-			 * opted out on Email On Followed User
-			 */
-			$oMailer->mail($cur, $subj, $body);
 		}
-		
+
+		$subj = sprintf(static::$QUESTION_BY_USER_SUBJ, $updateType, $this->obj['username']);
+		$body = vsprintf($tpl, array($this->obj['username'], $this->oQuestion['title'], $body, $this->obj->getUrl(), $this->oRegistry->Ini->SITE_URL));
+		$coll = $this->collUsers;
+		$oMailer = new Mailer($this->oRegistry);
+		d('before shutdown function in UserFollowers');
+
+		register_shutdown_function(function() use($uid, $tpl, $updateType, $subj, $body, $coll, $oMailer){
+
+			$count = 0;
+			$cur = $coll->find(array('a_f_u' => $uid ), array('email', 'e_fu')  );
+
+			$count = $cur->count();
+			d('count: '.$count);
+			if($count > 0){
+
+				/**
+				 * Passing callback function
+				 * to exclude mailing to those who
+				 * opted out on Email On Followed User
+				 */
+				$oMailer->mailFromCursor($cur, $subj, $body, function($a){
+					if(!empty($a['email']) && (!array_key_exists('e_fu', $a) || false !== $a['e_fu'])){
+						return $a['email'];
+					}
+
+					return null;
+				});
+			}
+
+		});
+
 		return $this;
 	}
 
@@ -294,35 +431,53 @@ class EmailNotifier extends \Lampcms\Observer
 	protected function notifyQuestionFollowers($qid = null){
 		$viewerID = $this->oRegistry->Viewer->getUid();
 		/**
-		 * 
-		 * $qid can be passed here 
+		 *
+		 * $qid can be passed here
 		 * OR in can be extracted from $this->oQuestion
-		 * 
+		 *
 		 */
 		$qid = ($qid) ? (int)$qid : $this->oQuestion->getResourceId();
+		$updateType = ('onNewAnswer' === $this->eventName) ? 'answer' : 'comment';
+		$subj = sprintf(static::$QUESTION_FOLLOW_SUBJ, $updateType);
+		$body = vsprintf(static::$QUESTION_FOLLOW_BODY, array($this->obj['username'], $updateType, $this->oQuestion['title'], $this->obj->getUrl(), $this->oRegistry->Ini->SITE_URL));
+		$oMailer = new Mailer($this->oRegistry);
+		/**
+		 * MongoCollection USERS
+		 * @var object MongoCollection
+		 */
+		$coll = $this->collUsers;
+		d('before shutdown function for question followers');
 
-		$cur = $this->oRegistry->Mongo->USERS
-		->find(array('a_f_q' => $qid, 'a_f_u' => array('$ne' => $viewerID ), '_id' => array('$ne' => $viewerID) ), array('email', 'e_fq')  );
+		register_shutdown_function(function() use($viewerID, $qid, $updateType, $subj, $body, $coll, $oMailer){
 
-		$count = $cur->count();
-		d('found: '.$count.' items ');
-
-		if($count > 0){		
-
-			$updateType = ('onNewAnswer' === $this->eventName) ? 'answer' : 'comment';
-			$subj = sprintf(self::QUESTION_FOLLOW_SUBJ, $updateType);
-			$body = vsprintf(self::QUESTION_FOLLOW_BODY, array($this->obj['username'], $updateType, $this->oQuestion['title'], $this->obj->getUrl(), $this->oRegistry->Ini->SITE_URL));
-
-			$oMailer = new Mailer($this->oRegistry);
 			/**
-			 * @todo pass callback function
-			 * to exclude mailing to those who
-			 * opted out on Email On Followed Question
+			 * Find all users who follow this question
+			 * but not following the question asker and
+			 * are not themselves the viewer (a viewer may reply to
+			 * own question and we don't want to notify viewer of that)
+			 *
 			 */
-			$oMailer->mail($cur, $subj, $body);
-		}
-		
+			$cur = $coll->find(array('a_f_q' => $qid, 'a_f_u' => array('$ne' => $viewerID ), '_id' => array('$ne' => $viewerID) ), array('email', 'e_fq')  );
+			$count = $cur->count();
+
+			if($count > 0){
+
+				/**
+				 * Passing callback function
+				 * to exclude mailing to those who
+				 * opted out on Email On Followed Question
+				 */
+				$oMailer->mailFromCursor($cur, $subj, $body, function($a){
+					if(!empty($a['email']) && (!array_key_exists('e_fq', $a) || false !== $a['e_fq'])){
+						return $a['email'];
+					}
+
+					return null;
+				});
+			}
+		});
+
 		return $this;
 	}
-	
+
 }

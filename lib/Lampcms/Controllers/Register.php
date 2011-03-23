@@ -187,7 +187,7 @@ You can change your password after you log in.
 	 */
 	protected function createNewUser(){
 
-		$coll = $this->oRegistry->Mongo->getCollection('USERS');
+		$coll = $this->oRegistry->Mongo->USERS;
 		$coll->ensureIndex(array('username_lc' => 1), array('unique' => true));
 		/**
 		 * Cannot make email unique index because external users
@@ -197,6 +197,13 @@ You can change your password after you log in.
 		 */
 		$coll->ensureIndex(array('email' => 1));
 		$coll->ensureIndex(array('role' => 1));
+		/**
+		 * Indexes for managing 3 types
+		 * of following
+		 */
+		$coll->ensureIndex(array('a_f_t' => 1));
+		$coll->ensureIndex(array('a_f_u' => 1));
+		$coll->ensureIndex(array('a_f_q' => 1));
 
 		$sid = \Lampcms\Cookie::getSidCookie();
 
@@ -248,10 +255,10 @@ You can change your password after you log in.
 	 * Normally the role of newly registered user
 	 * is 'unactivated' unless
 	 * the email address matches that of the EMAIL_ADMIN
-	 * in settings, in which case the account will 
+	 * in settings, in which case the account will
 	 * automatically become an administrator account
-	 * 
-	 * 
+	 *
+	 *
 	 * @param string $email email address
 	 */
 	protected function getRole(){
@@ -259,10 +266,10 @@ You can change your password after you log in.
 		return ($this->oRegistry->Ini->EMAIL_ADMIN === $this->email) ? 'administrator' : 'unactivated';
 	}
 
-	
+
 	protected function createEmailRecord(){
 
-		$coll = $this->oRegistry->Mongo->getCollection('EMAILS');
+		$coll = $this->oRegistry->Mongo->EMAILS;
 		$coll->ensureIndex(array('email' => 1), array('unique' => true));
 
 		$a = array(

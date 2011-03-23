@@ -135,14 +135,16 @@ class Join extends Register
 		/**
 		 * Only change username IF this is a new registration
 		 * and username was actually submitted
+		 * 
 		 * This means we don't allow to change username after
 		 * the user has already joined the site.
+		 * 
 		 * This extra measure here will prevent a possible
 		 * hack where an existing user otherwise may be able
 		 * to change username
 		 */
 		if(!empty($this->oRequest['username']) ){
-			$username = $this->oRequest['username'];
+			$username = trim($this->oRequest['username']);
 			$this->oRegistry->Viewer->offsetSet('username', $username);
 			$this->oRegistry->Viewer->offsetSet('username_lc', strtolower($username) );
 			/**

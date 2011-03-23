@@ -302,7 +302,7 @@ class Captcha extends LampcmsObject
 			if(isset($this->badguys_url) && !headers_sent()) header('location: '.$this->badguys_url);
 			//if(isset($this->badguys_url) && !headers_sent()) echo 'Hello '.print_r($_COOKIE, true);
 			else{
-				throw new LampcmsException('Sorry but something is not kosher about this form submittion.');
+				throw new Exception('Sorry but something is not right with this captcha image submittion.');
 			}
 		}
 
@@ -371,7 +371,7 @@ class Captcha extends LampcmsObject
 		 * Replace Z with 0 for submitted captcha text
 		 * because we replace 0 with Z when generated image
 		 * So now we must make sure to replace it back to 0
-		 * str_replace('Z', '0', 
+		 * str_replace('Z', '0',
 		 */
 		if(isset($_POST['private_key'])) $this->private_K = substr(strip_tags($_POST['private_key']),0,$this->chars);
 		$this->current_try = isset($_POST['hncaptcha']) ? $this->get_try() : 0;
@@ -434,19 +434,19 @@ class Captcha extends LampcmsObject
 	public function make_captcha()
 	{
 		$private_key = $this->generate_private();
-		d("Captcha-Debug: <B>Generate private key</B>: ($private_key)");
+		d("Captcha-Debug: Generate private key: ($private_key)");
 
 		// create Image and set the apropriate function depending on GD-Version & websafecolor-value
 		if($this->gd_version >= 2 && !$this->websafecolors){
-			$func1 = 'imagecreatetruecolor';
-			$func2 = 'imagecolorallocate';
+			$func1 = '\\imagecreatetruecolor';
+			$func2 = '\\imagecolorallocate';
 		}else{
-			$func1 = 'imageCreate';
-			$func2 = 'imagecolorclosest';
+			$func1 = '\\imagecreate';
+			$func2 = '\\imagecolorclosest';
 		}
 		$image = $func1($this->lx,$this->ly);
-		d("Generate ImageStream with: ($func1())");
-		d("For colordefinitions we use: ($func2())");
+		d("Generate ImageStream with: ($func1)");
+		d("For colordefinitions we use: ($func2)");
 
 
 		// Set Backgroundcolor
@@ -456,7 +456,9 @@ class Captcha extends LampcmsObject
 		d("Captcha-Debug: We allocate one color for Background: (".$this->r."-".$this->g."-".$this->b.")");
 
 		// allocates the 216 websafe color palette to the image
-		if($this->gd_version < 2 || $this->websafecolors) $this->makeWebsafeColors($image);
+		if($this->gd_version < 2 || $this->websafecolors){
+			$this->makeWebsafeColors($image);
+		}
 
 
 		// fill with noise or grid
@@ -464,6 +466,7 @@ class Captcha extends LampcmsObject
 			// random characters in background with random position, angle, color
 			d("Captcha-Debug: Fill background with noise: (".$this->nb_noise.")");
 			for($i=0; $i < $this->nb_noise; $i++){
+				d('Captcha-Debug');
 				srand((double)microtime()*1000000);
 				$size	= intval(rand((int)($this->minsize / 2.3), (int)($this->maxsize / 1.7)));
 				srand((double)microtime()*1000000);
@@ -473,10 +476,14 @@ class Captcha extends LampcmsObject
 				srand((double)microtime()*1000000);
 				$y		= intval(rand(0, (int)($this->ly - ($size / 5))));
 				$this->random_color(160, 224);
+				//d('Captcha-Debug');
 				$color	= $func2($image, $this->r, $this->g, $this->b);
+				d('Captcha-Debug');
 				srand((double)microtime()*1000000);
 				$text	= chr(intval(rand(45,250)));
+				//d('Captcha-Debug: $text:  '.$text);
 				@ImageTTFText($image, $size, $angle, $x, $y, $color, $this->change_TTF(), $text);
+				d('Captcha-Debug');
 			}
 		} else {
 			// generate grid
@@ -497,7 +504,9 @@ class Captcha extends LampcmsObject
 		// generate Text
 		d("Captcha-Debug: Fill forground with chars and shadows: (".$this->chars.")");
 		for($i=0, $x = intval(rand($this->minsize,$this->maxsize)); $i < $this->chars; $i++){
+			d('Captcha-Debug');
 			$text	= strtoupper(substr($private_key, $i, 1));
+			d('Captcha-Debug: $text:  '.$text);
 			srand((double)microtime()*1000000);
 			$angle	= intval(rand(($this->maxrotation * -1), $this->maxrotation));
 			srand((double)microtime()*1000000);
@@ -505,23 +514,33 @@ class Captcha extends LampcmsObject
 			srand((double)microtime()*1000000);
 			$y		= intval(rand((int)($size * 1.5), (int)($this->ly - ($size / 7))));
 			$this->random_color(0, 127);
+			d('Captcha-Debug');
 			$color	=  $func2($image, $this->r, $this->g, $this->b);
+			d('Captcha-Debug');
 			$this->random_color(0, 127);
 			$shadow = $func2($image, $this->r + 127, $this->g + 127, $this->b + 127);
+			d('Captcha-Debug');
 			@ImageTTFText($image, $size, $angle, $x + (int)($size / 15), $y, $shadow, $this->change_TTF(), $text);
 			@ImageTTFText($image, $size, $angle, $x, $y - (int)($size / 15), $color, $this->TTF_file, $text);
 			$x += (int)($size + ($this->minsize / 5));
+			d('Captcha-Debug');
 		}
 
 		d('$image: '.gettype($image). ' image file: '.$this->get_filename().' $this->jpegquality: '.$this->jpegquality);
-		imagejpeg($image, $this->get_filename(), $this->jpegquality);
-		$res = file_exists($this->get_filename());
-		d("Captcha-Debug: Safe Image with quality [".$this->jpegquality."] as (".$this->get_filename().") returns: (".($res ? 'TRUE' : 'FALSE').")");
-		imagedestroy($image);
-		d("Captcha-Debug: Destroy Imagestream.");
-		if(!$res){
-			throw new LampcmsException('Unable to save captcha-image.');
+		if(true !== imagejpeg($image, $this->get_filename(), $this->jpegquality)){
+			e('error writing captcha image');
 		}
+
+		if(!file_exists($this->get_filename())){
+			e('Captcha-Debug unable to save captcha file to '.$this->get_filename());
+			throw new DevException('Unable to save captcha-image.');
+		}
+
+		d('Captcha-Debug');
+		if(true !== imagedestroy($image)){
+			e("Captcha-Debug: Destroy Imagestream fails.");
+		}
+		d('Captcha-Debug');
 	}
 
 	/** @private **/
@@ -686,7 +705,7 @@ class Captcha extends LampcmsObject
 	}
 
 	/**
-	 * 
+	 *
 	 * The private key will be used
 	 * for the actual image of captcha
 	 * @param string $public
@@ -707,7 +726,7 @@ class Captcha extends LampcmsObject
 		 *
 		 */
 		$key = str_replace('0', 'Z', $key);
-		
+
 		return $key;
 	}
 

@@ -76,7 +76,12 @@ class tplFormEmailOptions extends \Lampcms\Template\Template
 	'your_email_t' => 'Your Email Address', //16
 	'your_email_d' => 'The address at which you\'ve chosen to receive messages is:', //17
 
-	'save_l' => 'Save' //18
+	'save_l' => 'Save', //18
+	
+	'e_fc' => '', //19
+	'e_fc_t' => 'Reply to my comment', //20
+	'e_fc_d' => 'Email me when someone replies to a comment I made' //21
+	
 	);
 	
 	
@@ -98,6 +103,10 @@ class tplFormEmailOptions extends \Lampcms\Template\Template
 <input type="checkbox" name="e_ft"  value="e_ft" %9$s>
 <h5>%10$s</h5>
 <p>%11$s</p>
+
+<input type="checkbox" name="e_fc"  value="e_fc" %19$s>
+<h5>%20$s</h5>
+<p>%21$s</p>
 <hr>
 <input type="checkbox" name="e_ok"  value="e_ok" %12$s>
 <h5>%13$s</h5>

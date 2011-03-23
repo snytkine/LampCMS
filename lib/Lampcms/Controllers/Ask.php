@@ -105,7 +105,8 @@ class Ask extends Askform
 			d('cp created new question');
 			d('title: '.$oQuestion['title']);
 
-			Responder::redirectToPage($oQuestion->getUrl());
+			//Responder::redirectToPage($oQuestion->getUrl());
+			Responder::sendJSON(array());
 
 		} catch (QuestionParserException $e){
 			$this->oForm->setFormError($e->getMessage());

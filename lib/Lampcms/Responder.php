@@ -119,7 +119,6 @@ class Responder
 		header($contentType);
 		echo($res);
 		fastcgi_finish_request();
-
 		exit;
 	}
 

@@ -80,7 +80,8 @@ class Settings extends WebPage
 		'confirmation' => $this->makeConfirmBlock(),
 		'change_password' => 'Change Password',
 		'profile' => 'Profile',
-		'profileUrl' => $this->oRegistry->Viewer->getProfileUrl()
+		'profileUrl' => $this->oRegistry->Viewer->getProfileUrl(),
+		'emailPrefs' => 'Email Preferences'
 		);
 		$this->aPageVars['body'] = \tplSettings::parse($vals);
 

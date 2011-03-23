@@ -403,7 +403,7 @@ abstract class WebPage extends Base
 		$this->aPageVars['show_comments'] = $oIni->SHOW_COMMENTS;
 		$this->aPageVars['max_comments'] = $oIni->MAX_COMMENTS;
 		$this->aPageVars['comments_timeout'] = $oIni->COMMENT_EDIT_TIME;
-		
+
 		$this->aPageVars['JS_PREFIX'] = $oIni->JS_SITE;
 		$this->aPageVars['layoutID'] = $this->layoutID;
 			
@@ -424,12 +424,12 @@ abstract class WebPage extends Base
 		if(!empty($aFacebookConf)){
 			if(!empty($aFacebookConf['APP_ID'])){
 				$this->addMetaTag('fbappid', $aFacebookConf['APP_ID']);
-			}
-			if(!empty($aFacebookConf['EXTENDED_PERMS'])){
-				$this->addMetaTag('fbperms', $aFacebookConf['EXTENDED_PERMS']);
-			}
+				$this->addFacebookJs($aFacebookConf['APP_ID']);
 
-			$this->addFacebookJs($aFacebookConf['APP_ID']);
+				if(!empty($aFacebookConf['EXTENDED_PERMS'])){
+					$this->addMetaTag('fbperms', $aFacebookConf['EXTENDED_PERMS']);
+				}
+			}	
 		}
 
 		$this->aPageVars['session_uid'] = $this->oRegistry->Viewer->getUid();
@@ -776,7 +776,7 @@ abstract class WebPage extends Base
 			$this->aPageVars['header'] = LoginForm::makeWelcomeMenu($this->oRegistry);
 			d('cp');
 		}
-		
+
 		return $this;
 	}
 

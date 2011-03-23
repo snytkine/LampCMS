@@ -71,12 +71,12 @@ class LoginForm
 			d('invite: '.$invite);
 			$url = $oViewer->getProfileUrl();
 			d('url: '.$url);
-			
+				
 			$avatar = $oViewer->getAvatarImgSrc();
 			d('avatar: '.$avatar);
-			
-			$displayName = $oViewer->getDisplayName();
 				
+			$displayName = $oViewer->getDisplayName();
+
 			$a = array(
 			$avatar,
 			$displayName,
@@ -209,7 +209,7 @@ class LoginForm
 				$aFB = $oIni['FACEBOOK'];
 
 				if(!empty($aFB['APP_ID'])){
-					//id="fbsignup" 
+					//id="fbsignup"
 					d('$aFB: '.print_r($aFB, 1));
 					$socialBtns .= '<img class="ajax fbsignup hand" src='.IMAGE_SITE.'"/images/f_32.png" width="32" height="32" alt="F" title="Sign in with an account">';
 
@@ -217,7 +217,7 @@ class LoginForm
 			}
 
 			if(extension_loaded('oauth') && isset($oIni->TWITTER)){
-				//id="twsignin" 
+				//id="twsignin"
 				$aTW = $oIni['TWITTER'];
 				if(!empty($aTW['TWITTER_OAUTH_KEY']) && !empty($aTW['TWITTER_OAUTH_SECRET'])){
 					d('$aTW: '.print_r($aTW, 1));

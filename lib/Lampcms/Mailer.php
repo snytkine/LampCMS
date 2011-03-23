@@ -61,6 +61,8 @@ class Mailer extends LampcmsObject
 
 	protected $from;
 
+	protected $oRegistry;
+
 	public function __construct(Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
 		$this->adminEmail = $this->oRegistry->Ini->EMAIL_ADMIN;
@@ -70,9 +72,17 @@ class Mailer extends LampcmsObject
 
 
 	/**
+	 * This is a main mail function to send
+	 * email to individual user or to array or receipients
+	 * or even by passing Iterator object to it such
+	 * as MongoCursor
+	 *
+	 * The better more fine-tuned method mailFromCursor
+	 * should be used when sending mass email and when we know
+	 * that cursor contains several hundreds of records
 	 *
 	 * Sends our emails using the mail()
-	 * but inside the register_shutdown_function()
+	 * but can be sent from inside the register_shutdown_function()
 	 * This way function returns immediately
 	 *
 	 * Also accept Iteractor so we can use the
@@ -90,22 +100,41 @@ class Mailer extends LampcmsObject
 	 *  return $a['email'];
 	 * }
 	 *
+	 *@todo for best result we should actually fork another php
+	 *script as regular cgi script (not fastcgi, just cgi php)
+	 *and just pass arguments to it and let it run as long as necessary,
+	 *looping over the array of recepients and sending out emails
+	 *The problem is that we cannot just pass cursor or even an array
+	 *of receipients to a cgi like this, we need to somehow pass data
+	 *differently like not the actual data but the conditions and then
+	 *let the cgi find that data and use it. We can do this via a cache
+	 *just put array into cache and pass cache key to cgi script
+	 *that would work for up to 4MB of data
+	 *And then let cgi delete that key and just in case set the expiration
+	 *on that key too so it will be deleted eventually even if cgi
+	 *dies for some reason
 	 *
 	 * @param mixed $to
 	 * @param string $subject
 	 * @param string $body
+	 *
+	 * @param bool $sendLater if true (default) then will run
+	 * via the register_shutdown_function(), otherwise
+	 * will run immediately. So if this method itself is
+	 * invoked from some registered shutdown function then it
+	 * makes sense to not use the 'later' feature.
 	 *
 	 * @param function $func callback function to be applied
 	 * to each record of the array.
 	 *
 	 * @throws DevException
 	 */
-	public function mail($to, $subject, $body, $func = null){
+	public function mail($to, $subject, $body, $func = null, $sendLater = true){
 
 		if(!is_string($to) && !is_array($to) && (!is_object($to) || !($to instanceof \Iterator))){
-				
+
 			$class = (is_object($to)) ? get_class($to) : 'not an object';
-				
+
 			throw new DevException('$to can be only string or array or object implementing Iterator. Was: '.gettype($to).' class: '.$class);
 		}
 
@@ -115,14 +144,12 @@ class Mailer extends LampcmsObject
 		$aHeaders['From'] = $this->from;
 		$aHeaders['Reply-To'] = $this->adminEmail;
 		$headers = \Lampcms\prepareHeaders($aHeaders);
-		d(print_r($aHeaders, 1).' $headers: '.$headers.' aTo: '.print_r($aTo, 1));
-		$s = $subject;
-		$b = $body;
 
-		register_shutdown_function(function() use ($s, $b, $headers, $aTo, $func){
+		$callable = function() use ($subject, $body, $headers, $aTo, $func){
 
 			$total = (is_array($aTo)) ? count($aTo) : $aTo->count();
-			d('total '.$total);
+			d('total: '.$total);
+			
 			/**
 			 * @todo deal with breaking up
 			 * the long array/cursor into
@@ -130,64 +157,206 @@ class Mailer extends LampcmsObject
 			 * in groups on N then wait N seconds
 			 * This is handled differently for cursors and for arrays
 			 */
-
-			foreach($aTo as $to){
-				d('$to: '.print_r($to, 1));
-				/**
-				 * Deal with format of array when array
-				 * is result of iterator_to_array($cur)
-				 * where $cur is MongoCursor - result of
-				 * find()
-				 */
-				if(is_array($to)){
+			if($total > 0){
+				foreach($aTo as $to){
 					/**
-					 * If callback function is passed to mail()
-					 * then it must accept array or
-					 * one user record as argument and must
-					 * return either email address (string)
-					 * or false if record should be skipped
-					 * For example, if array contains something like this
-					 * 'email' => user@email.com,
-					 * 'e_ft' => null
-					 *
-					 * Which indicates that user does not want
-					 * to receive emails on followed tag
-					 *
-					 * This is a way to pass callback to serve
-					 * as a filter - to users who opted out
-					 * or receiving emails on specific events
-					 * will not receive them
-					 *
-					 * Since each opt-out flag is different, the
-					 * each callback for specific type of mailing
-					 * will also be different.
-					 *
+					 * Deal with format of array when array
+					 * is result of iterator_to_array($cur)
+					 * where $cur is MongoCursor - result of
+					 * find()
 					 */
-					if(is_callable($func)) {
-						$to = $func($to);
-					} else {
-						if(!empty($to['email'])) {
+					if(is_array($to)){
+						/**
+						 * If callback function is passed to mail()
+						 * then it must accept array or
+						 * one user record as argument and must
+						 * return either email address (string)
+						 * or false if record should be skipped
+						 * For example, if array contains something like this
+						 * 'email' => user@email.com,
+						 * 'e_ft' => null
+						 *
+						 * Which indicates that user does not want
+						 * to receive emails on followed tag
+						 *
+						 * This is a way to pass callback to serve
+						 * as a filter - to users who opted out
+						 * or receiving emails on specific events
+						 * will not receive them
+						 *
+						 * Since each opt-out flag is different, the
+						 * each callback for specific type of mailing
+						 * will also be different.
+						 *
+						 */
+						if(is_callable($func)) {
+							$to = $func($to);
+						} elseif(!empty($to['email'])){
 							$to = $to['email'];
 						}
 					}
 
-				}
+					/**
+					 * Now it is possible that callback
+					 * function returned null or false so we
+					 * must now check that $to is not
+					 * empty
+					 * Also if array did not contain
+					 * the 'email' key then nothing will
+					 * be sent at this point because 
+					 * the $to will be !is_string() at 
+					 * this time - it will still be array
+					 */
+					if(empty($to) || !is_string($to)) {
+							
+						continue;
+					}
 
-				if(empty($to) || !is_string($to)) {
-					d('skipping email '.$to);
-					continue;
-				}
-
-				if(true !== \mail($to, $s, $b, $headers)){
-
-					\d('Server was unable to send out email at this time');
+					d('sending to: '.$to);
+					
+					if(true !== \mail($to, $subject, $body, $headers)){
+						if(function_exists('d')){
+							d('Server was unable to send out email at this time');
+						}
+					}
 				}
 			}
 
-		} );
+		};
 
+		if($sendLater){
+			register_shutdown_function($callable);
+		} else {
+			$callable();
+		}
 
 		return true;
 	}
+
+
+	/**
+	 *
+	 * The purpose of this methos is to take
+	 * a Mongo cursor as a source of email addresses
+	 * then iterate over them and do create an array
+	 * of email addresses. May use callback function
+	 * to filter out addresses of people who
+	 * opted out of certain types
+	 * of emails updates
+	 *
+	 *
+	 * In case the cursor contains very large number of records it
+	 * may use the forkMail() method to form
+	 * mass mailing in the background
+	 *
+	 *
+	 * @param \MongoCursor $cur
+	 * @param string $subject
+	 * @param string $body
+	 * @param string $func
+	 */
+	public function mailFromCursor(\MongoCursor $cur, $subject, $body, $func = null, $sendLater = false){
+
+		/**
+		 * Cannot change anything in the cursor
+		 * Cannot just do the skip() and limit()
+		 * it too late now! Attempting to modify a cursor
+		 * now will result in this type of exception: cannot modify cursor after beginning iteration.
+		 *
+		 * For a very large website a whole
+		 * new class should be written that can deal with
+		 * getting cursort with > 10,000 results then iterating over it,
+		 * creating array(s) of about 1000 emails, senging them out,
+		 * waiting couple of minutes and continuing
+		 *
+		 * This class can deal with results of up to 10,000 records per
+		 * one notification and will still be able to
+		 * handle this task relative well by creating array
+		 * and then forking a new cgi script in the background
+		 * to do actual email senting
+		 *
+		 * For couple of hundred emails or even a 1000 at a time
+		 * they can all be sent our from the same (this) process as long
+		 * as the process is run after the fastcgi_finish_request()
+		 *
+		 */
+
+			
+		$aEmails = array();
+		foreach($cur as $a){
+
+			if(is_callable($func)){
+				$email = $func($a);
+				if(!empty($email)){
+					$aEmails[] = $email;
+				}
+			} else if(!empty($a['email'])){
+				$aEmails[] = $a['email'];
+			}
+
+			if(function_exists('d')){
+				d('eEmails: '.print_r($aEmails, 1));
+			}
+			
+			/**
+			 *
+			 * @todo if count($aEmails) > 100 then formMail,
+			 * else just \mail()
+			 *
+			 * Right now we don't have such cgi-based scripts
+			 * that can accept the cache key
+			 * but it will be the next-best-solution
+			 * for a busy site
+			 * and the very best solution would be
+			 * to form the whole EmailNotifier methods
+			 * from the cgi script
+			 * and the super-advanced solution for
+			 * sites that have over 10,000 followers per topic
+			 * or per some users would be to
+			 * form the whole process on a remove server
+			 * This is something that we can code on request
+			 * as it is not worth the time for just an average site
+			 */
+			$this->mail($aEmails, $subject, $body, null, $sendLater);
+
+		}
+
+	}
+
+
+	/**
+	 * This method will take in array of email addresses
+	 * put then into cache and then form
+	 * a separate cgi php script and pass
+	 * that cache key to it as a param.
+	 * That cgi script will be able to retreive
+	 * the array, break it up into
+	 * smaller chunks and send it out in intervals
+	 * and wait N seconds in between. That will not
+	 * be using up any of our webserver's php processes
+	 * so it's OK for such scripts to run several minutes
+	 *
+	 * This method by it's natute of forking another process
+	 * has the effect of passing a job to a separate thread
+	 * and as such it makes no sense to use it via shutdown
+	 * function as it is already designed to not add any significant
+	 * processing time to the main process
+	 * 
+	 * @todo finish writing it. Must have cgi
+	 * version of php on the server with mongo
+	 * extension because array of emails will be passed
+	 * there via mongo key
+	 *
+	 * @param array $aTo simple array of email addresses
+	 * @param string $subject
+	 * @param string $body
+	 * @param bool $sendLater
+	 */
+	public function forkMail(array $aTo, $subject, $body){
+
+	}
+
+
+
 
 }
