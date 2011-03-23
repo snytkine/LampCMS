@@ -80,7 +80,7 @@ class Addcomment extends WebPage
 	protected $membersOnly = true;
 
 	protected $aRequired = array('rid', 'com_body');
-	
+
 	protected $requireToken = true;
 
 	protected $bRequirePost = true;
@@ -109,25 +109,27 @@ class Addcomment extends WebPage
 		->add()
 		->returnResult();
 	}
-	
-	
+
+
 	/**
 	 * Enforce min and max length of comment
-	 * 
+	 *
+	 * @todo Translate string
+	 *
 	 * @throws \Lampcms\Exception
 	 */
 	protected function validateBody(){
-		
+
 		$body = $this->oRequest['com_body'];
 		$len = strlen($body);
 		if($len < 10){
 			throw new \Lampcms\Exception('Ooopsy... Comment must be at least 10 characters long');
 		}
-		
+
 		if($len > 600){
 			throw new \Lampcms\Exception('Oopsy... Comment must be at limited to 600 characters. Your comment is '.$len.' characters-long');
 		}
-		
+
 		return $this;
 	}
 
@@ -140,7 +142,7 @@ class Addcomment extends WebPage
 	 * @return object $this
 	 */
 	protected function add(){
-		
+
 		$this->oCommentParser = new CommentParser($this->oRegistry);
 		$this->oCommentParser->add(new SubmittedCommentWWW($this->oRegistry, $this->oResource));
 
@@ -165,9 +167,11 @@ class Addcomment extends WebPage
 		if(!empty($a['res_type']) && ('ANSWER' === $a['res_type'] )){
 			$collection = 'ANSWERS';
 		}
-
+		$rid = (int)$this->oRequest['rid'];
+		d('$collection: '.$collection. ' $rid: '.$rid);
+		
 		$coll = $this->oRegistry->Mongo->getCollection($collection);
-		$a = $coll->findOne(array('_id' => (int)$this->oRequest['rid']));
+		$a = $coll->findOne(array('_id' => $rid));
 		d('a: '.print_r($a, 1));
 
 		if(empty($a)){
@@ -186,15 +190,17 @@ class Addcomment extends WebPage
 	/**
 	 * Who can comment?
 	 * Usually it's owner of resource
+	 * OR owner of question for which this resource is
+	 * an answer
 	 * OR someone with enough reputation
-	 *  
+	 *
 	 *
 	 * @return object $this
 	 *
 	 */
 	protected function checkPermission(){
 
-		if(!\Lampcms\isOwner($this->oRegistry->Viewer, $this->oResource)
+		if($this->oResource->getQuestionOwnerId() !== $this->oRegistry->Viewer->getUid()
 		&& ($this->oRegistry->Viewer->getReputation() < ReputationAcl::COMMENT)){
 
 			$this->checkAccessPermission('comment');
@@ -214,12 +220,12 @@ class Addcomment extends WebPage
 		$aComment = $this->oCommentParser->getArrayCopy();
 		/**
 		 * Add edit and delete tools because
-		 * Viewer already owns this comment and is 
+		 * Viewer already owns this comment and is
 		 * allowed to edit or delete it right away.
 		 * Javascript that usually dynamically adds these tools
 		 * is not going to be fired, so these tools
 		 * must alreayd be included in the returned html
-		 * 
+		 *
 		 */
 		$aComment['edit_delete'] = '  <span class="ico del ajax" title="Delete">delete</span> <span class="ico edit ajax" title="Edit">edit</span>';
 		$aRet = array(

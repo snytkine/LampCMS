@@ -190,6 +190,13 @@ class Answerparser extends LampcmsObject
 		 * @todo can parse forMakrdown now but ideally
 		 * parseMarkdown() would be done inside Utf8string
 		 * as well as parseSmilies
+		 * 
+		 * @todo Can't remember why we need to copy the title
+		 * here too because Answer by itself does not have own
+		 * title. This must have something to do with the way
+		 * I expected to render this - without the need to also
+		 * query the QUESTIONS collection but jsut can't remember
+		 * what it was for now...
 		 *
 		 * @todo later can also parse for smilies here
 		 *

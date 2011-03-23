@@ -455,12 +455,12 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		/**
 		 * If this is the first view, we will cheat a little
-		 * and set the views to something between 3 and 9
+		 * and set the views to 2
 		 * There will not be just 1 view, and this way we don't
 		 * have to worry about the plural suffix
 		 */
 		if(0 === $iViews && (1 === $inc)) {
-			$inc = rand(3, 9);
+			$inc = 2;
 		}
 
 		$collViews = $this->getRegistry()->Mongo->getCollection('QUESTION_VIEWS');
