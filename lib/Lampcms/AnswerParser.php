@@ -218,6 +218,7 @@ class Answerparser extends LampcmsObject
 		'i_votes' => 0,
 		'b' => $htmlBody,
 		'i_ts' => time(),
+		'i_lm_ts' => time(),
 		'hts' => date('F j, Y g:i a T'),
 		'v_s' => 's',
 		'accepted' => false,
@@ -274,7 +275,6 @@ class Answerparser extends LampcmsObject
 		 */
 		$this->ensureIndexes();
 
-
 		$this->oAnswer->insert();
 
 		$this->oRegistry->Dispatcher->post($this->oAnswer, 'onNewAnswer', array('question' => $this->oQuestion));
@@ -298,11 +298,23 @@ class Answerparser extends LampcmsObject
 	 */
 	protected function ensureIndexes(){
 		$ans = $this->oRegistry->Mongo->getCollection('ANSWERS');
-		$ans->ensureIndex(array('i_ts' => 1));
+		/**
+		 * There is no reason to index by original timestamp
+		 * (i_ts) because if we want to order by added time
+		 * we can just sort by _id since value
+		 * of _id in already in the order from oldest to newest
+		 * (which is a primary key and alwasy indexed anyway)
+		 */
+		$ans->ensureIndex(array('i_lm_ts' => 1));
 		$ans->ensureIndex(array('i_votes' => 1));
 		$ans->ensureIndex(array('i_uid' => 1));
 		$ans->ensureIndex(array('i_qid' => 1));
 		$ans->ensureIndex(array('hash' => 1), array('unique' => true));
+		/**
+		 * Index by ip address will help when we need to find
+		 * all posts from the same ip which we need for 
+		 * flood check
+		 */
 		$ans->ensureIndex(array('ip' => 1));
 
 		return $this;

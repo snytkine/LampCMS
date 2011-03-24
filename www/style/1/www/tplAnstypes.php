@@ -39,16 +39,25 @@
 class tplAnstypes extends Lampcms\Template\Template
 {
 	protected static $vars = array(
-	'i_ts_c' => '', // 1
+	'i_lm_c' => '', // 1
 	'i_score_c' => '', //2
-	'i_ts' => 'Newest', //3 
-	'i_ts_t' => 'Most recent answers', //4
-	'i_score' => 'Most Voted',
-	'i_score_t' => 'Answers with highest votes');
+	
+	'i_lm' => 'Active', //3 
+	'i_lm_t' => 'Most recenty active', //4
+	
+	'i_score' => 'Most Voted', //5
+	'i_score_t' => 'Answers with highest votes', //6
+
+	'i_ts_c' => '', //7
+	'i_ts' => 'Oldest', // 8
+	'i_ts_t' => 'Oldest to recent' // 9
+	
+	);
 
 	protected static $tpl = '
-	<div id="qtypes">
-	<a id="byrecent" rel="nofollow" href="#" class="ajax qtype%1$s" title="%4$s"><span rel="in">%3$s</span></a>
-	<a id="byvotes" rel="nofollow" href="#" class="ajax qtype%2$s" title="%5$s"><span rel="in">%5$s</span></a>
+	<div id="qtypes" class="cb fl">
+		<a id="i_lm_ts" rel="nofollow" href="#" class="ajax qtype%1$s ttt" title="%4$s"><span rel="in">%3$s</span></a>
+		<a id="i_ts" rel="nofollow" href="#" class="ajax qtype%7$s ttt" title="%9$s"><span rel="in">%8$s</span></a>
+		<a id="i_votes" rel="nofollow" href="#" class="ajax qtype%2$s ttt" title="%5$s"><span rel="in">%5$s</span></a>
 	</div>';
 }

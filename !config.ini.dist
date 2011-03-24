@@ -151,6 +151,37 @@ secretstring = "Stuff for captcha"
 ; maximum captcha errors. After this ip will be blocked for awhile
 maxtry = 5
 
+; GRAVATAR SUPPORT
+; to Disable automatic
+; use of gravatar for new user's avatars
+; remove the every value of just comment
+; our every value in this section by prefixing the line
+; with the semicolon ;
+; DO NOT REMOVE OR COMMENT OUT this section though!
+[GRAVATAR]
+; base url to gravatar site
+; must have trailing slash (its a directory)
+url = http://www.gravatar.com/avatar/
+
+; default size of avatars
+; we will slightly resize this image
+; from between 32 and 50, so 45 is a good size
+; also when we display the 40x40 avatar some
+; browsers that are not able to resize the 
+; background image will just cut-off the excess from
+; bottom and from right, so setting it close to 40 px
+; is good way to avoid having too much cut off the image
+size = 44
+
+; fallback when user does not have actual 
+; image of gravatar. This can be identicon or monsterid
+; Check with gravatar.com documentation for fallback options
+fallback = identicon
+
+; rating  defaults to PG
+rating = PG
+
+
 [LOGIN_ERROR_LOCK]
 ;in what number of seconds login errors occured.
 interval = 360

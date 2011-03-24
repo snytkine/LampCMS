@@ -36,6 +36,14 @@
  *
  */
 
+/**
+ * This is the main html template
+ * for the whole page
+ * 
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class tplMain extends Lampcms\Template\Template
 {
 
@@ -86,9 +94,8 @@ class tplMain extends Lampcms\Template\Template
 	'max_comments' => '0' // 38
 	);
 
-	//<link rel="shortcut icon" href="/favicon.ico">
 	protected static $tpl = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
-<html xmlns:fb="http://www.facebook.com/2008/fbml">
+<html xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:lampcms="http://www.lampcms.com/xml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <title>%1$s</title>

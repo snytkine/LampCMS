@@ -61,7 +61,7 @@ namespace Lampcms;
  * @author Dmitri Snytkine
  *
  */
-class Answer extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\UpDownRatable, Interfaces\CommentedResource
+class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRatable, Interfaces\CommentedResource
 {
 
 	public function __construct(Registry $oRegistry, array $a = array()){
@@ -77,6 +77,32 @@ class Answer extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\
 	public function getResourceTypeId(){
 
 		return 'ANSWER';
+	}
+
+	/**
+	 * Set value of 'accepted' to true
+	 * and update i_lm_ts
+	 *
+	 * @return object $this
+	 */
+	public function setAccepted(){
+		$this->offsetSet('accepted', true);
+		$this->touch();
+
+		return $this;
+	}
+
+	/**
+	 * Set value of 'accepted' to false
+	 * and update i_lm_ts
+	 *
+	 * @return object $this
+	 */
+	public function unsetAccepted(){
+		$this->offsetSet('accepted', false);
+		$this->touch();
+
+		return $this;
 	}
 
 
@@ -102,13 +128,13 @@ class Answer extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\
 
 	/**
 	 * Get username of answerer
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getUsername(){
 		return $this->offsetGet('username');
 	}
-	
+
 	/**
 	 *
 	 * Mark this item as deleted but only
@@ -192,17 +218,6 @@ class Answer extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\
 		return $this->offsetGet('i_lm_ts');
 	}
 
-
-	/**
-	 * Set last modified timestamp (i_lm_ts)
-	 *
-	 * @return object $this
-	 */
-	public function updateLastModified(){
-		$this->offsetSet('i_lm_ts', time());
-
-		return $this;
-	}
 
 	/**
 	 * Updates last modified timestamp
@@ -312,6 +327,11 @@ class Answer extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\
 		return $this->oRegistry->Ini->SITE_URL.'/q'.$this->offsetGet('i_qid').'/#ans'.$this->offsetGet('_id');
 	}
 
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.CommentedResource::addComment()
+	 */
 	public function addComment(CommentParser $oComment){
 		$aKeys = array('_id', 'i_uid', 'i_prnt', 'username', 'avtr', 'b_owner', 'b', 't', 'ts');
 
@@ -335,6 +355,10 @@ class Answer extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\
 	}
 
 
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.CommentedResource::getCommentsCount()
+	 */
 	public function getCommentsCount(){
 		$aComments = $this->getComments();
 
@@ -342,6 +366,10 @@ class Answer extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\
 	}
 
 
+	/**
+	 *
+	 * Enter description here ...
+	 */
 	public function increaseCommentsCount(){
 		/**
 		 * Now increase comments count
@@ -406,7 +434,17 @@ class Answer extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\
 		return $this->getFallback('comments', array());
 	}
 
-
+	
+	/**
+	 * Get id of question for this answer
+	 *
+	 * @return int id of question for which this is an answer
+	 */
+	public function getQuestionId(){
+		return (int)$this->offsetGet('i_qid');
+	}
+	
+	
 	/**
 	 * Get uid of user who asked the question
 	 * for which this is the answer
@@ -414,10 +452,10 @@ class Answer extends MongoDoc implements Interfaces\LampcmsResource, Interfaces\
 	 * to an asnwer where we need to know wheather of not
 	 * the comment comes from the original asker.
 	 *
-	 *
+	 * @return int id of question owner
 	 */
 	public function getQuestionOwnerId(){
-		return $this->offsetGet('i_quid');
+		return (int)$this->offsetGet('i_quid');
 	}
 
 }

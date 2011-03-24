@@ -201,7 +201,6 @@ class Viewquestion extends WebPage
 
 		$deleted = (!empty($this->aQuestion['i_del_ts'])) ?  ' deleted' : false;
 
-
 		/**
 		 * Guests will have to see filtered
 		 * content
@@ -263,14 +262,14 @@ class Viewquestion extends WebPage
 		 * only 1 answer or no answers at all
 		 */
 		if($this->oQuestion['i_ans'] > 1){
-			$cond = $this->oRegistry->Request->get('cond', 's', 'i_ts');
+			$cond = $this->oRegistry->Request->get('cond', 's', 'i_lm');
 			$tabs = Urhere::factory($this->oRegistry)->get('tplAnstypes', $cond);
 		}
 
 		$aVars = array(
-		$this->oQuestion['i_ans'],
-		'Answer'.$this->oQuestion['ans_s'],
-		$tabs
+			$this->oQuestion['i_ans'],
+			'Answer'.$this->oQuestion['ans_s'],
+			$tabs
 		);
 
 		$this->aPageVars['body'] .= \tplAnswersheader::parse($aVars, false);
@@ -352,7 +351,8 @@ class Viewquestion extends WebPage
 	 */
 	protected function setAnswers(){
 		$answers = '';
-		if($this->oQuestion['i_ans'] > 0 || $this->oRegistry->Viewer->isModerator()){
+		$numAnswers = $this->oQuestion['i_ans'];
+		if($numAnswers > 0 || $this->oRegistry->Viewer->isModerator()){
 			$answers = Answers::factory($this->oRegistry)->getAnswers($this->oQuestion);
 		}
 
@@ -375,7 +375,7 @@ class Viewquestion extends WebPage
 			$answers = Badwords::filter($answers, true);
 		}
 
-		$this->aPageVars['body'] .= sprintf('<div id="answers">%s</div><!-- // answers -->', $answers);
+		$this->aPageVars['body'] .= sprintf('<div id="answers" class="fl cb w100" lampcms:total="%d">%s</div><!-- // answers -->', $numAnswers, $answers);
 
 		return $this;
 	}
@@ -467,7 +467,7 @@ class Viewquestion extends WebPage
 		return $this;
 	}
 
-	
+
 	protected function makeTopTabs(){
 
 		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', 'questions');
@@ -477,7 +477,7 @@ class Viewquestion extends WebPage
 	}
 
 
-	
+
 	protected function makeFollowButton(){
 
 		$qid = $this->oQuestion->getResourceId();
@@ -500,7 +500,7 @@ class Viewquestion extends WebPage
 		}
 
 		$this->aPageVars['side'] = '<div class="fr cb w90 lg rounded3 pl10 mb10"><div class="follow_wrap">'.\tplFollowButton::parse($aVars, false).'</div></div>';
-				
+
 		return $this;
 	}
 

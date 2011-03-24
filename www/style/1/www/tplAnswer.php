@@ -100,11 +100,12 @@ class tplAnswer extends Lampcms\Template\Template
 	'comments_html' => '', //18
 	'edit_delete' => '', // 19
 	'i_comments' => '0', // 20
-	'nocomments' => '' //21
+	'nocomments' => '', //21
+	'i_lm_ts' => '0' // 22
 	);
 
 
-	protected static $tpl = '<table class="ans_table%16$s" id="ans%1$s">
+	protected static $tpl = '<table class="ans_table%16$s" id="ans%1$s" lampcms:rid="%1$s" lampcms:i_votes="%6$s" lampcms:i_lm_ts="%22$s" lampcms:i_comments="%20$s" lampcms:i_uid="%7$s">
 	<tr>
 		<td class="td_votes" width="60px">
 		<div class="votebtns cb" id="vote%1$s">

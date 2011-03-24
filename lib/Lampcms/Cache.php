@@ -523,6 +523,7 @@ class Cache extends Observer
 				break;
 
 			case 'onNewAnswer':
+			case 'onAcceptAnswer':
 				$this->__unset('qunanswered');
 				break;
 		}

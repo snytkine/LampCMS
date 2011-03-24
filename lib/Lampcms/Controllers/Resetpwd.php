@@ -85,6 +85,8 @@ You can also change your password after you log in.
 	protected $username;
 
 	protected $email;
+	
+	protected $layoutID = 1;
 
 	/**
 	 * Newly generated password

@@ -275,38 +275,28 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 
 	/**
-	 * Must set the id of best_answer
-	 * It is possible that question already has some
-	 * answer as best answer, which means it's considered
-	 * as 'answered'
+	 * Sets the id of best_answer,
+	 * id of user that supplied best answer
+	 * sets 'status' to 'accptd'
+	 * and also updates the Answer object to the
+	 * set accepted property to true
+	 * 
 	 * In case question was 'unanswered' we must also
 	 * update UNANSWERED_TAGS
 	 *
-	 * @todo finish this to deal with ANSWERS collection:
-	 * unset any other answer for this question as 'selected'
-	 *
-	 * @todo try to find a way to call this method from
-	 * some type of global post-processing queue
-	 * because it has to do several Mongo updates
-	 * then it has to notify observers and observers may
-	 * have some long tasks to do like sending out email
-	 * notifications, unsetting keys from cache, etc.
-	 * We can try to just pass anonymous function to register_shutdown_function()
-	 * right from here. So we can call this method any time we have to
-	 * but then it will deffer the execution untill the very end.
-	 * This may be resource intensive if closue has to copy
-	 * all objects in order to remember their state
-	 *
-	 *
-	 * Must set status to 'accptd'
-	 *
-	 * @param int $qid id of answer
-	 * @param bool $updateTags if true then will decrease count
-	 * of unanswered tags in UNANSWERED_TAGS collection
+	 * @param Answer $oAnswer object of type Answer represents
+	 * Answer being accepted as best answer
 	 *
 	 */
-	public function setBestAnswer($qid, $updateTags = true){
-		$this->offsetSet('i_sel_ans', (int)$qid);
+	public function setBestAnswer(Answer $oAnswer){
+		d('about to set status to accptd');
+		$this->offsetSet('i_sel_ans', $oAnswer->getResourceId());
+		$this->offsetSet('i_sel_uid', $oAnswer->getOwnerId());
+		
+		/**
+		 * Now set the Answer object's accepted status to true
+		 */
+		$oAnswer->setAccepted();
 
 		/**
 		 * If Question is still not 'answered', means
@@ -316,17 +306,14 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		 * the count of unanswered tags, which
 		 * is done via UnansweredTags object
 		 */
-		if($updateTags && ('accptd' !== $this->offsetGet('status'))){
+		if('accptd' !== $this->offsetGet('status')){
 			UnansweredTags::factory($this->oRegistry)->remove($this);
 		}
 
 		$this->offsetSet('status', 'accptd');
-
-		/**
-		 * @todo
-		 * Get all answers, select one marked selected, unset it
-		 * Set another one as selected
-		 */
+		d('setting status to accptd');
+		
+		$this->touch();
 
 		return $this;
 	}
@@ -382,18 +369,6 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		$this->touch();
 	}
 
-	/**
-	 * Set last modified timestamp (i_lm_ts)
-	 *
-	 * @deprecated now use touch()
-	 *
-	 * @return object $this
-	 */
-	public function updateLastModified(){
-		$this->offsetSet('i_lm_ts', time());
-
-		return $this;
-	}
 
 	/**
 	 * Updates last modified timestamp

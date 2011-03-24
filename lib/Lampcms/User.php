@@ -259,7 +259,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 
 	}
 
-	
+
 	/**
 	 * Get only the http path to avatar without
 	 * any of the img tag.
@@ -276,6 +276,12 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 			}
 
 			if(empty($srcAvatar)){
+				$email = $this->offsetGet('email');
+				if(!empty($email) && (count($aGravatar = $this->oRegistry->Ini->getSection('GRAVATAR')) > 0)){
+					
+					return $aGravatar['url'].hash('md5', $email).'?s='.$aGravatar['size'].'&d='.$aGravatar['fallback'].'&r='.$aGravatar['rating'];
+				}
+				
 				return IMAGE_SITE.'/images/avatar.png';
 			}
 
@@ -451,8 +457,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		 * USER table
 		 * we actually need to update the USERS_TWITTER Collection
 		 */
-		$coll = $this->oRegistry->Mongo->getCollection('USERS_TWITTER');
-		$coll->remove(array('_id' => $this->getTwitterUid()));
+		$this->oRegistry->Mongo->USERS_TWITTER->remove(array('_id' => $this->getTwitterUid()));
 		d('revoked Twitter token for user: '.$uid);
 
 		return $this;
@@ -504,7 +509,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return '<a rel="nofollow" href="'.$url.'">'.$url.'</a>';
 	}
 
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Lampcms\Interfaces.FacebookUser::getFacebookToken()
@@ -513,13 +518,13 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $this->offsetGet('fb_token');
 	}
 
-	
+
 	public function __toString()
 	{
 		return 'object of type '.$this->getClass().' for userid: '.$this->getUid();
 	}
 
-	
+
 	/**
 	 * Setter for bNewUser
 	 *
@@ -532,7 +537,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $this;
 	}
 
-	
+
 	/**
 	 * Getter for this->bNewUser
 	 *
@@ -544,7 +549,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $this->bNewUser;
 	}
 
-	
+
 	/**
 	 * Unique hash code for one user
 	 * This is useful for generating etag of cache headers

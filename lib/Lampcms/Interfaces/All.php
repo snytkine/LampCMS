@@ -493,16 +493,56 @@ interface Question extends LampcmsResource
 	public function setDeleted(\Lampcms\User $user, $reason = null);
 	
 	/**
-	 * Must set the id of best_answer
+	 * Must set the id of best_answer,
+	 * also updates Answer (by side-effect)
 	 *
-	 * @param int $qid id of answer
+	 * @param Answer $oAnswer object of type Answer
+	 * which is being accepted as best answer
 	 */
-	public function setBestAnswer($qid, $updateTags = true);
+	public function setBestAnswer(\Lampcms\Answer $oAnswer);
 
 	public function updateAnswerCount($int = 1);
 
+
 }
 
+/**
+ * Object represents one Answer
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
+interface Answer extends LampcmsResource
+{
+	/**
+	 * 
+	 * Get id of Question of this answer
+	 * 
+	 * @return int
+	 */
+	public function getQuestionId();
+	
+	/**
+	 * Get id of user that owns the question for which
+	 * this is an answer
+	 * 
+	 * @return int
+	 */
+	public function getQuestionOwnerId();
+	
+	/**
+	 * Sets this answer status as accepted answer
+	 * 
+	 * 
+	 */
+	public function setAccepted();
+	
+	/**
+	 * Unsets the accepted status for this answer
+	 * Enter description here ...
+	 */
+	public function unsetAccepted();
+}
 
 interface Search
 {

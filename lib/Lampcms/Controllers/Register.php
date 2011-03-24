@@ -157,7 +157,10 @@ You can change your password after you log in.
 			->createNewUser()
 			->createEmailRecord()
 			->sendActivationEmail();
-			$this->aPageVars['body'] = 'Welcome to our club.<br>Please check your email and activate your account A.S.A.P. (details are in the email)';
+			/**
+			 * @todo Translate string
+			 */
+			$this->aPageVars['body'] = '<div id="tools" class="larger">Welcome to our club.<br>Please check your email and activate your account A.S.A.P. (details are in the email)</div>';
 		} else {
 			$this->aPageVars['body'] = '<div id="userForm" class="frm1">'.$this->oForm->getForm().'</div>';
 		}

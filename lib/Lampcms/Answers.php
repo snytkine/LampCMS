@@ -94,6 +94,9 @@ class Answers extends LampcmsObject
 	 *
 	 * Enclose result in <div> and add pagination to bottom
 	 * of div if there is any pagination necessary!
+	 * 
+	 * @todo add skip() and limit() to cursor
+	 * in order to use pagination. 
 	 *
 	 * @param Question $oQuestion
 	 *
@@ -108,7 +111,7 @@ class Answers extends LampcmsObject
 		$qid = $oQuestion['_id'];
 		$url = $oQuestion['url'];
 		d('url: '.$url);
-		$cond = $this->oRegistry->Request->get('cond', 's', 'i_ts');
+		$cond = $this->oRegistry->Request->get('cond', 's', 'i_lm_ts');
 		d('cond: '.$cond);
 		$noComments = (false === (bool)$this->oRegistry->Ini->MAX_COMMENTS);
 		d('no comments: '.$noComments);
@@ -119,7 +122,7 @@ class Answers extends LampcmsObject
 		 * anything in Mongo methods directly from
 		 * user input
 		 */
-		if(!in_array($cond, array('i_ts', 'i_score'))){
+		if(!in_array($cond, array('i_ts', 'i_score', 'i_lm_ts'))){
 			throw new Exception('invalid value of param "cond"');
 		}
 
@@ -129,9 +132,9 @@ class Answers extends LampcmsObject
 			$where['i_del_ts'] = null;
 		}
 		
-		$sort = array($cond => 1);
+		$sort = array($cond => -1);
 
-		$cursor = $this->oRegistry->Mongo->getCollection('ANSWERS')->find($where, $aFields);
+		$cursor = $this->oRegistry->Mongo->ANSWERS->find($where, $aFields);
 		d('$cursor: '.gettype($cursor));
 		$cursor->sort($sort);
 		$oPager = Paginator::factory($this->oRegistry);
@@ -139,7 +142,6 @@ class Answers extends LampcmsObject
 		array('path' => $this->oRegistry->Ini->SITE_URL.'/questions/'.$qid.'/'.$url.'/'.$cond));
 
 		$links = $oPager->getLinks();
-
 
 		$func = null;
 		$ownerId = $oQuestion['i_uid'];
