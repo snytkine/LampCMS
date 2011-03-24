@@ -277,11 +277,20 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 
 			if(empty($srcAvatar)){
 				$email = $this->offsetGet('email');
-				if(!empty($email) && (count($aGravatar = $this->oRegistry->Ini->getSection('GRAVATAR')) > 0)){
-					
+				$aGravatar = array();
+				try{
+					$aGravatar = $this->getRegistry()->Ini->getSection('GRAVATAR');
+				} catch (\Exception $e){
+					e('exception: '.$e->getMessage());
+				}
+				d('$aGravatar: '.print_r($aGravatar, 1));
+
+				if(!empty($email) && (count($aGravatar) > 0)){
+					d('cp');
 					return $aGravatar['url'].hash('md5', $email).'?s='.$aGravatar['size'].'&d='.$aGravatar['fallback'].'&r='.$aGravatar['rating'];
 				}
-				
+				d('cp');
+
 				return IMAGE_SITE.'/images/avatar.png';
 			}
 

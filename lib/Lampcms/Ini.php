@@ -57,11 +57,11 @@ namespace Lampcms;
 /**
  * Object represents the parsed !config.ini file
  * has accessorts for the whole section via getSection
- * or access values from the CONSTANTS section via 
+ * or access values from the CONSTANTS section via
  * the magic __get method like this:
  * oIni->ADMIN_EMAIL
- * 
- * 
+ *
+ *
  * @author admin
  *
  */
@@ -195,9 +195,9 @@ class Ini extends LampcmsArray
 
 
 	/**
-	 * 
+	 *
 	 * @param string $name name of section in !config.ini file
-	 * 
+	 *
 	 * @return array associative array of
 	 * param => val of all params belonging to
 	 * one section in !config.ini file
@@ -205,7 +205,8 @@ class Ini extends LampcmsArray
 	public function getSection($name)
 	{
 		if(!$this->offsetExists($name)){
-				
+			d('no section '.$name.' in config file');
+			
 			throw new IniException('Section '.$name.' does not exist in config');
 		}
 

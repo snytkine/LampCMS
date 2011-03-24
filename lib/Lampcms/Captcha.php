@@ -264,12 +264,42 @@ class Captcha extends LampcmsObject
 	private $b;
 
 
+	/**
+	 * Factory method
+	 * Will return Dummy object
+	 * in case user does not have required
+	 * GD and imagettftext function
+	 *
+	 * Otherwise will return object of this class
+	 *
+	 * @param Registry $oRegistry
+	 */
+	public static function factory(Registry $oRegistry){
+		d('cp captcha factory');
+		$aConfig = $oRegistry->Ini->getSection('CAPTCHA');
+		$disabled = $aConfig['disabled'];
+		d('disabled: '.$disabled);
 
+		if(!empty($disabled)){
+			return new CaptchaStub();
+		}
+
+		try{
+			self::checkGD();
+		} catch (DevException $e){
+			e('Unable to use Captcha because of this error: '.$e->getMessage());
+			return new CaptchaStub();
+		}
+
+		return new self($oRegistry, $aConfig);
+	}
+
+	
 	/**
 	 * Extracts the config array and generate needed params.
 	 *
 	 **/
-	function __construct(Registry $oRegistry, array $config = array(), $secure=true, $debug=false )
+	public function __construct(Registry $oRegistry, array $config = array(), $secure=true, $debug=false )
 	{
 
 		$this->oRegistry = $oRegistry;
@@ -277,8 +307,6 @@ class Captcha extends LampcmsObject
 		$aConfig = (!empty($config)) ? $config : $oRegistry->Ini->getSection('CAPTCHA');
 		d('Captcha config: '.print_r($aConfig, 1));
 
-		// Test for GD-Library(-Version)
-		$this->checkGD();
 
 		d("Captcha-Debug: The available GD-Library has major version ".$this->gd_version);
 
@@ -298,10 +326,11 @@ class Captcha extends LampcmsObject
 		(isset($_POST['captcharefresh']) && isset($_POST['private_key']))
 		)
 		{
-			d("Captcha-Debug: Buuh. You are a bad guy!");
-			if(isset($this->badguys_url) && !headers_sent()) header('location: '.$this->badguys_url);
-			//if(isset($this->badguys_url) && !headers_sent()) echo 'Hello '.print_r($_COOKIE, true);
-			else{
+			d("Captcha-Debug: bad guy detected!");
+			if(isset($this->badguys_url) && !headers_sent()){
+				header('Location: '.$this->badguys_url);
+			}
+			else {
 				throw new Exception('Sorry but something is not right with this captcha image submittion.');
 			}
 		}
@@ -343,7 +372,7 @@ class Captcha extends LampcmsObject
 		} else {
 			d("Check given TrueType-File! (".$this->TTF_RANGE.")");
 			if(!is_readable($this->TTF_folder.$this->TTF_RANGE)){
-				throw new LampcmsDevException('No Truetypefont available or TTF folder not readable ');
+				throw new DevException('No Truetypefont available or TTF folder not readable ');
 			}
 		}
 
@@ -476,13 +505,16 @@ class Captcha extends LampcmsObject
 				srand((double)microtime()*1000000);
 				$y		= intval(rand(0, (int)($this->ly - ($size / 5))));
 				$this->random_color(160, 224);
-				//d('Captcha-Debug');
+				d('Captcha-Debug');
 				$color	= $func2($image, $this->r, $this->g, $this->b);
 				d('Captcha-Debug');
 				srand((double)microtime()*1000000);
 				$text	= chr(intval(rand(45,250)));
 				//d('Captcha-Debug: $text:  '.$text);
-				@ImageTTFText($image, $size, $angle, $x, $y, $color, $this->change_TTF(), $text);
+				if(false === imagettftext($image, $size, $angle, $x, $y, $color, $this->change_TTF(), $text)){
+					throw new DevException('Your php does not support imagettftext operation. You should disable captcha support in !config.ini');
+				}
+
 				d('Captcha-Debug');
 			}
 		} else {
@@ -619,7 +651,7 @@ class Captcha extends LampcmsObject
 
 
 	/**
-	 * must be public for sharedlog project
+	 * must be public for Lampcms project
 	 */
 	public function get_filename($public="")
 	{
@@ -657,7 +689,7 @@ class Captcha extends LampcmsObject
         'h' => $is[1]);
 	}
 
-	/** must be public to work on sharedlog project **/
+	/** must be public to work on Lampcms project **/
 	public function get_try($in = true)
 	{
 		$s = array();
@@ -688,10 +720,14 @@ class Captcha extends LampcmsObject
 	 *
 	 * @return unknown
 	 */
-	private function checkGD()
+	public static function checkGD()
 	{
 		if(!extension_loaded('gd')){
-			throw new LampcmsDevException('GD module not loaded. Cannot use Captcha class without GD library. Check your php info');
+			throw new DevException('GD module not loaded. Cannot use Captcha class without GD library. Check your php info');
+		}
+
+		if(!function_exists('imagettftext')){
+			throw new DevException('Your php installation does not have the "imagettftext" function. Captcha cannot be used without this function. ');
 		}
 
 		$gd_info = gd_info();
@@ -701,7 +737,7 @@ class Captcha extends LampcmsObject
 			return $matches[1];
 		}
 
-		throw new LampcmsDevException('There is no GD-Library-Support enabled. The Captcha-Class cannot be used!');
+		throw new DevException('Your php does not have the GD Library. The Captcha Class cannot be used without it');
 	}
 
 	/**

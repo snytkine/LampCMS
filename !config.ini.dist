@@ -144,6 +144,11 @@ GFC_ID =
 ;
 
 [CAPTCHA]
+; to disable captcha for any reason
+; set disabled = true
+; When disabled, captcha will
+; not be added to forms
+disabled = false
 ; change this to something between 3 and 25
 secretposition = 15
 ; Change this to any random string. CHANGE it to something unique!

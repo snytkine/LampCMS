@@ -169,7 +169,7 @@ class Addcomment extends WebPage
 		}
 		$rid = (int)$this->oRequest['rid'];
 		d('$collection: '.$collection. ' $rid: '.$rid);
-		
+
 		$coll = $this->oRegistry->Mongo->getCollection($collection);
 		$a = $coll->findOne(array('_id' => $rid));
 		d('a: '.print_r($a, 1));
@@ -199,9 +199,12 @@ class Addcomment extends WebPage
 	 *
 	 */
 	protected function checkPermission(){
-
-		if($this->oResource->getQuestionOwnerId() !== $this->oRegistry->Viewer->getUid()
-		&& ($this->oRegistry->Viewer->getReputation() < ReputationAcl::COMMENT)){
+		$viewerID = $this->oRegistry->Viewer->getUid();
+		
+		if( 
+		($this->oResource->getQuestionOwnerId() !== $viewerID) && 
+		($this->oResource->getOwnerId() !== $viewerID) && 
+		($this->oRegistry->Viewer->getReputation() < ReputationAcl::COMMENT)){
 
 			$this->checkAccessPermission('comment');
 		}

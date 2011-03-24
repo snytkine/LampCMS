@@ -326,30 +326,37 @@ class EmailNotifier extends \Lampcms\Observer
 		$coll = $this->collUsers;
 		d('before shutdown function in TagFollowers');
 		register_shutdown_function(function() use($askerID, $oMailer, $subj, $body, $aTags, $coll){
-
 			/**
 			 * Find all who follow any of the tags
 			 * but not following the asker
-			 * and not themselve the asker
+			 * and not themselve the asker //, 'e_ft' => array('$ne' => false)
 			 */
 			$cur = $coll->find(array('a_f_t' => array('$in' => $aTags ), 'a_f_u' => array('$ne' => $askerID ), '_id' => array('$ne' => $askerID) ), array('email', 'e_ft')  );
 			$count = $cur->count();
-
 			if($count > 0){
-
+				
 				/**
 				 * Passing callback function
 				 * to exclude mailing to those who
 				 * opted out on Email On Followed Tag
 				 */
-				$oMailer->mailFromCursor($cur, $subj, $body, function($a){
+				$oMailer->mailFromCursor($cur, $subj, $body);
+				/**
+				 * /**
+				 * , function($a){
 					if(!empty($a['email']) && (!array_key_exists('e_ft', $a) || false !== $a['e_ft'])){
-						return $a['email'];
+					return $a['email'];
 					}
 
 					return null;
-				});
+					});
+					}
+					}
+				 */
+					
+
 			}
+
 		});
 
 		return $this;
@@ -390,7 +397,7 @@ class EmailNotifier extends \Lampcms\Observer
 		register_shutdown_function(function() use($uid, $tpl, $updateType, $subj, $body, $coll, $oMailer){
 
 			$count = 0;
-			$cur = $coll->find(array('a_f_u' => $uid ), array('email', 'e_fu')  );
+			$cur = $coll->find(array('a_f_u' => $uid, 'e_fu' => array('$ne' => false)), array('email', 'e_fu')  );
 
 			$count = $cur->count();
 			d('count: '.$count);
@@ -401,13 +408,17 @@ class EmailNotifier extends \Lampcms\Observer
 				 * to exclude mailing to those who
 				 * opted out on Email On Followed User
 				 */
-				$oMailer->mailFromCursor($cur, $subj, $body, function($a){
+				$oMailer->mailFromCursor($cur, $subj, $body);
+
+				/**
+				 * , function($a){
 					if(!empty($a['email']) && (!array_key_exists('e_fu', $a) || false !== $a['e_fu'])){
-						return $a['email'];
+					return $a['email'];
 					}
 
 					return null;
-				});
+					}
+				 */
 			}
 
 		});
@@ -457,7 +468,7 @@ class EmailNotifier extends \Lampcms\Observer
 			 * own question and we don't want to notify viewer of that)
 			 *
 			 */
-			$cur = $coll->find(array('a_f_q' => $qid, 'a_f_u' => array('$ne' => $viewerID ), '_id' => array('$ne' => $viewerID) ), array('email', 'e_fq')  );
+			$cur = $coll->find(array('a_f_q' => $qid, 'a_f_u' => array('$ne' => $viewerID ), '_id' => array('$ne' => $viewerID), 'e_fq' => array('$ne' => false) ), array('email', 'e_fq')  );
 			$count = $cur->count();
 
 			if($count > 0){
@@ -467,13 +478,17 @@ class EmailNotifier extends \Lampcms\Observer
 				 * to exclude mailing to those who
 				 * opted out on Email On Followed Question
 				 */
-				$oMailer->mailFromCursor($cur, $subj, $body, function($a){
+				$oMailer->mailFromCursor($cur, $subj, $body);
+
+				/**
+				 * , function($a){
 					if(!empty($a['email']) && (!array_key_exists('e_fq', $a) || false !== $a['e_fq'])){
-						return $a['email'];
+					return $a['email'];
 					}
 
 					return null;
-				});
+					}
+				 */
 			}
 		});
 

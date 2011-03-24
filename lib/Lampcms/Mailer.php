@@ -149,7 +149,7 @@ class Mailer extends LampcmsObject
 
 			$total = (is_array($aTo)) ? count($aTo) : $aTo->count();
 			d('total: '.$total);
-			
+				
 			/**
 			 * @todo deal with breaking up
 			 * the long array/cursor into
@@ -203,8 +203,8 @@ class Mailer extends LampcmsObject
 					 * empty
 					 * Also if array did not contain
 					 * the 'email' key then nothing will
-					 * be sent at this point because 
-					 * the $to will be !is_string() at 
+					 * be sent at this point because
+					 * the $to will be !is_string() at
 					 * this time - it will still be array
 					 */
 					if(empty($to) || !is_string($to)) {
@@ -213,7 +213,7 @@ class Mailer extends LampcmsObject
 					}
 
 					d('sending to: '.$to);
-					
+						
 					if(true !== \mail($to, $subject, $body, $headers)){
 						if(function_exists('d')){
 							d('Server was unable to send out email at this time');
@@ -256,7 +256,7 @@ class Mailer extends LampcmsObject
 	 * @param string $func
 	 */
 	public function mailFromCursor(\MongoCursor $cur, $subject, $body, $func = null, $sendLater = false){
-
+		
 		/**
 		 * Cannot change anything in the cursor
 		 * Cannot just do the skip() and limit()
@@ -297,7 +297,7 @@ class Mailer extends LampcmsObject
 			if(function_exists('d')){
 				d('eEmails: '.print_r($aEmails, 1));
 			}
-			
+				
 			/**
 			 *
 			 * @todo if count($aEmails) > 100 then formMail,
@@ -341,7 +341,7 @@ class Mailer extends LampcmsObject
 	 * and as such it makes no sense to use it via shutdown
 	 * function as it is already designed to not add any significant
 	 * processing time to the main process
-	 * 
+	 *
 	 * @todo finish writing it. Must have cgi
 	 * version of php on the server with mongo
 	 * extension because array of emails will be passed

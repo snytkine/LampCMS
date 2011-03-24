@@ -89,8 +89,7 @@ class Regform extends Form
 			$this->setError('email', 'This is not a valid email address');
 		}
 
-		$a = $this->oRegistry->Mongo->getCollection('EMAILS')
-		->findOne(array('email' => $email ));
+		$a = $this->oRegistry->Mongo->EMAILS->findOne(array('email' => $email ));
 
 		if(!empty($a)){
 			$this->setError('email', 'There is already an account with this email address. Have you already registered on our site before?');
@@ -118,8 +117,7 @@ class Regform extends Form
 		}
 
 
-		$a = $this->oRegistry->Mongo->getCollection('USERS')
-		->findOne(array('username_lc' => $username ));
+		$a = $this->oRegistry->Mongo->USERS->findOne(array('username_lc' => $username ));
 
 		if(!empty($a)){
 			$this->setError('username', 'This username is already in use');
@@ -159,9 +157,10 @@ class Regform extends Form
 
 		if(Request::isAjax()){
 			$aRet = array(
-		'exception' => self::CAPTCHA_ERROR,
-		'fields' => array('private_key'),
-		'captcha' => $oCaptcha->getCaptchaArray());
+				'exception' => self::CAPTCHA_ERROR,
+				'fields' => array('private_key'),
+				'captcha' => $oCaptcha->getCaptchaArray()
+			);
 
 			\Lampcms\Responder::sendJSON($aRet);
 		}
