@@ -232,9 +232,9 @@ class Addcomment extends WebPage
 		 */
 		$aComment['edit_delete'] = '  <span class="ico del ajax" title="Delete">delete</span> <span class="ico edit ajax" title="Edit">edit</span>';
 		$aRet = array(
-		'comment' => array('id' => $aComment['_id'],
-		'res' =>  $aComment['i_res'],
-		'html' => \tplComment::parse($aComment))
+			'comment' => array('id' => $aComment['_id'],
+			'res' =>  $aComment['i_res'],
+			'html' => \tplComment::parse($aComment))
 		);
 
 		Responder::sendJSON($aRet);

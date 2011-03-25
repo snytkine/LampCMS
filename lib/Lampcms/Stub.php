@@ -55,15 +55,8 @@ namespace Lampcms;
 /**
  * A Dummy Stub Class in case we need it
  */
-class Stub
+class Stub extends \stdClass
 {
-	public function __set($name, $val){
-
-	}
-
-	public function __get($name){
-		return '';
-	}
 
 	public function __call($method, $args){
 		d('non-existent method '.$method.' called with args: '.var_export($args, true));

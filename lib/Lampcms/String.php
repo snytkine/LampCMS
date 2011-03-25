@@ -187,30 +187,31 @@ class String extends LampcmsObject implements \Serializable
 		return $this->string;
 	}
 
+	
 	/**
 	 * Tests to see if the string
 	 * contains html
 	 *
 	 * @return bool true if string contains html tags, false otherwise
 	 */
-	public function isHtml()
-	{
+	public function isHtml(){
 
 		return (strlen(strip_tags($this->string)) !== strlen($this->string));
 	}
 
-	public function serialize()
-	{
+	
+	public function serialize(){
 		return serialize(array('s' => $this->string, 'm' => $this->returnMode));
 	}
 
-	public function unserialize($serialized)
-	{
+	
+	public function unserialize($serialized){
 		$a = unserialize($serialized);
 		$this->string = $a['s'];
 		$this->returnMode = $a['r'];
 	}
 
+	
 	/**
 	 * Returnes number of lines in a string
 	 * This is utf-8 safe,
@@ -263,21 +264,22 @@ class String extends LampcmsObject implements \Serializable
 	 * @return int length of string in bytes
 	 *
 	 */
-	public function length()
-	{
+	public function length(){
+		
 		return $this->strlen($this->string);
 	}
 
-	public function getMd5()
-	{
+	
+	public function getMd5(){
 		return md5($this->string);
 	}
 
-	public function getCrc32()
-	{
+	
+	public function getCrc32(){
 		return crc32($this->string);
 	}
 
+	
 	/**
 	 * Remove (mask) some chars from email address
 	 * so that it becomes not valid for physhers
@@ -285,13 +287,13 @@ class String extends LampcmsObject implements \Serializable
 	 *
 	 * @param object of this type
 	 */
-	public function obfuscateEmail()
-	{
+	public function obfuscateEmail(){
 		$str = preg_replace('/([a-zA-Z0-9_\.]{2,})(@)/Ume', "substr('\\1', 0, rand((floor(strlen('\\1') / 2)), (floor(strlen('\\1') / 2) + 1))).'### @'", $this->string);
 
 		return $this->handleReturn($str);
 	}
 
+	
 	/**
 	 * Strip tags but preserve white spaces
 	 *
@@ -315,6 +317,7 @@ class String extends LampcmsObject implements \Serializable
 
 	}
 
+	
 	/**
 	 * Generates random alphanumeric string
 	 * of predetermined length
@@ -324,8 +327,8 @@ class String extends LampcmsObject implements \Serializable
 	 *                letters in the string randomly using upper
 	 *                or lower case
 	 */
-	public static function makeRandomString($len = 30)
-	{
+	public static function makeRandomString($len = 30){
+		
 		$strAlphanum = 'abcdefghijklmnopqrstuvwqyz0123456789';
 		$len = (int)$len;
 		$aAlphanum = str_split($strAlphanum);
@@ -336,10 +339,10 @@ class String extends LampcmsObject implements \Serializable
 			$strRes .= (1 === mt_rand(0, 1) && !is_numeric($char)) ? strtoupper($char) : $char;
 		}
 
-
 		return $strRes;
 	}
 
+	
 	/**
 	 * Make random string that will be used
 	 * as value of 'sid' cookie
@@ -359,14 +362,12 @@ class String extends LampcmsObject implements \Serializable
 	 * cookie!
 	 *
 	 */
-	public static function makeSid($len = 48)
-	{
+	public static function makeSid($len = 48){
 		$prefix = microtime(true).'a';
 		$rs = self::makeRandomString($len - strlen($prefix));
 
 		return $prefix.$rs;
 	}
-
 
 
 	/**
@@ -375,12 +376,10 @@ class String extends LampcmsObject implements \Serializable
 	 * @param string $pwd password to hash
 	 * @return string md5 hash of VERSION + $pwd
 	 */
-	public static function hashPassword($pwd)
-	{
+	public static function hashPassword($pwd){
 
 		return hash('sha256', LAMPCMS_SALT.$pwd);
 	}
-
 
 
 	/**
@@ -442,8 +441,7 @@ class String extends LampcmsObject implements \Serializable
 	 *
 	 * @return object of this class (new object or $this)
 	 */
-	public function wrapInTag($tag = 'pre')
-	{
+	public function wrapInTag($tag = 'pre'){
 		$string = '<'.$tag.'>'.$this->string.'</'.$tag.'>';
 
 		return $this->handleReturn($string);
@@ -463,14 +461,13 @@ class String extends LampcmsObject implements \Serializable
 	 *
 	 * @return object of this class
 	 */
-	protected function handleReturn($string)
-	{
+	protected function handleReturn($string){
+		
 		if('StringBuilder' !== $this->returnMode){
-			//echo __CLASS__.' '.__LINE__.' hash: '. $this->hashCode().' '.$this->string.' instance of: '.get_class($this).LF;
+			
 			$class = get_class($this);
 			$o = new $class($string, $this->returnMode);
-			//echo LF.__CLASS__.' '.__LINE__.' new class: '.get_class($o).' new hash: '.$o->hashCode().LF;
-
+			
 			return $o;
 		}
 
@@ -479,6 +476,7 @@ class String extends LampcmsObject implements \Serializable
 		return $this;
 	}
 
+	
 	/**
 	 * Parse string and replace all text that
 	 * looks like links with actual clickable links
@@ -521,9 +519,7 @@ class String extends LampcmsObject implements \Serializable
 			}
 		}
 
-
-		return $this->handleReturn($text);
-			
+		return $this->handleReturn($text);	
 	}
 
 
@@ -559,6 +555,7 @@ class String extends LampcmsObject implements \Serializable
 		return $this->handleReturn($newstring);
 	}
 
+	
 	/**
 	 * Change the & to $amp;
 	 * but only if the & is not part of already encoded
@@ -570,14 +567,14 @@ class String extends LampcmsObject implements \Serializable
 	 *
 	 * @return object of this class
 	 */
-	public function escapeAmp()
-	{
-		// was: &(?!([a-zA-Z]{2,6};)|(#[0-9]{2,6};))
+	public function escapeAmp(){
+
 		$newstring = preg_replace('/&(?!([#]{0,1})([a-zA-Z0-9]{2,9});)/u', '&amp;', $this->string);
 
 		return $this->handleReturn($newstring);
 	}
 
+	
 	/**
 	 * Replace non alphanumerics with underscores,
 	 * limit to 65 chars
@@ -677,6 +674,7 @@ class String extends LampcmsObject implements \Serializable
 		return $this->handleReturn($ret);
 	}
 
+	
 	/**
 	 * Preapre email for more comfortable type
 	 *
@@ -696,6 +694,5 @@ class String extends LampcmsObject implements \Serializable
 
 		return $recipient;
 	}
-
 
 }

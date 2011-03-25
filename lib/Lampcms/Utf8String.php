@@ -53,7 +53,14 @@
 namespace Lampcms;
 
 
-
+/**
+ * Class for working with UTF-8 encoded strings
+ * Sanitization, charset guessing, converting encoding,
+ * and bunch of utf-8-safe string manipulation functions
+ *
+ * @author Dmitri Snytkine
+ *
+ */
 class Utf8String extends String
 {
 
@@ -64,8 +71,7 @@ class Utf8String extends String
 	 */
 	const WORD_COUNT_MASK = "/\p{L}[\p{L}\p{Mn}\p{Pd}'\x{2019}]*/u";
 
-	public function __construct($string, $returnMode = 'default')
-	{
+	public function __construct($string, $returnMode = 'default'){
 
 		if(!extension_loaded('mbstring')){
 			$err = "This class required mbstring extension to be loaded.
@@ -75,11 +81,8 @@ class Utf8String extends String
 		}
 
 		parent::__construct($string, $returnMode);
-		//d('cp');
 		mb_regex_encoding("UTF-8");
-		//d('cp');
 		mb_internal_encoding("UTF-8");
-		d('cp');
 
 		/**
 		 * @todo if have iconv, also set its' encoding to utf-8
@@ -119,12 +122,6 @@ class Utf8String extends String
 	public static function factory($string, $charset = null, $isClean = false)
 	{
 
-		//d('cp $isClean: '.$isClean);
-		//$className = (null !== $className) ? $className : __CLASS__;
-		//d('$className: '.$className);
-
-		// echo __METHOD__.' '.__LINE__.' classname: '.$className;
-
 		/**
 		 * Special case:
 		 * first argument can be an array
@@ -163,11 +160,9 @@ class Utf8String extends String
 
 		if(('us-ascii' === $charset) || ('ascii' === $charset) || ('utf-8' === $charset)){
 			if($isClean){
-				//$oLogger->log('cp ');
 				$o = new static($string);
 				d('cp ');
 			} else {
-				//$oLogger->log('cp ');
 				$bIsAscii = (('us-ascii' === $charset) || ('ascii' === $charset));
 				d('$bIsAscii: '.$bIsAscii);
 				$string = static::sanitizeUtf8($string, $bIsAscii);
@@ -183,15 +178,14 @@ class Utf8String extends String
 			$utf8string = static::convertToUtf8($string, $charset);
 			//d('cp');
 			$utf8string = static::stripLow($utf8string);
-			//d('cp');
 
 			$o = new static($utf8string);
 			d('cp o: '.gettype($o).' '.get_class($o));
 		}
 
 		return $o;
-
 	}
+
 
 	/**
 	 * When encoding of string is unknown this function
@@ -210,8 +204,7 @@ class Utf8String extends String
 	 *
 	 * @return string name of charset
 	 */
-	public static function guessCharset($string, $charsetHint = '')
-	{
+	public static function guessCharset($string, $charsetHint = ''){
 		$cs = false;
 		$charsetHint = strtoupper($charsetHint);
 		$charsetHint = ('US-ASCII' === $charsetHint) ? 'ASCII' : $charsetHint;
@@ -252,6 +245,7 @@ class Utf8String extends String
 		return $cs;
 
 	}
+
 
 	/**
 	 * Validates the string,
@@ -307,20 +301,15 @@ class Utf8String extends String
 					throw new \RuntimeException('unable to convert encoding');
 				}
 			}
-
 		}
 
 		if($bIsAscii){
-			d('cp');
+
 			return self::sanitizeAscii($utf8string);
 		}
 
-		d('cp');
-
 		return self::stripLow($utf8string);
 	}
-
-
 
 
 	/**
@@ -335,10 +324,7 @@ class Utf8String extends String
 	 * @param string $string utf8 string
 	 * @return bool true if string is valid, false if not valid
 	 */
-	public static function validateUtf8($utf8string)
-	{
-
-		d('cp');
+	public static function validateUtf8($utf8string){
 
 		if ( strlen($utf8string) == 0 ) {
 
@@ -506,13 +492,8 @@ class Utf8String extends String
 			}
 		}
 
-		d('cp');
-
-		//return $out;
-
 		return true;
 	}
-
 
 
 	/**
@@ -527,8 +508,7 @@ class Utf8String extends String
 	 * @throws RuntimeException if iconv function
 	 * is not available on the server.
 	 */
-	public static function recodeUtf8($utf8string)
-	{
+	public static function recodeUtf8($utf8string){
 
 		if(!function_exists('iconv') && !function_exists('mb_convert_encoding')){
 			throw new \RuntimeException('Cannot use this method because iconv OR mb_convert_encoding functions is not available');
@@ -572,18 +552,19 @@ class Utf8String extends String
 		return $ret;
 	}
 
+
 	/**
 	 * strips low bytes except for \r, tab and \n
 	 *
 	 * @param string $string utf8 string
 	 * @return string string with low bytes removed
 	 */
-	public static function stripLow($utf8string)
-	{
+	public static function stripLow($utf8string){
 		$ret = preg_replace("/[^\x9\xA\xD\x20-\xFFFFFF]/", "", $utf8string);
 
 		return $ret;
 	}
+
 
 	/**
 	 * Strips low and high bytes,
@@ -599,12 +580,12 @@ class Utf8String extends String
 	 * @param $asciistring
 	 * @return string
 	 */
-	public static function sanitizeAscii($asciistring)
-	{
+	public static function sanitizeAscii($asciistring){
 		$ret = preg_replace("/[^\x9\xA\xD\x20-\x7F]/", "", $asciistring);
 
 		return $ret;
 	}
+
 
 	/**
 	 * Convert string to utf8
@@ -702,8 +683,8 @@ class Utf8String extends String
 	 * this is not necessaraly the number of bytes
 	 * because string of this class may be multibyte
 	 */
-	public function length()
-	{
+	public function length(){
+
 		return mb_strlen($this->string);
 	}
 
@@ -715,8 +696,8 @@ class Utf8String extends String
 	 *
 	 * @return int number of word in utf8 string
 	 */
-	public function getWordsCount()
-	{
+	public function getWordsCount(){
+
 		return preg_match_all(self::WORD_COUNT_MASK, $this->string, $matches);
 	}
 
@@ -727,14 +708,14 @@ class Utf8String extends String
 	 * only on word boundary
 	 *
 	 * @param int $max max length after which string to be cut
-	 * 
+	 *
 	 * @param string $link optional link
 	 * to be added if string is cut (like link to 'read more')
 	 *
 	 * @return object of this class
 	 * representing a newly cut string
 	 */
-	public function truncate($max, $link = '') {
+	public function truncate($max, $link = ''){
 
 		$words = mb_split("\s", $this->string);
 
@@ -763,6 +744,7 @@ class Utf8String extends String
 
 		return $this->handleReturn($newstring);
 	}
+
 
 	/**
 	 * Utf-8 safe wordwrap
@@ -821,9 +803,9 @@ class Utf8String extends String
 			$ret = implode($break, $new_lines);
 		}
 
-
 		return $this->handleReturn($ret);
 	}
+
 
 	/**
 	 * UTF8 safe ucfirst
@@ -838,8 +820,7 @@ class Utf8String extends String
 	 *
 	 * @return string a string with first letter upercased, the rest lowercase
 	 */
-	public static function utf8_ucfirst($utf8string)
-	{
+	public static function utf8_ucfirst($utf8string){
 		$string = mb_strtolower($utf8string);
 
 		$first = mb_strtoupper(mb_substr($string, 0, 1));
@@ -847,22 +828,22 @@ class Utf8String extends String
 		return $first.mb_substr($string, 1, mb_strlen($string));
 	}
 
+
 	/**
 	 * UTF-8 safe implementation of ucfirst()
 	 * @return unknown_type
 	 */
-	public function ucfirst()
-	{
+	public function ucfirst(){
 
 		return $this->handleReturn(self::utf8_ucfirst($this->string));
 	}
+
 
 	/**
 	 * UTF-8 safe ucwords
 	 * @return object of this class ($this or new object)
 	 */
-	public function ucwords()
-	{
+	public function ucwords(){
 		$words = explode(' ', $this->string);
 		$ret = '';
 		foreach($words as $word){
@@ -871,6 +852,7 @@ class Utf8String extends String
 
 		return $this->handleReturn($ret);
 	}
+
 
 	/**
 	 * Repair the string (this string should be html or
@@ -915,6 +897,7 @@ class Utf8String extends String
 		return $this->handleReturn($ret);
 	}
 
+
 	/**
 	 * Uses HTML_Safe to
 	 * remove dangerous tags from html string
@@ -927,8 +910,7 @@ class Utf8String extends String
 	 *
 	 * @return object of this class
 	 */
-	public function safeHtml(array $aAllowedTags = array())
-	{
+	public function safeHtml(array $aAllowedTags = array()){
 		$ret = $this->string;
 		if($this->isHtml()){
 			$oHS = new HtmlSafe();
@@ -943,14 +925,14 @@ class Utf8String extends String
 		return $this->handleReturn($ret);
 	}
 
+
 	/**
 	 * Get the plaintext version of this string
 	 * in case it's an html
 	 *
 	 * @return object of this class
 	 */
-	public function getPlainText()
-	{
+	public function getPlainText(){
 
 		if(!$this->isHtml()){
 
@@ -977,9 +959,10 @@ class Utf8String extends String
 				$ret = $this->asPlainText();
 			}
 		}
-		
+
 		return $this->handleReturn($ret);
 	}
+
 
 	/**
 	 * If the string is NOT HTML
@@ -994,6 +977,7 @@ class Utf8String extends String
 		return $this->handleReturn($this->string);
 	}
 
+
 	/**
 	 * Converts the utf-8 string
 	 * to ASCII charset using translitiration if
@@ -1001,8 +985,7 @@ class Utf8String extends String
 	 *
 	 * @return object instance of this class
 	 */
-	public function toASCII()
-	{
+	public function toASCII(){
 		$ascii = false;
 		if(extension_loaded('iconv')){
 			setlocale(LC_ALL, 'en_US.UTF8');
@@ -1019,6 +1002,7 @@ class Utf8String extends String
 		return $this->handleReturn($ascii);
 	}
 
+
 	/**
 	 * Converts this string to ISO-8859-1 charset (latin-1)
 	 * If iconv is available will use translitiration,
@@ -1029,8 +1013,7 @@ class Utf8String extends String
 	 *
 	 * @return object of this class
 	 */
-	public function toLatin1()
-	{
+	public function toLatin1(){
 		$ret = false;
 		if(extension_loaded('iconv')){
 			setlocale(LC_ALL, 'en_US.UTF8');
@@ -1047,6 +1030,7 @@ class Utf8String extends String
 
 	}
 
+
 	/**
 	 * Run this string through htmlspecialchars with ENT_NOQUOTES
 	 * This will turn < and > and & into special chars
@@ -1055,12 +1039,12 @@ class Utf8String extends String
 	 *
 	 * @return object of this type
 	 */
-	public function htmlspecialchars()
-	{
+	public function htmlspecialchars(){
 		$ret = htmlspecialchars($this->string, ENT_NOQUOTES, 'UTF-8', false);
 
 		return $this->handleReturn($ret);
 	}
+
 
 	public function stripTags(array $aAllowed = null){
 		$ret = strip_tags($this->string, $aAllowed);
@@ -1068,11 +1052,13 @@ class Utf8String extends String
 		return $this->handleReturn($ret);
 	}
 
+
 	public function htmlentities(){
 		$ret = htmlentities($this->string, ENT_NOQUOTES, 'UTF-8', false);
 
 		return $this->handleReturn($ret);
 	}
+
 
 	/**
 	 * This will convert our utf-8 string
@@ -1263,6 +1249,7 @@ class Utf8String extends String
 		return $ret;
 	}
 
+
 	/**
 	 * Enter the hex code for the utf8 character
 	 * and it outputs the string that can then be used
@@ -1322,6 +1309,24 @@ class Utf8String extends String
 		$ret = $md->transform($this->string);
 
 		return $this->handleReturn($ret);
+	}
+
+
+	/**
+	 * Parse MiniMardDown:
+	 * mini mark down converts **string** to <strong>string</strong>
+	 * and _string_ to <em>string</em>
+	 *
+	 * @return object of this class representin parsed string
+	 * which may now contain html tags
+	 *
+	 */
+	public function mmd2Html(){
+
+		$parsed = preg_replace('/([*]{2})(.*)([*]{2})/Ui', '<strong>\\2</strong>', $this->string);
+		$parsed = preg_replace('/(_)(.*)(_)/Ui', '<em>\\2</em>', $parsed);
+		
+		return $this->handleReturn($parsed);
 	}
 
 }

@@ -123,47 +123,6 @@ class CommentParser extends LampcmsObject
 
 
 	/**
-	 * Returnes id of user (USERS.id)
-	 * who owns the resource
-	 * Which is usually the user who created it
-	 * but doest not have to be.
-	 * It is up to the individual class
-	 * to decide who owns the resource.
-	 *
-	 * @return int
-	 */
-	/*public function getOwnerId(){
-		if(empty($this->aComment) || empty($this->aComment['i_uid'])){
-		throw new \LogicException('The comment data has not been set yet');
-		}
-
-		return (int)$this->aComment['i_uid'];
-		}*/
-
-
-	/**
-	 * Get unix timestamp of
-	 * when resource was last modified
-	 * This includes any type of change made to a
-	 *
-	 * resource, including when new comments were added
-	 * or new rating added ,etc.
-	 *
-	 * It's up to the implementer to decide what changes
-	 * are significant enough to be considered modified
-	 * but usually the on update CURRENT TIMESTAMP
-	 * is a very good way to mark resouce as modified
-	 *
-	 * @return int last modified time in unix timestamp
-	 *
-	 */
-	/*public function getLastModified(){
-
-	return $this->aComment['i_lm_ts'];
-	}*/
-
-
-	/**
 	 * Update i_lm_ts value
 	 * as well as update i_lm_ts in affected
 	 * Question
@@ -674,4 +633,3 @@ class CommentParser extends LampcmsObject
 	}
 
 }
-

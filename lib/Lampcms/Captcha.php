@@ -277,21 +277,21 @@ class Captcha extends LampcmsObject
 	public static function factory(Registry $oRegistry){
 		d('cp captcha factory');
 		$aConfig = $oRegistry->Ini->getSection('CAPTCHA');
-		$disabled = $aConfig['disabled'];
-		d('disabled: '.$disabled);
 
-		if(!empty($disabled)){
+		if(!empty($aConfig['disabled'])){
+			d('Captcha disabled by administrator');
+			
 			return new CaptchaStub();
 		}
 
 		try{
 			self::checkGD();
+			return new self($oRegistry, $aConfig);			
 		} catch (DevException $e){
 			e('Unable to use Captcha because of this error: '.$e->getMessage());
+			
 			return new CaptchaStub();
 		}
-
-		return new self($oRegistry, $aConfig);
 	}
 
 	

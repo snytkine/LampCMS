@@ -107,7 +107,7 @@ YUI({
 			write('Draft saved..');
 		});
 	}, //
-
+    commentTip = '<tr><td></td><td colspan="2" class="lighttext">Enter at least 16 characters<br>Allowed mini-Markdown formatting: _italic_ and **bold**</td></tr>',
 	eForm = Y.one('.qa_form'), //
 	/**
 	 * Ask Form Textarea
@@ -183,6 +183,23 @@ YUI({
 
 			return eForm.get('name');
 	}, //
+	/**
+	 * MiniMarkDown decode
+	 * Turn html back into mini markdown
+	 * @param string s
+	 * @return string with <strong> and <em> tags 
+	 * replaced with their mini markdown code
+	 */
+	mmdDecode = function(s){
+		Y.log('got string to decode: ' + s);
+		var ret, em = /(\<em>|\<\/em>)/g;
+		var bold = /(\<strong>|\<\/strong>)/g;
+		ret = s.replace(em, '_');
+		Y.log('ret: ' + ret, 'warn');
+		ret = ret.replace(bold, '**');
+		
+		return ret;
+	},//
 
 	/**
 	 * Each question/answer is allowed up to 4 up and down votes, after that
@@ -1497,7 +1514,8 @@ YUI({
 		    	+ '<td class="com_button" valign="top">'
 		    	+ '<input type="submit" name="doit" class="btn_comment" value="comment">'
 		    	+ '</td>'
-		    	+ '</tr><tr><td></td><td colspan="2" class="lighttext">Enter at least 16 characters</td></tr>'
+		    	+ '</tr>' 
+		    	+ commentTip
 		    	+ '</table>'
 		    	+ '</form></div>';
 		
@@ -1533,9 +1551,11 @@ YUI({
 		Y.log('wrapDiv: ' + wrapDiv);
 		if(wrapDiv){
 			body = wrapDiv.one('.com_b');
-			content = body.get('text');
+			content = body.get('innerHTML');
 			Y.log('body: ' + body);
 			Y.log('text: ' + content);
+			content = mmdDecode(content);
+			Y.log('1555 mmdDecoded: ' + content);
 			
 			form = '<div id="comm_wrap_' + resID + '" class="fl cb">'
 	    	+ '<form action="/index.php" id="edit-comment-' + resID + '" class="comform" method="post">'
@@ -1550,7 +1570,8 @@ YUI({
 	    	+ '<td class="com_button" valign="top">'
 	    	+ '<input type="submit" name="doit" class="btn_comment" value="save">'
 	    	+ '</td>'
-	    	+ '</tr><tr><td></td><td colspan="2" class="lighttext">Enter at least 16 characters</td></tr>'
+	    	+ '</tr>'
+	    	+ commentTip
 	    	+ '</table>'
 	    	+ '</form></div>';
 			

@@ -257,6 +257,7 @@ POST_TO_WALL = true
 ipFilter= "\\Lampcms\\Modules\\Observers\\IpFilter"
 floodCheck = "\\Lampcms\\Modules\\Observers\\FloodCheck"
 questionSimilar = "\\Lampcms\\Modules\\Observers\\Similars"
+EmailNotifier = "\\Lampcms\\Modules\\Observers\\EmailNotifier"
 
 [CURL]
 ; primary ip address from which curl will connect
