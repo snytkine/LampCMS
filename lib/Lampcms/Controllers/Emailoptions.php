@@ -118,11 +118,11 @@ class Emailoptions extends WebPage
 		$formVals = $this->oForm->getSubmittedValues();
 		d('formVals: '.print_r($formVals, 1));
 
-		$this->oRegistry->Viewer['e_fu'] = (!empty($formVals['e_fu']));
-		$this->oRegistry->Viewer['e_fq'] = (!empty($formVals['e_fq']));
-		$this->oRegistry->Viewer['e_ft'] = (!empty($formVals['e_ft']));
-		$this->oRegistry->Viewer['e_fc'] = (!empty($formVals['e_fc']));
-		$this->oRegistry->Viewer['e_ok'] = (!empty($formVals['e_ok']));
+		$this->oRegistry->Viewer['ne_fu'] = (empty($formVals['e_fu']));
+		$this->oRegistry->Viewer['ne_fq'] = (empty($formVals['e_fq']));
+		$this->oRegistry->Viewer['ne_ft'] = (empty($formVals['e_ft']));
+		$this->oRegistry->Viewer['ne_fc'] = (empty($formVals['e_fc']));
+		$this->oRegistry->Viewer['ne_ok'] = (empty($formVals['e_ok']));
 
 		$this->oRegistry->Viewer->save();
 
@@ -144,11 +144,11 @@ class Emailoptions extends WebPage
 	 */
 	protected function setForm(){
 
-		$this->oForm->e_fu = (false !== $this->oRegistry->Viewer->e_fu) ? 'checked' : '';
-		$this->oForm->e_ft = (false !== $this->oRegistry->Viewer->e_ft) ? 'checked' : '';
-		$this->oForm->e_fq = (false !== $this->oRegistry->Viewer->e_fq) ? 'checked' : '';
-		$this->oForm->e_fc = (false !== $this->oRegistry->Viewer->e_fc) ? 'checked' : '';
-		$this->oForm->e_ok = (false !== $this->oRegistry->Viewer->e_ok) ? 'checked' : '';
+		$this->oForm->e_fu = (true !== $this->oRegistry->Viewer->ne_fu) ? 'checked' : '';
+		$this->oForm->e_ft = (true !== $this->oRegistry->Viewer->ne_ft) ? 'checked' : '';
+		$this->oForm->e_fq = (true !== $this->oRegistry->Viewer->ne_fq) ? 'checked' : '';
+		$this->oForm->e_fc = (true !== $this->oRegistry->Viewer->ne_fc) ? 'checked' : '';
+		$this->oForm->e_ok = (true !== $this->oRegistry->Viewer->ne_ok) ? 'checked' : '';
 
 		return $this;
 	}

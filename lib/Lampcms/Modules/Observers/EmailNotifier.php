@@ -195,7 +195,7 @@ class EmailNotifier extends \Lampcms\Observer
 
 
 	protected static $QUESTION_FOLLOW_BODY = '
-	%1$s has added a %2$s
+	%1$s has added a new %2$s
 	to a question you follow:
 	%3$s
 	
@@ -330,11 +330,11 @@ class EmailNotifier extends \Lampcms\Observer
 			 * Find all who follow any of the tags
 			 * but not following the asker
 			 * and not themselve the asker //, 'e_ft' => array('$ne' => false)
-			 */
-			$cur = $coll->find(array('a_f_t' => array('$in' => $aTags ), 'a_f_u' => array('$ne' => $askerID ), '_id' => array('$ne' => $askerID) ), array('email', 'e_ft')  );
+			 */	
+			$cur = $coll->find(array('_id' => array('$ne' => $askerID),  'a_f_t' => array('$in' => $aTags ), 'a_f_u' => array('$nin' => array(0 => $askerID) ), 'ne_ft' => array('$ne' => true) ), array('email')  );
 			$count = $cur->count();
 			if($count > 0){
-				
+
 				/**
 				 * Passing callback function
 				 * to exclude mailing to those who
@@ -397,8 +397,7 @@ class EmailNotifier extends \Lampcms\Observer
 		register_shutdown_function(function() use($uid, $tpl, $updateType, $subj, $body, $coll, $oMailer){
 
 			$count = 0;
-			$cur = $coll->find(array('a_f_u' => $uid, 'e_fu' => array('$ne' => false)), array('email', 'e_fu')  );
-
+			$cur = $coll->find(array('a_f_u' => $uid, 'ne_fu' => array('$ne' => true) ), array('email')  );
 			$count = $cur->count();
 			d('count: '.$count);
 			if($count > 0){
@@ -468,7 +467,7 @@ class EmailNotifier extends \Lampcms\Observer
 			 * own question and we don't want to notify viewer of that)
 			 *
 			 */
-			$cur = $coll->find(array('a_f_q' => $qid, 'a_f_u' => array('$ne' => $viewerID ), '_id' => array('$ne' => $viewerID), 'e_fq' => array('$ne' => false) ), array('email', 'e_fq')  );
+			$cur = $coll->find(array('a_f_q' => $qid, 'a_f_u' => array('$nin' => array(0 => $viewerID) ), '_id' => array('$ne' => $viewerID), 'ne_fq' => array('$ne' => true) ), array('email')  );
 			$count = $cur->count();
 
 			if($count > 0){
