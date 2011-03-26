@@ -104,6 +104,11 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $o;
 	}
 
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms.ArrayDefaults::__get()
+	 */
 	public function __get($name)
 	{
 		if('id' === $name){
@@ -634,7 +639,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 */
 	public function getReputation(){
 
-		return max(1, $this->offsetGet('i_rep'));
+		return min(1, $this->offsetGet('i_rep'));
 	}
 
 

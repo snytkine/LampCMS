@@ -66,6 +66,8 @@ use Lampcms\LoginForm;
 class Askform extends WebPage
 {
 
+	protected $permission = 'ask';
+	
 	protected $aTplVars = array();
 
 	protected $oForm;

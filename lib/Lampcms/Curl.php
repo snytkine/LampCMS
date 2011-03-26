@@ -250,6 +250,7 @@ class Curl extends LampcmsObject
 		throw $ex;
 	}
 
+	
 	/**
 	 * Set request headers
 	 * @param array $aHeaders
@@ -265,6 +266,7 @@ class Curl extends LampcmsObject
 		return $this;
 	}
 
+	
 	/**
 	 * Set curl options
 	 * This MUST be run before sending out a request,
@@ -316,10 +318,18 @@ class Curl extends LampcmsObject
 		return $this;
 	}
 
+	
+	/**
+	 * Set single curl option
+	 * 
+	 * @param string $name
+	 * @param string $val
+	 */
 	public function setOption($name, $val){
 		curl_setopt($this->request, constant($name), $val);
 	}
 
+	
 	/**
 	 * Destructor method to close open curl connection
 	 * and free up resource
@@ -331,6 +341,7 @@ class Curl extends LampcmsObject
 		}
 	}
 
+	
 	/**
 	 * Get value of charset
 	 * as extracted from the
@@ -356,6 +367,7 @@ class Curl extends LampcmsObject
 		return null;
 	}
 
+	
 	/**
 	 * Getter for $this->info array
 	 *
@@ -366,6 +378,7 @@ class Curl extends LampcmsObject
 		return $this->info;
 	}
 
+	
 	/**
 	 * Getter for $this->body
 	 * @return string body of http response
@@ -375,6 +388,7 @@ class Curl extends LampcmsObject
 		return $this->body;
 	}
 
+	
 	/**
 	 * Getter for $this->httpResponseCode
 	 * 
@@ -385,6 +399,7 @@ class Curl extends LampcmsObject
 		return (int)$this->httpResponseCode;
 	}
 
+	
 	/**
 	 * Get value of specific header
 	 * if this header does not exists, will return empty string

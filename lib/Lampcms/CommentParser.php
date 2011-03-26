@@ -104,7 +104,14 @@ class CommentParser extends LampcmsObject
 	 */
 	protected $bDeleted;
 
-
+	/**
+	 * Object of SubmittedComment
+	 * usually this is SubmittedCommentWWW object
+	 * but could be any object implementing
+	 * \Lampcms\Interfaces\SubmittedComment
+	 *
+	 * @var object implementing \Lampcms\Interfaces\SubmittedComment
+	 */
 	protected $oComment;
 
 
@@ -307,7 +314,7 @@ class CommentParser extends LampcmsObject
 					$editor =$oEditor->getDisplayName();
 					$editor_url = $oEditor->getProfileUrl();
 					$uid = $oEditor->getUid();
-						
+
 					d('comment found: '.$i);
 					$aComments[$i]['b'] = $body;
 					$aComments[$i]['e'] = '<a class="ce" href="'.$editor_url.'"><span class="ico edited tu" title="This comment was edited by '.$editor.' on '.$date.'"></span></a>';
@@ -523,12 +530,12 @@ class CommentParser extends LampcmsObject
 	 * insert like into VOTES
 	 * update i_likes in Resource[comments][$i]
 	 * post onCommentLike
-	 * 
+	 *
 	 * @todo this can be done without creating
 	 * Resource object by using in-place update
 	 * of nested array element right in Mongo
 	 * @see http://www.mongodb.org/display/DOCS/Updating#Updating-The%24positionaloperator
-	 * 
+	 *
 	 *
 	 *
 	 * Enter description here ...
@@ -614,11 +621,12 @@ class CommentParser extends LampcmsObject
 		$id = $uid.'.'.$resID;
 
 		$aData = array(
-		'_id' => $id,
-		'i_uid' => $uid,
-		'i_res' => $resID,
-		'i_ts' => time(),
-		'i_owner' => $ownerID);
+			'_id' => $id,
+			'i_uid' => $uid,
+			'i_res' => $resID,
+			'i_ts' => time(),
+			'i_owner' => $ownerID
+		);
 
 		d('aData: '.print_r($aData, 1));
 

@@ -60,7 +60,7 @@ use \Lampcms\Responder;
 class Emailoptions extends WebPage
 {
 	protected $membersOnly = true;
-	
+
 	protected $permission = 'edit_profile';
 
 	protected $layoutID = 1;
@@ -74,7 +74,7 @@ class Emailoptions extends WebPage
 	/**
 	 * @todo Translate strings used in form using the
 	 * $this->oForm->name = val setting
-	 * 
+	 *
 	 * @todo maybe send email on save() notifying
 	 * that email settings has been updated
 	 *
@@ -117,14 +117,16 @@ class Emailoptions extends WebPage
 
 		$formVals = $this->oForm->getSubmittedValues();
 		d('formVals: '.print_r($formVals, 1));
+		$oViewer = $this->oRegistry->Viewer;
 
-		$this->oRegistry->Viewer['ne_fu'] = (empty($formVals['e_fu']));
-		$this->oRegistry->Viewer['ne_fq'] = (empty($formVals['e_fq']));
-		$this->oRegistry->Viewer['ne_ft'] = (empty($formVals['e_ft']));
-		$this->oRegistry->Viewer['ne_fc'] = (empty($formVals['e_fc']));
-		$this->oRegistry->Viewer['ne_ok'] = (empty($formVals['e_ok']));
+		$oViewer['ne_fu'] = (empty($formVals['e_fu']));
+		$oViewer['ne_fq'] = (empty($formVals['e_fq']));
+		$oViewer['ne_ft'] = (empty($formVals['e_ft']));
+		$oViewer['ne_fa'] = (empty($formVals['e_fa']));
+		$oViewer['ne_fc'] = (empty($formVals['e_fc']));
+		$oViewer['ne_ok'] = (empty($formVals['e_ok']));
 
-		$this->oRegistry->Viewer->save();
+		$oViewer->save();
 
 		return $this;
 	}
@@ -147,6 +149,7 @@ class Emailoptions extends WebPage
 		$this->oForm->e_fu = (true !== $this->oRegistry->Viewer->ne_fu) ? 'checked' : '';
 		$this->oForm->e_ft = (true !== $this->oRegistry->Viewer->ne_ft) ? 'checked' : '';
 		$this->oForm->e_fq = (true !== $this->oRegistry->Viewer->ne_fq) ? 'checked' : '';
+		$this->oForm->e_fa = (true !== $this->oRegistry->Viewer->ne_fa) ? 'checked' : '';
 		$this->oForm->e_fc = (true !== $this->oRegistry->Viewer->ne_fc) ? 'checked' : '';
 		$this->oForm->e_ok = (true !== $this->oRegistry->Viewer->ne_ok) ? 'checked' : '';
 

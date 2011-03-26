@@ -184,6 +184,12 @@ class Gravatar
 		if (false === filter_var($email, FILTER_VALIDATE_EMAIL)) {
 			throw new \InvalidArgumentException('Invalid value of $email: '.$email);
 		}
+		
+		if(!function_exists('curl_init') || !extension_loaded('curl') ){
+			d('Your php does not have curl extension. Unable to fetch Gravatar. A dummy class will be used instead');
+			
+			return new Stub();
+		}
 
 		$o = new self($email);
 		$o->setSize($size)
@@ -262,6 +268,7 @@ class Gravatar
 		return $this;
 	}
 
+	
 	/**
 	 * Setter for $this->rating
 	 *
@@ -284,6 +291,7 @@ class Gravatar
 		return $this;
 	}
 
+	
 	/**
 	 * Setts the size of gravatar
 	 * we interested in getting
@@ -308,11 +316,16 @@ class Gravatar
 		return $this;
 	}
 
+	
 	/**
 	 * Sets on of the fallback services that return
 	 * some image in case real gravatar does not exist
 	 *
-	 * @param string $fallback name of fallback service
+	 * @param string $fallback name of fallback service set to 404 
+	 * if you need to just test if avatar exists, in which case the server will
+	 * respond with 404 HTTP response instead of using fallback avatar
+	 * provider
+	 * 
 	 * @return object $this
 	 */
 	public function setFallback($fallback)
@@ -327,6 +340,7 @@ class Gravatar
 		return $this;
 	}
 
+	
 	/**
 	 * Setter for $this->url
 	 *
@@ -339,6 +353,7 @@ class Gravatar
 		return $this;
 	}
 
+	
 	/**
 	 * Getter for $this->url
 	 * @return string value of $this->url
@@ -348,6 +363,7 @@ class Gravatar
 		return $this->url;
 	}
 
+	
 	/**
 	 * Test to see if email has
 	 * a gravatar.
@@ -368,6 +384,7 @@ class Gravatar
 		->gravatarExists;
 	}
 
+	
 	/**
 	 * Get actual avatar data (jpeg binary data)
 	 *
@@ -402,6 +419,7 @@ class Gravatar
 		return $this;
 	}
 
+	
 	/**
 	 * Get the actual gravatar file
 	 * (binary string)
@@ -421,7 +439,6 @@ class Gravatar
 		if('N' === $this->gravatarExists){
 			return null;
 		}
-
 
 		return $this->gravatar;
 	}

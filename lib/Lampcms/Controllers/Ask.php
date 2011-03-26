@@ -65,8 +65,6 @@ use \Lampcms\SubmittedQuestionWWW;
 class Ask extends Askform
 {
 
-	protected $permission = 'ask';
-
 	protected $membersOnly = true;
 
 

@@ -200,13 +200,31 @@ class Addcomment extends WebPage
 	 */
 	protected function checkPermission(){
 		$viewerID = $this->oRegistry->Viewer->getUid();
-		
-		if( 
-		($this->oResource->getQuestionOwnerId() !== $viewerID) && 
-		($this->oResource->getOwnerId() !== $viewerID) && 
-		($this->oRegistry->Viewer->getReputation() < ReputationAcl::COMMENT)){
 
-			$this->checkAccessPermission('comment');
+		if(
+		($this->oResource->getQuestionOwnerId() !== $viewerID) &&
+		($this->oResource->getOwnerId() !== $viewerID) &&
+		($this->oRegistry->Viewer->getReputation() < ReputationAcl::COMMENT)){
+			try{
+				$this->checkAccessPermission('comment');
+			} catch(\Exception $e){
+				/**
+				 * If this is an AuthException then it means
+				 * user does not have 'comment' permission in the ACL
+				 * which also means that user does not have
+				 * the required reputation score.
+				 * We will show a nice message then.
+				 *
+				 * In case it's some other type of exception just re-throw it
+				 */
+				if($e instanceof \Lampcms\AccessException){
+					throw new \Lampcms\Exception('A minimum reputation score of '.ReputationAcl::COMMENT.
+					' is required to comment on someone else\'s question or answer. 
+					Your current reputation score is '.$this->oRegistry->Viewer->getReputation());
+				}else {
+					throw $e;
+				}
+			}
 		}
 
 		return $this;

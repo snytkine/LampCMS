@@ -58,7 +58,20 @@ use \Lampcms\Request;
 use \Lampcms\Captcha;
 use \Lampcms\Mailer;
 
-
+/**
+ * Main class for creating new account
+ * for a new user who is registered
+ * with just email address (no 3rd party API login)
+ *
+ * @todo move as many methods as possible to
+ * a wrapper class so that it could be called
+ * not only as a web page Conroller
+ * but also from the API
+ * Later it will be easity to reuse if we have the API
+ *
+ * @author Dmitri Snytkine
+ *
+ */
 class Register extends WebPage
 {
 	protected $permission = 'register';
@@ -87,6 +100,13 @@ You can change your password after you log in.
 
 	const SUBJECT = 'Your %s login information';
 
+	/**
+	 * Message to show upon completed successful
+	 * registration
+	 * 
+	 * @var string
+	 */
+	const SUCCESS = 'Welcome to our club.<br>Please check your email and activate your account A.S.A.P.<br>(details are in the email)';
 
 	protected $layoutID = 1;
 
@@ -118,7 +138,11 @@ You can change your password after you log in.
 	 */
 	protected $email;
 
-
+	/**
+	 * Object represents on record in EMAILS collection
+	 *
+	 * @var object of type MongoDoc
+	 */
 	protected $oEmail;
 
 	protected function main(){
@@ -160,7 +184,7 @@ You can change your password after you log in.
 			/**
 			 * @todo Translate string
 			 */
-			$this->aPageVars['body'] = '<div id="tools" class="larger">Welcome to our club.<br>Please check your email and activate your account A.S.A.P. (details are in the email)</div>';
+			$this->aPageVars['body'] = '<div id="tools" class="larger">'.self::SUCCESS.'</div>';
 		} else {
 			$this->aPageVars['body'] = '<div id="userForm" class="frm1">'.$this->oForm->getForm().'</div>';
 		}
@@ -270,6 +294,11 @@ You can change your password after you log in.
 	}
 
 
+	/**
+	 * Created a new record in EMAILS collection
+	 *
+	 * @return object $this
+	 */
 	protected function createEmailRecord(){
 
 		$coll = $this->oRegistry->Mongo->EMAILS;
@@ -316,6 +345,5 @@ You can change your password after you log in.
 
 		return $this;
 	}
-
 
 }

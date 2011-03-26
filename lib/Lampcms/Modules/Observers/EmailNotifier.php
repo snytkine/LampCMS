@@ -129,89 +129,106 @@ use \Lampcms\Mailer;
 class EmailNotifier extends \Lampcms\Observer
 {
 	protected static $QUESTION_BY_USER_BODY = '
-	%1$s has asked a question:
-	%2$s
+%1$s has asked a question:
+%2$s
 	
-	-------------
-	%3$s
+-------------
+%3$s
 
 	
-	Visit this url %4$s
-	to read the entire question
-	and try to answer it if you can.
+Visit this url %4$s
+to read the entire question
+and try to answer it if you can.
+		
+----
+You receive this message because you are following
+the user %1$s.
 	
-	
-	----
-	You receive this message because you are following
-	the user %1$s.
-	
-	You can change your email preferences by signing in to 
-	site %5$s and navigating to Settings > Email Preferences
-	
+You can change your email preferences by signing in to 
+site %5$s and navigating to Settings > Email Preferences
+
 	';
 
 
 	protected static $ANSWER_BY_USER_BODY = '
-	%1$s has answered a question:
-	%2$s
+%1$s has answered a question:
+%2$s
 
+
+Visit this url %4$s
+to read the entire question and the answer
 	
-	Visit this url %4$s
-	to read the entire question
-	and the answer
-	
-	
-	----
-	You receive this message because you are following
-	the user %1$s.
-	
-	You can change your email preferences by signing in to 
-	site %5$s and navigating to Settings > Email Preferences
-	
+----
+You receive this message because you are following
+the user %1$s.
+
+You can change your email preferences by signing in to 
+site %5$s and navigating to Settings > Email Preferences
+
 	';
 
 
 	protected static $QUESTION_BY_TAG_BODY = '
-	%1$s has asked a question:
-	%2$s
-	
-	-------------
-	%3$s
+%1$s has asked a question:
+%2$s
 
-	
-	Visit this url %4$s
-	to read the entire question
-	and try to answer it if you can.
-	
-	
-	----
-	You receive this message because question contains one
-	of the tags you follow
-	
-	You can change your email preferences by signing in to 
-	site %5$s and navigating to Settings > Email Preferences
-	
-	';
+-------------
+%3$s
+
+
+Visit this url %4$s
+to read the entire question
+and try to answer it if you can.
+
+
+----
+You receive this message because question contains one
+of the tags you follow
+
+You can change your email preferences by signing in to 
+site %5$s and navigating to Settings > Email Preferences
+
+';
 
 
 	protected static $QUESTION_FOLLOW_BODY = '
-	%1$s has added a new %2$s
-	to a question you follow:
-	%3$s
-	
-	Visit this url %4$s
-	to read the entire question
-	
-	
-	
-	----
-	You receive this message because you are
-	following this question
-	
-	You can change your email preferences by signing in to 
-	site %5$s and navigating to Settings > Email preferences
-	
-	';
+%1$s has added a new %2$s
+to a question you follow:
+%3$s
+%6$s
+
+Visit this url %4$s
+to read the entire question
+
+----
+You receive this message because you are
+following this question
+
+You can change your email preferences by signing in to 
+site %5$s and navigating to Settings > Email preferences
+
+';
+
+
+	protected static $ANS_COMMENT_BODY = '
+%1$s commented on your answer to a question 
+%2$s
+
+Their comment was:	
+%3$s
+
+Visit this url to see the answer with the new comment:
+
+%4$s
+
+----
+You can change your email preferences by signing in to 
+site %5$s and navigating to Settings > Email preferences
+
+';
+
+
+	protected static $ANS_COMMENT_SUBJ = '%s commented on your answer';
 
 	protected static $QUESTION_BY_USER_SUBJ = 'New %s by %s';
 
@@ -293,8 +310,119 @@ class EmailNotifier extends \Lampcms\Observer
 				$this->notifyUserFollowers();
 				$this->notifyQuestionFollowers();
 				break;
+
+			case 'onNewComment':
+				$this->collUsers = $this->oRegistry->Mongo->USERS;
+				$this->notifyOnComment();
+				break;
 		}
 
+	}
+
+
+	/**
+	 * In case this is a comment to a question:
+	 * notify Question followers ONLY
+	 *
+	 * In Case this is a comment to an answer:
+	 * notify Answer author ONLY if not opted out
+	 * of this option.
+	 *
+	 * IN case this is a reply to a comment:
+	 * notify parent-comment author in addition
+	 * to the above and ONLY if not opted out of this
+	 * AND also then exclude the parent-comment
+	 * author from all the above updates.
+	 *
+	 * In addition always exclude comment author from updates
+	 *
+	 *
+	 *
+	 */
+	protected function notifyOnComment(){
+
+		/**
+		 * Special case if this is a reply to existing comment:
+		 * in which case we notify parent comment owner
+		 * and also question owner if this is comment on a question.
+		 * @todo not yet implemented
+		 */
+
+		/**
+		 * $this->obj is object of type SubmittedComment
+		 * it has getResource() method and returns a resource
+		 * for this it is a comment, usually Question or Answer
+		 * If it's a Question we set $this->oQuestion
+		 * and then just notify question followers
+		 *
+		 * else we notify Answer author (since there is no
+		 * such thing as answer follower) and Also notify question
+		 * followers but we don't have the Question object so
+		 * we need to just use getQuestionId from Answer object
+		 *
+		 * @var
+		 */
+		$oResource = $this->obj->getResource();
+		if($oResource instanceof \Lampcms\Question){
+			d('cp');
+			$this->oQuestion = $oResource;
+			$this->notifyQuestionFollowers();
+		} elseif($oResource instanceof \Lampcms\Answer){
+			d('cp');
+			$this->notifyAnswerAuthor($oResource);
+		} else {
+			throw new \Lampcms\DevException('Something is wrong here. The object is not Question and not Answer. it is: '.get_class($oResource));
+		}
+	}
+
+
+	/**
+	 * Notify just the author of the answer
+	 * exclude the ViewerID
+	 *
+	 * @return object $this
+	 */
+	protected function notifyAnswerAuthor(\Lampcms\Answer $oAnswer, $excludeUid = 0){
+
+		$commentorID = (int)$this->aInfo['i_uid'];
+		$answerOwnerId = $oAnswer->getOwnerId();
+		$siteUrl = $this->oRegistry->Ini->SITE_URL;
+		d('$siteUrl: '.$siteUrl);
+		$commUrl = $siteUrl.'/q'.$this->aInfo['i_qid'].'/#c'.$this->aInfo['_id'];
+		d('commUrl: '.$commUrl);
+
+		$ansID = $oAnswer->getResourceId();
+		d('ansID: '.$ansID);
+		d('$answerOwnerId: '.$answerOwnerId);
+
+		$coll = $this->collUsers;
+		$subj = sprintf(static::$ANS_COMMENT_SUBJ, $this->aInfo['username']);
+		$body = vsprintf(static::$ANS_COMMENT_BODY, array($this->aInfo['username'], $oAnswer['title'], $this->aInfo['b'], $commUrl, $siteUrl));
+		d('subj: '.$subj);
+		d('body: '.$body);
+		$oMailer = new Mailer($this->oRegistry);
+
+		/**
+		 * Don not notify if comment made
+		 * by the same user who is answer author
+		 *
+		 * This update is sent to only one user - answer owner
+		 * so we use findOne instead of find()
+		 * and send use mail() instead of mailFromCursor() on Mailer
+		 */
+		if( ($commentorID !== $answerOwnerId)  && ($commentorID != $excludeUid)){
+			register_shutdown_function(function() use ($commentorID, $answerOwnerId, $coll, $subj, $body, $oMailer, $excludeUid){
+
+				$aUser = $coll->findOne(array('_id' => $answerOwnerId, 'ne_fa' => array('$ne' => true)), array('email'));
+					
+				if(!empty($aUser) && !empty($aUser['email']) ){
+					$oMailer->mail($aUser['email'], $subj, $body, null, false);
+				}
+
+			});
+		}
+
+		return $this;
 	}
 
 
@@ -330,7 +458,7 @@ class EmailNotifier extends \Lampcms\Observer
 			 * Find all who follow any of the tags
 			 * but not following the asker
 			 * and not themselve the asker //, 'e_ft' => array('$ne' => false)
-			 */	
+			 */
 			$cur = $coll->find(array('_id' => array('$ne' => $askerID),  'a_f_t' => array('$in' => $aTags ), 'a_f_u' => array('$nin' => array(0 => $askerID) ), 'ne_ft' => array('$ne' => true) ), array('email')  );
 			$count = $cur->count();
 			if($count > 0){
@@ -436,10 +564,19 @@ class EmailNotifier extends \Lampcms\Observer
 	 * follows the Viewer will be notified via
 	 * the nofityUserFollowers
 	 *
+	 * @param int qid id of question
+	 *
+	 * @param int excludeUid UserID of user that should NOT
+	 * be notified. Usually this is in a special case of when
+	 * the answer or comment owner has already been notified
+	 * so now we just have to exclude the same user in case same user
+	 * is also the question author.
+	 *
 	 * @return object $this
 	 */
-	protected function notifyQuestionFollowers($qid = null){
+	protected function notifyQuestionFollowers($qid = null, $excludeUid = 0){
 		$viewerID = $this->oRegistry->Viewer->getUid();
+		d('$viewerID: '.$viewerID);
 		/**
 		 *
 		 * $qid can be passed here
@@ -447,10 +584,21 @@ class EmailNotifier extends \Lampcms\Observer
 		 *
 		 */
 		$qid = ($qid) ? (int)$qid : $this->oQuestion->getResourceId();
+		d('qid: '.$qid);
 		$updateType = ('onNewAnswer' === $this->eventName) ? 'answer' : 'comment';
 		$subj = sprintf(static::$QUESTION_FOLLOW_SUBJ, $updateType);
-		$body = vsprintf(static::$QUESTION_FOLLOW_BODY, array($this->obj['username'], $updateType, $this->oQuestion['title'], $this->obj->getUrl(), $this->oRegistry->Ini->SITE_URL));
+		d('cp');
+		$siteUrl = $this->oRegistry->Ini->SITE_URL;
+
+		$username = ('answer' === $updateType) ? $this->obj['username']: $this->aInfo['username'];
+		$url = ('answer' === $updateType) ? $this->obj->getUrl() : $siteUrl.'/q'.$this->aInfo['i_qid'].'/#c'.$this->aInfo['_id'];;
+		d('url: '.$url);
+
+		$content = ('comment' === $updateType) ? "\n____\n".$this->aInfo['b']."\n" : '';
+		$body = vsprintf(static::$QUESTION_FOLLOW_BODY, array($username, $updateType, $this->oQuestion['title'], $url, $siteUrl, $content));
+		d('$body: '.$body);
 		$oMailer = new Mailer($this->oRegistry);
+		d('cp');
 		/**
 		 * MongoCollection USERS
 		 * @var object MongoCollection
@@ -458,7 +606,8 @@ class EmailNotifier extends \Lampcms\Observer
 		$coll = $this->collUsers;
 		d('before shutdown function for question followers');
 
-		register_shutdown_function(function() use($viewerID, $qid, $updateType, $subj, $body, $coll, $oMailer){
+
+		register_shutdown_function(function() use($updateType, $viewerID, $qid, $updateType, $subj, $body, $coll, $oMailer){
 
 			/**
 			 * Find all users who follow this question
@@ -466,8 +615,17 @@ class EmailNotifier extends \Lampcms\Observer
 			 * are not themselves the viewer (a viewer may reply to
 			 * own question and we don't want to notify viewer of that)
 			 *
+			 * In case of comment we should not exclude
+			 * user followers because user followers are NOT
+			 * notified on user comment
+			 *
 			 */
-			$cur = $coll->find(array('a_f_q' => $qid, 'a_f_u' => array('$nin' => array(0 => $viewerID) ), '_id' => array('$ne' => $viewerID), 'ne_fq' => array('$ne' => true) ), array('email')  );
+			if('comment' !== $updateType){	
+				$cur = $coll->find(array('a_f_q' => $qid, 'a_f_u' => array('$nin' => array(0 => $viewerID) ), '_id' => array('$ne' => $viewerID), 'ne_fq' => array('$ne' => true) ), array('email')  );
+			} else {				
+				$cur = $coll->find(array('a_f_q' => $qid, '_id' => array('$ne' => $viewerID), 'ne_fq' => array('$ne' => true) ), array('email')  );
+			}
+				
 			$count = $cur->count();
 
 			if($count > 0){
@@ -481,12 +639,12 @@ class EmailNotifier extends \Lampcms\Observer
 
 				/**
 				 * , function($a){
-					if(!empty($a['email']) && (!array_key_exists('e_fq', $a) || false !== $a['e_fq'])){
-					return $a['email'];
-					}
+				 if(!empty($a['email']) && (!array_key_exists('e_fq', $a) || false !== $a['e_fq'])){
+				 return $a['email'];
+				 }
 
-					return null;
-					}
+				 return null;
+				 }
 				 */
 			}
 		});
