@@ -607,7 +607,7 @@ site %5$s and navigating to Settings > Email preferences
 		d('before shutdown function for question followers');
 
 
-		register_shutdown_function(function() use($updateType, $viewerID, $qid, $updateType, $subj, $body, $coll, $oMailer){
+		register_shutdown_function(function() use($updateType, $viewerID, $qid, $updateType, $subj, $body, $coll, $oMailer, $excludeUid){
 
 			/**
 			 * Find all users who follow this question
@@ -621,9 +621,9 @@ site %5$s and navigating to Settings > Email preferences
 			 *
 			 */
 			if('comment' !== $updateType){	
-				$cur = $coll->find(array('a_f_q' => $qid, 'a_f_u' => array('$nin' => array(0 => $viewerID) ), '_id' => array('$ne' => $viewerID), 'ne_fq' => array('$ne' => true) ), array('email')  );
+				$cur = $coll->find(array('a_f_q' => $qid, 'a_f_u' => array('$nin' => array(0 => $viewerID) ), '_id' => array('$ne' => $viewerID), '_id' => array('$ne' => $excludeUid), 'ne_fq' => array('$ne' => true) ), array('email')  );
 			} else {				
-				$cur = $coll->find(array('a_f_q' => $qid, '_id' => array('$ne' => $viewerID), 'ne_fq' => array('$ne' => true) ), array('email')  );
+				$cur = $coll->find(array('a_f_q' => $qid, '_id' => array('$ne' => $viewerID), '_id' => array('$ne' => $excludeUid), 'ne_fq' => array('$ne' => true) ), array('email')  );
 			}
 				
 			$count = $cur->count();

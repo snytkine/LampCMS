@@ -297,7 +297,10 @@ class Viewquestions extends WebPage
 
 	protected function makeQlistBody(){
 		d('cp');
-		$func = null;
+		$uid = $this->oRegistry->Viewer->getUid();
+
+
+
 		/**
 		 * If viewer is moderator then
 		 * Viewer will also be seeing deleted items
@@ -305,9 +308,19 @@ class Viewquestions extends WebPage
 		 * to items
 		 */
 		if($this->oRegistry->Viewer->isModerator()){
-			$func = function(&$a){
+			$func = function(&$a) use($uid){
 				if(!empty($a['i_del_ts'])){
 					$a['deleted'] = ' deleted';
+				}
+
+				if($uid == $a['i_uid'] || (!empty($a['a_uids']) && in_array($uid, $a['a_uids'])) ){
+					$a['dot'] = '<div class="fr pad8"><span class="ico person ttt" title="You have contributed to this question">&nbsp;</a></div>';
+				}
+			};
+		} else {
+			$func = function(&$a) use($uid){
+				if($uid == $a['i_uid'] || (!empty($a['a_uids']) && in_array($uid, $a['a_uids']) )){
+					$a['dot'] = '<div class="fr pad8"><span class="ico person ttt" title="You have contributed to this question">&nbsp;</a></div>';
 				}
 			};
 		}
@@ -381,7 +394,7 @@ class Viewquestions extends WebPage
 		} else {
 			$cur = $this->oRegistry->Mongo->QUESTION_TAGS->find(array('i_count' => array('$gt' => 0)), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
 		}
-		
+
 		d('got '.$cur->count(true).' tag results');
 		$aTags = iterator_to_array($cur);
 

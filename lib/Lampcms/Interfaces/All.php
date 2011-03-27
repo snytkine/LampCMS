@@ -49,14 +49,14 @@
  *
  */
 
- 
+
 /**
  * All interfaces conbined into this one file
- * 
+ *
  * @important Allways include this file! Don't rely
  * of autoloader to include it!
  */
- 
+
 namespace Lampcms\Interfaces;
 
 interface Cache
@@ -211,7 +211,7 @@ interface Assert
  */
 interface LampcmsResource extends Resource
 {
-	
+
 	/**
 	 * Returns type of resource
 	 * the type of resource is a string stored in RESOURCE
@@ -267,10 +267,10 @@ interface LampcmsResource extends Resource
 	 * was marked as deleted
 	 */
 	public function getDeletedTime();
-	
+
 	/**
 	 * Updates last modified timestamp
-	 * 
+	 *
 	 */
 	public function touch();
 
@@ -295,12 +295,18 @@ interface CommentedResource
 	 * @return int
 	 */
 	public function getCommentsCount();
-	
-	
+
+
 	public function addComment(\Lampcms\CommentParser $oComment);
-	
-	
+
+
 	public function deleteComment($id);
+
+	/**
+	 * Get array of all comments
+	 * @return array all comments
+	 */
+	public function getComments();
 }
 
 /**
@@ -458,9 +464,9 @@ interface TwitterUser
 interface FacebookUser
 {
 	public function revokeFacebookConnect();
-	
+
 	public function getFacebookUid();
-	
+
 	public function getFacebookToken();
 }
 
@@ -473,12 +479,41 @@ interface Question extends LampcmsResource
 	 */
 	public function isClosed();
 
+	/**
+	 * Add userid of User to the list
+	 * of contributors.
+	 * A Contributor is anyone who
+	 * has made an answer or a comment
+	 * to a question
+	 *
+	 * @param mixed int | object $oUser object of type User
+	 */
+	public function addContributor($User);
+
+	/**
+	 * Remove user as question
+	 * contributor
+	 * This does not necessaraly remove user from
+	 * array of contributors since that array is not unique
+	 * in which case it will
+	 * simply remove one of the elements
+	 * from that array.
+	 *
+	 * @param mixed int | object $oUser object of type User
+	 */
+	public function removeContributor($User);
+
+	/**
+	 * Get total number of answers for this question
+	 *
+	 * @return int
+	 */
 	public function getAnswerCount();
 
 	/**
 	 * Set time, reason for when question was closed
 	 * as well as username and userid of user who closed it
-	 * 
+	 *
 	 * @param string $reason
 	 * @param object $closer user who closed the question
 	 */
@@ -486,12 +521,12 @@ interface Question extends LampcmsResource
 
 	/**
 	 * Mark Question as deleted
-	 * 
+	 *
 	 * @param User $user
 	 * @param string $reason
 	 */
 	public function setDeleted(\Lampcms\User $user, $reason = null);
-	
+
 	/**
 	 * Must set the id of best_answer,
 	 * also updates Answer (by side-effect)
@@ -508,35 +543,35 @@ interface Question extends LampcmsResource
 
 /**
  * Object represents one Answer
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
 interface Answer extends LampcmsResource
 {
 	/**
-	 * 
+	 *
 	 * Get id of Question of this answer
-	 * 
+	 *
 	 * @return int
 	 */
 	public function getQuestionId();
-	
+
 	/**
 	 * Get id of user that owns the question for which
 	 * this is an answer
-	 * 
+	 *
 	 * @return int
 	 */
 	public function getQuestionOwnerId();
-	
+
 	/**
 	 * Sets this answer status as accepted answer
-	 * 
-	 * 
+	 *
+	 *
 	 */
 	public function setAccepted();
-	
+
 	/**
 	 * Unsets the accepted status for this answer
 	 * Enter description here ...
@@ -547,31 +582,31 @@ interface Answer extends LampcmsResource
 interface Search
 {
 	public function __construct(\Lampcms\Registry $oRegistry);
-	
+
 	public function search($term = null);
-	
+
 	public function count();
-	
+
 	/**
 	 * Find titles similar to the title
 	 * This will be used for showing
 	 * hints during composing of new question
 	 * as well as for auto-complete for search
-	 * 
+	 *
 	 * @param bool $bBoolMode indicates that search
 	 * should return items matching all words
-	 * 
+	 *
 	 * @param string title term used in search
 	 */
 	//public function getSimilarTitles($title, $bBoolMode = true);
-	
-	
+
+
 	public function getSimilarQuestions(\Lampcms\Question $oQuestion);
-	
+
 	public function getHtml();
-	
+
 	public function getPagerLinks();
-	
+
 }
 
 /**
@@ -589,18 +624,18 @@ interface Search
 interface Indexer
 {
 	public function __construct(\Lampcms\Registry $oRegistry);
-	
+
 	public function indexQuestion(\Lampcms\Question $oQuestion);
-	
+
 	public function removeQuestion(\Lampcms\Question $oQuestion);
-	
+
 	public function updateQuestion(\Lampcms\Question $oQuestion);
-	
+
 	/**
 	 * Remove all records from Search index
 	 * that belong to particular user by user id
-	 * 
-	 * 
+	 *
+	 *
 	 * @param int $uid
 	 */
 	public function removeByUserId($uid);
@@ -609,67 +644,67 @@ interface Indexer
 /**
  * Submitted comment must
  * implement this interface
- * 
- * Comment may be submitted via web, or 
+ *
+ * Comment may be submitted via web, or
  * via some type of API client or possibly
  * via email
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
 interface SubmittedComment extends LampcmsResource
 {
 	public function __construct(\Lampcms\Registry $oRegistry, \Lampcms\Interfaces\LampcmsResource $oResource = null);
-	
+
 	/**
-	 * 
+	 *
 	 * Must return parsed body
 	 * body must be sanitized and parsed
 	 * for Markdown and in guaranteed
 	 * utf8 encoding
-	 * 
+	 *
 	 * @return string utf8 html
 	 */
 	public function getBody();
-	
-	
+
+
 	/**
 	 * Get value of _id of question
 	 * In case this comment if for an answer,
 	 * it must return value of i_qid from the
 	 * Answer object
-	 * 
+	 *
 	 * @return int
 	 */
 	public function getQuestionId();
-	
-	
+
+
 	/**
 	 * Get Resource object for which
 	 * this comment is made
 	 * This is either Answer or Question resoure
-	 * 
+	 *
 	 * @return object of type Question or Answer
 	 */
 	public function getResource();
-	
+
 	/**
 	 * Get IP address from where
 	 * the comment was submitted
-	 * 
+	 *
 	 * @return string ip address
 	 */
 	public function getIP();
-	
+
 	/**
-	 * 
+	 *
 	 * Get id of parent comment
 	 * will return null if not a reply
 	 * or value of _id of comment for which
 	 * this comment is a reply
 	 */
 	public function getParentId();
-	
+
 	/**
 	 * Get object of type User of user
 	 * who posted the answer
@@ -677,18 +712,18 @@ interface SubmittedComment extends LampcmsResource
 	 * @return object of type User
 	 */
 	public function getUserObject();
-	
+
 	/**
 	 * Implemeting class may return
 	 * some extra data like name of API
 	 * that was used to submit comment
-	 * 
+	 *
 	 * At minumum it must return empty array
-	 * 
+	 *
 	 * @return array associative array
 	 */
 	public function getExtraData();
-	
+
 	public function getCollectionName();
-	
+
 }

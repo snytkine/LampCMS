@@ -404,7 +404,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 		$aComments = $this->offsetGet('comments');
 
 		for($i = 0; $i<count($aComments); $i+=1){
-			if($aComments[$i]['_id'] == $id){
+			if($id == $aComments[$i]['_id']){
 				d('unsetting comment: '.$i);
 				array_splice($aComments, $i, 1);
 				break;

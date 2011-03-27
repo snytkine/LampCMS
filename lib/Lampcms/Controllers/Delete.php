@@ -224,7 +224,8 @@ class Delete extends WebPage
 				$oQuestion->offsetUnset('i_sel_ans');
 			}
 
-			$oQuestion->touch()->save();
+			$oQuestion->removeContributor($this->oResource['i_uid'])
+			->touch()->save();
 		}
 
 		return $this;

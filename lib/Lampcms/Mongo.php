@@ -157,11 +157,11 @@ class Mongo extends LampcmsObject
 
 		try{
 			$coll = $this->getDb()->selectCollection($collName);
-			d('coll: '.get_class($coll));
+			d('object $coll: '.get_class($coll));
 
 			$ret = $coll->insert($aValues, $option);
 		} catch (\MongoException $e){
-			e('LampcmsError insert() failed: '.$e->getMessage().' $strErr2: '.$strErr2);
+			e('LampcmsError insert() failed: '.$e->getMessage().' values: '.print_r($aValues, 1). ' $strErr2: '.$strErr2);
 
 			return false;
 		}

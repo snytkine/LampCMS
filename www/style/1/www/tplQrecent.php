@@ -41,8 +41,13 @@ class tplQrecent extends Lampcms\Template\Template
 	
 	protected static function func(&$a){
 		if(!empty($a['a_closed'])){
-			//$a['title'] = $a['title'].' [closed]';
 			$a['closed'] = ' closed';
+		}
+		
+		if(!empty($a['lp_u'])){
+			$reltime = \Lampcms\TimeAgo::format(new \DateTime($a['lp_t']));
+			$a['last_poster'] = '<div class="lastposter fl cb">Latest answer by: '.$a['lp_u'].'<br>
+			<span title="'.$a['lp_t'].'" class="ts">'.$reltime.'</span></div>';
 		}
 	}
 	
@@ -67,7 +72,9 @@ class tplQrecent extends Lampcms\Template\Template
 	'deleted' => '', //18
 	'closed' => '', //19
 	'asked' => 'asked', //20
-	'i_sticky' => '' //21
+	'i_sticky' => '', //21
+	'dot' => '', //22
+	'last_poster' => '' //23
 	);
 
 	protected static $tpl = '
@@ -84,19 +91,24 @@ class tplQrecent extends Lampcms\Template\Template
             <div class="status %10$s">%3$s <span rel="in">answer%17$s</span></div>
         </div>
         <div class="vws" title="%4$s view%15$s">%4$s <span rel="in">view%15$s</span></div>
-    </div>
+    	%22$s
+     </div>
     <!-- //statsdiv -->
     <div class="smmry">
-        <h2 class="fl"><a href="/q%1$s/%5$s" class="ql%19$s pri%21$s">%7$s</a></h2>
+        <div class="fl bold"><a href="/q%1$s/%5$s" class="ql%19$s pri%21$s">%7$s</a></div>
         <div class="fl cb intro">%6$s</div>
         <div class="fl cb tgs %8$s">%9$s</div>
+        
         <div class="pstr">
             <div class="usrinfo">
             	<div class="asked"><span rel="in">%20$s </span><span title="%13$s" class="ts" rel="time">%13$s</span></div>
             	<div class="avtr_bg imgloader" style=\'background-image:url("%12$s");\'>&nbsp;</div>
             	<div class="username">%11$s</div>
-            </div>
+            </div> 
+             %23$s           
         </div>
+       
+       
     </div>
     <!-- //smmry -->
 	</div>

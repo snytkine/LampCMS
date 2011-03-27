@@ -280,7 +280,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * sets 'status' to 'accptd'
 	 * and also updates the Answer object to the
 	 * set accepted property to true
-	 * 
+	 *
 	 * In case question was 'unanswered' we must also
 	 * update UNANSWERED_TAGS
 	 *
@@ -292,7 +292,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		d('about to set status to accptd');
 		$this->offsetSet('i_sel_ans', $oAnswer->getResourceId());
 		$this->offsetSet('i_sel_uid', $oAnswer->getOwnerId());
-		
+
 		/**
 		 * Now set the Answer object's accepted status to true
 		 */
@@ -312,7 +312,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		$this->offsetSet('status', 'accptd');
 		d('setting status to accptd');
-		
+
 		$this->touch();
 
 		return $this;
@@ -364,9 +364,13 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		 */
 		if(1 !== ($newCount)){
 			$this->offsetSet('ans_s', 's');
+		} else {
+			$this->offsetSet('ans_s', '');
 		}
 
 		$this->touch();
+
+		return $this;
 	}
 
 
@@ -546,6 +550,13 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		$this->offsetSet('comments', $aComments);
 		$this->increaseCommentsCount();
+		
+		/**
+		 * A commentor on the question
+		 * is considered a question contributor,
+		 * so we must add contributor now
+		 */
+		$this->addContributor($aComment['i_uid']);
 
 		return $this;
 
@@ -609,6 +620,86 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		}
 
 		$this->offsetSet('i_comments', $newCount );
+
+		return $this;
+	}
+
+
+	/**
+	 * Add userid of User to the list
+	 * of contributors.
+	 * A Contributor is anyone who
+	 * has made an answer or a comment
+	 * to a question
+	 *
+	 * @param mixed int | object $oUser object of type User
+	 */
+	public function addContributor($User){
+		if(!is_int($User) && (!is_object($User) || !($User instanceof User))){
+			throw new \InvalidArgumentException('Value of $User can be only int or instance of User class. it was: '.var_export($User, true));
+		}
+
+		$uid = (is_int($User)) ? $User : $User->getUid();
+		$a = $this->getFallback('a_uids', array());
+		$a[] = $uid;
+
+		$this->offsetSet('a_uids', $a);
+
+		return $this;
+	}
+
+
+	/**
+	 * Remove user id of User $oUser
+	 * from array of contributors
+	 * Contributors array is not unique,
+	 * it can have more than one entry for
+	 * the same user if user contributed multiple
+	 * times. This way we can remove just one record
+	 * and user is still considered a contributor
+	 * as long as the same user has contributed other items
+	 *
+	 * @param mixed int | User $oUser
+	 */
+	public function removeContributor($User){
+
+		if(!is_int($User) && (!is_object($User) || !($User instanceof User))){
+			throw new \InvalidArgumentException('Value of $User can be only int or instance of User class. it was: '.var_export($User, true));
+		}
+
+		$changed = false;
+		$uid = (is_int($User)) ? $User : $User->getUid();
+		$a = $this->getFallback('a_uids', array());
+		for($i = 0; $i<count($a); $i+=1){
+			if($uid == $a[$i]){
+				d('unsetting contributor: '.$uid. ' at array key: ' .$i);
+				array_splice($a, $i, 1);
+				$changed = true;
+				break;
+			}
+		}
+
+		if($changed){
+			$this->offsetSet('a_uids', $a);
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Sets value of lp_u : a link to Last Poster profile
+	 * and lp_t a time of last post
+	 *
+	 * @param User $oUser object of type User who made the last
+	 * Answer or Comment to this question
+	 *
+	 * @return object $this
+	 */
+	public function setLastAnswerer(User $oUser){
+
+		$this->offsetSet('lp_u', '<a href="'.$oUser->getProfileUrl().'">'.$oUser->getDisplayName().'</a>');
+		$this->offsetSet('lp_t', date('F j, Y g:i a T'));
 
 		return $this;
 	}

@@ -101,9 +101,9 @@ class TimeAgo
 
 		// We use the two biggest parts
 		if(count($format) > 1) {
-			$format = array_shift($format)." and ".array_shift($format);
+			$format = array_shift($format)." and ".array_shift($format).' ago';
 		} else {
-			$format = array_pop($format);
+			$format = array_pop($format).' ago';
 		}
 
 		return $interval->format($format);

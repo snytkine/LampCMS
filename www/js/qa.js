@@ -1013,12 +1013,16 @@ YUI({
 			if(o.hasOwnProperty(field)){
 				eErr = (Y.one("#" + field + "_e"));
 				if(eErr){
+					Y.log('got err: ' + eErr);
 					eErr.set('text', o[field]);
 				} else{
+					Y.log('no element eErr, looking for .form_error');
 					eFormErr = Y.one(".form_error");
 					if(eFormErr){
-						eFormErr.set('text: ' + o[field]);
+						Y.log('youth gots eFormErr: ' + eFormErr);
+						eFormErr.set('text', o[field]);
 					} else {
+						Y.log('no gots eFormErr, alerting');
 						alert(o[field]);
 					}
 				}

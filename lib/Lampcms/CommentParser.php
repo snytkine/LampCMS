@@ -446,6 +446,12 @@ class CommentParser extends LampcmsObject
 		$this->oRegistry->Mongo->COMMENTS->remove(array('_id' => $id));
 
 		$this->oResource->deleteComment($id);
+		
+		if((null !== $viewerID) && ($this->oResource instanceof \Lampcms\Question) ){
+			d('removing commentor as contributor of a question');
+			$this->oResource->removeContributor($viewerID);
+		}
+
 		$this->touchQuestion();
 
 		$this->oRegistry->Dispatcher->post($this->oResource, 'onDeleteComment', $this->aComment);

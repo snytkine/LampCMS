@@ -190,7 +190,7 @@ class Answerparser extends LampcmsObject
 		 * @todo can parse forMakrdown now but ideally
 		 * parseMarkdown() would be done inside Utf8string
 		 * as well as parseSmilies
-		 * 
+		 *
 		 * @todo Can't remember why we need to copy the title
 		 * here too because Answer by itself does not have own
 		 * title. This must have something to do with the way
@@ -312,7 +312,7 @@ class Answerparser extends LampcmsObject
 		$ans->ensureIndex(array('hash' => 1), array('unique' => true));
 		/**
 		 * Index by ip address will help when we need to find
-		 * all posts from the same ip which we need for 
+		 * all posts from the same ip which we need for
 		 * flood check
 		 */
 		$ans->ensureIndex(array('ip' => 1));
@@ -343,6 +343,11 @@ class Answerparser extends LampcmsObject
 	/**
 	 * Increase answer count
 	 * for question.
+	 * Also set Last Answerer details
+	 * and add Answerer User to list
+	 * of Question contributors
+	 * (this is for the dot-folders feature)
+	 * 
 	 * The increaseAnswerCount will also update
 	 * the last modified timestamp for question
 	 *
@@ -350,24 +355,28 @@ class Answerparser extends LampcmsObject
 	 */
 	protected function updateQuestion(){
 
-		$this->oQuestion->updateAnswerCount();
+		$oUser = $this->oSubmittedAnswer->getUserObject();
+
+		$this->oQuestion->updateAnswerCount()
+		->addContributor($oUser)
+		->setLastAnswerer($oUser);
 
 		return $this;
 	}
-	
-	
+
+
 	/**
 	 * Answer author will automatically
 	 * start following this question
-	 * 
+	 *
 	 * @return object $this
 	 */
 	protected function followQuestion(){
 		d('cp');
-		
+
 		$oFollowManager = new FollowManager($this->oRegistry);
 		$oFollowManager->followQuestion($this->oRegistry->Viewer, $this->oQuestion);
-	
+
 		return $this;
 	}
 
