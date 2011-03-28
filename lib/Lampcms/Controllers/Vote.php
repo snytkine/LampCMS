@@ -263,7 +263,7 @@ class Vote extends WebPage
 	protected function setOwnerReputation(){
 
 		$uid = $this->oResource->getOwnerId();
-
+		d('uid of resource owner: '.$uid);
 		/**
 		 * Now need to calculate points
 		 *
@@ -315,7 +315,7 @@ class Vote extends WebPage
 		return $this;
 	}
 
-	
+
 	/**
 	 * If vote was on the ANSWER
 	 * we still need to update i_lm_ts of question
@@ -329,8 +329,8 @@ class Vote extends WebPage
 				$this->oRegistry->Mongo->QUESTIONS
 				->update(
 				array('_id' => $this->oResource['i_qid']),
-					array('$set' =>
-						array('i_lm_ts' => time())));
+				array('$set' =>
+				array('i_lm_ts' => time())));
 
 			} catch (\Exception $e){
 				e('unable to update question after vote for answer is received '.$this->oResource['i_qid']);
@@ -354,6 +354,7 @@ class Vote extends WebPage
 			);
 
 			Responder::sendJSON($ret);
+
 		}
 
 		Responder::redirectToPage($this->oResource->getUrl());

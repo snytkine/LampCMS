@@ -538,7 +538,7 @@ class Viewquestion extends WebPage
 		'icon' => 'cplus',
 		'label' => 'Follow this question',
 		'class' => 'follow',
-		'type' => 'fq',
+		'type' => 'q',
 		'title' => 'Follow this question to be notified of new answers, comments and edits'
 		);
 

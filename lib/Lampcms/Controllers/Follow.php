@@ -58,6 +58,15 @@ use \Lampcms\Request;
 use \Lampcms\Responder;
 use \Lampcms\FollowManager;
 
+/**
+ * This controller is responsible
+ * for processing the Follow request
+ * 
+ * Follow request can be for Tag, User or Question
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class Follow extends WebPage
 {
 	protected $requireToken = true;

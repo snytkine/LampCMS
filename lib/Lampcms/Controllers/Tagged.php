@@ -53,6 +53,14 @@ namespace Lampcms\Controllers;
 
 use \Lampcms\Relatedtags;
 
+/**
+ * Controller for rendering page
+ * with list of questions for specific tag or tags
+ * 
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class Tagged extends Unanswered
 {
 	protected $aRequired = array('tags');

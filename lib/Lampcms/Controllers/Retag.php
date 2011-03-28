@@ -52,13 +52,20 @@
 
 namespace Lampcms\Controllers;
 
-
+use \Lampcms\Utf8String;
 use \Lampcms\WebPage;
 use \Lampcms\ReputationAcl;
 use \Lampcms\TagsNormalizer;
 use \Lampcms\Request;
 use \Lampcms\Responder;
 
+/**
+ * Controller responsible
+ * for processing retag form
+ *
+ * @author Dmitri Snytkine
+ *
+ */
 class Retag extends WebPage
 {
 	protected $membersOnly = true;
@@ -84,6 +91,8 @@ class Retag extends WebPage
 
 
 	protected function main(){
+		$this->aSubmitted = TagsNormalizer::parse(Utf8String::factory($this->oRequest['tags']) );
+
 		$this->getQuestion()
 		->checkPermission()
 		->checkForChanges()
@@ -96,12 +105,24 @@ class Retag extends WebPage
 
 
 	/**
-	 * Post onRetag event
+	 * Create $this->oQuestion object
+	 *
+	 * @throws \Lampcms\Exception if question
+	 * not found or is marked as deleted
 	 *
 	 * @return object $this
 	 */
-	protected function postEvent(){
-		$this->oRegistry->Dispatcher->post($this->oQuestion, 'onRetag', $this->aSubmitted);
+	protected function getQuestion(){
+
+		$a = $this->oRegistry->Mongo->QUESTIONS->findOne(array('_id' => (int)$this->oRequest['qid']));
+		d('a: '.print_r($a, 1));
+
+		if(empty($a) || !empty($a['i_del_ts'])){
+
+			throw new \Lampcms\Exception('Question not found');
+		}
+
+		$this->oQuestion = new \Lampcms\Question($this->oRegistry, $a);
 
 		return $this;
 	}
@@ -122,6 +143,33 @@ class Retag extends WebPage
 		&& ($this->oRegistry->Viewer->getReputation() < ReputationAcl::RETAG)){
 
 			$this->checkAccessPermission('retag');
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Make sure that new tags are
+	 * different from tags that already
+	 * in the question
+	 *
+	 * @throws \Lampcms\Exception in case tags
+	 * has not changed
+	 *
+	 * @return object $this
+	 */
+	protected function checkForChanges(){
+		$aTags = $this->oQuestion['a_tags'];
+		d('aTags: '.print_r($aTags, 1));
+		d('aSubmitted: '.print_r($this->aSubmitted, 1));
+
+		$diff = array_diff($this->aSubmitted, $aTags);
+		$diff2 = array_diff($aTags, $this->aSubmitted);
+		d('diff: '.print_r($diff, 1));
+		d('diff2: '.print_r($diff2, 1));
+		if(empty($diff) && empty($diff2)){
+			throw new \Lampcms\Exception('You have not changed any tags');
 		}
 
 		return $this;
@@ -165,7 +213,7 @@ class Retag extends WebPage
 			d('going to add to Unanswered tags');
 			\Lampcms\UnansweredTags::factory($this->oRegistry)->set($this->oQuestion);
 		}
-		
+
 		return $this;
 	}
 
@@ -177,7 +225,7 @@ class Retag extends WebPage
 	 * @return object $this
 	 */
 	protected function updateQuestion(){
-		
+
 		$this->oQuestion->retag($this->oRegistry->Viewer, $this->aSubmitted)->save();
 
 		return $this;
@@ -185,54 +233,15 @@ class Retag extends WebPage
 
 
 	/**
-	 * Create $this->oQuestion object
-	 *
-	 * @throws \Lampcms\Exception if question
-	 * not found or is marked as deleted
+	 * Post onRetag event
 	 *
 	 * @return object $this
 	 */
-	protected function getQuestion(){
-
-		$coll = $this->oRegistry->Mongo->QUESTIONS;
-		$a = $coll->findOne(array('_id' => (int)$this->oRequest['qid']));
-		d('a: '.print_r($a, 1));
-
-		if(empty($a) || !empty($a['i_del_ts'])){
-
-			throw new \Lampcms\Exception('Question not found');
-		}
-
-		$this->oQuestion = new \Lampcms\Question($this->oRegistry, $a);
+	protected function postEvent(){
+		$this->oRegistry->Dispatcher->post($this->oQuestion, 'onRetag', $this->aSubmitted);
 
 		return $this;
 	}
-
-
-	/**
-	 * Make sure that new tags are
-	 * different from tags that already
-	 * in the question
-	 *
-	 * @throws \Lampcms\Exception in case tags
-	 * has not changed
-	 *
-	 * @return object $this
-	 */
-	protected function checkForChanges(){
-		$aTags = $this->oQuestion['a_tags'];
-		$this->aSubmitted = TagsNormalizer::parse(explode(' ', $this->oRequest['tags']));
-
-		d('aTags: '.print_r($aTags, 1));
-		d('aSubmitted: '.print_r($this->aSubmitted, 1));
-
-		if($aTags == $this->aSubmitted){
-			throw new \Lampcms\Exception('You have not changed any tags');
-		}
-
-		return $this;
-	}
-
 
 
 	protected function returnResult(){

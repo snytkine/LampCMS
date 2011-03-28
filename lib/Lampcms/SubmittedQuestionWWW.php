@@ -94,14 +94,39 @@ class SubmittedQuestionWWW extends SubmittedQuestion
 		return $this->oTitle;
 	}
 
-	public function getRawTags(){
+/*	public function getRawTags(){
 
-		$aTags = explode(' ', trim($this->aData['tags']));
+		//$aTags = explode(' ', trim($this->aData['tags']));
+		
+		$sTags = $this->getTags()->valueOf();
+		if(!empty($sTags)){
+			return explode(' ', $sTags);
+		}
 
-		return $aTags;
+		return array();
 
+	}*/
+	
+	
+	/**
+	 * Returns Tags string in lower case
+	 * it's lower-cased using utf8-safe version of toLowerCase()
+	 * 
+	 * (non-PHPdoc)
+	 * @see Lampcms.SubmittedQuestion::getTags()
+	 */
+	public function getUtf8Tags(){
+		if(!isset($this->oTags)){
+			$this->oTags = Utf8String::factory($this->aData['tags']);
+		}
+		
+		return $this->oTags;
 	}
 
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms.SubmittedQuestion::getExtraData()
+	 */
 	public function getExtraData(){
 		$oGeo = $this->oRegistry->Cache->{sprintf('geo_%s', Request::getIP())};
 		if(is_object($oGeo)){

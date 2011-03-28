@@ -163,8 +163,7 @@ class String extends LampcmsObject implements \Serializable
 	 * is not the same as in parent class
 	 * @param string $string
 	 */
-	public static function factory($string)
-	{
+	public static function factory($string){
 
 		$o = new \Lampcms\String($string);
 
@@ -177,14 +176,17 @@ class String extends LampcmsObject implements \Serializable
 	}
 
 
-	public function __toString()
-	{
+	public function __toString(){
 		return $this->string;
 	}
 
-	public function valueOf()
-	{
+	public function valueOf(){
 		return $this->string;
+	}
+	
+	
+	public function hashCode(){
+		return $this->getMd5();
 	}
 
 	
@@ -266,7 +268,7 @@ class String extends LampcmsObject implements \Serializable
 	 */
 	public function length(){
 		
-		return $this->strlen($this->string);
+		return strlen($this->string);
 	}
 
 	
@@ -693,6 +695,39 @@ class String extends LampcmsObject implements \Serializable
 		$recipient = ('' !== $name) ? $name.' <'.$strAddress.'>' : $strAddress;
 
 		return $recipient;
+	}
+	
+	
+	public function toLowerCase(){
+		$s = strtolower($this->string);
+		
+		return $this->handleReturn($s);
+	}
+	
+	
+	public function toUpperCase(){
+		$s = strtoupper($this->string);
+		
+		return $this->handleReturn($s);
+	}
+	
+	
+	public function isEmpty(){
+		return (0 === $this->length());
+	}
+	
+	
+	public function substr($start, $len = null){
+		$s = substr($this->string, $start, $len);
+		
+		return $this->handleReturn($s);
+	}
+	
+	
+	public function trim(){
+		$s = trim($this->string);
+		
+		return $this->handleReturn($s);
 	}
 
 }

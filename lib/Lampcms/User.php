@@ -295,7 +295,6 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 				} catch (\Exception $e){
 					e('exception: '.$e->getMessage());
 				}
-				d('$aGravatar: '.print_r($aGravatar, 1));
 
 				if(!empty($email) && (count($aGravatar) > 0)){
 					d('cp');
@@ -657,7 +656,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 */
 	public function setReputation($iPoints){
 		$iRep = $this->offsetGet('i_rep');
-		$iNew = max(array(1, $iRep + (int)$iPoints));
+		$iNew = max(1, ($iRep + (int)$iPoints));
 
 		$this->offsetSet('i_rep', $iNew);
 
@@ -668,11 +667,12 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	/**
 	 *
 	 * Get reputation score of user
+	 * 
 	 * @return int reputation of user, with minimum of 1
 	 */
 	public function getReputation(){
 
-		return min(1, $this->offsetGet('i_rep'));
+		return max(1, $this->offsetGet('i_rep'));
 	}
 
 

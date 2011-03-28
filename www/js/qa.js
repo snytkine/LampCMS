@@ -756,32 +756,14 @@ YUI({
 		if(!ensureLogin()){
 			return;
 		}
-		
+		Y.log('el: ' + el);
 		el.removeClass('unfollow');
 		var title, controls, id, resID, ftype = 'q', follow = 'on', form, //
 		oLabels = {'q' : 'question', 'u' : 'user', 't' : 'tag'};
-		id = el.get('id');
-		resID = id.substr(3);
-	    Y.log('resID ' + resID);
-	    switch(true){
-		case ('fq' === id.substr(0, 2)):
-			Y.log('got fq');
-			ftype = 'q';
-			break;
-		
-		case ('fu' === id.substr(0, 2)):
-			ftype = 'u';
-			break;
-		
-		case('ft' === id.substr(0, 2)):
-			ftype = 't';
-			break;
-	    }
-	    
-	    Y.log('ftype: ' + ftype);
-		
+		resID = el.getAttribute('lampcms:follow');
+		ftype = el.getAttribute('lampcms:ftype');
+	    Y.log('resID ' + resID  + ' ftype: ' + ftype);
 		if(el.test('.following')){
-			
 			// check if viewer is trying to unfollow own question
 			controls = Y.one('#res_' + resID);
 			Y.log('controls: ' + controls);

@@ -117,7 +117,7 @@ class ProfileDiv extends LampcmsObject
 			'icon' => 'cplus',
 			'label' => 'Follow',
 			'class' => 'follow',
-			'type' => 'fu',
+			'type' => 'u',
 			'title' => 'Follow this user'
 			);
 

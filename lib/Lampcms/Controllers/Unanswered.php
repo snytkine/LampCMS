@@ -168,6 +168,9 @@ class Unanswered extends Viewquestions
 	/**
 	 * Extract value of tags from
 	 * query string and turn into array
+	 * 
+	 * @todo run value of Request through urldecode because
+	 * unicode tags would be percent-encoded in the url
 	 *
 	 * @return array of tags passed in query string
 	 */
@@ -258,7 +261,7 @@ class Unanswered extends Viewquestions
 			'icon' => 'cplus',
 			'label' => 'Follow this tag',
 			'class' => 'follow',
-			'type' => 'ft',
+			'type' => 't',
 			'title' => 'Follow this tag to be notified when new questions are added'
 			);
 

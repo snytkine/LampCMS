@@ -165,7 +165,7 @@ class QuestionParser extends LampcmsObject
 
 		$username = $this->oSubmitted->getUserObject()->getDisplayName();
 
-		$aTags = $this->oSubmitted->getTags();
+		$aTags = $this->oSubmitted->getTagsArray();
 
 		$oBody = $this->oSubmitted->getBody()->makeClickable()->tidy()->safeHtml()->asHtml();
 

@@ -96,6 +96,11 @@ class UserTags extends LampcmsObject
 		$uid = (int)$uid;
 
 		$aTags = $oQuestion['a_tags'];
+		/**
+		 * Extra precaution to filter out
+		 * empty values
+		 */
+		$aTags = array_filter($aTags);
 		d('$aTags: '.var_export($aTags, true));
 
 		$coll = $this->oRegistry->Mongo->getCollection(self::USER_TAGS);
@@ -111,12 +116,24 @@ class UserTags extends LampcmsObject
 		 */
 		if(empty($a)){
 
+
 			$aTemp = array_count_values($aTags);
 			d('aTemp: '.print_r($aTemp, 1));
 
 		} else {
 			$aTemp = $a['tags'];
 			foreach($aTags as $t){
+				/**
+				 * Under no cercumstances should we allow
+				 * an empty value to make its way into this array
+				 * since this array is indexed and empty values
+				 * in index may cause very bad times in Mongo.
+				 */
+				if(empty($t)){
+					e('Strangly enough there is an empty value of the tag in array: '.print_r($aTags, 1));
+					continue;
+				}
+
 				if(array_key_exists($t, $aTemp)){
 					$aTemp[$t] += 1;
 				} else {
@@ -142,11 +159,11 @@ class UserTags extends LampcmsObject
 	 * @param Question $oQuestion
 	 */
 	public function removeTags(Question $oQuestion, $uid = null){
-		
+
 		/**
 		 * If question is deleted
 		 * then dont update anything
-		 * 
+		 *
 		 */
 		$uid = ($uid) ? (int)$uid : $oQuestion->getOwnerId();
 		d('uid '.$uid);
@@ -154,12 +171,18 @@ class UserTags extends LampcmsObject
 		$aTags = $oQuestion['a_tags'];
 		d('$aTags: '.var_export($aTags, true));
 
+		/**
+		 * Extra precaution to filter out
+		 * empty values
+		 */
+		$aTags = array_filter($aTags);
+
 		$coll = $this->oRegistry->Mongo->getCollection(self::USER_TAGS);
 		$a = $coll->findOne(array('_id' => $uid));
 
 		if(empty($a) || empty($a['tags'])){
-			d('strange, but there are not user tags');
-				
+			d('strange, but there are no user tags');
+
 			return $this;
 		}
 
@@ -168,16 +191,28 @@ class UserTags extends LampcmsObject
 		foreach($aTags as $t){
 			if(array_key_exists($t, $aUserTags)){
 				$aUserTags[$t] -= 1;
-				if(0 === $aUserTags[$t]){
-					unset($aUserTags[$t]);
+				if($aUserTags[$t] < 1){
+					$aUserTags[$t] = false;
 				}
 			}
 		}
-		
+
+		/**
+		 * Remove empty values
+		 * in case a count of tags has reached 0
+		 * in the process.
+		 * Otherwise bad times will happend as an empty value
+		 * will make its way into Mongo Index since this
+		 * array is indexed. Mongo does not allow empty values
+		 * in index and will throw exception or error
+		 *
+		 */
+		$aUserTags = array_filter($aUserTags);
+
 		arsort($aUserTags, SORT_NUMERIC);
 
 		$coll->save(array('_id' => $uid, 'tags' => $aUserTags, 'i_count' => count($aUserTags)), array('fsync' => true));
-		
+
 		return $this;
 	}
 

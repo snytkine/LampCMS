@@ -49,7 +49,7 @@
  *
  */
 
- 
+
 namespace Lampcms;
 
 /**
@@ -68,11 +68,36 @@ abstract class SubmittedQuestion extends LampcmsObject
 
 	protected $oUser;
 
+	/**
+	 * Object represents body of
+	 * submitted question
+	 *
+	 * @var object of type Utf8String
+	 */
 	protected $oBody;
 
+	/**
+	 *
+	 * Object representing Title of question
+	 * 
+	 * @var object of type Utf8String
+	 */
 	protected $oTitle;
 
-	protected $aTags;
+	/**
+	 * Object representing tags string
+	 *
+	 *  @var object of type Utf8String
+	 */
+	protected $oTags;
+
+
+	/**
+	 * Array of question tags
+	 *
+	 * @var array
+	 */
+	//protected $aTags;
 
 	/**
 	 * Get object of type User of user
@@ -87,11 +112,6 @@ abstract class SubmittedQuestion extends LampcmsObject
 	 * the body of the question
 	 */
 	abstract public function getBody();
-
-	/**
-	 * @return array array of tags
-	 */
-	abstract public function getRawTags();
 
 	/**
 	 * @return object of type Utf8string representing
@@ -115,14 +135,23 @@ abstract class SubmittedQuestion extends LampcmsObject
 	 * @return array of tags, guaranteed to be
 	 * unique and in lower case
 	 */
-	public final function getTags(){
+	public final function getTagsArray(){
 		if(!isset($this->aTags)){
-			$a = $this->getRawTags();
-			$this->aTags = TagsNormalizer::parse($a);
+			$oTags = $this->getUtf8Tags();
+			$this->aTags = TagsNormalizer::parse($oTags);
 		}
 
 		return $this->aTags;
 	}
+	
+	
+	/**
+	 * Get object of type Utf8String
+	 * representing submitted tags
+	 * 
+	 * Enter description here ...
+	 */
+	abstract public function getUtf8Tags();
 
 	/**
 	 * Concrete class may override this to provide

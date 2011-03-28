@@ -122,10 +122,18 @@ class Qtagscounter extends LampcmsObject
 			$this->coll->ensureIndex(array('i_count' => 1));
 
 			foreach($aTags as $tag){
-				try{
-					$this->coll->update(array("tag" => $tag), array('$inc' => array("i_count" => 1), '$set' => $set), array("upsert" => true));
-				} catch (\MongoException $e){
-					e('unable to upsert into QUESTION_TAGS : '.$e->getMessage());
+				/**
+				 * Sanity check, even though there aren't supposed
+				 * to be any way to sneak an empty tag into
+				 * a question, but just in case... because it's just that important
+				 * to not allow empty values or Mongo will throw Exception
+				 */
+				if(!empty($tag)){
+					try{
+						$this->coll->update(array("tag" => $tag), array('$inc' => array("i_count" => 1), '$set' => $set), array("upsert" => true));
+					} catch (\MongoException $e){
+						e('unable to upsert into QUESTION_TAGS : '.$e->getMessage());
+					}
 				}
 			}
 		}
@@ -163,24 +171,26 @@ class Qtagscounter extends LampcmsObject
 			 *that have 0 count
 			 */
 			foreach($aTags as $tag){
-				try{
-					/**
-					 * Do this extra step to find current count
-					 * then remove tag if count is NOT positive integer,
-					 * otherwise decrease it
-					 *
-					 * This way we avoid the possibility of setting
-					 * the i_count to 0 or -1
-					 */
-					$a = $this->coll->findOne(array('tag' => $tag), array('i_count'));
-					d('a: '.var_export($a, 1));
-					if($a && ($a['i_count'] > 0)){
-						$this->coll->update(array("tag" => $tag), array('$inc' => array("i_count" => -1)));
-					} else {
-						$this->coll->remove(array("tag" => $tag), array('safe' => true));
+				if(!empty($tag)){
+					try{
+						/**
+						 * Do this extra step to find current count
+						 * then remove tag if count is NOT positive integer,
+						 * otherwise decrease it
+						 *
+						 * This way we avoid the possibility of setting
+						 * the i_count to 0 or -1
+						 */
+						$a = $this->coll->findOne(array('tag' => $tag), array('i_count'));
+						d('a: '.var_export($a, 1));
+						if($a && ($a['i_count'] > 0)){
+							$this->coll->update(array("tag" => $tag), array('$inc' => array("i_count" => -1)));
+						} else {
+							$this->coll->remove(array("tag" => $tag), array('safe' => true));
+						}
+					} catch (\MongoException $e){
+						e('unable to update (decrease count) QUESTION_TAGS : '.$e->getMessage());
 					}
-				} catch (\MongoException $e){
-					e('unable to update (decrease count) QUESTION_TAGS : '.$e->getMessage());
 				}
 			}
 		}

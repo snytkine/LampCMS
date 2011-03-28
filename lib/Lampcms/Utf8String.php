@@ -1325,9 +1325,43 @@ class Utf8String extends String
 
 		$parsed = preg_replace('/([*]{2})(.*)([*]{2})/Ui', '<strong>\\2</strong>', $this->string);
 		$parsed = preg_replace('/(_)(.*)(_)/Ui', '<em>\\2</em>', $parsed);
-		
+
 		return $this->handleReturn($parsed);
 	}
+
+
+	/**
+	 * UTF-8 safe strtolower()
+	 *
+	 * (non-PHPdoc)
+	 * @see Lampcms.String::toLowerCase()
+	 */
+	public function toLowerCase(){
+		$s = mb_strtolower($this->string);
+
+		return $this->handleReturn($s);
+	}
+
+
+	/**
+	 * UTF-8 safe strtoupper
+	 * (non-PHPdoc)
+	 * @see Lampcms.String::toUpperCase()
+	 */
+	public function toUpperCase(){
+		$s = mb_strtoupper($this->string);
+
+		return $this->handleReturn($s);
+	}
+
+
+	public function substr($start, $len = null){
+		$s = mb_substr($this->string, $start, $len);
+
+		return $this->handleReturn($s);
+	}
+
+
 
 }
 

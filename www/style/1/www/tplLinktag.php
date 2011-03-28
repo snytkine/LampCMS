@@ -50,14 +50,19 @@
  */
 class tplLinktag extends Lampcms\Template\Template
 {
+	protected static function func(&$a){
+		$a['encoded'] = urlencode($a['tag']);
+	}
 	
 	protected static $vars = array(
 	'tag' => '', 
-	'i_count' => '');
+	'i_count' => '',
+	'encoded' => ''
+	);
 
 	protected static $tpl = '
 	<div class="t2 t-%1$s">
-	<a href="/tagged/%1$s/" title="Questions tagged \'%1$s\'">%1$s</a>
+	<a href="/tagged/%3$s/" title="Questions tagged \'%1$s\'">%1$s</a>
 	<span>&times;&nbsp;%2$s</span>
 	</div>';
 
