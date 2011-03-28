@@ -73,7 +73,7 @@ class Answers extends LampcmsObject
 	 *
 	 * @var int
 	 */
-	protected $perPage = 10;
+	//protected $perPage = 3;
 
 	/**
 	 * Mongo cursor
@@ -85,6 +85,7 @@ class Answers extends LampcmsObject
 
 	public function __construct(Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
+		//$this->perPage = $oRegistry->Ini->PER_PAGE_ANSWERS;
 	}
 
 
@@ -111,7 +112,9 @@ class Answers extends LampcmsObject
 		$qid = $oQuestion['_id'];
 		$url = $oQuestion['url'];
 		d('url: '.$url);
-		$cond = $this->oRegistry->Request->get('cond', 's', 'i_lm_ts');
+		d('_GET: '.print_r($_GET, 1));
+		
+		$cond = $this->oRegistry->Request->get('sort', 's', 'i_lm_ts');
 		d('cond: '.$cond);
 		$noComments = (false === (bool)$this->oRegistry->Ini->MAX_COMMENTS);
 		d('no comments: '.$noComments);
@@ -122,8 +125,8 @@ class Answers extends LampcmsObject
 		 * anything in Mongo methods directly from
 		 * user input
 		 */
-		if(!in_array($cond, array('i_ts', 'i_score', 'i_lm_ts'))){
-			throw new Exception('invalid value of param "cond"');
+		if(!in_array($cond, array('i_ts', 'i_votes', 'i_lm_ts'))){
+			throw new Exception('invalid value of param "cond" was: '.$cond);
 		}
 
 		$where = array('i_qid' => $qid);
@@ -132,14 +135,21 @@ class Answers extends LampcmsObject
 			$where['i_del_ts'] = null;
 		}
 		
-		$sort = array($cond => -1);
+		/**
+		 * In case of i_ts (by timestamp of answer)
+		 * we actuall need from oldest to newest - Ascending
+		 * and for other types we need Descending order
+		 * 
+		 */
+		$sort = ('i_ts' == $cond) ? array($cond => 1): array($cond => -1);
 
 		$cursor = $this->oRegistry->Mongo->ANSWERS->find($where, $aFields);
 		d('$cursor: '.gettype($cursor));
 		$cursor->sort($sort);
 		$oPager = Paginator::factory($this->oRegistry);
-		$oPager->paginate($cursor, $this->perPage,
-		array('path' => $this->oRegistry->Ini->SITE_URL.'/questions/'.$qid.'/'.$url.'/'.$cond));
+		$oPager->paginate($cursor, $this->oRegistry->Ini->PER_PAGE_ANSWERS,
+		array('path' => $this->oRegistry->Ini->SITE_URL.'/questions/'.$qid.'/'.$url.'/'.$cond,
+		'append' => false)); //, 'fileName' => '&pageID=%d'
 
 		$links = $oPager->getLinks();
 

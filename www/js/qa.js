@@ -85,11 +85,16 @@ YUI({
 			requires : [ 'gallery-aui-skin-base' ]
 		}
 	}
-		}).use('node', 'event', 'gallery-storage-lite', 'gallery-overlay-extras', 'gallery-aui-loading-mask', 'dd-plugin', 'transition', 'yui2-editor', 'yui2-resize', 'yui2-animation', 'io-form', 'json', 'imageloader', 'cookie', function(Y, result) {
+		}).use('node', 'dump', 'event', 'gallery-storage-lite', 'gallery-overlay-extras', 'gallery-aui-loading-mask', 'dd-plugin', 'transition', 'yui2-editor', 'yui2-resize', 'yui2-animation', 'io-form', 'json', 'imageloader', 'cookie', function(Y, result) {
 	
 	
 	
 	var oMetas = {}, // cache storage for resolved meta tags
+	/**
+	 * Storage for already resolved
+	 * answers tab
+	 */
+	oCAnswers = {},
 	foldGroup, //
 	revealComments, //
 	YAHOO = Y.YUI2, //
@@ -604,6 +609,10 @@ YUI({
 		
 		   break;
 		   
+		case el.test('.sortans'):
+			getSortedAnswers(el);
+			break;
+		   
 		case el.test('.stick'):
 			window.location.assign('/index.php?a=stick&qid=' + getMeta('qid'));
 		
@@ -679,6 +688,66 @@ YUI({
 		
 		}
 	}, //
+	/**
+	 * Get block with answers
+	 * and replace the #answers div with it
+	 * 
+	 * @todo if total ans not > per page
+	 * than just work with content that is already
+	 * on the page - no need to ask the server
+	 * 
+	 * @todo pre-cache results of tab content
+	 * and then reuse it - check if content exists first
+	 * 
+	 */
+	getSortedAnswers = function(el){
+		
+		var curTab, curTabId, sortby = el.get('id'),
+		qid = getMeta('qid'), 
+		qtype = Y.one("#qtypes"),
+		answers = Y.one("#answers");
+		Y.log('sortby: ' + sortby);
+		if(el.test(".qtype_current")){
+			Y.log('Clicked on already current tab. No soup for you');
+			return;
+		}
+
+		curTab = el.ancestor("div").one(".qtype_current");
+		Y.log('curTab: ' + curTab);
+		if(curTab){
+			curTabId = curTab.get("id");
+			Y.log('curTabId: ' + curTabId);
+			if(!oCAnswers.hasOwnProperty(curTabId)){
+				Y.log('adding current contents of #answers to oCAnsers');
+				oCAnswers[curTabId] = Y.one("#answers").getContent();
+				Y.log('oCAnswers[curTabId] now: ' + oCAnswers[curTabId]);
+			}
+		}
+		/**
+		 * First let's pre-cache contents of the current tab
+		 * so that if user clicks back on this tab again at any time
+		 * we will not have to ask the server for something
+		 * we just had on the page
+		 */
+		
+		el.siblings().removeClass('qtype_current');
+		el.addClass('qtype_current');
+		/**
+		 * Check if there is already resolved
+		 * cached data for this tab and reuse it
+		 * if we got it, otherwise
+		 * fetch it via XHR
+		 */
+		if(oCAnswers.hasOwnProperty(sortby) && oCAnswers[sortby].length > 0){
+			Y.log('Youth gots it already');
+			answers.setContent(oCAnswers[sortby]);
+		} else {
+			showLoading(answers);
+			Y.log('after setting form qid: ' + qid);
+			request = Y.io('/index.php?a=getanswers&qid='+qid+'&sort=' + sortby, {'arguments' : {'sortby' : sortby}});
+			Y.log('request: ' + request);
+		}
+	},
 	/**
 	 * Handles clicks on follow button
 	 * 
@@ -802,6 +871,35 @@ YUI({
 		}
 	}, //
 	/**
+	 * Remove hidden class from elements
+	 */
+	revealHidden = function(){
+		var els = Y.all('.reveal');
+		if(els){
+			//els.removeClass('hidden');
+			els.each(function(){
+				Y.log('revealing stuff. this is: ' + this);
+				/**
+				 * If element has class 'owner'
+				 * this means it should be revealed only to the
+				 * owner, in which case it must also
+				 * have a class uid-{ownerID}
+				 * where {ownerID} must match the ViewerID
+				 */
+				if(this.test('.owner')){
+					Y.log('got owner class');
+					if(this.test('.oid-' + getViewerId())){
+						Y.log('got owner matched viewer, revealing');
+						this.removeClass('hidden');
+					}
+				} else {
+					Y.log('no gots owner');
+					this.removeClass('hidden');
+				}
+			});
+		}
+	},
+	/**
 	 * Highlights the divs in view questions page(s)
 	 * to highlight the rows that contain questions
 	 * tagged with any of the tags that viewer
@@ -860,8 +958,9 @@ YUI({
 	},
 
 	// A function handler to use for successful requests:
-	handleSuccess = function(ioId, o) {
+	handleSuccess = function(ioId, o, args) {
 		hideLoading();
+		Y.log("args from Y.io: " + Y.dump(args));
 		var scoreDiv, comDivID, eDiv, eRepliesDiv, sContentType = Y.Lang.trim(o.getResponseHeader("Content-Type"));
 		if ('text/json; charset=UTF-8' !== sContentType) {
 			alert('Invalid Content-Type header: ' + sContentType);
@@ -939,6 +1038,12 @@ YUI({
 		if(data.formElementError){
 			setFormError(data.formElementError);
 			
+			return;
+		}
+		
+		if(data.answers){
+			oCAnswers[args.sortby] = data.answers;
+			Y.one("#answers").setContent(data.answers);
 			return;
 		}
 		
@@ -2034,6 +2139,7 @@ YUI({
 		};
 	
 	revealComments();
+	revealHidden();
 	hiFollowedTags();
 	Y.on('submit', MysubmitForm, '.qa_form');
 	//Y.delegate("click", handleAjaxLinks, "#lastdiv", 'a.ajax');

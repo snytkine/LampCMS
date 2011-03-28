@@ -803,7 +803,7 @@ abstract class Pager_Common
 			if ($this->_append) {
 				$href = '?'.$this->_http_build_query_wrapper($this->_linkData);
 			} else {
-				$href = str_replace('%d',
+				$href = str_replace('%d', 
 				$this->_linkData[$this->_urlVar],
 				$this->_fileName);
 			}
@@ -818,9 +818,7 @@ abstract class Pager_Common
 			empty ($this->_classString) ? '' : ' '.$this->_classString,
 			empty ($this->_attributes) ? '' : ' '.$this->_attributes,
 			empty ($this->_accesskey) ? '' : ' accesskey="'.$this->_linkData[$this->_urlVar].'"',
-			empty ($onclick) ? '' : ' onclick="'.$onclick.'"',
-			$altText,
-			$linkText);
+			empty ($onclick) ? '' : ' onclick="'.$onclick.'"', $altText, $linkText);
 		} elseif ($this->_httpMethod == 'POST') {
 			$href = $this->_url;
 			if (!empty($_GET)) {
@@ -1216,10 +1214,12 @@ abstract class Pager_Common
 		if ($this->_append) {
 			$href = '?'.$this->_http_build_query_wrapper($this->_linkData);
 		} else {
+			d('$this->_fileName: '.$this->_fileName);
 			$href = str_replace('%d',
 			$this->_linkData[$this->_urlVar],
 			$this->_fileName);
 		}
+		
 		return htmlentities($this->_url.$href, ENT_COMPAT, 'UTF-8');
 	}
 
@@ -1372,6 +1372,7 @@ abstract class Pager_Common
 				continue;
 			}
 		}
+		
 		return implode($separator, $tmp);
 	}
 

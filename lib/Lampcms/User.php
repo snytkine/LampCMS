@@ -70,6 +70,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 */
 	protected $bNewUser = false;
 
+
 	/**
 	 * Path to avatar image
 	 * used for memoization
@@ -77,6 +78,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * @var string
 	 */
 	protected $avtrSrc;
+
 
 	/**
 	 *
@@ -86,6 +88,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * @var bool
 	 */
 	protected $bIsModerator;
+
 
 	/**
 	 * Factory method
@@ -104,7 +107,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $o;
 	}
 
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Lampcms.ArrayDefaults::__get()
@@ -118,6 +121,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 
 		return $this->offsetGet($name);
 	}
+
 
 	/**
 	 * Checks to see if profile exists for the user
@@ -213,6 +217,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $this->offsetGet('fn').' '.$this->offsetGet('mn').' '.$this->offsetGet('ln');
 	}
 
+
 	/**
 	 * Get string to display as user name
 	 * preferrably it's a full name, but if
@@ -242,10 +247,12 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $ret;
 	}
 
+
 	public function __set($name, $val)
 	{
 		$this->offsetSet($name, $val);
 	}
+
 
 	/**
 	 * Return HTML code for avatar image (with full path)
@@ -317,9 +324,17 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $this->avtrSrc;
 	}
 
+
+	/**
+	 * Get path to user profile (excluding the domain name part)
+	 *
+	 * @return string relative url to the user profile page
+	 */
 	public function getProfileUrl(){
+
 		return '/users/'.$this->getUid().'/'.$this->offsetGet('username');
 	}
+
 
 	/**
 	 */
@@ -329,12 +344,14 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 
 	}
 
+
 	/**
 	 * Get profile object for this user
 	 * set in as instance variable if not already there
 	 * for memoization
 	 *
-	 * @todo return default profile is one does not exist
+	 * @deprecated
+	 * @todo to remove soon, no longer user
 	 *
 	 * @return array
 	 */
@@ -347,12 +364,13 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $this->offsetGet('profile');
 	}
 
+
 	/**
 	 * Get preferences object
 	 * for this user
 	 *
-	 * @todo return default prefs if one does not
-	 * exist in user
+	 * @deprecated
+	 * @todo to remove soon, no longer used
 	 *
 	 * @return array
 	 *
@@ -428,6 +446,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return '<a rel="nofollow" href="http://twitter.com/'.$user.'">@'.$user.'</a>';
 	}
 
+
 	/**
 	 * Get oAuth token
 	 * that we got from Twitter for this user
@@ -438,6 +457,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $this->offsetGet('oauth_token');
 	}
 
+
 	/**
 	 * Get oAuth sercret that we got for this user
 	 * @return string
@@ -447,10 +467,16 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $this->offsetGet('oauth_token_secret'); //twitter_token
 	}
 
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.TwitterUser::getTwitterUsername()
+	 */
 	public function getTwitterUsername()
 	{
 		return $this->offsetGet('twtr_username');
 	}
+
 
 	/**
 	 * Empty the values of oauth_token
@@ -471,11 +497,12 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		 * USER table
 		 * we actually need to update the USERS_TWITTER Collection
 		 */
-		$this->oRegistry->Mongo->USERS_TWITTER->remove(array('_id' => $this->getTwitterUid()));
+		$this->getRegistry()->Mongo->USERS_TWITTER->remove(array('_id' => $this->getTwitterUid()));
 		d('revoked Twitter token for user: '.$uid);
 
 		return $this;
 	}
+
 
 	/**
 	 * Unsets the fb_id from the object, therefore
@@ -497,12 +524,13 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		$this->offsetSet('fb_token', null);
 		$this->save();
 
-		$coll = $this->oRegistry->Mongo->getCollection('USERS_FACEBOOK');
+		$coll = $this->getRegistry()->Mongo->USERS_FACEBOOK;
 		$coll->update(array('i_uid' => $this->getUid()), array('$set' => array('access_token' => '')));
 		d('revoked FB token for user: '.$uid);
 
 		return $this;
 	}
+
 
 	/**
 	 * (non-PHPdoc)
@@ -514,6 +542,10 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	}
 
 
+	/**
+	 *
+	 * Enter description here ...
+	 */
 	public function getFacebookUrl(){
 		$url = $this->offsetGet('fb_url');
 		if(empty($url)){
@@ -598,6 +630,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $this;
 	}
 
+
 	/**
 	 * Change the 'role' to 'registered' if
 	 * user has 'unactivated' or 'unactivated_external' role
@@ -660,17 +693,28 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $ret;
 	}
 
+
 	/**
 	 * Update i_lm_ts timestamp
+	 * IF it is older than 5 minutes.
+	 * So while this method is going to be
+	 * called on every page load (from Registry destructor)
+	 * it will not be updated unless its older than 5 minutes
 	 *
 	 *
 	 * @return object $this
 	 */
 	public function setLastActive(){
-		$this->offsetSet('i_lm_ts', time());
+		$lastActive = $this->offsetGet('i_lm_ts');
+		d('$lastActive was: '.$lastActive);
+		$now = time();
+		if((($now - $lastActive) > 300) && !$this->isGuest()){
+			d('updating i_lm_ts of user');
+			$this->offsetSet('i_lm_ts', $now);
+			$this->save();
+		}
 
 		return $this;
 	}
 
 }
-

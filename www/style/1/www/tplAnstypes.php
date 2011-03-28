@@ -39,6 +39,7 @@
 class tplAnstypes extends Lampcms\Template\Template
 {
 	protected static $vars = array(
+	
 	'i_lm_c' => '', // 1
 	'i_score_c' => '', //2
 	
@@ -51,13 +52,14 @@ class tplAnstypes extends Lampcms\Template\Template
 	'i_ts_c' => '', //7
 	'i_ts' => 'Oldest', // 8
 	'i_ts_t' => 'Oldest to recent' // 9
+
 	
 	);
 
 	protected static $tpl = '
-	<div id="qtypes" class="cb fl">
-		<a id="i_lm_ts" rel="nofollow" href="#" class="ajax qtype%1$s ttt" title="%4$s"><span rel="in">%3$s</span></a>
-		<a id="i_ts" rel="nofollow" href="#" class="ajax qtype%7$s ttt" title="%9$s"><span rel="in">%8$s</span></a>
-		<a id="i_votes" rel="nofollow" href="#" class="ajax qtype%2$s ttt" title="%5$s"><span rel="in">%5$s</span></a>
+	<div id="qtypes" class="cb fl reveal hidden">
+		<a id="i_lm_ts" rel="nofollow" href="#" class="ajax sortans qtype%1$s ttt" title="%4$s"><span rel="in">%3$s</span></a>
+		<a id="i_ts" rel="nofollow" href="#" class="ajax sortans qtype%7$s ttt" title="%9$s"><span rel="in">%8$s</span></a>
+		<a id="i_votes" rel="nofollow" href="#" class="ajax sortans qtype%2$s ttt" title="%5$s"><span rel="in">%5$s</span></a>
 	</div>';
 }

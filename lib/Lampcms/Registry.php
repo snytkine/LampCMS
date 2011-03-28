@@ -96,14 +96,29 @@ class Registry implements Interfaces\LampcmsObject
 	}
 
 
+	/**
+	 * Do some important things
+	 * just before going away
+	 * 
+	 * One this this does is it updates
+	 * the i_im_ts value of Viewer
+	 */
 	public function __destruct(){
-
+		$Viewer = $this->__get('Viewer');
+		
+		$Viewer->setLastActive();
 	}
 
+	/**
+	 * 
+	 * Enter description here ...
+	 * @throws \LogicException
+	 */
 	public function __clone(){
 		throw new \LogicException('Thau shall not clone the singleton object');
 	}
 
+	
 	/**
 	 * @todo
 	 * add

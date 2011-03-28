@@ -115,8 +115,9 @@ class Viewquestions extends WebPage
 		$this->aPageVars['title'] = $this->title;
 		$this->makeTopTabs()
 		->makeQlistHeader()
-		->makeQlistBody()
 		->makeCounterBlock()
+		->makeQlistBody()
+		//->makeCounterBlock()
 		->makeFollowedTags()
 		->makeRecentTags();
 

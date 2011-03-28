@@ -164,7 +164,7 @@ class Answerform extends Form
 
 		$aWords = explode(' ', $body);
 		if(count($aWords) < 3){
-			$this->setError('qbody', 'Question must contain at least 3 words');
+			$this->setError('qbody', 'Answer must contain at least 3 words');
 		}
 
 		return $this;

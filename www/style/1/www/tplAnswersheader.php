@@ -49,7 +49,7 @@ class tplAnswersheader extends Lampcms\Template\Template
 {
 	protected static $vars = array(
 	'count' => '', //1
-	'answers' => 'Answers', // 3
+	'answers' => 'Answers', // 2
 	'tabs' => '' //3
 	);
 

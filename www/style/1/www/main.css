@@ -8623,24 +8623,23 @@ div.tag1 span.ts {
 	cursor: pointer;
 }
 
-#qtypes a.qtype,#qtypes a.qtype_current {
+#qtypes a {
 	padding: 6px;
-	margin-right: 6px;
+	margin-right: 3px;
+	margin-left: 3px;
 }
 
-/*#qtypes a.qtype {
-	background-color: #666;
-	background: #666;
-	color: #FFF;
-}
 
-*/
 #qtypes a.qtype_current {
 	border-top: 1px solid #666;
 	border-left: 1px solid #666;
 	border-right: 1px solid #666;
+	border-bottom: 1px solid white !important;
 	background-color: #FFFFFF;
 	color: #333;
+	margin-right: 3px;
+	margin-left: 3px;
+	text-decoration: none;
 }
 
 .form_el {
@@ -8881,8 +8880,8 @@ pre {
 
 .hidden {
 	visibility: hidden;
-	display: none;
-}
+	/*display: none;
+*/}
 
 .white {
 	color: #FFF;

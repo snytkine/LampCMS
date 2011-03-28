@@ -42,6 +42,12 @@ FLOOD_CHECK_TIME = 2
 ; number of items per page
 ; on search results page
 PER_PAGE_SEARCH = 10
+; number of answers per page
+; on the question page page
+PER_PAGE_ANSWERS = 20
+; number of questions per page
+; on pages like home page or unanswered
+PER_PAGE_QUESTIONS = 20
 ; This will be used in some page as title as well as in some emails as 'From' name
 SITE_TITLE = "LampCms Q and A site"
 SITE_NAME ="LampCMS project"

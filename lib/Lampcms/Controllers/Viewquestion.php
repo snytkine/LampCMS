@@ -65,7 +65,7 @@ use \Lampcms\QuestionInfo;
 class Viewquestion extends WebPage
 {
 
-	protected $aAllowedVars = array('cond');
+	protected $aAllowedVars = array('sort');
 
 	protected $aRequired = array('qid');
 
@@ -113,12 +113,41 @@ class Viewquestion extends WebPage
 	protected $noComments = false;
 
 	/**
+	 * Sort by: i_lm_ts, i_ts or i_score
+	 * this value is used to generate cache headers
+	 * as each sort condition generates
+	 * different page content, thus should be
+	 * included in generating the "etag"
+	 *
+	 * @var string
+	 */
+	protected $tab = 'i_lm_ts';
+	
+	/**
+	 * html of parsed answers
+	 * 
+	 * 
+	 * @var string
+	 */
+	protected $answers = '';
+	
+	
+	/**
+	 * Number of total answers for this question
+	 * 
+	 * 
+	 * @var int
+	 */
+	protected $numAnswers = 0;
+
+	/**
 	 * Main entry point
 	 * (non-PHPdoc)
 	 * @see WebPage::main()
 	 */
 	protected function main(){
 		$this->pageID = $this->oRegistry->Request->get('pageID', 'i', 1);
+		$this->tab = $this->oRegistry->Request->get('sort', 's', 'i_lm_ts');
 		$this->oRegistry->registerObservers();
 
 		$this->getQuestion()
@@ -126,6 +155,7 @@ class Viewquestion extends WebPage
 		->setTitle()
 		->addMetaTags()
 		->setAnswersHeader()
+		->getAnswers()
 		->setAnswers()
 		->setSimilar()
 		->makeForm()
@@ -262,14 +292,14 @@ class Viewquestion extends WebPage
 		 * only 1 answer or no answers at all
 		 */
 		if($this->oQuestion['i_ans'] > 1){
-			$cond = $this->oRegistry->Request->get('cond', 's', 'i_lm');
+			$cond = $this->oRegistry->Request->get('sort', 's', 'i_lm');
 			$tabs = Urhere::factory($this->oRegistry)->get('tplAnstypes', $cond);
 		}
 
 		$aVars = array(
-			$this->oQuestion['i_ans'],
-			'Answer'.$this->oQuestion['ans_s'],
-			$tabs
+		$this->oQuestion['i_ans'],
+		'Answer'.$this->oQuestion['ans_s'],
+		$tabs
 		);
 
 		$this->aPageVars['body'] .= \tplAnswersheader::parse($aVars, false);
@@ -323,7 +353,7 @@ class Viewquestion extends WebPage
 		$latestReplyTime = $this->oQuestion['i_lm_ts'];
 		$userHash = $this->oRegistry->Viewer->hashCode();
 		d('user Hash: '.$userHash);
-		$etag = '"'.hash('md5', $this->oRequest['qid'].'-'.$this->pageID.'-'.$latestReplyTime.'-' .$userHash).'"';
+		$etag = '"'.hash('md5', $this->oRequest['qid'].'-'.$this->pageID.$this->tab.'-'.$latestReplyTime.'-' .$userHash).'"';
 		//$lastModified = gmdate("D, d M Y H:i:s", $latestReplyTime)." GMT";
 
 		CacheHeaders::processCacheHeaders($etag); //, $lastModified
@@ -350,10 +380,31 @@ class Viewquestion extends WebPage
 	 *
 	 */
 	protected function setAnswers(){
-		$answers = '';
-		$numAnswers = $this->oQuestion['i_ans'];
-		if($numAnswers > 0 || $this->oRegistry->Viewer->isModerator()){
-			$answers = Answers::factory($this->oRegistry)->getAnswers($this->oQuestion);
+		
+		$tpl = '<div id="answers" class="fl cb w100" lampcms:total="%1$s" lampcms:perpage="%2$s">%3$s</div><!-- // answers -->';
+		$this->aPageVars['body'] .= vsprintf($tpl, array($this->numAnswers, $this->oRegistry->Ini->PER_PAGE_ANSWERS, $this->answers));
+
+		return $this;
+	}
+	
+	
+	/**
+	 * Uses the Answers class to get the 
+	 * block of parsed answers (in html)
+	 * It will automatically apply pagination if necessary,
+	 * add pagination links and return the content of just one page
+	 * of answers. It's just that smart!
+	 * 
+	 * Sets values of $this->answers
+	 * and $this->numAnswers
+	 * 
+	 * @return object $this
+	 */
+	protected function getAnswers(){
+		$this->answers = '';
+		$this->numAnswers = $this->oQuestion['i_ans'];
+		if($this->numAnswers > 0 || $this->oRegistry->Viewer->isModerator()){
+			$this->answers = Answers::factory($this->oRegistry)->getAnswers($this->oQuestion);
 		}
 
 		/**
@@ -371,12 +422,10 @@ class Viewquestion extends WebPage
 		 *
 		 */
 
-		if(!empty($answers) && !$this->isLoggedIn()){
-			$answers = Badwords::filter($answers, true);
+		if(!empty($this->answers) && !$this->isLoggedIn()){
+			$this->answers = Badwords::filter($this->answers, true);
 		}
-
-		$this->aPageVars['body'] .= sprintf('<div id="answers" class="fl cb w100" lampcms:total="%d">%s</div><!-- // answers -->', $numAnswers, $answers);
-
+		
 		return $this;
 	}
 
@@ -397,6 +446,7 @@ class Viewquestion extends WebPage
 
 		return $this;
 	}
+
 
 	/**
 	 * Add 'Answer' form to template's body
