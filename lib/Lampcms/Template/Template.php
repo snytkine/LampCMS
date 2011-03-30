@@ -56,12 +56,11 @@ namespace Lampcms\Template;
 /**
  * Class for parsing vsprintf based templates
  *
- * @todo should be able to pass closure function
- * as third arg to parse() and to loop()
- * that function will be a callback to array_walk() to
- * do something with aVars before vsprintf() is applied
- * It could be used to apply date format,
- * to parse nested array(s) like replies to comments, etc.
+ * @todo Template could have static function loopFilter()
+ * and will be applied inside the loop()
+ * this way it can possibly splice the array or
+ * even modify the Iterator (cursor) before starting the loop
+ * Could be helpful to limit the number of items to be looped
  *
  * @todo recursively check if value is_array() and if yes
  * the parse it first with loop() and then replace the value
@@ -97,6 +96,33 @@ class Template
 	 */
 	public static function parse(array $aVars, $merge = true, \Closure $func = null){
 
+
+		/**
+		 * ORDER IS IMPORTANT:
+		 * Closure functions applied first, then static function "func"
+		 *
+		 * Apply callback to array if
+		 * callback was passed here
+		 * callback MUST accept array be reference
+		 * so that it can modify original aVars
+		 *
+		 * The callback should be applied first,
+		 * so that in case the template also has a function,
+		 * it would be possible to use callback to add
+		 * elements to the result array.
+		 *
+		 * This is useful when we have a cursor - a result
+		 * of database select but also need to inject
+		 * extra element(s) to the array of item which
+		 * are not present in the database
+		 */
+		if(null !== $func){
+			d('have Closure func');
+			$func($aVars);
+
+			d('new aVars: '.print_r($aVars, 1));
+		}
+
 		/**
 		 * A template may contain hard coded static property $func
 		 *
@@ -104,26 +130,13 @@ class Template
 		 * that $func first
 		 * it MUST accept array by reference
 		 * and modify original input array
-		 * 
+		 *
 		 */
 		if( (empty(static::$skip)) && is_callable(array('static', 'func')) ){
 			static::func($aVars);
 			d('new aVars: '.print_r($aVars, 1));
 		} else {
 			//echo ' <b>Callback cancelled</b> ';
-		}
-
-		/**
-		 * Apply callback to array if
-		 * callback was passed here
-		 * callback MUST accept array be reference
-		 * so that it can modify original aVars
-		 */
-		if(null !== $func){
-			d('have Closure func');
-			$func($aVars);
-
-			d('new aVars: '.print_r($aVars, 1));
 		}
 
 		if($merge){
@@ -142,7 +155,7 @@ class Template
 	 * @param bool $merge
 	 * @param Closure $func if passed, this callback function
 	 * will be passed to each element's parse() function
-	 * 
+	 *
 	 * @throws InvalidArgumentException
 	 */
 	public static function loop($a, $merge = true, \Closure $func = null){
@@ -180,6 +193,7 @@ class Template
 		return $s;
 	}
 
+
 	/**
 	 * Static getter for vars array
 	 *
@@ -203,6 +217,7 @@ class Template
 
 		return array();
 	}
+
 
 	/**
 	 * Static getter for $tpl

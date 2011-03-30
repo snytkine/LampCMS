@@ -36,18 +36,26 @@
  *
  */
 
+/**
+ * Template generates tabs
+ * for sorting answers in the Question view
+ * by Recent, Oldest or Voted
+ * 
+ * @author admin
+ *
+ */
 class tplAnstypes extends Lampcms\Template\Template
 {
 	protected static $vars = array(
 	
-	'i_lm_c' => '', // 1
-	'i_score_c' => '', //2
+	'i_lm_ts_c' => '', // 1
+	'i_votes_c' => '', //2
 	
-	'i_lm' => 'Active', //3 
-	'i_lm_t' => 'Most recenty active', //4
+	'i_lm_ts' => 'Active', //3 
+	'i_lm_ts_t' => 'Most recenty active', //4
 	
-	'i_score' => 'Most Voted', //5
-	'i_score_t' => 'Answers with highest votes', //6
+	'i_votes' => 'Most Voted', //5
+	'i_votes_t' => 'Answers with highest votes', //6
 
 	'i_ts_c' => '', //7
 	'i_ts' => 'Oldest', // 8
@@ -57,9 +65,9 @@ class tplAnstypes extends Lampcms\Template\Template
 	);
 
 	protected static $tpl = '
-	<div id="qtypes" class="cb fl reveal hidden">
-		<a id="i_lm_ts" rel="nofollow" href="#" class="ajax sortans qtype%1$s ttt" title="%4$s"><span rel="in">%3$s</span></a>
-		<a id="i_ts" rel="nofollow" href="#" class="ajax sortans qtype%7$s ttt" title="%9$s"><span rel="in">%8$s</span></a>
-		<a id="i_votes" rel="nofollow" href="#" class="ajax sortans qtype%2$s ttt" title="%5$s"><span rel="in">%5$s</span></a>
+	<div id="qtypes" class="sorttab cb fl reveal hidden">
+		<a id="i_lm_ts" href="#" class="ajax sortans qtype%1$s ttt" title="%4$s"><span rel="in">%3$s</span></a>
+		<a id="i_ts" href="#" class="ajax sortans qtype%7$s ttt" title="%9$s"><span rel="in">%8$s</span></a>
+		<a id="i_votes" href="#" class="ajax sortans qtype%2$s ttt" title="%5$s"><span rel="in">%5$s</span></a>
 	</div>';
 }

@@ -1,3 +1,4 @@
+
 # Rewrite Rules for Lampcms
 # place in httpd.conf inside virtual host container for your site
 # or add to .htaccess of your site
@@ -7,8 +8,12 @@
 #
 RewriteRule ^/questions([\/]{0,1})$ /index.php?a=viewquestions
 RewriteRule ^/questions/page([0-9]+)\.html /index.php?a=viewquestions&pageID=$1
-RewriteRule ^/questions/([0-9]+)/(.*) /index.php?a=viewquestion&qid=$1&urltext=$2
+# This condition must be first
+RewriteRule ^/q([0-9]+)/([^\/]+)/([a-zA-Z_]+)/page([0-9]+)\.html /index.php?a=viewquestion&qid=$1&urltext=$2&sort=$3&pageID=$4
+# And this is second!
 RewriteRule ^/q([0-9]+)/(.*) /index.php?a=viewquestion&qid=$1&urltext=$2
+RewriteRule ^/questions/([0-9]+)/(.*) /index.php?a=viewquestion&qid=$1&urltext=$2
+
 RewriteRule ^/ask([\/]{0,1})$ /index.php?a=askform
 RewriteRule ^/voted([\/]{0,1})$ /index.php?a=viewquestions&cond=voted
 RewriteRule ^/voted/page([0-9]+)\.htm([l]{0,1})$ /index.php?a=viewquestions&cond=voted&pageID=$1
@@ -31,6 +36,8 @@ RewriteRule ^/vote/([0-9]+)/(up|down)$ /index.php?a=vote&resid=$1&res=q&type=$2
 RewriteRule ^/ansvote/([0-9]+)/(up|down)$ /index.php?a=vote&resid=$1&res=a&type=$2
 RewriteRule ^/accept/([0-9]+)$ /index.php?a=accept&aid=$1
 RewriteRule ^/users/([0-9]+)/(.*) /index.php?a=userinfo&uid=$1&username=$2
+RewriteRule ^/users/([a-zA-Z]+)/page([0-9]+)\.html /index.php?a=users&sort=$1&pageID=$2
+RewriteRule ^/users/([a-zA-Z]+)/ /index.php?a=users&sort=$1
 RewriteRule ^/register /index.php?a=register
 RewriteRule ^/([a-zA-Z\-]+)/page([0-9]+)\.html$ /index.php?a=$1&pageID=$2
 RewriteRule ^/aa/([0-9]+)/([a-f0-9]+)$ /index.php?a=activate&eid=$1&hash=$2

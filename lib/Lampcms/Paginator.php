@@ -187,6 +187,6 @@ class Paginator extends LampcmsObject
 	public function getLinks(){
 		$links = $this->oPager->getLinks();
 
-		return (is_array($links) && !empty($links['all'])) ? '<div class="qpages"><span class="pager_title">Pages</span> : '.$links['all'].'</div>' : '';
+		return (is_array($links) && !empty($links['all'])) ? '<div class="qpages ajax"><span class="pager_title">Pages</span> : '.$links['all'].'</div>' : '';
 	}
 }

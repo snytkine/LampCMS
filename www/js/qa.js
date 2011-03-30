@@ -94,7 +94,7 @@ YUI({
 	 * Storage for already resolved
 	 * answers tab
 	 */
-	oCAnswers = {},
+	oCTabs = {},
 	foldGroup, //
 	revealComments, //
 	YAHOO = Y.YUI2, //
@@ -468,13 +468,32 @@ YUI({
 	 * This function executes onClick on any link with class 'ajax'
 	 */
 	handleAjaxLinks = function(e) {
-		var ancestor, id, res, rtype, restype, resID, fbappid, fbcookie, el = e.currentTarget;
-		Y.log('el is ' + el + ' id is: ' + el.get('id'));
+		var ancestor, //
+		id, //
+		res, //
+		rtype, //
+		restype, //
+		resID, //
+		fbappid, //
+		fbcookie, //
+		el = e.currentTarget,
+		target = e.target;
+		Y.log('el is ' + el + ' id is: ' + el.get('id') + ' target: ' + target);
 		id = el.get('id');
-		e.halt();
-		e.preventDefault();
+		//e.halt();
+		//e.preventDefault();
 		switch (true) {
+		
+		case el.test('.qpages'):
+			if('A' == e.target.get('tagName') && Y.one(".paginated")){
+				
+				e.halt();
+				handlePagination(e.target);
+			}
+			break;
+			
 		case el.test('.vote'):
+			e.halt();
 			if(ensureLogin()){
 				handleVote(el);
 			}
@@ -573,7 +592,6 @@ YUI({
 				window.location.assign('/index.php?a=logout');
 			});
 			
-			
 			break;
 			
 		case el.test('.flag'):
@@ -610,6 +628,7 @@ YUI({
 		   break;
 		   
 		case el.test('.sortans'):
+			e.halt();
 			getSortedAnswers(el);
 			break;
 		   
@@ -619,16 +638,15 @@ YUI({
 		   break;
 		   
 		case el.test('.unstick'):
-			window.location.assign('/index.php?a=unstick&qid=' + getMeta('qid'));
-		
+			window.location.assign('/index.php?a=unstick&qid=' + getMeta('qid'));		
 		   break;
 		   
 		case el.test('.close'):
 			ancestor = el.ancestor("div.controls");
 		if(ancestor){
-		    resID = ancestor.get('id');
-		    resID = resID.substr(4);
-		    showCloseForm(resID);
+		    	resID = ancestor.get('id');
+		    	resID = resID.substr(4);
+		    	showCloseForm(resID);
 			}
 		
 		   break;
@@ -652,6 +670,8 @@ YUI({
 		case el.test('.edit'):
 			ancestor = el.ancestor("div.controls");
 			if(ancestor){
+				e.halt();
+				e.preventDefault();
 				resID = ancestor.get('id');
 			    resID = resID.substr(4);
 			    
@@ -689,6 +709,29 @@ YUI({
 		}
 	}, //
 	/**
+	 * Handle click on one of the pagination links
+	 * First make sure that target is the links and has href property,
+	 * then make sure that We are on the page
+	 * that we currently support ajax-based pagination
+	 * If not then return false so default 
+	 * event can take place.
+	 */
+	handlePagination = function(el){
+		var href, answers = Y.one(".paginated");
+		Y.log('el name: ' + el.get('tagName'));
+		if(!el.hasAttribute('href')){
+			Y.log('723 no href');
+			return;
+		}
+
+		href = el.getAttribute('href');
+		Y.log('href: ' + href);
+		if(answers){
+			showLoading(answers);
+			Y.io(href);			
+		}
+	},
+	/**
 	 * Get block with answers
 	 * and replace the #answers div with it
 	 * 
@@ -702,10 +745,10 @@ YUI({
 	 */
 	getSortedAnswers = function(el){
 		
-		var curTab, curTabId, sortby = el.get('id'),
+		var href, eTab, curTab, curTabId, sortby = el.get('id'),
 		qid = getMeta('qid'), 
 		qtype = Y.one("#qtypes"),
-		answers = Y.one("#answers");
+		answers = Y.one(".paginated");
 		Y.log('sortby: ' + sortby);
 		if(el.test(".qtype_current")){
 			Y.log('Clicked on already current tab. No soup for you');
@@ -717,10 +760,12 @@ YUI({
 		if(curTab){
 			curTabId = curTab.get("id");
 			Y.log('curTabId: ' + curTabId);
-			if(!oCAnswers.hasOwnProperty(curTabId)){
-				Y.log('adding current contents of #answers to oCAnsers');
-				oCAnswers[curTabId] = Y.one("#answers").getContent();
-				Y.log('oCAnswers[curTabId] now: ' + oCAnswers[curTabId]);
+			if(!oCTabs.hasOwnProperty(curTabId)){
+				Y.log('adding current contents of .paginated to oCAnsers');
+				eTab = Y.one(".sortable");
+				Y.log('eTab: ' + eTab);
+				oCTabs[curTabId] = eTab.getContent();
+				//Y.log('oCTabs[curTabId] now: ' + oCTabs[curTabId]);
 			}
 		}
 		/**
@@ -738,14 +783,18 @@ YUI({
 		 * if we got it, otherwise
 		 * fetch it via XHR
 		 */
-		if(oCAnswers.hasOwnProperty(sortby) && oCAnswers[sortby].length > 0){
+		if(oCTabs.hasOwnProperty(sortby) && oCTabs[sortby].length > 0){
 			Y.log('Youth gots it already');
-			answers.setContent(oCAnswers[sortby]);
+			answers.setContent(oCTabs[sortby]);
+			foldGroup.fetch();
 		} else {
 			showLoading(answers);
 			Y.log('after setting form qid: ' + qid);
-			request = Y.io('/index.php?a=getanswers&qid='+qid+'&sort=' + sortby, {'arguments' : {'sortby' : sortby}});
-			Y.log('request: ' + request);
+			href = el.getAttribute('href');
+			Y.log('href: ' + href);			
+			href = ('#' === href) ? '/index.php?a=getanswers&qid='+qid+'&sort=' + sortby : href;
+			Y.io(href, {'arguments' : {'sortby' : sortby}});
+			
 		}
 	},
 	/**
@@ -943,7 +992,7 @@ YUI({
 	handleSuccess = function(ioId, o, args) {
 		hideLoading();
 		Y.log("args from Y.io: " + Y.dump(args));
-		var scoreDiv, comDivID, eDiv, eRepliesDiv, sContentType = Y.Lang.trim(o.getResponseHeader("Content-Type"));
+		var paginated, scoreDiv, comDivID, eDiv, eRepliesDiv, sContentType = Y.Lang.trim(o.getResponseHeader("Content-Type"));
 		if ('text/json; charset=UTF-8' !== sContentType) {
 			alert('Invalid Content-Type header: ' + sContentType);
 			return;
@@ -1023,9 +1072,15 @@ YUI({
 			return;
 		}
 		
-		if(data.answers){
-			oCAnswers[args.sortby] = data.answers;
-			Y.one("#answers").setContent(data.answers);
+		if(data.paginated){
+			if(args && args.sortby){
+				Y.log('have args and args.sortby');
+				oCTabs[args.sortby] = data.paginated;
+			}
+			paginated = Y.one(".paginated");
+			Y.log('paginated: ' + paginated);
+			paginated.setContent(data.paginated);
+			foldGroup.fetch();
 			return;
 		}
 		
@@ -2178,6 +2233,7 @@ YUI({
 		   foldDistance: 2
 		});
 	 foldGroup.set('className', 'imgloader');
+	 //foldGroup.setTrigger('#qview-body', 'mouseover');
 	 
 	 addAdminControls();
 

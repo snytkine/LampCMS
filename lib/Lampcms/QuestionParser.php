@@ -167,6 +167,10 @@ class QuestionParser extends LampcmsObject
 
 		$aTags = $this->oSubmitted->getTagsArray();
 
+		/**
+		 * Must pass array('drop-proprietary-attributes' => false)
+		 * otherwise tidy removes rel="code" // ->makeClickable() // was after getBody
+		 */
 		$oBody = $this->oSubmitted->getBody()->makeClickable()->tidy()->safeHtml()->asHtml();
 
 		/**
@@ -317,15 +321,15 @@ class QuestionParser extends LampcmsObject
 	protected function followQuestion(){
 		$qid = $this->oQuestion->getResourceId();
 		d('qid: '.$qid);
-		
+
 		$aFollowedQuestions = $this->oRegistry->Viewer['a_f_q'];
 		d('$aFollowedQuestions: '.$aFollowedQuestions);
 		if(in_array($qid, $aFollowedQuestions)){
 			e( 'User '.$this->oRegistry->Viewer->getUid().'is already following question $qid '.$qid);
-				
+
 			return $this;
 		}
-		
+
 		$aFollowedQuestions[] = $qid;
 		$this->oRegistry->Viewer['a_f_q'] = $aFollowedQuestions;
 		$this->oRegistry->Viewer['i_f_q'] = count($aFollowedQuestions);
@@ -350,7 +354,7 @@ class QuestionParser extends LampcmsObject
 		$quest->ensureIndex(array('a_tags' => 1));
 		$quest->ensureIndex(array('i_uid' => 1));
 		$quest->ensureIndex(array('hash' => 1));
-		
+
 		/**
 		 * Need ip index to use flood filter by ip
 		 * and to quickly find all posts by ip
@@ -358,7 +362,7 @@ class QuestionParser extends LampcmsObject
 		 *
 		 */
 		$quest->ensureIndex(array('ip' => 1));
-		
+
 		/**
 		 * Index a_f_q in USERS (array of followed question ids)
 		 * @todo move this to when the user is created!

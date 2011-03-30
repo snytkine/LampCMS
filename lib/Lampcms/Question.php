@@ -159,7 +159,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 */
 	public function getAnswerCount(){
 
-		return $this->offsetGet('i_num_ans');
+		return $this->offsetGet('i_ans');
 	}
 
 	/**
@@ -380,7 +380,8 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 *
 	 * @return object $this
 	 */
-	public function touch(){
+	public function touch($etagOnly = false){
+		
 		$this->offsetSet('i_lm_ts', time());
 
 		return $this;

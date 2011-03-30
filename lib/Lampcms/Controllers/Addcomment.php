@@ -218,6 +218,7 @@ class Addcomment extends WebPage
 				 * In case it's some other type of exception just re-throw it
 				 */
 				if($e instanceof \Lampcms\AccessException){
+					
 					throw new \Lampcms\Exception('A minimum reputation score of '.ReputationAcl::COMMENT.
 					' is required to comment on someone else\'s question or answer. 
 					Your current reputation score is '.$this->oRegistry->Viewer->getReputation());

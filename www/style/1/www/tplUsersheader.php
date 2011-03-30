@@ -49,34 +49,27 @@
  *
  */
 
- 
-namespace Lampcms\Controllers;
-
-use Lampcms\Request;
-use Lampcms\Responder;
-
 /**
- * This controller is called by Ajax call only
- * It's is called when user clicks on the sort tags
- * in the answer page to sort answers by recent, olderst, votes
- * It will return the parsed block of answers
- * 
- * 
+ * This template is used as the top of the "Members" page
+ * It contains count of users and the "sort by" tabs
  * @author Dmitri Snytkine
  *
- */
-class Getanswers extends Viewquestion
+ */ 
+class tplUsersheader extends Lampcms\Template\Template
 {
-	protected $oQuestion;
-	
-	protected $oAnswers;
-	
-	protected function main(){
-		
-		$this->getQuestion()->getAnswers()->setReturn();
-	}
-	
-	protected function setReturn(){
-		Responder::sendJSON(array('paginated' => $this->answers));
-	}
+	protected static $vars = array(
+	'count' => '', //1
+	'users' => 'Users', // 2
+	'tabs' => '' //3
+	);
+
+	protected static $tpl = '
+	<a name="a-block"></a>
+    <div id="users_hdr cb fl">
+        <div class="answers_sub">
+            <h3><span class="ans_count">%1$s</span> %2$s</h3>
+            %3$s
+        </div>
+    </div>
+	';
 }

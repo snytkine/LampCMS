@@ -61,6 +61,11 @@ use \Lampcms\DomFeedItem;
 /**
  * Controller for processing "Edit"
  * form for editing Question or Answer
+ * 
+ * @todo should move the parsing to 
+ * new class so the whole parsing thing 
+ * can later be used from the API and not just
+ * from this controller.
  *
  * @author Dmitri Snytkine
  *
@@ -107,7 +112,7 @@ class Editor extends Edit
 
 
 	/**
-	 *
+	 *  
 	 * Process submitted form values
 	 */
 	protected function process()
@@ -117,6 +122,13 @@ class Editor extends Edit
 		$formVals = $this->oForm->getSubmittedValues();
 		d('formVals: '.print_r($formVals, 1));
 
+		/**
+		 * @todo for the Anwer object there is no need
+		 * to worry about the title at all!
+		 *
+		 * @todo run the reason through Utf8String also and use htmlentities()
+		 * instead of strip_tags.
+		 */
 		$this->oResource['b'] = $this->makeBody($formVals['qbody']);
 		$this->oResource['title'] = $this->makeTitle($formVals['title']);
 		$this->oResource->setEdited($this->oRegistry->Viewer, strip_tags($formVals['reason']));

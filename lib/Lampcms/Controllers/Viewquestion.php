@@ -52,6 +52,8 @@
 
 namespace Lampcms\Controllers;
 
+use Lampcms\Request;
+
 use \Lampcms\WebPage;
 use \Lampcms\Paginator;
 use \Lampcms\CacheHeaders;
@@ -61,6 +63,7 @@ use \Lampcms\Answers;
 use \Lampcms\Template\Urhere;
 use \Lampcms\Forms\Answerform;
 use \Lampcms\QuestionInfo;
+use \Lampcms\Responder;
 
 class Viewquestion extends WebPage
 {
@@ -146,6 +149,11 @@ class Viewquestion extends WebPage
 	 * @see WebPage::main()
 	 */
 	protected function main(){
+		if(Request::isAjax()){
+			$this->getQuestion()->getAnswers();
+			Responder::sendJSON(array('paginated' => $this->answers));
+		}
+		
 		$this->pageID = $this->oRegistry->Request->get('pageID', 'i', 1);
 		$this->tab = $this->oRegistry->Request->get('sort', 's', 'i_lm_ts');
 		$this->oRegistry->registerObservers();
@@ -292,7 +300,7 @@ class Viewquestion extends WebPage
 		 * only 1 answer or no answers at all
 		 */
 		if($this->oQuestion['i_ans'] > 1){
-			$cond = $this->oRegistry->Request->get('sort', 's', 'i_lm');
+			$cond = $this->oRegistry->Request->get('sort', 's', 'i_lm_ts');
 			$tabs = Urhere::factory($this->oRegistry)->get('tplAnstypes', $cond);
 		}
 
@@ -381,7 +389,7 @@ class Viewquestion extends WebPage
 	 */
 	protected function setAnswers(){
 		
-		$tpl = '<div id="answers" class="fl cb w100" lampcms:total="%1$s" lampcms:perpage="%2$s">%3$s</div><!-- // answers -->';
+		$tpl = '<div id="answers" class="sortable paginated fl cb w100" lampcms:total="%1$s" lampcms:perpage="%2$s">%3$s</div><!-- // answers -->';
 		$this->aPageVars['body'] .= vsprintf($tpl, array($this->numAnswers, $this->oRegistry->Ini->PER_PAGE_ANSWERS, $this->answers));
 
 		return $this;

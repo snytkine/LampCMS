@@ -57,15 +57,16 @@ use Lampcms\WebPage;
 use Lampcms\Paginator;
 use Lampcms\Template\Urhere;
 
+/**
+ * Controller for generating questions view
+ * The Home page uses it, the Unanswered page controller
+ * extends it, the Tagged page controller extends it
+ *
+ * @author Dmitri Snytkine
+ *
+ */
 class Viewquestions extends WebPage
 {
-	/**
-	 * @todo this should be in SETTINGS later
-	 *
-	 * Maximum items to display per page
-	 * @var int
-	 */
-	protected $PER_PAGE = 20;
 
 	protected $pagerPath = '/questions';
 
@@ -112,6 +113,7 @@ class Viewquestions extends WebPage
 		$this->getCursor()
 		->paginate()
 		->sendCacheHeaders();
+
 		$this->aPageVars['title'] = $this->title;
 		$this->makeTopTabs()
 		->makeQlistHeader()
@@ -204,7 +206,7 @@ class Viewquestions extends WebPage
 			$where['i_del_ts'] = null;
 		}
 
-		$this->oCursor = $this->oRegistry->Mongo->getCollection('QUESTIONS')->find($where);
+		$this->oCursor = $this->oRegistry->Mongo->QUESTIONS->find($where);
 		d('$this->oCursor: '.gettype($this->oCursor));
 		$this->oCursor->sort($sort);
 
@@ -221,7 +223,7 @@ class Viewquestions extends WebPage
 	protected function paginate(){
 		d('paginating with $this->pagerPath: '.$this->pagerPath);
 		$oPaginator = Paginator::factory($this->oRegistry);
-		$oPaginator->paginate($this->oCursor, $this->PER_PAGE,
+		$oPaginator->paginate($this->oCursor, $this->oRegistry->Ini->PER_PAGE_QUESTIONS,
 		array('path' => $this->pagerPath));
 
 		$this->pagerLinks = $oPaginator->getLinks();

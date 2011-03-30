@@ -48,6 +48,9 @@ PER_PAGE_ANSWERS = 20
 ; number of questions per page
 ; on pages like home page or unanswered
 PER_PAGE_QUESTIONS = 20
+; number of questions per page
+; on pages like home page or unanswered
+PER_PAGE_USERS = 15
 ; This will be used in some page as title as well as in some emails as 'From' name
 SITE_TITLE = "LampCms Q and A site"
 SITE_NAME ="LampCMS project"

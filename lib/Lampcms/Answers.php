@@ -148,10 +148,10 @@ class Answers extends LampcmsObject
 		$cursor->sort($sort);
 		$oPager = Paginator::factory($this->oRegistry);
 		$oPager->paginate($cursor, $this->oRegistry->Ini->PER_PAGE_ANSWERS,
-		array('path' => $this->oRegistry->Ini->SITE_URL.'/questions/'.$qid.'/'.$url.'/'.$cond,
+		array('path' => $this->oRegistry->Ini->SITE_URL.'/q'.$qid.'/'.$url.'/'.$cond,
 		'append' => false)); //, 'fileName' => '&pageID=%d'
 
-		$links = $oPager->getLinks();
+		$pagerLinks = $oPager->getLinks();
 
 		$func = null;
 		$ownerId = $oQuestion['i_uid'];
@@ -185,7 +185,7 @@ class Answers extends LampcmsObject
 		 * Create div with answers, append pagination links
 		 * to bottom and return the whole div block
 		 */
-		$answers = \tplAnswer::loop($cursor, true, $func).$links;
+		$answers = \tplAnswer::loop($cursor, true, $func).$pagerLinks;
 
 		return $answers;
 
