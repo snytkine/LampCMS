@@ -56,7 +56,7 @@ use \Lampcms\WebPage;
 use \Lampcms\User;
 use \Lampcms\Request;
 use \Lampcms\Responder;
-use \Lampcms\Indexer;
+use \Lampcms\IndexerFactory;
 
 class Delete extends WebPage
 {
@@ -334,7 +334,7 @@ class Delete extends WebPage
 	 */
 	protected function removeFromIndex(){
 		if($this->oResource instanceof \Lampcms\Question){
-			Indexer::factory($this->oRegistry)->removeQuestion($this->oResource);
+			IndexerFactory::factory($this->oRegistry)->removeQuestion($this->oResource);
 		}
 
 		return $this;

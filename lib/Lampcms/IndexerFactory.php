@@ -77,7 +77,8 @@ class IndexerFactory
 
 
 		if(!isset($o)){
-			throw new \Lampcms\DevException('Search feature is not implemented because no search providers are defined');
+			e('Search feature is not implemented because no search providers are defined');
+			return new Stub();
 		}
 
 		if(!($o instanceof Indexer)){
