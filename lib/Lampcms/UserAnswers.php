@@ -135,8 +135,7 @@ class UserAnswers extends LampcmsObject
 			$where['i_del_ts'] = null;
 		}
 		
-		$cursor = $oRegistry->Mongo->getCollection('ANSWERS')
-		->find($where)->sort(array('_id' => -1));
+		$cursor = $oRegistry->Mongo->ANSWERS->find($where)->sort(array('_id' => -1));
 
 		return $cursor;
 	}

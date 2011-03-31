@@ -297,7 +297,7 @@ class Answerparser extends LampcmsObject
 	 * @return object $this
 	 */
 	protected function ensureIndexes(){
-		$ans = $this->oRegistry->Mongo->getCollection('ANSWERS');
+		$ans = $this->oRegistry->Mongo->ANSWERS;
 		/**
 		 * There is no reason to index by original timestamp
 		 * (i_ts) because if we want to order by added time
@@ -331,7 +331,7 @@ class Answerparser extends LampcmsObject
 	 * @return object $this
 	 */
 	protected function checkForDuplicate($hash){
-		$a = $this->oRegistry->Mongo->getCollection('ANSWERS')->findOne(array('hash' => $hash));
+		$a = $this->oRegistry->Mongo->ANSWERS->findOne(array('hash' => $hash));
 		if(!empty($a)){
 			throw new AnswerParserException('Someone (possibly you) has already added exact same answer for this question. Duplicate answers are not allowed');
 		}
@@ -402,8 +402,7 @@ class Answerparser extends LampcmsObject
 	 */
 	public function getQuestion(){
 		if(!isset($this->oQuestion)){
-			$a = $this->oRegistry->Mongo->getCollection('QUESTIONS')
-			->findOne(array('_id' => $this->oSubmittedAnswer->getQid()));
+			$a = $this->oRegistry->Mongo->QUESTIONS->findOne(array('_id' => $this->oSubmittedAnswer->getQid()));
 
 			if(empty($a)){
 				e('Cannot find question with _id: '.$this->oAnswer['qid']);

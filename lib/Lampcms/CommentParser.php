@@ -170,7 +170,10 @@ class CommentParser extends LampcmsObject
 
 		$oCommentor = $this->oComment->getUserObject();
 		$res_id = $this->oResource->getResourceId();
-		$body = $this->oComment->getBody();
+		$oBody = $this->oComment->getBody();
+		$this->validateBody($oBody);
+		
+		$body = $oBody->valueOf();
 		$uid = $this->oComment->getOwnerId();
 
 		$this->aComment['_id'] = $this->oComment->getResourceId();
@@ -231,10 +234,52 @@ class CommentParser extends LampcmsObject
 		}
 
 		$this->oResource->addComment($this)->save();
+		$this->followQuestion();
 		$this->touchQuestion();
 
 		$this->oRegistry->Dispatcher->post($this->oComment, 'onNewComment', $this->aComment);
 
+
+		return $this;
+	}
+
+
+	/**
+	 * Enforce min and max length of comment
+	 *
+	 * @todo Translate string
+	 *
+	 * @throws \Lampcms\Exception
+	 */
+	protected function validateBody(Utf8String $oBody){
+
+		$len = $oBody->length();
+		if($len < 10){
+			throw new Exception('Ooopsy... Comment must be at least 10 characters long');
+		}
+
+		if($len > 600){
+			throw new Exception('Oopsy... Comment must be at limited to 600 characters. Your comment is '.$len.' characters-long');
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Comment author will automatically
+	 * start following this question
+	 * but only if comment is for a question
+	 * not if it's for an answer
+	 *
+	 * @return object $this
+	 */
+	protected function followQuestion(){
+		d('cp');
+		if($this->oResource instanceof \Lampcms\Question){
+			$oFollowManager = new FollowManager($this->oRegistry);
+			$oFollowManager->followQuestion($this->oRegistry->Viewer, $this->oResource);
+		}
 
 		return $this;
 	}
@@ -302,7 +347,8 @@ class CommentParser extends LampcmsObject
 		->makeResourceObject();
 
 
-		$body = $oComment->getBody();
+		$oBody = $oComment->getBody();
+		$this->validateBody($oBody);
 
 		$aComments = $this->oResource->getComments();
 		$bEdited = false;
@@ -316,7 +362,7 @@ class CommentParser extends LampcmsObject
 					$uid = $oEditor->getUid();
 
 					d('comment found: '.$i);
-					$aComments[$i]['b'] = $body;
+					$aComments[$i]['b'] = $oBody->valueOf();
 					$aComments[$i]['e'] = '<a class="ce" href="'.$editor_url.'"><span class="ico edited tu" title="This comment was edited by '.$editor.' on '.$date.'"></span></a>';
 					$bEdited = true;
 					break;
@@ -400,8 +446,14 @@ class CommentParser extends LampcmsObject
 			$this->oResource->touch();
 		} elseif($this->oResource instanceof \Lampcms\Answer){
 			try{
+				/**
+				 * If the comment is made to the answer
+				 * then only update i_etag value in Question
+				 * it will not bump the question up
+				 * in the home page
+				 */
 				$this->oRegistry->Mongo->QUESTIONS
-				->update(array('_id' => $this->oResource['i_qid']), array('$set' => array('i_lm_ts' => time())));
+				->update(array('_id' => $this->oResource['i_qid']), array('$set' => array('i_etag' => time())));
 			} catch(\MongoException $e){
 				e('Unable to update question '.$e->getMessage());
 			}
@@ -446,7 +498,7 @@ class CommentParser extends LampcmsObject
 		$this->oRegistry->Mongo->COMMENTS->remove(array('_id' => $id));
 
 		$this->oResource->deleteComment($id);
-		
+
 		if((null !== $viewerID) && ($this->oResource instanceof \Lampcms\Question) ){
 			d('removing commentor as contributor of a question');
 			$this->oResource->removeContributor($viewerID);

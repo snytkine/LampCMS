@@ -82,6 +82,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		parent::__construct($oRegistry, 'QUESTIONS', $a);
 	}
 
+
 	/**
 	 * (non-PHPdoc)
 	 * @see LampcmsResourceInterface::getResourceTypeId()
@@ -98,6 +99,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		return $this->offsetGet('_id');
 	}
+
 
 	/**
 	 * (non-PHPdoc)
@@ -117,6 +119,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		return (int)$this->offsetGet('i_uid');
 	}
 
+
 	/**
 	 * (non-PHPdoc)
 	 * @see LampcmsResourceInterface::getLastModified()
@@ -125,6 +128,20 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		return $this->offsetGet('i_lm_ts');
 	}
+
+
+	/**
+	 * Get value of i_etag but if it does
+	 * not exist then return value of i_lm_ts
+	 *
+	 * @return int timestamp of last modification
+	 */
+	public function getEtag(){
+		$ret = $this->offsetGet('i_etag');
+
+		return (!empty($ret)) ? $ret : $this->offsetGet('i_lm_ts');
+	}
+
 
 	/**
 	 * Get full (absolute) url for this question,
@@ -136,6 +153,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		return $this->oRegistry->Ini->SITE_URL.'/q'.$this->offsetGet('_id').'/'.$this->offsetGet('url');
 	}
+
 
 	/**
 	 * Should return false if NOT closed
@@ -161,6 +179,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		return $this->offsetGet('i_ans');
 	}
+
 
 	/**
 	 * Set time, reason for when question was closed
@@ -251,6 +270,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		return $this;
 	}
 
+
 	/**
 	 *
 	 * Set tags for this question
@@ -267,6 +287,13 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		$this->offsetSet('a_tags', $tags);
 		$this->offsetSet('tags_html', \tplQtags::loop($tags, false));
 		$this->offsetSet('tags_c', trim(\tplQtagsclass::loop($tags, false)));
+		
+		$b = $this->offsetGet('b');
+		d('b: '.$b);
+		
+		$body = Bodytagger::highlight($b, $tags);
+
+		$this->offsetSet('b', $body);
 
 		$this->setEdited($user, 'Retagged');
 
@@ -313,7 +340,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		$this->offsetSet('status', 'accptd');
 		d('setting status to accptd');
 
-		$this->touch();
+		$this->touch(false);
 
 		return $this;
 	}
@@ -381,8 +408,12 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * @return object $this
 	 */
 	public function touch($etagOnly = false){
-		
-		$this->offsetSet('i_lm_ts', time());
+		$time = time();
+
+		$this->offsetSet('i_etag', $time);
+		if(!$etagOnly){
+			$this->offsetSet('i_lm_ts', time());
+		}
 
 		return $this;
 	}
@@ -443,7 +474,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 			$inc = 2;
 		}
 
-		$collViews = $this->getRegistry()->Mongo->getCollection('QUESTION_VIEWS');
+		$collViews = $this->getRegistry()->Mongo->QUESTION_VIEWS;
 		$collViews->ensureIndex(array('uid' => 1, 'qid' => 1), array('unique' => true));
 		$qid = (int)$this->offsetGet('_id');
 		try{
@@ -465,6 +496,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		return $this;
 
 	}
+
 
 	/**
 	 * Process an UP vote for this question
@@ -494,6 +526,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		return $this;
 	}
 
+
 	public function addDownVote($inc = 1){
 
 		if($inc !== 1 && $inc !== -1){
@@ -519,6 +552,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		return $this;
 	}
 
+
 	public function getVotesArray(){
 
 		$a = array(
@@ -528,6 +562,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		return $a;
 	}
+
 
 	public function getScore(){
 		return $this->offsetGet('i_votes');
@@ -551,7 +586,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		$this->offsetSet('comments', $aComments);
 		$this->increaseCommentsCount();
-		
+
 		/**
 		 * A commentor on the question
 		 * is considered a question contributor,

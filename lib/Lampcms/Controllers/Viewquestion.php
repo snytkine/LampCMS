@@ -65,10 +65,18 @@ use \Lampcms\Forms\Answerform;
 use \Lampcms\QuestionInfo;
 use \Lampcms\Responder;
 
+/**
+ * Controller for displaying 
+ * a Question, Answers to a question (paginated)
+ * and an Answer form
+ * as well as adding Question Info block
+ * 
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class Viewquestion extends WebPage
 {
-
-	protected $aAllowedVars = array('sort');
 
 	protected $aRequired = array('qid');
 
@@ -197,6 +205,7 @@ class Viewquestion extends WebPage
 	protected function addMetaTags(){
 		$this->addMetaTag('lmts', $this->oQuestion['i_lm_ts']);
 		$this->addMetaTag('qid', $this->oQuestion['_id']);
+		$this->addMetaTag('etag', $this->oQuestion['i_etag']);
 
 		return $this;
 	}
@@ -218,9 +227,7 @@ class Viewquestion extends WebPage
 		d('no comments: '.$this->noComments);
 		$aFields = ($this->noComments || false === (bool)$this->oRegistry->Ini->SHOW_COMMENTS) ? array('comments' => 0) : array();
 
-		$this->aQuestion = $this->oRegistry->Mongo
-		->getCollection('QUESTIONS')
-		->findOne(array('_id' => (int)$this->oRequest['qid']), $aFields);
+		$this->aQuestion = $this->oRegistry->Mongo->QUESTIONS->findOne(array('_id' => (int)$this->oRequest['qid']), $aFields);
 
 		/**
 		 * @todo Translate string
@@ -358,7 +365,7 @@ class Viewquestion extends WebPage
 			return $this;
 		}
 
-		$latestReplyTime = $this->oQuestion['i_lm_ts'];
+		$latestReplyTime = $this->oQuestion->getEtag();
 		$userHash = $this->oRegistry->Viewer->hashCode();
 		d('user Hash: '.$userHash);
 		$etag = '"'.hash('md5', $this->oRequest['qid'].'-'.$this->pageID.$this->tab.'-'.$latestReplyTime.'-' .$userHash).'"';

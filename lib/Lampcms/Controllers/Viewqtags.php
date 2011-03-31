@@ -142,7 +142,7 @@ class Viewqtags extends Viewquestions
 
 		$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplTagsort', $cond);
 
-		$this->oCursor = $this->oRegistry->Mongo->getCollection('QUESTION_TAGS')->find(array('i_count' => array('$gt' => 0)), $aFields);
+		$this->oCursor = $this->oRegistry->Mongo->QUESTION_TAGS->find(array('i_count' => array('$gt' => 0)), $aFields);
 		$this->count = $this->oCursor->count(true);
 		d('$this->oCursor: '.gettype($this->oCursor).' $this->count: '.$this->count);
 		$this->oCursor->sort($sort);

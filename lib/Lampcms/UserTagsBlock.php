@@ -68,8 +68,7 @@ class UserTagsBlock extends LampcmsObject
 	 */
 	public static function get(Registry $oRegistry, User $oUser){
 		$uid = $oUser->getUid();
-		$aTags = $oRegistry->Mongo->getCollection('USER_TAGS')
-		->findOne(array('_id' => $uid));
+		$aTags = $oRegistry->Mongo->USER_TAGS->findOne(array('_id' => $uid));
 
 		if(empty($aTags) || empty($aTags['tags'])){
 			d('no tags for user: '.$uid);
@@ -117,8 +116,7 @@ class UserTagsBlock extends LampcmsObject
 			return '';
 		}
 
-		$aTags = $oRegistry->Mongo->getCollection('USER_TAGS')
-		->findOne(array('_id' => $uid));
+		$aTags = $oRegistry->Mongo->USER_TAGS->findOne(array('_id' => $uid));
 
 		if(empty($aTags) || empty($aTags['tags'])){
 			d('no tags for user: '.$uid);

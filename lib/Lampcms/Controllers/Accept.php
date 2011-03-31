@@ -330,8 +330,7 @@ class Accept extends WebPage
 	 * @return object $this
 	 */
 	protected function getOldAnswer(){
-		$this->aOldAnswer = $this->oRegistry->Mongo->getCollection('ANSWERS')
-		->findOne(array('_id' => $this->oQuestion['i_sel_ans']));
+		$this->aOldAnswer = $this->oRegistry->Mongo->ANSWERS->findOne(array('_id' => $this->oQuestion['i_sel_ans']));
 		d('old answer: '.print_r($this->aOldAnswer, 1));
 
 		return $this;

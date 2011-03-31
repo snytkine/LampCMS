@@ -330,7 +330,7 @@ class Vote extends WebPage
 				->update(
 				array('_id' => $this->oResource['i_qid']),
 				array('$set' =>
-				array('i_lm_ts' => time())));
+				array('i_etag' => time())));
 
 			} catch (\Exception $e){
 				e('unable to update question after vote for answer is received '.$this->oResource['i_qid']);

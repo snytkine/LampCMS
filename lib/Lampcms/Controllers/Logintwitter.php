@@ -520,8 +520,7 @@ class Logintwitter extends WebPage
 	protected function updateTwitterUserRecord()
 	{
 
-		$this->oRegistry->Mongo->getCollection('USERS_TWITTER')
-		->save($this->aUserData);
+		$this->oRegistry->Mongo->USERS_TWITTER->save($this->aUserData);
 
 		return $this;
 	}
@@ -537,7 +536,7 @@ class Logintwitter extends WebPage
 	 */
 	protected function getUserByTid($tid)
 	{
-		$coll = $this->oRegistry->Mongo->getCollection('USERS');
+		$coll = $this->oRegistry->Mongo->USERS;
 		$coll->ensureIndex(array('twitter_uid' => 1));
 
 		$aUser = $coll->findOne(array('twitter_uid' => $this->aUserData['_id']));
@@ -643,8 +642,7 @@ class Logintwitter extends WebPage
 	protected function makeUsername()
 	{
 
-		$res = $this->oRegistry->Mongo->getCollection('USERS')
-		->findOne(array('twitter_uid' => $this->aUserData['_id']));
+		$res = $this->oRegistry->Mongo->USERS->findOne(array('twitter_uid' => $this->aUserData['_id']));
 
 		$ret = (empty($res)) ? $this->aUserData['screen_name'] : '@'.$this->aUserData['screen_name'];
 		d('ret: '.$ret);

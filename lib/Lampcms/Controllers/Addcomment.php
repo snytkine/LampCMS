@@ -105,33 +105,10 @@ class Addcomment extends WebPage
 
 		$this->getResource()
 		->checkPermission()
-		->validateBody()
 		->add()
 		->returnResult();
 	}
 
-
-	/**
-	 * Enforce min and max length of comment
-	 *
-	 * @todo Translate string
-	 *
-	 * @throws \Lampcms\Exception
-	 */
-	protected function validateBody(){
-
-		$body = $this->oRequest['com_body'];
-		$len = strlen($body);
-		if($len < 10){
-			throw new \Lampcms\Exception('Ooopsy... Comment must be at least 10 characters long');
-		}
-
-		if($len > 600){
-			throw new \Lampcms\Exception('Oopsy... Comment must be at limited to 600 characters. Your comment is '.$len.' characters-long');
-		}
-
-		return $this;
-	}
 
 
 	/**

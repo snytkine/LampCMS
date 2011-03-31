@@ -81,7 +81,6 @@ class Editcomment extends Addcomment
 		$this->permission = 'edit_any_comment';
 
 		$this->checkPermission()
-		->validateBody()
 		->saveEdit()
 		->returnResult();
 	}

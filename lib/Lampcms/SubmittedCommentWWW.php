@@ -52,6 +52,14 @@
 
 namespace Lampcms;
 
+/**
+ * Class represents a Comment submitted via Browser
+ * has methods to get body, ip, parent Resource and other
+ * properties of the comment
+ *
+ * @author Dmitri Snytkine
+ *
+ */
 class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 {
 	/**
@@ -227,11 +235,11 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 
 
 	/**
-	 * @return string clean parsed html
+	 * @return object of type Utf8String
 	 */
 	public function getBody(){
 		$raw = $this->oRegistry->Request['com_body'];
-		$body = Utf8String::factory($raw)->htmlentities()->mmd2Html()->wordWrap(60, "\n", true)->valueOf(); //->parseMarkdown()
+		$body = Utf8String::factory($raw)->htmlentities()->mmd2Html()->wordWrap(70, "\n", true); //->parseMarkdown()
 		d('$body: '.$body);
 
 		return $body;

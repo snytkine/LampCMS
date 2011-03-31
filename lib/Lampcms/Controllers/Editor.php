@@ -61,9 +61,9 @@ use \Lampcms\DomFeedItem;
 /**
  * Controller for processing "Edit"
  * form for editing Question or Answer
- * 
- * @todo should move the parsing to 
- * new class so the whole parsing thing 
+ *
+ * @todo should move the parsing to
+ * new class so the whole parsing thing
  * can later be used from the API and not just
  * from this controller.
  *
@@ -112,13 +112,13 @@ class Editor extends Edit
 
 
 	/**
-	 *  
+	 *
 	 * Process submitted form values
 	 */
 	protected function process()
 	{
 		$this->oRegistry->Dispatcher->post($this->oResource, 'onBeforeEdit');
-		
+
 		$formVals = $this->oForm->getSubmittedValues();
 		d('formVals: '.print_r($formVals, 1));
 
@@ -130,10 +130,17 @@ class Editor extends Edit
 		 * instead of strip_tags.
 		 */
 		$this->oResource['b'] = $this->makeBody($formVals['qbody']);
-		$this->oResource['title'] = $this->makeTitle($formVals['title']);
+		/**
+		 * Don't attempt to edit the value of title
+		 * for the answer since it technically does not have the title
+		 * and we don't want to change existing one
+		 */
+		if($this->oRequest instanceof \Lampcms\Question){
+			$this->oResource['title'] = $this->makeTitle($formVals['title']);
+		}
 		$this->oResource->setEdited($this->oRegistry->Viewer, strip_tags($formVals['reason']));
 		$this->oResource->save();
-		
+
 		$this->oRegistry->Dispatcher->post($this->oResource, 'onEdit');
 
 		return $this;
@@ -155,7 +162,7 @@ class Editor extends Edit
 
 
 	protected function makeTitle($title){
-		$ret = Utf8String::factory($title)->htmlentities()->valueOf();
+		$ret = Utf8String::factory($title)->htmlentities()->trim()->valueOf();
 		d('ret '.$ret);
 
 		return $ret;
@@ -171,7 +178,7 @@ class Editor extends Edit
 	protected function updateQuestion(){
 		if('ANSWERS' === $this->collection){
 			d('need to update QUESTION');
-			
+				
 			try{
 				$this->oRegistry->Mongo->QUESTIONS
 				->update(array('_id' => $this->oResource['i_qid']), array('$set' => array('i_lm_ts' => time())));
@@ -179,11 +186,11 @@ class Editor extends Edit
 				d('unable to update question '.$e->getMessage());
 			}
 		}
-		
+
 		return $this;
 	}
-	
-	
+
+
 	protected function returnResult(){
 		Responder::redirectToPage($this->oResource->getUrl());
 	}

@@ -101,8 +101,7 @@ class Activate extends WebPage
 	 */
 	protected function getEmailRecord()
 	{
-		$this->aEmail = $this->oRegistry->Mongo->getCollection('EMAILS')
-		->findOne(array('_id' => $this->oRequest['eid'], 'code' =>  $this->oRequest['hash']));
+		$this->aEmail = $this->oRegistry->Mongo->EMAILS->findOne(array('_id' => $this->oRequest['eid'], 'code' =>  $this->oRequest['hash']));
 		if(empty($this->aEmail)){
 			throw new \Lampcms\Exception('Unable to find record of user');
 		}
@@ -144,8 +143,7 @@ class Activate extends WebPage
 	 */
 	protected function activateUser()
 	{
-		$aUser = $this->oRegistry->Mongo->getCollection('USERS')
-		->findOne(array('_id' => (int)$this->aEmail['i_uid']) );
+		$aUser = $this->oRegistry->Mongo->USERS->findOne(array('_id' => (int)$this->aEmail['i_uid']) );
 
 		if(empty($aUser)){
 			throw new \Lampcms\Exception('Unable to find user, please create a new account');
@@ -167,7 +165,7 @@ class Activate extends WebPage
 		$this->oRegistry->Dispatcher->post($this->oActivatedUser, 'onUserUpdate');
 
 		$this->aEmail['i_vts'] = time();
-		$this->oRegistry->Mongo->getCollection('EMAILS')->save($this->aEmail);
+		$this->oRegistry->Mongo->EMAILS->save($this->aEmail);
 
 		return $this;
 	}

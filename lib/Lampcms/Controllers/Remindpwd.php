@@ -187,8 +187,7 @@ associated with your account.</div>';
 		if (false !== filter_var($this->login, FILTER_VALIDATE_EMAIL)){
 			d('cp');
 			$this->byEmail = true;
-			$aEmail = $this->oRegistry->Mongo->getCollection('EMAILS')
-			->findOne(array('email' => $this->login));
+			$aEmail = $this->oRegistry->Mongo->EMAILS->findOne(array('email' => $this->login));
 			if(empty($aEmail)){
 				$this->oForm->setError('login', 'No user with this email address');
 
@@ -196,8 +195,7 @@ associated with your account.</div>';
 			}
 
 			d('$aEmail: '.print_r($aEmail, 1));
-			$aResult = $this->oRegistry->Mongo->getCollection('USERS')
-			->findOne(array('_id' => (int)$aEmail['i_uid']));
+			$aResult = $this->oRegistry->Mongo->USERS->findOne(array('_id' => (int)$aEmail['i_uid']));
 
 		} else {
 			if(false === \Lampcms\Validate::username($this->login)){
@@ -207,8 +205,7 @@ associated with your account.</div>';
 				return false;
 			}
 
-			$aResult = $this->oRegistry->Mongo->getCollection('USERS')
-			->findOne(array('username_lc' => $this->login));
+			$aResult = $this->oRegistry->Mongo->USERS->findOne(array('username_lc' => $this->login));
 		}
 
 		if (empty($aResult)) {
@@ -291,7 +288,7 @@ associated with your account.</div>';
 			 * string is used
 			 */
 			try {
-				$coll = $this->oRegistry->Mongo->getCollection('PASSWORD_CHANGE');
+				$coll = $this->oRegistry->Mongo->PASSWORD_CHANGE;
 				$coll->insert($aData, array('fsync' => true));
 				$done = true;
 				d('cp');

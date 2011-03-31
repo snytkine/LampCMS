@@ -74,7 +74,7 @@ class Qtagscounter extends LampcmsObject
 
 	public function __construct(Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
-		$this->coll = $oRegistry->Mongo->getCollection('QUESTION_TAGS');
+		$this->coll = $oRegistry->Mongo->QUESTION_TAGS;
 	}
 
 

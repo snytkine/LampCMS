@@ -75,7 +75,8 @@ class UnansweredTags extends LampcmsObject
 
 	public function __construct(Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
-		$this->coll = $oRegistry->Mongo->getCollection('UNANSWERED_TAGS');
+		$this->coll = $oRegistry->Mongo->UNANSWERED_TAGS;
+		
 		$this->coll->ensureIndex(array('tag' => 1), array('unique' => true));
 		$this->coll->ensureIndex(array('i_ts' => 1));
 	}

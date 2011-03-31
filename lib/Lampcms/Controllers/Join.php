@@ -272,8 +272,7 @@ class Join extends Register
 		$aReserved = \Lampcms\getReservedNames();
 
 		$username = strtolower($this->oRequest['username']);
-		$aUser = $this->oRegistry->Mongo->getCollection('USERS')
-		->findOne(array('username_lc' => $username));
+		$aUser = $this->oRegistry->Mongo->USERS->findOne(array('username_lc' => $username));
 
 		if(!empty($aUser) || in_array( $username, $aReserved )){
 
@@ -305,8 +304,7 @@ class Join extends Register
 			throw new \Lampcms\FormException('Email address '.$this->oRequest['email'].' is invalid<br/>Please correct it and resubmit the form', 'email');
 		}
 
-		$ret = $this->oRegistry->Mongo->getCollection('EMAILS')
-		->findOne(array('email' => $email ));
+		$ret = $this->oRegistry->Mongo->EMAILS->findOne(array('email' => $email ));
 
 		/**
 		 * @todo when we have 'join existing account'

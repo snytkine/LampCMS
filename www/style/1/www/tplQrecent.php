@@ -74,11 +74,12 @@ class tplQrecent extends Lampcms\Template\Template
 	'asked' => 'asked', //20
 	'i_sticky' => '', //21
 	'dot' => '', //22
-	'last_poster' => '' //23
+	'last_poster' => '', //23
+	'i_etag' => '0' //24
 	);
 
 	protected static $tpl = '
-	<div class="qs%18$s" id="q-%1$s">  
+	<div class="qs%18$s" id="q-%1$s" lampcms:i_etag="%24$s">  
     <div class="qstats">
         <div class="arrow1"></div>
         <div class="stats">
@@ -91,11 +92,14 @@ class tplQrecent extends Lampcms\Template\Template
             <div class="status %10$s">%3$s <span rel="in">answer%17$s</span></div>
         </div>
         <div class="vws" title="%4$s view%15$s">%4$s <span rel="in">view%15$s</span></div>
-    	%22$s
+    	<div class="fl pad8">
+    	 <span class="icoc unread ru ajax" title="Unread items. Click to toggle status">&nbsp;</span>
+    	</div>
+        %22$s
      </div>
     <!-- //statsdiv -->
     <div class="smmry">
-        <div class="fl bold"><a href="/q%1$s/%5$s" class="ql%19$s pri%21$s">%7$s</a></div>
+        <div class="fl"><a href="/q%1$s/%5$s" class="ql%19$s pri%21$s">%7$s</a></div>
         <div class="fl cb intro">%6$s</div>
         <div class="fl cb tgs %8$s">%9$s</div>
         

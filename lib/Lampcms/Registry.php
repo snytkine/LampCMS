@@ -100,7 +100,7 @@ class Registry implements Interfaces\LampcmsObject
 	 * Do some important things
 	 * just before going away
 	 * 
-	 * One this this does is it updates
+	 * One thing this does is it updates
 	 * the i_im_ts value of Viewer
 	 */
 	public function __destruct(){

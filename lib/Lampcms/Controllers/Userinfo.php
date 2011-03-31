@@ -90,8 +90,7 @@ class Userinfo extends WebPage
 
 
 	protected function getUser(){
-		$a = $this->oRegistry->Mongo->getCollection('USERS')
-		->findOne(array('_id' => $this->oRequest['uid']));
+		$a = $this->oRegistry->Mongo->USERS->findOne(array('_id' => $this->oRequest['uid']));
 
 		if(empty($a)){
 			throw new \Lampcms\Exception('User not found');

@@ -118,7 +118,7 @@ class Tagged extends Unanswered
 		$this->counterTaggedText = \tplCounterblocksub::parse(array(str_replace(' ', ' + ', $this->oRequest['tags']), 'Tagged'), false);
 
 
-		$this->oCursor = $this->oRegistry->Mongo->getCollection('QUESTIONS')->find($where);
+		$this->oCursor = $this->oRegistry->Mongo->QUESTIONS->find($where);
 		$this->count = $this->oCursor->count(true);
 		d('$this->oCursor: '.gettype($this->oCursor).' $this->count: '.$this->count);
 		$this->oCursor->sort($sort);

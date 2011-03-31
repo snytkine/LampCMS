@@ -303,6 +303,111 @@ YUI({
 		return;
 	},
 	/**
+	 * Record value of timestamp
+	 * when user views the question
+	 * store in Local Storage under key q-$qid_$uid
+	 * This way key is unique to question + user combination
+	 * value is the timestamp extracted from etag meta
+	 */
+	storeReadEtag = function(){
+		var sKey, uid, etag = getMeta('etag'), qid, uid;
+		Y.log('314 etag: ' + etag);
+		if(etag){
+			qid = getMeta('qid');
+			if(qid){
+				uid = getViewerId();
+				etag = parseInt(etag, 10);
+				sKey = 'q-' + qid + '_' + uid;
+				Y.log('adding etag ' + etag + ' for key ' + sKey );
+				Y.StorageLite.setItem(sKey, etag);
+			}
+		}
+	},
+	/**
+	 * Add special class to Links
+	 * to Questions that have been read.
+	 * Or maybe not just special class?
+	 * 
+	 * 
+	 */
+	setReadLinks = function(){
+		var uid, eDivs, stored, oStorage = Y.StorageLite, eQlist = Y.one('.qlist');
+		if(!eQlist){
+			Y.log('not on this page');
+			return;
+		}
+		eDivs = eQlist.all('.qs');
+		if(!eDivs || eDivs.size() == 0){
+			Y.log('no divs .qs');
+			return;
+		}
+		uid = getViewerId();
+	
+		eDivs.each(function(){
+			var qid, etag, stored, span;
+			qid = this.get('id');
+			Y.log('qid: ' + qid);
+			etag = this.getAttribute('lampcms:i_etag');// + 0;
+			Y.log('etag: ' + etag);			
+			etag = parseInt(etag, 10);
+			Y.log('etag of item on page: ' + etag, 'warn');
+			/*if(!etag){
+				etag = 0;
+			}*/
+			
+			stored = oStorage.getItem(qid + '_' + uid);
+			
+			Y.log('stored for key: ' +qid+ ' is: ' + Y.dump(stored), 'warn');
+			if(stored){
+				Y.log('have item for this question for this user: ' + stored);
+				if(stored == etag){
+					Y.log('this is read item ' + qid);
+					this.one('a.ql').addClass('read');	
+					span = this.one('span.ru');
+					if(span){
+						span.removeClass('unread');
+						span.addClass('read');
+						span.set('title', 'No Unread Items. Click to toggle status');
+					}
+				
+				}
+			}
+			
+		});
+	},
+	/**
+	 * User clicked on Read/Unread icon
+	 * must change css style of link
+	 * and update the StorageLite item
+	 * for this questionID
+	 */
+	toggleRead = function(el){
+		var curStatus, qid, etag, qsDiv, uid = getViewerId(), link;
+		curStatus = (el.test('.unread')) ? 'unread' : 'read';
+		qsDiv = el.ancestor("div.qs");
+		qid = qsDiv.get('id');
+		Y.log('qid: ' + qid + ' uid: ' + uid);
+		link = qsDiv.one('a.ql');
+		Y.log('link: ' + link);
+		etag = qsDiv.getAttribute('lampcms:i_etag');// + 0;
+		Y.log('etag: ' + etag);			
+		etag = parseInt(etag, 10);
+		Y.log('etag of item on page: ' + etag, 'warn');
+		sKey = qid + '_' + uid;
+		if('unread' == curStatus){
+			link.removeClass('unread').addClass('read');
+			el.removeClass('unread').addClass('read').set('title', 'No Unread items. Click to toggle status');
+			Y.log('adding etag ' + etag + ' for key ' + sKey );
+			Y.StorageLite.setItem(sKey, etag);
+		} else {
+			link.removeClass('read').addClass('unread');
+			el.removeClass('read').addClass('unread').set('title', 'Unread items. Click to toggle status');
+			Y.log('removing etag for key' + sKey );
+			Y.StorageLite.removeItem(sKey);
+		}
+		
+	},
+	/**
 	 * Handle click on thumbup/thumbdown link
 	 * 
 	 * @var object el YUI Node representing a vote link it has a href which
@@ -490,6 +595,10 @@ YUI({
 				e.halt();
 				handlePagination(e.target);
 			}
+			break;
+			
+		case el.test('span.ru'):
+			toggleRead(el);
 			break;
 			
 		case el.test('.vote'):
@@ -1454,7 +1563,6 @@ YUI({
 			} else {
 				write('Editor ready');
 			}
-
 				editor.render();
 			});
 		
@@ -2178,6 +2286,8 @@ YUI({
 	revealComments();
 	revealHidden();
 	hiFollowedTags();
+	setReadLinks();
+	storeReadEtag();
 	Y.on('submit', MysubmitForm, '.qa_form');
 	//Y.delegate("click", handleAjaxLinks, "#lastdiv", 'a.ajax');
 	/**

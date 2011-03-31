@@ -161,7 +161,7 @@ class QuestionParser extends LampcmsObject
 		 *
 		 * @var unknown_type
 		 */
-		$title = $this->oSubmitted->getTitle()->htmlentities()->valueOf();
+		$title = $this->oSubmitted->getTitle()->htmlentities()->trim()->valueOf();
 
 		$username = $this->oSubmitted->getUserObject()->getDisplayName();
 
@@ -211,7 +211,7 @@ class QuestionParser extends LampcmsObject
 		$this->checkForDuplicate($uid, $hash);
 
 		$username = $this->oSubmitted->getUserObject()->getDisplayName();
-
+		$time = time();
 		/**
 		 *
 		 * @var array
@@ -239,9 +239,9 @@ class QuestionParser extends LampcmsObject
 		'tags_c' => trim(\tplQtagsclass::loop($aTags, false)),
 		'tags_html' => \tplQtags::loop($aTags, false),
 		'credits' => '',
-		'i_ts' => time(),
+		'i_ts' => $time,
 		'hts' => date('F j, Y g:i a T'),
-		'i_lm_ts' => time(),
+		'i_lm_ts' => $time,
 		'i_ans' => 0,
 		'ans_s' => 's',
 		'v_s' => 's',
@@ -346,7 +346,7 @@ class QuestionParser extends LampcmsObject
 	 * @return object $this
 	 */
 	protected function ensureIndexes(){
-		$quest = $this->oRegistry->Mongo->getCollection('QUESTIONS');
+		$quest = $this->oRegistry->Mongo->QUESTIONS;
 		$quest->ensureIndex(array('i_sticky' => 1));
 		$quest->ensureIndex(array('i_ts' => 1));
 		$quest->ensureIndex(array('i_votes' => 1));
@@ -383,7 +383,7 @@ class QuestionParser extends LampcmsObject
 	 * @param string $hash hash of question body
 	 */
 	protected function checkForDuplicate($uid, $hash){
-		$a = $this->oRegistry->Mongo->getCollection('QUESTIONS')->findOne(array('i_uid' => $uid, 'hash' => $hash ));
+		$a = $this->oRegistry->Mongo->QUESTIONS->findOne(array('i_uid' => $uid, 'hash' => $hash ));
 		if(!empty($a)){
 			$err = 'You have already asked exact same question  <span title="'.$a['hts'].'" class="ts" rel="time">on '.$a['hts'].
 			'</span><br><a class="link" href="/questions/'.$a['_id'].'/'.$a['url'].'">'.$a['title'].'</a><br>
