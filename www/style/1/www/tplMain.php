@@ -91,7 +91,8 @@ class tplMain extends Lampcms\Template\Template
 	'JS_PREFIX' => '', //35
 	'show_comments' => '5', //36
 	'comments_timeout' => '5',//37
-	'max_comments' => '0' // 38
+	'max_comments' => '0', // 38
+	'JS_MIN_ID' => '' // 39
 	);
 
 	protected static $tpl = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -113,7 +114,10 @@ class tplMain extends Lampcms\Template\Template
 %8$s
 %9$s
 <link href="%10$s" rel="stylesheet" type="text/css">
-<script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"></script>
+<!-- <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"></script> -->
+<!-- JS -->
+<script type="text/javascript" src="http://yui.yahooapis.com/combo?3.3.0/build/yui/yui-min.js&3.3.0/build/loader/loader-min.js&3.3.0/build/oop/oop-min.js&3.3.0/build/event-custom/event-custom-min.js&3.3.0/build/dom/dom-min.js&3.3.0/build/dom/dom-style-ie-min.js&3.3.0/build/event/event-min.js&3.3.0/build/attribute/attribute-min.js&3.3.0/build/pluginhost/pluginhost-min.js&3.3.0/build/classnamemanager/classnamemanager-min.js&3.3.0/build/base/base-min.js&3.3.0/build/node/node-min.js&3.3.0/build/event/event-base-ie-min.js&3.3.0/build/widget/widget-min.js&3.3.0/build/widget/widget-base-ie-min.js&3.3.0/build/widget/widget-position-min.js&3.3.0/build/widget/widget-position-align-min.js&3.3.0/build/widget/widget-position-constrain-min.js&3.3.0/build/widget/widget-stdmod-min.js&3.3.0/build/widget/widget-stack-min.js&3.3.0/build/overlay/overlay-min.js"></script>
+
 <!-- 11, 12, 13 -->
 %11$s
 %12$s
@@ -168,8 +172,7 @@ class tplMain extends Lampcms\Template\Template
 %20$s
 <div id="lastdiv" class="delegate"></div>
 %13$s
-<script type="text/javascript" src="%35$s/js/include.js"></script>
-<script type="text/javascript" src="%35$s/js/qa.js"></script>
+<script type="text/javascript" src="%35$s/js/min/qa_%39$s.js"></script>
 <!-- GFC JS -->
 %21$s
 %22$s

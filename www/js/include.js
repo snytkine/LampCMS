@@ -43,7 +43,7 @@ oAjaxObject = {
 				// alert(json);
 			} catch (e) {
 				alert("Invalid json data in responceText " + $LANG.dump(e)
-						+ " strContentType " + strContentType + "\noRespnose: "
+						+ " strContentType " + strContentType + "<br>oRespnose: "
 						+ $LANG.dump(o.responseText));
 			}
 
@@ -573,8 +573,7 @@ oSL.Regform = (function() {
 
 		} catch (e) {
 			//oSL.modal.hide();
-			alert("Invalid json data in responceText " + $LANG.dump(e)
-					+ "\noRespnose: " + $LANG.dump(o.responseText));
+			alert("Invalid json data in responceText " + $LANG.dump(e) + "Respnose: " + $LANG.dump(o.responseText));
 		}
 
 	};
