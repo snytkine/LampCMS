@@ -156,7 +156,7 @@ class String extends LampcmsObject implements \Serializable
 	}
 
 	/**
-	 * 
+	 *
 	 * factory method but cannot call it factory
 	 * due to some bug in certain php versions
 	 * that raize error if static method signature
@@ -183,13 +183,13 @@ class String extends LampcmsObject implements \Serializable
 	public function valueOf(){
 		return $this->string;
 	}
-	
-	
+
+
 	public function hashCode(){
 		return $this->getMd5();
 	}
 
-	
+
 	/**
 	 * Tests to see if the string
 	 * contains html
@@ -201,19 +201,19 @@ class String extends LampcmsObject implements \Serializable
 		return (strlen(strip_tags($this->string)) !== strlen($this->string));
 	}
 
-	
+
 	public function serialize(){
 		return serialize(array('s' => $this->string, 'm' => $this->returnMode));
 	}
 
-	
+
 	public function unserialize($serialized){
 		$a = unserialize($serialized);
 		$this->string = $a['s'];
 		$this->returnMode = $a['r'];
 	}
 
-	
+
 	/**
 	 * Returnes number of lines in a string
 	 * This is utf-8 safe,
@@ -267,21 +267,21 @@ class String extends LampcmsObject implements \Serializable
 	 *
 	 */
 	public function length(){
-		
+
 		return strlen($this->string);
 	}
 
-	
+
 	public function getMd5(){
 		return md5($this->string);
 	}
 
-	
+
 	public function getCrc32(){
 		return crc32($this->string);
 	}
 
-	
+
 	/**
 	 * Remove (mask) some chars from email address
 	 * so that it becomes not valid for physhers
@@ -295,7 +295,7 @@ class String extends LampcmsObject implements \Serializable
 		return $this->handleReturn($str);
 	}
 
-	
+
 	/**
 	 * Strip tags but preserve white spaces
 	 *
@@ -319,7 +319,7 @@ class String extends LampcmsObject implements \Serializable
 
 	}
 
-	
+
 	/**
 	 * Generates random alphanumeric string
 	 * of predetermined length
@@ -330,7 +330,7 @@ class String extends LampcmsObject implements \Serializable
 	 *                or lower case
 	 */
 	public static function makeRandomString($len = 30){
-		
+
 		$strAlphanum = 'abcdefghijklmnopqrstuvwqyz0123456789';
 		$len = (int)$len;
 		$aAlphanum = str_split($strAlphanum);
@@ -344,7 +344,7 @@ class String extends LampcmsObject implements \Serializable
 		return $strRes;
 	}
 
-	
+
 	/**
 	 * Make random string that will be used
 	 * as value of 'sid' cookie
@@ -464,12 +464,12 @@ class String extends LampcmsObject implements \Serializable
 	 * @return object of this class
 	 */
 	protected function handleReturn($string){
-		
+
 		if('StringBuilder' !== $this->returnMode){
-			
+
 			$class = get_class($this);
 			$o = new $class($string, $this->returnMode);
-			
+
 			return $o;
 		}
 
@@ -478,7 +478,7 @@ class String extends LampcmsObject implements \Serializable
 		return $this;
 	}
 
-	
+
 	/**
 	 * Parse string and replace all text that
 	 * looks like links with actual clickable links
@@ -491,6 +491,7 @@ class String extends LampcmsObject implements \Serializable
 	public function makeClickable($maxurl_len = 60, $addNofollow = true, $target = '_blank')
 	{
 		$text = $this->string;
+		d('before make clickable: '.$text);
 		/**
 		 * Do NOT match urls that may already be
 		 * the value of src or href inside the a or img tag
@@ -505,9 +506,11 @@ class String extends LampcmsObject implements \Serializable
 
 			$nofollow = (true === $addNofollow) ? 'rel="nofollow"' : '';
 			$aUrls = (array_unique($urls[1]));
+			d('aUrls: '.print_r($aUrls, 1));
 
 			foreach ($aUrls as $url){
 				$decoded = urldecode($url);
+				d('decoded: '.$decoded);
 				if ($maxurl_len && (strlen($decoded) > $maxurl_len)){
 					$urltext = substr($decoded, 0, $offset1) . '...' . substr($decoded, -$offset2);
 				}else{
@@ -521,7 +524,25 @@ class String extends LampcmsObject implements \Serializable
 			}
 		}
 
-		return $this->handleReturn($text);	
+		d('after make clickable: '.$text);
+		return $this->handleReturn($text);
+	}
+
+
+	/**
+	 * A simpler implementation of makeClickable
+	 * does not do truncating of link text
+	 * but seems to work better for certain links
+	 * 
+	 * Enter description here ...
+	 */
+	public function linkify()
+	{
+		$text = $this->string;
+		$text= preg_replace("/(^|[\n ])([\w]*?)((ht|f)tp(s)?:\/\/[\w]+[^ \,\"\n\r\t<]*)/is", "$1$2<a href=\"$3\" rel=\"nofollow\">$3</a>", $text);
+		$text= preg_replace("/(^|[\n ])([\w]*?)((www|ftp)\.[^ \,\"\t\n\r<]*)/is", "$1$2<a href=\"http://$3\" rel=\"nofollow\">$3</a>", $text);
+
+		return $this->handleReturn($text);
 	}
 
 
@@ -557,7 +578,7 @@ class String extends LampcmsObject implements \Serializable
 		return $this->handleReturn($newstring);
 	}
 
-	
+
 	/**
 	 * Change the & to $amp;
 	 * but only if the & is not part of already encoded
@@ -576,7 +597,7 @@ class String extends LampcmsObject implements \Serializable
 		return $this->handleReturn($newstring);
 	}
 
-	
+
 	/**
 	 * Replace non alphanumerics with underscores,
 	 * limit to 65 chars
@@ -676,7 +697,7 @@ class String extends LampcmsObject implements \Serializable
 		return $this->handleReturn($ret);
 	}
 
-	
+
 	/**
 	 * Preapre email for more comfortable type
 	 *
@@ -696,37 +717,37 @@ class String extends LampcmsObject implements \Serializable
 
 		return $recipient;
 	}
-	
-	
+
+
 	public function toLowerCase(){
 		$s = strtolower($this->string);
-		
+
 		return $this->handleReturn($s);
 	}
-	
-	
+
+
 	public function toUpperCase(){
 		$s = strtoupper($this->string);
-		
+
 		return $this->handleReturn($s);
 	}
-	
-	
+
+
 	public function isEmpty(){
 		return (0 === $this->length());
 	}
-	
-	
+
+
 	public function substr($start, $len = null){
 		$s = substr($this->string, $start, $len);
-		
+
 		return $this->handleReturn($s);
 	}
-	
-	
+
+
 	public function trim(){
 		$s = trim($this->string);
-		
+
 		return $this->handleReturn($s);
 	}
 

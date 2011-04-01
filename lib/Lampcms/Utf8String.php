@@ -871,6 +871,7 @@ class Utf8String extends String
 		if($this->isHtml()){
 			if (function_exists('tidy_parse_string')) {
 				d('going to use tidy_parse_string');
+				
 				$aConfig = array(
                      'clean' => true,
                      'output-html' => true,

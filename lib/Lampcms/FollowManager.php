@@ -69,10 +69,11 @@ class FollowManager extends LampcmsObject
 	 * and not in-place update in Mongo is because
 	 * this operation is always (at least for now) performed
 	 * by the Viewer and we need the changed to be made to
-	 * current Viewer object so that viewer will see than
+	 * current Viewer object so that viewer will see that
 	 * he is not following the question anymore.
 	 *
-	 * @todo also update a_flwrs and i_flwrs count in Question? Maybe not
+	 * @todo also update a_flwrs and i_flwrs count in Question? 
+	 * Maybe not
 	 * maybe ONLY i_flwrs
 	 *
 	 * @todo do the addToSet via shutdown_function so it will
@@ -80,6 +81,7 @@ class FollowManager extends LampcmsObject
 	 *
 	 * @todo experiment later with getting followers data
 	 * from the USERS collection during Question display
+	 * 
 	 * This will add one more find() query using indexed field
 	 * a_f_q in USERS but the upside is - no need to also store
 	 * the same data in QUESTIONS and most importantly
@@ -117,6 +119,7 @@ class FollowManager extends LampcmsObject
 		$this->oRegistry->Dispatcher->post($oUser, 'onBeforeQuestionFollow', array('qid' => $qid));
 
 		$aFollowedQuestions = $oUser['a_f_q'];
+		
 		d('$aFollowedQuestions: '.print_r($aFollowedQuestions, 1));
 		if(in_array($qid, $aFollowedQuestions)){
 			d( 'User '.$oUser->getUid().' is already following question $qid '.$qid);

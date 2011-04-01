@@ -149,7 +149,6 @@ class Editor extends Edit
 
 	protected function makeBody($body){
 		$oBody = Utf8String::factory($body)
-		->makeClickable()
 		->tidy()
 		->safeHtml()
 		->asHtml();

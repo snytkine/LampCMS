@@ -768,19 +768,19 @@ button,input[type="checkbox"],input[type="radio"],input[type="reset"],input[type
 	background: #000;
 	-moz-opacity: .10;
 	opacity: .10;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              10);
+		                                                                10);
 	z-index: 9049;
 }
 
 .yui-skin-sam .yui-ac iframe {
 	opacity: 0;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              0);
+		                                                                0);
 	padding-right: .3em;
 	padding-bottom: .3em;
 }
@@ -1329,10 +1329,10 @@ p#clear {
 .yui-skin-sam .yui-calcontainer .yui-cal-nav-mask {
 	background-color: #000;
 	opacity: .25;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              25);
+		                                                                25);
 }
 
 .yui-skin-sam .yui-calcontainer .yui-cal-nav {
@@ -1723,12 +1723,12 @@ p#clear {
 
 * html .yui-picker-bg {
 	background-image: none;
-	filter: progid :                                        
+	filter: progid :                                          
 		                                                        
 		                           
 		                           
-		                           DXImageTransform.Microsoft.AlphaImageLoader
-		(  
+		                           
+		 DXImageTransform.Microsoft.AlphaImageLoader (    
 		 
 		   
 		      
@@ -1744,7 +1744,7 @@ p#clear {
 		 
 		    
 		                                                                   
-		                    src =                       
+		                      src =                         
 		
 		 
 		   
@@ -1755,8 +1755,9 @@ p#clear {
 		                      
 		                      
 		                      
-		                     '../../build/colorpicker/assets/picker_mask.png',
-		sizingMethod =               
+		                      
+		'../../build/colorpicker/assets/picker_mask.png', sizingMethod =
+		                
 		 
 		   
 		                
@@ -1769,7 +1770,7 @@ p#clear {
 		 
 		   
 		                                                               
-		                          'scale' );
+		                            'scale' );
 }
 
 .yui-picker-mask {
@@ -1944,10 +1945,10 @@ p#clear {
 .yui-skin-sam .mask {
 	background-color: #000;
 	opacity: .25;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              25);
+		                                                                25);
 }
 
 .yui-skin-sam .yui-panel-container {
@@ -2052,10 +2053,10 @@ p#clear {
 	_margin-left: -1px;
 	background-color: #000;
 	opacity: .12;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              12);
+		                                                                12);
 }
 
 .yui-skin-sam .yui-dialog .ft {
@@ -2160,10 +2161,10 @@ p#clear {
 
 .yui-skin-sam .yui-tt-shadow-visible {
 	opacity: .12;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              12);
+		                                                                12);
 }
 
 .yui-skin-sam .yui-dt-mask {
@@ -2225,10 +2226,10 @@ th.yui-dt-resizeable .yui-dt-resizerliner {
 	cursor: col-resize;
 	background-color: #CCC;
 	opacity: 0;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              0);
+		                                                                0);
 }
 
 .yui-dt-resizerproxy {
@@ -2237,10 +2238,10 @@ th.yui-dt-resizeable .yui-dt-resizerliner {
 	z-index: 9000;
 	background-color: #CCC;
 	opacity: 0;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              0);
+		                                                                0);
 }
 
 th.yui-dt-hidden .yui-dt-liner,td.yui-dt-hidden .yui-dt-liner,th.yui-dt-hidden .yui-dt-resizer
@@ -2336,10 +2337,10 @@ th.yui-dt-hidden .yui-dt-liner,td.yui-dt-hidden .yui-dt-liner,th.yui-dt-hidden .
 .yui-skin-sam .yui-dt-mask {
 	background-color: #000;
 	opacity: .25;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              25);
+		                                                                25);
 }
 
 .yui-skin-sam .yui-dt-message {
@@ -2726,19 +2727,19 @@ tbody .yui-dt-editable {
 
 .yui-toolbar-container .yui-button-disabled .yui-toolbar-icon {
 	opacity: .5;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              50);
+		                                                                50);
 }
 
 .yui-toolbar-container .yui-button-disabled .up,.yui-toolbar-container .yui-button-disabled .down
 	{
 	opacity: .5;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              50);
+		                                                                50);
 }
 
 .yui-toolbar-container .yui-button a {
@@ -2836,10 +2837,10 @@ tbody .yui-dt-editable {
 	top: 0;
 	left: 0;
 	opacity: .5;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              50);
+		                                                                50);
 }
 
 .yui-editor-container iframe {
@@ -3940,10 +3941,10 @@ h2.yui-editor-skipheader,h3.yui-editor-skipheader {
 .yui-skin-sam .yui-crop .yui-crop-mask {
 	background-color: #000;
 	opacity: .5;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              50);
+		                                                                50);
 }
 
 .yui-skin-sam .yui-crop .yui-resize {
@@ -4710,10 +4711,10 @@ body.yui-layout {
 .yui-skin-sam .yui-menu-shadow-visible {
 	background-color: #000;
 	opacity: .12;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              12);
+		                                                                12);
 }
 
 .yui-skin-sam .yuimenuitem-selected {
@@ -5224,18 +5225,18 @@ body.yui-layout {
 .yui-resize-hover .yui-resize-handle,.yui-resize-hidden .yui-resize-handle
 	{
 	opacity: 0;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              0);
+		                                                                0);
 }
 
 .yui-resize-ghost {
 	opacity: .5;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              50);
+		                                                                50);
 }
 
 .yui-resize-knob .yui-resize-handle {
@@ -5323,10 +5324,10 @@ body.yui-layout {
 
 .yui-skin-sam .yui-resize-hover .yui-resize-handle-active {
 	opacity: 1;
-	filter: alpha(opacity = 
+	filter: alpha(opacity =   
 		                                                         
 		                                                         
-		                                                               100);
+		                                                                 100);
 }
 
 .yui-skin-sam .yui-resize-proxy {
@@ -5582,19 +5583,19 @@ body.yui-layout {
 
 .yui-toolbar-container .yui-button-disabled .yui-toolbar-icon {
 	opacity: .5;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              50);
+		                                                                50);
 }
 
 .yui-toolbar-container .yui-button-disabled .up,.yui-toolbar-container .yui-button-disabled .down
 	{
 	opacity: .5;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              50);
+		                                                                50);
 }
 
 .yui-toolbar-container .yui-button a {
@@ -5692,10 +5693,10 @@ body.yui-layout {
 	top: 0;
 	left: 0;
 	opacity: .5;
-	filter: alpha(opacity =  
+	filter: alpha(opacity =    
 		                                                         
 		                                                         
-		                                                              50);
+		                                                                50);
 }
 
 .yui-editor-container iframe {
@@ -7749,10 +7750,11 @@ a#asignup {
 	background-color: #19558D;
 	-ms-filter:
 		"progid:DXImageTransform.Microsoft.gradient(startColorstr='#0000FF', endColorstr='#19558D')";
-	filter: progid :                              
+	filter: progid :                                
 		                                                        
 		                                   
-		                             DXImageTransform.Microsoft.gradient (    
+		                               DXImageTransform.Microsoft.gradient ( 
+		    
 		        
 		                  
 		
@@ -7761,14 +7763,14 @@ a#asignup {
 		        
 		                 
 		                                                         
-		                startColorstr =                   
+		                  startColorstr =                     
 		 
 		   
 		      
 		              
 		                            
-		                                                   "#0000FF",
-		endColorstr =     
+		                                                     "#0000FF",
+		endColorstr =       
 		 
 		  
 		      
@@ -7776,8 +7778,8 @@ a#asignup {
 		                          
 		 
 		      
-		                                                             "#19558D"
-		);
+		                                                             
+		 "#19558D" );
 	background: -webkit-gradient(linear, left top, left bottom, from(#0000FF),
 		to(#19558D) );
 	background: -moz-linear-gradient(top, #0000FF, #19558D);
@@ -8366,10 +8368,10 @@ li.tsearch {
 	background: -moz-linear-gradient(top, #A7BBCC, #879BAD);
 	-ms-filter:
 		"progid:DXImageTransform.Microsoft.gradient(startColorstr='#A7BBCC', endColorstr='#879BAD')";
-	filter: progid :                 
+	filter: progid :                   
 		                                                        
 		                                   
-		                DXImageTransform.Microsoft.gradient (
+		                  DXImageTransform.Microsoft.gradient (  
 		                  
 		
 		 
@@ -8379,20 +8381,20 @@ li.tsearch {
 		  
 		       
 		                                                         
-		   startColorstr =      
+		     startColorstr =        
 		 
 		   
 		      
 		              
 		                            
 		                                                             
-		 "#A7BBCC", endColorstr =                 
+		   "#A7BBCC", endColorstr =                   
 		 
 		   
 		       
 		              
 		                             
-		                                                  "#879BAD" );
+		                                                    "#879BAD" );
 	background: -webkit-gradient(linear, left top, left bottom, from(#A7BBCC),
 		to(#879BAD) );
 	background: -moz-linear-gradient(top, #A7BBCC, #879BAD);
@@ -9591,6 +9593,26 @@ div.avtr_bg {
 	background-size: 100% !important;
 	background-repeat: no-repeat;
 	overflow: hidden;
+}
+
+span.avtr_bg {
+	float: left;
+	width: 36px !important;
+	height: 36px !important;
+	min-width: 36px !important;
+	min-height: 36px !important;
+	background-size: 36px !important;
+	background-repeat: no-repeat;
+	overflow: hidden;
+	left: -9000px;
+}
+
+div.f2 {
+	margin: 2px;
+}
+
+div.f2 a {
+	text-decoration: none;
 }
 
 div.imgloader {

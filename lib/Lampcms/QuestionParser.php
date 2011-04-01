@@ -171,7 +171,7 @@ class QuestionParser extends LampcmsObject
 		 * Must pass array('drop-proprietary-attributes' => false)
 		 * otherwise tidy removes rel="code" // ->makeClickable() // was after getBody
 		 */
-		$oBody = $this->oSubmitted->getBody()->makeClickable()->tidy()->safeHtml()->asHtml();
+		$oBody = $this->oSubmitted->getBody()->tidy()->safeHtml()->asHtml();
 
 		/**
 		 *

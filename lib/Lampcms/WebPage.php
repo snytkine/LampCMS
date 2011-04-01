@@ -405,7 +405,7 @@ abstract class WebPage extends Base
 		$this->aPageVars['comments_timeout'] = $oIni->COMMENT_EDIT_TIME;
 		$this->aPageVars['JS_MIN_ID'] = JS_MIN_ID;
 
-		$this->aPageVars['JS_PREFIX'] = $oIni->JS_SITE;
+
 		$this->aPageVars['layoutID'] = $this->layoutID;
 			
 			
@@ -414,8 +414,10 @@ abstract class WebPage extends Base
 		 * $this->oRegistrty->Viewer->getStyleID()
 		 *
 		 */
-		$this->aPageVars['main_css'] = $oIni->CSS_SITE.'/style/'.STYLE_ID.'/'.VTEMPLATES_DIR.'/main.css';
+		$css = (true === LAMPCMS_DEBUG) ? '/_main.css' : '/main.css';
+		$this->aPageVars['main_css'] = $oIni->CSS_SITE.'/style/'.STYLE_ID.'/'.VTEMPLATES_DIR.$css;
 
+		
 		if('' !== $gfcID = $oIni->GFC_ID){
 			$this->addGFCCode($gfcID);
 		}
@@ -430,7 +432,7 @@ abstract class WebPage extends Base
 				if(!empty($aFacebookConf['EXTENDED_PERMS'])){
 					$this->addMetaTag('fbperms', $aFacebookConf['EXTENDED_PERMS']);
 				}
-			}	
+			}
 		}
 
 		$this->aPageVars['session_uid'] = $this->oRegistry->Viewer->getUid();
@@ -438,6 +440,10 @@ abstract class WebPage extends Base
 		$this->aPageVars['rep'] = $this->oRegistry->Viewer->getReputation();
 		$this->aPageVars['version_id'] = Form::generateToken();
 
+		$js = (true === LAMPCMS_DEBUG) ? '/qa.js' : '/min/qa_'.JS_MIN_ID.'/js';
+		$src = $oIni->JS_SITE.'/js'.$js;
+
+		$this->aPageVars['JS'] = $src;
 		/**
 		 * @todo
 		 *  also add twitter id or username or just 'yes'

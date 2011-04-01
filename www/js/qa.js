@@ -1074,11 +1074,11 @@ YUI({
 	 * replaced with their mini markdown code
 	 */
 	mmdDecode = function(s){
-		Y.log('got string to decode: ' + s);
+		//Y.log('got string to decode: ' + s);
 		var ret, em = /(\<em>|\<\/em>)/g;
 		var bold = /(\<strong>|\<\/strong>)/g;
 		ret = s.replace(em, '_');
-		Y.log('ret: ' + ret, 'warn');
+		//Y.log('ret: ' + ret, 'warn');
 		ret = ret.replace(bold, '**');
 		
 		return ret;
@@ -1094,7 +1094,7 @@ YUI({
 	 */
 	incrementVoteCounter = function(qid) {
 		var ret;
-		Y.log('qid: ' + qid, 'warn');
+		//Y.log('qid: ' + qid, 'warn');
 		if (!oVotes.hasOwnProperty(qid)) {
 			
 			oVotes[qid] = 1;
@@ -1102,11 +1102,11 @@ YUI({
 		} else {
 
 			oVotes[qid] = (oVotes[qid] + 1);
-			// Y.log('new count: ' + oVotes[qid]);
+			// //Y.log('new count: ' + oVotes[qid]);
 		}
 
 		ret = (oVotes[qid] < 5);
-		// Y.log('ret: ' + ret);
+		// //Y.log('ret: ' + ret);
 		return ret;
 	}, //
 
@@ -1172,10 +1172,10 @@ YUI({
 	 */
 	initGfcSignup = function(){
 		if ((typeof google === 'undefined') || !google.friendconnect) {
-			Y.log('No google or google.friendconnect', 'error');
+			//Y.log('No google or google.friendconnect', 'error');
 			return;
 		}
-		Y.log('have google and google.friendconnect');
+		//Y.log('have google and google.friendconnect');
 		google.friendconnect.requestSignIn();
 		
 		return;
@@ -1189,14 +1189,14 @@ YUI({
 	 */
 	storeReadEtag = function(){
 		var sKey, uid, etag = getMeta('etag'), qid, uid;
-		Y.log('314 etag: ' + etag);
+		//Y.log('314 etag: ' + etag);
 		if(etag){
 			qid = getMeta('qid');
 			if(qid){
 				uid = getViewerId();
 				etag = parseInt(etag, 10);
 				sKey = 'q-' + qid + '_' + uid;
-				Y.log('adding etag ' + etag + ' for key ' + sKey );
+				//Y.log('adding etag ' + etag + ' for key ' + sKey );
 				Y.StorageLite.setItem(sKey, etag);
 			}
 		}
@@ -1211,12 +1211,12 @@ YUI({
 	setReadLinks = function(){
 		var uid, eDivs, stored, oStorage = Y.StorageLite, eQlist = Y.one('.qlist');
 		if(!eQlist){
-			Y.log('not on this page');
+			//Y.log('not on this page');
 			return;
 		}
 		eDivs = eQlist.all('.qs');
 		if(!eDivs || eDivs.size() == 0){
-			Y.log('no divs .qs');
+			//Y.log('no divs .qs');
 			return;
 		}
 		uid = getViewerId();
@@ -1224,22 +1224,22 @@ YUI({
 		eDivs.each(function(){
 			var qid, etag, stored, span;
 			qid = this.get('id');
-			Y.log('qid: ' + qid);
+			//Y.log('qid: ' + qid);
 			etag = this.getAttribute('lampcms:i_etag');// + 0;
-			Y.log('etag: ' + etag);			
+			//Y.log('etag: ' + etag);			
 			etag = parseInt(etag, 10);
-			Y.log('etag of item on page: ' + etag, 'warn');
+			//Y.log('etag of item on page: ' + etag, 'warn');
 			/*if(!etag){
 				etag = 0;
 			}*/
 			
 			stored = oStorage.getItem(qid + '_' + uid);
 			
-			Y.log('stored for key: ' +qid+ ' is: ' + Y.dump(stored), 'warn');
+			//Y.log('stored for key: ' +qid+ ' is: ' + Y.dump(stored), 'warn');
 			if(stored){
-				Y.log('have item for this question for this user: ' + stored);
+				//Y.log('have item for this question for this user: ' + stored);
 				if(stored == etag){
-					Y.log('this is read item ' + qid);
+					//Y.log('this is read item ' + qid);
 					this.one('a.ql').addClass('read');	
 					span = this.one('span.ru');
 					if(span){
@@ -1264,23 +1264,23 @@ YUI({
 		curStatus = (el.test('.unread')) ? 'unread' : 'read';
 		qsDiv = el.ancestor("div.qs");
 		qid = qsDiv.get('id');
-		Y.log('qid: ' + qid + ' uid: ' + uid);
+		//Y.log('qid: ' + qid + ' uid: ' + uid);
 		link = qsDiv.one('a.ql');
-		Y.log('link: ' + link);
+		//Y.log('link: ' + link);
 		etag = qsDiv.getAttribute('lampcms:i_etag');// + 0;
-		Y.log('etag: ' + etag);			
+		//Y.log('etag: ' + etag);			
 		etag = parseInt(etag, 10);
-		Y.log('etag of item on page: ' + etag, 'warn');
+		//Y.log('etag of item on page: ' + etag, 'warn');
 		sKey = qid + '_' + uid;
 		if('unread' == curStatus){
 			link.removeClass('unread').addClass('read');
 			el.removeClass('unread').addClass('read').set('title', 'No Unread items. Click to toggle status');
-			Y.log('adding etag ' + etag + ' for key ' + sKey );
+			//Y.log('adding etag ' + etag + ' for key ' + sKey );
 			Y.StorageLite.setItem(sKey, etag);
 		} else {
 			link.removeClass('read').addClass('unread');
 			el.removeClass('read').addClass('unread').set('title', 'Unread items. Click to toggle status');
-			Y.log('removing etag for key' + sKey );
+			//Y.log('removing etag for key' + sKey );
 			Y.StorageLite.removeItem(sKey);
 		}
 		
@@ -1330,22 +1330,22 @@ YUI({
 	 */
 	handleLikeComment = function(el){
 		var parent, likesdiv, likes, id = el.get('id');
-		Y.log('liked comment id: ' + id);
+		//Y.log('liked comment id: ' + id);
 		if(el.test('.thumbupon')){
-			Y.log('already liked this comment');
+			//Y.log('already liked this comment');
 			return;
 		}
 		el.addClass('thumbupon');
 		id = id.substr(7);
-		Y.log('processing like count for comment: ' + id);
+		//Y.log('processing like count for comment: ' + id);
 		
 		parent = el.ancestor("div");
-		Y.log('parent" ' + parent);
+		//Y.log('parent" ' + parent);
 		likesdiv = parent.next(".c_likes");
 		likes = likesdiv.get("text");
 		
 		likes = (!likes) ? 0 : parseInt(likes, 10);
-		Y.log('likes: ' + likes);
+		//Y.log('likes: ' + likes);
 		likesdiv.set("text",  (likes + 1));
 		Y.io('/index.php?a=likecomment&commentid=' + id);
 		
@@ -1357,7 +1357,7 @@ YUI({
 	 */
 	initFbInvite = function(target){
 		if (typeof FB === 'undefined') {
-			Y.log('No FB object', 'error');
+			//Y.log('No FB object', 'error');
 			return;
 		}
 
@@ -1365,7 +1365,7 @@ YUI({
 		var siteUrl = getMeta('site_url');
 		var siteDescription = target.get('title');
 		var caption = getMeta('site_description');
-		Y.log('target title: ' + siteDescription);
+		//Y.log('target title: ' + siteDescription);
 		FB.ui({
 			method : 'stream.publish',
 			message : 'I joined this site with Facebook Connect button. You should check it out too',
@@ -1382,9 +1382,9 @@ YUI({
 			user_message_prompt : 'Invite your Facebook Friends to join this site'
 		}, function(response) {
 			if (response && response.post_id) {
-				Y.log('Post was published to Wall');
+				//Y.log('Post was published to Wall');
 			} else {
-				Y.log('Post was not published to Walll', 'warn');
+				//Y.log('Post was not published to Walll', 'warn');
 			}
 		});
 	}, //
@@ -1395,7 +1395,7 @@ YUI({
 	handleModalForm = function(e){
 		var form = e.currentTarget;
 		e.halt();
-		Y.log('handleModalForm el is: ' + form);
+		//Y.log('handleModalForm el is: ' + form);
 		var cfg = {
 				method : 'POST',
 				form : {
@@ -1414,17 +1414,17 @@ YUI({
 	 * comment form
 	 */
 	handleCommentForm = function(e){
-		Y.log('handling handleCommentForm');
+		//Y.log('handling handleCommentForm');
 		
 		var body, numChars, form = e.currentTarget;
 		e.halt();
 		e.preventDefault();
-		Y.log('handleModalForm el is: ' + form);
+		//Y.log('handleModalForm el is: ' + form);
 		
 		body = form.one("textarea[name=com_body]");
 		numChars = body.get("value").length;
 		if (body && (numChars < 10 )) {
-			Y.log('comment form body too short');
+			//Y.log('comment form body too short');
 			alert('Comment must be at least 10 characters long');
 			return;
 		}
@@ -1461,7 +1461,7 @@ YUI({
 		fbcookie, //
 		el = e.currentTarget,
 		target = e.target;
-		Y.log('el is ' + el + ' id is: ' + el.get('id') + ' target: ' + target);
+		//Y.log('el is ' + el + ' id is: ' + el.get('id') + ' target: ' + target);
 		id = el.get('id');
 		//e.halt();
 		//e.preventDefault();
@@ -1497,13 +1497,13 @@ YUI({
 			break;
 			
 		case el.test('.gfcsignin'):
-			Y.log('clicked gfcsignin');
+			//Y.log('clicked gfcsignin');
 			initGfcSignup();
 			break;
 			
 		case el.test('.twsignin'):
-			Y.log('clicked on twsignin.');
-			Y.log('Twitter: ' + Twitter);
+			//Y.log('clicked on twsignin.');
+			//Y.log('Twitter: ' + Twitter);
 			Twitter.startDance();
 			break;
 			
@@ -1514,7 +1514,7 @@ YUI({
 			break;
 			
 		case (id == 'gfcinvite'):
-			Y.log('clicked on gfcinvite.');
+			//Y.log('clicked on gfcinvite.');
 			if((typeof google !=='undefined') && google.friendconnect){
 				google.friendconnect.requestInvite();
 			}
@@ -1531,27 +1531,27 @@ YUI({
 			
 		case (id === 'logout'):
 			e.preventDefault();
-			Y.log('clicked logout');
+			//Y.log('clicked logout');
 
 			if(typeof FB !== 'undefined'){
-				Y.log('has FB');
+				//Y.log('has FB');
 				fbappid = getMeta('fbappid');
-				Y.log('fbappid: ' + fbappid);
+				//Y.log('fbappid: ' + fbappid);
 				FB.logout(function(response) {
-					Y.log('FB response ' + response);
+					//Y.log('FB response ' + response);
 				});
 				if (fbappid) {
 					fbcookie = "fbs_" + fbappid;
-					Y.log('fbcookie: ' + fbcookie);
+					//Y.log('fbcookie: ' + fbcookie);
 					Y.Cookie.remove(fbcookie);
 				}
 			}
 			
 			if((typeof google !=='undefined') && google.friendconnect){
-				Y.log('has GFC for logout');
+				//Y.log('has GFC for logout');
 				if (!window.gfc_timesloaded) {
 				      window.gfc_timesloaded = 1;
-				      Y.log('requesting gfc signout');
+				      //Y.log('requesting gfc signout');
 				      google.friendconnect.requestSignOut();
 				      /**
 				       * Must logout NOW!
@@ -1569,7 +1569,7 @@ YUI({
 				      window.gfc_timesloaded++;
 				    }
 				    if (window.gfc_timesloaded > 1) {
-				    	Y.log('gfc_timesloaded > 1');
+				    	//Y.log('gfc_timesloaded > 1');
 				     //window.top.location.href = "/index.php?a=logout";
 				    }
 
@@ -1671,7 +1671,7 @@ YUI({
 					}
 				} else {
 					restype = (ancestor.test('.question')) ? 'q' : 'a';
-				    Y.log('restype: ' + restype + ' resID: ' + resID);
+				    //Y.log('restype: ' + restype + ' resID: ' + resID);
 				    window.location.assign('/index.php?a=edit&rid='+resID+'&rtype='+restype);
 					}
 				}
@@ -1705,14 +1705,14 @@ YUI({
 	 */
 	handlePagination = function(el){
 		var href, answers = Y.one(".paginated");
-		Y.log('el name: ' + el.get('tagName'));
+		//Y.log('el name: ' + el.get('tagName'));
 		if(!el.hasAttribute('href')){
-			Y.log('723 no href');
+			//Y.log('723 no href');
 			return;
 		}
 
 		href = el.getAttribute('href');
-		Y.log('href: ' + href);
+		//Y.log('href: ' + href);
 		if(answers){
 			showLoading(answers);
 			Y.io(href);			
@@ -1736,23 +1736,23 @@ YUI({
 		qid = getMeta('qid'), 
 		qtype = Y.one("#qtypes"),
 		answers = Y.one(".paginated");
-		Y.log('sortby: ' + sortby);
+		//Y.log('sortby: ' + sortby);
 		if(el.test(".qtype_current")){
-			Y.log('Clicked on already current tab. No soup for you');
+			//Y.log('Clicked on already current tab. No soup for you');
 			return;
 		}
 
 		curTab = el.ancestor("div").one(".qtype_current");
-		Y.log('curTab: ' + curTab);
+		//Y.log('curTab: ' + curTab);
 		if(curTab){
 			curTabId = curTab.get("id");
-			Y.log('curTabId: ' + curTabId);
+			//Y.log('curTabId: ' + curTabId);
 			if(!oCTabs.hasOwnProperty(curTabId)){
-				Y.log('adding current contents of .paginated to oCAnsers');
+				//Y.log('adding current contents of .paginated to oCAnsers');
 				eTab = Y.one(".sortable");
-				Y.log('eTab: ' + eTab);
+				//Y.log('eTab: ' + eTab);
 				oCTabs[curTabId] = eTab.getContent();
-				//Y.log('oCTabs[curTabId] now: ' + oCTabs[curTabId]);
+				////Y.log('oCTabs[curTabId] now: ' + oCTabs[curTabId]);
 			}
 		}
 		/**
@@ -1771,14 +1771,14 @@ YUI({
 		 * fetch it via XHR
 		 */
 		if(oCTabs.hasOwnProperty(sortby) && oCTabs[sortby].length > 0){
-			Y.log('Youth gots it already');
+			//Y.log('Youth gots it already');
 			answers.setContent(oCTabs[sortby]);
 			foldGroup.fetch();
 		} else {
 			showLoading(answers);
-			Y.log('after setting form qid: ' + qid);
+			//Y.log('after setting form qid: ' + qid);
 			href = el.getAttribute('href');
-			Y.log('href: ' + href);			
+			//Y.log('href: ' + href);			
 			href = ('#' === href) ? '/index.php?a=getanswers&qid='+qid+'&sort=' + sortby : href;
 			Y.io(href, {'arguments' : {'sortby' : sortby}});
 			
@@ -1792,22 +1792,22 @@ YUI({
 		if(!ensureLogin()){
 			return;
 		}
-		Y.log('el: ' + el);
+		//Y.log('el: ' + el);
 		el.removeClass('unfollow');
 		var title, controls, id, resID, ftype = 'q', follow = 'on', form, //
 		oLabels = {'q' : 'question', 'u' : 'user', 't' : 'tag'};
 		resID = el.getAttribute('lampcms:follow');
 		ftype = el.getAttribute('lampcms:ftype');
-	    Y.log('resID ' + resID  + ' ftype: ' + ftype);
+	    //Y.log('resID ' + resID  + ' ftype: ' + ftype);
 		if(el.test('.following')){
 			// check if viewer is trying to unfollow own question
 			controls = Y.one('#res_' + resID);
-			Y.log('controls: ' + controls);
+			//Y.log('controls: ' + controls);
 			if(controls){
-				Y.log('got controls for qid: ' + resID);
+				//Y.log('got controls for qid: ' + resID);
 				if(controls.test('.uid-' + getViewerId())){
 					if(!confirm('Are you sure you want to unfollow your own question?')){
-						Y.log('Unfollow cancelled');
+						//Y.log('Unfollow cancelled');
 						el.one('span.icoc').removeClass('del').addClass('check');
 						el.one('span.flabel').set('text', 'Following');
 						return;
@@ -1838,7 +1838,7 @@ YUI({
 			+ '<input type="hidden" name="token" value="'+ getToken() +'">';
 			
 			form=Y.one('body').appendChild(form);
-			Y.log('before setting form ');
+			//Y.log('before setting form ');
 			cfg = {
 					method : 'POST',
 					form : {
@@ -1846,9 +1846,9 @@ YUI({
 					}
 			};
 			
-			Y.log('after setting form ');
+			//Y.log('after setting form ');
 			request = Y.io('/index.php', cfg);
-			Y.log('request: ' + request);
+			//Y.log('request: ' + request);
 		
 		return;
 	},
@@ -1859,7 +1859,7 @@ YUI({
 	handleOver = function(e){
 		var sFlw = '<span class="icoc del">&nbsp;</span><span> Unfollow</span>',
 		el = e.currentTarget;
-		Y.log('mouseenter el: ' + el);
+		//Y.log('mouseenter el: ' + el);
 		switch (true){
 		case el.test('.following'):
 			if(!el.hasClass('unfollow')){
@@ -1879,7 +1879,7 @@ YUI({
 	handleOut = function(e){
 		var sFlw = '<span class="icoc check">&nbsp;</span><span> Following</span>',
 		el = e.currentTarget;
-		Y.log('mouseleave el: ' + el);
+		//Y.log('mouseleave el: ' + el);
 		switch (true){
 		case (el.test('.following')):
 			el.removeClass('unfollow');
@@ -1896,7 +1896,7 @@ YUI({
 		if(els){
 			//els.removeClass('hidden');
 			els.each(function(){
-				Y.log('revealing stuff. this is: ' + this);
+				//Y.log('revealing stuff. this is: ' + this);
 				/**
 				 * If element has class 'owner'
 				 * this means it should be revealed only to the
@@ -1905,13 +1905,13 @@ YUI({
 				 * where {ownerID} must match the ViewerID
 				 */
 				if(this.test('.owner')){
-					Y.log('got owner class');
+					//Y.log('got owner class');
 					if(this.test('.oid-' + getViewerId())){
-						Y.log('got owner matched viewer, revealing');
+						//Y.log('got owner matched viewer, revealing');
 						this.removeClass('hidden');
 					}
 				} else {
-					Y.log('no gots owner');
+					//Y.log('no gots owner');
 					this.removeClass('hidden');
 				}
 			});
@@ -1930,7 +1930,7 @@ YUI({
 			if(eNodes && (eNodes.size() > 0)){
 				eNodes.each(function(){
 					var parent = this.ancestor("div.qs");
-					Y.log('parent: '+parent);
+					//Y.log('parent: '+parent);
 					if(parent){
 						parent.addClass('followed_tag');
 					}
@@ -1960,16 +1960,16 @@ YUI({
 	 */
 	getFollowedTagsSelectors = function(){
 		var sel = '', numTags, eTags = Y.all("div#usrtags > div > span > a");
-		Y.log('eTags: ' + eTags);
+		//Y.log('eTags: ' + eTags);
 		if(eTags){
 			numTags = eTags.size();
-			Y.log('numTags: ' + numTags);
+			//Y.log('numTags: ' + numTags);
 			for(var i = 0; i<numTags; i+=1){
 				sel += 'div.t-' + eTags.item(i).get('text') + ',';
 			}
 			
 			sel = (sel.length > 0) ? sel.substring(0, sel.length - 1) : sel;
-			Y.log('sel: ' + sel);
+			//Y.log('sel: ' + sel);
 		}
 		
 		return sel;
@@ -1978,7 +1978,7 @@ YUI({
 	// A function handler to use for successful requests:
 	handleSuccess = function(ioId, o, args) {
 		hideLoading();
-		Y.log("args from Y.io: " + Y.dump(args));
+		//Y.log("args from Y.io: " + Y.dump(args));
 		var paginated, scoreDiv, comDivID, eDiv, eRepliesDiv, sContentType = Y.Lang.trim(o.getResponseHeader("Content-Type"));
 		if ('text/json; charset=UTF-8' !== sContentType) {
 			alert('Invalid Content-Type header: ' + sContentType);
@@ -1994,8 +1994,8 @@ YUI({
 			return;
 		}
 
-		Y.log('Content-Type: ' + sContentType, "info");
-		Y.log("The success handler was called.  Id: " + ioId + ".", "info", "example");
+		//Y.log('Content-Type: ' + sContentType, "info");
+		//Y.log("The success handler was called.  Id: " + ioId + ".", "info", "example");
 
 		/**
 		 * Parse json find 'replies' div under the comments div if not already
@@ -2027,7 +2027,7 @@ YUI({
 		}
 		
 		if(data.reload){
-			Y.log('have data.reload');
+			//Y.log('have data.reload');
 			if(data.reload > 0){
 				Y.later(data.reload, this, function(){
 					window.location.reload(true);
@@ -2038,7 +2038,7 @@ YUI({
 		}
 
 		if (data.formError) {
-			Y.log('Form Error: ' + data.formError);
+			//Y.log('Form Error: ' + data.formError);
 			/**
 			 * @todo write setFormError function to test if we have div with
 			 *       form_err id then set its innerHTML otherwise just alert
@@ -2061,11 +2061,11 @@ YUI({
 		
 		if(data.paginated){
 			if(args && args.sortby){
-				Y.log('have args and args.sortby');
+				//Y.log('have args and args.sortby');
 				oCTabs[args.sortby] = data.paginated;
 			}
 			paginated = Y.one(".paginated");
-			Y.log('paginated: ' + paginated);
+			//Y.log('paginated: ' + paginated);
 			paginated.setContent(data.paginated);
 			foldGroup.fetch();
 			return;
@@ -2073,8 +2073,8 @@ YUI({
 		
 		
 		if(data.comment && data.comment.res && data.comment.html){
-			Y.log('got comment');
-			//Y.log('com_wrap is: ' + Y.one('#comm_wrap_' + data.comment.res));
+			//Y.log('got comment');
+			////Y.log('com_wrap is: ' + Y.one('#comm_wrap_' + data.comment.res));
 			/**
 			 * If data.comment has id 
 			 * and div with comment-id exists
@@ -2082,7 +2082,7 @@ YUI({
 			 * otherwise it is a new comment
 			 */
 			if(data.comment.id && Y.one('#comment-' + data.comment.id)){
-				Y.log('this is an edit');
+				//Y.log('this is an edit');
 				Y.one('#comment-' + data.comment.id).replace(data.comment.html);
 			} else {
 				Y.one('#comm_wrap_' + data.comment.res).remove();
@@ -2094,9 +2094,9 @@ YUI({
 		}
 
 		if (data.vote && data.vote.hasOwnProperty('v') && data.vote.rid) {
-			Y.log(data.vote.rid);
+			//Y.log(data.vote.rid);
 			scoreDiv = Y.one('#score' + data.vote.rid);
-			Y.log('scoreDiv ' + scoreDiv);
+			//Y.log('scoreDiv ' + scoreDiv);
 
 			if (scoreDiv) {
 				scoreDiv.set('innerHTML', data.vote.v);
@@ -2142,16 +2142,16 @@ YUI({
 			if(o.hasOwnProperty(field)){
 				eErr = (Y.one("#" + field + "_e"));
 				if(eErr){
-					Y.log('got err: ' + eErr);
+					//Y.log('got err: ' + eErr);
 					eErr.set('text', o[field]);
 				} else{
-					Y.log('no element eErr, looking for .form_error');
+					//Y.log('no element eErr, looking for .form_error');
 					eFormErr = Y.one(".form_error");
 					if(eFormErr){
-						Y.log('youth gots eFormErr: ' + eFormErr);
+						//Y.log('youth gots eFormErr: ' + eFormErr);
 						eFormErr.set('text', o[field]);
 					} else {
-						Y.log('no gots eFormErr, alerting');
+						//Y.log('no gots eFormErr, alerting');
 						alert(o[field]);
 					}
 				}
@@ -2161,7 +2161,7 @@ YUI({
 
 	handleFailure = function(ioId, o) {
 		hideLoading();
-		Y.log("The failure handler was called.  Id: " + ioId + ".", "info", "example");
+		//Y.log("The failure handler was called.  Id: " + ioId + ".", "info", "example");
 		alert('Error occured. Server returned status ' + o.status + ' response: ' + o.statusText);
 	};
 
@@ -2176,12 +2176,12 @@ YUI({
 	var MysubmitForm = function(e) {
 		
 		var mbody, title, tags, reason, form = e.currentTarget;
-		Y.log('starting MysubmitForm');
-		Y.log('form is: ' + form);
+		//Y.log('starting MysubmitForm');
+		//Y.log('form is: ' + form);
 
 		title = form.one("#id_title");
 		if (title && (10 > title.get("value").length)) {
-			Y.log('title too short');
+			//Y.log('title too short');
 			alert('Please enter a descriptive title at least 10 characters long');
 			e.halt();
 			return;
@@ -2217,7 +2217,7 @@ YUI({
 		 */
 		//mbody = mbody.replace(/"codepreview"/g, '"code"');
 		if (mbody.length < 10) {
-			Y.log('body too short');
+			//Y.log('body too short');
 			alert('Questions and answers must be at least 10 characters long');
 			e.halt();
 			return;
@@ -2232,7 +2232,7 @@ YUI({
 		 */
 		form.one("textarea[name=qbody]").set("value", mbody);
 		
-		Y.log('1117 mbody: ' + mbody);
+		//Y.log('1117 mbody: ' + mbody);
 
 		var cfg = {
 			method : 'POST',
@@ -2247,7 +2247,7 @@ YUI({
 		}
 		
 		var request = Y.io('/index.php', cfg);
-		Y.log('request: ' + request);
+		//Y.log('request: ' + request);
 		
 		e.halt();
 		return false;
@@ -2422,7 +2422,7 @@ YUI({
 		});
 
 		
-		Y.log('doing some storage lite stuff ' + !Y.one('#iedit'));
+		//Y.log('doing some storage lite stuff ' + !Y.one('#iedit'));
 		if(!Y.one('#iedit')){
 		Y.later(5000, editor, function() {
 				if (editor.editorDirty) {
@@ -2529,12 +2529,12 @@ YUI({
 		var oAlert, form, oTags, sTags = '';
 		if(ensureLogin()){
 			oTags = Y.all('td.td_question > div.tgs a');
-			Y.log('oTags count: ' + oTags.size());
+			//Y.log('oTags count: ' + oTags.size());
 			oTags.each(function(){
 				sTags += this.get('text') + ' ';
 			});
 			sTags = Y.Lang.trimRight(sTags);
-			Y.log('sTags: ' + sTags);
+			//Y.log('sTags: ' + sTags);
 			
 		form = '<div id="div_flag" style="text-align: left">'
 + '<form name="form_flag" id="id_flag" action="/index.php">'
@@ -2567,7 +2567,7 @@ YUI({
 				+ '<input type="hidden" name="token" value="'+ getToken() +'">';
 				
 				f=comment.appendChild(myform);
-				Y.log('f is: ' + f);
+				//Y.log('f is: ' + f);
 				cfg = {
 					method : 'POST',
 					form : {
@@ -2577,7 +2577,7 @@ YUI({
 				};
 				
 	            request = Y.io('/index.php', cfg);
-	            Y.log('request: ' + request);
+	            //Y.log('request: ' + request);
 				comment.hide('fadeOut');
 				
 				Y.later(1000, comment, function(){
@@ -2623,13 +2623,13 @@ YUI({
 	var showCommentForm = function(el){
 		var form, reputation, resID;
 		reputation = getReputation();
-		Y.log('el: ' + el + 'reputation: ' + reputation);
-		Y.log('rid' + el.get('id'));
+		//Y.log('el: ' + el + 'reputation: ' + reputation);
+		//Y.log('rid' + el.get('id'));
 		if(ensureLogin()){
 		if( isModerator() || (reputation > 0) || el.test('.uid-' + getViewerId())){
 			resID = el.get('id');
 		    resID = resID.substr(8);
-		    Y.log('resID ' + resID);
+		    //Y.log('resID ' + resID);
 		
 		    form = Y.one('#add-comment-' + resID);
 		    if(!form){
@@ -2680,14 +2680,14 @@ YUI({
 		 */
 		
 		wrapDiv = Y.one("#comment-" + resID);
-		Y.log('wrapDiv: ' + wrapDiv);
+		//Y.log('wrapDiv: ' + wrapDiv);
 		if(wrapDiv){
 			body = wrapDiv.one('.com_b');
 			content = body.get('innerHTML');
-			Y.log('body: ' + body);
-			Y.log('text: ' + content);
+			//Y.log('body: ' + body);
+			//Y.log('text: ' + content);
 			content = mmdDecode(content);
-			Y.log('1555 mmdDecoded: ' + content);
+			//Y.log('1555 mmdDecoded: ' + content);
 			
 			form = '<div id="comm_wrap_' + resID + '" class="fl cb">'
 	    	+ '<form action="/index.php" id="edit-comment-' + resID + '" class="comform" method="post">'
@@ -2713,7 +2713,7 @@ YUI({
 	
 	var showShredForm = function(uid){
 		var id = uid.substr(5);
-		Y.log('uid: ' +id);
+		//Y.log('uid: ' +id);
 		form = '<div id="div_del" style="text-align: left">'
 			+ '<form name="form_shred" id="id_shred" action="/index.php">'
 			+ '<input type="hidden" name="a" value="shred">'
@@ -2742,7 +2742,7 @@ YUI({
 	};
 	
 	var ensureLogin = function(bForceAlert){
-		Y.log('ensureLogin');
+		//Y.log('ensureLogin');
 		var message;
 		if(bForceAlert || !isLoggedIn()){
 			message = '<div class="larger"><p>You must login to perform this action</p>'
@@ -2773,11 +2773,11 @@ YUI({
 	
 	var getViewerId = function(){
 		var uid;
-		Y.log('starting getViewerId');
+		//Y.log('starting getViewerId');
 		if(null === viewerId){
-			Y.log('viewerId not set');
+			//Y.log('viewerId not set');
 			uid = getMeta('session_uid');
-			Y.log('uid: ' + uid);
+			//Y.log('uid: ' + uid);
 			viewerId = (!uid) ? 0 : parseInt(uid, 10);
 		}
 		
@@ -2791,7 +2791,7 @@ YUI({
 	var isLoggedIn = function() {
 		
 		var ret, uid = getViewerId();
-		Y.log('isLoggedIn uid: ' + uid);
+		//Y.log('isLoggedIn uid: ' + uid);
 		ret = (uid && (uid !== '') && (uid !== '0'));
 
 		return ret;
@@ -2841,11 +2841,11 @@ YUI({
 	var addAdminControls = function(){
 		
 		var controls = Y.all('div.controls');
-		Y.log('controls ' + controls);
+		//Y.log('controls ' + controls);
 		if(controls){
-			Y.log('adding adminControls');
+			//Y.log('adding adminControls');
 			controls.each(function(){
-				Y.log('this is: ' + this);
+				//Y.log('this is: ' + this);
 				if(this.test('.question')){
 					if(isModerator() || this.test('.uid-' + getViewerId()) || (500 < getReputation()) ){
 							this.append(' <span class="ico retag ajax" title="Retag this item">retag</span>');
@@ -2904,17 +2904,17 @@ YUI({
 	var isEditable = function(controls){
 		
 		var timeOfComment, timeDiff, maxDiff;
-		Y.log('controls passed to isEditable: ' + controls);
+		//Y.log('controls passed to isEditable: ' + controls);
 		
 		if(isModerator()){
-			Y.log('isEditable does not apply to moderators');
+			//Y.log('isEditable does not apply to moderators');
 			return true;
 		}
 		
 		maxDiff = getMeta('comments_timeout');
-		Y.log('maxDiff: ' + maxDiff);
+		//Y.log('maxDiff: ' + maxDiff);
 		if(!maxDiff){
-			Y.log('unable to resolve comments_timeout meta tag');
+			//Y.log('unable to resolve comments_timeout meta tag');
 			return true;
 		}
 		
@@ -2924,17 +2924,17 @@ YUI({
 		maxDiff = maxDiff * 60000;
 		timeOfComment = controls.one('div.com_ts').get('title');
 		if(!timeOfComment){
-			Y.log('unable to resolve timeOfComment meta tag');
+			//Y.log('unable to resolve timeOfComment meta tag');
 			return true;
 		}
 
 		timeOfComment = new Date(timeOfComment);
-		Y.log('timeOfComment: ' + timeOfComment);
+		//Y.log('timeOfComment: ' + timeOfComment);
 		timeDiff = (Date.now() - timeOfComment.getTime());
-		Y.log('timeDiff: ' +  timeDiff);
+		//Y.log('timeDiff: ' +  timeDiff);
 		
 		if(timeDiff > maxDiff){
-			Y.log('comment is older than maxDiff', 'warn');
+			//Y.log('comment is older than maxDiff', 'warn');
 			
 			return false;
 		}
@@ -2956,7 +2956,7 @@ YUI({
 		if (typeof FB !== 'undefined') {
 			FB.login(function(response) {
 				if (response.session) {
-					Y.log('FB Signed in');
+					//Y.log('FB Signed in');
 					if (response.perms) {
 						// user is logged in and granted some
 						// permissions.
@@ -3019,17 +3019,17 @@ YUI({
 	
 	var getMeta = function(metaName, asNode){
 		var ret, node;	
-		Y.log('looking for meta: ' + metaName + ' oMetas ' + oMetas);
+		//Y.log('looking for meta: ' + metaName + ' oMetas ' + oMetas);
 		if(!oMetas[metaName]){
 			node = Y.one('meta[name=' + metaName +']');
-			Y.log('meta node for meta ' + metaName+ ' is: ' + node);
+			//Y.log('meta node for meta ' + metaName+ ' is: ' + node);
 			oMetas[metaName] = node;
 		} else {
-			Y.log('meta is already resolved to ' + oMetas[metaName], 'info');
+			//Y.log('meta is already resolved to ' + oMetas[metaName], 'info');
 		}
 		
 		if(!oMetas[metaName]){
-			Y.log('no value in oMetas.metaName for ' + metaName);
+			//Y.log('no value in oMetas.metaName for ' + metaName);
 			return false;
 		}
 		
@@ -3038,7 +3038,7 @@ YUI({
 		} 
 		
 		ret = oMetas[metaName].get('content');
-		Y.log('ret: ' + ret);
+		//Y.log('ret: ' + ret);
 		
 		return ret;
 		
@@ -3072,7 +3072,7 @@ YUI({
 			 * Start the oAuth login process by opening the popup window
 			 */
 			startDance : function() {
-				Y.log('1084 starting oAuth dance this is: ' + this, 'window'); // Object Twitter
+				//Y.log('1084 starting oAuth dance this is: ' + this, 'window'); // Object Twitter
 				var popupParams = 'location=0,status=0,width=800,height=450,alwaysRaised=yes,modal=yes', mydomain = window.location.hostname;
 
 
@@ -3114,7 +3114,7 @@ YUI({
 				}
 
 				this.oInterval = window.setInterval(this.checkLogin, 500);
-				Y.log('1085 this.oInterval ' + this.oInterval, 'warn');
+				//Y.log('1085 this.oInterval ' + this.oInterval, 'warn');
 			},
 
 			/**
@@ -3124,7 +3124,7 @@ YUI({
 			 * to see if session now has user object
 			 */
 			checkLogin : function() {
-				Y.log('Checking login. this is ' + this, 'window'); // this is object Window
+				//Y.log('Checking login. this is ' + this, 'window'); // this is object Window
 
 				var transaction, cObj;
 
@@ -3149,9 +3149,9 @@ YUI({
 			 */
 			cancelIntervals : function() {
 
-				Y.log('Cancellng pending intervals this: ' + this, 'window');
+				//Y.log('Cancellng pending intervals this: ' + this, 'window');
 				if (this.oInterval) {
-					Y.log(' 1131 killing interval');
+					//Y.log(' 1131 killing interval');
 					window.clearInterval(this.oInterval);
 					this.oInterval = null;
 				}
@@ -3204,14 +3204,14 @@ YUI({
 	 
 	 
 	 if(Y.one('#regdiv')) {
-            Y.log('have regdiv');
+            //Y.log('have regdiv');
 			dnd = Y.Cookie.get("dnd");
-			Y.log('dnd: ' + dnd);
+			//Y.log('dnd: ' + dnd);
 			/**
 			 * Don't show regform if use has 'dnd' (do not disturb) cookie
 			 */
 			if (!dnd) {
-				Y.log('going to show regform');
+				//Y.log('going to show regform');
 				oSL.Regform.getInstance().show();
 			}
 		}

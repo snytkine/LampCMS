@@ -178,6 +178,7 @@ class Viewquestion extends WebPage
 		->setAnswerForm()
 		->makeFollowButton()
 		->setQuestionInfo()
+		->addFollowersBlock()
 		->setFooter()
 		->increaseView()
 		->makeTopTabs();
@@ -190,6 +191,18 @@ class Viewquestion extends WebPage
 
 		$this->aPageVars['side'] .= QuestionInfo::factory($this->oRegistry)->getHtml($this->oQuestion);
 
+		return $this;
+	}
+	
+	
+	protected function addFollowersBlock(){
+		$aFlwrs = $this->oQuestion['a_uids'];
+		if(count($aFlwrs) > 0){
+			$s = \Lampcms\ShowFollowers::factory($this->oRegistry)->getQuestionFollowers($aFlwrs, $this->oQuestion['i_flwrs']);
+			d('followers: '.$s);
+			$this->aPageVars['side'] .= '<div class="fr cb w90 lg rounded3 pl10 mb10">'.$s.'</div>';
+		}
+		
 		return $this;
 	}
 

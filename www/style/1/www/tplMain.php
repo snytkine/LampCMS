@@ -88,7 +88,7 @@ class tplMain extends Lampcms\Template\Template
 	'layoutID' => '1', // 32
 	'role' => 'guest', // 33
 	'rep' => '1', // 34
-	'JS_PREFIX' => '', //35
+	'JS' => '', //35
 	'show_comments' => '5', //36
 	'comments_timeout' => '5',//37
 	'max_comments' => '0', // 38
@@ -172,7 +172,7 @@ class tplMain extends Lampcms\Template\Template
 %20$s
 <div id="lastdiv" class="delegate"></div>
 %13$s
-<script type="text/javascript" src="%35$s/js/min/qa_%39$s.js"></script>
+<script type="text/javascript" src="%35$s"></script>
 <!-- GFC JS -->
 %21$s
 %22$s

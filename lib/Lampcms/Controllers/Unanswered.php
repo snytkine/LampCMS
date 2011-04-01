@@ -83,7 +83,7 @@ class Unanswered extends Viewquestions
 
 	protected $aTags;
 
-	
+
 	/**
 	 * Select items according to conditions passed in GET
 	 * Conditions can be == 'unanswered', 'hot', 'recent' (default)
@@ -137,6 +137,7 @@ class Unanswered extends Viewquestions
 				 */
 
 				$this->makeFollowTagButton();
+
 				$this->counterTaggedText = \tplCounterblocksub::parse(array(str_replace(' ', ' + ', $this->oRequest['tags']), 'Tagged'), false);
 				break;
 
@@ -164,11 +165,23 @@ class Unanswered extends Viewquestions
 		return $this;
 	}
 
-	
+
+
+	protected function addTagFollowers(){
+
+		d('adding tag followers');
+		$s = \Lampcms\ShowFollowers::factory($this->oRegistry)->getTagFollowers($this->aTags[0]);
+		d('tag followers: '.$s);
+		$this->aPageVars['side'] .= '<div class="fr cb w90 lg rounded3 pl10 mb10">'.$s.'</div>';
+
+		return $this;
+	}
+
+
 	/**
 	 * Extract value of tags from
 	 * query string and turn into array
-	 * 
+	 *
 	 * @todo run value of Request through urldecode because
 	 * unicode tags would be percent-encoded in the url
 	 *
@@ -188,14 +201,14 @@ class Unanswered extends Viewquestions
 		return $this->aTags;
 	}
 
-	
+
 	/**
 	 * @todo translate word "Unanswered"
 	 *
 	 * @see wwwViewquestions::makeRecentTags()
 	 */
 	protected function makeRecentTags(){
-		
+
 		/**
 		 * If user is logged in AND
 		 * has 'followed tags' then don't use
@@ -220,8 +233,8 @@ class Unanswered extends Viewquestions
 		return $this;
 	}
 
-	
-	
+
+
 	protected function makeCounterBlock(){
 		$this->aPageVars['topRight'] = \tplCounterblock::parse(array($this->count, $this->title, $this->counterTaggedText), false);
 
@@ -249,7 +262,7 @@ class Unanswered extends Viewquestions
 		 * it's not clear which tag to follow
 		 *
 		 */
-		if(count($this->aTags) === 1){
+		if(1 === count($this->aTags)){
 			$tag = $this->aTags[0];
 			d('tag: '.$tag);
 
@@ -273,7 +286,12 @@ class Unanswered extends Viewquestions
 			}
 
 			$this->aPageVars['side'] = '<div class="fr cb w90 lg rounded3 pl10 mb10"><div class="follow_wrap">'.\tplFollowButton::parse($aVars, false).'</div></div>';
+
+			$this->addTagFollowers();
+
 		}
+
+
 
 		return $this;
 	}

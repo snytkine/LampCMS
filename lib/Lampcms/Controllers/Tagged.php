@@ -126,6 +126,8 @@ class Tagged extends Unanswered
 		return $this;
 	}
 
+	
+	
 	protected function makeRecentTags(){
 
 		/**

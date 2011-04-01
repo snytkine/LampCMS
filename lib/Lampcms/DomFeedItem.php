@@ -49,7 +49,7 @@
  *
  */
 
- 
+
 namespace Lampcms;
 
 
@@ -102,6 +102,13 @@ class DomFeedItem extends \DOMDocument
 	protected $aImages = array();
 
 	/**
+	 * Flag indicates to add rel=nofollow to all links
+	 *
+	 * @var bool
+	 */
+	protected $bNofollow = true;
+
+	/**
 	 * If img tags or link tags in the feed item
 	 * are not absolute (don't start with http)
 	 * then prefix them with this baseUri
@@ -137,7 +144,9 @@ class DomFeedItem extends \DOMDocument
 		return $this->intImgCount;
 	}
 
-
+	public function setNoFollow($bNoFollow = true){
+		$this->bNofollow = $bNoFollow;
+	}
 
 	/**
 	 * Factory method
@@ -161,6 +170,7 @@ class DomFeedItem extends \DOMDocument
 		$oDom->encoding = 'UTF-8';
 		$oDom->preserveWhiteSpace = true;
 		$oDom->recover = true;
+		$oDom->setNofollow($bAddNoFollow);
 
 		$sHtml = $oHtml->valueOf();
 
@@ -216,15 +226,14 @@ class DomFeedItem extends \DOMDocument
 
 		}
 
-		if($bAddNoFollow){
-			$oDom->setRelNofollow();
-		}
+		$oDom->setRelNofollow();
 
 		if($parseCodeTags){
 			$oDom->parseCodeTags();
 		}
 
 		$oDom->fixImgBaseUri();//->getImages();
+
 
 		return $oDom;
 	}
@@ -258,25 +267,25 @@ class DomFeedItem extends \DOMDocument
 
 		for($i = 0; $i < $numItems; $i += 1){
 			$node = $aCode->item($i);
-				
+
 			/**
 			 * Remove em tags by doing this:
 			 * replace 'em' nodes with their text values
 			 */
-				
+
 			/*$aEmNodes = $node->getElementsByTagName('em');
-			$numEm = $aEmNodes->length;
-			d('number of em elements inside this code: '.$numEm);
-			if($numEm > 0){
+			 $numEm = $aEmNodes->length;
+			 d('number of em elements inside this code: '.$numEm);
+			 if($numEm > 0){
 				$tempEm = array();
 				for($j =0; $j< $numEm; $j += 1){
-					$nodeEm = $aEmNodes->item($j);
-					$textVal = $nodeEm->nodeValue;
-					e('value of em tag: '.$textVal);
-					$textNode = $this->createTextNode($textVal);
+				$nodeEm = $aEmNodes->item($j);
+				$textVal = $nodeEm->nodeValue;
+				e('value of em tag: '.$textVal);
+				$textNode = $this->createTextNode($textVal);
 				}
-			}*/
-				
+				}*/
+
 			if(!$node->hasAttribute('rel')){
 				$node->setAttribute('rel', 'code');
 				$node->setAttribute('class', 'c');
@@ -302,7 +311,7 @@ class DomFeedItem extends \DOMDocument
 	{
 
 		$html = substr($this->saveXML($this->getElementsByTagName('div')->item(0)), 5, -6);
-		
+
 		return $html;
 	}
 
@@ -337,17 +346,18 @@ class DomFeedItem extends \DOMDocument
 	 */
 	public function setRelNofollow($bSetTargetBlank = true)
 	{
-		if(null !== $aLinks = $this->getAllLinks()){
-			for($i = 0; $i < $this->intLinksCount; $i += 1){
-				if($aLinks->item($i)->hasAttribute('href')){
-					$aLinks->item($i)->setAttribute('rel', 'nofollow');
-					if($bSetTargetBlank){
-						$aLinks->item($i)->setAttribute('target', '_blank');
+		if($this->bNofollow){
+			if(null !== $aLinks = $this->getAllLinks()){
+				for($i = 0; $i < $this->intLinksCount; $i += 1){
+					if($aLinks->item($i)->hasAttribute('href')){
+						$aLinks->item($i)->setAttribute('rel', 'nofollow');
+						if($bSetTargetBlank){
+							$aLinks->item($i)->setAttribute('target', '_blank');
+						}
 					}
 				}
 			}
 		}
-
 		return $this;
 	}
 
@@ -363,7 +373,7 @@ class DomFeedItem extends \DOMDocument
 		$Images = $this->getImages();
 
 		if(empty($this->baseUri)){
-			
+
 			return $this;
 		}
 
@@ -436,6 +446,81 @@ class DomFeedItem extends \DOMDocument
 
 		return $this->aImages;
 
+	}
+
+
+	public function makeClickable(\DomNode $o = null){
+		$o = ($o) ? $o : $this;
+		d("\n<br>Node name: ".$o->nodeName.' type: '.$o->nodeType.' value: '.$o->nodeValue);
+
+		$nodeName = strtolower($o->nodeName);
+		/**
+		 * Skip nodes that are already the "a" node (link)
+		 * and skip img tags just because they could not possibly
+		 * contain text nodes
+		 */
+		if(!in_array($nodeName, array('a', 'img'))){
+			if(XML_TEXT_NODE == $o->nodeType){
+				$this->linkifyTextNode($o);
+			}
+
+			$oChildred = $o->childNodes;
+			$len = ($oChildred) ? $oChildred->length : 0;
+			d(" len: $len ");
+			if($len > 0){
+				for($i = 0; $i<$len; $i+=1){
+					$this->makeClickable($oChildred->item($i));
+				}
+			}
+		}
+	}
+
+
+	protected function linkifyTextNode(\DomNode $o){
+		$text = $o->nodeValue;
+		$maxurl_len = 50;
+		$target = "_blank";
+
+		/**
+		 * If this value has something to linkify, then do it
+		 * and then replace this actual node with the new CDATASection
+		 * which will contain the parsed text
+		 */
+
+		/**
+		 * Do NOT match urls that may already be
+		 * the value of src or href inside the a or img tag
+		 * For simplicity we we match ONLY strings thank look like
+		 * url and DO NOT have " or ' before it.
+		 *
+		 */
+		if (preg_match_all('/((?<!([\"|\'\>]{1}))(ht|f)tps?:\/\/([\w\.]+\.)?[\w\-?&=;%#+]+(\.[a-zA-Z]{2,6})?[^\s\r\n\(\)"\'<>\,\!]+)/smi', $text, $urls))
+		{
+			$offset1 = ceil(0.65 * $maxurl_len) - 2;
+			$offset2 = ceil(0.30 * $maxurl_len) - 1;
+
+			$nofollow = (true === $this->bNofollow) ? ' rel="nofollow"' : '';
+			$aUrls = (array_unique($urls[1]));
+			d('aUrls: '.print_r($aUrls, 1));
+
+			foreach ($aUrls as $url){
+				$urltext = urldecode($url);
+				d('decoded: '.$urltext);
+				if ($maxurl_len && (strlen($decoded) > $maxurl_len)){
+					$urltext = substr($urltext, 0, $offset1) . '...' . substr($urltext, -$offset2);
+				}
+
+				$pattern = '~([^\w]+)'.preg_quote($url).'([^\w]+)~';
+
+				$text = preg_replace($pattern, '\\1<a href="'. $url .'" '.$nofollow.' target="'. $target .'">'. $urltext .'</a>\\2', $text);
+
+			}
+
+			$CDATA = $o->ownerDocument->createCDATASection($text);
+			$o->parentNode->appendChild($CDATA);
+			$o->parentNode->removeChild($o);
+
+		}
 	}
 
 
