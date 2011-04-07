@@ -124,6 +124,32 @@ class Responder
 
 
 	/**
+	 * Send out response to JSONP Request
+	 * by sending out application/javascript Content-Type header
+	 * and then string: callbackfunction with
+	 * JSON-encoded data as callback's argument
+	 * and then calling fastcgi_finish_request();
+	 * and exit;
+	 *
+	 * @param array $aJSON
+	 * @param string $callback
+	 * @throws \InvalidArgumentException
+	 */
+	public static function sendJSONP(array $aJSON, $callback){
+		if(!is_string($callback)){
+			throw new \InvalidArgumentException('$callback must be a string. Was: '.gettype($callback));
+		}
+	
+		header("HTTP/1.1 200 OK");
+		header("Content-Type: application/javascript; charset=UTF-8");
+
+		echo $callback.'('.json_encode($aJSON).')';
+		fastcgi_finish_request();
+		exit;
+	}
+
+
+	/**
 	 * Outputs html page
 	 * that includes ONLY javascript
 	 * that contains json encoded array or data

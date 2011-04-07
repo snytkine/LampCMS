@@ -49,18 +49,18 @@
  *
  */
 
- 
+
 class tplOneFollower extends Lampcms\Template\Template
 {
-	
-protected static function func(&$a){
+
+	protected static function func(&$a){
 
 		if(empty($a['avatar']) && !empty($a['avatar_external'])){
 			$a['avatar'] = $a['avatar_external'];
 		}
 
 		if(empty($a['avatar']) && !empty($a['gravatar']) && !empty($a['email'])){
-			$a['avatar'] = $a['gravatar']['url'].hash('md5', $a['email']).'?s='.$a['gravatar']['size'].'&d='.$a['gravatar']['fallback'].'&r='.$a['gravatar']['rating'];
+			$a['avatar'] = $a['gravatar']['url'].hash('md5', $a['email']).'?s=36'.'&d='.$a['gravatar']['fallback'].'&r='.$a['gravatar']['rating'];
 		}
 
 		if(empty($a['avatar'])){
@@ -73,27 +73,22 @@ protected static function func(&$a){
 
 		$displayName = $fn.' '.$mn. ' '.$ln;
 		$a['displayName'] = (strlen($displayName) > 2) ? $displayName : $a['username'];
-
-		//$lastActive = (!empty( $a['i_lm_ts'])) ?  $a['i_lm_ts'] : $a['i_reg_ts'];
-		//$registered = $a['i_reg_ts'];
-		//$a['since'] = \Lampcms\TimeAgo::format(new \DateTime(date('r', $registered)));
-		//$a['last_seen'] = \Lampcms\TimeAgo::format(new \DateTime(date('r', $lastActive)));
-
 	}
-	
+
 	protected static $vars = array(
 	'_id' => '', //1
 	'displayName' => '', //2
 	'i_rep' => '',  //3
 	'avatar' => '', //4
 	'username' => '', //5
-	'since' => '' //6
+	'since' => '', //6
+	'follow_type' => 'flwr' // 7
 	);
-	
-	
+
+
 	protected static $tpl = '
-	<div class="fl f2">
-	<a href="/users/%1s/%5$s" class="ttt" title="%2$s |**%3$s**"><span class="avtr_bg imgloader" style=\'background-image:url("%4$s");\'>&nbsp;</span></a>
+	<div class="fl f2" id="%7$s_%1$s">
+		<a href="/users/%1s/%5$s" class="ttt" title="%2$s **%3$s**"><span class="avtr_bg imgloader" style=\'background-image:url("%4$s");\'>&nbsp;</span></a>
 	</div>';
-	
+
 }

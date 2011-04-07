@@ -60,6 +60,12 @@ use Lampcms\UserTagsBlock;
 use Lampcms\UserQuestions;
 use Lampcms\UserAnswers;
 
+/**
+ * Controller for the /users/$uid/$username page
+ *
+ * @author Dmitri Snytkine
+ *
+ */
 class Userinfo extends WebPage
 {
 

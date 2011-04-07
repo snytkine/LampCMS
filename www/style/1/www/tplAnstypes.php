@@ -66,8 +66,8 @@ class tplAnstypes extends Lampcms\Template\Template
 
 	protected static $tpl = '
 	<div id="qtypes" class="sorttab cb fl reveal hidden">
-		<a id="i_lm_ts" href="#" class="ajax sortans qtype%1$s ttt" title="%4$s"><span rel="in">%3$s</span></a>
-		<a id="i_ts" href="#" class="ajax sortans qtype%7$s ttt" title="%9$s"><span rel="in">%8$s</span></a>
-		<a id="i_votes" href="#" class="ajax sortans qtype%2$s ttt" title="%5$s"><span rel="in">%5$s</span></a>
+		<a id="i_lm_ts" href="#" class="ajax sortans qtype%1$s ttt2" title="%4$s"><span rel="in">%3$s</span></a>
+		<a id="i_ts" href="#" class="ajax sortans qtype%7$s ttt2" title="%9$s"><span rel="in">%8$s</span></a>
+		<a id="i_votes" href="#" class="ajax sortans qtype%2$s ttt2" title="%5$s"><span rel="in">%5$s</span></a>
 	</div>';
 }

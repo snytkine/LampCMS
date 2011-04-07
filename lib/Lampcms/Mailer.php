@@ -138,7 +138,7 @@ class Mailer extends LampcmsObject
 			throw new DevException('$to can be only string or array or object implementing Iterator. Was: '.gettype($to).' class: '.$class);
 		}
 
-		$aTo = (is_string($to)) ? (array)($to) : $to;
+		$aTo = (is_string($to)) ? (array)$to : $to;
 
 		$aHeaders = array();
 		$aHeaders['From'] = $this->from;
@@ -149,7 +149,7 @@ class Mailer extends LampcmsObject
 
 			$total = (is_array($aTo)) ? count($aTo) : $aTo->count();
 			d('total: '.$total);
-				
+
 			/**
 			 * @todo deal with breaking up
 			 * the long array/cursor into
@@ -213,12 +213,13 @@ class Mailer extends LampcmsObject
 					}
 
 					d('sending to: '.$to);
-						
-					if(true !== \mail($to, $subject, $body, $headers)){
+					$ER = error_reporting(0);
+					if(true !== @\mail($to, $subject, $body, $headers)){
 						if(function_exists('d')){
 							d('Server was unable to send out email at this time');
 						}
 					}
+					error_reporting($ER);
 				}
 			}
 
@@ -256,7 +257,7 @@ class Mailer extends LampcmsObject
 	 * @param string $func
 	 */
 	public function mailFromCursor(\MongoCursor $cur, $subject, $body, $func = null, $sendLater = false){
-		
+
 		/**
 		 * Cannot change anything in the cursor
 		 * Cannot just do the skip() and limit()
@@ -281,7 +282,9 @@ class Mailer extends LampcmsObject
 		 *
 		 */
 
-			
+		$cID = spl_object_hash($cur);
+		$body = $body ."\n\n_______\ncid: ".$cID."\n";
+
 		$aEmails = array();
 		foreach($cur as $a){
 
@@ -297,29 +300,31 @@ class Mailer extends LampcmsObject
 			if(function_exists('d')){
 				d('eEmails: '.print_r($aEmails, 1));
 			}
-				
-			/**
-			 *
-			 * @todo if count($aEmails) > 100 then formMail,
-			 * else just \mail()
-			 *
-			 * Right now we don't have such cgi-based scripts
-			 * that can accept the cache key
-			 * but it will be the next-best-solution
-			 * for a busy site
-			 * and the very best solution would be
-			 * to form the whole EmailNotifier methods
-			 * from the cgi script
-			 * and the super-advanced solution for
-			 * sites that have over 10,000 followers per topic
-			 * or per some users would be to
-			 * form the whole process on a remove server
-			 * This is something that we can code on request
-			 * as it is not worth the time for just an average site
-			 */
-			$this->mail($aEmails, $subject, $body, null, $sendLater);
 
+				
 		}
+
+		$aEmails = array_unique($aEmails);
+		/**
+		 *
+		 * @todo if count($aEmails) > 100 then formMail,
+		 * else just \mail()
+		 *
+		 * Right now we don't have such cgi-based scripts
+		 * that can accept the cache key
+		 * but it will be the next-best-solution
+		 * for a busy site
+		 * and the very best solution would be
+		 * to form the whole EmailNotifier methods
+		 * from the cgi script
+		 * and the super-advanced solution for
+		 * sites that have over 10,000 followers per topic
+		 * or per some users would be to
+		 * form the whole process on a remove server
+		 * This is something that we can code on request
+		 * as it is not worth the time for just an average site
+		 */
+		$this->mail($aEmails, $subject, $body, null, $sendLater);
 
 	}
 

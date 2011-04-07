@@ -72,7 +72,6 @@ class Getanswers extends Viewquestion
 	protected $oAnswers;
 	
 	protected function main(){
-		
 		$this->getQuestion()->getAnswers()->setReturn();
 	}
 	

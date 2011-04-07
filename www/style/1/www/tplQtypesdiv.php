@@ -63,8 +63,8 @@ class tplQtypesdiv extends Lampcms\Template\Template
 
 	protected static $tpl = '
 	<div id="qtypes">
-	<a href="/questions/" rel="nofollow" class="qtype%1$s" title="%5$s"><span rel="in">%4$s</span></a>
-	<a href="/voted/" rel="nofollow" class="qtype%2$s" title="%7$s"><span rel="in">%6$s</span></a>
-	<a href="/active/" rel="nofollow" class="qtype%3$s" title="%9$s"><span rel="in">%8$s</span></a>
+	<a href="/questions/" rel="nofollow" class="ttt2 qtype%1$s" title="%5$s"><span rel="in">%4$s</span></a>
+	<a href="/voted/" rel="nofollow" class="ttt2 qtype%2$s" title="%7$s"><span rel="in">%6$s</span></a>
+	<a href="/active/" rel="nofollow" class="ttt2 qtype%3$s" title="%9$s"><span rel="in">%8$s</span></a>
 	</div>';
 }

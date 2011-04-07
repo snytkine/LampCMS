@@ -85,6 +85,8 @@ class Bodytagger
 
 			$key = '/\b'.preg_quote($key).'\b/i';
 		});
+		
+		d('$aTags: '.print_r($aTags, 1));
 
 		$ret = preg_replace_callback($aTags, function($matches){
 			$tag = 'em';

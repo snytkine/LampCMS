@@ -55,6 +55,8 @@ namespace Lampcms\Controllers;
 use Lampcms\WebPage;
 use Lampcms\Paginator;
 use Lampcms\Template\Urhere;
+use Lampcms\Request;
+use Lampcms\Responder;
 
 /**
  * Controller for displaying page with
@@ -77,10 +79,17 @@ class Viewqtags extends Viewquestions
 	 */
 	protected $qtab = 'tags';
 
-
-	protected $pagerPath = '/tags';
+	protected $pagerPath = '/tags/name';
 
 	protected $PER_PAGE = 60;
+
+	/**
+	 * Pagination links on the page
+	 * will not be handled by Ajax
+	 *
+	 * @var bool
+	 */
+	protected $notAjaxPaginatable = false;
 
 	/**
 	 * Select items according to conditions passed in GET
@@ -88,8 +97,7 @@ class Viewqtags extends Viewquestions
 	 */
 	protected function getCursor(){
 
-
-		$aFields = array('tag', 'i_count', 'hts'); // array('_id' => false);
+		$aFields = array('tag', 'i_count', 'hts');
 
 		$cond = $this->oRequest->get('cond', 's', 'popular');
 		d('cond: '.$cond);
@@ -113,6 +121,8 @@ class Viewqtags extends Viewquestions
 			case 'popular':
 				$sort = array('i_count' => -1);
 				$this->title = 'Popular tags';
+				$this->pagerPath = '/tags/popular';
+				d('cp');
 				break;
 
 
@@ -128,6 +138,8 @@ class Viewqtags extends Viewquestions
 			case 'recent':
 				$this->title = 'Recent tags';
 				$sort = array('i_ts' => -1);
+				$this->pagerPath = '/tags/recent';
+				d('cp');
 				break;
 
 
@@ -153,15 +165,38 @@ class Viewqtags extends Viewquestions
 
 
 	/**
-	 * No cache headers for this page
+	 * No cache headers for this page but
+	 * if this is an ajax request then return
+	 * the html we have so far as it does not make
+	 * sense to process any further methods
+	 *
 	 * @see wwwViewquestions::sendCacheHeaders()
 	 */
-	protected function sendCacheHeaders(){}
+	protected function sendCacheHeaders(){
 
+		if(Request::isAjax()){
+			$sQdivs = \tplTagslist::loop($this->oCursor);
+			Responder::sendJSON(array('paginated' => '<div class="tags_wrap">'.$sQdivs.$this->pagerLinks.'</div>'));
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Make html block for
+	 * the top-right position
+	 * For this type of page it
+	 * does not actually contain any count, just
+	 * an informative text message
+	 *
+	 * (non-PHPdoc)
+	 * @see Lampcms\Controllers.Viewquestions::makeCounterBlock()
+	 */
 	protected function makeCounterBlock(){
 		/**
 		 * @todo
-		 * Translate this text
+		 * Translate string
 		 */
 		$text = 'Unique Tags';
 
@@ -172,6 +207,11 @@ class Viewqtags extends Viewquestions
 		return $this;
 	}
 
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Controllers.Viewquestions::makeQlistBody()
+	 */
 	protected function makeQlistBody(){
 
 		/**
@@ -182,11 +222,9 @@ class Viewqtags extends Viewquestions
 		 * the case normally as long as they are inserted using
 		 * the same class
 		 *
-		 * @var unknown_type
 		 */
 		$sQdivs = \tplTagslist::loop($this->oCursor);
-
-		$sQlist = \tplQlist::parse(array($this->typeDiv, $sQdivs, $this->pagerLinks), false);
+		$sQlist = \tplQlist::parse(array($this->typeDiv, $sQdivs.$this->pagerLinks, '', $this->notAjaxPaginatable), false);
 		$this->aPageVars['body'] = $sQlist;
 		/**
 		 * In case of Ajax can just send out sQlist as result

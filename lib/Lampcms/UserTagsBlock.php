@@ -56,6 +56,18 @@ class UserTagsBlock extends LampcmsObject
 {
 
 	/**
+	 * Maximum tags to show in user tags block
+	 * A very active user can have hundreds of tags, we
+	 * want to show only the 60
+	 * most popular tags for this user
+	 *
+	 *
+	 * @var int
+	 */
+	const MAX_TO_SHOW = 60;
+
+	
+	/**
 	 *
 	 * Renders block with user tags
 	 *
@@ -76,20 +88,28 @@ class UserTagsBlock extends LampcmsObject
 			return '';
 		}
 
-		$userTags = $aTags['tags'];
-		d('$userTags: '.print_r($userTags, 1));
+		$aUserTags = $aTags['tags'];
+		d('$aUserTags: '.print_r($aUserTags, 1));
 
+		$count = count($aUserTags);
+		//$blockTitle = $count.' tags';
+		$blockTitle = "User's most active tags";
+		if($count > self::MAX_TO_SHOW){
+			$aUserTags = array_slice($aUserTags, 0, self::MAX_TO_SHOW);
+			
+		}
 
 		$tags = '';
-		foreach($userTags as $tag => $count){
+		foreach($aUserTags as $tag => $count){
 			$tags .= \tplUserTag::parse(array($tag, $count), false);
 		}
+		
 		d('tags: '.$tags);
 
 		/**
 		 * @todo translate string
 		 */
-		$vals = array('count' => count($userTags), 'label' => 'tag', 'tags' => $tags);
+		$vals = array('count' => $blockTitle, 'label' => 'tag', 'tags' => $tags);
 		d('vals: '.print_r($vals, 1));
 
 		$ret = \tplUserTags::parse($vals)."<!-- // UserTagsBlock::get -->\n";

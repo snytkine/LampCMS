@@ -453,13 +453,21 @@ site %5$s and navigating to Settings > Email preferences
 		$aTags = $this->oQuestion['a_tags'];
 		$coll = $this->collUsers;
 		d('before shutdown function in TagFollowers');
-		register_shutdown_function(function() use($askerID, $oMailer, $subj, $body, $aTags, $coll){
+		
+		$func = function() use($askerID, $oMailer, $subj, $body, $aTags, $coll){
 			/**
-			 * Find all who follow any of the tags
+			 * Find all users who follow any of the tags
 			 * but not following the asker
-			 * and not themselve the asker //, 'e_ft' => array('$ne' => false)
+			 * and not themselve the asker //
 			 */
-			$cur = $coll->find(array('_id' => array('$ne' => $askerID),  'a_f_t' => array('$in' => $aTags ), 'a_f_u' => array('$nin' => array(0 => $askerID) ), 'ne_ft' => array('$ne' => true) ), array('email')  );
+			$where = array(
+				'_id' => array('$ne' => $viewerID ), 
+				'a_f_t' => array('$in' => $aTags ), 
+				'a_f_u' => array('$nin' => array(0 => $viewerID) ), 
+				'ne_ft' => array('$ne' => true) 
+			);
+			
+			$cur = $coll->find($where, array('email') );
 			$count = $cur->count();
 			if($count > 0){
 
@@ -472,7 +480,7 @@ site %5$s and navigating to Settings > Email preferences
 				/**
 				 * /**
 				 * , function($a){
-					if(!empty($a['email']) && (!array_key_exists('e_ft', $a) || false !== $a['e_ft'])){
+					if(!empty($a['email']) && (!array_key_exists('ne_ft', $a) || true !== $a['ne_ft'])){
 					return $a['email'];
 					}
 
@@ -485,7 +493,11 @@ site %5$s and navigating to Settings > Email preferences
 
 			}
 
-		});
+		};
+		
+		//$func();
+		
+		register_shutdown_function($func);
 
 		return $this;
 	}
@@ -522,8 +534,14 @@ site %5$s and navigating to Settings > Email preferences
 		$oMailer = new Mailer($this->oRegistry);
 		d('before shutdown function in UserFollowers');
 
-		register_shutdown_function(function() use($uid, $tpl, $updateType, $subj, $body, $coll, $oMailer){
-
+		/**
+		 * No need to pass $viewerID because
+		 * user already cannot possibly be following himself
+		 * so excluding ViewerID is pointless here
+		 */
+		
+		$func = function() use($uid, $tpl, $updateType, $subj, $body, $coll, $oMailer){
+			
 			$count = 0;
 			$cur = $coll->find(array('a_f_u' => $uid, 'ne_fu' => array('$ne' => true) ), array('email')  );
 			$count = $cur->count();
@@ -548,7 +566,10 @@ site %5$s and navigating to Settings > Email preferences
 				 */
 			}
 
-		});
+		};
+		
+		//$func();
+		register_shutdown_function($func);
 
 		return $this;
 	}
@@ -583,11 +604,20 @@ site %5$s and navigating to Settings > Email preferences
 		 * OR in can be extracted from $this->oQuestion
 		 *
 		 */
-		$qid = ($qid) ? (int)$qid : $this->oQuestion->getResourceId();
-		d('qid: '.$qid);
+		//$qid = ($qid) ? (int)$qid : $this->oQuestion->getResourceId();
+		//d('qid: '.$qid);
+
+		if($qid){
+			$oQuestion = new \Lampcms\Question($this->oRegistry);
+			$oQuestion->by_id((int)$qid);
+		} else {
+			$oQuestion = $this->oQuestion;
+		}
+
 		$updateType = ('onNewAnswer' === $this->eventName) ? 'answer' : 'comment';
 		$subj = sprintf(static::$QUESTION_FOLLOW_SUBJ, $updateType);
 		d('cp');
+
 		$siteUrl = $this->oRegistry->Ini->SITE_URL;
 
 		$username = ('answer' === $updateType) ? $this->obj['username']: $this->aInfo['username'];
@@ -597,6 +627,7 @@ site %5$s and navigating to Settings > Email preferences
 		$content = ('comment' === $updateType) ? "\n____\n".$this->aInfo['b']."\n" : '';
 		$body = vsprintf(static::$QUESTION_FOLLOW_BODY, array($username, $updateType, $this->oQuestion['title'], $url, $siteUrl, $content));
 		d('$body: '.$body);
+
 		$oMailer = new Mailer($this->oRegistry);
 		d('cp');
 		/**
@@ -607,47 +638,81 @@ site %5$s and navigating to Settings > Email preferences
 		d('before shutdown function for question followers');
 
 
-		register_shutdown_function(function() use($updateType, $viewerID, $qid, $updateType, $subj, $body, $coll, $oMailer, $excludeUid){
+		/**
+		 * Get array of followers for this question
+		 */
+		$aFollowers = $oQuestion['a_flwrs'];
 
-			/**
-			 * Find all users who follow this question
-			 * but not following the question asker and
-			 * are not themselves the viewer (a viewer may reply to
-			 * own question and we don't want to notify viewer of that)
-			 *
-			 * In case of comment we should not exclude
-			 * user followers because user followers are NOT
-			 * notified on user comment
-			 *
-			 */
-			if('comment' !== $updateType){	
-				$cur = $coll->find(array('a_f_q' => $qid, 'a_f_u' => array('$nin' => array(0 => $viewerID) ), '_id' => array('$ne' => $viewerID), '_id' => array('$ne' => $excludeUid), 'ne_fq' => array('$ne' => true) ), array('email')  );
-			} else {				
-				$cur = $coll->find(array('a_f_q' => $qid, '_id' => array('$ne' => $viewerID), '_id' => array('$ne' => $excludeUid), 'ne_fq' => array('$ne' => true) ), array('email')  );
-			}
-				
-			$count = $cur->count();
-
-			if($count > 0){
+		if(!empty($aFollowers)){
+			$func = function() use($updateType, $viewerID, $aFollowers, $updateType, $subj, $body, $coll, $oMailer, $excludeUid){
 
 				/**
-				 * Passing callback function
-				 * to exclude mailing to those who
-				 * opted out on Email On Followed Question
+				 * Remove $viewerID from aFollowers
+				 * Remove excludeID from aFollowers
+				 * Removing these userIDs from
+				 * the find $in condition is guaranteed to not
+				 * have these IDs in result and is much better
+				 * than adding extra $ne or $nin conditions
+				 * on these uids to find()
+				 *
 				 */
-				$oMailer->mailFromCursor($cur, $subj, $body);
+				if(false !== $key = array_search($viewerID, $aFollowers)){
+					array_splice($aFollowers, $key, 1);
+
+				}
+
+				if(!empty($excludeUid)){
+					if(false !== $key = array_search($excludeUid, $aFollowers)){
+						array_splice($aFollowers, $key, 1);
+					}
+				}
+
+				array_unique($aFollowers);
 
 				/**
-				 * , function($a){
-				 if(!empty($a['email']) && (!array_key_exists('e_fq', $a) || false !== $a['e_fq'])){
-				 return $a['email'];
-				 }
-
-				 return null;
-				 }
+				 * Find all users who follow this question
+				 * and
+				 * are not themselves the viewer (a viewer may reply to
+				 * own question and we don't want to notify viewer of that)
+				 *
+				 * In case of comment we should not exclude
+				 * user followers because user followers are NOT
+				 * notified on user comment
+				 *
 				 */
-			}
-		});
+				if('comment' !== $updateType){
+					$cur = $coll->find(array('_id' => array('$in' => $aFollowers), 'a_f_u' => array('$nin' => array(0 => $viewerID) ), 'ne_fq' => array('$ne' => true) ), array('email') );
+				} else {
+					$cur = $coll->find(array('_id' => array('$in' => $aFollowers), 'ne_fq' => array('$ne' => true) ), array('email')  );
+				}
+
+				$count = $cur->count();
+
+				if($count > 0){
+
+					/**
+					 * Passing callback function
+					 * to exclude mailing to those who
+					 * opted out on Email On Followed Question
+					 */
+					$oMailer->mailFromCursor($cur, $subj, $body);
+
+					/**
+					 * , function($a){
+					 if(!empty($a['email']) && (!array_key_exists('e_fq', $a) || false !== $a['e_fq'])){
+					 return $a['email'];
+					 }
+
+					 return null;
+					 }
+					 */
+				}
+			};
+			
+			//$func();
+			
+			register_shutdown_function($func);
+		}
 
 		return $this;
 	}

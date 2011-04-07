@@ -72,7 +72,7 @@ class FollowManager extends LampcmsObject
 	 * current Viewer object so that viewer will see that
 	 * he is not following the question anymore.
 	 *
-	 * @todo also update a_flwrs and i_flwrs count in Question? 
+	 * @todo also update a_flwrs and i_flwrs count in Question?
 	 * Maybe not
 	 * maybe ONLY i_flwrs
 	 *
@@ -81,7 +81,7 @@ class FollowManager extends LampcmsObject
 	 *
 	 * @todo experiment later with getting followers data
 	 * from the USERS collection during Question display
-	 * 
+	 *
 	 * This will add one more find() query using indexed field
 	 * a_f_q in USERS but the upside is - no need to also store
 	 * the same data in QUESTIONS and most importantly
@@ -94,7 +94,7 @@ class FollowManager extends LampcmsObject
 	 * @param User $oUser
 	 *
 	 *
-	 * @param mixed $Question int | null|  Question object
+	 * @param mixed $Question int | Question object
 	 *
 	 * @param $addUserToQuestion bool if false then will Not append
 	 * array of user data to QUESTION collection's a_flwrs array
@@ -106,6 +106,9 @@ class FollowManager extends LampcmsObject
 	 */
 	public function followQuestion(User $oUser, $Question){
 		d('cp');
+		$coll = $this->oRegistry->Mongo->QUESTIONS;
+		$coll->ensureIndex(array('a_flwrs' => 1), array('safe' => true));
+
 		if(!is_int($Question) && (!is_object($Question) || !($Question instanceof Question)) ){
 			throw new DevException('$Question can only be instance of Question class or an integer representing question id');
 		}
@@ -115,25 +118,26 @@ class FollowManager extends LampcmsObject
 			$this->checkQuestionExists($qid);
 		}
 
-		d('qid: '.$qid);
+		$uid = $oUser->getUid();
+		d('qid: '.$qid.' $uid: '.$uid);
 		$this->oRegistry->Dispatcher->post($oUser, 'onBeforeQuestionFollow', array('qid' => $qid));
 
-		$aFollowedQuestions = $oUser['a_f_q'];
-		
-		d('$aFollowedQuestions: '.print_r($aFollowedQuestions, 1));
-		if(in_array($qid, $aFollowedQuestions)){
-			d( 'User '.$oUser->getUid().' is already following question $qid '.$qid);
 
-			return $this;
+		if(is_object($Question)){
+			$Question->addFollower($uid);
+		} else {
+			/**
+			 * If we don't have Question object
+			 * then add userID directly to nested array
+			 * of a_flwrs in QUESTIONS COLLECTION
+			 * using $addToSet Mongo operator, it
+			 * ensures that if will NOT add duplicate value
+			 */
+			$coll->ensureIndex(array('a_flwrs', 1));
+			$coll->update(array('_id' => $qid), array('$addToSet' => array('a_flwrs' => $uid)));
 		}
 
-		$aFollowedQuestions[] = $qid;
-		$oUser['a_f_q'] = $aFollowedQuestions;
-		$oUser['i_f_q'] = count($aFollowedQuestions);
-		$oUser->save();
 		$this->oRegistry->Dispatcher->post($oUser, 'onQuestionFollow', array('qid' => $qid));
-
-		$this->oRegistry->Mongo->QUESTIONS->update(array('_id' => (int)$qid), array('$inc' => array('i_flwrs' => 1)));
 
 		return $this;
 	}
@@ -155,6 +159,9 @@ class FollowManager extends LampcmsObject
 	 * @throws DevException if Question is not int and not Question object
 	 */
 	public function unfollowQuestion(User $oUser, $Question){
+		$coll = $this->oRegistry->Mongo->QUESTIONS;
+		$coll->ensureIndex(array('a_flwrs' => 1));
+			
 		if(!is_int($Question) && (!is_object($Question) || !($Question instanceof Question)) ){
 			throw new DevException('$Question can only be instance of Question class or an integer representing question id');
 		}
@@ -165,21 +172,22 @@ class FollowManager extends LampcmsObject
 			$this->checkQuestionExists($qid);
 		}
 
-		$aFollowedQuestions = $oUser['a_f_q'];
-		d('$aFollowedQuestions: '.$aFollowedQuestions);
+		$uid = $oUser->getUid();
 
-		if(false !== $key = array_search($qid, $aFollowedQuestions)){
-			$this->oRegistry->Dispatcher->post($oUser, 'onBeforeQuestionUnfollow', array('qid' => $qid));
-			d('cp unsetting key: '.$key);
-			array_splice($aFollowedQuestions, $key, 1);
-			$oUser['a_f_q'] = $aFollowedQuestions;
-			$oUser['i_f_q'] = count($aFollowedQuestions);
-			$oUser->save();
-			$this->oRegistry->Mongo->QUESTIONS->update(array('_id' => (int)$qid), array('$inc' => array('i_flwrs' => -1)));
-			$this->oRegistry->Dispatcher->post($oUser, 'onQuestionUnfollow', array('qid' => $qid));
+		if(is_object($Question)){
+			$oQuestion->removeFollower($uid);
 		} else {
-			d('qid '.$qid.' is not among the followed questions of this userID: '.$oUser->getUid());
+			/**
+			 * If we don't have Question object
+			 * then add userID directly to nested array
+			 * of a_flwrs in QUESTIONS COLLECTION
+			 * using $addToSet Mongo operator, it
+			 * ensures that if will NOT add duplicate value
+			 */
+			$coll->update(array('_id' => $qid), array('$pull' => array('a_flwrs' => $uid)));
 		}
+
+		$this->oRegistry->Dispatcher->post($oUser, 'onQuestionUnfollow', array('qid' => $qid));
 
 		return $this;
 	}
@@ -270,7 +278,7 @@ class FollowManager extends LampcmsObject
 		}
 
 		$tag = Utf8String::factory($tag)->toLowerCase()->stripTags()->trim()->valueOf();
-		
+
 
 		$aFollowed = $oUser['a_f_t'];
 		d('$aFollowed: '.print_r($aFollowed, 1));
@@ -375,7 +383,6 @@ class FollowManager extends LampcmsObject
 		$coll = $this->oRegistry->Mongo->USERS;
 		$coll->ensureIndex(array('a_f_t' => 1));
 		$coll->ensureIndex(array('a_f_u' => 1));
-		$coll->ensureIndex(array('a_f_q' => 1));
 
 		return $this;
 	}

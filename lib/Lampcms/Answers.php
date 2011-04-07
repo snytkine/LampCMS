@@ -172,10 +172,10 @@ class Answers extends LampcmsObject
 			 */
 			if(!($a['accepted'])){
 				if($showLink){
-					$a['accept_link'] = '<a class="accept" title="'.$alt.'" href="/accept/'.$a['_id'].'">'.$accept.'</a>';
+					$a['accept_link'] = '<a class="accept ttt" title="'.$alt.'" href="/accept/'.$a['_id'].'">'.$accept.'</a>';
 				}
 			} else {
-				$a['accepted'] = '<img src="/images/accepted.png" alt="Best answer" title="Owner of the question accepted this as best answer">';
+				$a['accepted'] = '<img src="/images/accepted.png" alt="Best answer" class="ttt" title="Owner of the question accepted this as best answer">';
 			}
 			
 			$a['nocomments'] = $noComments;

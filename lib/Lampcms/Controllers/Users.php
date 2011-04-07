@@ -147,7 +147,7 @@ class Users extends WebPage
 		$this->init()
 		->getCursor()
 		->paginate()
-		->getUsersHtml();
+		->renderUsersHtml();
 
 		/**
 		 * In case of Ajax request, just return
@@ -348,12 +348,10 @@ class Users extends WebPage
 	 *
 	 * @return object $this
 	 */
-	protected function getUsersHtml(){
+	protected function renderUsersHtml(){
 		$func = null;
 		$aGravatar = $this->oRegistry->Ini->getSection('GRAVATAR');
 
-
-			
 		if(count($aGravatar) > 0){
 			$func = function(&$a) use ($aGravatar){
 				$a['gravatar'] = $aGravatar;

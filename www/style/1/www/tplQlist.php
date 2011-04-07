@@ -59,11 +59,13 @@ class tplQlist extends Lampcms\Template\Template
 	protected static $vars = array(
 	'qtypes' => '', 
 	'qlist' => '', 
-	'pages' => '');
+	'pages' => '',
+	'notAjaxPaginatable' => '');
 
+	// <div id="qpages">%3$s</div>
 	protected static $tpl = '
 	%1$s
-	<div class="qlist">%2$s</div>
-	<div id="qpages">%3$s</div>';
+	<div class="sortable paginated%4$s qlist">%2$s</div>
+	%3$s';
 	
 }

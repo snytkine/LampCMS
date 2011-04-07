@@ -54,7 +54,14 @@ namespace Lampcms;
 
 class ShowFollowers extends LampcmsObject
 {
+
+	/**
+	 * Mongo Cursor
+	 *
+	 * @var object of type MongoCursor
+	 */
 	protected $oCursor;
+
 
 	/**
 	 * Maximum number of users
@@ -63,11 +70,16 @@ class ShowFollowers extends LampcmsObject
 	 * avatars shown in the column to show
 	 * "Some" followers of the question or a user
 	 *
-	 *
 	 * @var int
 	 */
-	protected $maxPerBlock = 20;
+	protected $maxPerBlock = 16;
 
+
+	/**
+	 * Constructor
+	 *
+	 * @param Registry $oRegistry
+	 */
 	public function __construct(Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
 	}
@@ -124,10 +136,14 @@ class ShowFollowers extends LampcmsObject
 		);
 
 		$total = ($total) ? $total : $this->oCursor->count();
-		
+
+		if(0 === $total){
+			return '';
+		}
+
 		/**
 		 * @todo translate string title
-		 * 
+		 *
 		 */
 		$title = $total.' ';
 		$title .= (1 === $total) ? 'person' : 'people';
@@ -135,7 +151,16 @@ class ShowFollowers extends LampcmsObject
 
 		d('followers title: '.$title);
 
-		$followers = \tplOneFollower::loop($this->oCursor);
+		$func = null;
+		$aGravatar = $this->oRegistry->Ini->getSection('GRAVATAR');
+
+		if(count($aGravatar) > 0){
+			$func = function(&$a) use ($aGravatar){
+				$a['gravatar'] = $aGravatar;
+			};
+		}
+
+		$followers = \tplOneFollower::loop($this->oCursor, true, $func);
 
 		/**
 		 * @todo translate title string
@@ -145,6 +170,16 @@ class ShowFollowers extends LampcmsObject
 
 
 
+	/**
+	 * Generate html block with
+	 * title like '3 people following this tag'
+	 * and divs with followers' avatars/links to profiles
+	 *
+	 * @param string $tag name of tag for which to
+	 * add followers block
+	 *
+	 * @return string html
+	 */
 	public function getTagFollowers($tag){
 		$where = array('a_f_t' => $tag, 'role' => array('$ne' => 'deleted'));
 		$this->oCursor = $this->oRegistry->Mongo->USERS->find(
@@ -163,21 +198,170 @@ class ShowFollowers extends LampcmsObject
 		$total = $this->oCursor->count();
 
 		d('total tag followers: '.$total);
+
+		if(0 === $total){
+			return '';
+		}
+
 		$this->oCursor->limit($this->maxPerBlock);
 		d('total tag followers: '.$total);
-		
+
 		$title = $total.' ';
 		$title .= (1 === $total) ? 'person' : 'people';
 		$title .= ' following this tag';
 
 		d('followers title: '.$title);
 
-		$followers = \tplOneFollower::loop($this->oCursor);
+		$func = null;
+		$aGravatar = $this->oRegistry->Ini->getSection('GRAVATAR');
+
+		if(count($aGravatar) > 0){
+			$func = function(&$a) use ($aGravatar){
+				$a['gravatar'] = $aGravatar;
+			};
+		}
+
+		$followers = \tplOneFollower::loop($this->oCursor, true, $func);
 
 		/**
 		 * @todo translate title string
 		 */
 		return \tplFollowers::parse(array($title, $followers, $total), false);
+
+	}
+
+
+	/**
+	 * Get html block with User's followers
+	 *
+	 * @param User $oUser
+	 *
+	 * @return string html
+	 */
+	public function getUserFollowers(User $oUser){
+
+		$uid = $oUser->getUid();
+		d('uid: '.$uid);
+		$where = array('a_f_u' => $uid);
+
+		$this->oCursor = $this->oRegistry->Mongo->USERS->find(
+		$where, array(
+			'_id', 
+			'i_rep', 
+			'username', 
+			'fn', 
+			'mn', 
+			'ln',  
+			'email', 
+			'avatar', 
+			'avatar_external')
+		);
+
+		$total = $this->oCursor->count();
+		d('total followers: '.$total);
+
+		if(0 === $total){
+			d('no followers');
+
+			return '';
+		}
+
+		/**
+		 * @todo translate string title
+		 *
+		 */
+		$title = $total.' ';
+		$title .= (1 === $total) ? 'Follower' : 'Followers';
+
+		d('followers title: '.$title);
+
+		$func = null;
+		$aGravatar = $this->oRegistry->Ini->getSection('GRAVATAR');
+
+		if(count($aGravatar) > 0){
+			$func = function(&$a) use ($aGravatar){
+				$a['gravatar'] = $aGravatar;
+			};
+		}
+
+		$followers = \tplOneFollower::loop($this->oCursor, true, $func);
+
+		/**
+		 * @todo translate title string
+		 */
+		return \tplFollowers::parse(array($title, $followers, $total), false);
+
+	}
+
+
+	/**
+	 * Get div with users that this use is following
+	 *
+	 * @param User $oUser
+	 *
+	 * @return string html
+	 */
+	public function getUserFollowing(User $oUser){
+
+		$aFollowing = $oUser['a_f_u'];
+
+		if(empty($aFollowing)){
+			d('user not following anyone');
+			return '';
+		}
+
+		$total = count($aFollowing);
+		if($total > $this->maxPerBlock){
+			$aFollowing = array_splice($aFollowing, 0, $this->maxPerBlock);
+		}
+
+		$where = array('_id' => array('$in' => $aFollowing));
+
+		/**
+		 * Find all users that has this user has in the
+		 * 'a_f_u' array
+		 */
+		$this->oCursor = $this->oRegistry->Mongo->USERS->find(
+		$where, array(
+			'_id', 
+			'i_rep', 
+			'username', 
+			'fn', 
+			'mn', 
+			'ln',  
+			'email', 
+			'avatar', 
+			'avatar_external')
+		);
+
+		if(0 === $this->oCursor->count()){
+			d('no following users found');
+			
+			return '';
+		}
+
+		/**
+		 * @todo translate string title
+		 *
+		 */
+		$title = 'Following ' .$total.' user'.(((1 === $total)) ? '' : 's');
+		d('followers title: '.$title);
+
+		$func = null;
+		$aGravatar = $this->oRegistry->Ini->getSection('GRAVATAR');
+
+		if(count($aGravatar) > 0){
+			$func = function(&$a) use ($aGravatar){
+				$a['gravatar'] = $aGravatar;
+			};
+		}
+
+		$followees = \tplOneFollowee::loop($this->oCursor, true, $func);
+
+		/**
+		 * @todo translate title string
+		 */
+		return \tplFollowers::parse(array($title, $followees, $total), false);
 
 	}
 

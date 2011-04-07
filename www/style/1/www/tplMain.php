@@ -53,6 +53,8 @@ class tplMain extends Lampcms\Template\Template
 	 <link rel="stylesheet" type="text/css" href="http://yui.yahooapis.com/combo?2.8.0r4/build/reset-fonts-grids/reset-fonts-grids.css&2.8.0r4/build/base/base-min.css&2.8.0r4/build/assets/skins/sam/skin.css">
 	 gfc_js' => '', //13
 	 */
+	//'js' => '<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.0r4/build/utilities/utilities.js&2.8.0r4/build/container/container-min.js&2.8.0r4/build/button/button-min.js&2.8.0r4/build/json/json-min.js&2.8.0r4/build/cookie/cookie-min.js"></script>', //12
+	
 	protected static $vars = array(
 	'title' => 'title', //1
 	'site_url' => '', //2
@@ -65,7 +67,7 @@ class tplMain extends Lampcms\Template\Template
 	'css1' => '', // 9
 	'main_css' => '/css/main.css', //10
 	'extra_css' => '', //11
-	'js' => '<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.0r4/build/utilities/utilities.js&2.8.0r4/build/container/container-min.js&2.8.0r4/build/button/button-min.js&2.8.0r4/build/json/json-min.js&2.8.0r4/build/cookie/cookie-min.js"></script>', //12
+	'js' => '<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.8.0r4/build/utilities/utilities.js&2.8.0r4/build/container/container-min.js&2.8.0r4/build/button/button-min.js&2.8.0r4/build/json/json-min.js&2.8.0r4/build/cookie/cookie-min.js"></script>', //12	
 	'gfc_js' => '', //13
 	'fb_js' => '', //14
 	'template_id' => 'yui-t6', //15
@@ -92,7 +94,8 @@ class tplMain extends Lampcms\Template\Template
 	'show_comments' => '5', //36
 	'comments_timeout' => '5',//37
 	'max_comments' => '0', // 38
-	'JS_MIN_ID' => '' // 39
+	'JS_MIN_ID' => '', // 39
+	'DISABLE_AUTOCOMPLETE' => '' // 40
 	);
 
 	protected static $tpl = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -111,13 +114,14 @@ class tplMain extends Lampcms\Template\Template
 <meta name="show_comments" content="%36$s">
 <meta name="comments_timeout" content="%37$s">
 <meta name="max_comments" content="%38$s">
+<meta name="noac" content="%40$s">
 %8$s
 %9$s
 <link href="%10$s" rel="stylesheet" type="text/css">
 <!-- <script src="http://yui.yahooapis.com/3.3.0/build/yui/yui-min.js"></script> -->
 <!-- JS -->
-<script type="text/javascript" src="http://yui.yahooapis.com/combo?3.3.0/build/yui/yui-min.js&3.3.0/build/loader/loader-min.js&3.3.0/build/oop/oop-min.js&3.3.0/build/event-custom/event-custom-min.js&3.3.0/build/dom/dom-min.js&3.3.0/build/dom/dom-style-ie-min.js&3.3.0/build/event/event-min.js&3.3.0/build/attribute/attribute-min.js&3.3.0/build/pluginhost/pluginhost-min.js&3.3.0/build/classnamemanager/classnamemanager-min.js&3.3.0/build/base/base-min.js&3.3.0/build/node/node-min.js&3.3.0/build/event/event-base-ie-min.js&3.3.0/build/widget/widget-min.js&3.3.0/build/widget/widget-base-ie-min.js&3.3.0/build/widget/widget-position-min.js&3.3.0/build/widget/widget-position-align-min.js&3.3.0/build/widget/widget-position-constrain-min.js&3.3.0/build/widget/widget-stdmod-min.js&3.3.0/build/widget/widget-stack-min.js&3.3.0/build/overlay/overlay-min.js"></script>
-
+<!-- <script type="text/javascript" src="http://yui.yahooapis.com/combo?3.3.0/build/yui/yui-min.js&3.3.0/build/loader/loader-min.js&3.3.0/build/oop/oop-min.js&3.3.0/build/event-custom/event-custom-min.js&3.3.0/build/dom/dom-min.js&3.3.0/build/dom/dom-style-ie-min.js&3.3.0/build/event/event-min.js&3.3.0/build/attribute/attribute-min.js&3.3.0/build/pluginhost/pluginhost-min.js&3.3.0/build/classnamemanager/classnamemanager-min.js&3.3.0/build/base/base-min.js&3.3.0/build/node/node-min.js&3.3.0/build/event/event-base-ie-min.js&3.3.0/build/widget/widget-min.js&3.3.0/build/widget/widget-base-ie-min.js&3.3.0/build/widget/widget-position-min.js&3.3.0/build/widget/widget-position-align-min.js&3.3.0/build/widget/widget-position-constrain-min.js&3.3.0/build/widget/widget-stdmod-min.js&3.3.0/build/widget/widget-stack-min.js&3.3.0/build/overlay/overlay-min.js"></script> -->
+<script src="http://yui.yahooapis.com/combo?3.3.0pr3/build/yui/yui-min.js&3.3.0pr3/build/loader/loader-min.js"></script> 
 <!-- 11, 12, 13 -->
 %11$s
 %12$s
@@ -167,8 +171,13 @@ class tplMain extends Lampcms\Template\Template
 <div class="yui3-widget-ft">
 <div><button id="hide-fbOverlay" class="btn">close</button></div>
 </div>
-
 </div>
+
+<div id="loading" class="hidden">
+	<div class="yui3-widget-hd"></div>
+	<div class="yui3-widget-bd"></div>
+</div>
+
 %20$s
 <div id="lastdiv" class="delegate"></div>
 %13$s

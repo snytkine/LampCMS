@@ -55,7 +55,7 @@ namespace Lampcms\Controllers;
 use \Lampcms\Utf8String;
 use \Lampcms\WebPage;
 use \Lampcms\ReputationAcl;
-use \Lampcms\TagsNormalizer;
+use \Lampcms\TagsTokenizer;
 use \Lampcms\Request;
 use \Lampcms\Responder;
 
@@ -83,7 +83,7 @@ class Retag extends WebPage
 
 	/**
 	 * Array of submitted tags
-	 * after they are run through TagsNormalizer
+	 * after they are run through TagsTokenizer
 	 *
 	 * @var array
 	 */
@@ -91,8 +91,9 @@ class Retag extends WebPage
 
 
 	protected function main(){
-		$this->aSubmitted = TagsNormalizer::parse(Utf8String::factory($this->oRequest['tags']) );
-
+		$this->aSubmitted = TagsTokenizer::factory(Utf8String::factory($this->oRequest['tags']))->getArrayCopy();
+		d('$this->aSubmitted: '.print_r($this->aSubmitted, 1));
+		
 		$this->getQuestion()
 		->checkPermission()
 		->checkForChanges()

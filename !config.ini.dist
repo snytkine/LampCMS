@@ -158,6 +158,17 @@ SHOW_TIMER = false;
 ; 
 GFC_ID =
 ;
+; disable autocomplete widget
+; in search form and in Title in "Ask" form
+; Autocomplete does send request to server
+; on every key press, and search by title tags
+; is run on server. 
+; This is fast process and does
+; not add much load to server but if you 
+; still don't want it then set this to true 
+; to disable autocomplete
+;
+DISABLE_AUTOCOMPLETE = false
 
 [CAPTCHA]
 ; to disable captcha for any reason

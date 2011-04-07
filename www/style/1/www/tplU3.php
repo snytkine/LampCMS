@@ -104,7 +104,7 @@ class tplU3 extends Lampcms\Template\Template
 
 	protected static $tpl = '
 	<div class="u3 %11$s" id="uid-%1$s">
-		<div title="%10$s" class="fl cb rounded3 i_rep">%3$s</div>
+		<div title="%10$s %3$s" class="fl cb rounded3 i_rep ttt">%3$s</div>
 		<div class="avtr_bg fl mt-12 cb imgloader" style=\'background-image:url("%4$s");\'>&nbsp;</div>
 		<div class="u4 mt-12">
 			<a href="/users/%1$s/%5$s">%2$s</a><br>		    

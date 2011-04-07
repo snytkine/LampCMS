@@ -50,91 +50,121 @@
  */
 
 
-namespace Lampcms\Controllers;
+namespace Lampcms\String;
 
-use \Lampcms\WebPage;
-use \Lampcms\Template\Urhere;
-use \Lampcms\SearchFactory;
-
-class Search extends WebPage
+/**
+ * String tokenizer
+ * Minics the behaviour
+ * or java.unil.StringTokenizer class
+ *
+ * If you need to just get array
+ * of tokens and not bother with
+ * the nextToken() methods you can
+ * just call getArrayCopy() on this object
+ * and get array of tokens
+ *
+ * @author Dmitri Snytkine
+ *
+ */
+class Tokenizer extends \ArrayObject
 {
-
-	protected $aRequired = array('q');
-
 	/**
-	 * Search term
+	 * By default the string will be split
+	 * buy one or more space or tab or new line char
 	 *
-	 * @var string
+	 * @var string Regex pattern
 	 */
-	protected $term;
+	protected $delim = '/([\s]+)/';
+
+	protected $origString;
+
+	protected $iterator;
 
 	/**
-	 * Pagination links on the page
-	 * will not be handled by Ajax
 	 *
-	 * @var bool
+	 * Enter description here ...
+	 * @param string $string Original string to be tokenized
+	 * @param string $delim must be a valid PCRE pattern!
+	 * It's recommended to add the /u switch to pattern to treat
+	 * chars in pattern as UTF-8 chars
 	 */
-	protected $notAjaxPaginatable = true;
+	public function __construct($string, $delim = '/([\s,]+)/u'){
+		if(!is_string($string) || !is_string($delim)){
+			throw new \InvalidArgimentException('$string and $delim params must be string');
+		}
+
+		parent::__construct(array());
+		$this->origString = $string;
+		$this->delim = $delim;
+
+		$this->exchangeArray($this->parse($string));
+		$this->iterator = $this->getIterator();
+	}
+
+
+	public function getDelim(){
+		return $this->delim;
+	}
+
+
+	public function getOrigString(){
+		return $this->origString;
+	}
+
 
 	/**
-	 * (non-PHPdoc)
-	 * @see Lampcms.WebPage::main()
+	 * Parse string into tokens
+	 * Sub-class may override this to
+	 * tokenize any other way.
+	 * For example, may also apply a filter
+	 * like array_unique or filter agains stopwords list
+	 *
+	 * @return array array of tokens (individual parts of string)
 	 */
-	protected function main(){
-		/**
-		 * Do NOT run urldecode() on request string
-		 * as it's already decoded because it uses
-		 *  $_GET as underlying array, and php
-		 *  already decodes $_GET or $_POST vars
-		 */
-		$this->term = $this->oRequest['q'];
-		$this->aPageVars['qheader'] = '<h1>Search results for: '.$this->term.'</h1>';
+	protected function parse(){
+		$a = preg_split($this->delim, $this->origString, -1, PREG_SPLIT_NO_EMPTY);
+		d('tokenized: '.print_r($a, 1));
 
-		$this->aPageVars['title'] = 'Questions matching &#39;'.$this->term.'&#39;';
-		d('$this->term: '.$this->term);
-
-			
-		$this->oSearch = SearchFactory::factory($this->oRegistry);
-		$this->oSearch->search();
-
-		$this->makeTopTabs()
-		->makeInfo()
-		->makeBody();
-	}
-
-	protected function makeTopTabs(){
-		d('cp');
-		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', 'questions');
-		$this->aPageVars['topTabs'] = $tabs;
-
-		return $this;
+		return $a;
 	}
 
 
-	protected function sendCacheHeaders(){
-
-
-		return $this;
+	/**
+	 * Tests if there are more tokens available
+	 * from this tokenizer's string
+	 *
+	 * @return bool true if there are more tokens
+	 *
+	 */
+	public function hasMoveTokens(){
+		return $this->iterator->valid();
 	}
 
 
-	protected function makeInfo(){
+	/**
+	 *
+	 * Returns the next token from this string tokenizer
+	 *
+	 * @return string
+	 */
+	public function nextToken(){
+		$s = $this->iterator->current();
+		$this->iterator->next();
 
-		$this->aPageVars['side'] = \tplSearchInfo::parse(array($this->oSearch->count(), $this->term, 'questions matching'), false);
-
-
-		return $this;
+		return $s;
 	}
 
 
-
-	protected function makeBody(){
-
-
-		$this->aPageVars['body'] = \tplQlist::parse(array('', $this->oSearch->getHtml(), $this->oSearch->getPagerLinks(), $this->notAjaxPaginatable), false);
-
-		return $this;
+	/**
+	 *
+	 * Calculates the number of times that this tokenizer's
+	 * nextToken method can be called
+	 * before it generates an exception.
+	 *
+	 * @return int number of tokens in the origString
+	 */
+	public function countTokens(){
+		return $this->count();
 	}
-
 
 }

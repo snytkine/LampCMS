@@ -52,142 +52,55 @@
 
 namespace Lampcms\Controllers;
 
-
-
-use \Lampcms\Responder;
-use \Lampcms\Request;
-use \Lampcms\Utf8String;
-use \Lampcms\DomFeedItem;
+use Lampcms\WebPage;
+use Lampcms\TitleTokenizer;
+use Lampcms\Responder;
 
 /**
- * Controller for processing "Edit"
- * form for editing Question or Answer
- *
- * @todo should move the parsing to
- * new class so the whole parsing thing
- * can later be used from the API and not just
- * from this controller.
- *
+ * This controller is used by title auto-complete widgets
+ * for search form and by "Ask" form for title auto-complete
+ * 
+ * 
  * @author Dmitri Snytkine
  *
  */
-class Editor extends Edit
+class Titlehint extends WebPage
 {
 
-	protected $membersOnly = true;
-
-	protected $requireToken = true;
-
-	protected $bRequirePost = true;
-
-	protected $aRequired = array('rid', 'rtype');
-
+	protected $aRequired = array('q');
+	
+	protected $aData = array();
 
 	protected function main(){
-		$this->getResource()
-		->checkPermission()
-		->makeForm();
-
-		if($this->oForm->validate()){
-			$this->process()->updateQuestion()->returnResult();
-		} else {
-			$this->returnErrors();
-		}
-	}
-
-
-	protected function returnErrors(){
-		d('cp');
-
-		if(Request::isAjax()){
-			d('cp');
-			$aErrors = $this->oForm->getErrors();
-
-			Responder::sendJSON(array('formErrors' => $aErrors));
+		$disabled = $this->oRegistry->Ini->DISABLE_AUTOCOMPLETE;
+		if($disabled){
+			exit;
 		}
 
-		$this->makeTopTabs()
-		->makeMemo()
-		->setForm();
+		$this->getData()->sendResult();
 	}
 
 
 	/**
-	 *
-	 * Process submitted form values
-	 */
-	protected function process()
-	{
-		$this->oRegistry->Dispatcher->post($this->oResource, 'onBeforeEdit');
-
-		$formVals = $this->oForm->getSubmittedValues();
-		d('formVals: '.print_r($formVals, 1));
-
-		$this->oResource['b'] = $this->makeBody($formVals['qbody']);
-
-		/**
-		 * Don't attempt to edit the value of title
-		 * for the answer since it technically does not have the title
-		 * and we don't want to change existing one
-		 */
-		if($this->oResource instanceof \Lampcms\Question){
-			$title = $this->makeTitle($formVals['title']);
-			d('title: '.$title);
-			$this->oResource['title'] = $title;
-			$this->oResource['a_title'] = \Lampcms\TitleTokenizer::factory($title)->getArrayCopy();
-		}
-
-		$this->oResource->setEdited($this->oRegistry->Viewer, strip_tags($formVals['reason']));
-		$this->oResource->save();
-
-		$this->oRegistry->Dispatcher->post($this->oResource, 'onEdit');
-
-		return $this;
-	}
-
-
-	protected function makeBody($body){
-		$oBody = Utf8String::factory($body)
-		->tidy()
-		->safeHtml()
-		->asHtml();
-
-		$htmlBody = DomFeedItem::loadFeedItem($oBody)->getFeedItem();
-		d('after DomFeedItem: '.$htmlBody);
-
-		return $htmlBody;
-	}
-
-
-	protected function makeTitle($title){
-		$ret = Utf8String::factory($title)->htmlentities()->trim()->valueOf();
-		d('ret '.$ret);
-
-		return $ret;
-	}
-
-
-	/**
-	 * If Edited resource was an ANSWER then we must update
-	 * last-modified of its QUESTION
+	 * Find data in Mongo
+	 * and create array of $this->aData
 	 *
 	 * @return object $this
 	 */
-	protected function updateQuestion(){
-		if('ANSWERS' === $this->collection){
-			d('need to update QUESTION');
+	protected function getData(){
+		$q = $this->oRequest->get('q');
+		$aTokens = TitleTokenizer::factory($q)->getArrayCopy();
 
+		if(!empty($aTokens)){
+			d('looking for something');
 			try{
-				$this->oRegistry->Mongo->QUESTIONS
-				->update(array('_id' => $this->oResource['i_qid']),
-				array(
-					'$set' => array(
-									'i_lm_ts' => time(), 
-									'i_etag' => time())
-				)
-				);
+				$cur = $this->oRegistry->Mongo->QUESTIONS->find(array('a_title' => array('$all' => $aTokens), 'a_deleted' => null), array('_id', 'title', 'url', 'intro', 'hts', 'status', 'i_ans', 'ans_s'))
+				->sort(array('status' => 1, 'i_ans' => -1))
+				->limit(12);
+				$this->aData = iterator_to_array($cur, false);
+				d('$this->aData: '.print_r($this->aData, 1));
 			} catch(\MongoException $e){
-				d('unable to update question '.$e->getMessage());
+				d('MongoException: '.$e->getMessage().' aTokens was: '.print_r($this->aTokens, 1));
 			}
 		}
 
@@ -195,8 +108,16 @@ class Editor extends Edit
 	}
 
 
-	protected function returnResult(){
-		
-		Responder::redirectToPage($this->oResource->getUrl());
+	/**
+	 * Send result back to client
+	 * as JSONP string
+	 *
+	 * @return string
+	 */
+	protected function sendResult(){
+		$callback =  $this->oRequest->get('callback');
+		d('$callback: '.$callback);
+
+		Responder::sendJSONP(array('ac' => $this->aData), $callback);
 	}
 }

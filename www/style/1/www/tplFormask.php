@@ -92,7 +92,7 @@ class tplFormask extends Lampcms\Template\Template
             
             <div class="form_el"> 
             	<label for="id_tags">%11$s</label>: (* %2$s) <span class="f_err"  id="tags_e">%13$s</span><br> 
-                <input autocomplete="off" id="id_tags" type="text" name="tags" class="tags_c%15$s" size="80" value="%10$s" %16$s>  
+                <input id="id_tags" type="text" name="tags" class="tags_c%15$s" size="80" value="%10$s" %16$s>  
             	<div id="tags_d" class="caption">%12$s</div> 
             </div>
             <!-- // el tags -->

@@ -287,10 +287,10 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		$this->offsetSet('a_tags', $tags);
 		$this->offsetSet('tags_html', \tplQtags::loop($tags, false));
 		$this->offsetSet('tags_c', trim(\tplQtagsclass::loop($tags, false)));
-		
+
 		$b = $this->offsetGet('b');
 		d('b: '.$b);
-		
+
 		$body = Bodytagger::highlight($b, $tags);
 
 		$this->offsetSet('b', $body);
@@ -717,6 +717,64 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		if($changed){
 			$this->offsetSet('a_uids', $a);
+		}
+
+		return $this;
+	}
+
+
+
+	/**
+	 * Add userID of user to the array
+	 * of a_flwrs
+	 *
+	 * @param mixed $User int|object of type User
+	 * @throws \InvalidArgumentException
+	 * if $User is not int and not a User object
+	 *
+	 * @return object $this
+	 */
+	public function addFollower($User){
+		if(!is_int($User) && (!is_object($User) || !($User instanceof \Lampcms\User))){
+			throw new \InvalidArgumentException('param $User can be integer or object of type User. Was: '.var_export($User, true));
+		}
+
+		$uid = (is_int($User)) ? $User : $User->getUid();
+
+		$aFollowers = $this->offsetGet('a_flwrs');
+		if(!in_array($uid, $aFollowers)){
+			$aFollowers[] = $uid;
+			$this->offsetSet('a_flwrs', $aFollowers);
+			$this->save();
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Remove userID of user from the array
+	 * of a_flwrs
+	 *
+	 * @param mixed $User int|object of type User
+	 * @throws \InvalidArgumentException
+	 * if $User is not int and not a User object
+	 *
+	 * @return object $this
+	 */
+	public function removeFollower($User){
+		if(!is_int($User) && (!is_object($User) || !($User instanceof \Lampcms\User))){
+			throw new \InvalidArgumentException('param $User can be integer or object of type User. Was: '.var_export($User, true));
+		}
+
+		$uid = (is_int($User)) ? $User : $User->getUid();
+
+		$aFollowers = $this->offsetGet('a_flwrs');
+		if(false !== $key = array_search($uid,  $aFollowers)){
+			d('cp unsetting key: '.$key);
+			array_splice($aFollowers, $key, 1);
+			$this->offsetSet('a_flwrs', $aFollowers);
+			$this->save();
 		}
 
 		return $this;

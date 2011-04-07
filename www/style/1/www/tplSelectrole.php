@@ -49,7 +49,15 @@
  *
  */
 
- 
+/**
+ * This template is use for creation of drop-down
+ * menu to change the user's role
+ * This form is seem only by admins on the user
+ * profile page
+ * Enter description here ...
+ * @author Dmitri Snytkine
+ *
+ */ 
 class tplSelectrole extends \Lampcms\Template\Template
 {
 	protected static $vars = array(
@@ -59,7 +67,7 @@ class tplSelectrole extends \Lampcms\Template\Template
 	'btnShred' => ''
 	);
 	
-	protected static $tpl = '<div class="usr_roles">
+	protected static $tpl = '<div class="usr_roles fl cb">
 	<form name="role" method="post" action="/index.php">
 	<input type="hidden" name="a" value="usergroup">
 	<input type="hidden" name="token" value="%1$s">

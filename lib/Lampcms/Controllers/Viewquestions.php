@@ -70,8 +70,6 @@ class Viewquestions extends WebPage
 
 	protected $pagerPath = '/questions';
 
-	protected $aAllowedVars = array('cond', 'tags');
-
 	/**
 	 * Indicates the current tab
 	 *
@@ -104,10 +102,21 @@ class Viewquestions extends WebPage
 	 * @var int
 	 */
 	protected $count;
+	
+	protected $PER_PAGE = 20;
 
 	protected $counterTaggedText = '';
+	
+	/**
+	 * Pagination links on the page
+	 * will not be handled by Ajax
+	 * 
+	 * @var bool
+	 */
+	protected $notAjaxPaginatable = true;
 
 	protected function main(){
+		
 		$this->pageID = (int)$this->oRequest->get('pageID', 'i', 1);
 
 		$this->getCursor()
@@ -125,11 +134,14 @@ class Viewquestions extends WebPage
 
 	}
 
+	
 	/**
 	 * Select items according to conditions passed in GET
 	 * Conditions can be == 'unanswered', 'hot', 'recent' (default)
 	 */
 	protected function getCursor(){
+		$this->PER_PAGE = $this->oRegistry->Ini->PER_PAGE_QUESTIONS;
+		
 		$aFields = array();
 
 		$cond = $this->oRequest->get('cond', 's', 'recent');
@@ -140,9 +152,9 @@ class Viewquestions extends WebPage
 		 * meaning most recent should be on top
 		 *
 		 */
-		$sort = array('i_sticky' => -1, 'i_lm_ts' => -1); // 'is_sticky' => 1,
+		$sort = array('i_sticky' => -1, 'i_lm_ts' => -1); 
 		/**
-		 * @todo translate this title later
+		 * @todo translate string title
 		 *
 		 */
 		$this->title = 'All questions';
@@ -223,7 +235,7 @@ class Viewquestions extends WebPage
 	protected function paginate(){
 		d('paginating with $this->pagerPath: '.$this->pagerPath);
 		$oPaginator = Paginator::factory($this->oRegistry);
-		$oPaginator->paginate($this->oCursor, $this->oRegistry->Ini->PER_PAGE_QUESTIONS,
+		$oPaginator->paginate($this->oCursor, $this->PER_PAGE,
 		array('path' => $this->pagerPath));
 
 		$this->pagerLinks = $oPaginator->getLinks();
@@ -309,6 +321,11 @@ class Viewquestions extends WebPage
 		 * Viewer will also be seeing deleted items
 		 * in which case we should add 'deleted' class
 		 * to items
+		 * @todo also may add special class 'watching'
+		 * if user is following this question
+		 * like a binonulars
+		 * for that need to check a_flwrs array
+		 * in question agains Viewer ID
 		 */
 		if($this->oRegistry->Viewer->isModerator()){
 			$func = function(&$a) use($uid){
@@ -330,7 +347,7 @@ class Viewquestions extends WebPage
 
 		$sQdivs = \tplQrecent::loop($this->oCursor, true, $func);
 
-		$sQlist = \tplQlist::parse(array($this->typeDiv, $sQdivs, $this->pagerLinks), false);
+		$sQlist = \tplQlist::parse(array($this->typeDiv, $sQdivs, $this->pagerLinks, $this->notAjaxPaginatable), false);
 		$this->aPageVars['body'] = $sQlist;
 		d('cp');
 		/**
@@ -424,13 +441,11 @@ class Viewquestions extends WebPage
 		};
 
 		d('$aTags now: '.print_r($aTags, 1));
-
-		$html = \tplLinktag::loop($aTags);
+		$html = ('unanswered' === $type) ? \tplUnanstags::loop($aTags) : \tplLinktag::loop($aTags);
 
 		d('html recent tags: '.$html);
 
 		return '<div class="tags-list">'.$html.'</div>';
-
 	}
 
 }

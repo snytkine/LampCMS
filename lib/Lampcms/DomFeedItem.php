@@ -358,6 +358,7 @@ class DomFeedItem extends \DOMDocument
 				}
 			}
 		}
+		
 		return $this;
 	}
 

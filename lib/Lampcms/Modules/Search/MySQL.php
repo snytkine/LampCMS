@@ -96,7 +96,6 @@ class MySQL implements Search
 
 	const BY_TITLE = 'MATCH (title) AGAINST (:subj)';
 
-	//const BY_TITLE_BOOL =
 
 	const BY_TITLE_BODY = 'MATCH (title, q_body) AGAINST (:subj)';
 
@@ -191,7 +190,7 @@ class MySQL implements Search
 			throw new \Lampcms\DevException('count not available. You must run search() before running getCount()');
 		}
 
-		
+
 		/**
 		 * If we already know that there are no results
 		 * then no need to run the same query
@@ -272,9 +271,9 @@ class MySQL implements Search
 			foreach($aTerms as $term){
 				$aHighlight[] = '<span class="match">'.trim($term).'</span>';
 			}
-			
+
 			d('aTerms: '.print_r($aTerms, 1).' aHightlight: '.print_r($aHighlight, 1));
-			
+
 			$func = function(&$a) use ($aTerms, $aHighlight){
 				$a['title'] = str_replace($aTerms, $aHighlight, $a['title']);
 				$a['intro'] = str_replace($aTerms, $aHighlight, $a['intro']);
@@ -340,20 +339,36 @@ class MySQL implements Search
 
 		d('$sql: '.$sql);
 
-		$sth = $this->oRegistry->Db->makePrepared($sql);
-		$sth->bindParam(':qid', $qid, \PDO::PARAM_INT);
-		$sth->bindParam(':subj', $term, \PDO::PARAM_STR);
-		$sth->execute();
-		$aRes = $sth->fetchAll();
+		try{
+			$sth = $this->oRegistry->Db->makePrepared($sql);
+			$sth->bindParam(':qid', $qid, \PDO::PARAM_INT);
+			$sth->bindParam(':subj', $term, \PDO::PARAM_STR);
+			$sth->execute();
+			$aRes = $sth->fetchAll();
 
+			d('found '.count($aRes).' similar questions '.print_r($aRes, 1));
 
-		d('found '.count($aRes).' similar questions '.print_r($aRes, 1));
+			if(!empty($aRes)){
+				$html = \tplSimquestions::loop($aRes);
+				$s = '<div id="sim_questions" class="similars">'.$html.'</div>';
+				d('html: '.$s);
+				$oQuestion->offsetSet('sim_q', $s);
+			}
+				
+		} catch(\Exception $e){
+			$err = ('Exception: '.get_class($e).' Unable to select mysql because: '.$e->getMessage().' Err Code: '.$e->getCode().' trace: '.$e->getTraceAsString());
+			d('mysql error: '.$err);
 
-		if(!empty($aRes)){
-			$html = \tplSimquestions::loop($aRes);
-			$s = '<div id="sim_questions" class="similars">'.$html.'</div>';
-			d('html: '.$s);
-			$oQuestion->offsetSet('sim_q', $s);
+			if('42S02' === $e->getCode()){
+				if(true === \Lampcms\TitleTagsTable::create($this->oRegistry)){
+
+					return $this;
+				} else {
+					throw $e;
+				}
+			} else {
+				throw $e;
+			}
 		}
 
 		return $this;

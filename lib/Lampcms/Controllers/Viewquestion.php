@@ -177,8 +177,8 @@ class Viewquestion extends WebPage
 		->makeForm()
 		->setAnswerForm()
 		->makeFollowButton()
+		->setFollowersBlock()
 		->setQuestionInfo()
-		->addFollowersBlock()
 		->setFooter()
 		->increaseView()
 		->makeTopTabs();
@@ -195,10 +195,18 @@ class Viewquestion extends WebPage
 	}
 	
 	
-	protected function addFollowersBlock(){
-		$aFlwrs = $this->oQuestion['a_uids'];
-		if(count($aFlwrs) > 0){
-			$s = \Lampcms\ShowFollowers::factory($this->oRegistry)->getQuestionFollowers($aFlwrs, $this->oQuestion['i_flwrs']);
+	/**
+	 * If this question has any followers
+	 * then add block with
+	 * some followers' avatars
+	 * 
+	 * @return object $this
+	 */
+	protected function setFollowersBlock(){
+		$aFlwrs = $this->oQuestion['a_flwrs'];
+		$count = count($aFlwrs);
+		if($count > 0){
+			$s = \Lampcms\ShowFollowers::factory($this->oRegistry)->getQuestionFollowers($aFlwrs, $count);
 			d('followers: '.$s);
 			$this->aPageVars['side'] .= '<div class="fr cb w90 lg rounded3 pl10 mb10">'.$s.'</div>';
 		}
@@ -223,6 +231,7 @@ class Viewquestion extends WebPage
 		return $this;
 	}
 
+	
 	/**
 	 * Get array for this one question,
 	 * set $this->oQuestion
@@ -559,7 +568,7 @@ class Viewquestion extends WebPage
 	protected function makeFollowButton(){
 
 		$qid = $this->oQuestion->getResourceId();
-		d('qid: '.$qid);
+		//d('qid: '.$qid);
 
 		$aVars = array(
 		'id' => $qid,
@@ -570,7 +579,8 @@ class Viewquestion extends WebPage
 		'title' => 'Follow this question to be notified of new answers, comments and edits'
 		);
 
-		if(in_array($qid, $this->oRegistry->Viewer['a_f_q'])){
+		
+		if(in_array($this->oRegistry->Viewer->getUid(), $this->oQuestion['a_flwrs'])){
 			$aVars['label'] = 'Following';
 			$aVars['class'] = 'following';
 			$aVars['icon'] = 'check';

@@ -52,7 +52,7 @@
 
 namespace Lampcms;
 
-const JS_MIN_ID = '03312011';
+const JS_MIN_ID = '04072011';
 
 const LF = "\n";
 const CR = "\r";
@@ -135,8 +135,18 @@ const PATH_WWW_IMG_MOBILE = '/w/img/tiny/';
 
 const DIR_XXX = 'xxx';
 
-
-
+/**
+ * Array of stopwords
+ * These words will be excluded
+ * from tokenizer result
+ *
+ * @var array
+ */
+function getStopwords(){
+	return array(
+	"a","abst","adj","ah","am","an","and","are","aren","arent","as","at","b","be","but","by","c","ca","cant","co","com","d","did","didnt","do","dont","e","edu","eg","et","etc","ex","f","ff","for","g","go","he","hed","her","hes","hi","hid","him","his","i","id","ie","if","ill","im","in","inc","is","isnt","it","itd","itll","its","ive","j","k","kg","km","l","lest","lets","ll","ltd","m","me","mg","ml","mr","mrs","n","na","nay","nd","no","non","nor","nos","o","of","off","oh","ok","okay","on","or","ord","p","pp","put","q","qv","r","rd","re","s","sec","shes","so","t","th","that","thatll","thats","thatve","the","them","then","thence","thereve","theyd","theyll","theyre","theyve","this","those","thou","though","thoughh","throug","thru","thus","til","tip","to","too","ts","two","u","un","up","ups","us","v","ve","via","viz","vol","vols","vs","w","wasnt","we","wed","were","weve","wont","wouldnt","www","x","y","youd","z"
+	);
+}
 /**
  * Array of reserved accounts
  * User will not be allowed to register with
@@ -202,12 +212,12 @@ function prepareHeaders(array $aHeaders){
  * Check to see if User $user is owner of Resource $resource
  * @param Resource $resource
  * @param User $user
- * 
+ *
  * @return bool true if User is owner of Resource
  */
 function isOwner(User $user, \Lampcms\Interfaces\LampcmsResource $resource ){
 	$uid = $user->getUid();
-	
+
 	return (($uid > 0 )  && $uid === $resource->getOwnerId());
 }
 
@@ -237,7 +247,7 @@ class LampcmsObject implements Interfaces\LampcmsObject
 	 *
 	 * @todo We really MUST require all LampcmsObjects to
 	 * follow the same constructor patters where it only accepts
-	 * Registry object. 
+	 * Registry object.
 	 * But requiring it by making this method 'final'
 	 * will make this object a lot less flexible.
 	 * So, for now it is up to the concrete class to make
@@ -260,7 +270,7 @@ class LampcmsObject implements Interfaces\LampcmsObject
 	 * @param Registry $oRegistry
 	 */
 	public static function factory(Registry $oRegistry){
-		
+
 		return new static($oRegistry);
 	}
 

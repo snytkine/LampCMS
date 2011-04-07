@@ -93,7 +93,7 @@ class tplQrecent extends Lampcms\Template\Template
         </div>
         <div class="vws" title="%4$s view%15$s">%4$s <span rel="in">view%15$s</span></div>
     	<div class="fl pad8">
-    	 <span class="icoc unread ru ajax" title="Unread items. Click to toggle status">&nbsp;</span>
+    	 <span class="icoc unread ttt ru ajax" title="Click to toggle Unread/Read status">&nbsp;</span>
     	</div>
         %22$s
      </div>

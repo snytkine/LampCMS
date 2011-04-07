@@ -235,6 +235,7 @@ class QuestionParser extends LampcmsObject
 		'i_favs' => 0,
 		'i_views' => 0,
 		'a_tags' => $aTags,
+		'a_title' => TitleTokenizer::factory($title)->getArrayCopy(),
 		'status' => 'unans',
 		'tags_c' => trim(\tplQtagsclass::loop($aTags, false)),
 		'tags_html' => \tplQtags::loop($aTags, false),
@@ -319,22 +320,29 @@ class QuestionParser extends LampcmsObject
 	 * @return object $this
 	 */
 	protected function followQuestion(){
-		$qid = $this->oQuestion->getResourceId();
-		d('qid: '.$qid);
+		/*$qid = $this->oQuestion->getResourceId();
+		 d('qid: '.$qid);
 
-		$aFollowedQuestions = $this->oRegistry->Viewer['a_f_q'];
-		d('$aFollowedQuestions: '.$aFollowedQuestions);
-		if(in_array($qid, $aFollowedQuestions)){
+		 $aFollowedQuestions = $this->oRegistry->Viewer['a_f_q'];
+		 d('$aFollowedQuestions: '.$aFollowedQuestions);
+		 if(in_array($qid, $aFollowedQuestions)){
 			e( 'User '.$this->oRegistry->Viewer->getUid().'is already following question $qid '.$qid);
 
 			return $this;
-		}
+			}
 
-		$aFollowedQuestions[] = $qid;
-		$this->oRegistry->Viewer['a_f_q'] = $aFollowedQuestions;
-		$this->oRegistry->Viewer['i_f_q'] = count($aFollowedQuestions);
-		$this->oRegistry->Viewer->save();
+			$aFollowedQuestions[] = $qid;
+			$this->oRegistry->Viewer['a_f_q'] = $aFollowedQuestions;
+			$this->oRegistry->Viewer['i_f_q'] = count($aFollowedQuestions);
+			$this->oRegistry->Viewer->save();*/
 
+		/**
+		 * For consistant behaviour it is
+		 * Best is to go through FollowManager and don't
+		 * do this manually
+		 */
+		FollowManager::factory($this->oRegistry)->followQuestion($this->oRegistry->Viewer, $this->oQuestion);
+		
 		return $this;
 	}
 
@@ -354,6 +362,7 @@ class QuestionParser extends LampcmsObject
 		$quest->ensureIndex(array('a_tags' => 1));
 		$quest->ensureIndex(array('i_uid' => 1));
 		$quest->ensureIndex(array('hash' => 1));
+		$quest->ensureIndex(array('a_title' => 1));
 
 		/**
 		 * Need ip index to use flood filter by ip

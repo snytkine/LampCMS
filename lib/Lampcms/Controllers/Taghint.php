@@ -52,89 +52,40 @@
 
 namespace Lampcms\Controllers;
 
-use \Lampcms\WebPage;
-use \Lampcms\Template\Urhere;
-use \Lampcms\SearchFactory;
+use Lampcms\WebPage;
+use Lampcms\Responder;
 
-class Search extends WebPage
+/**
+ * Controller for getting array
+ * of tags that partially match the 
+ * value of 'q' using "starts with" regex search
+ * 
+ * This controller is used from the auto-complete tag widget
+ * on the "Ask" form
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
+class Taghint extends Titlehint
 {
 
-	protected $aRequired = array('q');
+	protected function getData(){
 
-	/**
-	 * Search term
-	 *
-	 * @var string
-	 */
-	protected $term;
-
-	/**
-	 * Pagination links on the page
-	 * will not be handled by Ajax
-	 *
-	 * @var bool
-	 */
-	protected $notAjaxPaginatable = true;
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Lampcms.WebPage::main()
-	 */
-	protected function main(){
-		/**
-		 * Do NOT run urldecode() on request string
-		 * as it's already decoded because it uses
-		 *  $_GET as underlying array, and php
-		 *  already decodes $_GET or $_POST vars
-		 */
-		$this->term = $this->oRequest['q'];
-		$this->aPageVars['qheader'] = '<h1>Search results for: '.$this->term.'</h1>';
-
-		$this->aPageVars['title'] = 'Questions matching &#39;'.$this->term.'&#39;';
-		d('$this->term: '.$this->term);
-
-			
-		$this->oSearch = SearchFactory::factory($this->oRegistry);
-		$this->oSearch->search();
-
-		$this->makeTopTabs()
-		->makeInfo()
-		->makeBody();
-	}
-
-	protected function makeTopTabs(){
-		d('cp');
-		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', 'questions');
-		$this->aPageVars['topTabs'] = $tabs;
-
+		$q = $this->oRequest->get('q', 's');
+		$q = mb_strtolower($q);
+		d('looking for tag hint $q: '.$q);
+		
+		try{
+			$cur = $this->oRegistry->Mongo->QUESTION_TAGS->find(
+			array('tag' => array('$regex' => '^'.$q) ), array('tag'))
+			->sort(array('i_count' => -1))
+			->limit(200);
+			$this->aData = iterator_to_array($cur, false);
+			d('$this->aData: '.print_r($this->aData, 1));
+		} catch(\MongoException $e){
+			d('MongoException: '.$e->getMessage().' $q was: '.$q);
+		}
+		
 		return $this;
 	}
-
-
-	protected function sendCacheHeaders(){
-
-
-		return $this;
-	}
-
-
-	protected function makeInfo(){
-
-		$this->aPageVars['side'] = \tplSearchInfo::parse(array($this->oSearch->count(), $this->term, 'questions matching'), false);
-
-
-		return $this;
-	}
-
-
-
-	protected function makeBody(){
-
-
-		$this->aPageVars['body'] = \tplQlist::parse(array('', $this->oSearch->getHtml(), $this->oSearch->getPagerLinks(), $this->notAjaxPaginatable), false);
-
-		return $this;
-	}
-
-
 }

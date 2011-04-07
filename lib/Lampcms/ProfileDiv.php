@@ -73,20 +73,22 @@ class ProfileDiv extends LampcmsObject
 		d('rep: '.$rep);
 
 		$vars = array(
-		'username' => $oUser->username,
-		'avatar' => $oUser->getAvatarImgSrc(),
-		'reputation' => $rep,
-		'name' => $oUser->getDisplayName(),
-		'since' => date('F j, Y', $oUser->i_reg_ts),
-		'lastActivity' => TimeAgo::format(new \DateTime(date('r', $lastActive))),
-		'website' => $oUser->getUrl(),
-		'twitter' => $oUser->getTwitterUrl(),
-		'facebook' => $oUser->getFacebookUrl(),
-		'location' => $oUser->getLocation(),
-		'editRole' => Usertools::getHtml($oRegistry, $oUser),
-		'followButton' => self::makeFollowButton($oRegistry, $oUser)
+			'username' => $oUser->username,
+			'avatar' => $oUser->getAvatarImgSrc(),
+			'reputation' => $rep,
+			'name' => $oUser->getDisplayName(),
+			'since' => date('F j, Y', $oUser->i_reg_ts),
+			'lastActivity' => TimeAgo::format(new \DateTime(date('r', $lastActive))),
+			'website' => $oUser->getUrl(),
+			'twitter' => $oUser->getTwitterUrl(),
+			'facebook' => $oUser->getFacebookUrl(),
+			'location' => $oUser->getLocation(),
+			'editRole' => Usertools::getHtml($oRegistry, $oUser),
+			'followButton' => self::makeFollowButton($oRegistry, $oUser),
+			'followers' => ShowFollowers::factory($oRegistry)->getUserFollowers($oUser),
+			'following' => ShowFollowers::factory($oRegistry)->getUserFollowing($oUser)
 		);
-
+		
 		return \tplUserInfo::parse($vars);
 	}
 
@@ -134,7 +136,7 @@ class ProfileDiv extends LampcmsObject
 
 		return $button;
 	}
-	
+
 	/*
 
 	public function getShredButton(Registry $oRegistry, User $oUser){

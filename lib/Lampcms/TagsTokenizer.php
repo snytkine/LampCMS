@@ -50,79 +50,48 @@
  */
 
 
+
 namespace Lampcms;
 
+
 /**
- * Static class
- * Purpose is to parse array of tags
- * that user submitted via Question or Retag form
+ * Parser of title of one question
+ * title is tokenized and array is stored
+ * in QUESTION_TITLE_TAGS
  *
- *
- *
- * The reason this is a separate class is because
- * it is used in 2 different classes : QuestionParser
- * and Retag
  *
  * @author Dmitri Snytkine
  *
  */
-class TagsNormalizer
+class TagsTokenizer extends \Lampcms\String\Tokenizer
 {
+
+	public static function factory(Utf8String $Tags){
+
+		$str = $Tags->toLowerCase()->stripTags()->valueOf();
+
+		return new self($str);
+	}
+
+
 	/**
+	 * Parse title of the question by
+	 * tokenizing it
+	 * Overrides parent's parse and users mb_split
+	 * instead of preg_split to be UTF-8 Safe
+	 * because title can be a UTF-8 string
 	 *
-	 * Parse array of user-submitted tags
-	 * to remove html tags, convert to lower case,
-	 * remove duplicates and sort alphabetically
-	 *
-	 * @param object of type Utf8String
-	 *
-	 * @return array parsed tags - nice and clean
+	 * @return array tokens;
 	 */
-	public static function parse(Utf8String $Tags){
+	public function parse(){
 
-		mb_internal_encoding('UTF-8');
 		mb_regex_encoding('UTF-8');
-
-		$sTags = $Tags->toLowerCase()->stripTags()->valueOf();
-		d('sTags: '.$sTags);
-		$sTags = mb_ereg_replace("[,;]"," ",$sTags);
-		d('sTags now: '.$sTags);
-		
-
-		/**
-		 * Using mb_split instead of explode
-		 * is much better because it
-		 * will split on multiple spaces, not
-		 * just on one space which means we
-		 * don't have to run each tag through trim()
-		 */
-		$aTags = mb_split("\s+", $sTags);
-		d('aTags now: '.print_r($aTags ,1));
-
-		/**
-		 * Removes potentially empty values but...
-		 * is it utf8 safe?
-		 * I think it is safe when no extra params are given
-		 * as it consideres empty values to be 0, empty string
-		 * or null and these are safe in utf-8, meaning
-		 * these cannot be part of utf-8 char
-		 *
-		 */
-		$aTags = array_filter($aTags);
-		$aTags = array_unique($aTags);
-		d('aTags after filter and unique: '.print_r($aTags, 1));
-
-		/**
-		 * It is important to sort the
-		 * array of tags so that
-		 * we can spot the 'same' tags
-		 * during the creation of 'hash'
-		 * This way the order of tags users lists
-		 * in tags form is not important - they will
-		 * be sorted alphabetically
-		 */
+		$aTokens = mb_split('([\s,;]+)', $this->origString, -1);
+		$aTokens = array_unique($aTokens);
+		$aTags = array_filter($aTokens);
 		sort($aTags, SORT_STRING);
 
-		return $aTags;
+		return $aTokens;
 	}
+
 }

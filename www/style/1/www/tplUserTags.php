@@ -51,9 +51,10 @@ class tplUserTags extends Lampcms\Template\Template
 	'tags' => '',
 	's' => '');
 	
+	// %2$s%4$s
 	protected static $tpl = '
 	<div class="user_tags">
-	<h3><span class="counter">%1$s</span> %2$s%4$s</h3>
+	<h3><span class="counter">%1$s</span></h3>
 		<div id="utags2">
 		%3$s
 		</div> <!-- // utags2 -->

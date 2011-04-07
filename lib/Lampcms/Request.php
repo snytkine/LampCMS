@@ -104,7 +104,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		if(!$this->offsetExists($name)){
 			$val = $default;
 		} else {
-			
+				
 			$val = $this->getFiltered($name);
 		}
 
@@ -243,7 +243,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		return $this->getFiltered($offset);
 	}
 
-	
+
 	/**
 	 *
 	 * @param $key
@@ -256,7 +256,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		parent::offsetSet($key, $val);
 	}
 
-	
+
 	/**
 	 * Get value of query string param
 	 * if it exists or return $default
@@ -274,16 +274,16 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 */
 	/*public function getParam($var, $default = 1){
 
-		if(!$this->offsetExists($var)){
-			$this->offsetSet($var, $default);
+	if(!$this->offsetExists($var)){
+	$this->offsetSet($var, $default);
 
-			return $default;
-		}
+	return $default;
+	}
 
-		return $this->getFiltered($var);
+	return $this->getFiltered($var);
 	}*/
 
-	
+
 	/**
 	 * @todo remove this soon
 	 *
@@ -408,7 +408,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		return false;
 	}
 
-	
+
 	/**
 	 *
 	 * @return bool true if request is via Ajax, false otherwise
@@ -416,6 +416,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 */
 	public static final function isAjax()
 	{
+		d('isAjax? '.print_r($_GET, 1));
 		if(null !== self::$ajax){
 
 			return self::$ajax;
@@ -424,7 +425,8 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		if((isset($_GET) && !empty($_GET['ajaxid'])) ||
 		(isset($_POST) && !empty($_POST['ajaxid']))){
 			self::$ajax = true;
-
+			d('ajaxid true');
+			
 			return true;
 		}
 
@@ -433,7 +435,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		return self::$ajax;
 	}
 
-	
+
 	/**
 	 * Check to see if iframeid param exists in query string
 	 *
@@ -470,5 +472,5 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 		return $sUserAgent;
 	}
-	
+
 }

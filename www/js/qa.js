@@ -951,31 +951,24 @@ oSL.Regform = (function() {
 // include.js
 
 YUI({
-	gallery : 'gallery-2010.08.18-17-12',
-	modules : {
-		'gallery-aui-skin-base' : {
-			fullpath : 'http://yui.yahooapis.com/gallery-2010.08.18-17-12/build/gallery-aui-skin-base/css/gallery-aui-skin-base-min.css',
-			type : 'css'
-		},
-		'gallery-aui-skin-classic' : {
-			fullpath : 'http://yui.yahooapis.com/gallery-2010.08.18-17-12/build/gallery-aui-skin-classic/css/gallery-aui-skin-classic-min.css',
-			type : 'css',
-			requires : [ 'gallery-aui-skin-base' ]
-		}
-	}
-		}).use('node', 'dump', 'event', 'gallery-storage-lite', 'gallery-overlay-extras', 'gallery-aui-loading-mask', 'dd-plugin', 'transition', 'yui2-editor', 'yui2-resize', 'yui2-animation', 'io-form', 'json', 'imageloader', 'cookie', function(Y, result) {
+	/*filter: 'raw',
+	gallery : 'gallery-2010.08.18-17-12'*/
+		}).use('node', 'dump', 'event', 'gallery-storage-lite', 'gallery-overlay-extras', 'dd-plugin', 'transition', 'yui2-container', 'yui2-editor', 'yui2-resize', 'yui2-animation', 'io-form', 'json', 'jsonp', 'imageloader', 'autocomplete', 'autocomplete-filters','autocomplete-highlighters', 'gallery-node-tokeninput', 'cookie', function(Y, result) {
 	
-	
-	
-	var oMetas = {}, // cache storage for resolved meta tags
+		
+	var YAHOO = Y.YUI2, //
+	TTT2 = document.getElementsByClassName('ttt2'),
+	ttB, // Tooltip object
+	ttB2, // Tooltip2 object for all the "sort" tabs
+	oMetas = {}, // cache storage for resolved meta tags
 	/**
 	 * Storage for already resolved
 	 * answers tab
 	 */
+	loader,
 	oCTabs = {},
 	foldGroup, //
 	revealComments, //
-	YAHOO = Y.YUI2, //
 	dnd = false, //
 	res = Y.one('#body_preview'), //
 	write = function(str) {
@@ -1066,6 +1059,42 @@ YUI({
 
 			return eForm.get('name');
 	}, //
+	initTagInput = function(){
+		/**
+		 * @todo
+		 * Use datasource instead to store key => array
+		 * where key is first letter of tag, array is array from server
+		 * but if keys does not exist then get it from server
+		 * Then the source: has to be a function that would
+		 * just extract first letter of query and use it
+		 * to query datasorce object
+		 * that datasource object will have
+		 * all the config options to know 
+		 * the url where to get array of data
+		 * if it does not exist.
+		 */
+		var input = Y.one("#id_tags");
+		if(input){
+			Y.log('got id_tags');
+			Y.one(input).plug(Y.Plugin.TokenInput, {delimiter:' '});
+			
+			/**
+			 * AutoComplete plug is buggy when
+			 * clicking of suggested values - it
+			 * adds partially typed tag and also the whole
+			 * suggested tag after that!
+			 * Will wait on this one untill YUI3 fixes this
+			 * bug.
+			 */
+			/*.plug(Y.Plugin.AutoComplete, {
+				resultListLocator : 'ac',
+				resultTextLocator : 'tag',
+				resultFilters: 'charMatch',
+		        resultHighlighter: 'charMatch',
+		        source: '/index.php?a=taghint&q={query}&ajaxid=1&callback={callback}'
+		    })*/
+		}
+	},
 	/**
 	 * MiniMarkDown decode
 	 * Turn html back into mini markdown
@@ -1080,6 +1109,24 @@ YUI({
 		ret = s.replace(em, '_');
 		//Y.log('ret: ' + ret, 'warn');
 		ret = ret.replace(bold, '**');
+		
+		return ret;
+	},//
+	
+	/**
+	 * MiniMarkDown decode
+	 * Turn html back into mini markdown
+	 * @param string s
+	 * @return string with <strong> and <em> tags 
+	 * replaced with their mini markdown code
+	 */
+	mmdEncode = function(s){
+		//Y.log('got string to decode: ' + s);
+		var ret, em = /(\<em>|\<\/em>)/g;
+		var bold = /(\<strong>|\<\/strong>)/g;
+		ret = s.replace(em, '_');
+		//Y.log('ret: ' + ret, 'warn');
+		ret = ret.replace('/(\*\*)([^\*]+)(\*\*)/g', '<strong>\\2</strong>');
 		
 		return ret;
 	},//
@@ -1131,7 +1178,7 @@ YUI({
 	 * so that later we can access them
 	 * in order to hide masks
 	 */
-	showLoading = function(node) {
+	/*_showLoading = function(node) {
 		var mymask;
 		node = (!node) ? Y.one('.gbox') : node;
 		mymask = node.plug(Y.LoadingMask, {
@@ -1146,14 +1193,40 @@ YUI({
 		Y.loadingMasks.push(mymask);
 		mymask.show();
 		
-	}, //
+	}, *///
+	
+	showLoading = function(node){
+		var target, box, width, height;
+		if(!loader){			
+		loader = new Y.Overlay({
+			centered: true,
+			srcNode:"#loading",
+		    width:"90px",
+		    height:"60px",
+		    headerContent: "Loading...",
+		    bodyContent: "<img src='/images/loading-bar.gif'>",
+		    zIndex:1000
+		});
+			Y.one("#loading").removeClass('hidden');
+			loader.render();
+		}
+
+		if(node && (node instanceof Y.Node)){
+			loader.set("centered", node);
+		} else {
+			Y.log('centering inside viewpoint ');
+			loader.set("centered", true);
+		}
+		loader.set("constrain", true);
+		loader.show();
+	},
 	 /**
 	  * Hide loading mask attached to node
 	  * if no node is provided then
 	  * hide all loadingMasks
 	  * 
 	  */
-	hideLoading = function(node) {
+	/*_hideLoading = function(node) {
 		var mymask;			
 		if (node && node.loadingmask) {
 			node.loadingmask.hide();
@@ -1164,8 +1237,13 @@ YUI({
 				mymask.hide();
 			}
 		}
-	}, //
-	
+	},*/ //
+
+	hideLoading = function(node){
+		if(loader){
+			loader.hide();
+		}
+	},
 	/**
 	 * Start Login with FriendConnect routine
 	 * 
@@ -1245,7 +1323,7 @@ YUI({
 					if(span){
 						span.removeClass('unread');
 						span.addClass('read');
-						span.set('title', 'No Unread Items. Click to toggle status');
+						span.setAttribute('lampcms:ttt', 'No Unread Items. Click to toggle status');
 					}
 				
 				}
@@ -1274,12 +1352,12 @@ YUI({
 		sKey = qid + '_' + uid;
 		if('unread' == curStatus){
 			link.removeClass('unread').addClass('read');
-			el.removeClass('unread').addClass('read').set('title', 'No Unread items. Click to toggle status');
+			el.removeClass('unread').addClass('read').setAttribute('lampcms:ttt', 'No Unread items. Click to toggle status');
 			//Y.log('adding etag ' + etag + ' for key ' + sKey );
 			Y.StorageLite.setItem(sKey, etag);
 		} else {
 			link.removeClass('read').addClass('unread');
-			el.removeClass('read').addClass('unread').set('title', 'Unread items. Click to toggle status');
+			el.removeClass('read').addClass('unread').setAttribute('lampcms:ttt', 'Unread items. Click to toggle status');
 			//Y.log('removing etag for key' + sKey );
 			Y.StorageLite.removeItem(sKey);
 		}
@@ -1794,10 +1872,11 @@ YUI({
 		}
 		//Y.log('el: ' + el);
 		el.removeClass('unfollow');
-		var title, controls, id, resID, ftype = 'q', follow = 'on', form, //
+		var viewerDiv, title, controls, id, resID, ftype = 'q', follow = 'on', form, //
 		oLabels = {'q' : 'question', 'u' : 'user', 't' : 'tag'};
 		resID = el.getAttribute('lampcms:follow');
 		ftype = el.getAttribute('lampcms:ftype');
+		viewerDiv = Y.one("#flwr_" + getViewerId());
 	    //Y.log('resID ' + resID  + ' ftype: ' + ftype);
 		if(el.test('.following')){
 			// check if viewer is trying to unfollow own question
@@ -1821,6 +1900,10 @@ YUI({
 			el.one('span.flabel').set('text', title);
 			follow = 'off';
 			
+			if(viewerDiv){
+				viewerDiv.hide('fadeOut');
+			}
+			
 		} else {
 			title = 'You are following this ' + oLabels[ftype];
 			el.removeClass('follow').addClass('following');
@@ -1828,6 +1911,10 @@ YUI({
 			el.one('span.icoc').removeClass('cplus').removeClass('del').addClass('check');
 			el.one('span.flabel').set('text', 'Following');
 			follow = 'on';
+			
+			if(viewerDiv){
+				viewerDiv.show('fadeIn');
+			}
 		}
 
 			form = '<form name="form_f" action="/index.php">'
@@ -2068,6 +2155,7 @@ YUI({
 			//Y.log('paginated: ' + paginated);
 			paginated.setContent(data.paginated);
 			foldGroup.fetch();
+			initTooltip();
 			return;
 		}
 		
@@ -2577,7 +2665,6 @@ YUI({
 				};
 				
 	            request = Y.io('/index.php', cfg);
-	            //Y.log('request: ' + request);
 				comment.hide('fadeOut');
 				
 				Y.later(1000, comment, function(){
@@ -3161,11 +3248,96 @@ YUI({
 			}
 		};
 	
+	var initTooltip = function(){
+		var TTT = document.getElementsByClassName('ttt');
+		if(TTT){
+			if(ttB){
+				ttB.destroy();
+			}
+		ttB = new YAHOO.widget.Tooltip("ttB", { 
+			context:TTT,
+			autodismissdelay: 5500,
+			hidedelay: 350,
+			xyoffset: [-10, -45],
+			effect:{effect:YAHOO.widget.ContainerEffect.FADE,duration:0.20}
+		});
+	
+	}
+	
+	};
+
+	if(TTT2){
+		ttB2 = new YAHOO.widget.Tooltip("ttB2", { 
+			context:TTT2,
+			autodismissdelay: 5500,
+			hidedelay: 350,
+			xyoffset: [-10, -45],
+			effect:{effect:YAHOO.widget.ContainerEffect.FADE,duration:0.20}
+		});
+	}
+	
+	var initAutoComplete = function(){
+		var isearch, id_title;
+		if("1" == getMeta('noac')){
+			return;
+		}
+		isearch = Y.one('#id_q');
+		id_title = Y.one('#id_title');
+	if(isearch){
+	isearch.plug(
+			Y.Plugin.AutoComplete,
+			{
+				minQueryLength: 3,
+				resultHighlighter : 'wordMatch',
+				resultListLocator : 'ac',
+				resultTextLocator : 'title',
+				source : '/index.php?a=titlehint&q={query}&ajaxid=1&callback={callback}'
+			});
+	}
+	
+
+	if(id_title){
+		id_title.plug(
+			Y.Plugin.AutoComplete,
+			{
+				minQueryLength: 3,
+				resultHighlighter : 'wordMatch',
+				resultListLocator : 'ac',
+				resultTextLocator : 'title',
+				source : '/index.php?a=titlehint&q={query}&ajaxid=1&callback={callback}',
+				resultFormatter: function (query, results) {
+					 return Y.Array.map(results, function (result) {
+						var tpl = '<a href="/q{_id}/{url}">{t}</a><br>{intro}<br><div class="c6">Asked {hts} (<span class="c_{status}">{i_ans} answer{ans_s})</span></div>';
+						var raw = result.raw;
+						return Y.Lang.sub(tpl, {
+					      _id       : raw._id,
+					      url        : raw.url,
+					      intro :  raw.intro,
+					      t      : result.highlighted,
+					      hts: raw.hts,
+					      i_ans : raw.i_ans,
+					      ans_s : raw.ans_s,
+					      status : raw.status
+					    });
+					 });
+				}
+			});
+		}
+	};
+	
+	initTooltip();
 	revealComments();
 	revealHidden();
 	hiFollowedTags();
 	setReadLinks();
 	storeReadEtag();
+	
+	/*Y.one("div.home").on('click', function(){
+		showLoading(Y.one(".paginated"))
+	});*/
+	
+	
+	
 	Y.on('submit', MysubmitForm, '.qa_form');
 	//Y.delegate("click", handleAjaxLinks, "#lastdiv", 'a.ajax');
 	/**
@@ -3204,7 +3376,6 @@ YUI({
 	 
 	 
 	 if(Y.one('#regdiv')) {
-            //Y.log('have regdiv');
 			dnd = Y.Cookie.get("dnd");
 			//Y.log('dnd: ' + dnd);
 			/**
@@ -3221,8 +3392,9 @@ YUI({
 		   foldDistance: 2
 		});
 	 foldGroup.set('className', 'imgloader');
-	 //foldGroup.setTrigger('#qview-body', 'mouseover');
 	 
+	 initAutoComplete();
+	 initTagInput();
 	 addAdminControls();
 
 });

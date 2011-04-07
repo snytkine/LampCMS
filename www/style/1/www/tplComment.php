@@ -80,7 +80,7 @@ class tplComment extends \Lampcms\Template\Template
 		<div class="com_1 fl cb1">
 			<div class="fl com_left">
 				<div class="fr com_like votebtns">
-					<a id="c_like_%1$s" title="I Like this comment!" class="ajax thumbup c_like" href="#">Good</a>
+					<a id="c_like_%1$s" title="I Like this comment!" class="ajax ttt thumbup c_like" href="#">Good</a>
 				</div>
 				<div class="c_likes fr">%10$s</div>
 			</div>
@@ -88,7 +88,7 @@ class tplComment extends \Lampcms\Template\Template
 		</div>
 		<div class="com_i fl cb1">
 			<div class="fl com_flag">
-				<span class="ico flag ajax" id="cflag_%1$s" title="Flag this comment as inappropriate">flag</span>
+				<span class="ico ttt flag ajax" id="cflag_%1$s" title="Flag this comment as inappropriate">flag</span>
 			</div>
 			<div class="com_tools controls uid-%5$s" id="res_%1$s">
 				<div class="com_auth usr usr_%5$s fl"><a href="/users/%5$s/" class="iu usr-%5$s commentor%8$s">%4$s</a></div>	

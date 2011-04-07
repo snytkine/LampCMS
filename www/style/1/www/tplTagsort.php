@@ -57,9 +57,9 @@ class tplTagsort extends Lampcms\Template\Template
 	'recent_t' => 'Tags with most recent questions');
 
 	protected static $tpl = '
-	<div id="qtypes">
-	<a href="/tags/popular/" class="qtype%1$s" title="%5$s"><span rel="in">%4$s</span></a>
-	<a href="/tags/name/" class="qtype%2$s" title="%7$s"><span rel="in">%6$s</span></a>
-	<a href="/tags/recent/" class="qtype%3$s" title="%9$s"><span rel="in">%8$s</span></a>
+	<div id="qtypes" class="cb fl reveal hidden">
+	<a href="/tags/popular/" class="ajax sortans ttt2 qtype%1$s" title="%5$s"><span rel="in">%4$s</span></a>
+	<a href="/tags/name/" class="ajax sortans ttt2 qtype%2$s" title="%7$s"><span rel="in">%6$s</span></a>
+	<a href="/tags/recent/" class="ajax sortans ttt2 qtype%3$s" title="%9$s"><span rel="in">%8$s</span></a>
 	</div>';
 }

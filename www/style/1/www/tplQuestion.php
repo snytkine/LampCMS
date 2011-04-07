@@ -107,17 +107,17 @@ class tplQuestion extends Lampcms\Template\Template
 		<div class="votebtns" id="vote%1$s">
 		<a id="upvote-%1$s"
 			title="I like this post (click again to cancel)"
-			class="ajax vote thumbup" href="/vote/%1$s/up" rel="nofollow">%13$s</a>
+			class="ajax ttt vote thumbup" href="/vote/%1$s/up" rel="nofollow">%13$s</a>
 		<div id="score%1$s" class="qscore">%8$s</div>
 
 		<a id="downvote-%1$s"
 			title="I dont like this post (click again to cancel)"
-			class="ajax vote thumbdown" href="/vote/%1$s/down" rel="nofollow">%14$s</a> 
+			class="ajax ttt vote thumbdown" href="/vote/%1$s/down" rel="nofollow">%14$s</a> 
 		<br>
 			<!--
 			<a id="favorite-%1$s"
 			title="mark/unmark this question as favorite (click again to cancel)"
-			class="ajax favorite-mark" href="/mark_favorite/%1$s" rel="nofollow">favorite</a>
+			class="ajax ttt favorite-mark" href="/mark_favorite/%1$s" rel="nofollow">favorite</a>
 
 			<div id="fvrt-count">%9$s</div>
 			//-->
@@ -138,7 +138,7 @@ class tplQuestion extends Lampcms\Template\Template
 		<div class="question-body" id="qbody-%1$s">%2$s</div>
 		<div class="tgs">%5$s</div>
 		<div class="question%19$s controls%16$s uid-%10$s" id="res_%1$s">
-		     <span class="icoc stub fr">&nbsp;</span><span class="ico flag ajax" title="Flag this item as inappropriate (%15$s)"> </span>
+		     <span class="icoc stub fr">&nbsp;</span><span class="ico ttt flag ajax" title="Flag this question as inappropriate"> </span>
 		</div>
 		<!-- // -->
 		<table class="foot">

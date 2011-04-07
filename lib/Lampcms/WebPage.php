@@ -403,12 +403,9 @@ abstract class WebPage extends Base
 		$this->aPageVars['show_comments'] = $oIni->SHOW_COMMENTS;
 		$this->aPageVars['max_comments'] = $oIni->MAX_COMMENTS;
 		$this->aPageVars['comments_timeout'] = $oIni->COMMENT_EDIT_TIME;
-		$this->aPageVars['JS_MIN_ID'] = JS_MIN_ID;
-
-
 		$this->aPageVars['layoutID'] = $this->layoutID;
-			
-			
+		$this->aPageVars['DISABLE_AUTOCOMPLETE'] = $oIni->DISABLE_AUTOCOMPLETE;	
+		$this->aPageVars['JS_MIN_ID'] = JS_MIN_ID;	
 		/**
 		 * @todo later can change to something like
 		 * $this->oRegistrty->Viewer->getStyleID()

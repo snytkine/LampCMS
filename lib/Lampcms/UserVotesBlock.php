@@ -82,7 +82,7 @@ class UserVotesBlock extends LampcmsObject
 			    "mapreduce" => "VOTES", 
 			    "map" => $map,
 			    "reduce" => $reduce,
-			    "query" => array("i_uid" => 39715)
+			    "query" => array("i_uid" => $uid)
 			)
 		);
 
@@ -102,7 +102,7 @@ class UserVotesBlock extends LampcmsObject
 			$s .= \tplVoteCount::parse($vars, false);
 		}
 
-		$ret = \tplUserVotes::parse(array('count' => $total, 'stats' => $s));
+		$ret = \tplUserVotes::parse(array('count' => $total, 'stats' => $s, 'username' => $oUser->getDisplayName()));
 		d('ret: '.$ret);
 
 		return $ret;

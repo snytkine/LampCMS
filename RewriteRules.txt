@@ -30,6 +30,7 @@ RewriteRule ^/tags/page([0-9]+)\.htm([l]{0,1})$ /index.php?a=viewqtags&pageID=$1
 RewriteRule ^/tags/name([\/]{0,1})$ /index.php?a=viewqtags&cond=name
 RewriteRule ^/tags/recent([\/]{0,1})$ /index.php?a=viewqtags&cond=recent
 RewriteRule ^/tags/popular([\/]{0,1})$ /index.php?a=viewqtags&cond=popular
+RewriteRule ^/tags/(name|recent|popular)/page([0-9]+)\.html$ /index.php?a=viewqtags&cond=$1&pageID=$2
 RewriteRule ^/tagged/(.*)/$ /index.php?a=tagged&tags=$1
 RewriteRule ^/tagged/(.*)/page([0-9]+)\.html$ /index.php?a=tagged&tags=$1&pageID=$2
 RewriteRule ^/vote/([0-9]+)/(up|down)$ /index.php?a=vote&resid=$1&res=q&type=$2
