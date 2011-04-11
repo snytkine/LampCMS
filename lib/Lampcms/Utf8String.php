@@ -664,8 +664,8 @@ class Utf8String extends String
 			$fromCharset = ('UTF-7' !== $fromCharset) ? $fromCharset : 'UTF7-IMAP';
 			$a = mb_list_encodings();
 			if(in_array($fromCharset, $a)){
-				mb_internal_encoding("UTF-8");
-				mb_substitute_character("none");
+				\mb_internal_encoding("UTF-8");
+				\mb_substitute_character("none");
 				$ret = mb_convert_encoding($string, 'UTF-8', $fromCharset);
 			}
 		}
@@ -685,7 +685,7 @@ class Utf8String extends String
 	 */
 	public function length(){
 
-		return mb_strlen($this->string);
+		return \mb_strlen($this->string);
 	}
 
 	/**
@@ -717,7 +717,7 @@ class Utf8String extends String
 	 */
 	public function truncate($max, $link = ''){
 
-		$words = mb_split("\s", $this->string);
+		$words = \mb_split("\s", $this->string);
 
 		$newstring = '';
 		$numwords = 0;
@@ -764,7 +764,7 @@ class Utf8String extends String
 		 *
 		 */
 		if(!$cut){
-			$ret = wordwrap($this->string, $width, $break);
+			$ret = \wordwrap($this->string, $width, $break);
 		} else {
 			// We first need to explode on $break, not destroying existing (intended) breaks
 			$lines = explode($break, $this->string);
@@ -778,14 +778,14 @@ class Utf8String extends String
 					$word = $words[$i];
 
 					// If cut is true we need to cut the word if it is > width chars
-					if ($cut && (mb_strlen($word) > $width) ){
-						$words[$i] = mb_substr($word, $width);
-						$word = mb_substr($word, 0, $width);
+					if ($cut && (\mb_strlen($word) > $width) ){
+						$words[$i] = \mb_substr($word, $width);
+						$word = \mb_substr($word, 0, $width);
 						$i--;
 					}
 
 					if (mb_strlen($new_lines[$index] . $word) > $width){
-						$new_lines[$index] = mb_substr($new_lines[$index], 0, -1);
+						$new_lines[$index] = \mb_substr($new_lines[$index], 0, -1);
 						$index++;
 						$new_lines[$index] = '';
 					}
@@ -793,7 +793,7 @@ class Utf8String extends String
 					$new_lines[$index] .= $word . ' ';
 				}
 
-				$new_lines[$index] = mb_substr($new_lines[$index], 0, -1);
+				$new_lines[$index] = \mb_substr($new_lines[$index], 0, -1);
 				$index++;
 				$new_lines[$index] = '';
 			}
@@ -821,11 +821,11 @@ class Utf8String extends String
 	 * @return string a string with first letter upercased, the rest lowercase
 	 */
 	public static function utf8_ucfirst($utf8string){
-		$string = mb_strtolower($utf8string);
+		$string = \mb_strtolower($utf8string);
 
-		$first = mb_strtoupper(mb_substr($string, 0, 1));
+		$first = \mb_strtoupper(\mb_substr($string, 0, 1));
 
-		return $first.mb_substr($string, 1, mb_strlen($string));
+		return $first.\mb_substr($string, 1, \mb_strlen($string));
 	}
 
 
@@ -989,15 +989,15 @@ class Utf8String extends String
 	public function toASCII(){
 		$ascii = false;
 		if(extension_loaded('iconv')){
-			setlocale(LC_ALL, 'en_US.UTF8');
-			$ER = error_reporting(0);
-			$ascii = iconv("UTF-8", "ASCII//TRANSLIT", $this->string);
-			error_reporting($ER);
+			\setlocale(LC_ALL, 'en_US.UTF8');
+			$ER = \error_reporting(0);
+			$ascii = \iconv("UTF-8", "ASCII//TRANSLIT", $this->string);
+			\error_reporting($ER);
 		}
 
 		if(false === $ascii){
-			mb_substitute_character("none");
-			$ascii = mb_convert_encoding($this->string, 'ASCII', 'UTF-8');
+			\mb_substitute_character("none");
+			$ascii = \mb_convert_encoding($this->string, 'ASCII', 'UTF-8');
 		}
 
 		return $this->handleReturn($ascii);
@@ -1017,14 +1017,14 @@ class Utf8String extends String
 	public function toLatin1(){
 		$ret = false;
 		if(extension_loaded('iconv')){
-			setlocale(LC_ALL, 'en_US.UTF8');
+			\setlocale(LC_ALL, 'en_US.UTF8');
 			$ER = error_reporting(0);
-			$ret = iconv("UTF-8", "ISO-8859-1//TRANSLIT", $this->string);
+			$ret = \iconv("UTF-8", "ISO-8859-1//TRANSLIT", $this->string);
 			error_reporting($ER);
 		}
 
 		if(false === $ret){
-			$ret = utf8_decode($this->string);
+			$ret = \utf8_decode($this->string);
 		}
 
 		return $this->handleReturn($ret);
@@ -1041,21 +1041,21 @@ class Utf8String extends String
 	 * @return object of this type
 	 */
 	public function htmlspecialchars(){
-		$ret = htmlspecialchars($this->string, ENT_NOQUOTES, 'UTF-8', false);
+		$ret = \htmlspecialchars($this->string, ENT_NOQUOTES, 'UTF-8', false);
 
 		return $this->handleReturn($ret);
 	}
 
 
 	public function stripTags(array $aAllowed = null){
-		$ret = strip_tags($this->string, $aAllowed);
+		$ret = \strip_tags($this->string, $aAllowed);
 
 		return $this->handleReturn($ret);
 	}
 
 
 	public function htmlentities(){
-		$ret = htmlentities($this->string, ENT_NOQUOTES, 'UTF-8', false);
+		$ret = \htmlentities($this->string, ENT_NOQUOTES, 'UTF-8', false);
 
 		return $this->handleReturn($ret);
 	}
@@ -1338,7 +1338,7 @@ class Utf8String extends String
 	 * @see Lampcms.String::toLowerCase()
 	 */
 	public function toLowerCase(){
-		$s = mb_strtolower($this->string);
+		$s = \mb_strtolower($this->string);
 
 		return $this->handleReturn($s);
 	}
@@ -1350,14 +1350,14 @@ class Utf8String extends String
 	 * @see Lampcms.String::toUpperCase()
 	 */
 	public function toUpperCase(){
-		$s = mb_strtoupper($this->string);
+		$s = \mb_strtoupper($this->string);
 
 		return $this->handleReturn($s);
 	}
 
 
 	public function substr($start, $len = null){
-		$s = mb_substr($this->string, $start, $len);
+		$s = \mb_substr($this->string, $start, $len);
 
 		return $this->handleReturn($s);
 	}

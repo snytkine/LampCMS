@@ -49,7 +49,7 @@
  *
  */
 
- 
+
 namespace Lampcms;
 
 
@@ -67,6 +67,8 @@ namespace Lampcms;
 class Relatedtags extends LampcmsObject
 {
 	const COLLECTION = 'RELATED_TAGS';
+
+
 	/**
 	 * Default number of tags
 	 * in parsed html
@@ -80,11 +82,26 @@ class Relatedtags extends LampcmsObject
 	 */
 	const MAX_TAGS = 30;
 
+
 	public function __construct(Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
 	}
 
-	
+
+	/**
+	 * This method is run when question is deleted
+	 * to update RELATED tags to take into account
+	 * all the removed tags
+	 * 
+	 * @param Question $oQuestion
+	 */
+	public function removeTags(Question $oQuestion){
+		$this->addTags($oQuestion, -1);
+
+		return $this;
+	}
+
+
 	/**
 	 * Add new batch of tags to collection
 	 * the array is looped and then for each
@@ -101,12 +118,12 @@ class Relatedtags extends LampcmsObject
 	 * but... we need a new record in QUESTIONS to be
 	 * created before we can redirect user to see his new question,
 	 * so how can we run this after? It's still possible
-	 * just create new record in QUESTION then register_shutdown_function
+	 * just create new record in QUESTION then runLater
 	 * and pass anonymous callback
 	 *
 	 * @param array $aTags
 	 */
-	public function addTags(Question $oQuestion){
+	public function addTags(Question $oQuestion, $inc = 1){
 		$aTags = $oQuestion['a_tags'];
 		/**
 		 * Some questions may only have one tag
@@ -122,20 +139,26 @@ class Relatedtags extends LampcmsObject
 			$aTemp = $aTags;
 			unset($aTemp[array_search($tag, $aTemp)]);
 			d('aTemp: '.print_r($aTemp, 1));
-			$this->addRelated($tag, $aTemp);
+			$this->addRelated($tag, $aTemp, $inc);
 		}
+
+
+		return $this;
 	}
 
-	
+
 	/**
 	 * Add/Update record in RELATED_TAGS collection
 	 * for this one tag
 	 *
 	 * @param string $tag
 	 * @param array $aTags
+	 * @param int $inc in case of addTag this is 1, in case of remove
+	 * it's -1
+	 * 
 	 */
-	protected function addRelated($tag, array $aTags){
-		
+	protected function addRelated($tag, array $aTags, $inc = 1){
+
 		/**
 		 * Get array of 'related' for the 'tag' from Mongo,
 		 * For each element in $aTags:
@@ -156,14 +179,15 @@ class Relatedtags extends LampcmsObject
 
 			$aTemp = array_count_values($aTags);
 			d('aTemp: '.print_r($aTemp, 1));
-			
+
 		} else {
 			$aTemp = $a['tags'];
+
 			foreach($aTags as $t){
 				if(array_key_exists($t, $aTemp)){
-					$aTemp[$t] += 1;
+					$aTemp[$t] += $inc;
 				} else {
-					$aTemp[$t] = 1;
+					$aTemp[$t] = $inc;
 				}
 			}
 		}
@@ -171,7 +195,7 @@ class Relatedtags extends LampcmsObject
 		$this->parseAndSave($tag, $aTemp);
 	}
 
-	
+
 	/**
 	 * Sort 'tags' array by count,
 	 * use top 30 items to create
@@ -182,36 +206,80 @@ class Relatedtags extends LampcmsObject
 	 * @param array $aTemp
 	 */
 	protected function parseAndSave($tag, array $aTemp){
-		arsort($aTemp, SORT_NUMERIC);
+		/**
+		 * If any of the elements have been unset
+		 * the element is still there just with
+		 * the value of null
+		 * must run through array_filter to remove
+		 * all empty vals
+		 */
+		$aTemp = \array_filter($aTemp);
+		d('after filter: '.print_r($aTemp, 1));
+
+		\arsort($aTemp, SORT_NUMERIC);
 		/**
 		 * Parse related tags template
 		 * each item in template
 		 * will have a link like
 		 * php+mysql
 		 */
+		$aNew = array();
 		$html = '';
 		$i = 1;
 		foreach($aTemp as $t => $count){
-			$aVars = array(
-			'tag' => $t, 
-			'title' => $tag.' '.$t,
-			'link' => $tag.'+'.$t,
-			'i_count' => $count);
+			/*$aVars = array(
+			 'tag' => $t,
+			 'title' => $tag.' '.$t,
+			 'link' => \urlencode($tag).'+'.\urlencode($t),
+			 'i_count' => $count);*/
 
-			$html .= \tplRelatedlink::parse($aVars);
+			/**
+			 * Check $count because
+			 * if case of removeTags the count
+			 * of related tags could have
+			 * been reduced to 0
+			 * which means no related tags
+			 */
+			if($count > 0){
+				$aNew[$t] = $count;
+				$aVars = array(
+				$t,
+				$tag.' '.$t,
+				\urlencode($tag).'+'.\urlencode($t),
+				$count
+				);
 
-			$i	+= 1;
+				$html .= \tplRelatedlink::parse($aVars, false);
+
+				$i	+= 1;
+					
+			}
+
 			if($i == self::MAX_TAGS){
 				break;
 			}
 		}
 
-		$aData = array('_id' => $tag, 'tags' => $aTemp, 'i_count' => count($aTemp), 'html' => $html);
+		/**
+		 * If $tag does not have related tags anymore
+		 * like in case of removeTags resulted of
+		 * removing of all related tags for certain tag,
+		 * we should just remove this $tag from collection
+		 */
 		$coll = $this->oRegistry->Mongo->getCollection(self::COLLECTION);
-		$coll->save($aData);
+
+		if(empty($aNew)){
+			d('removing orphan tag '.$tag.' from RELATED_TAGS collection');
+			$coll->remove(array('_id' => $tag));
+		} else {
+			$aData = array('_id' => $tag, 'tags' => $aNew, 'i_count' => count($aNew), 'html' => $html);
+			$coll->save($aData);
+		}
+
+		return $this;
 	}
 
-	
+
 	/**
 	 * Get entire Mongo document for this $tag
 	 *
@@ -221,11 +289,11 @@ class Relatedtags extends LampcmsObject
 	 */
 	public function getRecord($tag){
 		$coll = $this->oRegistry->Mongo->getCollection(self::COLLECTION);
-		
+
 		return $coll->findOne(array('_id' => $tag));
 	}
 
-	
+
 	/**
 	 * Get 'tags' array
 	 *
@@ -243,7 +311,7 @@ class Relatedtags extends LampcmsObject
 		return $a['tags'];
 	}
 
-	
+
 	/**
 	 * Get parsed html for related tags
 	 * for this $tag
@@ -259,5 +327,5 @@ class Relatedtags extends LampcmsObject
 
 		return (!empty($a) && !empty($a['html'])) ? $a['html'] : '';
 	}
-	
+
 }

@@ -551,7 +551,8 @@ class Cache extends Observer
 		$html = \tplLinktag::loop($cur);
 
 		d('html recent tags: '.$html);
-
+		$this->aTags = array('tags');
+		
 		return '<div class="tags-list">'.$html.'</div>';
 
 	}
@@ -577,7 +578,9 @@ class Cache extends Observer
 		if($count > $limit){
 			$ret .= '<div class="moretags"><a href="/tags/unanswered/"><span rel="in">All unanswered tags</span></a>';
 		}
-
+		
+		$this->aTags = array('tags');
+		
 		return $ret;
 	}
 
@@ -616,6 +619,7 @@ class Cache extends Observer
 	protected function Acl()
 	{
 		d('cp');
+		$this->aTags = array('acl', 'settings');
 		return new \Lampcms\Acl\Acl();
 
 	}

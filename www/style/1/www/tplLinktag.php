@@ -50,6 +50,14 @@
  */
 class tplLinktag extends Lampcms\Template\Template
 {
+	/**
+	 * This is important!
+	 * Since tags can be any combination of cars, even
+	 * brackets and + sign, we should always urlencode tag's value
+	 * for the link!
+	 * 
+	 * @param array $a
+	 */
 	protected static function func(&$a){
 		$a['encoded'] = urlencode($a['tag']);
 	}

@@ -83,6 +83,19 @@ class Unanswered extends Viewquestions
 
 	protected $aTags;
 
+	/**
+	 * Tags string from url
+	 * it is urldecoded
+	 *
+	 * @var string
+	 */
+	protected $tags = '';
+	
+	/**
+	 * Tags
+	 */
+	protected $rawTags = '';
+
 
 	/**
 	 * Select items according to conditions passed in GET
@@ -126,8 +139,9 @@ class Unanswered extends Viewquestions
 				break;
 
 			case 'tagged':
-				$this->pagerPath = '/unanswered/tagged/'.$this->oRequest['tags'];
-				$where = array('i_sel_ans' => null, 'a_tags' => array('$all' => $this->getTags()) ); //'i_sel_ans' => null,
+				$where = array('i_sel_ans' => null, 'a_tags' => array('$all' => $this->getTags()) );
+				$this->pagerPath = '/unanswered/tagged/'.$this->rawTags;
+				 //'i_sel_ans' => null,
 				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQuntypes', 'newest');
 				/**
 				 * @todo
@@ -137,8 +151,8 @@ class Unanswered extends Viewquestions
 				 */
 
 				$this->makeFollowTagButton();
-
-				$this->counterTaggedText = \tplCounterblocksub::parse(array(str_replace(' ', ' + ', $this->oRequest['tags']), 'Tagged'), false);
+				$replaced = \str_replace(' ', ' + ', $this->tags);
+				$this->counterTaggedText = \tplCounterblocksub::parse(array($replaced, 'Tagged'), false);
 				break;
 
 				/**
@@ -181,20 +195,71 @@ class Unanswered extends Viewquestions
 	/**
 	 * Extract value of tags from
 	 * query string and turn into array
-	 *
-	 * @todo run value of Request through urldecode because
+	 * runs value of Request through urldecode because
 	 * unicode tags would be percent-encoded in the url
 	 *
 	 * @return array of tags passed in query string
 	 */
 	protected function getTags(){
 		if(empty($this->aTags)){
-			$s = $this->oRequest['tags'];
-			if(empty($s)){
+				
+			/**
+			 * And now a workaround
+			 * for the genocidal RewriteRule bug
+			 * that obliterages the urlencoded chars
+			 * during the rewrite
+			 * so instead we must work directly
+			 * with $_SERVER['REQUEST_URI']
+			 * $_SERVER['REQUEST_URI'] is consistently
+			 * the same on Apache and on Lighttpd when
+			 * php is run as fastcgi
+			 * The rewrite on Lighttpd does not have
+			 * this genocidal bug, but for consistency
+			 * we still working with $_SERVER['REQUEST_URI']
+			 * regardless of the server
+			 */
+			if(!empty($_SERVER) && !empty($_SERVER['REQUEST_URI'])){
+				/**
+				 * Must use regex because REQUEST_URI
+				 * may contain also a pageID after the last /
+				 * so must extract part from
+				 * between /tagged/ and next /
+				 *
+				 * $r is something like this: /tagged/tag%2B%2B/
+				 */
+				$r = $_SERVER['REQUEST_URI'];
+				$m = \preg_match('/\/tagged\/([^\/]+)([\/]{0,1})/i', $r, $matches);
+				d('matches: '.print_r($matches, 1));
+				if($matches && !empty($matches[1])){
+					$tags = $matches[1];
+					d('tags: '.$tags);
+					$this->tags = \urldecode($tags);
+				}
+
+			} else {
+				/**
+				 * That's hopefully is OK
+				 * because Apache always has REQUEST_URI
+				 * and if it's not available here
+				 * then hopefully this is not an Apache server
+				 * and it's possible the rewrite worked without this bug
+				 */
+				d('no REQUEST_URI available');
+				$tags = $this->oRequest['tags'];
+				$this->tags = \urldecode($tags);
+			}
+
+			$this->rawTags = $tags;
+			$this->title = \htmlspecialchars_decode(\urldecode($tags));
+			d('this->title: '.$this->title);
+			
+			if(empty($this->tags)){
 				return array();
 			}
 
-			$this->aTags = explode(' ', $s);
+			
+			$this->aTags = explode(' ', $this->tags);
+			$this->aTags = \array_filter($this->aTags);
 			d('aTags: '.print_r($this->aTags, 1));
 		}
 

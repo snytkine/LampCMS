@@ -65,9 +65,10 @@ namespace Lampcms;
 class TitleTokenizer extends \Lampcms\String\Tokenizer
 {
 
-	public static function factory($str){
 
-		return new self($str);
+	public static function factory(Utf8String $str){
+
+		return new self($str->toLowerCase()->trim()->valueOf());
 	}
 
 
@@ -81,24 +82,31 @@ class TitleTokenizer extends \Lampcms\String\Tokenizer
 	 * @return array tokens;
 	 */
 	public function parse(){
-		$this->origString = mb_strtolower($this->origString);
-		mb_regex_encoding('UTF-8');
-		$aTokens = mb_split('([\s,;\"\?\.:]+)', $this->origString, -1);
-		$aTokens = array_unique($aTokens);
-		
+
+		\mb_regex_encoding('UTF-8');
+		$aTokens = \mb_split('([\s,;\"\?]+)', $this->origString);
+		$aTokens = \array_unique($aTokens);
+
 		$aStopwords = getStopwords();
 
-		$aTokens = array_filter($aTokens, function($val) use($aStopwords){
-			return ((strlen($val) > 2) && !in_array($val, $aStopwords)) ? $val : false;
+		\array_walk($aTokens, function(&$val) use($aStopwords){
+			$val = \trim($val);
+			$val = ((strlen($val) > 1) && !in_array($val, $aStopwords)) ? $val : false;
 		});
+
+		/**
+		 * Remove empty values
+		 *
+		 */
+		$aTokens = \array_filter($aTokens);
 
 		/**
 		 * Call array_values to reindex from 0
 		 * otherwise if filter removed some
-		 * elements then Mongo will not 
+		 * elements then Mongo will not
 		 * treat this as normal array
 		 */
-		return array_values($aTokens);
+		return \array_values($aTokens);
 	}
 
 }

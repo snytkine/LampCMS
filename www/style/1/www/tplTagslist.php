@@ -35,17 +35,30 @@
  *
  *
  */
- 
+
 class tplTagslist extends Lampcms\Template\Template
 {
-	
-	
+
+	/**
+	 * This is important!
+	 * Since tags can be any combination of chars, even
+	 * brackets and + sign, we should always urlencode tag's value
+	 * for the link!
+	 *
+	 * @param array $a
+	 */
+	protected static function func(&$a){
+		$a['encoded'] = urlencode($a['tag']);
+	}
+
 	protected static $vars = array(
-	'tag' => '',
-	'i_count' => '',
-	'hts' => '');
-	
+	'tag' => '', //1
+	'i_count' => '', //2
+	'hts' => '', //3
+	'encoded' => '' // 4
+	);
+
 	protected static $tpl = '<div class="tag1">
-	<a href="/tagged/%1$s/">%1$s</a><span>&times;&nbsp;%2$s</span><span title="Latest question on %3$s" class="ts" rel="time">%3$s</span>
+	<a href="/tagged/%4$s/">%1$s</a><span>&times;&nbsp;%2$s</span><span title="Latest question on %3$s" class="ts" rel="time">%3$s</span>
 	</div>';
 }

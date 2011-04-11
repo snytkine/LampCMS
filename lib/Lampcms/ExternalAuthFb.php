@@ -217,17 +217,17 @@ class ExternalAuthFb extends Facebook
 
 				$oRegistry->Viewer = $oUser;
 				$oAuthFB = new self($oRegistry, $aFacebookConf, $aCookieParams);
-				register_shutdown_function(function() use ($oAuthFB){
-
+				$callable = function() use ($oAuthFB){
 					try{
-						d('before facebook auth post precessing  $oAuthFB: '.$oAuthFB);
+						//d('before facebook auth post precessing  $oAuthFB: '.$oAuthFB);
 						$oAuthFB->getFbData()->getFacebookUserObject();
-						d('after facebook auth post precessing');
+						//d('after facebook auth post precessing');
 					} catch (Exception $e){
-						e('Unable to run post processing of FB data: '.$e->getFile().' '.$e->getLine().' '.$e->getMessage());
+						//e('Unable to run post processing of FB data: '.$e->getFile().' '.$e->getLine().' '.$e->getMessage());
 					}
-				});
+				};
 
+				runLater($callable);
 
 				return $oUser;
 			}

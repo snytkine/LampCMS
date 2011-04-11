@@ -54,10 +54,10 @@ namespace Lampcms\Controllers;
 
 
 
+use \Lampcms\String\HTMLStringParser;
 use \Lampcms\Responder;
 use \Lampcms\Request;
 use \Lampcms\Utf8String;
-use \Lampcms\DomFeedItem;
 
 /**
  * Controller for processing "Edit"
@@ -126,15 +126,15 @@ class Editor extends Edit
 		$this->oResource['b'] = $this->makeBody($formVals['qbody']);
 
 		/**
-		 * Don't attempt to edit the value of title
+		 * @important Don't attempt to edit the value of title
 		 * for the answer since it technically does not have the title
 		 * and we don't want to change existing one
 		 */
 		if($this->oResource instanceof \Lampcms\Question){
-			$title = $this->makeTitle($formVals['title']);
-			d('title: '.$title);
-			$this->oResource['title'] = $title;
-			$this->oResource['a_title'] = \Lampcms\TitleTokenizer::factory($title)->getArrayCopy();
+			$oTitle = $this->makeTitle($formVals['title']);			
+			$this->oResource['title'] = $oTitle->valueOf();
+			$this->oResource['url'] = $oTitle->toASCII()->makeLinkTitle()->valueOf();
+			$this->oResource['a_title'] = \Lampcms\TitleTokenizer::factory($oTitle)->getArrayCopy();
 		}
 
 		$this->oResource->setEdited($this->oRegistry->Viewer, strip_tags($formVals['reason']));
@@ -146,24 +146,53 @@ class Editor extends Edit
 	}
 
 
+	/**
+	 *
+	 * Update the contents of body
+	 * with edited content
+	 * If this is a question do extra steps;
+	 * unhighlight (just in case that actual highlighed words
+	 * have been edited), then re-apply highlightWords()
+	 * just in case some of the new word that belong to
+	 * tags have been added
+	 *
+	 * @param string $body
+	 * 
+	 * @return string html of new body
+	 * 
+	 */
 	protected function makeBody($body){
 		$oBody = Utf8String::factory($body)
 		->tidy()
 		->safeHtml()
 		->asHtml();
 
-		$htmlBody = DomFeedItem::loadFeedItem($oBody)->getFeedItem();
-		d('after DomFeedItem: '.$htmlBody);
+		$oBody = HTMLStringParser::factory($oBody)->parseCodeTags()->linkify()->reload()->setNofollow();
+
+		if($this->oResource instanceof \Lampcms\Question){
+			$oBody->unhilight()->hilightWords($this->oResource['a_tags']);
+		}
+		
+		$htmlBody = $oBody->valueOf();
+
+		d('after HTMLStringParser: '.$htmlBody);
 
 		return $htmlBody;
 	}
 
 
+	/**
+	 * Make new value of title
+	 * 
+	 * @param string $title
+	 * 
+	 * @return object of type Utf8String
+	 */
 	protected function makeTitle($title){
-		$ret = Utf8String::factory($title)->htmlentities()->trim()->valueOf();
-		d('ret '.$ret);
+		$oTitle = Utf8String::factory($title)->htmlentities()->trim();
+		d('$oTitle '.$oTitle);
 
-		return $ret;
+		return $oTitle;
 	}
 
 
@@ -196,7 +225,7 @@ class Editor extends Edit
 
 
 	protected function returnResult(){
-		
+
 		Responder::redirectToPage($this->oResource->getUrl());
 	}
 }

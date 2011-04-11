@@ -78,9 +78,18 @@ class Tagged extends Unanswered
 	 * Conditions can be == 'unanswered', 'hot', 'recent' (default)
 	 */
 	protected function getCursor(){
-		$this->pagerPath = '/tagged/'.$this->oRequest['tags'];
-
+		
+		/**
+		 * Must call getTags() before
+		 * using this->rawTags because
+		 * it is set inside the getTags() method
+		 * 
+		 * 
+		 */
 		$this->aTags = $this->getTags();
+		$this->pagerPath = '/tagged/'.$this->rawTags;
+
+		
 		d('aTags: '.print_r($this->aTags, 1));
 
 		$aFields = array();
@@ -94,11 +103,7 @@ class Tagged extends Unanswered
 		 *
 		 */
 		$sort = array('i_ts' => -1);
-		/**
-		 * @todo translate this title later
-		 *
-		 */
-		$this->title = $this->oRequest['tags'];
+
 		$where = array('a_tags' => array('$all' => $this->aTags) );
 
 		/**
@@ -115,7 +120,7 @@ class Tagged extends Unanswered
 		 *
 		 * @var unknown_type
 		 */
-		$this->counterTaggedText = \tplCounterblocksub::parse(array(str_replace(' ', ' + ', $this->oRequest['tags']), 'Tagged'), false);
+		$this->counterTaggedText = \tplCounterblocksub::parse(array(str_replace(' ', ' + ', $this->tags), 'Tagged'), false);
 
 
 		$this->oCursor = $this->oRegistry->Mongo->QUESTIONS->find($where);
@@ -146,7 +151,7 @@ class Tagged extends Unanswered
 		 * to all our tags.
 		 * We would then loop over cursor and pass
 		 * each array to tplRelatedlink, passing each _id
-		 * as value of 'tag' and prepend +tag to $this->oRequest['tags'] as
+		 * as value of 'tag' and prepend +tag to $this->rawTags as
 		 * value of 'link'
 		 *
 		 * This will be slower than just using pre-parsed related tags

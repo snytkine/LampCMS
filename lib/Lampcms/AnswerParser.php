@@ -52,6 +52,8 @@
 
 namespace Lampcms;
 
+use Lampcms\String\HTMLStringParser;
+
 /**
  * Class responsible for parsing submitted
  * answer object.
@@ -172,13 +174,13 @@ class Answerparser extends LampcmsObject
 
 		/**
 		 * Must pass array('drop-proprietary-attributes' => false)
-		 * otherwise tidy removes rel="code" // ->makeClickable() // was after getBody
+		 * otherwise tidy removes rel="code"
 		 */
 		$oBody = $this->oSubmittedAnswer->getBody()->tidy()->safeHtml()->asHtml();
 
-		$htmlBody = DomFeedItem::loadFeedItem($oBody)->getFeedItem();
+		$htmlBody = HTMLStringParser::factory($oBody)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->valueOf();
 
-		d('after DomFeedItem: '.$htmlBody);
+		d('after HTMLStringParser: '.$htmlBody);
 
 		$username = $this->oSubmittedAnswer->getUserObject()->getDisplayName();
 		$uid = $this->oSubmittedAnswer->getUserObject()->getUid();

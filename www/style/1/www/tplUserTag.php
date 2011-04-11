@@ -45,13 +45,27 @@
 class tplUserTag extends Lampcms\Template\Template
 {
 
+	/**
+	 * This is important!
+	 * Since tags can be any combination of chars, even
+	 * brackets and + sign, we should always urlencode tag's value
+	 * for the link!
+	 *
+	 * @param array $a
+	 */
+	protected static function func(&$a){
+		$a[] = urlencode($a[0]);
+	}
+
 	protected static $vars = array(
 	'tag' => '',
-	'count' => '');
+	'count' => '',
+	'encoded' => ''
+	);
 
 	protected static $tpl = '
 	<div class="utag2">
-	<a href="/tagged/%1$s/">%1$s</a><span>&times;&nbsp;%2$s</span>
+	<a href="/tagged/%3$s/">%1$s</a><span>&times;&nbsp;%2$s</span>
 	</div>
 	';
 

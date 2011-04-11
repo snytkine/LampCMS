@@ -49,11 +49,22 @@
  *
  */
 
- 
+
 class tplFollowedTags extends \Lampcms\Template\Template
 {
+	/**
+	 * This is important!
+	 * Since tags can be any combination of cars, even
+	 * brackets and + sign, we should always urlencode tag's value
+	 * for the link!
+	 *
+	 * @param array $a
+	 */
+	protected static function func(&$a){
+		$a[] = urlencode($a[0]);
+	}
+
 	protected static $vars = array('');
-	
-	
-	protected static $tpl = '<span><a href="/tagged/%1$s/">%1$s</a></span>';
+
+	protected static $tpl = '<span><a href="/tagged/%2$s/">%1$s</a></span>';
 }

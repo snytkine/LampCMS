@@ -40,13 +40,32 @@
  * to QUESTIONS collection
  * it is NOT used during rendering of any pages
  *
+ * @deprecated No longer making use of this
+ * Now the special class is added on the server, not
+ * by Javascript because it's a pain to urlencode
+ * all those tags, especially since added support for UTF8 tags
+ *
+ * @todo remove this template soon, it's no longer used anywhere
+ *
  * @author Dmitri Snytkine
  *
- */ 
+ */
 class tplQtagsclass extends Lampcms\Template\Template
 {
+	/**
+	 * This is important!
+	 * Since tags can be any combination of chars, even
+	 * brackets and + sign, we should always urlencode tag's value
+	 * for the link!
+	 *
+	 * @param array $a
+	 */
+	protected static function func(&$a){
+		$a[] = urlencode($a[0]);
+	}
+
 	protected static $vars = array(0 => '');
 
-	protected static $tpl = 't-%1$s ';
+	protected static $tpl = 't-%2$s ';
 
 }

@@ -112,7 +112,7 @@ class Answerform extends Form
 		 * the div with "closed" message
 		 */
 		if(false !== $aClosed = $oQuestion->isClosed()){
-				
+
 			return \tplClosedby::parse($aClosed);
 		}
 		d('cp');
@@ -148,23 +148,36 @@ class Answerform extends Form
 	}
 
 
+	/**
+	 * Enforce config values MIN_ANSWER_CHARS
+	 * and MIN_ANSWER_WORDS
+	 * 
+	 * @todo Translate strings of error messages
+	 *
+	 * (non-PHPdoc)
+	 * @see Lampcms\Forms.Form::doValidate()
+	 *
+	 * @return object $this
+	 */
 	protected function doValidate(){
 		$body = $this->oRegistry->Request['qbody'];
+		$minChars = $this->oRegistry->Ini->MIN_ANSWER_CHARS;
+		$minWords = $this->oRegistry->Ini->MIN_ANSWER_WORDS;
 		/**
-		 * We really need to check the length of 
+		 * We really need to check the length of
 		 * the content not couning html tags
 		 * otherwise it's possible to submit
 		 * even an empty question as long as it
 		 * has some line breaks and empty tags
 		 */
 		$body = trim(strip_tags($body));
-		if(strlen($body) < 10){
-			$this->setError('qbody', 'Answer must contain at least 10 letters');
+		if(\mb_strlen($body) < $minChars){
+			$this->setError('qbody', 'Answer must contain at least '.$minChars.' letters');
 		}
 
 		$aWords = explode(' ', $body);
-		if(count($aWords) < 3){
-			$this->setError('qbody', 'Answer must contain at least 3 words');
+		if(count($aWords) < $minWords){
+			$this->setError('qbody', 'Answer must contain at least '.$minWords.' words');
 		}
 
 		return $this;

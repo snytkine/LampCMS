@@ -66,9 +66,17 @@ namespace Lampcms;
 class TagsTokenizer extends \Lampcms\String\Tokenizer
 {
 
+
+	/**
+	 * Factory method. This class should be instantiated
+	 * ONLY through this method
+	 *
+	 * @param object of type Utf8string $Tags
+	 * @return object of this class
+	 */
 	public static function factory(Utf8String $Tags){
 
-		$str = $Tags->toLowerCase()->stripTags()->valueOf();
+		$str = $Tags->toLowerCase()->trim()->valueOf();
 
 		return new self($str);
 	}
@@ -84,12 +92,59 @@ class TagsTokenizer extends \Lampcms\String\Tokenizer
 	 * @return array tokens;
 	 */
 	public function parse(){
+		if(empty($this->origString)){
+			return array();
+		}
 
-		mb_regex_encoding('UTF-8');
-		$aTokens = mb_split('([\s,;]+)', $this->origString, -1);
-		$aTokens = array_unique($aTokens);
-		$aTags = array_filter($aTokens);
-		sort($aTags, SORT_STRING);
+		/**
+		 * Remove <> brackets and forward slash. 
+		 * These are really bad news and will cause
+		 * alot of headache later, especially the /
+		 * which will break the url rewrite rules
+		 * This is important because values of tags are 
+		 * used in urls
+		 * 
+		 * These and should not make into the array
+		 * str_replace is UTF-8 safe and faster than regex
+		 * 
+		 * 
+		 */
+		// 1st param used to be this array: array('<', '>', '/')
+		$tokens = str_replace('/', '', $this->origString);
+		
+		\mb_regex_encoding('UTF-8');
+		$aTokens = \mb_split('[\s,]+', $tokens);
+		d('$aTokens: '.print_r($aTokens, 1));
+		$aTokens = \array_unique($aTokens);
+		$aStopwords = \Lampcms\getStopwords();
+
+		/**
+		 * Tags are stored with htmlspecialchars() encoded!
+		 * This means if searching for tags we need
+		 * to also run search params through htmlspecialchars()
+		 * But no extra effort is needed to display tags on html page
+		 * they will always display as html tags not part of html!
+		 * this is safe even for using values
+		 * of tags in xml feed! Very important!
+		 * 
+		 */
+		array_walk($aTokens, function(&$val) use($aStopwords){
+			$val = trim($val);
+			$val = ((strlen($val) > 1) && !in_array($val, $aStopwords)) ? htmlspecialchars($val, ENT_QUOTES, 'UTF-8') : false;
+		});
+		
+		
+		/**
+		 * One more time
+		 * just to be 101% sure to Remove empty values
+		 * because empty values in tags are really
+		 * bad news for many other functions
+		 * of this program
+		 *
+		 */
+		$aTokens = \array_filter($aTokens);
+		\sort($aTokens, SORT_STRING);
+		d('$aTokens: '.print_r($aTokens, 1));
 
 		return $aTokens;
 	}

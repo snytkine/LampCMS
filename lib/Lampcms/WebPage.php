@@ -437,7 +437,7 @@ abstract class WebPage extends Base
 		$this->aPageVars['rep'] = $this->oRegistry->Viewer->getReputation();
 		$this->aPageVars['version_id'] = Form::generateToken();
 
-		$js = (true === LAMPCMS_DEBUG) ? '/qa.js' : '/min/qa_'.JS_MIN_ID.'/js';
+		$js = (true === LAMPCMS_DEBUG) ? '/qa.js' : '/min/qa_'.JS_MIN_ID.'.js';
 		$src = $oIni->JS_SITE.'/js'.$js;
 
 		$this->aPageVars['JS'] = $src;

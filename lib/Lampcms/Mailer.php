@@ -82,7 +82,7 @@ class Mailer extends LampcmsObject
 	 * that cursor contains several hundreds of records
 	 *
 	 * Sends our emails using the mail()
-	 * but can be sent from inside the register_shutdown_function()
+	 * but can be sent from inside the runLater
 	 * This way function returns immediately
 	 *
 	 * Also accept Iteractor so we can use the
@@ -119,7 +119,7 @@ class Mailer extends LampcmsObject
 	 * @param string $body
 	 *
 	 * @param bool $sendLater if true (default) then will run
-	 * via the register_shutdown_function(), otherwise
+	 * via the runLater, otherwise
 	 * will run immediately. So if this method itself is
 	 * invoked from some registered shutdown function then it
 	 * makes sense to not use the 'later' feature.
@@ -226,7 +226,7 @@ class Mailer extends LampcmsObject
 		};
 
 		if($sendLater){
-			register_shutdown_function($callable);
+			runLater($callable);
 		} else {
 			$callable();
 		}
@@ -283,7 +283,7 @@ class Mailer extends LampcmsObject
 		 */
 
 		$cID = spl_object_hash($cur);
-		$body = $body ."\n\n_______\ncid: ".$cID."\n";
+		//$body = $body ."\n\n_______\ncid: ".$cID."\n";
 
 		$aEmails = array();
 		foreach($cur as $a){

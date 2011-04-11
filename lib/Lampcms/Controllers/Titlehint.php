@@ -52,9 +52,10 @@
 
 namespace Lampcms\Controllers;
 
-use Lampcms\WebPage;
-use Lampcms\TitleTokenizer;
-use Lampcms\Responder;
+use \Lampcms\Utf8String;
+use \Lampcms\WebPage;
+use \Lampcms\TitleTokenizer;
+use \Lampcms\Responder;
 
 /**
  * This controller is used by title auto-complete widgets
@@ -88,8 +89,8 @@ class Titlehint extends WebPage
 	 * @return object $this
 	 */
 	protected function getData(){
-		$q = $this->oRequest->get('q');
-		$aTokens = TitleTokenizer::factory($q)->getArrayCopy();
+
+		$aTokens = TitleTokenizer::factory($this->oRequest->getUTF8('q'))->getArrayCopy();
 
 		if(!empty($aTokens)){
 			d('looking for something');

@@ -141,7 +141,7 @@ class DB extends LampcmsObject
 	protected function connect(){
 		$sDsn = $this->makeDsn();
 
-		d('$this->aDB: '.print_r($this->aDB, 1).' DNS: '.$sDsn);
+		d('$this->aDB: '.print_r($this->aDB, 1).' DSN: '.$sDsn);
 		$aOptions = array(PDO::ATTR_PERSISTENT => false);
 
 		if (isset($this->aDB['Persistent']) && (true === (bool)$this->aDB['Persistent'])) {

@@ -81,8 +81,6 @@ class Tokenizer extends \ArrayObject
 	protected $iterator;
 
 	/**
-	 *
-	 * Enter description here ...
 	 * @param string $string Original string to be tokenized
 	 * @param string $delim must be a valid PCRE pattern!
 	 * It's recommended to add the /u switch to pattern to treat
@@ -122,7 +120,7 @@ class Tokenizer extends \ArrayObject
 	 * @return array array of tokens (individual parts of string)
 	 */
 	protected function parse(){
-		$a = preg_split($this->delim, $this->origString, -1, PREG_SPLIT_NO_EMPTY);
+		$a = \preg_split($this->delim, $this->origString, -1, PREG_SPLIT_NO_EMPTY);
 		d('tokenized: '.print_r($a, 1));
 
 		return $a;

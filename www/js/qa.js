@@ -1059,7 +1059,7 @@ YUI({
 
 			return eForm.get('name');
 	}, //
-	initTagInput = function(){
+	initTagInput = function(el){
 		/**
 		 * @todo
 		 * Use datasource instead to store key => array
@@ -1073,7 +1073,7 @@ YUI({
 		 * the url where to get array of data
 		 * if it does not exist.
 		 */
-		var input = Y.one("#id_tags");
+		var input = (el) ? el : Y.one("#id_tags");
 		if(input){
 			Y.log('got id_tags');
 			Y.one(input).plug(Y.Plugin.TokenInput, {delimiter:' '});
@@ -1361,7 +1361,6 @@ YUI({
 			//Y.log('removing etag for key' + sKey );
 			Y.StorageLite.removeItem(sKey);
 		}
-		
 	},
 	/**
 	 * Handle click on thumbup/thumbdown link
@@ -2004,63 +2003,7 @@ YUI({
 			});
 		}
 	},
-	/**
-	 * Highlights the divs in view questions page(s)
-	 * to highlight the rows that contain questions
-	 * tagged with any of the tags that viewer
-	 * follows
-	 */
-	hiFollowedTags = function(){
-		if(Y.one("div.qlist")){
-			sel = getFollowedTagsSelectors();
-			eNodes = Y.all(sel);
-			if(eNodes && (eNodes.size() > 0)){
-				eNodes.each(function(){
-					var parent = this.ancestor("div.qs");
-					//Y.log('parent: '+parent);
-					if(parent){
-						parent.addClass('followed_tag');
-					}
-				});
-			}
-		}
-	}, //
-	/**
-	 * Get values of tag names that 
-	 * user follows.
-	 * These values are extracted from the a tag
-	 * inside the span inside the #usrtags div
-	 * Then a string of css class selectors
-	 * is generated using the names of the tags
-	 * 
-	 * @todo replace # . and + with some special chars
-	 * but then we must also replace these same special chars
-	 * during the creation of tags links and during adding
-	 * to followed tags
-	 * This is mostly important for programming related
-	 * tags, no really used in other types of forums
-	 * But we should be able to use unicode in tag values!
-	 * Basically unicode chars in urls are allowed but....
-	 * We can still replace them with entities using
-	 * some type of mb_convert_encoding and using
-	 * html entities are the "to" option
-	 */
-	getFollowedTagsSelectors = function(){
-		var sel = '', numTags, eTags = Y.all("div#usrtags > div > span > a");
-		//Y.log('eTags: ' + eTags);
-		if(eTags){
-			numTags = eTags.size();
-			//Y.log('numTags: ' + numTags);
-			for(var i = 0; i<numTags; i+=1){
-				sel += 'div.t-' + eTags.item(i).get('text') + ',';
-			}
-			
-			sel = (sel.length > 0) ? sel.substring(0, sel.length - 1) : sel;
-			//Y.log('sel: ' + sel);
-		}
-		
-		return sel;
-	},
+	
 
 	// A function handler to use for successful requests:
 	handleSuccess = function(ioId, o, args) {
@@ -2093,7 +2036,7 @@ YUI({
 		try {
 			var data = Y.JSON.parse(o.responseText);
 		} catch (e) {
-			alert("Error parsing response object" + e);
+			alert("Error parsing response object" + e + "<br>o.responseText: " + o.responseText);
 			return;
 		}
 
@@ -2109,6 +2052,11 @@ YUI({
 		
 		
 		if (data.alert) {
+			alert(data.alert);
+			//return;
+		}
+		
+		if (data.success) {
 			alert(data.alert);
 			//return;
 		}
@@ -2194,8 +2142,10 @@ YUI({
 			if (data.redirect || data.answer) {
 				Y.StorageLite.removeItem(getStorageKey());
 				if (data.redirect) {
-					alert('Item saved! Redirecting to <br><a href="' + data.redirect + '">' + data.redirect + '</a>');
-					// redirect in 1 second
+					getAlerter('<h3>Success</h3>')
+					.set("bodyContent", 'Item saved! Redirecting to <br><a href="' + data.redirect + '">' + data.redirect + '</a>')
+					.show(); 
+
 					Y.later(1000, this, function() {
 						window.location.assign(data.redirect);
 					});
@@ -2207,7 +2157,7 @@ YUI({
 				 * scrollIntoView
 				 */
 				if(Y.one("#answers")){
-					Y.one("#answers").append(data.answer);
+					Y.one("#answers").append(data.answer).scrollIntoView();
 				}
 			}
 		}
@@ -2631,7 +2581,7 @@ YUI({
 + '<input type="hidden" name="qid" value="'+ getMeta('qid') +'">'
 + '<hr>'
 + '<label for="id_note">At least one tag, max 5 tags separated by spaces</label>'
-+ '<input type="text" class="ta1" size="40" name="tags" value="'+sTags+'" style="display: block;"></input>'
++ '<input type="text" class="ta1" id="id_retag" size="40" name="tags" value="'+sTags+'"></input>'
 + '<br>'
 + '<input type="submit" class="btn" value="Save">'
 + '</form>'
@@ -2639,7 +2589,9 @@ YUI({
 		
 		 oAlert = getAlerter('<h3>Edit Tags</h3>');
 	     oAlert.set("bodyContent", form);
+	     initTagInput(Y.one("#id_retag"));
 	     oAlert.show(); 
+	    
 		}
 		
 	};
@@ -3328,7 +3280,6 @@ YUI({
 	initTooltip();
 	revealComments();
 	revealHidden();
-	hiFollowedTags();
 	setReadLinks();
 	storeReadEtag();
 	

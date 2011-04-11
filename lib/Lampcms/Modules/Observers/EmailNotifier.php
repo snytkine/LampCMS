@@ -315,6 +315,12 @@ site %5$s and navigating to Settings > Email preferences
 				$this->collUsers = $this->oRegistry->Mongo->USERS;
 				$this->notifyOnComment();
 				break;
+				
+			case 'onRetag' :
+				$this->collUsers = $this->oRegistry->Mongo->USERS;
+				$this->oQuestion = $this->obj;
+				$this->notifyTagFollowers($this->aInfo);
+				break;
 		}
 
 	}
@@ -411,15 +417,16 @@ site %5$s and navigating to Settings > Email preferences
 		 * and send use mail() instead of mailFromCursor() on Mailer
 		 */
 		if( ($commentorID !== $answerOwnerId)  && ($commentorID != $excludeUid)){
-			register_shutdown_function(function() use ($commentorID, $answerOwnerId, $coll, $subj, $body, $oMailer, $excludeUid){
+			$callable = function() use ($commentorID, $answerOwnerId, $coll, $subj, $body, $oMailer, $excludeUid){
 
 				$aUser = $coll->findOne(array('_id' => $answerOwnerId, 'ne_fa' => array('$ne' => true)), array('email'));
 					
 				if(!empty($aUser) && !empty($aUser['email']) ){
 					$oMailer->mail($aUser['email'], $subj, $body, null, false);
 				}
-
-			});
+			};
+				
+			\Lampcms\runLater($callable);
 		}
 
 		return $this;
@@ -443,17 +450,27 @@ site %5$s and navigating to Settings > Email preferences
 	 *
 	 * The cursor is then passed to Mailer object
 	 *
+	 * @param array $aNewTags array of new tags, if not passed then
+	 * array from $this->oQuestion['a_tags'] will be used. This param
+	 * is used when handling onRetag Event in which case we receive
+	 * array of "new" tags that have been added as result of retagging
+	 * 
 	 * @return object $this
+	 * 
+	 * @todo use different subject if $aNewTags is passed here - the 
+	 * subject should indicate that Question was tagged with one
+	 * of your tags
 	 */
-	protected function notifyTagFollowers(){
+	protected function notifyTagFollowers(array $aNewTags = null){
+		
 		$askerID = $this->oQuestion->getOwnerId();
 		$oMailer = new Mailer($this->oRegistry);
 		$subj = sprintf(static::$QUESTION_BY_TAG_SUBJ, implode(', ', $this->oQuestion['a_tags']) );
 		$body = vsprintf(static::$QUESTION_BY_TAG_BODY, array($this->oQuestion['username'], $this->oQuestion['title'], $this->oQuestion['intro'], $this->oQuestion->getUrl(), $this->oRegistry->Ini->SITE_URL));
-		$aTags = $this->oQuestion['a_tags'];
+		$aTags = (!empty($aNewTags)) ? $aNewTags : $this->oQuestion['a_tags'];
 		$coll = $this->collUsers;
 		d('before shutdown function in TagFollowers');
-		
+
 		$func = function() use($askerID, $oMailer, $subj, $body, $aTags, $coll){
 			/**
 			 * Find all users who follow any of the tags
@@ -461,12 +478,12 @@ site %5$s and navigating to Settings > Email preferences
 			 * and not themselve the asker //
 			 */
 			$where = array(
-				'_id' => array('$ne' => $viewerID ), 
+				'_id' => array('$ne' => $askerID ), 
 				'a_f_t' => array('$in' => $aTags ), 
-				'a_f_u' => array('$nin' => array(0 => $viewerID) ), 
+				'a_f_u' => array('$nin' => array(0 => $askerID) ), 
 				'ne_ft' => array('$ne' => true) 
 			);
-			
+				
 			$cur = $coll->find($where, array('email') );
 			$count = $cur->count();
 			if($count > 0){
@@ -477,27 +494,11 @@ site %5$s and navigating to Settings > Email preferences
 				 * opted out on Email On Followed Tag
 				 */
 				$oMailer->mailFromCursor($cur, $subj, $body);
-				/**
-				 * /**
-				 * , function($a){
-					if(!empty($a['email']) && (!array_key_exists('ne_ft', $a) || true !== $a['ne_ft'])){
-					return $a['email'];
-					}
-
-					return null;
-					});
-					}
-					}
-				 */
-					
-
 			}
 
 		};
-		
-		//$func();
-		
-		register_shutdown_function($func);
+
+		\Lampcms\runLater($func);
 
 		return $this;
 	}
@@ -539,9 +540,9 @@ site %5$s and navigating to Settings > Email preferences
 		 * user already cannot possibly be following himself
 		 * so excluding ViewerID is pointless here
 		 */
-		
+
 		$func = function() use($uid, $tpl, $updateType, $subj, $body, $coll, $oMailer){
-			
+				
 			$count = 0;
 			$cur = $coll->find(array('a_f_u' => $uid, 'ne_fu' => array('$ne' => true) ), array('email')  );
 			$count = $cur->count();
@@ -567,9 +568,8 @@ site %5$s and navigating to Settings > Email preferences
 			}
 
 		};
-		
-		//$func();
-		register_shutdown_function($func);
+
+		\Lampcms\runLater($func);
 
 		return $this;
 	}
@@ -708,10 +708,8 @@ site %5$s and navigating to Settings > Email preferences
 					 */
 				}
 			};
-			
-			//$func();
-			
-			register_shutdown_function($func);
+				
+			\Lampcms\runLater($func);
 		}
 
 		return $this;

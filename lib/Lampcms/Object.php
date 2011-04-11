@@ -52,7 +52,7 @@
 
 namespace Lampcms;
 
-const JS_MIN_ID = '04072011';
+const JS_MIN_ID = '04102011_2';
 
 const LF = "\n";
 const CR = "\r";
@@ -136,6 +136,29 @@ const PATH_WWW_IMG_MOBILE = '/w/img/tiny/';
 const DIR_XXX = 'xxx';
 
 /**
+ * If server does not have fastcgi_finish_request function
+ * then a special NO_FFR flag is defined
+ * in which case we execute this callable
+ * function now,
+ * otherwise defer execution as a shutdown function
+ *
+ * @param unknown_type $callable
+ *
+ */
+function runLater(\Closure $callable){
+	/*if(!is_callable($callable)){
+		throw new Exception('param passed to runLater must be a callable function. Was: '.\gettype($callable));
+	}*/
+
+	register_shutdown_function($callable);
+	/*if(defined('NO_FFR')){
+		$callable();
+	} else {
+		register_shutdown_function($callable);
+	}*/
+}
+
+/**
  * Array of stopwords
  * These words will be excluded
  * from tokenizer result
@@ -144,9 +167,11 @@ const DIR_XXX = 'xxx';
  */
 function getStopwords(){
 	return array(
-	"a","abst","adj","ah","am","an","and","are","aren","arent","as","at","b","be","but","by","c","ca","cant","co","com","d","did","didnt","do","dont","e","edu","eg","et","etc","ex","f","ff","for","g","go","he","hed","her","hes","hi","hid","him","his","i","id","ie","if","ill","im","in","inc","is","isnt","it","itd","itll","its","ive","j","k","kg","km","l","lest","lets","ll","ltd","m","me","mg","ml","mr","mrs","n","na","nay","nd","no","non","nor","nos","o","of","off","oh","ok","okay","on","or","ord","p","pp","put","q","qv","r","rd","re","s","sec","shes","so","t","th","that","thatll","thats","thatve","the","them","then","thence","thereve","theyd","theyll","theyre","theyve","this","those","thou","though","thoughh","throug","thru","thus","til","tip","to","too","ts","two","u","un","up","ups","us","v","ve","via","viz","vol","vols","vs","w","wasnt","we","wed","were","weve","wont","wouldnt","www","x","y","youd","z"
+	"a","ah","an","and","are","aren","arent","as","at","b","be","but","by","c","cant","co","d","did","didnt","do","dont","e","eg","et","f","ff","for","g","go","he","hes","hi","i","if","ill","in","is","isnt","it","itd","its","ive","j","k","l","ll","m","me","mr","mrs","n","na","nd","no","o","of","oh","or","p","pp","q","qv","r","rd","re","s","shes","so","t","th","that","thatll","thats","thatve","the","them","theyd","this","those","til","to","too","ts","u","un","v","ve","vs","w","wasnt","we","were","wont","wouldnt","x","y","z"
 	);
 }
+
+
 /**
  * Array of reserved accounts
  * User will not be allowed to register with

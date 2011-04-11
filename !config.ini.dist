@@ -20,6 +20,23 @@ collection = "C_Cache"
 ; set to true when debugging to enable
 ; debug log and raize error reporting level
 DEBUG = true
+;
+; Maximum number of tags Question can have
+; This will be enforced when question is submitted
+; and when question is retagged
+MAX_QUESTION_TAGS = 5
+;
+; Minimun length of question in chars
+MIN_QUESTION_CHARS = 10
+;
+; Minimum number of words required in question
+MIN_QUESTION_WORDS = 3
+;
+; Minimum length of answer in chars
+MIN_ANSWER_CHARS = 10
+;
+; Minimum number of words required for answer
+MIN_ANSWER_WORDS = 3
 ; maximum commets per item
 ; set to 0 to disable comments feature
 MAX_COMMENTS = 20

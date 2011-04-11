@@ -111,6 +111,10 @@ class QuestionInfo extends LampcmsObject
 	protected function getTags(){
 		$aTags = $this->oQuestion['a_tags'];
 		d('aTags: '.print_r($aTags, 1));
+		if(empty($aTags) || empty($aTags[0])){
+			e('empty tags detected');
+			return '';
+		}
 		
 		$res = '';
 		$cur = $this->oRegistry->Mongo->QUESTION_TAGS->find(array('tag' => array('$in' => $aTags), 'i_count' => array('$gt' => 0)));

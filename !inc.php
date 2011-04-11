@@ -55,7 +55,9 @@ function exception_handler($e)
 	try {
 		$strHtml =  'ooopsy... '.Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
 		$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';
-		mail(DEVELOPER_EMAIL, 'ErrorHandle in inc.php', $strHtml.$extra);
+		if(strlen(trim(constant('DEVELOPER_EMAIL'))) > 1){
+			@mail(DEVELOPER_EMAIL, 'ErrorHandle in inc.php', $strHtml.$extra);
+		}
 		exit ($strHtml);
 	}catch(\Exception $e) {
 		echo 'Error in Exception handler: : '.$e->getMessage().' line '.$e->getLine().$e->getTraceAsString();
@@ -68,6 +70,7 @@ function exception_handler($e)
  *
  */
 if(!function_exists('fastcgi_finish_request')){
+	define('NO_FFR', true);
 	function fastcgi_finish_request(){}
 }
 

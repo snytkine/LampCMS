@@ -286,12 +286,12 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		$this->offsetSet('a_tags', $tags);
 		$this->offsetSet('tags_html', \tplQtags::loop($tags, false));
-		$this->offsetSet('tags_c', trim(\tplQtagsclass::loop($tags, false)));
 
 		$b = $this->offsetGet('b');
 		d('b: '.$b);
 
-		$body = Bodytagger::highlight($b, $tags);
+		$oHtmlParser = \Lampcms\String\HTMLStringParser::factory(Utf8String::factory($b, 'utf-8', true));
+		$body = $oHtmlParser->unhilight()->hilightWords($tags)->valueOf();
 
 		$this->offsetSet('b', $body);
 
@@ -427,7 +427,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * If no duplicate then also increase count of views for this
 	 * question
 	 *
-	 * @todo try to run this as post-echo method via register_shutdown_function
+	 * @todo try to run this as post-echo method via runLater
 	 * callback. This is not really resource intensive, but still...
 	 * it checks for duplicate, checks viewer ID, etc...
 	 * This also runs on every page view, and also since we use fsync when

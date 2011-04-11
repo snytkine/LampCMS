@@ -45,14 +45,27 @@
 class tplUnanstags extends Lampcms\Template\Template
 {
 
+	/**
+	 * This is important!
+	 * Since tags can be any combination of cars, even
+	 * brackets and + sign, we should always urlencode tag's value
+	 * for the link!
+	 *
+	 * @param array $a
+	 */
+	protected static function func(&$a){
+		$a['encoded'] = urlencode($a['tag']);
+	}
 
 	protected static $vars = array(
-	'tag' => '', 
-	'i_count' => '');
+	'tag' => '', //1 
+	'i_count' => '', //2
+	'encoded' => '' // 3
+	);
 
 	protected static $tpl = '
 	<div class="t2 t-%1$s">
-	<a href="/unanswered/tagged/%1$s/" title="Unanswered questions tagged \'%1$s\'">%1$s</a>
+	<a href="/unanswered/tagged/%3$s/" title="Unanswered questions tagged \'%1$s\'">%1$s</a>
 	<span>&times;&nbsp;%2$s</span>
 	</div>';
 

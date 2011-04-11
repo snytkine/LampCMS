@@ -238,8 +238,8 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 	 * @return object of type Utf8String
 	 */
 	public function getBody(){
-		$raw = $this->oRegistry->Request['com_body'];
-		$body = Utf8String::factory($raw)->htmlentities()->mmd2Html()->wordWrap(70, "\n", true); //->parseMarkdown()
+
+		$body = $this->oRegistry->Request->getUTF8('com_body')->htmlentities()->mmd2Html()->wordWrap(70, "\n", true); //->parseMarkdown()
 		d('$body: '.$body);
 
 		return $body;

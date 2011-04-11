@@ -41,14 +41,29 @@
  * This link appears in the Questions list block
  * under a question or on the question block
  * under a question.
+ * 
+ * This template is used only during parsing/inserting of question
+ * NOT used during rendering of page
  *
  * @author Dmitri Snytkine
  *
  */
 class tplQtags extends Lampcms\Template\Template
 {
+	/**
+	 * This is important!
+	 * Since tags can be any combination of chars, even
+	 * brackets and + sign, we should always urlencode tag's value
+	 * for the link!
+	 * 
+	 * @param array $a
+	 */
+	protected static function func(&$a){
+		$a[] = urlencode($a[0]);
+	}
+	
 	protected static $vars = array(0 => '');
 
-	protected static $tpl = '<a href="/tagged/%1$s/" title="Questions tagged \'%1$s\'">%1$s</a> ';
+	protected static $tpl = '<a href="/tagged/%2$s/" title="Questions tagged \'%1$s\'">%1$s</a> ';
 
 }

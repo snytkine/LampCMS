@@ -207,7 +207,7 @@ class UserTags extends LampcmsObject
 		 * in index and will throw exception or error
 		 *
 		 */
-		$aUserTags = array_filter($aUserTags);
+		$aUserTags = \array_filter($aUserTags);
 
 		arsort($aUserTags, SORT_NUMERIC);
 

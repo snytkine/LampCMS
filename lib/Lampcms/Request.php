@@ -60,9 +60,6 @@ namespace Lampcms;
  * unsure about itself.
  * Why not just extend ArrayDefaults and use default value of 1?
  *
- * Why do we even need getParam if it just delegates
- * to getFiltered()?
- *
  * @author Dmitri Snytkine
  *
  */
@@ -92,26 +89,21 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 	/**
 	 *
-	 * Emulates the HttpQueryString::get() method
+	 * Mimics the HttpQueryString::get() method
 	 *
 	 * @param string $name
 	 * @param string $type 's' for string, 'i' for 'int', 'b' for bool
+	 * will accept other values but only understands these 3 and will default
+	 * to 's' (string) if unknown value is used
+	 *
 	 * @param string $default default value to return in
 	 * case param $name is not found
 	 */
 	public function get($name, $type = 's', $default = null){
 
-		if(!$this->offsetExists($name)){
-			$val = $default;
-		} else {
-				
-			$val = $this->getFiltered($name);
-		}
+		$val = (!$this->offsetExists($name)) ? $default : $this->getFiltered($name);
 
 		switch(true){
-			case ('s' === $type):
-				$val = (string)$val;
-				break;
 
 			case ('b' === $type):
 				$val = (bool)$val;
@@ -119,6 +111,10 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 			case ('i' === $type):
 				$val = (int)$val;
+				break;
+
+			default:
+				$val = (string)$val;
 				break;
 		}
 
@@ -152,6 +148,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		return $o;
 	}
 
+	
 	/**
 	 * Set array of params that are required
 	 * to be in request
@@ -346,7 +343,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 			 * only 1, true, on, yes
 			 * it just does not accept any values for 'false'
 			 */
-			if(!is_numeric($val) || $val > 1){
+			if($val != 1){
 				throw new \InvalidArgumentException('Invalid value of '.$name.' It can only be an integer and not greater than 1, it was: '.gettype($val).' val: '.$val);
 			}
 
@@ -354,12 +351,31 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 		}elseif('token' === $name){
 			$ret = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
+		}else {
+			$ret = $val; //filter_var($val, FILTER_SANITIZE_STRING); //, FILTER_FLAG_STRIP_LOW
+			//$ret = $val;
 		}
 
-		else {
-			//$ret = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
-			$ret = $val;
-		}
+		return $ret;
+	}
+
+
+	/**
+	 *
+	 * Get value of requested param converted
+	 * to Utf8String object
+	 *
+	 * @param string $name
+	 * @param mixed $default fallback value in case
+	 * the param $name does not exist if Request
+	 *
+	 * @return object of type Utf8String representing the value
+	 * of requested param
+	 */
+	public function getUTF8($name, $default = null){
+		$res = $this->get($name, 's', $default);
+
+		$ret = Utf8String::factory($res);
 
 		return $ret;
 	}
@@ -416,7 +432,6 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 */
 	public static final function isAjax()
 	{
-		d('isAjax? '.print_r($_GET, 1));
 		if(null !== self::$ajax){
 
 			return self::$ajax;
@@ -426,7 +441,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		(isset($_POST) && !empty($_POST['ajaxid']))){
 			self::$ajax = true;
 			d('ajaxid true');
-			
+
 			return true;
 		}
 

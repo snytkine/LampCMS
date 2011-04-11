@@ -67,7 +67,7 @@ try {
 		throw new Lampcms\Exception('session start error');
 	}
 
-	d('session: '.print_r($_SESSION, 1));
+	//d('session: '.print_r($_SESSION, 1));
 
 	$oRequest = $oRegistry->Request;
 	$a = $oRequest['a'];
@@ -86,14 +86,18 @@ try {
 	try {
 		$strHtml = 'Ooopsy... '.\Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
 		$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';
-		@mail(DEVELOPER_EMAIL, 'Error in index.php', $strHtml.$extra);
+		if(strlen(trim(constant('DEVELOPER_EMAIL'))) > 1){
+			@mail(DEVELOPER_EMAIL, 'Error in index.php', $strHtml.$extra);
+		}
 		echo $strHtml;
 		fastcgi_finish_request();
 
 	}catch(\Exception $e2) {
 		$strHtml = 'Yayks.. '.Lampcms\Responder::makeErrorPage('<strong>Exception:</strong> '.$e2->getMessage()."\nIn file:".$e2->getFile()."\nLine: ".$e2->getLine());
 		$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';
-		@mail(DEVELOPER_EMAIL, 'Error in index.php on line '.__LINE__, $strHtml.$extra);
+		if(strlen(trim(constant('DEVELOPER_EMAIL'))) > 1){
+			@mail(DEVELOPER_EMAIL, 'Error in index.php on line '.__LINE__, $strHtml.$extra);
+		}
 		echo $strHtml;
 		fastcgi_finish_request();
 	}

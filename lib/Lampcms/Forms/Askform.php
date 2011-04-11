@@ -49,7 +49,7 @@
  *
  */
 
- 
+
 namespace Lampcms\Forms;
 
 
@@ -74,7 +74,7 @@ class Askform extends Form
 	 */
 	protected $template = 'tplFormask';
 
-	
+
 	/**
 	 * This is just an example how a custom validation
 	 * callback could be added to form
@@ -95,7 +95,7 @@ class Askform extends Form
 		});
 	}
 
-	
+
 	/**
 	 * Concrete form validator for this form
 	 * (non-PHPdoc)
@@ -107,41 +107,66 @@ class Askform extends Form
 
 	}
 
-	
+
+	/**
+	 * Validate min number of words in question
+	 * and min number of chars in question
+	 *
+	 * @return object $this
+	 */
 	protected function validateBody(){
 		$body = $this->oRegistry->Request['qbody'];
+		$minChars = $this->oRegistry->Ini->MIN_QUESTION_CHARS;
+		$minWords = $this->oRegistry->Ini->MIN_QUESTION_WORDS;
 		/**
-		 * We really need to check the length of 
+		 * We really need to check the length of
 		 * the content not couning html tags
 		 * otherwise it's possible to submit
 		 * even an empty question as long as it
 		 * has some line breaks and empty tags
 		 */
 		$body = trim(strip_tags($body));
-		if(strlen($body) < 10){
-			$this->setError('qbody', 'Question must contain at least 20 letters');
+		if(\mb_strlen($body) < $minChars){
+			/**
+			 * @todo Translate string
+			 */
+			$this->setError('qbody', 'Question must contain at least '.$minChars.' letters');
 		}
 
 		$aWords = explode(' ', $body);
-		if(count($aWords) < 3){
-			$this->setError('qbody', 'Question must contain at least 3 words');
+		if(count($aWords) < $minWords){
+			/**
+			 * @todo Translate string
+			 */
+			$this->setError('qbody', 'Question must contain at least '.$minWords.' words');
 		}
 
 		return $this;
 	}
 
-	
+
+	/**
+	 * Validate to enforce at least one tag
+	 * and not more that value MAX_QUESTION_TAGS in settings
+	 *
+	 * @return object $this
+	 */
 	protected function validateTags(){
+		$max = $this->oRegistry->Ini->MAX_QUESTION_TAGS;
 		$tags = $this->oRegistry->Request->get('tags', 's', '');
 		$tags = trim($tags);
 		if(empty($tags)){
 			$this->setError('tags', 'You must include at least one tag');
 		}
 
-		$aTags = explode(' ', $tags);
+		\mb_regex_encoding('UTF-8');
+		$aTags = \mb_split('([\s,;]+)', $tags);
 
-		if(count($aTags) > 5){
-			$this->setError('tags', 'Question cannot have more than 5 tags');
+		if(count($aTags) > $max){
+			/**
+			 * @todo Translate string
+			 */
+			$this->setError('tags', 'Question cannot have more than '.$max.' tags. Please remove some tags');
 		}
 
 		return $this;

@@ -74,12 +74,35 @@ class Retag extends WebPage
 
 	protected $aRequired = array('qid', 'tags');
 
+
 	/**
 	 * Question being deleted
 	 *
 	 * @var object of type Question
 	 */
 	protected $oQuestion;
+
+
+	/**
+	 * Array of old value of a_tags
+	 *
+	 * @var array
+	 */
+	protected $aOldTags = array();
+
+
+	/**
+	 * Array of tags that were added to
+	 * Question as result of this retag
+	 * Tags are not always added - a retag may
+	 * be just a removal of some tags
+	 * If any new tags were added this array will
+	 * include new tags
+	 *
+	 * @var tags
+	 */
+	protected $aAddedTags = array();
+
 
 	/**
 	 * Array of submitted tags
@@ -91,10 +114,12 @@ class Retag extends WebPage
 
 
 	protected function main(){
-		$this->aSubmitted = TagsTokenizer::factory(Utf8String::factory($this->oRequest['tags']))->getArrayCopy();
+		$this->aSubmitted = TagsTokenizer::factory($this->oRequest->getUTF8('tags'))->getArrayCopy();
 		d('$this->aSubmitted: '.print_r($this->aSubmitted, 1));
-		
-		$this->getQuestion()
+
+
+		$this->validateSubmitted()
+		->getQuestion()
 		->checkPermission()
 		->checkForChanges()
 		->removeOldTags()
@@ -102,6 +127,35 @@ class Retag extends WebPage
 		->addNewTags()
 		->postEvent()
 		->returnResult();
+	}
+
+
+	/**
+	 * Validate to make sure
+	 * submitted form contains between 1 and 5 tags
+	 *
+	 * @throws \Lampcms\Exception if no tags or more than 5 tags
+	 *
+	 * @return object $this
+	 */
+	protected function validateSubmitted(){
+
+		if(empty($this->aSubmitted)){
+			/*
+			 * @todo translate string
+			 */
+			throw new \Lampcms\Exception('No valid tags have been submitted. Please use words that best categorize this question');
+		}
+
+		$max = $this->oRegistry->Ini->MAX_QUESTION_TAGS;
+		if(count($this->aSubmitted) > $max){
+			/**
+			 * @todo translate string
+			 */
+			throw new \Lampcms\Exception('Question cannot have more than '.$max.' tags. Please remove some tags');
+		}
+
+		return $this;
 	}
 
 
@@ -124,6 +178,7 @@ class Retag extends WebPage
 		}
 
 		$this->oQuestion = new \Lampcms\Question($this->oRegistry, $a);
+		$this->aOldTags = $this->oQuestion['a_tags'];
 
 		return $this;
 	}
@@ -161,15 +216,12 @@ class Retag extends WebPage
 	 * @return object $this
 	 */
 	protected function checkForChanges(){
-		$aTags = $this->oQuestion['a_tags'];
-		d('aTags: '.print_r($aTags, 1));
-		d('aSubmitted: '.print_r($this->aSubmitted, 1));
 
-		$diff = array_diff($this->aSubmitted, $aTags);
-		$diff2 = array_diff($aTags, $this->aSubmitted);
-		d('diff: '.print_r($diff, 1));
+		$this->aAddedTags = \array_diff($this->aSubmitted, $this->aOldTags);
+		$diff2 = \array_diff($this->aOldTags, $this->aSubmitted);
+		d('diff: '.print_r($this->aAddedTags, 1));
 		d('diff2: '.print_r($diff2, 1));
-		if(empty($diff) && empty($diff2)){
+		if(empty($this->aAddedTags) && empty($diff2)){
 			throw new \Lampcms\Exception('You have not changed any tags');
 		}
 
@@ -178,7 +230,7 @@ class Retag extends WebPage
 
 
 	/**
-	 * Update USER_TAGS and QUESTION_TAGS collections
+	 * Update USER_TAGS and QUESTION_TAGS and RELATED_TAGS collections
 	 * to remove old tags that belong to this questions
 	 *
 	 * @return object $this
@@ -186,7 +238,7 @@ class Retag extends WebPage
 	protected function removeOldTags(){
 		\Lampcms\Qtagscounter::factory($this->oRegistry)->removeTags($this->oQuestion);
 		\Lampcms\UserTags::factory($this->oRegistry)->removeTags($this->oQuestion);
-
+		\Lampcms\Relatedtags::factory($this->oRegistry)->removeTags($this->oQuestion);
 		/**
 		 * Also update UNANSWERED_TAGS if this question
 		 * is unanswered
@@ -209,6 +261,7 @@ class Retag extends WebPage
 	protected function addNewTags(){
 		\Lampcms\Qtagscounter::factory($this->oRegistry)->parse($this->oQuestion);
 		\Lampcms\UserTags::factory($this->oRegistry)->addTags($this->oQuestion['i_uid'], $this->oQuestion);
+		\Lampcms\Relatedtags::factory($this->oRegistry)->addTags($this->oQuestion);
 
 		if(0 === $this->oQuestion['i_sel_ans']){
 			d('going to add to Unanswered tags');
@@ -239,7 +292,7 @@ class Retag extends WebPage
 	 * @return object $this
 	 */
 	protected function postEvent(){
-		$this->oRegistry->Dispatcher->post($this->oQuestion, 'onRetag', $this->aSubmitted);
+		$this->oRegistry->Dispatcher->post($this->oQuestion, 'onRetag', $this->aAddedTags);
 
 		return $this;
 	}
@@ -252,7 +305,7 @@ class Retag extends WebPage
 		$message = 'Question retagged successfully';
 
 		if(Request::isAjax()){
-			$ret = array('alert' => $message, 'reload' => 1000);
+			$ret = array('reload' => 100); //'alert' => $message, 
 
 			Responder::sendJSON($ret);
 		}

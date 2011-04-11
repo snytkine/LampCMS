@@ -81,7 +81,7 @@ class tplUserInfo extends Lampcms\Template\Template
 	
 	
 	protected static $tpl = '
-<div class="yui3-g" id="view_profile">
+<div class="yui3-g mb10" id="view_profile">
 	
 <div class="yui3-u-1-2" id="profileMiddle">
 <table class="user_stuff">
