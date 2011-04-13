@@ -55,8 +55,10 @@ namespace Lampcms\Controllers;
 use Lampcms\UserVotesBlock;
 use Lampcms\WebPage;
 use Lampcms\User;
+use Lampcms\Template\Urhere;
 use Lampcms\ProfileDiv;
 use Lampcms\UserTagsBlock;
+use Lampcms\UserFollowedTags;
 use Lampcms\UserQuestions;
 use Lampcms\UserAnswers;
 
@@ -91,10 +93,21 @@ class Userinfo extends WebPage
 		->addQuestions()
 		->addAnswers()
 		->addVotes()
+		->addFollowedTags()
 		->addTags();
 	}
 
 
+	/**
+	 * Create $this->oUser object
+	 * that represents User whose profile
+	 * is being viewed currently
+	 *
+	 * @throws \Lampcms\Exception if user could not be
+	 * found by user id passed in request
+	 *
+	 * @return object $this
+	 */
 	protected function getUser(){
 		$a = $this->oRegistry->Mongo->USERS->findOne(array('_id' => $this->oRequest['uid']));
 
@@ -109,8 +122,21 @@ class Userinfo extends WebPage
 	}
 
 
+	/**
+	 * Check that username passed in url matches the
+	 * username of user.
+	 *
+	 * @throws \Lampcms\RedirectException in case username passed
+	 * in url does not match actual username for this user, in which
+	 * case there will be a redirect to user with correct user name.
+	 * This is basically good for SEO to prevent possibility of different urls
+	 * pointing to the same page
+	 *
+	 * @return object $this
+	 */
 	protected function checkUsername(){
-		$supplied = $this->oRequest['username'];
+		$supplied = $this->oRequest->get('username', 's', '');
+
 		if(!empty($supplied)){
 			$username = $this->oUser->username;
 			if(!empty($username) && (strtolower($username) !== strtolower($supplied) )){
@@ -147,7 +173,30 @@ class Userinfo extends WebPage
 	 */
 	protected function addQuestions(){
 
-		$this->aPageVars['body'] .= UserQuestions::get($this->oRegistry, $this->oUser);
+		/**
+		 *
+		 * html of parsed questions and pagination links
+		 * at the bottom all wrapped inside <div class="user_tags">
+		 * @var $userQuestions
+		 */
+		$userQuestions = UserQuestions::get($this->oRegistry, $this->oUser);
+
+		/**
+		 * UserQuestions::get() may return an empty string
+		 * if this user does not have
+		 * any questions in which case skip the
+		 * rest of the method
+		 */
+		if(empty($userQuestions)){
+			return $this;
+		}
+
+		$cond = $this->oRegistry->Request->get('sort', 's', 'recent');
+		$tabs = Urhere::factory($this->oRegistry)->get('tplSortuq', $cond, array('uid' => $this->oUser->getUid()));
+
+		$questiondBlock = '<div id="uquestions" class="sortable paginated">'.$userQuestions.'</div>';
+
+		$this->aPageVars['body'] .= $tabs.$questiondBlock;
 
 		return $this;
 	}
@@ -163,7 +212,30 @@ class Userinfo extends WebPage
 	 */
 	protected function addAnswers(){
 
-		$this->aPageVars['body'] .= UserAnswers::get($this->oRegistry, $this->oUser);
+		/**
+		 *
+		 * html of parsed answers and pagination links
+		 * at the bottom all wrapped inside <div class="user_answers">
+		 * @var $userQuestions
+		 */
+		$userQuestions = UserAnswers::get($this->oRegistry, $this->oUser);
+
+		/**
+		 * UserQuestions::get() may return an empty string
+		 * if this user does not have
+		 * any answers in which case skip the
+		 * rest of the method
+		 */
+		if(empty($userQuestions)){
+			return $this;
+		}
+
+		$cond = $this->oRegistry->Request->get('sort', 's', 'recent');
+		$tabs = Urhere::factory($this->oRegistry)->get('tplSortuans', $cond, array('uid' => $this->oUser->getUid()));
+
+		$ansBlock = '<div id="useranswers" class="cp fl sortable paginated">'.$userQuestions.'</div>';
+
+		$this->aPageVars['body'] .= $tabs.$ansBlock;
 
 		return $this;
 	}
@@ -189,6 +261,22 @@ class Userinfo extends WebPage
 	protected function addTags(){
 
 		$this->aPageVars['body'] .= UserTagsBlock::get($this->oRegistry, $this->oUser);
+
+		return $this;
+	}
+
+
+	/**
+	 * Add block that shows tags that this user
+	 * is following and also possibly block with tags
+	 * that both Viewer and User are following
+	 *
+	 * @return object $this
+	 */
+	protected function addFollowedTags(){
+
+		$this->aPageVars['body'] .= UserFollowedTags::get($this->oRegistry, $this->oUser);
+
 
 		return $this;
 	}

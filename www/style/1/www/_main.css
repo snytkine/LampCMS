@@ -8299,14 +8299,14 @@ div.tags-list b {
 	cursor: pointer;
 }
 
-#qtypes,.qheader {
+#qtypes,.qheader, .qtypes {
 	clear: both;
 	float: left;
 	width: 100%;
 	margin-bottom: 6px;
 }
 
-#qtypes {
+#qtypes, .qtypes {
 	border-bottom: 1px solid #666;
 	padding-bottom: 6px;
 }
@@ -8721,13 +8721,13 @@ div.tag1 span.ts {
 	cursor: pointer;
 }
 
-#qtypes a {
+#qtypes a, .qtypes a {
 	padding: 6px;
 	margin-right: 3px;
 	margin-left: 3px;
 }
 
-#qtypes a.qtype_current {
+#qtypes a.qtype_current, .qtypes  a.qtype_current{
 	border-top: 1px solid #666;
 	border-left: 1px solid #666;
 	border-right: 1px solid #666;

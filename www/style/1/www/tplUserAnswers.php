@@ -50,13 +50,17 @@
  */
 class tplUserAnswers extends Lampcms\Template\Template
 {
+	/**
+	 * Template pre-parse function
+	 * Append the 's' if count is plural
+	 * 
+	 * @param array $a
+	 */
 	protected static function func(&$a){
 		if($a['count'] != 1){
 			$a['s'] = 's';
 		}
 	}
-
-
 
 	protected static $vars = array(
 	'count' => '',
@@ -64,14 +68,15 @@ class tplUserAnswers extends Lampcms\Template\Template
 	'answers' => '',
 	's' => '',
 	'pagination' => '');
+	
 
 	protected static $tpl = '
-	<div class="user_tags">
-	<h3><span class="counter">%1$s</span> %2$s%4$s</h3>
+	<div class="user_answers mt10">
+	<span class="counter cb fl larger bold">%1$s %2$s%4$s</span> 
 		<div id="uanswers">
 		%3$s
 		</div> <!-- // uquestions -->
-		<div class="qpages">%5$s</div>
+		<div class="qpages reveal hidden">%5$s</div>
 	</div> 
 	<!-- // user_tags  -->
 	';

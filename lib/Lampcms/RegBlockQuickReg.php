@@ -53,6 +53,7 @@
 namespace Lampcms;
 
 use \Lampcms\Forms\Form;
+
 /**
  * Generates html of the QuickRegistration block
  * it extends RegBlock
@@ -124,15 +125,7 @@ class RegBlockQuickReg extends RegBlock
 	 *
 	 * @return string HTML block
 	 */
-	protected function makeCaptchaBlock()
-	{	
-		/*$oCaptcha = new Captcha($this->oRegistry);
-		$aVals = $oCaptcha->getCaptchaArray();
-		d('got captcha vals: '.print_r($aVals, 1));
-
-		$s = \tplCaptcha::parse($aVals, false);
-		d('Captcha block: '.$s);*/
-		
+	protected function makeCaptchaBlock(){			
 		$s = Captcha::factory($this->oRegistry)->getCaptchaBlock();
 
 		return $s;
@@ -173,7 +166,9 @@ class RegBlockQuickReg extends RegBlock
 			$s  .=  '<div class="extauth"><a href="#" onClick="google.friendconnect.requestSignIn(); return false;"><img class="hand" src="/images/gfcbutton.jpg" width="226" height="40" alt="Sign in with Google Friend Connect"/></a></div>';
 		}
 
-		return \tplSocial::parse(array($s, '', '<h3>Join with account you already have</h3>'), false);
+		$label = (!empty($s)) ? '<h3>Join with account you already have</h3><hr class="line1"/>' : '';
+		
+		return \tplSocial::parse(array($s, '', $label), false);
 	}
 
 }

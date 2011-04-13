@@ -64,12 +64,12 @@ class tplUserQuestions extends Lampcms\Template\Template
 	'pagination' => '');
 
 	protected static $tpl = '
-	<div class="user_tags">
-	<h3><span class="counter">%1$s</span> %2$s%4$s</h3>
-		<div id="uquestions">
+	<div class="user_questions mt10">
+	<span class="counter cb fl larger bold">%1$s %2$s%4$s</span>
+		<div class="cb fl">
 		%3$s
 		</div> <!-- // uquestions -->
-		<div class="qpages">%5$s</div>
+		<div class="qpages reveal hidden">%5$s</div>
 	</div> 
 	<!-- // user_tags  -->
 	';

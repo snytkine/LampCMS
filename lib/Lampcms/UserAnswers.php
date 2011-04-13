@@ -68,8 +68,7 @@ namespace Lampcms;
 class UserAnswers extends LampcmsObject
 {
 
-	const PER_PAGE = 20;
-
+	const PER_PAGE = 10;
 
 	public static function get(Registry $oRegistry, User $oUser){
 
@@ -81,21 +80,62 @@ class UserAnswers extends LampcmsObject
 		}
 
 		$pagerLinks = '';
-		$cursor = self::getCursor($oRegistry, $uid);
+		/**
+		 * Default pager path
+		 */
+		$pagerPath = '/tab/a/'.$uid.'/oldest';
+
+		$cond = $oRegistry->Request->get('sort', 's', 'recent');
+		switch($cond){
+			case 'oldest':
+				$sort = array('_id' => 1);
+				$pagerPath = '/tab/a/'.$uid.'/recent';
+				break;
+
+			case 'voted':
+				$sort = array('i_votes' => -1);
+				$pagerPath = '/tab/a/'.$uid.'/voted';
+				break;
+
+			case 'updated':
+				$sort = array('i_lm_ts' => -1);
+				$pagerPath = '/tab/a/'.$uid.'/updated';
+				break;
+
+				
+				case 'best':
+				$sort = array('accepted' => -1);
+				$pagerPath = '/tab/a/'.$uid.'/best';
+				break;
+			default:
+				$sort = array('_id' => -1);
+				$pagerPath = '/tab/a/'.$uid.'/oldest';
+				break;
+
+		}
+
+		$cursor = self::getCursor($oRegistry, $uid, $sort);
 		$count = $cursor->count(true);
 		d('$count: '.$count);
 
-		$pageID = $oRegistry->Request->get('pageID', 'i', 1);
-		$mode = $oRegistry->Request->get('mode', 's', '');
+		/**
+		 * If this user does not have any answers then return
+		 * empty string, skip any unnecessary template parsing
+		 */
+		if(0 == $count){
+			d('no user answers');
+			return '';
+		}
 
-		if($count > self::PER_PAGE || ($pageID > 1 && 'answers' === $mode)){
-			$pagerPath = '';
+		$pageID = $oRegistry->Request->get('pageID', 'i', 1);
+
+		if($count > self::PER_PAGE || $pageID > 1){
 			$oPaginator = Paginator::factory($oRegistry);
 			$oPaginator->paginate($cursor, self::PER_PAGE,
 			array('path' => $pagerPath));
 
 			$pagerLinks = $oPaginator->getLinks();
-			d('links: '.$pagerLinks);
+			d('$pagerPath: '.$pagerPath. ' pagerLinks: '.$pagerLinks);
 		}
 
 		$answers = \tplUanswers::loop($cursor);
@@ -123,10 +163,9 @@ class UserAnswers extends LampcmsObject
 	 * what's passed in Request: by votes,
 	 * or by creation date
 	 */
-	protected static function getCursor(Registry $oRegistry, $uid)
+	protected static function getCursor(Registry $oRegistry, $uid, array $sort)
 	{
 		$where = array('i_uid' => $uid);
-		$sort = $oRegistry->Request->get('sort', 's', '_id');
 		/**
 		 * Exclude deleted items unless viewer
 		 * is a moderator
@@ -134,8 +173,8 @@ class UserAnswers extends LampcmsObject
 		if(!$oRegistry->Viewer->isModerator()){
 			$where['i_del_ts'] = null;
 		}
-		
-		$cursor = $oRegistry->Mongo->ANSWERS->find($where)->sort(array('_id' => -1));
+
+		$cursor = $oRegistry->Mongo->ANSWERS->find($where)->sort($sort);
 
 		return $cursor;
 	}

@@ -52,11 +52,36 @@
 
 namespace Lampcms;
 
+/**
+ * Class for getting parsed html
+ * of user questions block
+ *
+ * @author admin
+ *
+ */
 class UserQuestions extends LampcmsObject
 {
 
-	const PER_PAGE = 20;
+	const PER_PAGE = 10;
 
+	/**
+	 *
+	 * Get parsed html of user questions div,
+	 * complete with pagination
+	 *
+	 * @todo there has to be an extra request param "tab" and ONLY if
+	 * it equals to 'questions' then it would mean
+	 * that sort and pagination is for this block because it could
+	 * be for 'answer' block since they both come to the same controller
+	 * OR just make separate controllers and then pagination and sorting
+	 * will work ONLY with AJAX  and then just hide pagination from
+	 * non-js browsers!
+	 *
+	 * @param Registry $oRegistry
+	 * @param User $oUser
+	 *
+	 * @return string html of user questions
+	 */
 	public static function get(Registry $oRegistry, User $oUser){
 		$uid = $oUser->getUid();
 		if(0 === $uid){
@@ -66,22 +91,94 @@ class UserQuestions extends LampcmsObject
 		}
 
 		$pagerLinks = '';
-		$cursor = self::getCursor($oRegistry, $uid);
-		$count = $cursor->count(true);
-		d('$count: '.$count);
 
 		$pageID = $oRegistry->Request->get('pageID', 'i', 1);
-		$mode = $oRegistry->Request->get('mode', 's', '');
+		/**
+		 * Default pager path
+		 */
+		$pagerPath = '/tab/q/'.$uid.'/recent';
+		/**
+		 * Default sort condition
+		 *
+		 * @var array
+		 */
+		$sort = array('i_ts' => 1);
 
-		if($count > self::PER_PAGE || ($pageID > 1 && 'questions' === $mode)){
-			$pagerPath = '';
+		//$mode = $oRegistry->Request->get('tab', 's', '');
+
+		/**
+		 * sort order possible values:
+		 * recent, oldest, voted, updated, views
+		 *
+		 * default is oldest first
+		 *
+		 * $mode 'questions' means that user requested
+		 * either pagination or sorting specifically
+		 * for the User Questions
+		 * This is not necessaraly an ajax request as pagination
+		 * will work without Ajax too.
+		 *
+		 * When there is no explicit 'questions' $mode
+		 * then we need to just get the cursor
+		 * with default sort and pageID, treating this
+		 * request as if it was for pageID 1 and sort=oldest
+		 */
+		//if('q' === $mode){
+				
+			$cond = $oRegistry->Request->get('sort', 's', 'recent');
+			switch($cond){
+				case 'recent':
+					$sort = array('i_ts' => -1);
+					$pagerPath = '/tab/q/'.$uid.'/recent';
+					break;
+
+				case 'voted':
+					$sort = array('i_votes' => -1);
+					$pagerPath = '/tab/q/'.$uid.'/voted';
+					break;
+
+				case 'updated':
+					$sort = array('i_etag' => -1);
+					$pagerPath = '/tab/q/'.$uid.'/updated';
+					break;
+
+				case 'views':
+					$sort = array('i_views' => -1);
+					$pagerPath = '/tab/q/'.$uid.'/views';
+					break;
+						
+				default:
+					$sort = array('i_ts' => 1);
+					$pagerPath = '/tab/q/'.$uid.'/oldest';
+					break;
+						
+			}
+		//}
+
+		$cursor = self::getCursor($oRegistry, $uid, $sort);
+		$count = $cursor->count(true);
+		d('$count: '.$count);
+		
+		/**
+		 * If this user does not have any questions then return
+		 * empty string
+		 */
+		if(0 == $count){
+			d('no user questions');
+			return '';
+		}
+
+		if($count > self::PER_PAGE ||  $pageID > 1 ){
+
 			$oPaginator = Paginator::factory($oRegistry);
+
 			$oPaginator->paginate($cursor, self::PER_PAGE,
 			array('path' => $pagerPath));
 
 			$pagerLinks = $oPaginator->getLinks();
 			d('links: '.$pagerLinks);
 		}
+
 
 		$questions = \tplUquestions::loop($cursor);
 		d('questions: '.$questions);
@@ -95,9 +192,8 @@ class UserQuestions extends LampcmsObject
 	}
 
 
-	protected static function getCursor(Registry $oRegistry, $uid)
-	{
-		$sort = $oRegistry->Request->get('sort', 'i', '_id');
+	protected static function getCursor(Registry $oRegistry, $uid, array $sort){
+		
 		$where = array('i_uid' => $uid);
 		/**
 		 * Exclude deleted items unless viewer
@@ -107,7 +203,7 @@ class UserQuestions extends LampcmsObject
 			$where['i_del_ts'] = null;
 		}
 
-		$cursor = $oRegistry->Mongo->QUESTIONS->find($where)->sort(array('_id' => -1));
+		$cursor = $oRegistry->Mongo->QUESTIONS->find($where)->sort($sort);
 
 		return $cursor;
 	}

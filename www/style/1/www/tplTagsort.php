@@ -46,15 +46,16 @@
 class tplTagsort extends Lampcms\Template\Template
 {
 	protected static $vars = array(
-	'popular_c' => '',
-	'name_c' => '',
-	'recent_c' => '',
-	'popular' => 'Popular',
-	'popular_t' => 'Most popular tags',
-	'name' => 'Name',
-	'name_t' => 'Sort by name',
-	'recent' => 'Latest',
-	'recent_t' => 'Tags with most recent questions');
+	'popular_c' => '', //1
+	'name_c' => '', //2
+	'recent_c' => '', //3
+	'popular' => 'Popular', //4
+	'popular_t' => 'Most popular tags', //5
+	'name' => 'Name', //6
+	'name_t' => 'Sort by name', //7
+	'recent' => 'Latest', //8
+	'recent_t' => 'Tags with most recent questions' //9
+	);
 
 	protected static $tpl = '
 	<div id="qtypes" class="cb fl reveal hidden">

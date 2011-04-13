@@ -92,7 +92,7 @@ class UserTagsBlock extends LampcmsObject
 		d('$aUserTags: '.print_r($aUserTags, 1));
 
 		$count = count($aUserTags);
-		
+
 		/**
 		 * @todo Translate string
 		 */
@@ -114,7 +114,7 @@ class UserTagsBlock extends LampcmsObject
 		$vals = array('count' => $blockTitle, 'label' => 'tag', 'tags' => $tags);
 		d('vals: '.print_r($vals, 1));
 
-		$ret = \tplUserTags::parse($vals, false);
+		$ret = \tplUserTags::parse($vals);
 
 		d('ret: '.$ret);
 
@@ -156,9 +156,6 @@ class UserTagsBlock extends LampcmsObject
 
 			return '';
 		}
-
-
-
 
 	}
 }

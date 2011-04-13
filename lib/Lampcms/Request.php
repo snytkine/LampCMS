@@ -60,6 +60,20 @@ namespace Lampcms;
  * unsure about itself.
  * Why not just extend ArrayDefaults and use default value of 1?
  *
+ * @todo use some type of memoization. When value has been
+ * filtered just put it into cache array so requests
+ * for the same var will not have to go through
+ * the same process of resolving  and filtering
+ * Must first examine to possibilities of when user
+ * sets the value of Request var by simply
+ * doing somehting like $oRequest['myvar'] = 'new value'
+ * It will just set the value into the underlying array object
+ * but no way we can also put it into cache. This means if
+ * user does this and then requests this var again, the cached
+ * version will be returned and not the one user just added
+ * to the object. This is super not-cool. Easy solution 
+ * is to just add to this->aFiltered from offsetSet()
+ *
  * @author Dmitri Snytkine
  *
  */
@@ -148,7 +162,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		return $o;
 	}
 
-	
+
 	/**
 	 * Set array of params that are required
 	 * to be in request
@@ -232,9 +246,10 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 				return 'viewquestions';
 			} elseif('pageID' === $offset){
 				return 1;
-			} else {
-				throw new DevException('Request param '.$offset.' does not exist');
 			}
+			
+			throw new DevException('Request param '.$offset.' does not exist');
+				
 		}
 
 		return $this->getFiltered($offset);
@@ -242,6 +257,11 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 
 	/**
+	 * This overrides the ArrayObject's own
+	 * method so that if something is added
+	 * to this object by using
+	 * $oRequest['var'] = $val then it is
+	 * automatically also added to aFiltered array
 	 *
 	 * @param $key
 	 * @param $val
@@ -352,8 +372,12 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		}elseif('token' === $name){
 			$ret = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
 		}else {
+			/**
+			 * Do NOT use FILTER_STRIP_LOW, it may look like a good idea but
+			 * it removes all line breaks in text!
+			 */
 			$ret = $val; //filter_var($val, FILTER_SANITIZE_STRING); //, FILTER_FLAG_STRIP_LOW
-			//$ret = $val;
+				
 		}
 
 		return $ret;

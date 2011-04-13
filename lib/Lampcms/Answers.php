@@ -135,13 +135,18 @@ class Answers extends LampcmsObject
 			$where['i_del_ts'] = null;
 		}
 		
-		/**
-		 * In case of i_ts (by timestamp of answer)
-		 * we actuall need from oldest to newest - Ascending
-		 * and for other types we need Descending order
-		 * 
-		 */
-		$sort = ('i_ts' == $cond) ? array($cond => 1): array($cond => -1);
+		switch($cond){
+			case 'i_ts':
+				$sort = array('i_ts' => 1);
+				break;
+				
+			case 'i_votes':
+				$sort = array('i_votes' => -1);
+				break;
+				
+			default:
+				$sort = array($cond => -1);
+		}
 
 		$cursor = $this->oRegistry->Mongo->ANSWERS->find($where, $aFields);
 		d('$cursor: '.gettype($cursor));

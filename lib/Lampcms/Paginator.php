@@ -89,6 +89,8 @@ class Paginator extends LampcmsObject
 	 * @param mixed int|array|object MongoCursor $arrData
 	 * @param int $perPage
 	 * @param array $arrExtraParams
+	 * 
+	 * @return array paged data
 	 *
 	 * @throws LampcmsDevException
 	 */

@@ -250,7 +250,7 @@ class Unanswered extends Viewquestions
 			}
 
 			$this->rawTags = $tags;
-			$this->title = \htmlspecialchars_decode(\urldecode($tags));
+			$this->title = $this->tags;
 			d('this->title: '.$this->title);
 			
 			if(empty($this->tags)){

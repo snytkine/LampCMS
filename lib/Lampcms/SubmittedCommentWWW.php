@@ -239,7 +239,7 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 	 */
 	public function getBody(){
 
-		$body = $this->oRegistry->Request->getUTF8('com_body')->htmlentities()->mmd2Html()->wordWrap(70, "\n", true); //->parseMarkdown()
+		$body = $this->oRegistry->Request->getUTF8('com_body')->htmlentities()->mmd2Html()->wordWrap(70, "\n", true); 
 		d('$body: '.$body);
 
 		return $body;

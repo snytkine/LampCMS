@@ -52,7 +52,7 @@
 
 namespace Lampcms;
 
-const JS_MIN_ID = '04102011_2';
+const JS_MIN_ID = '04132011';
 
 const LF = "\n";
 const CR = "\r";

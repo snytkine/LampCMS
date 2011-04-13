@@ -1781,8 +1781,8 @@ YUI({
 	 * event can take place.
 	 */
 	handlePagination = function(el){
-		var href, answers = Y.one(".paginated");
-		//Y.log('el name: ' + el.get('tagName'));
+		var href, qpages;
+		qpages = el.ancestor("div.qpages");
 		if(!el.hasAttribute('href')){
 			//Y.log('723 no href');
 			return;
@@ -1790,8 +1790,8 @@ YUI({
 
 		href = el.getAttribute('href');
 		//Y.log('href: ' + href);
-		if(answers){
-			showLoading(answers);
+		if(qpages){
+			showLoading(qpages);
 			Y.io(href);			
 		}
 	},
@@ -1803,33 +1803,35 @@ YUI({
 	 * than just work with content that is already
 	 * on the page - no need to ask the server
 	 * 
-	 * @todo pre-cache results of tab content
+	 * pre-cache results of tab content
 	 * and then reuse it - check if content exists first
 	 * 
 	 */
 	getSortedAnswers = function(el){
 		
-		var href, eTab, curTab, curTabId, sortby = el.get('id'),
-		qid = getMeta('qid'), 
-		qtype = Y.one("#qtypes"),
-		answers = Y.one(".paginated");
-		//Y.log('sortby: ' + sortby);
+		var href, curTab, curTabId, sortby = el.get('id'),
+		qid, //
+		qtype = Y.one("#qtypes"), //	
+		eTab = el.ancestor("div").next("div.sortable") || Y.one(".sortable");
+		Y.log('sortby: ' + sortby);
 		if(el.test(".qtype_current")){
-			//Y.log('Clicked on already current tab. No soup for you');
+			Y.log('1818 Clicked on already current tab. No soup for you');
 			return;
 		}
-
+		/**
+		 * curTab is tab that is currently set as 'current'
+		 * not the one that triggered this event
+		 */
 		curTab = el.ancestor("div").one(".qtype_current");
-		//Y.log('curTab: ' + curTab);
+		Y.log('curTab: ' + curTab);
 		if(curTab){
 			curTabId = curTab.get("id");
-			//Y.log('curTabId: ' + curTabId);
+			Y.log('1826 curTabId: ' + curTabId);
 			if(!oCTabs.hasOwnProperty(curTabId)){
-				//Y.log('adding current contents of .paginated to oCAnsers');
-				eTab = Y.one(".sortable");
-				//Y.log('eTab: ' + eTab);
+				Y.log('1828 adding current contents of .paginated to oCAnsers');
+				Y.log('1835 next sortable eTab: ' + eTab);
 				oCTabs[curTabId] = eTab.getContent();
-				////Y.log('oCTabs[curTabId] now: ' + oCTabs[curTabId]);
+				Y.log('1838 oCTabs[curTabId] now: ' + oCTabs[curTabId]);
 			}
 		}
 		/**
@@ -1848,15 +1850,16 @@ YUI({
 		 * fetch it via XHR
 		 */
 		if(oCTabs.hasOwnProperty(sortby) && oCTabs[sortby].length > 0){
-			//Y.log('Youth gots it already');
-			answers.setContent(oCTabs[sortby]);
+			Y.log('1856 Youth gots it already');
+			eTab.setContent(oCTabs[sortby]);
 			foldGroup.fetch();
 		} else {
-			showLoading(answers);
+			showLoading(eTab);
 			//Y.log('after setting form qid: ' + qid);
+			//qid = getMeta('qid'),
 			href = el.getAttribute('href');
-			//Y.log('href: ' + href);			
-			href = ('#' === href) ? '/index.php?a=getanswers&qid='+qid+'&sort=' + sortby : href;
+			Y.log('href: ' + href);			
+			href = ('#' === href) ? '/index.php?a=getanswers&qid='+getMeta('qid')+'&sort=' + sortby : href;
 			Y.io(href, {'arguments' : {'sortby' : sortby}});
 			
 		}
@@ -1977,8 +1980,8 @@ YUI({
 	/**
 	 * Remove hidden class from elements
 	 */
-	revealHidden = function(){
-		var els = Y.all('.reveal');
+	revealHidden = function(e){
+		var els = (e) ? e.all('.reveal') : Y.all('.reveal');
 		if(els){
 			//els.removeClass('hidden');
 			els.each(function(){
@@ -2008,8 +2011,8 @@ YUI({
 	// A function handler to use for successful requests:
 	handleSuccess = function(ioId, o, args) {
 		hideLoading();
-		//Y.log("args from Y.io: " + Y.dump(args));
-		var paginated, scoreDiv, comDivID, eDiv, eRepliesDiv, sContentType = Y.Lang.trim(o.getResponseHeader("Content-Type"));
+		Y.log("args from Y.io: " + Y.dump(args));
+		var target, paginated, scoreDiv, comDivID, eDiv, eRepliesDiv, sContentType = Y.Lang.trim(o.getResponseHeader("Content-Type"));
 		if ('text/json; charset=UTF-8' !== sContentType) {
 			alert('Invalid Content-Type header: ' + sContentType);
 			return;
@@ -2039,6 +2042,7 @@ YUI({
 			alert("Error parsing response object" + e + "<br>o.responseText: " + o.responseText);
 			return;
 		}
+	
 
 		if (data.exception) {
 			
@@ -2060,6 +2064,16 @@ YUI({
 			alert(data.alert);
 			//return;
 		}
+		
+		if(data.replace && data.replace.target && data.replace.content){
+			Y.log('got something to replace in ' + data.replace.target);
+			Y.one("#" + data.replace.target).set('innerHTML', data.replace.content);
+			foldGroup.fetch();
+			initTooltip();
+			revealHidden();
+			return;
+		}
+		
 		
 		if(data.reload){
 			//Y.log('have data.reload');
@@ -2095,13 +2109,14 @@ YUI({
 		}
 		
 		if(data.paginated){
-			if(args && args.sortby){
-				//Y.log('have args and args.sortby');
-				oCTabs[args.sortby] = data.paginated;
-			}
 			paginated = Y.one(".paginated");
 			//Y.log('paginated: ' + paginated);
 			paginated.setContent(data.paginated);
+			/**
+			 * Fire image loader again
+			 * so content of newly downloaded div
+			 * gets populated with images
+			 */
 			foldGroup.fetch();
 			initTooltip();
 			return;
@@ -2409,18 +2424,13 @@ YUI({
 		});
 
 		editor.on('toolbarLoaded', function() {
-
 			this.on('afterNodeChange', function(o) {
-
 				preview();
-
 			}, this, true);
 
-			/*
-			 * this.on('editorKeyUp', function() { preview(); });
-			 */
-
-
+			
+			  this.on('editorKeyUp', function() { preview(); });
+			 
 			/**
 			 * Listen to "Clear" button click
 			 */
@@ -2717,7 +2727,6 @@ YUI({
 		 * and don't allow editing comments
 		 * older than 5 minutes
 		 */
-		
 		wrapDiv = Y.one("#comment-" + resID);
 		//Y.log('wrapDiv: ' + wrapDiv);
 		if(wrapDiv){
@@ -3063,8 +3072,6 @@ YUI({
 			node = Y.one('meta[name=' + metaName +']');
 			//Y.log('meta node for meta ' + metaName+ ' is: ' + node);
 			oMetas[metaName] = node;
-		} else {
-			//Y.log('meta is already resolved to ' + oMetas[metaName], 'info');
 		}
 		
 		if(!oMetas[metaName]){

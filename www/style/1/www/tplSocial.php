@@ -37,6 +37,18 @@
  */
 
 
+/**
+ * Small html block is added to
+ * registration block and contains
+ * buttons to join with external accounts like
+ * Twitter, Facebook, etc.
+ * and label "Join with account you already have"
+ * if there is at least one external login option
+ * enabled
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class tplSocial extends Lampcms\Template\Template
 {
 	// %3$s was <h3>Join with account you already have</h3>
@@ -47,8 +59,5 @@ class tplSocial extends Lampcms\Template\Template
 
 	protected static $tpl ='%2$s
 	%3$s
-	<hr class="line1"/>
 	%1$s';
 }
-
-?>
