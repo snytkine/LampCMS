@@ -378,9 +378,6 @@ class Geoip
 			if( null !== $filename) {
 				$this->open($filename, $flags);
 			}
-			// store the instance, so that it will be returned by a call to
-			// getInstance() (with the same db filename).
-			self::$instances[$filename] = $this;
 		}
 
 		/**
@@ -449,14 +446,21 @@ class Geoip
 		{
 			if (!isset(self::$instances[$filename])) {
 				$flags = (null === $flags) ? self::SHARED_MEMORY : $flags;
+				
 				if(!function_exists('shmop_open') && ($flags & self::SHARED_MEMORY)){
-					e('cannot use SHARED_MEMORY flag because shmop_open function not available. Must recompile php using  --enable-shmop in order to use this option');
-					$flags = 0;
+					
+					d('cannot use SHARED_MEMORY flag because shmop_open function not available. Must recompile php using  --enable-shmop in order to use this option');
+					
+					$flags = self::STANDARD;
 				}
-
+				
+				d('flags: '.$flags);
+				
 				self::$instances[$filename] = new self($filename, $flags);
 			}
 
+			d('returning instance for $filename '.$filename);
+				
 			return self::$instances[$filename];
 		}
 
@@ -841,7 +845,7 @@ class Geoip
 				$record_buf = fread($this->filehandle, self::FULL_RECORD_LENGTH);
 			}
 
-			$record = new GeoIpLocation();
+			$record = new GeoipLocation();
 
 			$record_buf_pos = 0;
 			$char = ord(substr($record_buf, $record_buf_pos, 1));
@@ -952,6 +956,8 @@ class Geoip
 		public static function getGeoData($strIp)
 		{
 
+			$strIp = '96.255.94.11';
+			
 			if (!is_string($strIp)) {
 				throw new \Lampcms\DevException('$strIp MUST be a string. Supplied value was: '.gettype($strIp));
 					

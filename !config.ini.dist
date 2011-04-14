@@ -34,7 +34,7 @@ MAX_QUESTION_TAGS = 5
 ; Minimun length of question in chars
 MIN_QUESTION_CHARS = 10
 ;
-; Minimum length of questio
+; Minimum required length of question title
 MIN_TITLE_CHARS = 10
 ;
 ; Minimum number of words required in question
