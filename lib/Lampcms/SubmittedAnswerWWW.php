@@ -130,5 +130,7 @@ class SubmittedAnswerWWW extends SubmittedAnswer
 				
 			return $aRet;
 		}
+		
+		return array();
 	}
 }

@@ -239,7 +239,7 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 	 */
 	public function getBody(){
 
-		$body = $this->oRegistry->Request->getUTF8('com_body')->htmlentities()->mmd2Html()->wordWrap(70, "\n", true); 
+		$body = $this->oRegistry->Request->getUTF8('com_body')->htmlentities()->mmd2Html()->wordWrap(70, "\n", true);
 		d('$body: '.$body);
 
 		return $body;
@@ -301,6 +301,14 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 	 * @return associative array
 	 */
 	public function getExtraData(){
+
+		$oGeo = $this->oRegistry->Cache->{sprintf('geo_%s', Request::getIP())};
+		if(is_object($oGeo)){
+			$aRet = $oGeo->getData2();
+			d('aRet: '.print_r($aRet, 1));
+
+			return $aRet;
+		}
 
 		return array();
 	}

@@ -88,5 +88,4 @@ class IpFilter extends \Lampcms\Observer
 		}
 	}
 
-
 }

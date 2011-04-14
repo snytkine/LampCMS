@@ -97,6 +97,7 @@ class GeoipLocation extends LampcmsObject implements \Serializable
     'dmaCode' => null
 	);
 
+	
 	/**
 	 * Almost the Same as aData but with short keys,
 	 * more suitable for MongoDB
@@ -112,6 +113,7 @@ class GeoipLocation extends LampcmsObject implements \Serializable
     'longitude' => 'lon'
     );
 
+    
     /**
      * Calculate the distance in km between two points.
      * @param Net_GeoIP_Location $loc The other point to which distance will be calculated.
@@ -212,6 +214,7 @@ class GeoipLocation extends LampcmsObject implements \Serializable
     	return (null !== $this->__get($name));
     }
 
+    
     /**
      * Get array of data but
      * rekeyed to use short keys and

@@ -218,7 +218,6 @@ class QuestionParser extends LampcmsObject
 		'a_tags' => $aTags,
 		'a_title' => TitleTokenizer::factory($oTitle)->getArrayCopy(),
 		'status' => 'unans',
-		/*'tags_c' => trim(\tplQtagsclass::loop($aTags, false)),*/
 		'tags_html' => \tplQtags::loop($aTags, false),
 		'credits' => '',
 		'i_ts' => $time,
@@ -393,12 +392,13 @@ class QuestionParser extends LampcmsObject
 
 		$o = Qtagscounter::factory($this->oRegistry);
 		$oQuestion = $this->oQuestion;
-
-		$callable = function() use($o, $oQuestion){
-			$o->parse($oQuestion);
-		};
-		d('cp');
-		runLater($callable);
+		if(count($oQuestion['a_tags']) > 0){
+			$callable = function() use($o, $oQuestion){
+				$o->parse($oQuestion);
+			};
+			d('cp');
+			runLater($callable);
+		}
 
 		return $this;
 	}
@@ -414,12 +414,14 @@ class QuestionParser extends LampcmsObject
 
 		$oRelated = Relatedtags::factory($this->oRegistry);
 		$oQuestion = $this->oQuestion;
+		if(count($oQuestion['a_tags']) > 0){
+			d('cp');
+			$callable = function() use ($oRelated, $oQuestion){
+				$oRelated->addTags($oQuestion);
+			};
+			runLater($callable);
+		}
 		d('cp');
-		$callable = function() use ($oRelated, $oQuestion){
-			$oRelated->addTags($oQuestion);
-		};
-		d('cp');
-		runLater($callable);
 
 		return $this;
 	}
@@ -434,13 +436,15 @@ class QuestionParser extends LampcmsObject
 	 */
 	protected function addUnansweredTags(){
 		if('accptd' !== $this->oQuestion['status']){
-			$o = new UnansweredTags($this->oRegistry);
-			$oQuestion = $this->oQuestion;
-			$callable = function() use ($o, $oQuestion){
-				$o->set($oQuestion);
-			};
-			d('cp');
-			runLater($callable);
+			if(count($this->oQuestion['a_tags']) > 0){
+				$o = new UnansweredTags($this->oRegistry);
+				$oQuestion = $this->oQuestion;
+				$callable = function() use ($o, $oQuestion){
+					$o->set($oQuestion);
+				};
+				d('cp');
+				runLater($callable);
+			}
 			d('cp');
 		}
 
@@ -458,12 +462,13 @@ class QuestionParser extends LampcmsObject
 		$oUserTags = UserTags::factory($this->oRegistry);
 		$uid = $this->oSubmitted->getUserObject()->getUid();
 		$oQuestion = $this->oQuestion;
-
-		$callable = function() use ($oUserTags, $uid, $oQuestion){
-			$oUserTags->addTags($uid, $oQuestion);
-		};
-		d('cp');
-		runLater($callable);
+		if(count($oQuestion['a_tags']) > 0){
+			$callable = function() use ($oUserTags, $uid, $oQuestion){
+				$oUserTags->addTags($uid, $oQuestion);
+			};
+			d('cp');
+			runLater($callable);
+		}
 		d('cp');
 
 		return $this;

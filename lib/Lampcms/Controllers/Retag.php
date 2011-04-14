@@ -140,15 +140,26 @@ class Retag extends WebPage
 	 */
 	protected function validateSubmitted(){
 
-		if(empty($this->aSubmitted)){
+		$min = $this->oRegistry->Ini->MIN_QUESTION_TAGS;
+		$max = $this->oRegistry->Ini->MAX_QUESTION_TAGS;
+
+		if(($min > 0) && empty($this->aSubmitted)){
 			/*
 			 * @todo translate string
 			 */
 			throw new \Lampcms\Exception('No valid tags have been submitted. Please use words that best categorize this question');
 		}
 
-		$max = $this->oRegistry->Ini->MAX_QUESTION_TAGS;
-		if(count($this->aSubmitted) > $max){
+		$count = count($this->aSubmitted);
+
+		if($count < $min){
+			/**
+			 * @todo Translate string
+			 */
+			throw new \Lampcms\Exception('Question must have at least '.$min.' tag(s)');
+		}
+
+		if($count > $max){
 			/**
 			 * @todo translate string
 			 */
@@ -259,15 +270,17 @@ class Retag extends WebPage
 	 * @return object $this
 	 */
 	protected function addNewTags(){
-		\Lampcms\Qtagscounter::factory($this->oRegistry)->parse($this->oQuestion);
-		\Lampcms\UserTags::factory($this->oRegistry)->addTags($this->oQuestion['i_uid'], $this->oQuestion);
-		\Lampcms\Relatedtags::factory($this->oRegistry)->addTags($this->oQuestion);
+		if(count($this->aSubmitted) > 0){
+			\Lampcms\Qtagscounter::factory($this->oRegistry)->parse($this->oQuestion);
+			\Lampcms\UserTags::factory($this->oRegistry)->addTags($this->oQuestion['i_uid'], $this->oQuestion);
+			\Lampcms\Relatedtags::factory($this->oRegistry)->addTags($this->oQuestion);
 
-		if(0 === $this->oQuestion['i_sel_ans']){
-			d('going to add to Unanswered tags');
-			\Lampcms\UnansweredTags::factory($this->oRegistry)->set($this->oQuestion);
+			if(0 === $this->oQuestion['i_sel_ans']){
+				d('going to add to Unanswered tags');
+				\Lampcms\UnansweredTags::factory($this->oRegistry)->set($this->oQuestion);
+			}
 		}
-
+		
 		return $this;
 	}
 
@@ -305,7 +318,7 @@ class Retag extends WebPage
 		$message = 'Question retagged successfully';
 
 		if(Request::isAjax()){
-			$ret = array('reload' => 100); //'alert' => $message, 
+			$ret = array('reload' => 100); //'alert' => $message,
 
 			Responder::sendJSON($ret);
 		}

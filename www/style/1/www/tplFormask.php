@@ -65,7 +65,9 @@ class tplFormask extends Lampcms\Template\Template
 	'readonly' => '', // 16
 	'disabled' => '', // 17
 	'connectBlock' => '', //18
-	'formError' => ''); // 19
+	'formError' => '', //19
+	'tags_required' => '' //20
+	); 
 
 	protected static $tpl = '
 	<div id="ask_form"  class="form_wrap">
@@ -75,7 +77,7 @@ class tplFormask extends Lampcms\Template\Template
 		<input type="hidden" name="token" value="%1$s">
 		%18$s
 		<div class="form_el"> 
-                <label for="id_title">%4$s</label>: <span class="f_err" id="title_e">%6$s</span><br> 
+                <label for="id_title">%4$s</label> <span class="f_err" id="title_e">%6$s</span><br> 
                 <input autocomplete="off" id="id_title" class="title_c%15$s" type="text" name="title" size="80" value="%3$s" %16$s> 
                 <div id="title_d" class="caption">%5$s</div> 
        </div>
@@ -91,7 +93,7 @@ class tplFormask extends Lampcms\Template\Template
             <!-- // el body -->
             
             <div class="form_el"> 
-            	<label for="id_tags">%11$s</label>: (* %2$s) <span class="f_err"  id="tags_e">%13$s</span><br> 
+            	<label for="id_tags">%11$s</label> %20$s <span class="f_err"  id="tags_e">%13$s</span><br> 
                 <input id="id_tags" type="text" name="tags" class="tags_c%15$s" size="80" value="%10$s" %16$s>  
             	<div id="tags_d" class="caption">%12$s</div> 
             </div>

@@ -315,7 +315,7 @@ site %5$s and navigating to Settings > Email preferences
 				$this->collUsers = $this->oRegistry->Mongo->USERS;
 				$this->notifyOnComment();
 				break;
-				
+
 			case 'onRetag' :
 				$this->collUsers = $this->oRegistry->Mongo->USERS;
 				$this->oQuestion = $this->obj;
@@ -425,7 +425,7 @@ site %5$s and navigating to Settings > Email preferences
 					$oMailer->mail($aUser['email'], $subj, $body, null, false);
 				}
 			};
-				
+
 			\Lampcms\runLater($callable);
 		}
 
@@ -454,20 +454,32 @@ site %5$s and navigating to Settings > Email preferences
 	 * array from $this->oQuestion['a_tags'] will be used. This param
 	 * is used when handling onRetag Event in which case we receive
 	 * array of "new" tags that have been added as result of retagging
-	 * 
+	 *
 	 * @return object $this
-	 * 
-	 * @todo use different subject if $aNewTags is passed here - the 
+	 *
+	 * @todo use different subject if $aNewTags is passed here - the
 	 * subject should indicate that Question was tagged with one
 	 * of your tags
 	 */
 	protected function notifyTagFollowers(array $aNewTags = null){
-		
+		$aTags = (!empty($aNewTags)) ? $aNewTags : $this->oQuestion['a_tags'];
+		/**
+		 * since tags can be empty
+		 * simple return in case
+		 * there are not tags
+		 */
+		if(empty($aTags)){
+			return $this;
+		}
+
 		$askerID = $this->oQuestion->getOwnerId();
 		$oMailer = new Mailer($this->oRegistry);
 		$subj = sprintf(static::$QUESTION_BY_TAG_SUBJ, implode(', ', $this->oQuestion['a_tags']) );
 		$body = vsprintf(static::$QUESTION_BY_TAG_BODY, array($this->oQuestion['username'], $this->oQuestion['title'], $this->oQuestion['intro'], $this->oQuestion->getUrl(), $this->oRegistry->Ini->SITE_URL));
-		$aTags = (!empty($aNewTags)) ? $aNewTags : $this->oQuestion['a_tags'];
+
+
+
+
 		$coll = $this->collUsers;
 		d('before shutdown function in TagFollowers');
 
@@ -483,7 +495,7 @@ site %5$s and navigating to Settings > Email preferences
 				'a_f_u' => array('$nin' => array(0 => $askerID) ), 
 				'ne_ft' => array('$ne' => true) 
 			);
-				
+
 			$cur = $coll->find($where, array('email') );
 			$count = $cur->count();
 			if($count > 0){
@@ -542,7 +554,7 @@ site %5$s and navigating to Settings > Email preferences
 		 */
 
 		$func = function() use($uid, $tpl, $updateType, $subj, $body, $coll, $oMailer){
-				
+
 			$count = 0;
 			$cur = $coll->find(array('a_f_u' => $uid, 'ne_fu' => array('$ne' => true) ), array('email')  );
 			$count = $cur->count();
@@ -708,7 +720,7 @@ site %5$s and navigating to Settings > Email preferences
 					 */
 				}
 			};
-				
+
 			\Lampcms\runLater($func);
 		}
 

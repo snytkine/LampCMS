@@ -215,6 +215,7 @@ class Answerparser extends LampcmsObject
 		'username' => $username,
 		'ulink' => '<a href="'.$this->oSubmittedAnswer->getUserObject()->getProfileUrl().'">'.$username.'</a>',
 		'avtr' => $this->oSubmittedAnswer->getUserObject()->getAvatarSrc(),
+		'i_words' => $oBody->asPlainText()->getWordsCount(),
 		'i_up' => 0,
 		'i_down' => 0,
 		'i_votes' => 0,

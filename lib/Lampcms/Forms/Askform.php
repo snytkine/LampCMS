@@ -75,24 +75,41 @@ class Askform extends Form
 	protected $template = 'tplFormask';
 
 
-	/**
-	 * This is just an example how a custom validation
-	 * callback could be added to form
-	 * The callback must accept value of element
-	 * and must return error string or true
-	 * if there are no errors
-	 *
-	 * @see Form::init()
-	 */
+
 	protected function init(){
-		$this->addValidator('title', function($val){
+		/**
+		 * This is just an example how a custom validation
+		 * callback could be added to form
+		 * The callback must accept value of element
+		 * and must return error string or true
+		 * if there are no errors
+		 *
+		 * @see Form::init()
+		 */
+		/*$this->addValidator('title', function($val){
 
-			if(strlen($val) < 10){
-				return 'Title must contain at least 10 letters';
-			}
+		if(\mb_strlen($val) < 1){
+		return 'Title must contain at least 1 character long';
+		}
 
-			return true;
-		});
+		return true;
+		});*/
+
+		$minTags = $this->oRegistry->Ini->MIN_QUESTION_TAGS;
+		$maxTags = $this->oRegistry->Ini->MAX_QUESTION_TAGS;
+
+		$d = 'Please enter between %s and %s tags, separated by spaces';
+		$this->setVar('tags_d', sprintf($d, $minTags, $maxTags));
+		if($minTags > 0){
+			$tagsRequired = '(* %s)';
+			$this->setVar('tags_required', sprintf($tagsRequired, 'required'));
+		}
+
+		$minTitle = $this->oRegistry->Ini->MIN_TITLE_CHARS;
+		if($minTitle > 0){
+			$t = 'Please enter a descriptive title at least %s characters long';
+			$this->setVar('title_d', sprintf($t, $minTitle));
+		}
 	}
 
 
@@ -103,8 +120,25 @@ class Askform extends Form
 	 */
 	protected function doValidate(){
 
-		$this->validateBody()->validateTags();
+		$this->validateBody()->validateTitle()->validateTags();
 
+	}
+
+
+	/**
+	 * Validate title length
+	 *
+	 * @return object $this
+	 */
+	protected function validateTitle(){
+		$t = $this->oRegistry->Request['title'];
+		$min = $this->oRegistry->Ini->MIN_TITLE_CHARS;
+		d('min title: '.$min);
+		if(\mb_strlen($t) < $min){
+			$this->setError('title', 'Title must contain at least '.$min.' letters');
+		}
+
+		return $this;
 	}
 
 
@@ -152,21 +186,30 @@ class Askform extends Form
 	 * @return object $this
 	 */
 	protected function validateTags(){
+		$min = $this->oRegistry->Ini->MIN_QUESTION_TAGS;
 		$max = $this->oRegistry->Ini->MAX_QUESTION_TAGS;
 		$tags = $this->oRegistry->Request->get('tags', 's', '');
 		$tags = trim($tags);
-		if(empty($tags)){
+		if(($min > 0) && empty($tags)){
 			$this->setError('tags', 'You must include at least one tag');
 		}
 
 		\mb_regex_encoding('UTF-8');
 		$aTags = \mb_split('([\s,;]+)', $tags);
+		$count = count($tags);
 
-		if(count($aTags) > $max){
+		if($count > $aTags){
 			/**
 			 * @todo Translate string
 			 */
 			$this->setError('tags', 'Question cannot have more than '.$max.' tags. Please remove some tags');
+		}
+
+		if($count < $min){
+			/**
+			 * @todo Translate string
+			 */
+			$this->setError('tags', 'Question must have at least '.$min.' tag(s)');
 		}
 
 		return $this;

@@ -135,5 +135,7 @@ class SubmittedQuestionWWW extends SubmittedQuestion
 
 			return $aRet;
 		}
+		
+		return array();
 	}
 }

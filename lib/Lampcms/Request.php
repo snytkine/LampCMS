@@ -71,7 +71,7 @@ namespace Lampcms;
  * but no way we can also put it into cache. This means if
  * user does this and then requests this var again, the cached
  * version will be returned and not the one user just added
- * to the object. This is super not-cool. Easy solution 
+ * to the object. This is super not-cool. Easy solution
  * is to just add to this->aFiltered from offsetSet()
  *
  * @author Dmitri Snytkine
@@ -91,9 +91,24 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 * Array of filtered params
 	 * @var array but initially set to null
 	 */
-	protected $aFiltered = null;
+	protected $aFiltered = array();
 
 	protected static $ajax = null;
+
+	/**
+	 * Array of UTF8 objects
+	 *
+	 * @var array
+	 */
+	protected $aUTF8 = array();
+
+	/**
+	 * GeoData object
+	 *
+	 * @var object of type GeoipLocation representing
+	 * geolocation for the ip address of request
+	 */
+	protected $oGeo;
 
 
 	public function __construct(array $array){
@@ -196,7 +211,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 */
 	public function getArray(){
 
-		if(null === $this->aFiltered){
+		if(empty($this->aFiltered)){
 			$a = $this->getArrayCopy();
 			foreach($a as $key => $val) {
 				$this->aFiltered[$key] = $this->getFiltered($key);
@@ -247,9 +262,9 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 			} elseif('pageID' === $offset){
 				return 1;
 			}
-			
+
 			throw new DevException('Request param '.$offset.' does not exist');
-				
+
 		}
 
 		return $this->getFiltered($offset);
@@ -268,9 +283,8 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 */
 	public function offsetSet($key, $val){
 
-		$this->aFiltered = null;
-
 		parent::offsetSet($key, $val);
+		$this->aFiltered[$key] = $val;
 	}
 
 
@@ -313,7 +327,11 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 	/**
 	 * Get filtered value of query string
-	 * param
+	 * param. Use $this->aFiltered as storage
+	 * for cached resolved values. This way multiple
+	 * requests for the same $name will only go
+	 * through filter once and then resolved filtered value
+	 * will be reused
 	 *
 	 * @param string $name name of query string param
 	 *
@@ -322,65 +340,70 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 */
 	protected function getFiltered($name){
 
-		$val = parent::offsetGet($name);
+		if(!array_key_exists($name, $this->aFiltered)){
 
-		if('a' === $name && !empty($val)){
-			$expression = '/^[[:alpha:]\-]{1,20}$/';
-			if(!filter_var($val, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $expression)))){
-				throw new \InvalidArgumentException('Invalid value of "a" it can only contain letters and a hyphen and be limited to 20 characters in total was: '.$val);
+			$val = parent::offsetGet($name);
+
+			if('a' === $name && !empty($val)){
+				$expression = '/^[[:alpha:]\-]{1,20}$/';
+				if(!filter_var($val, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $expression)))){
+					throw new \InvalidArgumentException('Invalid value of "a" it can only contain letters and a hyphen and be limited to 20 characters in total was: '.$val);
+				}
+
+				$ret = $val;
+
+			} elseif(
+			('i_' === substr(strtolower($name), 0, 2)) ||
+			('id' === substr(strtolower($name), -2, 2))){
+
+				/**
+				 * FILTER_VALIDATE_INT
+				 * does not seem to accept 0 as a valid int!
+				 * this sucks, so instead going to use is_numeric
+				 */
+				if(!is_numeric($val) || ($val < 0) || ($val > 99999999999)){
+					throw new \InvalidArgumentException('Invalid value of "'.$name.'". It can only be a number between 0 and 99999999999 was: '.$val);
+				}
+
+				$ret = (int)$val;
+
+			} elseif('_hex' === substr(strtolower($name), -4, 4)){
+				$expression = '/^[0-9A-F]{6}$/';
+				if(!filter_var($val, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $expression)))){
+					throw new \InvalidArgumentException('Invalid value of '.$name.' it can only be a hex number. Was: '.$val);
+				}
+
+				$ret = $val;
+
+			} elseif('flag' === substr(strtolower($name), -4, 4)){
+
+				/**
+				 * FILTER_VALIDATE_BOOLEAN will not work here
+				 * because it does not accept 0 as valid option,
+				 * only 1, true, on, yes
+				 * it just does not accept any values for 'false'
+				 */
+				if($val != 1){
+					throw new \InvalidArgumentException('Invalid value of '.$name.' It can only be an integer and not greater than 1, it was: '.gettype($val).' val: '.$val);
+				}
+
+				$ret = (bool)$val;
+
+			}elseif('token' === $name){
+				$ret = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
+			}else {
+				/**
+				 * Do NOT use FILTER_STRIP_LOW, it may look like a good idea but
+				 * it removes all line breaks in text!
+				 */
+				$ret = $val; //filter_var($val, FILTER_SANITIZE_STRING); //, FILTER_FLAG_STRIP_LOW
+
 			}
 
-			$ret = $val;
-
-		} elseif(
-		('i_' === substr(strtolower($name), 0, 2)) ||
-		('id' === substr(strtolower($name), -2, 2))){
-
-			/**
-			 * FILTER_VALIDATE_INT
-			 * does not seem to accept 0 as a valid int!
-			 * this sucks, so instead going to use is_numeric
-			 */
-			if(!is_numeric($val) || ($val < 0) || ($val > 99999999999)){
-				throw new \InvalidArgumentException('Invalid value of "'.$name.'". It can only be a number between 0 and 99999999999 was: '.$val);
-			}
-
-			$ret = (int)$val;
-
-		} elseif('_hex' === substr(strtolower($name), -4, 4)){
-			$expression = '/^[0-9A-F]{6}$/';
-			if(!filter_var($val, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $expression)))){
-				throw new \InvalidArgumentException('Invalid value of '.$name.' it can only be a hex number. Was: '.$val);
-			}
-
-			$ret = $val;
-
-		} elseif('flag' === substr(strtolower($name), -4, 4)){
-
-			/**
-			 * FILTER_VALIDATE_BOOLEAN will not work here
-			 * because it does not accept 0 as valid option,
-			 * only 1, true, on, yes
-			 * it just does not accept any values for 'false'
-			 */
-			if($val != 1){
-				throw new \InvalidArgumentException('Invalid value of '.$name.' It can only be an integer and not greater than 1, it was: '.gettype($val).' val: '.$val);
-			}
-
-			$ret = (bool)$val;
-
-		}elseif('token' === $name){
-			$ret = filter_var($val, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
-		}else {
-			/**
-			 * Do NOT use FILTER_STRIP_LOW, it may look like a good idea but
-			 * it removes all line breaks in text!
-			 */
-			$ret = $val; //filter_var($val, FILTER_SANITIZE_STRING); //, FILTER_FLAG_STRIP_LOW
-				
+			$this->aFiltered[$name] = $ret;
 		}
 
-		return $ret;
+		return $this->aFiltered[$name];
 	}
 
 
@@ -397,11 +420,33 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 * of requested param
 	 */
 	public function getUTF8($name, $default = null){
-		$res = $this->get($name, 's', $default);
+		if(empty($this->aUTF8[$name])){
+			$res = $this->get($name, 's', $default);
 
-		$ret = Utf8String::factory($res);
+			$ret = Utf8String::factory($res);
+			$this->aUTF8[$name] = $ret;
+		}
 
-		return $ret;
+		return $this->aUTF8[$name];
+	}
+
+
+	/**
+	 * Get object of type GeoipLocation
+	 * for requesting ip address
+	 * This may return stub-like object with
+	 * empty values if ip could be resolved to
+	 * a location but it will always return the object
+	 * GeoipLocation
+	 *
+	 * @return object of type GeoipLocation
+	 */
+	public function getGeoData(){
+		if(!isset($this->oGeo)){
+			$this->oGeo = Geoip::getGeoData(self::getIP);
+		}
+
+		return $this->oGeo;
 	}
 
 

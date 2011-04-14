@@ -54,6 +54,16 @@ namespace Lampcms\Controllers;
 
 use Lampcms\WebPage;
 
+/**
+ * Controller for creating a page
+ * with the "Edit" form
+ * to edit question or answer
+ * It creates the form object
+ * and adds form to the page template
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class Edit extends WebPage
 {
 
@@ -104,9 +114,12 @@ class Edit extends WebPage
 		} else {
 			$this->oForm->title = $this->oResource['title'];
 			$this->oForm->id_title = $this->oResource['id_title'];
-			$this->oForm->addValidator('title', function($val){
-				if(strlen($val) < 10){
-					return 'Title must contain at least 10 letters';
+			$minTitle = $this->oRegistry->Ini->MIN_TITLE_CHARS;
+			$this->oForm->addValidator('title', function($val) use ($minTitle){
+				
+				if(mb_strlen($val) < $minTitle){
+					$err = 'Title must contain at least %s letters';
+					return sprintf($err, $minTitle);
 				}
 
 				return true;

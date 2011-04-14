@@ -784,17 +784,18 @@ class Ip
 	 */
 	public final static function parseIpString($strIp = '')
 	{
-		if ( empty ($strIp)) {
+		if ( empty($strIp)) {
 
-			return null;
+			return false;
 		}
 
-		if (false === ip2long($strIp)) {
-			$ip = gethostbyname($strIp);
+		if (false === \ip2long($strIp)) {
+			$ip = \gethostbyname($strIp);
 
 			if ($ip == $strIp) {
-
-				return null;
+				e($strIp. 'Looks like invalid ip address');
+				
+				return false;
 			}
 
 			$strIp = $ip;

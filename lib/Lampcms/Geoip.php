@@ -448,6 +448,11 @@ class Geoip
 		public static function getInstance($filename = null, $flags = null)
 		{
 			if (!isset(self::$instances[$filename])) {
+				$flags = (null === $flags) ? self::SHARED_MEMORY : $flags;
+				if(!function_exists('shmop_open') && ($flags & self::SHARED_MEMORY)){
+					e('cannot use SHARED_MEMORY flag because shmop_open function not available. Must recompile php using  --enable-shmop in order to use this option');
+					$flags = 0;
+				}
 
 				self::$instances[$filename] = new self($filename, $flags);
 			}
@@ -466,7 +471,7 @@ class Geoip
 			if ($flags !== null) {
 				$this->flags = $flags;
 			}
-			if ($this->flags & self::SHARED_MEMORY) {
+			if ( ($this->flags & self::SHARED_MEMORY) && (function_exists('shmop_open')) ) {
 				$this->shmid = @shmop_open(self::SHM_KEY, "a", 0, 0);
 				if ($this->shmid === false) {
 					$this->loadSharedMemory($filename);
@@ -476,15 +481,16 @@ class Geoip
 					}
 				}
 			} else {
-				$this->filehandle = fopen($filename, "rb");
+				$this->filehandle = \fopen($filename, "rb");
 				if (!$this->filehandle) {
 					throw new Net_GeoIP_DB_Exception("Unable to open file: $filename");
 				}
 				if ($this->flags & self::MEMORY_CACHE) {
-					$s_array = fstat($this->filehandle);
-					$this->memoryBuffer = fread($this->filehandle, $s_array['size']);
+					$s_array = \fstat($this->filehandle);
+					$this->memoryBuffer = \fread($this->filehandle, $s_array['size']);
 				}
 			}
+
 			$this->setupSegments();
 		}
 
@@ -496,21 +502,22 @@ class Geoip
 		 */
 		protected function loadSharedMemory($filename)
 		{
-			$fp = fopen($filename, "rb");
+			$fp = \fopen($filename, "rb");
 			if (!$fp) {
 				throw new Net_GeoIP_DB_Exception("Unable to open file: $filename");
 			}
-			$s_array = fstat($fp);
+			$s_array = \fstat($fp);
 			$size = $s_array['size'];
 
-			if ($shmid = shmop_open(self::SHM_KEY, "w", 0, 0)) {
-				shmop_delete ($shmid);
-				shmop_close ($shmid);
+			if ($shmid = \shmop_open(self::SHM_KEY, "w", 0, 0)) {
+				\shmop_delete ($shmid);
+				\shmop_close ($shmid);
 			}
-			$shmid = shmop_open(self::SHM_KEY, "c", 0644, $size);
-			shmop_write($shmid, fread($fp, $size), 0);
-			shmop_close($shmid);
-			fclose($fp);
+
+			$shmid = \shmop_open(self::SHM_KEY, "c", 0644, $size);
+			\shmop_write($shmid, fread($fp, $size), 0);
+			\shmop_close($shmid);
+			\fclose($fp);
 		}
 
 		/**
@@ -672,14 +679,14 @@ class Geoip
 			$offset = 0;
 			for ($depth = 31; $depth >= 0; --$depth) {
 				if ($this->flags & self::MEMORY_CACHE) {
-					$buf = substr($this->memoryBuffer, 2 * $this->recordLength * $offset, 2 * $this->recordLength);
+					$buf = \substr($this->memoryBuffer, 2 * $this->recordLength * $offset, 2 * $this->recordLength);
 				} elseif ($this->flags & self::SHARED_MEMORY) {
-					$buf = shmop_read ($this->shmid, 2 * $this->recordLength * $offset, 2 * $this->recordLength );
+					$buf = \shmop_read ($this->shmid, 2 * $this->recordLength * $offset, 2 * $this->recordLength );
 				} else {
 					if (fseek($this->filehandle, 2 * $this->recordLength * $offset, SEEK_SET) !== 0) {
 						throw new Net_GeoIP_DB_Exception("fseek failed");
 					}
-					$buf = fread($this->filehandle, 2 * $this->recordLength);
+					$buf = \fread($this->filehandle, 2 * $this->recordLength);
 				}
 				$x = array(0,0);
 				for ($i = 0; $i < 2; ++$i) {
@@ -944,24 +951,40 @@ class Geoip
 		 */
 		public static function getGeoData($strIp)
 		{
-			if(!defined('GEOIP_FILE')){
-				e('GEOIP_FILE not defined');
-				return null;
-			}
 
-			$file = trim(constant('GEOIP_FILE'));
-			if(empty($file)){
-				e('GEOIP_FILE is empty');
-
-				return null;
-			}
-				
 			if (!is_string($strIp)) {
 				throw new \Lampcms\DevException('$strIp MUST be a string. Supplied value was: '.gettype($strIp));
 					
 			}
 
-			$objGeoData = null;
+			if (false === $ip = Ip::parseIpString( $strIp )) {
+				e('invalid ip address '.$strIP);
+
+				return new GeoipLocation();
+			}
+
+			/**
+			 * check to make sure the ip address
+			 * is good and also a public IP
+			 */
+			$oCheckIp = new Ip();
+			if (!$oCheckIp->isPublic( $ip )) {
+				d('ip address '.$ip.' is not public. Unable to find GeoLocation for non-public IP');
+
+				return new GeoipLocation();
+			}
+
+			if(!defined('GEOIP_FILE')){
+				e('GEOIP_FILE not defined');
+				return new GeoipLocation();
+			}
+
+			$file = \trim(constant('GEOIP_FILE'));
+			if(empty($file)){
+				e('GEOIP_FILE is empty');
+
+				return new GeoipLocation();
+			}
 
 			$strFileGeoipRegion = LAMPCMS_PATH.DS.GEOIP_FILE;
 
@@ -976,17 +999,17 @@ class Geoip
 				throw new DevException('Unable to read geoIP file: '.$strFileGeoipRegion.' make sure file exists and is readable');
 			}
 
-			$objGeoData = new GeoipLocation();
-			$hdlGeoIp = self::getInstance($strFileGeoipRegion, self::STANDARD);
+
 			try {
+				$hdlGeoIp = self::getInstance($strFileGeoipRegion, self::SHARED_MEMORY);
 				$objGeoData = $hdlGeoIp->lookupLocation($strIp);
 			}catch(Net_GeoIP_Exception $e) {
 				$err = 'Location data not found for IP: '.$strIp.' message: '.$e->getMessage();
 				e($err);
+				$objGeoData = new GeoipLocation();
 			}
 
 			return $objGeoData;
 		}
-
 
 }

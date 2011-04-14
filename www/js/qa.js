@@ -2190,7 +2190,7 @@ YUI({
 	 * be found then just show error in alert
 	 */
 	setFormError = function(o){
-		var field, eErr, eFormErr;
+		var field, eErr;
 		for(field in o){
 			if(o.hasOwnProperty(field)){
 				eErr = (Y.one("#" + field + "_e"));
@@ -2199,14 +2199,17 @@ YUI({
 					eErr.set('text', o[field]);
 				} else{
 					//Y.log('no element eErr, looking for .form_error');
-					eFormErr = Y.one(".form_error");
-					if(eFormErr){
+					eErr = Y.one(".form_error");
+					if(eErr){
 						//Y.log('youth gots eFormErr: ' + eFormErr);
-						eFormErr.set('text', o[field]);
-					} else {
-						//Y.log('no gots eFormErr, alerting');
-						alert(o[field]);
+						eErr.set('text', o[field]);
 					}
+				}
+				
+				if(eErr){
+					eErr.scrollIntoView();
+				} else {
+					alert(o[field]);
 				}
 			}
 		}
@@ -2233,19 +2236,19 @@ YUI({
 		//Y.log('form is: ' + form);
 
 		title = form.one("#id_title");
-		if (title && (10 > title.get("value").length)) {
-			//Y.log('title too short');
-			alert('Please enter a descriptive title at least 10 characters long');
+		/*if (title && (2 > title.get("value").length)) {
+			Y.log('title too short');
+			alert('Please enter a descriptive title');
 			e.halt();
 			return;
-		}
+		}*/
 
 		tags = form.one("#id_tags");
-		if (tags && (1 > tags.get("value").length)) {
+		/*if (tags && (1 > tags.get("value").length)) {
 			alert('Enter between 1 and 5 tags, separated by spaces');
 			e.halt();
 			return;
-		}
+		}*/
 		
 		reason = form.one("#id_reason");
 		if (reason && (1 > reason.get("value").length)) {
@@ -2268,15 +2271,7 @@ YUI({
 		 * question/answers that are already on the page, thus we need 2
 		 * separate code previews
 		 */
-		//mbody = mbody.replace(/"codepreview"/g, '"code"');
-		if (mbody.length < 10) {
-			//Y.log('body too short');
-			alert('Questions and answers must be at least 10 characters long');
-			e.halt();
-			return;
-		}
-
-		// editor.saveHTML();
+		mbody = mbody.replace(/"codepreview"/g, '"code"');
 		/**
 		 * Instead of saveHTML() which will do cleanHTML yet again and will mess
 		 * up our already cleaned body, we will just set the value of form's

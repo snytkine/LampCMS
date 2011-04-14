@@ -326,7 +326,7 @@ class Utf8String extends String
 	 */
 	public static function validateUtf8($utf8string){
 
-		if ( strlen($utf8string) == 0 ) {
+		if ( 0 === strlen($utf8string)) {
 
 			return true;
 		}

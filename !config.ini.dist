@@ -21,6 +21,11 @@ collection = "C_Cache"
 ; debug log and raize error reporting level
 DEBUG = true
 ;
+; Minimum number of tags question must have
+; set to 0 to make tags optional
+;
+MIN_QUESTION_TAGS = 1
+;
 ; Maximum number of tags Question can have
 ; This will be enforced when question is submitted
 ; and when question is retagged
@@ -28,6 +33,9 @@ MAX_QUESTION_TAGS = 5
 ;
 ; Minimun length of question in chars
 MIN_QUESTION_CHARS = 10
+;
+; Minimum length of questio
+MIN_TITLE_CHARS = 10
 ;
 ; Minimum number of words required in question
 MIN_QUESTION_WORDS = 3

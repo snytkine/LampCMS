@@ -82,6 +82,11 @@ class TitleTokenizer extends \Lampcms\String\Tokenizer
 	 * @return array tokens;
 	 */
 	public function parse(){
+		
+		if(empty($this->origString)){
+			d('string was empty, returning empty array');
+			return array();
+		}
 
 		\mb_regex_encoding('UTF-8');
 		$aTokens = \mb_split('([\s,;\"\?]+)', $this->origString);
