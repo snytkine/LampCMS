@@ -50,85 +50,42 @@
  */
 
 
-namespace Lampcms;
+namespace Lampcms\Forms;
 
-class QuestionInfo extends LampcmsObject
+use \Lampcms\Validate;
+
+class Profile extends Form
 {
 
-	protected $oQuestion;
-
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
-	}
-
+	/**
+	 * Name of form template file
+	 * The name of actual template should be
+	 * set in sub-class
+	 *
+	 * @var string
+	 */
+	protected $template = 'tplFormprofile';
 
 
 	/**
-	 * Generates html block with question info.
-	 * 
-	 * @todo also get count and N first
-	 * followers
-	 * Followers to be selected from USERS collection
-	 * using find() by a_f_q and using limit 5 
-	 * and then link to 'show more' if i_flwrs in oQuestion is > 5
-	 * 
-	 * 
-	 * @param Question $oQuestion
+	 * Concrete form validator for this form
+	 * (non-PHPdoc)
+	 * @see Form::doValidate()
 	 */
-	public function getHtml(Question $oQuestion){
-		$this->oQuestion = $oQuestion;
+	protected function doValidate(){
 
-		/**
-		 * @todo translate Title string
-		 */
-		$tagsBlock = \tplBoxrecent::parse(array(
-		'title' => 'Question tags',
-		'id' => 'question_tags',
-		$this->getTags()), false);
-		
-		
-		/**
-		 * @todo translate labels used
-		 * in tplQuestionsInfo template
-		 * 
-		 */
-		$ret = \tplQuestionInfo::parse(
-		array(
-				'tags' => $tagsBlock,
-				'asked' => TimeAgo::format(new \DateTime($oQuestion['hts'])).' ago',
-				'updated' => TimeAgo::format(new \DateTime(date('r', $oQuestion['i_lm_ts']))).' ago',
-				'views' => $this->oQuestion['i_views'],
-		        'ans_count' => $this->oQuestion->getAnswerCount() 
-				)
-		);
-		
-		d('$ret: '.$ret);
-		
-		return $ret;
+		$this->validateDob();
+
 	}
 
 
-	protected function getTags(){
-		$aTags = $this->oQuestion['a_tags'];
-		d('aTags: '.print_r($aTags, 1));
-		if(empty($aTags) || empty($aTags[0])){
-			d('empty tags detected');
-			return '';
-		}
-		
-		$res = '';
-		$cur = $this->oRegistry->Mongo->QUESTION_TAGS->find(array('tag' => array('$in' => $aTags), 'i_count' => array('$gt' => 0)));
-		$count = $cur->count();
-		d('count: '.$count);
-		
-		if($cur && ($count > 0)){
-			d('found '.$count.' tags in QUESTION_TAGS collection');
-			$res = \tplLinktag::loop($cur);
+	protected function validateDob(){
+		$dob = $this->oRegistry->Request['dob'];
+		if(!empty($dob) && !Validate::validateDob($dob)){
+			$this->setError('dob', 'Invalid format of date string OR invalid values');
 		}
 
-		d('$res: '.$res);
-
-		return $res;
+		return $this;
 	}
 
 }

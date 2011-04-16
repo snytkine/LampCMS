@@ -81,6 +81,7 @@ class Form extends LampcmsObject
 	 */
 	protected $useToken = true;
 
+	
 	/**
 	 * Array of field names used in current form
 	 * This should be set in sub-class that represents
@@ -102,6 +103,7 @@ class Form extends LampcmsObject
 	 */
 	protected $aFields = array();
 
+	
 	/**
 	 * Array of validator callback functions
 	 * keys are field names, values are anonymous functions
@@ -111,6 +113,7 @@ class Form extends LampcmsObject
 	 */
 	protected $aValidators = array();
 
+	
 	/**
 	 * Name of form template file
 	 * The name of actual template should be
@@ -131,6 +134,7 @@ class Form extends LampcmsObject
 	 */
 	protected $template;
 
+	
 	/**
 	 * Array of template vars
 	 * This is usually a copy from template
@@ -146,6 +150,7 @@ class Form extends LampcmsObject
 	 */
 	protected $aVars;
 
+	
 	/**
 	 * Flag indicates that form has been
 	 * submitted via POST
@@ -154,6 +159,7 @@ class Form extends LampcmsObject
 	 */
 	protected $bSubmitted = false;
 
+	
 	/**
 	 * Array of form field errors
 	 * keys should be form field names + '_e', values
@@ -168,6 +174,7 @@ class Form extends LampcmsObject
 	 */
 	protected $aErrors = array();
 
+	
 	public function __construct(Registry $oRegistry, $useToken = true){
 		$this->oRegistry = $oRegistry;
 		$this->useToken = $useToken;
@@ -229,6 +236,7 @@ class Form extends LampcmsObject
 		$this->aValidators[$field] = $func;
 	}
 
+	
 	/**
 	 * Run custom validators
 	 * Validators can be added via addValidator() method
@@ -262,6 +270,7 @@ class Form extends LampcmsObject
 		return $this->isValid();
 	}
 
+	
 	/**
 	 * Method that invokes form
 	 * validation
@@ -271,6 +280,7 @@ class Form extends LampcmsObject
 	 */
 	protected function doValidate(){}
 
+	
 	/**
 	 * Get values of submitted form fields
 	 * Returned values are sanitized by filter_var

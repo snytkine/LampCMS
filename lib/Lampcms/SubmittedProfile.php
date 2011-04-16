@@ -52,83 +52,35 @@
 
 namespace Lampcms;
 
-class QuestionInfo extends LampcmsObject
+/**
+ * Class represents data of user profile
+ * submitted via some type of medium like a web form
+ * all returned values of methods must be strings
+ *
+ * @author Dmitri Snytkine
+ *
+ */
+abstract class SubmittedProfile
 {
+	abstract public function getFirstName();
 
-	protected $oQuestion;
+	abstract public function getLastName();
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
-	}
+	abstract public function getMiddleName();
 
+	abstract public function getCountry();
 
+	abstract public function getState();
 
-	/**
-	 * Generates html block with question info.
-	 * 
-	 * @todo also get count and N first
-	 * followers
-	 * Followers to be selected from USERS collection
-	 * using find() by a_f_q and using limit 5 
-	 * and then link to 'show more' if i_flwrs in oQuestion is > 5
-	 * 
-	 * 
-	 * @param Question $oQuestion
-	 */
-	public function getHtml(Question $oQuestion){
-		$this->oQuestion = $oQuestion;
+	abstract public function getCity();
 
-		/**
-		 * @todo translate Title string
-		 */
-		$tagsBlock = \tplBoxrecent::parse(array(
-		'title' => 'Question tags',
-		'id' => 'question_tags',
-		$this->getTags()), false);
-		
-		
-		/**
-		 * @todo translate labels used
-		 * in tplQuestionsInfo template
-		 * 
-		 */
-		$ret = \tplQuestionInfo::parse(
-		array(
-				'tags' => $tagsBlock,
-				'asked' => TimeAgo::format(new \DateTime($oQuestion['hts'])).' ago',
-				'updated' => TimeAgo::format(new \DateTime(date('r', $oQuestion['i_lm_ts']))).' ago',
-				'views' => $this->oQuestion['i_views'],
-		        'ans_count' => $this->oQuestion->getAnswerCount() 
-				)
-		);
-		
-		d('$ret: '.$ret);
-		
-		return $ret;
-	}
+	abstract public function getZip();
 
+	abstract public function getDob();
+	
+	abstract public function getGender();
+	
+	abstract public function getUrl();
 
-	protected function getTags(){
-		$aTags = $this->oQuestion['a_tags'];
-		d('aTags: '.print_r($aTags, 1));
-		if(empty($aTags) || empty($aTags[0])){
-			d('empty tags detected');
-			return '';
-		}
-		
-		$res = '';
-		$cur = $this->oRegistry->Mongo->QUESTION_TAGS->find(array('tag' => array('$in' => $aTags), 'i_count' => array('$gt' => 0)));
-		$count = $cur->count();
-		d('count: '.$count);
-		
-		if($cur && ($count > 0)){
-			d('found '.$count.' tags in QUESTION_TAGS collection');
-			$res = \tplLinktag::loop($cur);
-		}
-
-		d('$res: '.$res);
-
-		return $res;
-	}
-
+	abstract public function getDescription();
 }

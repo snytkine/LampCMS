@@ -446,21 +446,21 @@ class Geoip
 		{
 			if (!isset(self::$instances[$filename])) {
 				$flags = (null === $flags) ? self::SHARED_MEMORY : $flags;
-				
+
 				if(!function_exists('shmop_open') && ($flags & self::SHARED_MEMORY)){
-					
+						
 					d('cannot use SHARED_MEMORY flag because shmop_open function not available. Must recompile php using  --enable-shmop in order to use this option');
-					
+						
 					$flags = self::STANDARD;
 				}
-				
+
 				d('flags: '.$flags);
-				
+
 				self::$instances[$filename] = new self($filename, $flags);
 			}
 
 			d('returning instance for $filename '.$filename);
-				
+
 			return self::$instances[$filename];
 		}
 
@@ -955,9 +955,7 @@ class Geoip
 		 */
 		public static function getGeoData($strIp)
 		{
-
-			$strIp = '96.255.94.11';
-			
+				
 			if (!is_string($strIp)) {
 				throw new \Lampcms\DevException('$strIp MUST be a string. Supplied value was: '.gettype($strIp));
 					
@@ -977,7 +975,19 @@ class Geoip
 			if (!$oCheckIp->isPublic( $ip )) {
 				d('ip address '.$ip.' is not public. Unable to find GeoLocation for non-public IP');
 
-				return new GeoipLocation();
+				/**
+				 * If running in debug mode and not a public
+				 * ip (meaning using localhost)
+				 * then use this ip just for testing
+				 * 
+				 */
+				if(true == LAMPCMS_DEBUG){
+					d('using test ip address');
+					
+					$strIp = '96.255.94.11';
+				} else {
+					return new GeoipLocation();
+				}
 			}
 
 			if(!defined('GEOIP_FILE')){

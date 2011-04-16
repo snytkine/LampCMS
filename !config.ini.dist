@@ -118,7 +118,7 @@ IMAGE_SITE = ""
 CSS_SITE = ""
 JS_SITE = ""
 AVATAR_IMG_SITE = ""
-;site of square avatar in pixels
+;size of square avatar in pixels
 AVATAR_SQUARE_SIZE= 40
 ;
 ;Name of GeoIP file - must be in the LAMPCMS_DIR (root dir of program)

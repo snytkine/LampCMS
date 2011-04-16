@@ -103,8 +103,8 @@ class Template
 		 *
 		 * Apply callback to array if
 		 * callback was passed here
-		 * callback MUST accept array be reference
-		 * so that it can modify original aVars
+		 * callback MUST accept array by reference
+		 * so that it can modify actual values in aVars
 		 *
 		 * The callback should be applied first,
 		 * so that in case the template also has a function,
@@ -120,16 +120,16 @@ class Template
 			d('have Closure func');
 			$func($aVars);
 
-			d('new aVars: '.print_r($aVars, 1));
+			//d('new aVars: '.print_r($aVars, 1));
 		}
 
 		/**
 		 * A template may contain hard coded static property $func
 		 *
 		 * If it does then input array will be run through
-		 * that $func first
+		 * that $func function
 		 * it MUST accept array by reference
-		 * and modify original input array
+		 * and modify actual array value
 		 *
 		 */
 		if( (empty(static::$skip)) && is_callable(array('static', 'func')) ){
@@ -159,13 +159,14 @@ class Template
 	 * @throws InvalidArgumentException
 	 */
 	public static function loop($a, $merge = true, \Closure $func = null){
-		$err = '$a must be array of object instance of Iterator was: '.gettype($a);
-
+		
 		/**
 		 * Throw exception if Iterator is not
 		 * an array and not instance of iterator
 		 */
 		if(!is_array($a) && (!is_object($a) || !($a instanceof \Iterator)) ){
+			$err = '$a must be array of object instance of Iterator was: '.gettype($a);
+			
 			throw new \InvalidArgumentException($err);
 		}
 
@@ -183,8 +184,7 @@ class Template
 			if(is_string($aVars)){
 				$vars = array($aVars);
 				d('aVars now: '.print_r($vars, 1));
-			}
-			else {
+			}else {
 				$vars = $aVars;
 			}
 			$s .= static::parse($vars, $merge, $func);

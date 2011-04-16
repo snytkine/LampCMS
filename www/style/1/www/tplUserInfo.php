@@ -76,7 +76,11 @@ class tplUserInfo extends Lampcms\Template\Template
 	'editRole' => '', // 22
 	'followButton' => '', // 23
 	'followers' => '', //24
-	'following' => '' //25
+	'following' => '', //25
+	'gender' => '', //26
+	'genderLabel' => 'Gender', //27
+	'editLink' => '', //28
+	'usernameLabel' => 'Username' //29
 	);
 	
 	
@@ -86,43 +90,57 @@ class tplUserInfo extends Lampcms\Template\Template
 <div class="yui3-u-1-2" id="profileMiddle">
 <table class="user_stuff">
 	<tr>
-		<th colspan="2">%1$s</th>
+		<th colspan="2">%28$s</th>
 	</tr>
 	<tr>
-		<td>%6$s</td>
+		<td class="ar">%29$s</td>
+		<td>%1$s</td>
+	</tr>
+	<tr>
+		<td class="ar">%6$s</td>
 		<td>%5$s</td>
 	</tr>
 	<tr>
-		<td>%8$s</td>
+		<td class="ar">%27$s</td>
+		<td>%26$s</td>
+	</tr>
+	<tr>
+		<td class="ar">%8$s</td>
 		<td>%7$s</td>
 	</tr>
 	<tr>
-		<td>%10$s</td>
+		<td class="ar">%10$s</td>
 		<td>%9$s</td>
 	</tr>
 	<tr>
-		<td>%12$s</td>
+		<td class="ar">%12$s</td>
 		<td>%11$s</td>
 	</tr>
 	<tr>
-		<td>%14$s</td>
+		<td class="ar">%14$s</td>
 		<td>%13$s</td>
 	</tr>
 	<tr>
-		<td>%16$s</td>
+		<td class="ar">%16$s</td>
 		<td>%15$s</td>
 	</tr>
 	<tr>
-		<td>%18$s</td>
+		<td class="ar">%18$s</td>
 		<td>%17$s</td>
 	</tr>
 	<tr>
-		<td>%20$s</td>
+		<td class="ar">%20$s</td>
 		<td>%19$s</td>
+	</tr>
+	<tr>
+		<td colspan="2"> 
+		<div class="user_description">%21$s</div>
+		</td>
+		
 	</tr>
 </table>
 </div>
-<div class="yui3-u-1-2" id="profileLeft">
+	<div class="yui3-u-1-2" id="profileLeft">
 		<div class="profile_avatar">%2$s</div>
 		<div class="user_score">%3$s<br><span>%4$s</span></div>
 		%23$s
@@ -130,9 +148,6 @@ class tplUserInfo extends Lampcms\Template\Template
 		%25$s
 		%22$s
 	</div>
-<!-- <div class="yui3-u-1-3" id="profileRight">
-  <div class="user_description">%21$s</div>
-</div> -->
 </div>';
 	
 	

@@ -333,6 +333,14 @@ class Logintwitter extends WebPage
 	 *
 	 * If user not found, then create a record for
 	 * a new user, otherwise update record
+	 * 
+	 * @todo special case if this is 'connect' type of action
+	 * where existing logged in user is adding twitter to his account
+	 * then we should delegate to connect() method which
+	 * does different thigs - adds twitter data to $this->oRegistry->Viewer
+	 * but also first checks if another user already has
+	 * this twitter account in which case must show error - cannot
+	 * use same Twitter account by different users
 	 *
 	 * @return object $this
 	 */

@@ -55,7 +55,7 @@ namespace Lampcms\Modules\Observers;
 use \Lampcms\SearchFactory;
 
 /**
- * Observer listends to onNewQuestion
+ * Observer listens to onNewQuestion
  * and will create blocks with similar items
  * and add them to oQuestion object
  * the object will then be auto-saved to Mongo from

@@ -65,31 +65,67 @@ class ProfileDiv extends LampcmsObject
 	 * @param User $oUser
 	 */
 	public static function get(Registry $oRegistry, User $oUser){
-
+		$edit = '';
 		$lastActive = $oUser['i_lm_ts'];
 		$lastActive = (!empty($lastActive)) ? $lastActive : $oUser['i_reg_ts'];
 		$rep = $oUser->getReputation();
 
 		d('rep: '.$rep);
 
+		if($oRegistry->Viewer->getUid() === $oUser->getUid()){
+			$edit = '<div class="fl middle"><span class="icoc key">&nbsp;</span><a href="/editprofile/" class="edit middle">Edit profile</a></div>';
+		}
+
+		$desc = Utf8String::factory($oUser['description'], 'utf-8', true)->linkify()->valueOf();
+
 		$vars = array(
+			'editLink' => $edit,
 			'username' => $oUser->username,
 			'avatar' => $oUser->getAvatarImgSrc(),
 			'reputation' => $rep,
 			'name' => $oUser->getDisplayName(),
+			'genderLabel' => 'Gender',
+			'gender' => self::translateGender($oUser['gender']),
 			'since' => date('F j, Y', $oUser->i_reg_ts),
 			'lastActivity' => TimeAgo::format(new \DateTime(date('r', $lastActive))),
 			'website' => $oUser->getUrl(),
 			'twitter' => $oUser->getTwitterUrl(),
+			'age' => $oUser->getAge(),
 			'facebook' => $oUser->getFacebookUrl(),
 			'location' => $oUser->getLocation(),
+			'description' => $desc,
 			'editRole' => Usertools::getHtml($oRegistry, $oUser),
 			'followButton' => self::makeFollowButton($oRegistry, $oUser),
 			'followers' => ShowFollowers::factory($oRegistry)->getUserFollowers($oUser),
 			'following' => ShowFollowers::factory($oRegistry)->getUserFollowing($oUser)
 		);
-		
+
 		return \tplUserInfo::parse($vars);
+	}
+
+
+	/**
+	 * Get textual value of "Gender" M/F
+	 *
+	 * @todo translate string Male/Female
+	 * @param string $gender
+	 * @return string
+	 */
+	protected static function translateGender($gender){
+		switch($gender){
+			case 'M':
+				$ret = 'Male';
+				break;
+
+			case 'F':
+				$ret = 'Female';
+				break;
+
+			default:
+				$ret = '';
+		}
+
+		return $ret;
 	}
 
 

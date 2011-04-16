@@ -56,7 +56,14 @@ use \Lampcms\Request;
 use \Lampcms\Responder;
 
 
-
+/**
+ * Controller for creating the page
+ * with "Email options" form
+ * as well as processing that form
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class Emailoptions extends WebPage
 {
 	protected $membersOnly = true;

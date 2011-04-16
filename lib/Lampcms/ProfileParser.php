@@ -50,120 +50,113 @@
  */
 
 
-namespace Lampcms\Dom;
+namespace Lampcms;
 
-class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
+/**
+ * Class for parsing the SubmittedProfile
+ * which is an object representing data of
+ * user profile that was sent to the server from
+ * the edit profile interface. Usually this is
+ * sent via Edit Profile form on the web
+ * but can also be submitted by other means
+ * in the future like via API
+ *
+ *
+ * @author Dmitri Snytkine
+ *
+ */
+class ProfileParser extends LampcmsObject
 {
 
 	/**
-	 * Remove all next siblings of this node
 	 * 
-	 * This works OK
+	 * Modify values in User object
+	 * based on SubmittedProfile
 	 * 
-	 * @param DOMNode $node do not pass this param manually
-	 * it is here only for recursively calling this function
+	 * @param User $oUser
+	 * @param SubmittedProfile $o
 	 * 
-	 * @return object $this node
+	 * @return bool true
 	 */
-	public function removeNextSiblings(\DOMNode $node = null){
-		$node = ($node) ? $node : $this->nextSibling;
-		if($node){			
-			$next = $node->nextSibling;
-			if($next){
-				$this->removeNextSibling($next);
-			}
+	public function save(User $oUser, SubmittedProfile $o){
 
-			$node->parentNode->removeChild($node);
-		}
+		$oUser['fn'] = $this->getClean($o->getFirstName())->substr(0, 60)->valueOf();
+		$oUser['mn'] = $this->getClean($o->getMiddleName())->substr(0, 60)->valueOf();
+		$oUser['ln'] = $this->getClean($o->getLastName())->substr(0, 80)->valueOf();
+		$oUser['country'] = $this->getClean($o->getCountry())->substr(0, 60)->valueOf();
+		$oUser['state'] = $this->getClean($o->getState())->substr(0, 50)->valueOf();
+		$oUser['city'] = $this->getClean($o->getCity())->substr(0, 80)->valueOf();
+		$oUser['url'] = $this->getUrl($this->getClean($o->getUrl()));
+		$oUser['zip'] = $this->getClean($o->getZip())->substr(0, 8)->valueOf();
+		$oUser['dob'] = $this->getDob($o->getDob());
+		$oUser['gender'] = $this->getGender($o->getGender());
+		$oUser['description'] = $this->getClean($o->getDescription())->substr(0, 2000)->valueOf();
+
+
+		$oUser->save();
 		
-		return $this;
-	}
+		return true;
 
-	/**
-	 * Remove itself from DOM Tree
-	 *
-	 * This works fine
-	 *
-	 */
-	public function remove(){
-		$this->parentNode->removeChild($this);
 	}
 
 
 	/**
-	 * Remove all child nodes of this node
-	 * if child nodes exist
-	 *
-	 * This works fine
-	 *
-	 * @return object $this
+	 * Validates Dob string and returns it only if
+	 * it looks valid, otherwise returns null
+	 * @param string $string
+	 * @return mixed string|null null if input does not
+	 * look like a valid date of birth
 	 */
-	public function removeChildNodes()
-	{
-		$len = $this->childNodes->length;
-		while($len > 0){
-			$this->removeChild($this->firstChild);
-			$len--;
+	protected function getDob($string){
+		return (Validate::validateDob($string)) ? $string : null;
+
+	}
+
+
+	/**
+	 * Returns value of "Gender" but only
+	 * if it's valid, otherwise returns null
+	 * Enter description here ...
+	 * @param string $str
+	 * @return string M or F or empty string
+	 */
+	protected function getGender($str){
+		d('gender string: '.$str);
+		
+		return ('M' === $str ||  'F'  === $str) ? $str : null;
+	}
+
+
+	/**
+	 * Get value of url
+	 * append 'http://' if url does not appear
+	 * to be starting with the http prefix
+	 * @param Utf8String $str
+	 * @return string
+	 */
+	protected function getUrl(Utf8String $str){
+		$str = $str->substr(0, 250)->trim()->valueOf();
+		if('http' !== \substr($str, 0, 4)){
+			return 'http://'.$str;
 		}
 
-		return $this;
+		return $str;
 	}
 
 
 	/**
+	 * Get clean UTF8String object representing
+	 * trimmed and clean of html tags
 	 *
-	 * Append child node with name $nodename
-	 * and under it append CData section using
-	 * contents of $cdata as CData value
-	 * 
-	 * This method was created specifically to add the 
-	 * value of content:encoded section to the rss feed.
-	 * 
-	 * 
-	 * @todo probably better to NOT add extra node first
-	 * and instead just directly add CDATA section to this element?
-	 *
-	 * @param string $nodename
-	 * @param string $cdata
-	 * @param string $ns
+	 * @param string $string
+	 * @return object of type UTF8String
 	 */
-	public function addCData($nodename, $cdata, $ns = 'http://purl.org/rss/1.0/modules/content/')
-	{
-		if(empty($cdata)){
-			return $this;
+	protected function getClean($string){
+		if(empty($string)){
+			Utf8String::factory('', 'ascii', true );
 		}
 
-		$elChild = $this->appendChild(new self($nodename, '', $ns));
-		$elCdata = $this->ownerDocument->createCDATASection($cdata);
-		$elChild->appendChild($elCdata);
-
-		return $this;
+		return Utf8String::factory($string)->trim()->stripTags();
 	}
 
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Lampcms\Interfaces.LampcmsObject::hashCode()
-	 */
-	public function hashCode(){
-		return spl_object_hash($this);
-	}
-
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Lampcms\Interfaces.LampcmsObject::getClass()
-	 */
-	public function getClass(){
-		return get_class($this);
-	}
-
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Lampcms\Interfaces.LampcmsObject::__toString()
-	 */
-	public function __toString(){
-		return 'Object of type '.$this->getClass().' nodeName: '.$this->nodeName.' value: '.$this->nodeValue;
-	}
 }

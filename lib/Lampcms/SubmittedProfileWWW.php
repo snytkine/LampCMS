@@ -49,86 +49,61 @@
  *
  */
 
-
 namespace Lampcms;
 
-class QuestionInfo extends LampcmsObject
+class SubmittedProfileWWW extends SubmittedProfile
 {
 
-	protected $oQuestion;
+	protected $oForm;
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(\Lampcms\Forms\Profile $oForm){
+		$this->oForm = $oForm;
+			
 	}
 
-
-
-	/**
-	 * Generates html block with question info.
-	 * 
-	 * @todo also get count and N first
-	 * followers
-	 * Followers to be selected from USERS collection
-	 * using find() by a_f_q and using limit 5 
-	 * and then link to 'show more' if i_flwrs in oQuestion is > 5
-	 * 
-	 * 
-	 * @param Question $oQuestion
-	 */
-	public function getHtml(Question $oQuestion){
-		$this->oQuestion = $oQuestion;
-
-		/**
-		 * @todo translate Title string
-		 */
-		$tagsBlock = \tplBoxrecent::parse(array(
-		'title' => 'Question tags',
-		'id' => 'question_tags',
-		$this->getTags()), false);
-		
-		
-		/**
-		 * @todo translate labels used
-		 * in tplQuestionsInfo template
-		 * 
-		 */
-		$ret = \tplQuestionInfo::parse(
-		array(
-				'tags' => $tagsBlock,
-				'asked' => TimeAgo::format(new \DateTime($oQuestion['hts'])).' ago',
-				'updated' => TimeAgo::format(new \DateTime(date('r', $oQuestion['i_lm_ts']))).' ago',
-				'views' => $this->oQuestion['i_views'],
-		        'ans_count' => $this->oQuestion->getAnswerCount() 
-				)
-		);
-		
-		d('$ret: '.$ret);
-		
-		return $ret;
+	public function getFirstName(){
+		return $this->oForm->getSubmittedValue('fn');
 	}
 
-
-	protected function getTags(){
-		$aTags = $this->oQuestion['a_tags'];
-		d('aTags: '.print_r($aTags, 1));
-		if(empty($aTags) || empty($aTags[0])){
-			d('empty tags detected');
-			return '';
-		}
-		
-		$res = '';
-		$cur = $this->oRegistry->Mongo->QUESTION_TAGS->find(array('tag' => array('$in' => $aTags), 'i_count' => array('$gt' => 0)));
-		$count = $cur->count();
-		d('count: '.$count);
-		
-		if($cur && ($count > 0)){
-			d('found '.$count.' tags in QUESTION_TAGS collection');
-			$res = \tplLinktag::loop($cur);
-		}
-
-		d('$res: '.$res);
-
-		return $res;
+	public function getLastName(){
+		return $this->oForm->getSubmittedValue('ln');
 	}
 
+	public function getMiddleName(){
+		return $this->oForm->getSubmittedValue('mn');
+	}
+
+	public function getCountry(){
+		return $this->oForm->getSubmittedValue('country');
+	}
+
+	public function getState(){
+		return $this->oForm->getSubmittedValue('state');
+	}
+
+	public function getCity(){
+		return $this->oForm->getSubmittedValue('city');
+	}
+
+	public function getZip(){
+		return $this->oForm->getSubmittedValue('zip');
+	}
+
+	public function getDob(){
+		return $this->oForm->getSubmittedValue('dob');
+	}
+
+	public function getGender(){
+
+		return  $this->oForm->getSubmittedValue('gender');
+
+	}
+
+	public function getUrl(){
+		return $this->oForm->getSubmittedValue('url');
+	}
+
+	public function getDescription(){
+		return $this->oForm->getSubmittedValue('description');
+	}
 }

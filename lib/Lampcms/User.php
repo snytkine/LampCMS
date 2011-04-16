@@ -667,7 +667,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	/**
 	 *
 	 * Get reputation score of user
-	 * 
+	 *
 	 * @return int reputation of user, with minimum of 1
 	 */
 	public function getReputation(){
@@ -715,6 +715,27 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		}
 
 		return $this;
+	}
+
+
+	/**
+	 * Get user's age (in years)
+	 * at the time of this request
+	 *
+	 * @return string empty string if 'dob' value
+	 * is empty or string age in years
+	 *
+	 */
+	public function getAge(){
+		$dob = $this->offsetGet('dob');
+		if(empty($dob)){
+			return '';
+		}
+
+		$oDOB = new \DateTime($dob);
+		$oDiff = $oDOB->diff(new \DateTime(), true);
+
+		return $oDiff->format("%y");
 	}
 
 }

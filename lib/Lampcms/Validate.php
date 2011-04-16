@@ -52,6 +52,12 @@
 
 namespace Lampcms;
 
+/**
+ * Class contains static validator functions
+ *
+ * @author Dmitri Snytkine
+ *
+ */
 class Validate
 {
 
@@ -198,9 +204,9 @@ class Validate
 	 * Verifies that password contains
 	 * at least one letter and at least one number
 	 * and is at least 6 chars long
-	 * 
+	 *
 	 * @param string $pwd password to validate
-	 * 
+	 *
 	 * @return bool true if validation passes, false otherwise
 	 */
 	public static function enforcePwd($pwd)
@@ -223,7 +229,7 @@ class Validate
 	public static function email($email){
 
 		if (false === filter_var($email, FILTER_VALIDATE_EMAIL)) {
-				
+
 			return false;
 		}
 
@@ -232,6 +238,132 @@ class Validate
 		d('domain: '.$domain);
 
 		return (true === checkdnsrr($domain, 'MX')  || true === checkdnsrr($domain, 'A'));
+	}
+
+
+	/**
+	 * Validate string DOB (Date of Birth)
+	 * that supposed to follow this date format: YYYY/MM/DD
+	 *
+	 *
+	 * @param strubg $string
+	 *
+	 * @return bool true if string is in valid YYYY/MM/DD format
+	 * and the actual values of each part of string make sense
+	 */
+	public static function validateDob($string){
+		$a = explode('/', $string);
+		if(count($a) !== 3){
+			d('invalid format '.$string);
+				
+			return false;
+		}
+
+		if(!is_numeric($a[0]) || !is_numeric($a[1]) || !is_numeric($a[2])){
+			d('not numeric element in string '.$string);
+			return false;
+		}
+
+		if((int)$a[0] < 1900){
+			d('DOB too old '.$string);
+			return false;
+		}
+
+		if ((date('Y') - (int)$a[0]) < 0){
+			d('year from future: '.$string);
+			return false;
+		}
+
+		if((int)$a[1] > 12 || (int)$a[1] < 1){
+			d('month invalid month'.$string);
+			return false;
+		}
+
+		if((int)$a[2] > 31 || (int)$a[2] < 1){
+			d('day invalid day '.$string);
+			return false;
+		}
+
+		return true;
+	}
+
+	
+	/**
+	 * tests a value for a specific type
+	 *
+	 * @param mixed $val any type of value like object, string, boolean, resource, etc.
+	 * @param mixed string | array $type type of value that $var must be in order to satisfy the test
+	 * @param string $strFunction function or method name that called this validator
+	 *
+	 * @return bool true
+	 *
+	 * @throws LampcmsDevException is variable type does not match the test condition
+	 * also throws exception is test condition is not supported by the php is_ test
+	 * or if either $val or $type are empty
+	 */
+	public final static function type($val, $type){
+
+		$arrTypes = array(
+							 'array',
+                             'bool',
+                             'float',
+                             'int',
+                             'integer',
+                             'null',
+                             'numeric',
+                             'object',
+                             'resource',
+                             'string',
+                             'unicode',
+                             'buffer',
+                             'scalar');
+
+	
+
+		/**
+		 * Special case: for a resource we can validate
+		 * the resource type
+		 *
+		 * In this case the strType should be an array with
+		 * value being a string: name of resource type
+		 * and a key must just be 'resource'
+		 */
+		if(is_array($type)){
+			d('$type array: '.print_r($type, true));
+
+			if(count($type) !== 1){
+				throw new DevException('in $type is array it MUST have just one element');
+			}
+
+			$aType = $type;
+
+			foreach($aType as $name => $restype){
+				$type = (string)$name;
+				$resourceType = (string)$restype;
+			}
+		}
+
+		$type = strtolower($type);
+		d('$type: '.$type);
+
+		if (!in_array($type, $arrTypes)) {
+			throw new DevException($type.' is not one of the allowed values');
+		}
+		
+		$strFn = 'is_'.$type;
+		if (true !== $strFn ($val)) {
+
+			throw new Exception('wrong type');
+		}
+
+		if(isset($resourceType)){
+			if($resourceType !== $actualType = get_resource_type($val)){
+				d( 'looking for type: '.$resourceType.'$actualType: '.$actualType);
+				throw new DevException('Invalid resource type. Expected resource of type: '.$resourceType. ' got: '.$actualType);
+			}
+		}
+
+		return true;
 	}
 
 }

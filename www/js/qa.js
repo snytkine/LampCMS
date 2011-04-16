@@ -1545,8 +1545,7 @@ YUI({
 		switch (true) {
 		
 		case el.test('.qpages'):
-			if('A' == e.target.get('tagName') && Y.one(".paginated")){
-				
+			if('A' == e.target.get('tagName') && Y.one(".paginated")){				
 				e.halt();
 				handlePagination(e.target);
 			}
@@ -2236,20 +2235,7 @@ YUI({
 		//Y.log('form is: ' + form);
 
 		title = form.one("#id_title");
-		/*if (title && (2 > title.get("value").length)) {
-			Y.log('title too short');
-			alert('Please enter a descriptive title');
-			e.halt();
-			return;
-		}*/
-
 		tags = form.one("#id_tags");
-		/*if (tags && (1 > tags.get("value").length)) {
-			alert('Enter between 1 and 5 tags, separated by spaces');
-			e.halt();
-			return;
-		}*/
-		
 		reason = form.one("#id_reason");
 		if (reason && (1 > reason.get("value").length)) {
 			alert('You must include reason for editing');
@@ -2484,7 +2470,7 @@ YUI({
 			} else {
 				write('Editor ready');
 			}
-				editor.render();
+			editor.render();
 			});
 		
 		/**
@@ -3276,6 +3262,24 @@ YUI({
 					 });
 				}
 			});
+		/**
+		 * Click on selected item in this autocomplete must
+		 * NOT do the default thing but instead take 
+		 * to the url of the question. The purpose of this
+		 * form is not really to autocomplete the form but
+		 * to show questions with similar titles and if user click on one
+		 * of them then take user to url of that question.
+		 */
+		id_title.ac.on('select', function(e){
+			var qlink, result = e.result;
+		   
+		    if(result.raw && result.raw._id && result.raw.url){
+		    	e.preventDefault();
+			    qlink = '/q' + result.raw._id + '/' + result.raw.url;
+			    window.location.assign(qlink);
+		   }
+		   
+		});
 		}
 	};
 	

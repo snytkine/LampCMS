@@ -43,9 +43,9 @@ class tplSettings extends \Lampcms\Template\Template
 	'confirmation' => '', // 1
 	'change_password' => 'Change password', // 2
 	'profile' => 'Profile', //3
-	'profileUrl' => '', //4
-	'profileUrl' => '', //4
-	'emailPrefs' => 'Email stuff' // 5
+	'profileUrl' => '/editprofile/', //4
+	'profileUrl' => '', //5
+	'emailPrefs' => 'Email stuff' // 6
 	);
 
 
