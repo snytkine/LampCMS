@@ -90,8 +90,7 @@ class ProfileParser extends LampcmsObject
 		$oUser['zip'] = $this->getClean($o->getZip())->substr(0, 8)->valueOf();
 		$oUser['dob'] = $this->getDob($o->getDob());
 		$oUser['gender'] = $this->getGender($o->getGender());
-		$oUser['description'] = $this->getClean($o->getDescription())->substr(0, 2000)->valueOf();
-
+		$oUser['description'] = \wordwrap($this->getClean($o->getDescription())->substr(0, 2000)->valueOf(), 50);
 
 		$oUser->save();
 		

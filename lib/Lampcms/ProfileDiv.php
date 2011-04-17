@@ -93,7 +93,7 @@ class ProfileDiv extends LampcmsObject
 			'age' => $oUser->getAge(),
 			'facebook' => $oUser->getFacebookUrl(),
 			'location' => $oUser->getLocation(),
-			'description' => $desc,
+			'description' => \wordwrap($desc, 50),
 			'editRole' => Usertools::getHtml($oRegistry, $oUser),
 			'followButton' => self::makeFollowButton($oRegistry, $oUser),
 			'followers' => ShowFollowers::factory($oRegistry)->getUserFollowers($oUser),

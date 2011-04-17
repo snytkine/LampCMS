@@ -50,6 +50,7 @@
  */
 
 
+
 namespace Lampcms\Forms;
 
 use Lampcms\Request;
@@ -81,7 +82,7 @@ class Form extends LampcmsObject
 	 */
 	protected $useToken = true;
 
-	
+
 	/**
 	 * Array of field names used in current form
 	 * This should be set in sub-class that represents
@@ -103,7 +104,7 @@ class Form extends LampcmsObject
 	 */
 	protected $aFields = array();
 
-	
+
 	/**
 	 * Array of validator callback functions
 	 * keys are field names, values are anonymous functions
@@ -113,28 +114,28 @@ class Form extends LampcmsObject
 	 */
 	protected $aValidators = array();
 
-	
+
 	/**
 	 * Name of form template file
 	 * The name of actual template should be
 	 * set in sub-class
-	 * 
+	 *
 	 * Templates must have these placeholders:
-	 * filedName, fieldName_e for setting 
+	 * filedName, fieldName_e for setting
 	 * error specific to form field
-	 * 
+	 *
 	 * and also 'formError'
 	 * with corresponding html in template: <div class="form_error">%%</div>
 	 * for setting form error
-	 * via javascript %% should correspond to 'formError' 
+	 * via javascript %% should correspond to 'formError'
 	 * position in vars array, for example %19$s
-	 * 
+	 *
 	 *
 	 * @var string
 	 */
 	protected $template;
 
-	
+
 	/**
 	 * Array of template vars
 	 * This is usually a copy from template
@@ -150,7 +151,7 @@ class Form extends LampcmsObject
 	 */
 	protected $aVars;
 
-	
+
 	/**
 	 * Flag indicates that form has been
 	 * submitted via POST
@@ -159,7 +160,15 @@ class Form extends LampcmsObject
 	 */
 	protected $bSubmitted = false;
 
-	
+	/**
+	 * Array of uploaded files
+	 * Basically a copy of $_FILES array that php
+	 * provides
+	 *
+	 * @var array
+	 */
+	protected $aUploads = array();
+
 	/**
 	 * Array of form field errors
 	 * keys should be form field names + '_e', values
@@ -174,7 +183,7 @@ class Form extends LampcmsObject
 	 */
 	protected $aErrors = array();
 
-	
+
 	public function __construct(Registry $oRegistry, $useToken = true){
 		$this->oRegistry = $oRegistry;
 		$this->useToken = $useToken;
@@ -189,6 +198,7 @@ class Form extends LampcmsObject
 			if(true === $useToken){
 				self::validateToken($oRegistry);
 			}
+			$this->aUploads = $_FILES;
 		} else {
 			$this->addToken();
 		}
@@ -236,7 +246,7 @@ class Form extends LampcmsObject
 		$this->aValidators[$field] = $func;
 	}
 
-	
+
 	/**
 	 * Run custom validators
 	 * Validators can be added via addValidator() method
@@ -270,7 +280,7 @@ class Form extends LampcmsObject
 		return $this->isValid();
 	}
 
-	
+
 	/**
 	 * Method that invokes form
 	 * validation
@@ -280,7 +290,7 @@ class Form extends LampcmsObject
 	 */
 	protected function doValidate(){}
 
-	
+
 	/**
 	 * Get values of submitted form fields
 	 * Returned values are sanitized by filter_var
@@ -318,6 +328,51 @@ class Form extends LampcmsObject
 		}
 
 		return $this->oRegistry->Request[$field];
+	}
+
+
+	/**
+	 * Get path to uploaded file
+	 * The file is first copied to tmp directory
+	 * 
+	 * 
+	 * @param string $field
+	 * @throws \Lampcms\DevException
+	 * @throws \Lampcms\Exception
+	 * 
+	 * @return string full path to new temporary location
+	 * of the uploaded file
+	 */
+	public function getUploadedFile($field){
+		if(!$this->fieldExists($field)){
+			throw new \Lampcms\DevException('field '.$field.' does not exist');
+		}
+
+		if(!array_key_exists($field, $this->aUploads)){
+			throw new \Lampcms\Exception('No such file in uploads: '.$field);
+		}
+
+		$tmp = $this->oRegistry->Ini->TEMP_DIR.DS.$this->aUploads[$field]['name'];
+
+		if(false === \move_uploaded_file($this->aUploads[$field]['tmp_name'], $tmp) ){
+
+			throw new \Lampcms\Exception('Unable to copy uploaded file');
+		}
+
+		d('new file path: '.$tmp);
+		
+		return $tmp;
+
+	}
+	
+	
+	/**
+	 * Check if form had any uploaded files
+	 * 
+	 * @return bool true if there are any uploaded files
+	 */
+	public function hasUploads(){
+		return (count($this->aUploads) > 0);
 	}
 
 
@@ -608,10 +663,10 @@ class Form extends LampcmsObject
 	 * Validate submitted 'token' value
 	 * agains generateToken()
 	 * they must match OR throw TokenException
-	 * 
+	 *
 	 * Must be static because we use this sometimes
 	 * from outside this object.
-	 * 
+	 *
 	 * @return true on success
 	 *
 	 */
