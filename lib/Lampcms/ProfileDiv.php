@@ -77,7 +77,8 @@ class ProfileDiv extends LampcmsObject
 			$edit = '<div class="fl middle"><span class="icoc key">&nbsp;</span><a href="/editprofile/'.$uid.'" class="edit middle">Edit profile</a></div>';
 		}
 
-		$desc = Utf8String::factory($oUser['description'], 'utf-8', true)->linkify()->valueOf();
+		$desc = \trim($oUser['description']);
+		$desc = (empty($desc)) ? '' : Utf8String::factory($desc, 'utf-8', true)->linkify()->valueOf();
 
 		$vars = array(
 			'editLink' => $edit,

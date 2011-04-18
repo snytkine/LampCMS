@@ -58,6 +58,13 @@ use Lampcms\Request;
 use Lampcms\Responder;
 use Lampcms\SubmittedCommentWWW;
 
+/**
+ * Controller for processing the "Like" action
+ * on the comment
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class Likecomment extends WebPage
 {
 	protected $membersOnly = true;

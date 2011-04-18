@@ -337,14 +337,14 @@ class Form extends LampcmsObject
 	/**
 	 * Get path to uploaded file
 	 * The file is first copied to tmp directory
-	 *
-	 *
+	 * 
 	 * @param string $field
-	 * @throws \Lampcms\DevException
-	 * @throws \Lampcms\Exception
+	 * @throws \Lampcms\DevException if move_uploaded_file operation
+	 * fails
 	 *
-	 * @return string full path to new temporary location
-	 * of the uploaded file
+	 * @return mixed null | false | string full path to new temporary location
+	 * of the uploaded file null if there is no uploaded file with this
+	 * element name of false if there was a problem with upload
 	 */
 	public function getUploadedFile($field){
 		d('looking for uploaded file: '.$field);
@@ -354,8 +354,8 @@ class Form extends LampcmsObject
 
 		if(!array_key_exists($field, $this->aUploads)){
 			d('no such file in uploads: '.$field);
+			
 			return null;
-			//throw new \Lampcms\DevException('No such file in uploads: '.$field);
 		}
 
 		if( !is_array($this->aUploads[$field]) || (0 == $this->aUploads[$field]['size']) || empty($this->aUploads[$field]['tmp_name']) || ('none' == $this->aUploads[$field]['tmp_name']) ){

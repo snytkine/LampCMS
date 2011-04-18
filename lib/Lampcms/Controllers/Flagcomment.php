@@ -52,6 +52,14 @@
 
 namespace Lampcms\Controllers;
 
+/**
+ * 
+ * Controller for processing the "Flag" of offensive
+ * comment
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class Flagcomment extends Flagger
 {
 	protected $SUBJECT = 'Flagged comment';
@@ -98,6 +106,4 @@ class Flagcomment extends Flagger
 
 		return $body;
 	}
-
-
 }

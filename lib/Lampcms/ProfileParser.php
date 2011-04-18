@@ -155,6 +155,11 @@ class ProfileParser extends LampcmsObject
 	 * @return string
 	 */
 	protected function getUrl(Utf8String $str){
+		$str = $str->trim();
+		if($str->length() < 4){
+			return '';
+		}
+		
 		$str = $str->substr(0, 250)->trim()->valueOf();
 		if('http' !== \substr($str, 0, 4)){
 			return 'http://'.$str;
@@ -188,9 +193,7 @@ class ProfileParser extends LampcmsObject
 	 * @return object $this
 	 */
 	protected function makeAvatar(){
-		$pathUpload = $this->oSubmitted->getUploadedAvatar();
-
-		AvatarParser::factory($this->oRegistry)->addAvatar($this->oUser, $pathUpload);//$this->createAvatar($pathUpload);
+		AvatarParser::factory($this->oRegistry)->addAvatar($this->oUser, $this->oSubmitted->getUploadedAvatar());
 
 		return $this;
 	}

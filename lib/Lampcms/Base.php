@@ -328,13 +328,13 @@ class Base extends LampcmsObject
 		 *
 		 */
 		$role = (null !== $role) ? $role : $this->oRegistry->Viewer->reload();
-		
+
 		d('role: '.$role);
 
 		/**
 		 * oACL can be cached, which saves about 5-7 milliseconds
 		 * on my dev machine. The downside is that if you
-		 * edit acl.ini you must manually remove 
+		 * edit acl.ini you must manually remove
 		 * Acl key from cache. (from C_Cache collection)
 		 */
 		//$oACL = $this->oRegistry->Cache->Acl;
@@ -345,8 +345,10 @@ class Base extends LampcmsObject
 
 		if(!$oACL->isAllowed($role, $resource, $privilege)){
 			if(!$this->isLoggedin()){
-					
-				throw new AuthException('Please login to perform this action');
+				/**
+				 * @todo translate string
+				 */
+				throw new AuthException('Please Register or Login to perform this action');
 			}
 
 			if(strstr($roleID, 'unactivated')){
