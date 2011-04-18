@@ -73,8 +73,7 @@ class Cookie
 	 * @return void cookies are sent to browser
 	 *
 	 */
-	public static function sendLoginCookie($intUserId, $strSID, $cookieName = 'uid')
-	{
+	public static function sendLoginCookie($intUserId, $strSID, $cookieName = 'uid'){
 		if(!is_numeric($intUserId)){
 			throw new DevException('wrong value of $intUserId param. Must be numeric. Was: '.$intUserId);
 		}
@@ -122,8 +121,7 @@ class Cookie
 	 * of this is when the script has an echo() or print_r()
 	 * somewhere for debugging purposes.
 	 */
-	public static function set($name, $val, $ttl = 63072000)
-	{
+	public static function set($name, $val, $ttl = 63072000){
 
 		if(headers_sent($filename, $linenum)){
 			e('Cannot set cookie: '.$name.' '.$val.' because headers have already been sent in '.$filename.' on line '. $linenum);
@@ -140,6 +138,7 @@ class Cookie
 		}
 	}
 
+	
 	/**
 	 * Sends cookie with expiration
 	 * in the past, which will delete the cookie
@@ -151,8 +150,7 @@ class Cookie
 	 * is not string and not array
 	 *
 	 */
-	public static function delete($name)
-	{
+	public static function delete($name){
 		if (!is_string($name) && !is_array($name)) {
 			throw new DevException('wrong type of $name param: '.gettype($name));
 		}
@@ -177,8 +175,7 @@ class Cookie
 	 *
 	 * @return void
 	 */
-	public static function sendRefferrerCookie()
-	{
+	public static function sendRefferrerCookie(){
 
 		if (!isset($_COOKIE['ref']) && isset($_SERVER['HTTP_REFERER'])) {
 			$strReferrer = $_SERVER['HTTP_REFERER'];
@@ -195,6 +192,7 @@ class Cookie
 		}
 	}
 
+	
 	/**
 	 * Sets the cookie 'sid' (first visit)
 	 * for about 6 years.
@@ -203,13 +201,13 @@ class Cookie
 	 *
 	 * @return void
 	 */
-	public static function sendFirstVisitCookie()
-	{
+	public static function sendFirstVisitCookie(){
 		if (!isset($_COOKIE['sid'])) {
 			self::set('sid', String::makeSid(), 189216000);
 		}
 	}
 
+	
 	/**
 	 * Returnes value of specific cookie name
 	 *
@@ -221,8 +219,7 @@ class Cookie
 	 * @return mixed value if cookie found or false
 	 * if cookie not found
 	 */
-	public static function get($cookieName, $fallbackVal = false)
-	{
+	public static function get($cookieName, $fallbackVal = false){
 		if(!isset($_COOKIE) && empty($_COOKIE)){
 
 			return $fallbackVal;
@@ -233,6 +230,7 @@ class Cookie
 		return (empty($val)) ? $fallbackVal : $val;
 	}
 
+	
 	/**
 	 * Returns value of first visit extracted
 	 * from sid cookie or false if sid cookie not present
@@ -244,8 +242,7 @@ class Cookie
 	 * @return mixed int timestamp of first visit
 	 * or false if value not found in cookie
 	 */
-	public static function getSidCookie($bFirstVisitOnly = false)
-	{
+	public static function getSidCookie($bFirstVisitOnly = false){
 
 		if(false === $sid = self::get('sid')){
 
@@ -281,4 +278,3 @@ class Cookie
 	}
 
 }
-

@@ -87,18 +87,54 @@
  	'gender' => '', //28
  	'gender_l' => 'Gender', //29
  	'dob_e' => '', //30
- 	'description_d' => 'Plain text only, no html' //31
+ 	'description_d' => 'Plain text only, no html', //31
+ 	'pictureLabel' => 'Profile picture', //32
+ 	'avatarSrc' => '', //33
+ 	'width' => '40', //34
+ 	'profile_image' => '', //35
+ 	'changeImage' => 'Change image', //36
+ 	'avatarTos' => 'Upload Avatar Image. Maximum size of 1Mb<br><span class="smaller">By uploading a file you certify that you have the right to distribute this picture and that it does not violate the Terms of Service.</span>', //37
+ 	'deleteLabel' => 'Delete this image', //38
+ 	'uid' => '', //39
+ 	'hideAvatar' => '', //40
+ 	'maxAvatarSize' => '2000000', //41
+ 	'profile_image_e' => '', //42
+ 	'username' => '', //43
+ 	'usernameLabel' => '' //44
  	);
  	
  	
  	protected static $tpl = '
- 	<form name="epForm" method="POST" action="/index.php" accept-charset="utf-8">
-		<input type="hidden" name="a" value="editprofile">	
+ 	<form name="epForm" method="POST" action="/index.php" enctype="multipart/form-data" accept-charset="utf-8">
+		<input type="hidden" name="a" value="editprofile">
+		<input type="hidden" name="uid" value="%39$s">	
 		<input type="hidden" name="token" value="%1$s">
 <div id="tools" class="form_wrap">
 <h1>%2$s</h1>
 <div class="form_error">%26$s</div>
 <table class="larger vtop eprofile">
+<tr><td>%44$s</td><td>%43$s</td></tr>
+<tr class="tr%40$s">
+<td>%32$s</td>
+ <td>
+	<table padding="0"><tr class="profile_img">
+	<td width="50px">
+	 <img src="%33$s" width="%34$spx" height="%34$spx" class="fl img_avatar">
+	 </td>
+	 <td>
+	 <div class="picture_change"> 
+	        <div class="follow ajax slvrbtn change_image rounded4 ">%36$s</div> 
+	        <!-- <a href="#" id="adel_%39$s" class="ajax delete_image smaller ml10">%38$s</a> -->
+	  	<span id="avatar_upload" class="cb fl mt10 pic_upload"> 
+	  	  <input type="hidden" name="MAX_FILE_SIZE" value="%41$s" />
+	      <input id="id_profile_image" name="profile_image" size="20" type="file" /> 
+	      <span class="f_err">%42$s</span>
+	      <br><div class="smaller">%37$s</div> 
+	    </span>
+	   </div> 
+		</td></tr></table>
+  </td>
+</tr>
 <tr><td width="40%%">%4$s</td><td width="56%%"><input tabindex="10" type="text" size="35" id="id_fn" name="fn" value="%3$s"></td></tr>
 <tr><td>%6$s</td><td><input tabindex="11" type="text" size="35" id="id_mn" name="mn" value="%5$s"></td></tr>
 <tr><td>%8$s</td><td><input tabindex="12" type="text" size="35" id="id_ln" name="ln" value="%7$s"></td></tr>

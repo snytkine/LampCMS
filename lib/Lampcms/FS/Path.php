@@ -50,43 +50,95 @@
  */
 
 
-class tplOneFollower extends Lampcms\Template\Template
-{
+namespace Lampcms\FS;
 
-	protected static function func(&$a){
+/**
+ * Class for preparing and resolving file path
+ * based on id using dec2hex and hex2dec file storage
+ * scheme.
+ *
+ * @author Dmitri Snytkine
+ *
+ */
+class Path{
+	/**
+	 * It is used to verify or create the path of the file (using HEX logic)
+	 *
+	 * @param int $intResourceId  resource id
+	 * the path will be created based on this integer
+	 *
+	 * @param string $destinationDir directory in which
+	 * the path will be created.
+	 *
+	 * @return string a hex path (without file extension)
+	 * OR a full path, including the destinationDir prefix
+	 * if $bReturnFullPath param is true
+	 *
+	 */
+	public static final function prepare($intResourceId, $destinationDir = '', $bReturnFullPath = false){
 
-		if(!empty($a['avatar'])){
-			$a['avatar'] = AVATAR_IMG_SITE.'/w/img/avatar/sqr/'.$a['avatar'];
-		} elseif (!empty($a['avatar_external'])){
-			$a['avatar'] = $a['avatar_external'];
-		} elseif (!empty($a['gravatar']) && !empty($a['email'])){
-			$a['avatar'] = $a['gravatar']['url'].hash('md5', $a['email']).'?s=36'.'&d='.$a['gravatar']['fallback'].'&r='.$a['gravatar']['rating'];
-		} else {
-			$a['avatar'] = IMAGE_SITE.'/images/avatar.png';
+		if(!is_numeric($intResourceId)){
+			throw new \InvalidArgumentException('$intResourceId must be numeric, ideally an integer. Was: '.$intResourceId);
 		}
 
-		$fn = (!empty($a['fn'])) ? $a['fn'] : '';
-		$ln = (!empty($a['ln'])) ? $a['ln'] : '';
-		$mn = (!empty($a['mn'])) ? $a['mn'] : '';
+		/**
+		 * Resource id is converted to hex number
+		 */
+		$destinationDir = \trim((string)$destinationDir);
+		$strHex = dechex((int)$intResourceId);
+		$strHex = strtoupper($strHex);
+		$arrTemp = array();
+		$intCount = 0;
+		$strPath = '';
+		$strFullPathToOrig = '';
+		do {
+			$intCount++;
+			$intRes = preg_match("/([0-9A-F]{1,2})([0-9A-F]*)/", $strHex, $arrTemp);
+			//$strHex = $arrTemp[2];
+			//d('$strHex: '.$strHex);
+			d('$arrTemp: '.print_r($arrTemp, 1));
 
-		$displayName = $fn.' '.$mn. ' '.$ln;
-		$a['displayName'] = (strlen($displayName) > 2) ? $displayName : $a['username'];
+			$strPath .= ''.$arrTemp[1];
+			if ($arrTemp && ('' !== $arrTemp[2])) {
+				$strHex = $arrTemp[2];
+				$strPath .= '/';
+				//   PATH to Location
+				$strFullPathToOrig = $destinationDir.$strPath;
+
+				d('$strFullPathToOrig: '.$strFullPathToOrig);
+
+				if (!\file_exists($strFullPathToOrig) && !\is_dir($strFullPathToOrig)) {
+					if (!\mkdir($strFullPathToOrig, 0777)) {
+						throw new \Lampcms\DevException('Cannot create directory '.$strFullPathToOrig);
+					}
+				}
+			}
+		} while ($intRes && ($intCount < 10) && ('' !== $arrTemp[2]));
+
+		$ret =  ($bReturnFullPath) ? $destinationDir.$strPath : $strPath;
+
+		d(' $ret: ' .$ret);
+
+		return $ret;
 	}
 
-	protected static $vars = array(
-	'_id' => '', //1
-	'displayName' => '', //2
-	'i_rep' => '',  //3
-	'avatar' => '', //4
-	'username' => '', //5
-	'since' => '', //6
-	'follow_type' => 'flwr' // 7
-	);
 
+	/**
+	 * Converts the hex path to integer
+	 * for example:
+	 * 3E/A
+	 * is converted to 1002
+	 * @param string $hex
+	 * a hex-like path
+	 *
+	 * @return integer
+	 *
+	 */
+	public static function hex2dec($hex){
+		$hex = str_replace('/', '', $hex);
 
-	protected static $tpl = '
-	<div class="fl f2" id="%7$s_%1$s">
-		<a href="/users/%1s/%5$s" class="ttt" title="%2$s **%3$s**"><span class="avtr_bg imgloader" style=\'background-image:url("%4$s");\'>&nbsp;</span></a>
-	</div>';
-
+		return hexdec($hex);
+	}
+	
+	
 }

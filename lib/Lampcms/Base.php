@@ -266,8 +266,7 @@ class Base extends LampcmsObject
 	 * which would mean a user does not have appropriate
 	 * access privileges
 	 */
-	public function checkAccessPermission($privilege = null, RoleInterface $role = null, $resource = null)
-	{
+	public function checkAccessPermission($privilege = null, RoleInterface $role = null, $resource = null){
 
 		d('$privilege: '.$privilege.' '.var_export($privilege, true));
 

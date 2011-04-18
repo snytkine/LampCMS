@@ -105,8 +105,10 @@ SKIP_CACHE = false
 COOKIE_DOMAIN = null
 ;
 ;system path to temporary directory. Must we writable to php
+; if not sure - leave blank to use system's default temporary directory
+; 
 ;
-TEMP_DIR = /tmp
+TEMP_DIR = 
 ;
 ;Some configuration constants
 ;Leave black if you host images, css and js
@@ -120,6 +122,10 @@ JS_SITE = ""
 AVATAR_IMG_SITE = ""
 ;size of square avatar in pixels
 AVATAR_SQUARE_SIZE= 40
+;maximum allowed file size of
+; uploaded avatar in bytes.
+; default 1000000 means 1MB
+MAX_AVATAR_UPLOAD_SIZE = 1024000
 ;
 ;Name of GeoIP file - must be in the LAMPCMS_DIR (root dir of program)
 ;Download it from maxmind.com

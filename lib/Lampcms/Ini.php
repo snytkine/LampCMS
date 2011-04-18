@@ -104,6 +104,13 @@ class Ini extends LampcmsArray
 
 		$aConstants = $this->offsetGet('CONSTANTS');
 
+		/**
+		 * TEMP_DIR returns path
+		 * to temp always ends with DIRECTORY_SEPARATOR
+		 * if TEMP_DIR not defined in !config.ini
+		 * then will use system's default temp dir
+		 * 
+		 */
 		if ('TEMP_DIR' === $name) {
 			if (!empty($aConstants['TEMP_DIR'])) {
 
@@ -113,7 +120,8 @@ class Ini extends LampcmsArray
 				return $tmpDir;
 			}
 
-			return LAMPCMS_DATA_DIR.'tmp'.DIRECTORY_SEPARATOR;
+			return \sys_get_temp_dir();
+			//return LAMPCMS_DATA_DIR.'tmp'.DIRECTORY_SEPARATOR;
 		}
 
 

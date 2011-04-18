@@ -57,8 +57,7 @@ class SubmittedProfileWWW extends SubmittedProfile
 	protected $oForm;
 
 	public function __construct(\Lampcms\Forms\Profile $oForm){
-		$this->oForm = $oForm;
-			
+		$this->oForm = $oForm;	
 	}
 
 	public function getFirstName(){
@@ -94,9 +93,7 @@ class SubmittedProfileWWW extends SubmittedProfile
 	}
 
 	public function getGender(){
-
 		return  $this->oForm->getSubmittedValue('gender');
-
 	}
 
 	public function getUrl(){
@@ -105,5 +102,13 @@ class SubmittedProfileWWW extends SubmittedProfile
 
 	public function getDescription(){
 		return $this->oForm->getSubmittedValue('description');
+	}
+	
+	public function getUploadedAvatar(){
+		if(!$this->oForm->hasUploads()){
+			return null;
+		}
+		
+		return $this->oForm->getUploadedFile('profile_image');
 	}
 }

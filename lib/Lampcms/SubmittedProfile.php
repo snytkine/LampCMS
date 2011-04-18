@@ -81,6 +81,8 @@ abstract class SubmittedProfile
 	abstract public function getGender();
 	
 	abstract public function getUrl();
+	
+	abstract public function getUploadedAvatar();
 
 	abstract public function getDescription();
 }

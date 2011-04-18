@@ -1605,6 +1605,12 @@ YUI({
 		    oTweet.show();
 			break;
 			
+		case( el.test('.change_image')):
+			if(Y.one("#avatar_upload")){
+				Y.one("#avatar_upload").removeClass('pic_upload');
+			}
+			break;
+			
 		case (id === 'logout'):
 			e.preventDefault();
 			//Y.log('clicked logout');

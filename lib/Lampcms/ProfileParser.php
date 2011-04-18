@@ -67,18 +67,37 @@ namespace Lampcms;
  */
 class ProfileParser extends LampcmsObject
 {
+	/**
+	 * User object of user whose profile being updated
+	 *
+	 * @var object of type User
+	 */
+	protected $oUser;
+
 
 	/**
-	 * 
+	 * @var object of type SubmittedProfile
+	 */
+	protected $oSubmitted;
+
+
+	public function __construct(Registry $oRegistry){
+		$this->oRegistry = $oRegistry;
+	}
+
+	/**
+	 *
 	 * Modify values in User object
 	 * based on SubmittedProfile
-	 * 
+	 *
 	 * @param User $oUser
 	 * @param SubmittedProfile $o
-	 * 
+	 *
 	 * @return bool true
 	 */
 	public function save(User $oUser, SubmittedProfile $o){
+		$this->oUser = $oUser;
+		$this->oSubmitted = $o;
 
 		$oUser['fn'] = $this->getClean($o->getFirstName())->substr(0, 60)->valueOf();
 		$oUser['mn'] = $this->getClean($o->getMiddleName())->substr(0, 60)->valueOf();
@@ -91,9 +110,11 @@ class ProfileParser extends LampcmsObject
 		$oUser['dob'] = $this->getDob($o->getDob());
 		$oUser['gender'] = $this->getGender($o->getGender());
 		$oUser['description'] = \wordwrap($this->getClean($o->getDescription())->substr(0, 2000)->valueOf(), 50);
-
-		$oUser->save();
 		
+		$this->makeAvatar();
+		
+		$oUser->save();
+
 		return true;
 
 	}
@@ -121,7 +142,7 @@ class ProfileParser extends LampcmsObject
 	 */
 	protected function getGender($str){
 		d('gender string: '.$str);
-		
+
 		return ('M' === $str ||  'F'  === $str) ? $str : null;
 	}
 
@@ -156,6 +177,22 @@ class ProfileParser extends LampcmsObject
 		}
 
 		return Utf8String::factory($string)->trim()->stripTags();
+	}
+
+
+	/**
+	 * This will create avatar of square size
+	 * and add path to User['avatar'] IF
+	 * avatar has been uploaded
+	 *
+	 * @return object $this
+	 */
+	protected function makeAvatar(){
+		$pathUpload = $this->oSubmitted->getUploadedAvatar();
+
+		AvatarParser::factory($this->oRegistry)->addAvatar($this->oUser, $pathUpload);//$this->createAvatar($pathUpload);
+
+		return $this;
 	}
 
 }

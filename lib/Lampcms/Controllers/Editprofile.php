@@ -58,17 +58,51 @@ use Lampcms\ProfileParser;
 
 class Editprofile extends WebPage
 {
-
+	/**
+	 * Pre-check to deny non-logged in user
+	 * access to this page
+	 *
+	 * @var bool
+	 */
 	protected $membersOnly = true;
 
+
+	/**
+	 *
+	 * Viewer must have edit_profile
+	 * permission to access this page
+	 * @var string
+	 */
 	protected $permission = 'edit_profile';
 
+
+	/**
+	 * $layoutID 1 means no side-column on page
+	 *
+	 * @var int
+	 */
 	protected $layoutID = 1;
 
+
+	/**
+	 * Form object
+	 *
+	 * @var object of type \Lampcms\Forms\Form
+	 */
 	protected $oForm;
 
 
+	/**
+	 * User object of user whose profile
+	 * is being edited
+	 *
+	 * @var object of type User
+	 */
+	protected $oUser;
+
+
 	protected function main(){
+		$this->getUser();
 		$this->oForm = new \Lampcms\Forms\Profile($this->oRegistry);
 		$this->oForm->formTitle = $this->aPageVars['title'] = 'Edit profile';
 
@@ -76,11 +110,39 @@ class Editprofile extends WebPage
 			$this->oRegistry->Dispatcher->post($this->oForm, 'onBeforeProfileUpdate');
 			$this->saveProfile();
 			$this->oRegistry->Dispatcher->post($this->oForm, 'onProfileUpdate');
-			$this->aPageVars['body'] = \tplProfileSuccess::parse(array('Profile has been updated', $this->oRegistry->Viewer->getProfileUrl(), 'View you new profile'), false);
+			$this->aPageVars['body'] = \tplProfileSuccess::parse(array('Profile has been updated', $this->oUser->getProfileUrl(), 'View the new profile'), false);
 		} else {
 			$this->setForm();
 			$this->aPageVars['body'] = $this->oForm->getForm();
 		}
+	}
+
+
+	/**
+	 * Create $this->oUser User object for user whose
+	 * profile is being edited
+	 *
+	 * @todo unfinished. IT will be possible to
+	 * edit user other than Viewer when Viewer has
+	 * permission to edit_other_profile
+	 * For now this is a Viewe object
+	 *
+	 * @return object $this
+	 */
+	protected function getUser(){
+		$uid = $this->oRequest->get('uid', 'i', null);
+		if($uid && ($uid !== $this->oRegistry->Viewer->getUid())){
+			/**
+			 * This is edit profile for another user
+			 * check Viewer permission here
+			 */
+			$this->checkAccessPermission('edit_any_profile');
+			$this->oUser = \Lampcms\User::factory($this->oRegistry)->by_id($uid);
+		} else {
+			$this->oUser = $this->oRegistry->Viewer;
+		}
+		
+		return $this;
 	}
 
 
@@ -91,19 +153,37 @@ class Editprofile extends WebPage
 	 * @return object $this
 	 */
 	protected function setForm(){
-		$Viewer = $this->oRegistry->Viewer;
 
-		$this->oForm->fn = $Viewer['fn'];
-		$this->oForm->mn = $Viewer['mn'];
-		$this->oForm->ln = $Viewer['ln'];
+		$this->oForm->username = $this->oUser['username'];
+		$this->oForm->usernameLabel = 'Username';
+		$this->oForm->fn = $this->oUser['fn'];
+		$this->oForm->mn = $this->oUser['mn'];
+		$this->oForm->ln = $this->oUser['ln'];
 		$this->oForm->gender = $this->getGenderOptions();
-		$this->oForm->dob = $Viewer['dob'];
+		$this->oForm->dob = $this->oUser['dob'];
 		$this->oForm->country = $this->getCountryOptions();
-		$this->oForm->state = $Viewer['state'];
-		$this->oForm->city = $Viewer['city'];
-		$this->oForm->url = $Viewer['url'];
-		$this->oForm->zip = $Viewer['zip'];
-		$this->oForm->description = $Viewer['description'];
+		$this->oForm->state = $this->oUser['state'];
+		$this->oForm->city = $this->oUser['city'];
+		$this->oForm->url = $this->oUser['url'];
+		$this->oForm->zip = $this->oUser['zip'];
+		$this->oForm->description = $this->oUser['description'];
+		$this->oForm->avatarSrc = $this->oUser->getAvatarSrc();
+		$this->oForm->width = $this->oRegistry->Ini->AVATAR_SQUARE_SIZE;
+		$this->oForm->uid = $this->oUser->getUid();
+		$this->oForm->maxAvatarSize = $this->oRegistry->Ini->MAX_AVATAR_UPLOAD_SIZE;
+		/**
+		 * @todo translate string
+		 */
+		$this->oForm->avatarTos = sprintf('Upload Image. Maximum size of %sMb<br><span class="smaller">By uploading a file you certify that you have the right to distribute this picture and that it does not violate the Terms of Service.</span>', floor($this->oRegistry->Ini->MAX_AVATAR_UPLOAD_SIZE / 1000000) );
+
+		/**
+		 * Add '  hide' class to avatar upload
+		 * if php does not have gd of support for jpeg
+		 * inside gd
+		 */
+		if(!\extension_loaded('gd') || !\function_exists('imagecreatefromjpeg')){
+			$this->oForm->hideAvatar = ' hide';
+		}
 
 		return $this;
 	}
@@ -116,7 +196,8 @@ class Editprofile extends WebPage
 	 * @return object $this
 	 */
 	protected function saveProfile(){
-		ProfileParser::factory($this->oRegistry)->save($this->oRegistry->Viewer, new SubmittedProfileWWW($this->oForm));
+		ProfileParser::factory($this->oRegistry)->save($this->oUser, new SubmittedProfileWWW($this->oForm));
+		
 		/**
 		 * Should unset 'welcome' from session
 		 * because it contains user display name in the

@@ -99,8 +99,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 *
 	 * @return object of this class
 	 */
-	public static function factory(Registry $oRegistry, array $a = array())
-	{
+	public static function factory(Registry $oRegistry, array $a = array()){
 		$o = new static($oRegistry, 'USERS', $a);
 		$o->applyDefaults();
 
@@ -112,8 +111,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * (non-PHPdoc)
 	 * @see Lampcms.ArrayDefaults::__get()
 	 */
-	public function __get($name)
-	{
+	public function __get($name){
 		if('id' === $name){
 
 			return $this->getUid();
@@ -124,23 +122,11 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 
 
 	/**
-	 * Checks to see if profile exists for the user
-	 *
-	 * @return bool true if profile exists
-	 */
-	public function isProfileSet()
-	{
-		return $this->checkOffset('profile');
-	}
-
-
-	/**
 	 * Getter for userID (value of USER.id)
 	 *
 	 * @return int value of userid (value of USER.id)
 	 */
-	public function getUid()
-	{
+	public function getUid(){
 		d('$this->keyColumn: '.$this->keyColumn);
 
 		if (true !== $this->checkOffset($this->keyColumn)) {
@@ -203,7 +189,6 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		}
 
 		return $this->bIsModerator;
-
 	}
 
 
@@ -212,8 +197,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * by concatinating first name, middle name, last name
 	 * @return string full name
 	 */
-	public function getFullName()
-	{
+	public function getFullName(){
 		return $this->offsetGet('fn').' '.$this->offsetGet('mn').' '.$this->offsetGet('ln');
 	}
 
@@ -226,8 +210,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 *
 	 * @return string value to display on welcome block
 	 */
-	public function getDisplayName()
-	{
+	public function getDisplayName(){
 		$ret = $this->getFullName();
 		/**
 		 * Must trim, otherwise
@@ -248,8 +231,8 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	}
 
 
-	public function __set($name, $val)
-	{
+	public function __set($name, $val){
+
 		$this->offsetSet($name, $val);
 	}
 
@@ -262,10 +245,9 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 *
 	 * @return string the HTML code for image src
 	 */
-	public function getAvatarImgSrc($sSize = 'medium', $noCache = false)
-	{
+	public function getAvatarImgSrc($sSize = 'medium', $noCache = false){
 		d('cp');
-		$strAvatar = '<img src="' . $this->getAvatarSrc($noCache) . '" class="imgAvatar" width="40" height="40" border="0" alt="avatar"/>';
+		$strAvatar = '<img src="' . $this->getAvatarSrc($noCache) . '" class="img_avatar" width="40" height="40" border="0" alt="avatar"/>';
 
 		return $strAvatar;
 
@@ -282,11 +264,12 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 
 		if(!isset($this->avtrSrc)){
 
-			$srcAvatar = trim($this->offsetGet('avatar'));
+			$srcAvatar = \trim($this->offsetGet('avatar'));
 			if(empty($srcAvatar)){
-				$srcAvatar =  trim($this->offsetGet('avatar_external'));
+				$srcAvatar =  \trim($this->offsetGet('avatar_external'));
 			}
 
+			//  && (true !== $this->offsetGet('noavatar'))
 			if(empty($srcAvatar)){
 				$email = $this->offsetGet('email');
 				$aGravatar = array();
@@ -298,6 +281,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 
 				if(!empty($email) && (count($aGravatar) > 0)){
 					d('cp');
+						
 					return $aGravatar['url'].hash('md5', $email).'?s='.$aGravatar['size'].'&d='.$aGravatar['fallback'].'&r='.$aGravatar['rating'];
 				}
 				d('cp');
@@ -312,7 +296,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 			 * like avatar from Twitter or FC or GFC
 			 *
 			 */
-			$this->avtrSrc = (0 === strncmp($srcAvatar, 'http', 4)) ? $srcAvatar : AVATAR_IMG_SITE.PATH_WWW_IMG_AVATAR_SQUARE.$srcAvatar;
+			$this->avtrSrc = (0 === \strncmp($srcAvatar, 'http', 4)) ? $srcAvatar : AVATAR_IMG_SITE.PATH_WWW_IMG_AVATAR_SQUARE.$srcAvatar;
 
 			if (true === $noCache) {
 				$this->avtrSrc .= '?id=' . microtime(true); // helps browser to NOT cache this image
@@ -335,54 +319,6 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	}
 
 
-	/**
-	 */
-	protected function getAvatarPath()
-	{
-		$base = AVATAR_IMG_SITE;
-
-	}
-
-
-	/**
-	 * Get profile object for this user
-	 * set in as instance variable if not already there
-	 * for memoization
-	 *
-	 * @deprecated
-	 * @todo to remove soon, no longer user
-	 *
-	 * @return array
-	 */
-	public function getProfile()
-	{
-		if(!$this->isProfileSet()){
-			// need to return some type of default profile.....
-		}
-
-		return $this->offsetGet('profile');
-	}
-
-
-	/**
-	 * Get preferences object
-	 * for this user
-	 *
-	 * @deprecated
-	 * @todo to remove soon, no longer used
-	 *
-	 * @return array
-	 *
-	 */
-	public function getPrefs()
-	{
-		if(!$this->checkOffset('prefs')){
-			//
-		}
-
-		return $this->offsetGet('prefs');
-	}
-
 
 	/**
 	 * Returns array of this array merged with
@@ -403,8 +339,8 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 *
 	 * @return unknown_type
 	 */
-	public function getFullProfileArray()
-	{
+	public function getFullProfileArray(){
+
 		return $this->getMerged($this->getProfile());
 	}
 
@@ -419,8 +355,8 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * @return string the value of user_group_id of user which
 	 * serves as the role name in Zend_Acl
 	 */
-	public function getRoleId()
-	{
+	public function getRoleId(){
+
 		$role = $this->offsetGet('role');
 
 		return (!empty($role)) ? $role : 'guest';
@@ -431,10 +367,11 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * Get twitter user_id of user
 	 * @return int
 	 */
-	public function getTwitterUid()
-	{
+	public function getTwitterUid(){
+
 		return $this->offsetGet('twitter_uid');
 	}
+
 
 	public function getTwitterUrl(){
 		$user = $this->getTwitterUsername();
@@ -451,8 +388,8 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * that we got from Twitter for this user
 	 * @return string
 	 */
-	public function getTwitterToken()
-	{
+	public function getTwitterToken(){
+
 		return $this->offsetGet('oauth_token');
 	}
 
@@ -461,8 +398,8 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * Get oAuth sercret that we got for this user
 	 * @return string
 	 */
-	public function getTwitterSecret()
-	{
+	public function getTwitterSecret(){
+
 		return $this->offsetGet('oauth_token_secret'); //twitter_token
 	}
 
@@ -471,8 +408,8 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * (non-PHPdoc)
 	 * @see Lampcms\Interfaces.TwitterUser::getTwitterUsername()
 	 */
-	public function getTwitterUsername()
-	{
+	public function getTwitterUsername(){
+
 		return $this->offsetGet('twtr_username');
 	}
 
@@ -484,8 +421,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 *
 	 * @return object $this
 	 */
-	public function revokeOauthToken()
-	{
+	public function revokeOauthToken(){
 		d('Revoking user OauthToken');
 		$this->offsetUnset('oauth_token');
 		$this->offsetUnset('oauth_token_secret');
@@ -510,8 +446,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 *
 	 * @return object $this;
 	 */
-	public function revokeFacebookConnect()
-	{
+	public function revokeFacebookConnect(){
 		/**
 		 * Instead of offsetUnset we do
 		 * offsetSet and set to null
@@ -535,8 +470,8 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * (non-PHPdoc)
 	 * @see Lampcms\Interfaces.FacebookUser::getFacebookUid()
 	 */
-	public function getFacebookUid()
-	{
+	public function getFacebookUid(){
+
 		return (string)$this->offsetGet('fb_id');
 	}
 
@@ -563,9 +498,12 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $this->offsetGet('fb_token');
 	}
 
-
-	public function __toString()
-	{
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms.LampcmsArray::__toString()
+	 */
+	public function __toString(){
 		return 'object of type '.$this->getClass().' for userid: '.$this->getUid();
 	}
 
@@ -575,8 +513,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 *
 	 * @return object $this
 	 */
-	public function setNewUser()
-	{
+	public function setNewUser(){
 		$this->bNewUser = true;
 
 		return $this;
@@ -589,8 +526,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * @return bool true indicates that this object
 	 * represents a new user
 	 */
-	public function isNewUser()
-	{
+	public function isNewUser(){
 		return $this->bNewUser;
 	}
 

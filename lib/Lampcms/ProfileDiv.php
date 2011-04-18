@@ -71,9 +71,10 @@ class ProfileDiv extends LampcmsObject
 		$rep = $oUser->getReputation();
 
 		d('rep: '.$rep);
-
-		if($oRegistry->Viewer->getUid() === $oUser->getUid()){
-			$edit = '<div class="fl middle"><span class="icoc key">&nbsp;</span><a href="/editprofile/" class="edit middle">Edit profile</a></div>';
+		$uid = $oUser->getUid();
+		
+		if(($oRegistry->Viewer->getUid() === $uid) || $oRegistry->Viewer->isModerator()){
+			$edit = '<div class="fl middle"><span class="icoc key">&nbsp;</span><a href="/editprofile/'.$uid.'" class="edit middle">Edit profile</a></div>';
 		}
 
 		$desc = Utf8String::factory($oUser['description'], 'utf-8', true)->linkify()->valueOf();

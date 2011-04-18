@@ -74,8 +74,7 @@ class Profile extends Form
 	 */
 	protected function doValidate(){
 
-		$this->validateDob();
-
+		$this->validateDob()->validateAvatar();
 	}
 
 
@@ -83,6 +82,90 @@ class Profile extends Form
 		$dob = $this->oRegistry->Request['dob'];
 		if(!empty($dob) && !Validate::validateDob($dob)){
 			$this->setError('dob', 'Invalid format of date string OR invalid values');
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * If form hasUploads and has uploaded file 'profile_image'
+	 * then: check that if does not have 'error' code
+	 * theck that the 'size' > 0 and 'tmp_name' !== 'none' and not empty
+	 * check that size < (MAX_AVATAR_FILE_SIZE in setting)
+	 * check that if 'type' not empty and is one of allowed image formats
+	 * If any of this pre-checks fail then delete the uploaded file
+	 * and set the form error
+	 *
+	 * @return object $this
+	 */
+	protected function validateAvatar(){
+		d('cp');
+		if($this->hasUploads() && !empty($this->aUploads['profile_image'])){
+			$a = $this->aUploads['profile_image'];
+
+			if( !is_array($a) || (0 == $a['size'] && empty($a['name'])) ){
+				d('avatar was not uploaded');
+
+				return $this;
+			}
+
+			d('cp');
+
+			/**
+			 * If bad error code
+			 */
+			if(UPLOAD_ERR_OK !== $errCode = $a['error']){
+				e('Upload of avatar failed with error code '.$a['error']);
+				if(UPLOAD_ERR_FORM_SIZE === $errCode){
+					$this->setError('profile_image', 'Uploaded file exceeds maximum allowed size');
+					return $this;
+				} elseif(UPLOAD_ERR_INI_SIZE === $errCode){
+					$this->setError('profile_image', 'Uploaded file exceeds maximum upload size');
+					return $this;
+				} else {
+					$this->setError('profile_image', 'There was an error uploading the avatar file');
+					return $this;
+				}
+			} else {
+
+				$maxSize = $this->oRegistry->Ini->MAX_AVATAR_UPLOAD_SIZE;
+				d('$maxSize '.$maxSize);
+
+				/**
+				 * Check If NOT an image
+				 */
+				if(!empty($a['type'])){
+					if('image' !== substr($a['type'], 0, 5)){
+						$this->setError('profile_image', 'Uploaded file was not an image');
+						return $this;
+					}elseif('image/gif' === $a['type'] && !\function_exists('imagecreatefromgif')){
+						$this->setError('profile_image', 'Gif image format is not supported at this time. Please upload an image in JPEG format');
+						return $this;
+					} elseif('image/png' === $a['type'] && !\function_exists('imagecreatefrompng')){
+						$this->setError('profile_image', 'PNG image format is not supported at this time. Please upload an image in JPEG format');
+						return $this;
+					}
+				}
+
+
+				/**
+				 * If image too large
+				 */
+				if(!empty($a['tmp_name'])){
+					if(false === $size = @\filesize($a['tmp_name'])){
+						$this->setError('profile_image', 'There was an error uploading the avatar file');
+						return $this;
+					}
+
+					d('size: '.$size);
+
+					if(($size / $maxSize) > 1.1){
+						d('$size / $maxSize: '.$size / $maxSize);
+						$this->setError('profile_image', 'File too large. It must be under '.($maxSize/1024000).'MB');
+					}
+				}
+			}
 		}
 
 		return $this;
