@@ -108,9 +108,15 @@ class Editprofile extends WebPage
 
 		if($this->oForm->isSubmitted() && $this->oForm->validate()){
 			$this->oRegistry->Dispatcher->post($this->oForm, 'onBeforeProfileUpdate');
-			$this->saveProfile();
-			$this->oRegistry->Dispatcher->post($this->oForm, 'onProfileUpdate');
-			$this->aPageVars['body'] = \tplProfileSuccess::parse(array('Profile has been updated', $this->oUser->getProfileUrl(), 'View the new profile'), false);
+			//try{
+				$this->saveProfile();
+				$this->oRegistry->Dispatcher->post($this->oForm, 'onProfileUpdate');
+				$this->aPageVars['body'] = \tplProfileSuccess::parse(array('Profile has been updated', $this->oUser->getProfileUrl(), 'View the new profile'), false);
+			/*} catch (\Lampcms\Exception $e){
+				$this->oForm->setFormError($e->getMessage());
+				$this->setForm();
+				$this->aPageVars['body'] = $this->oForm->getForm();
+			}*/
 		} else {
 			$this->setForm();
 			$this->aPageVars['body'] = $this->oForm->getForm();
@@ -141,7 +147,7 @@ class Editprofile extends WebPage
 		} else {
 			$this->oUser = $this->oRegistry->Viewer;
 		}
-		
+
 		return $this;
 	}
 
@@ -196,8 +202,9 @@ class Editprofile extends WebPage
 	 * @return object $this
 	 */
 	protected function saveProfile(){
+
 		ProfileParser::factory($this->oRegistry)->save($this->oUser, new SubmittedProfileWWW($this->oForm));
-		
+
 		/**
 		 * Should unset 'welcome' from session
 		 * because it contains user display name in the

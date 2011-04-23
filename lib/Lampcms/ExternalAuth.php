@@ -106,13 +106,84 @@ class ExternalAuth extends LampcmsObject
 {
 
 	/**
-	 *
+	 * Constructor
 	 * @param Registry $oRegistry
 	 */
 	protected function __construct(Registry $oRegistry){
 
 		$this->oRegistry = $oRegistry;
+	}
+	
+	
+/**
+	 * Checks in username of twitter user
+	 * already exists in our regular USERS table
+	 * and if it does then prepends the @ to the username
+	 * otherwise returns twitter username
+	 *
+	 * The result is that we will use the value of
+	 * Twitter username as our username OR the @username
+	 * if username is already taken
+	 *
+	 * @todo change this to use MONGO USERS and use something like
+	 * $any
+	 *
+	 * @return string the value of username that will
+	 * be used as our own username
+	 *
+	 */
+	protected function makeUsername($displayName){
+		d('going to auto_create username based on displayName: '.$displayName);
+		
+		/**
+		 * Make 100% sure that displayName is in UTF8 encoding
+		 */
+		$displayName = Utf8String::factory($displayName)->valueOf();
+		
+		$coll = $this->oRegistry->Mongo->USERS;
+		$res = null;
 
+		$username = null;
+		$aUsernames = array(
+		preg_replace('/\s+/', '_', $displayName),
+		preg_replace('/\s+/', '', $displayName),
+		preg_replace('/\s+/', '.', $displayName),
+		preg_replace('/\s+/', '-', $displayName)
+		);
+
+		$aUsernames = \array_unique($aUsernames);
+
+		d('$aUsernames: '.print_r($aUsernames, 1));
+
+		for($i = 0; $i<count($aUsernames); $i++){
+			$name = \mb_strtolower($aUsernames[$i], 'utf-8');
+
+			$res = $coll->findOne(array('username_lc' => $name));
+			d('$res: '.$res);
+			if(empty($res)){
+				$username = $aUsernames[$i];
+				break;
+			}
+		}
+
+		/**
+		 * If still could not find username then
+		 * use brute force and try appending numbers
+		 * to username untill succeed
+		 */
+		if(null === $username){
+			$i = 1;
+			do{
+				$name = \mb_strtolower($aUsernames[0], 'utf-8').$i;
+				$res = $coll->findOne(array('username_lc' => $name));
+				if(empty($res)){
+					$username = $aUsernames[0].$i;
+				}
+				d('$res: '.$res);
+			}while(null === $username);
+		}
+
+		return $username;
 	}
 
 }

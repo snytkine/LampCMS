@@ -222,9 +222,13 @@ try{
 	define('LAMPCMS_SALT', $oINI->SALT);
 	define('COOKIE_SALT', $oINI->COOKIE_SALT);
 	define('DEFAULT_LANG', $oINI->DEFAULT_LANG);
-	define('COOKIE_DOMAIN', $oINI->COOKIE_DOMAIN);
+	define('COOKIE_DOMAIN', $oINI->COOKIE_DOMAIN );
 	define('IMAGE_SITE', $oINI->IMAGE_SITE);
-	define('GEOIP_FILE', $oINI->GEOIP_FILE);
+	$geofile = trim($oINI->GEOIP_FILE);
+	if(!empty($geofile)){
+		define('GEOIP_FILE', $geofile);
+	}
+	
 	define('AVATAR_IMG_SITE', $oINI->AVATAR_IMG_SITE);
 
 	if (!empty($dataDir)) {

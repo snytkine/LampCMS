@@ -279,7 +279,7 @@ class Captcha extends LampcmsObject
 		$aConfig = $oRegistry->Ini->getSection('CAPTCHA');
 
 		if(!empty($aConfig['disabled'])){
-			d('Captcha disabled by administrator');
+			d('Captcha disabled by administrator. Using CaptchaStub instead');
 			
 			return new CaptchaStub();
 		}
@@ -299,8 +299,7 @@ class Captcha extends LampcmsObject
 	 * Extracts the config array and generate needed params.
 	 *
 	 **/
-	public function __construct(Registry $oRegistry, array $config = array(), $secure=true, $debug=false )
-	{
+	public function __construct(Registry $oRegistry, array $config = array(), $secure=true, $debug=false ){
 
 		$this->oRegistry = $oRegistry;
 

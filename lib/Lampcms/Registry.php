@@ -80,8 +80,18 @@ class Registry implements Interfaces\LampcmsObject
 {
 	protected static $instance;
 
+	
+	/**
+	 * 
+	 * Storate array of callable methods
+	 * that know how to instantiate object
+	 * OR element could be an object
+	 * 
+	 * @var array
+	 */
 	protected $values = array();
 
+	
 	/**
 	 * Add known classes to this injector
 	 * This is important to add all classes
@@ -110,6 +120,7 @@ class Registry implements Interfaces\LampcmsObject
 		}
 	}
 
+	
 	/**
 	 *
 	 * Enter description here ...
@@ -188,6 +199,7 @@ class Registry implements Interfaces\LampcmsObject
 		return $this;
 	}
 
+	
 	public static function getInstance(){
 		if(!isset(self::$instance)){
 			self::$instance = new self();
@@ -196,6 +208,7 @@ class Registry implements Interfaces\LampcmsObject
 		return self::$instance;
 	}
 
+	
 	/**
 	 * Cannot call this from constructor
 	 * because this object instantiated before
@@ -238,9 +251,8 @@ class Registry implements Interfaces\LampcmsObject
 			return $o;
 		}
 
-		if (!isset($this->values[$id])){
-			//throw new InvalidArgumentException(sprintf('Value "%s" is not defined.', $id));
-			e(sprintf('Value "%s" is not defined.', $id));
+		if (!isset($this->values[$id])){			
+			d(sprintf('Value "%s" is not defined.', $id));
 
 			return null;
 		}
@@ -279,8 +291,7 @@ class Registry implements Interfaces\LampcmsObject
 	 * which is usually a two-letter abbreviation like 'en'
 	 *
 	 */
-	public function getCurrentLang()
-	{
+	public function getCurrentLang(){
 		/**
 		 * Use the lang from the Viewer object?
 		 * Maybe, but the problem is that in order to set
@@ -324,6 +335,7 @@ class Registry implements Interfaces\LampcmsObject
 		return $defaultLang;
 	}
 
+	
 	/**
 	 * Get unique hash code for the object
 	 * This code uniquely identifies an object,
@@ -333,26 +345,25 @@ class Registry implements Interfaces\LampcmsObject
 	 *
 	 * @return string
 	 */
-	public function hashCode()
-	{
+	public function hashCode(){
 		return spl_object_hash($this);
 	}
 
+	
 	/**
 	 * Getter of the class name
 	 * @return string the class name of this object
 	 */
-	public function getClass()
-	{
+	public function getClass(){
 		return get_class($this);
 	}
 
+	
 	/**
 	 * Outputs the name and uniqe code of this object
 	 * @return string
 	 */
-	public function __toString()
-	{
+	public function __toString(){
 		return 'object of type: '.$this->getClass().' hashCode: '.$this->hashCode();
 	}
 }

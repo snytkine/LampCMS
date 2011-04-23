@@ -94,17 +94,17 @@ class AvatarParser extends LampcmsObject
 		 * Create avatar and save it
 		 * with compression level of 80% (small compression)
 		 */
-		try{
+		//try{
 			$ImgParser = \Lampcms\Image\Editor::factory($this->oRegistry)
 			->loadImage($tempPath)
 			->makeSquare($size);
 			$savePath .= $ImgParser->getExtension();
 			$ImgParser->save($avatarDir.$savePath, null, 80);
 			d('avatar saved to '.$savePath);
-		} catch(\Lampcms\ImageException $e){
-			e('ImageException caught in: '.$e->getFile().' on line: '.$e->getLine().' error: '.$e->getMessage());
-			throw new \Lampcms\Exception('Unable to process your avatar image at this time');
-		}
+		//} catch(\Lampcms\ImageException $e){
+			//e('ImageException caught in: '.$e->getFile().' on line: '.$e->getLine().' error: '.$e->getMessage());
+			//throw new \Lampcms\Exception('Unable to process your avatar image at this time');
+		//}
 
 		/**
 		 * Now remove tempPath file

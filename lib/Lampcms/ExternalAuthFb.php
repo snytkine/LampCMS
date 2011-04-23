@@ -65,9 +65,13 @@ namespace Lampcms;
  * @todo
  * run post-registration post to wall if Admin set this in config
  *
- * @todo set the fbid as meta tag if facebook user
- * this way we will be able to know that user is facebook user
- *
+ * @todo send out registration email after createNewUser() is run
+ * send out special email that explains that user can login
+ * with Facebook button as before OR directly with
+ * new username/password
+ * For this the sendRegistrationEmail() should be in some external
+ * class that would accept email, body
+ * Probably in Mailer class as static method
  *
  *@todo this class should extend Facebook so that we
  *may reuse removeFacebookConnect()
@@ -85,11 +89,13 @@ class ExternalAuthFb extends Facebook
 	 */
 	protected $aCookieParams = array();
 
+
 	/**
 	 * Array of data returned from Facebook server
 	 * @var array
 	 */
 	protected $aFbUserData = array();
+
 
 	/**
 	 * Indicates if post announcment of new
@@ -99,24 +105,35 @@ class ExternalAuthFb extends Facebook
 	 */
 	protected $bToWall = false;
 
+
 	/**
 	 * Auto generated password for the new user
-	 * @var string
+	 *
+	 * @todo must also check that curl has support for ssl
+	 * because oAuth2 uses ssl
+	 *
+	 * @param object $oRegistry
+	 * @param array $aFacebook array from !config.ini FACEBOOK section
+	 * @param array $aCookieParams
 	 */
 	protected $tempPassword;
 
-	protected function __construct(Registry $oRegistry, array $aFacebookConf, array $aCookieParams)
-	{
+
+	protected function __construct(Registry $oRegistry, array $aFacebookConf, array $aCookieParams){
 		if(!extension_loaded('curl')){
 			throw new \Lampcms\Exception('Cannot use this class because php extension "curl" is not loaded');
 		}
+
 		parent::__construct($oRegistry);
+		$oRegistry->Mongo->USERS->ensureIndex(array('fb_id' => 1));
+
 		d('$this->oUser: '.get_class($this->oUser).' '.print_r($this->oUser->getArrayCopy(), 1));
 		$this->sAccessToken = $aCookieParams['access_token'];
 		$this->sAppId = $aFacebookConf['APP_ID'];
 		$this->bToWall = (!empty($aFacebookConf['POST_TO_WALL'])) ? true : false;
 		$this->aCookieParams = $aCookieParams;
 	}
+
 
 	/**
 	 * Get user data from Facebook, do whatever is necessary
@@ -125,6 +142,11 @@ class ExternalAuthFb extends Facebook
 	 *
 	 * @param Registry $oRegistry
 	 *
+	 * @param bool $bIsConnect if set to true then this method
+	 * is called for the purpose of "Connecting" existing user to
+	 * the Facebook Account. This this case we check that Facebook
+	 * user with the same Facebook account does not already exist
+	 *
 	 * @return mixed null of failure or object UserFacebook
 	 *
 	 * @throws FacebookAuthException in case user does not have
@@ -132,46 +154,10 @@ class ExternalAuthFb extends Facebook
 	 * necessary settings in [FACEBOOK] section
 	 * or in case something else goes wrong
 	 */
-	public static function getUserObject(Registry $oRegistry)
-	{
+	public static function getUserObject(Registry $oRegistry){
 
-		$oIni = $oRegistry->Ini;
-		$aFacebookConf = $oIni->getSection('FACEBOOK');
-
-		if(empty($aFacebookConf) ||
-		(is_array($aFacebookConf) && (empty($aFacebookConf['APP_ID']) || empty($aFacebookConf['APP_SECRET']) ) )){
-			throw new FacebookAuthException('No values in !config.inc for FACEBOOK');
-		}
-
-		$sAppId = $aFacebookConf['APP_ID'];
-		$sSecret = $aFacebookConf['APP_SECRET'];
-
-		$cookieName = 'fbs_'.$sAppId;
-		if(!isset($_COOKIE) || empty($_COOKIE[$cookieName])){
-			throw new FacebookAuthException('No fbs_ cookie present');
-		}
-
-		$cookie = $_COOKIE[$cookieName];
-
-		$aCookieParams = array();
-		parse_str(trim($cookie, '\\"'), $aCookieParams);
-
-		d('$aCookieParams: '.print_r($aCookieParams, 1));
-
-
-		if(empty($aCookieParams)
-		|| empty($aCookieParams['sig']) || empty($aCookieParams['access_token'])){
-
-			throw new FacebookAuthException('Unable to parse fbs_ cookie: '.$cookie);
-		}
-
-		/**
-		 * Security check of fbs cookie
-		 */
-		if($aCookieParams['sig'] !== self::generateSignature($aCookieParams, $sSecret)){
-
-			throw new FacebookAuthException('Facebook signature violation. Potential security threat! '.print_r($aCookieParams, 1));
-		}
+		$aFacebookConf = $oRegistry->Ini->getSection('FACEBOOK');
+		$aCookieParams = self::prepareFBCookies($aFacebookConf);
 
 		/**
 		 * At this point we can try to get user
@@ -182,24 +168,22 @@ class ExternalAuthFb extends Facebook
 		 * because it would send out something to the browser now
 		 * and we still at early stage of page generation.
 		 *
-		 * We can try to pass anonymous function back to
-		 * oGlobal->setPostProcess(function(){
-		 * // do some type of fb update but pass
-		 * // a CookieParams now
-		 * })
 		 */
-		if(!empty($aCookieParams['uid']) && function_exists('fastcgi_finish_request')){
-			d('going to try to get user object by fbu uid cookie');
-
-			$aU = $oRegistry->Mongo->getCollection('USERS_FACEBOOK')->findOne(array('_id' => (string)$aCookieParams['uid']));
-			if(!empty($aU) && !empty($aU['i_uid'])){
-				d('$aU[i_uid]: '.$aU['i_uid']);
-				$uid = (int)$aU['i_uid'];
-				$aUser = $oRegistry->Mongo->getCollection('USERS')->findOne(array('_id' => $uid));
-				if(!empty($aUser)){
-					$oUser = UserFacebook::factory($oRegistry, $aUser);
-				}
+		if(!empty($aCookieParams['uid'])){
+			d('going to try to get user object by fbu uid cookie: '.$aCookieParams['uid']);
+			$oRegistry->Mongo->USERS->ensureIndex(array('fb_id' => 1));
+			$aUser = $oRegistry->Mongo->USERS->findOne(array('fb_id' => (string)$aCookieParams['uid']));
+			if(!empty($aUser)){
+				/**
+				 * Should check if user still has FB fb_token?
+				 * If FB access was revoked why should be still
+				 * return this user object? It's OK, its still our valid
+				 * user
+				 */
+				d('Found user by fb cookie in USERS');
+				$oUser = UserFacebook::factory($oRegistry, $aUser);
 			}
+
 
 			/**
 			 * If we able to find our user by facebook user id
@@ -227,7 +211,9 @@ class ExternalAuthFb extends Facebook
 					}
 				};
 
+				d('cp before runLater');
 				runLater($callable);
+				d('after runLater');
 
 				return $oUser;
 			}
@@ -236,6 +222,77 @@ class ExternalAuthFb extends Facebook
 		$oAuthFB = new self($oRegistry, $aFacebookConf, $aCookieParams);
 
 		return $oAuthFB->getFbData()->getFacebookUserObject();
+	}
+
+
+	/**
+	 * Factory method
+	 *
+	 * @param Registry $oRegistry
+	 * @return object of this class
+	 * @throws FacebookAuthException in case Cookie that is supposed
+	 * to be set by Facebook JS was not or is not valid
+	 */
+	public static function factory(Registry $oRegistry){
+
+		$aFacebookConf = $oRegistry->Ini->getSection('FACEBOOK');
+		$aCookieParams = self::prepareFBCookies($aFacebookConf);
+
+		return new self($oRegistry, $aFacebookConf, $aCookieParams);
+	}
+
+
+	/**
+	 * Parse array $aFacebookConf
+	 * then get, parse and validate cookie set by Facebook JS API
+	 * If everhing looks good return array parsed cookie
+	 *
+	 * @param array $aFacebookConf
+	 * @throws FacebookAuthException if the required params
+	 * in !config.ini in 'FACEBOOK' section is not set
+	 * OR if Facebook cookie does not look valid
+	 *
+	 * @return array of parsed cookie
+	 */
+	public static function prepareFBCookies(array $aFacebookConf){
+
+		if(empty($aFacebookConf) || (is_array($aFacebookConf)
+		&& (empty($aFacebookConf['APP_ID']) || empty($aFacebookConf['APP_SECRET']) ) )){
+			throw new FacebookAuthUserException('Administrator of this site has not enabled Facebook connect feature');
+		}
+
+		$sAppId = $aFacebookConf['APP_ID'];
+		$sSecret = $aFacebookConf['APP_SECRET'];
+
+		$cookieName = 'fbs_'.$sAppId;
+		if(!isset($_COOKIE) || empty($_COOKIE[$cookieName])){
+			throw new FacebookAuthException('No fbs_ cookie present');
+		}
+
+		$cookie = $_COOKIE[$cookieName];
+
+		$aCookieParams = array();
+		parse_str(trim($cookie, '\\"'), $aCookieParams);
+
+		d('$aCookieParams: '.print_r($aCookieParams, 1));
+
+		if(empty($aCookieParams)
+		|| empty($aCookieParams['sig'])
+		|| empty($aCookieParams['access_token'])
+		){
+
+			throw new FacebookAuthException('Unable to parse fbs_ cookie: '.$cookie);
+		}
+
+		/**
+		 * Security check of fbs cookie
+		 */
+		if($aCookieParams['sig'] !== self::generateSignature($aCookieParams, $sSecret)){
+
+			throw new FacebookAuthException('Facebook signature violation. Potential security threat! '.print_r($aCookieParams, 1));
+		}
+
+		return $aCookieParams;
 	}
 
 
@@ -262,6 +319,7 @@ class ExternalAuthFb extends Facebook
 		return hash('md5', $s);
 	}
 
+
 	/**
 	 * Return object of type FacebookUser
 	 * this is either the existing user or newly created
@@ -271,8 +329,7 @@ class ExternalAuthFb extends Facebook
 	 *
 	 * @throws FacebookAuthException in case something goes wrong
 	 */
-	public function getFacebookUserObject()
-	{
+	public function getFacebookUserObject(){
 		d('cp');
 
 		/**
@@ -281,17 +338,13 @@ class ExternalAuthFb extends Facebook
 		 * still avoiding mysql call is good.
 		 *
 		 */
-		$fbid = (string)$this->aFbUserData['id'];
-		d('$fbid: '.$fbid);
-
-		$aU = $this->oRegistry->Mongo->getCollection('USERS_FACEBOOK')->findOne(array('_id' => $fbid));
-		$uid = (!empty($aU) && !empty($aU['i_uid'])) ? (int)$aU['i_uid'] : null;
-		d('uid: '.$uid);
-
-		$uidByEmail = null;
-
-		$bFacebookId = (!empty($uid)) ? true : false;
-		d('$bFacebookId: '.$bFacebookId);
+		$aUser = $this->getUserArray($this->aFbUserData['id']);
+		if(!empty($aUser)){
+			$this->oUser = UserFacebook::factory($this->oRegistry, $aUser);
+			d('existing user $this->oUser: '.print_r($this->oUser->getArrayCopy(), 1));
+			$this->updateUser()->updateFbUserRecord($bFacebookId);
+			return $this->oUser;
+		}
 
 
 		/**
@@ -314,8 +367,8 @@ class ExternalAuthFb extends Facebook
 		 *
 		 *
 		 */
-		if(empty($uid) && !empty($this->aFbUserData['email'])){
-			$aByEmail = $this->oRegistry->Mongo->getCollection('EMAILS')->findOne(array('email' => strtolower($this->aFbUserData['email']) ));
+		if(!empty($this->aFbUserData['email'])){
+			$aByEmail = $this->oRegistry->Mongo->EMAILS->findOne(array('email' => strtolower($this->aFbUserData['email']) ));
 			d('$aByEmail: '.print_r($aByEmail, 1) );
 			if(!empty($aByEmail) && !empty($aByEmail['i_uid'])){
 				$uidByEmail = (int)$aByEmail['i_uid'];
@@ -323,22 +376,33 @@ class ExternalAuthFb extends Facebook
 			}
 		}
 
-		$uid = (!empty($uid)) ? $uid : $uidByEmail;
 
 		/**
 		 * This means this facebook user is not
 		 * registered on our site.
+		 * Not found either by facebook id or by
+		 * email address. We are confident that this is
+		 * NOT an existing Facebook user.
 		 */
-		if(empty($uid)){
+		if(empty($uidByEmail)){
 			d('cp empty uid');
 			$this->createNewUser();
 
 			return $this->oUser;
 		}
 
-		$aUser = $this->oRegistry->Mongo->getCollection('USERS')->findOne(array('_id' => $uid));
+		$aUser = $this->oRegistry->Mongo->USERS->findOne(array('_id' => $uidByEmail));
 		d('aUser var type: '.gettype($aUser).' ' .print_r($aUser, 1));
 
+		/**
+		 * Found existing user
+		 * If this is a Connect action then check if this is
+		 * not the same user as Viewer and throw exception
+		 * if this is the same uid as Viewer then just update
+		 * Viewer record, it's OK and actually in case Viwer had FB
+		 * access revoked before this will update their access back
+		 * to "active" FB user by adding valid FB token to User object
+		 */
 		if(!empty($aUser)){
 			$this->oUser = UserFacebook::factory($this->oRegistry, $aUser);
 			d('existing user $this->oUser: '.print_r($this->oUser->getArrayCopy(), 1));
@@ -355,6 +419,14 @@ class ExternalAuthFb extends Facebook
 			 */
 			$this->updateFbUserRecord($bFacebookId);
 		} else {
+			/**
+			 * This is the case where we found $uid either is USERS_FACEBOOK
+			 * or in EMAILS but then were unable to find
+			 * this user in USERS collection.
+			 * This is a very unlikely situation, not sure how
+			 * this could be possible....
+			 */
+			e('Very unlikely situation occured found uid: '.$uid.' but no user in USERS. ');
 			d('cp need to create new user');
 			$this->createNewUser();
 		}
@@ -371,16 +443,11 @@ class ExternalAuthFb extends Facebook
 	 *
 	 * @return object $this
 	 */
-	public function getFbData()
-	{
+	public function getFbData(){
 		d('$this->oUser: '.get_class($this->oUser).' '.print_r($this->oUser->getArrayCopy(), 1));
-
-		d('cp this is: '.gettype($this).(is_object($this)) ? get_class($this) : 'not object');
+		d('This is: '.gettype($this).(is_object($this)) ? get_class($this) : 'not object');
 		$url = $this->graphUrl.$this->sAccessToken;
 		d('url: '.$url);
-		//$oHTTP = new Http();
-		d('cp');
-		//$oHTTP->setOption('timeout', 12);
 
 		$oHTTP = new Curl();
 
@@ -389,8 +456,31 @@ class ExternalAuthFb extends Facebook
 			$this->oResponse = $oHTTP->getDocument($url);
 			$json = $this->oResponse->getResponseBody();
 
+			/**
+			 * retCode should be 200
+			 *
+			 */
 			$retCode = $oHTTP->getHttpResponseCode();
 			d('json '.$json.' http code: '.$retCode);
+
+			/**
+			 * samle json data, can be used for mock object
+			 * in testing
+			 * {
+			 "id": "100000742465943",
+			 "name": "Dmitri Snytkine",
+			 "first_name": "Dmitri",
+			 "last_name": "Snytkine",
+			 "link": "http://www.facebook.com/profile.php?id=100000742465943",
+			 "gender": "male",
+			 "email": "d.snytkine\u0040gmail.com",
+			 "timezone": -4,
+			 "locale": "en_US",
+			 "verified": true,
+			 "updated_time": "2011-03-22T18:02:41+0000"
+			 }
+			 *
+			 */
 
 			$this->aFbUserData = json_decode($json, true);
 			d('$this->aFbUserData: '.print_r($this->aFbUserData, 1));
@@ -406,55 +496,65 @@ class ExternalAuthFb extends Facebook
 		} catch (HttpTimeoutException $e ){
 			d('Request to GFC server timedout');
 
-			throw new FacebookAuthException('Request to Facebook server timed out. Please try again later');
+			throw new FacebookAuthUserException('Request to Facebook server timed out. Please try again later');
 		} catch (Http401Exception $e){
 			d('Unauthorized to get data from Facebook, most likely user unjoined the site');
 			$this->revokeFacebookConnect();
-
 			Cookie::delete('fbs_'.$this->sAppId);
 
-			throw new FacebookAuthException('Unauthorized with Facebook server');
+			throw new FacebookAuthUserException('Unauthorized with Facebook server');
 
 		} catch(HttpResponseCodeException $e){
 			e('LampcmsError Facebook response exception: '.$e->getHttpCode().' '.$e->getMessage());
 			/**
 			 * The non-200 response code means there is some kind
 			 * of error, maybe authorization failed or something like that,
-			 * or maybe Facebook Connect server was acting up,
-			 * in this case it is better to delete fcauth cookies
+			 * or maybe Facebook Connect server was acting up.
+			 * In this case it is better to delete fcauth cookies
 			 * so that we dont go through these steps again.
-			 * User will just have to re-do the login fir Facebook step
+			 * User will just have to re-do the login Facebook step
 			 */
 			Cookie::delete('fbs_'.$this->sAppId);
 			$this->revokeFacebookConnect();
-			throw new FacebookAuthException('Error during authentication with Facebook server');
+
+			throw new FacebookAuthUserException('Error during authentication with Facebook server');
 		}
 
 		return $this;
 	}
 
 
-
 	/**
-	 * Update user data but ONLY if name
-	 * or access_token value has changed
+	 * Update user data in USERS collection
+	 * by using $this->oUser object's save() method
 	 *
-	 * If update is necessary, then also
-	 * post notification onUserUpdate
+	 * @return object $this
 	 */
-	protected function updateUser($bForceUpdate = false)
-	{
+	protected function updateUser($updateAvatar = true){
+		d('cp');
+
 		$this->oUser['fb_id'] = (string)$this->aFbUserData['id'];
 		$this->oUser['fb_token'] = $this->aCookieParams['access_token'];
 		$this->oUser['fn'] = $this->aFbUserData['first_name'];
 		$this->oUser['ln'] = $this->aFbUserData['last_name'];
-		$this->oUser['avatar_external'] = 'http://graph.facebook.com/'.$this->aFbUserData['id'].'/picture';
+		$extAvatar = $this->oUser['avatar_external'];
+		
+		if($updateAvatar || empty($extAvatar)){
+			$this->oUser['avatar_external'] = 'http://graph.facebook.com/'.$this->aFbUserData['id'].'/picture';
+		}
+		
+		if(!empty($this->aFbUserData['link'])){
+			$this->oUser['fb_url'] = $this->aFbUserData['link'];
+		}
+
 		$this->oUser->save();
-			
+		d('cp');
 		$this->oRegistry->Dispatcher->post($this->oUser, 'onUserUpdate');
+		d('cp');
 
 		return $this;
 	}
+
 
 	/**
 	 * @todo
@@ -474,8 +574,10 @@ class ExternalAuthFb extends Facebook
 	 * Facebook does not really have username, so we can use fn_ln
 	 *
 	 */
-	protected function createNewUser()
-	{
+	protected function createNewUser(){
+		d('cp');
+		$this->oRegistry->Mongo->USERS->ensureIndex(array('fb_id' => 1));
+
 		/**
 		 * Time zone offset in seconds
 		 * @var int
@@ -484,9 +586,10 @@ class ExternalAuthFb extends Facebook
 
 		/**
 		 * User language
-		 * @var unknown_type
+		 * @var string
 		 */
 		$lang = (!empty($this->aFbUserData['locale'])) ? strtolower(substr($this->aFbUserData['locale'], 0, 2)) : $this->oRegistry->getCurrentLang();
+
 
 		$this->tempPassword = String::makePasswd();
 
@@ -497,6 +600,8 @@ class ExternalAuthFb extends Facebook
 		 */
 		$sid = (false === ($sid = Cookie::getSidCookie())) ? String::makeSid() : $sid;
 
+		$displayName = (!empty($this->aFbUserData['name'])) ? $this->aFbUserData['name'] : $this->aFbUserData['first_name'].' '.$this->aFbUserData['last_name'];
+		$username = $this->makeUsername($displayName);
 
 		/**
 		 * Create new record in USERS table
@@ -504,10 +609,12 @@ class ExternalAuthFb extends Facebook
 		 * newly created record
 		 */
 		$aUser = array(
+		'username' => $username,
+		'username_lc' => \mb_strtolower($username, 'utf-8'),
 		'fn' => $this->aFbUserData['first_name'],
 		'ln' => $this->aFbUserData['last_name'],
 		'rs' => $sid,
-		'email' => strtolower($this->aFbUserData['email']),
+		'email' => Utf8String::factory($this->aFbUserData['email'])->toLowerCase()->valueOf(),
 		'fb_id' => (string)$this->aFbUserData['id'], 
 		'fb_token' => $this->aCookieParams['access_token'],
 		'pwd' => String::hashPassword($this->tempPassword),
@@ -536,7 +643,7 @@ class ExternalAuthFb extends Facebook
 		$aUser = array_merge($aUser, $aProfile);
 
 		if(!empty($this->aFbUserData['locale'])){
-			$aUser['locate'] = $this->aFbUserData['locale'];
+			$aUser['locale'] = $this->aFbUserData['locale'];
 		}
 
 		if(!empty($this->aFbUserData['link'])){
@@ -549,7 +656,8 @@ class ExternalAuthFb extends Facebook
 		$this->oUser->insert();
 		//$this->oUser->setNewUser();
 
-		d('cp');
+
+		d('$this->oUser after insert: '.print_r($this->oUser->getArrayCopy(), 1));
 		$this->oRegistry->Dispatcher->post($this->oUser, 'onNewUser');
 		$this->oRegistry->Dispatcher->post($this->oUser, 'onNewFacebookUser');
 		d('cp');
@@ -576,14 +684,13 @@ class ExternalAuthFb extends Facebook
 	 *
 	 * @return object $this
 	 */
-	protected function saveEmailAddress()
-	{
+	protected function saveEmailAddress(){
 		if(!empty($this->aFbUserData['email'])){
-			$coll = $this->oRegistry->Mongo->getCollection('EMAILS');
+			$coll = $this->oRegistry->Mongo->EMAILS;
 			$coll->ensureIndex(array('email' => 1), array('unique' => true));
 
 			$a = array(
-			'email' => strtolower($this->aFbUserData['email']),
+			'email' => \mb_strtolower($this->aFbUserData['email']),
 			'i_uid' => $this->oUser->getUid(),
 			'has_gravatar' => Gravatar::factory($this->aFbUserData['email'])->hasGravatar(),
 			'ehash' => hash('md5', $this->aFbUserData['email']));
@@ -597,26 +704,17 @@ class ExternalAuthFb extends Facebook
 		return $this;
 	}
 
+
 	/**
 	 * Create a new record in USERS_FACEBOOK table
 	 * or update an existing record
 	 *
 	 * @param bool $isUpdate
+	 *
+	 * @return object $this
 	 */
-	protected function updateFbUserRecord($isUpdate = false)
-	{
+	protected function updateFbUserRecord($isUpdate = false){
 
-		/**
-		 * In case of update, update only if fcauth value changed
-		 * Also if fcauth changed, need to update (delete)
-		 * user objects from cache
-		 * But what about the cache object for non-gfc user?
-		 * Can user login by id?
-		 *
-		 */
-		/**
-		 * Create new record in USERS_GFC table
-		 */
 		$uid = $this->oUser->getUid();
 		d('uid '.$uid);
 
@@ -629,7 +727,8 @@ class ExternalAuthFb extends Facebook
 
 		d('aFb: '.print_r($aFb, 1));
 
-		$this->oRegistry->Mongo->getCollection('USERS_FACEBOOK')->save($aFb, array('fsync' => true));
+		$this->oRegistry->Mongo->USERS_FACEBOOK->save($aFb, array('fsync' => true));
+		d('cp');
 
 		return $this;
 	}
@@ -643,8 +742,7 @@ class ExternalAuthFb extends Facebook
 	 * Post to user wall
 	 *
 	 */
-	protected function postRegistrationToWall()
-	{
+	protected function postRegistrationToWall(){
 		d('bToWall: '.$this->bToWall);
 		if($this->bToWall){
 			$aData = array(
@@ -663,6 +761,103 @@ class ExternalAuthFb extends Facebook
 
 
 	/**
+	 * Add Facebook token and stuff to existing user
+	 *
+	 * Logic:
+	 * 1) If there is already another user with same
+	 * Facebook account - throw exception - must be unique
+	 *
+	 * 2) If this user is already connected to this same FB account -
+	 * this is OK, just update FB and User records
+	 *
+	 * 3) If Facebook's email address belongs to another user -?
+	 * It should not really be a problem in this case. This means
+	 * that someone (probably this same user) already has an account
+	 * on this site but it's a different account. So NOW this user is
+	 * connecting his second account to Facebook. This should not
+	 * cause any problems in the future.
+	 *
+	 *
+	 * @param User $oUser
+	 * @return object $this
+	 */
+	public function connect(User $oUser){
+		d('cp');
+		$this->oUser = $oUser;
+		if(!empty($this->aCookieParams['uid'])){
+			d('cp');
+			$this->checkUniqueAccount($this->getUserArray($this->aCookieParams['uid']));
+		}
+
+		$this->getFbData();
+		d('cp');
+
+		$this->checkUniqueAccount($this->getUserArray($this->aFbUserData['id']));
+		d('cp');
+		/**
+		 * Now we need to check again if
+		 * another user already uses this Facebook account
+		 *
+		 * If NOT then create new Facebook record
+		 * and add Facebook credentials to existing user
+		 * NOT going to create new user!
+		 */
+		$this->updateUser(false)->updateFbUserRecord();
+		d('cp');
+
+		return $this;
+	}
+
+
+	/**
+	 *
+	 * Get array of data for user by the value
+	 * of fb_id in USERS collection
+	 *
+	 * @param mixed $fb_id
+	 * @return mixed null|array
+	 *
+	 */
+	protected function getUserArray($fb_id){
+		$fb_id = (string)$fb_id;
+
+		return  $this->oRegistry->Mongo->USERS->findOne(array('fb_id' => $fb_id));
+	}
+
+
+	/**
+	 *
+	 * Validation to check that user represented by
+	 * $aUser array is the same account as $this->oUser
+	 *
+	 * @param array $aUser
+	 * @throws \Lampcms\Exception is user from input array
+	 * is different from $this->oUser.
+	 *
+	 * @return object $this
+	 *
+	 */
+	protected function checkUniqueAccount(array $aUser = null){
+		if(!is_object($this->oUser) || (!$this->oUser instanceof \Lampcms\User)){
+			d('$this->oUser now set yet');
+
+			throw new DevException('$this->oUser now set yet');
+		}
+
+		if(!empty($aUser) && ((int)$aUser['_id'] !== $this->oUser->getUid())){
+			d('Different user already exists');
+
+			throw new Exception('This Facebook account is already connected to another user <strong>'.$aUser['fn']. ' '.$aUser['ln'].'</strong><br>
+				<br>A Facebook account cannot be associated with more than one account on this site<br>');
+		}
+
+		d('cp');
+
+		return $this;
+	}
+
+
+	/**
 	 * @todo sent a welcome email,
 	 * include temp password and explain to user
 	 * that user can keep logging in with facebook connect
@@ -670,8 +865,7 @@ class ExternalAuthFb extends Facebook
 	 *
 	 * Enter description here ...
 	 */
-	protected function sendWelcomeEmail()
-	{
+	protected function sendWelcomeEmail(){
 
 	}
 

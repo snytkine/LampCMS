@@ -130,7 +130,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 */
 	public function get($name, $type = 's', $default = null){
 
-		$val = (!$this->offsetExists($name)) ? $default : $this->getFiltered($name);
+		$val = (!$this->offsetExists($name)) ? $default : $this->offsetGet($name);
 
 		switch(true){
 
@@ -209,12 +209,13 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 *
 	 * @return array $this->aFiltered
 	 */
-	public function getArray(){
+	public function getArray($resetFiltered = true){
 
-		if(empty($this->aFiltered)){
-			$a = $this->getArrayCopy();
-			foreach($a as $key => $val) {
-				$this->aFiltered[$key] = $this->getFiltered($key);
+		$a = $this->getArrayCopy();
+		d('raw request array: '.print_r($a, 1));
+		foreach($a as $key => $val) {
+			if(!array_key_exists($key, $this->aFiltered)){
+				$this->aFiltered[$key] = $this->offsetGet($key);
 			}
 		}
 
@@ -250,6 +251,13 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 * @param string $offset
 	 */
 	public function offsetGet($offset){
+
+		/**
+		 * Offset (param in url or in post)
+		 * can only be ASCII char
+		 */
+		$offset = \filter_var($offset, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
+
 		/**
 		 * For 'a' and 'pageID' return
 		 * default values and don't go through
@@ -289,43 +297,6 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 
 	/**
-	 * Get value of query string param
-	 * if it exists or return $default
-	 * if it does not exist
-	 *
-	 * @param string $var name of query string
-	 * param
-	 *
-	 * @todo remove this and use get() or normal offsetGet() instead!
-	 *
-	 * @return mixed string|bool|int filtered value of param
-	 * or value of supplied $default
-	 *
-	 *
-	 */
-	/*public function getParam($var, $default = 1){
-
-	if(!$this->offsetExists($var)){
-	$this->offsetSet($var, $default);
-
-	return $default;
-	}
-
-	return $this->getFiltered($var);
-	}*/
-
-
-	/**
-	 * @todo remove this soon
-	 *
-	 */
-	/*public function __get($param){
-		e('trying to get '.$param.' via __get');
-
-		return $this->offsetGet($param);
-		}*/
-
-	/**
 	 * Get filtered value of query string
 	 * param. Use $this->aFiltered as storage
 	 * for cached resolved values. This way multiple
@@ -340,14 +311,17 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 */
 	protected function getFiltered($name){
 
+		d('getting filtered for '.$name);
+
 		if(!array_key_exists($name, $this->aFiltered)){
+			d('cp not yet in $this->aFiltered');
 
 			$val = parent::offsetGet($name);
 
 			if('a' === $name && !empty($val)){
 				$expression = '/^[[:alpha:]\-]{1,20}$/';
 				if(!filter_var($val, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $expression)))){
-					throw new \InvalidArgumentException('Invalid value of "a" it can only contain letters and a hyphen and be limited to 20 characters in total was: '.$val);
+					throw new \InvalidArgumentException('Invalid value of "a" it can only contain letters and a hyphen and be limited to 20 characters in total was: '.\htmlentities($val));
 				}
 
 				$ret = $val;
@@ -362,7 +336,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 				 * this sucks, so instead going to use is_numeric
 				 */
 				if(!is_numeric($val) || ($val < 0) || ($val > 99999999999)){
-					throw new \InvalidArgumentException('Invalid value of "'.$name.'". It can only be a number between 0 and 99999999999 was: '.$val);
+					throw new \InvalidArgumentException('Invalid value of "'.$name.'". It can only be a number between 0 and 99999999999 was: '.\htmlentities($val));
 				}
 
 				$ret = (int)$val;
@@ -370,7 +344,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 			} elseif('_hex' === substr(strtolower($name), -4, 4)){
 				$expression = '/^[0-9A-F]{6}$/';
 				if(!filter_var($val, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $expression)))){
-					throw new \InvalidArgumentException('Invalid value of '.$name.' it can only be a hex number. Was: '.$val);
+					throw new \InvalidArgumentException('Invalid value of '.$name.' it can only be a hex number. Was: '.\htmlentities($val));
 				}
 
 				$ret = $val;
@@ -384,7 +358,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 				 * it just does not accept any values for 'false'
 				 */
 				if($val != 1){
-					throw new \InvalidArgumentException('Invalid value of '.$name.' It can only be an integer and not greater than 1, it was: '.gettype($val).' val: '.$val);
+					throw new \InvalidArgumentException('Invalid value of '.$name.' It can only be an integer and not greater than 1, it was: '.gettype($val).' val: '.\htmlentities($val));
 				}
 
 				$ret = (bool)$val;
@@ -468,20 +442,20 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 * @return mixed string value of header or false
 	 * if header not found
 	 */
-	public final static function getHttpHeader($strHeader)
-	{
+	public final static function getHttpHeader($strHeader){
+		
 		$strKey = 'HTTP_'.strtoupper(str_replace('-', '_', $strHeader));
 		if (!empty($_SERVER[$strKey])) {
 
 			return $_SERVER[$strKey];
 		}
+		
 		/**
 		 * Fix case of request header, this way the
 		 * param $strHeader is NOT case sensitive
 		 *
 		 */
-
-		if (function_exists('apache_request_headers')) {
+		if (\function_exists('apache_request_headers')) {
 			$strHeader = (str_replace(" ", "-", (ucwords(str_replace("-", " ", strtolower($strHeader))))));
 			$arrHeaders = apache_request_headers();
 			if (!empty($arrHeaders[$strHeader])) {
@@ -499,8 +473,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 * @return bool true if request is via Ajax, false otherwise
 	 *
 	 */
-	public static final function isAjax()
-	{
+	public static final function isAjax(){
 		if(null !== self::$ajax){
 
 			return self::$ajax;
@@ -538,8 +511,8 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 *
 	 * @return string ip address
 	 */
-	public static function getIP()
-	{
+	public static function getIP(){
+		
 		return (isset($_SERVER) && !empty($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.2';
 	}
 
@@ -550,8 +523,8 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 * @return mixed string useragent | null if user agent not present
 	 *
 	 */
-	public static function getUserAgent()
-	{
+	public static function getUserAgent(){
+		
 		$sUserAgent = (isset($_SERVER) && isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : null;
 
 		return $sUserAgent;

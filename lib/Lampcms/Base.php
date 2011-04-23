@@ -82,10 +82,10 @@ class Base extends LampcmsObject
 	 */
 	protected $bLoggedIn;
 
+	
 	/**
 	 * Updates the value of last_login in LOGIN_LOG table
 	 * along with Geo data and useragent
-	 *
 	 *
 	 * @param integer $intUserId user id
 	 *
@@ -98,8 +98,7 @@ class Base extends LampcmsObject
 	 *
 	 * @return object $this
 	 */
-	protected function updateLastLogin($intUserId = null, $username_date = '', $login_type = 'www')
-	{
+	protected function updateLastLogin($intUserId = null, $username_date = '', $login_type = 'www'){
 		$userId = (null !== $intUserId) ? (int)$intUserId : $this->oRegistry->Viewer->getUid();
 		$i_ts = ( empty($username_date)) ? time() : (int)$username_date;
 		$strIp = Request::getIP();

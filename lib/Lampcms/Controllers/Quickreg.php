@@ -89,8 +89,7 @@ class Quickreg extends Join
 	 */
 	protected $permission = 'register';
 
-	public function main()
-	{
+	public function main(){
 		/**
 		 * $this->username and $this->pwd
 		 * are used in createNewUser() in Register
@@ -111,13 +110,12 @@ class Quickreg extends Join
 	/**
 	 *
 	 */
-	protected function validateCaptcha()
-	{
+	protected function validateCaptcha(){
 		if(!empty($_SESSION['reg_captcha'])){
 			return $this;
 		}
 
-		$oCaptcha = new Captcha($this->oRegistry);
+		$oCaptcha = Captcha::factory($this->oRegistry);
 		$res = $oCaptcha->validate_submit();
 		/**
 		 * If validation good then
@@ -146,4 +144,3 @@ class Quickreg extends Join
 	}
 
 }
-

@@ -49,7 +49,7 @@
  *
  */
 
- 
+
 namespace Lampcms;
 
 /**
@@ -60,8 +60,6 @@ namespace Lampcms;
  */
 class Cookie
 {
-
-
 	/**
 	 * Function for setting or deleting login cookie
 	 * the value of the s cookie is an md5 hash of user password
@@ -100,20 +98,15 @@ class Cookie
 	/**
 	 * Sends cookie
 	 *
-	 * @return
 	 * @param string $name name of cookie
+	 *
 	 * @param string $val value of cookie
+	 *
 	 * @param string $ttl expiration time in seconds
 	 * default is 63072000 means 2 years
-	 * @param bool $bOurDomain default is true
-	 * means that cookie is for a sub-domain
-	 * of our main domain
 	 *
-	 * @todo figure out how to set domain part
-	 * of cookie, how to pass custom domain
-	 * in case user is on his own domain.
-	 * This can be done with using the env
-	 * or with passing data to this method
+	 * @param string $sDomain optional if set the setcookie will use
+	 * this value instead of COOKIE_DOMAIN constant
 	 *
 	 * @throws LampcmsDevException in case cookie
 	 * was not send to browser. Usually this happends when
@@ -121,24 +114,29 @@ class Cookie
 	 * of this is when the script has an echo() or print_r()
 	 * somewhere for debugging purposes.
 	 */
-	public static function set($name, $val, $ttl = 63072000){
+	public static function set($name, $val, $ttl = 63072000, $sDomain = null){
 
 		if(headers_sent($filename, $linenum)){
 			e('Cannot set cookie: '.$name.' '.$val.' because headers have already been sent in '.$filename.' on line '. $linenum);
 			return;
 		}
 
-		$strDomain = COOKIE_DOMAIN; 
+		$sDomain = (!empty($sDomain)) ? $sDomain : \trim(constant('COOKIE_DOMAIN'));
+		$sDomain= (empty($sDomain) || 'null' === $sDomain) ? null : $sDomain;
 
 		$t = time() + $ttl;
-		d('Setting cookie '.$name.' val '.$val.' ttl: '.$ttl. ' time: '.$t.' domain: '.$strDomain);
-		if (false === setcookie($name, $val, $t, '/', $strDomain, false, true)) {
-			
-			throw new DevException('Unable to send cookie');
+
+		if (false === $sent = \setcookie($name, $val, $t, '/', $sDomain, false, false)) {
+
+			$err = 'Unable to send cookie: '.$name.' val '.$val.' ttl: '.$ttl. ' time: '.$t.' domain: '.$sDomain;
+			e($err);
+			throw new DevException($err);
 		}
+
+		return true;
 	}
 
-	
+
 	/**
 	 * Sends cookie with expiration
 	 * in the past, which will delete the cookie
@@ -155,11 +153,11 @@ class Cookie
 			throw new DevException('wrong type of $name param: '.gettype($name));
 		}
 
-		$name = (is_string($name)) ? array($name) : $name;
+		$name = (is_string($name)) ? (array)$name : $name;
 
+		
 		foreach ($name as $val) {
-			d('deleting cookie: '.$val);
-			self::set($val, '', -63072000);
+			self::set($val, false, -3600000);
 		}
 
 		return true;
@@ -192,7 +190,7 @@ class Cookie
 		}
 	}
 
-	
+
 	/**
 	 * Sets the cookie 'sid' (first visit)
 	 * for about 6 years.
@@ -207,7 +205,7 @@ class Cookie
 		}
 	}
 
-	
+
 	/**
 	 * Returnes value of specific cookie name
 	 *
@@ -220,17 +218,17 @@ class Cookie
 	 * if cookie not found
 	 */
 	public static function get($cookieName, $fallbackVal = false){
-		if(!isset($_COOKIE) && empty($_COOKIE)){
+		if(!isset($_COOKIE) || empty($_COOKIE)){
 
 			return $fallbackVal;
 		}
 
-		$val = filter_input(INPUT_COOKIE, $cookieName, FILTER_SANITIZE_STRING);
+		$val = \filter_input(INPUT_COOKIE, $cookieName, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
 
 		return (empty($val)) ? $fallbackVal : $val;
 	}
 
-	
+
 	/**
 	 * Returns value of first visit extracted
 	 * from sid cookie or false if sid cookie not present

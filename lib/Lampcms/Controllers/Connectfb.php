@@ -49,65 +49,76 @@
  *
  */
 
+
+namespace Lampcms\Controllers;
+
+use Lampcms\WebPage;
+use \Lampcms\Request;
+use \Lampcms\Responder;
+use \Lampcms\ExternalAuthFb;
+
 /**
- * Template for ONE User in "Members" page
+ *
+ * Controller processes Ajax request to
+ * connect Facebook account (to existing Viewer account)
+ * 
+ * This Controller is called ONLY via Ajax!
+ * 
+ * @author Dmitri Snytkine
+ *
  */
-class tplU3 extends Lampcms\Template\Template
+class Connectfb extends WebPage
 {
+	/**
+	 *
+	 * Only logged in user can use this controller
+	 *
+	 * @var bool
+	 */
+	protected $membersOnly = true;
 
-	protected static function func(&$a){
-		if(!empty($a['avatar'])){
-			$a['avatar'] = AVATAR_IMG_SITE.'/w/img/avatar/sqr/'.$a['avatar'];
-		} elseif (!empty($a['avatar_external'])){
-			$a['avatar'] = $a['avatar_external'];
-		} elseif (!empty($a['gravatar']) && !empty($a['email'])){
-			$a['avatar'] = $a['gravatar']['url'].hash('md5', $a['email']).'?s=36'.'&d='.$a['gravatar']['fallback'].'&r='.$a['gravatar']['rating'];
-		} else {
-			$a['avatar'] = IMAGE_SITE.'/images/avatar.png';
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms.WebPage::main()
+	 */
+	protected function main(){
+		try{
+			d('cp');
+			ExternalAuthFb::factory($this->oRegistry)->connect($this->oRegistry->Viewer);
+			d('cp');
+		} catch (\Lampcms\FacebookAuthException $e ){
+			d('Caught FacebookAuthException');
+			/**
+			 * Something went wrong with cookie validation
+			 * or there was no facebook auth cookie
+			 */
+			if($e instanceof \Lampcms\FacebookAuthUserException){
+				d('caught FacebookAuthUserException');
+
+				throw $e;
+			}
+			
+			e('Unable to connect Facebook account. '.$e->getMessage.' in file '.$e->getFile().' on line '.$e->getLine());
+			throw new \Lampcms\Exception('Unable to connect Facebook account at this time');
 		}
 
-		$fn = (!empty($a['fn'])) ? $a['fn'] : '';
-		$ln = (!empty($a['ln'])) ? $a['ln'] : '';
-		$mn = (!empty($a['mn'])) ? $a['mn'] : '';
-
-		$displayName = $fn.' '.$mn. ' '.$ln;
-		$a['displayName'] = (strlen($displayName) > 2) ? $displayName : $a['username'];
-
-		$lastActive = (!empty( $a['i_lm_ts'])) ?  $a['i_lm_ts'] : $a['i_reg_ts'];
-		$registered = $a['i_reg_ts'];
-		$a['since'] = \Lampcms\TimeAgo::format(new \DateTime(date('r', $registered)));
-		$a['last_seen'] = \Lampcms\TimeAgo::format(new \DateTime(date('r', $lastActive)));
-
-		if('deleted' == $a['role']){
-			$a['deleted'] = 'deleted';
-		}
+		d('cp');
+		
+		$this->respond();
 	}
 
 
-	protected static $vars = array(
-	'_id' => '', //1
-	'displayName' => '', //2
-	'i_rep' => '',  //3
-	'avatar' => '', //4
-	'username' => '', //5
-	'since' => '', //6
-	'registered_l' => 'Registered', //7
-	'last_seen_l' => 'Last seen', //8
-	'last_seen' => '', //9
-	'reputation_l' => 'Current User Reputation score', //10
-	'deleted' => '' //11
-	);
+	/**
+	 * Send Ajax based reponse
+	 * 
+	 */
+	protected function respond(){
 
+		$aRet = array('setmeta' => array('key' => 'fb', 'val' => '1'),
+		'replace' => array('target' => 'my_fb', 'content' => $this->oRegistry->Viewer->getFacebookUrl()));
+		d('sending out JSON: '.print_r($aRet, 1));
 
-	protected static $tpl = '
-	<div class="u3 %11$s" id="uid-%1$s">
-		<div title="%10$s %3$s" class="fl cb rounded3 i_rep ttt">%3$s</div>
-		<div class="avtr_bg fl mt-12 cb imgloader" style=\'background-image:url("%4$s");\'>&nbsp;</div>
-		<div class="u4 mt-12">
-			<a href="/users/%1$s/%5$s">%2$s</a><br>		    
-		    <span class="reg_time">%7$s<br>%6$s</span><br>
-		    <span class="seen">%8$s<br>%9$s</span>
-		</div>
-	</div>';
-
+		Responder::sendJSON($aRet);
+	}
 }

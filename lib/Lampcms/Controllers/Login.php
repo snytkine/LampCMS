@@ -75,7 +75,7 @@ class Login extends WebPage
 	 *
 	 * @var bool
 	 */
-	protected $bGuestsOnly = true;
+	protected $guestsOnly = true;
 
 	/**
 	 * REQUEST_METHOD
@@ -88,8 +88,8 @@ class Login extends WebPage
 	protected $permission = 'login';
 
 
-	public function main()
-	{
+	public function main(){
+		
 		/**
 		 * Will not check for the valid 'form token'
 		 * in this form because potential
@@ -113,6 +113,7 @@ class Login extends WebPage
 			 */
 			$oUser->activate();
 		} catch(\Lampcms\LoginException $e) {
+			e('Login error: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
 			if (Request::isAjax()) {
 				Responder::sendJSON(array('error' => $e->getMessage()));
 			}
@@ -121,7 +122,6 @@ class Login extends WebPage
 			d('$_SESSION[login_error] '.$_SESSION['login_error']);
 			
 			Responder::redirectToPage();
-
 		}
 
 		d('oUser: '.gettype($oUser));
@@ -131,23 +131,6 @@ class Login extends WebPage
 		if($bRemember){
 			\Lampcms\Cookie::sendLoginCookie($oUser->getUid(), $oUser['rs']);
 		}
-		
-		/**
-		 * Making login form/Welcome form
-		 * sent via Ajax was not a good idea after all
-		 * It works but other parts of the page are not updated like
-		 * the "Login to comment" in the Answer form
-		 * does not change... So it is much easier to just
-		 * reload the page after the login
-		 */
-
-/*		if (Request::isAjax()) {
-
-			$a = array('message'=> \Lampcms\LoginForm::makeWelcomeMenu($this->oRegistry));
-
-			d('login via ajax '.print_r($a, 1));
-			Responder::sendJSON($a);
-		}*/
 
 		Responder::redirectToPage();
 	}

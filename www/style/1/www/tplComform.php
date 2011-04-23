@@ -87,6 +87,6 @@ class tplComform extends Lampcms\Template\Template
 </tr> 
 </table> 
 </form></div>';
+	
 }
 
-?>

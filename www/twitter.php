@@ -50,6 +50,7 @@
  */
 
 
+define('INIT_TIMESTAMP', microtime());
 
 /**
  * This file just generates the oAuth token and then

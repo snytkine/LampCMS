@@ -115,23 +115,22 @@ class Facebook extends ExternalAuth
 	 */
 	protected $aFbUserData = array();
 
-	protected function __construct(Registry $oRegistry, FacebookUser $oUser = null)
-	{
+	
+	protected function __construct(Registry $oRegistry, FacebookUser $oUser = null){
 		parent::__construct($oRegistry);
 		$this->oUser = (null !== $oUser) ? $oUser : $oRegistry->Viewer;
 		$this->initHttpObject();
 	}
 
-	protected function initHttpObject()
-	{
-		//$this->oHTTP = new Http();
-		//$this->oHTTP->setOption('timeout', 12);
+	
+	protected function initHttpObject(){
 		
 		$this->oHTTP = new Curl();
 
 		return $this;
 	}
 
+	
 	/**
 	 * Post message to the wall of user
 	 *
@@ -143,21 +142,20 @@ class Facebook extends ExternalAuth
 	 * @param object $oUser user object or null
 	 * in case of null the currently logged in user is used
 	 */
-	public static function postToWall(Registry $oRegistry, $aData, FacebookUser $oUser = null)
-	{
+	public static function postToWall(Registry $oRegistry, $aData, FacebookUser $oUser = null){
 		$o = new self($oRegistry, $oUser);
 		$o->postUpdate($aData);
 
 	}
 
+	
 	/**
 	 * Post update to user Wall
 	 *
 	 *
 	 * @param array $sMessage
 	 */
-	protected function postUpdate($aData)
-	{
+	protected function postUpdate($aData){
 		if(is_string($aData)){
 			$aData = array('message' => $aData);
 		}
@@ -179,11 +177,6 @@ class Facebook extends ExternalAuth
 		$url = 'https://graph.facebook.com/me/feed';
 		d('cp url: '.$url);;
 		try{
-			//$this->oHTTP->setMethod(HTTP_METH_POST);
-			//$this->oHTTP->setUrl($url);
-			//$this->oHTTP->setPostFields($aData);
-			//$postFields = $this->oHTTP->getPostFields();
-			//$this->oHTTP->send();
 			
 			$this->oHTTP->getDocument($urlnull, null, array('formVars' => $aData));
 			$retCode = $this->oHTTP->getHttpResponseCode();
@@ -206,7 +199,7 @@ class Facebook extends ExternalAuth
 			 * User will just have to re-do the login fir GFC step
 			 */
 
-			throw new FacebookApiException('Error during authentication with Friend Connect server');
+			throw new FacebookApiException('Error during authentication with Facebook server');
 		}catch (\Exception $e){
 			e('Unable to post: '.$e->getMessage().' code: '.$e->getCode());
 		}
@@ -216,15 +209,15 @@ class Facebook extends ExternalAuth
 		return $this;
 	}
 
+	
 	/**
 	 * Validation to make sure data array
 	 * has required keys 'message'
 	 * @param unknown_type $aData
 	 */
-	protected function validateData(array &$aData)
-	{
+	protected function validateData(array &$aData){
 		if(empty($aData['message'])){
-			throw new FacebookApiException('array of data must contain key "message" and its value cannot be empty');
+			throw new FacebookApiException('Array of data must contain key "message" and its value cannot be empty');
 		}
 
 		if(empty($aData['access_token'])){
@@ -250,14 +243,11 @@ class Facebook extends ExternalAuth
 	 *
 	 *@todo finish this
 	 */
-	protected function revokeFacebookConnect()
-	{
+	protected function revokeFacebookConnect(){
 		/**
 		 * Why uid is 0?
 		 * This means user viewer is not logged in, but why?
 		 *
-		 *
-		 * @var unknown_type
 		 */
 		d('$this->oUser: '.get_class($this->oUser).' '.print_r($this->oUser->getArrayCopy(), 1));
 
@@ -266,4 +256,3 @@ class Facebook extends ExternalAuth
 		return $this;
 	}
 }
-

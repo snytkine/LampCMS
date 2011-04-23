@@ -97,7 +97,8 @@ class tplQuestion extends Lampcms\Template\Template
 	'sticky' => '', //19
 	'comments_html' => '', //20
 	'i_comments' => '0', //21
-	'nocomments' => '' //22
+	'nocomments' => '', //22
+	'add_comment' => 'add comment' //23
 	);
 
 	protected static $tpl = '
@@ -170,7 +171,7 @@ class tplQuestion extends Lampcms\Template\Template
 		<div class="comments%22$s i_comments_%21$s" id="comments-%1$s">
 			%20$s
 			<div class="add_com cb fl">
-				<span class="ico comment fl"> </span><a href="#" class="ajax com_link uid-%10$s" id="comlink_%1$s">add comment</a>
+				<span class="ico comment fl"> </span><a href="#" class="ajax com_link uid-%10$s" id="comlink_%1$s">%23$s</a>
 			</div>
 		</div>
 	</td>

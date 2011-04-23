@@ -134,7 +134,7 @@ class Template
 		 */
 		if( (empty(static::$skip)) && is_callable(array('static', 'func')) ){
 			static::func($aVars);
-			d('new aVars: '.print_r($aVars, 1));
+			//d('new aVars: '.print_r($aVars, 1));
 		} else {
 			//echo ' <b>Callback cancelled</b> ';
 		}

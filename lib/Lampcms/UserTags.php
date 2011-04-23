@@ -81,7 +81,7 @@ class UserTags extends LampcmsObject
 	 * @param int $uid
 	 * @param Question $oQuestion
 	 */
-	public function addTags($uid, Question $oQuestion){
+	public function addTags($uid, \Lampcms\Question $oQuestion){
 		/**
 		 * Questions that come from external APIs may not
 		 * have any user associated with it, uid is 0 or null then
@@ -96,6 +96,7 @@ class UserTags extends LampcmsObject
 		$uid = (int)$uid;
 
 		$aTags = $oQuestion['a_tags'];
+		
 		/**
 		 * Extra precaution to filter out
 		 * empty values
@@ -105,6 +106,7 @@ class UserTags extends LampcmsObject
 
 		$coll = $this->oRegistry->Mongo->getCollection(self::USER_TAGS);
 		$a = $coll->findOne(array('_id' => $uid));
+		
 		/**
 		 * If there is not record of tags for this user yet,
 		 * then we will make array with $tag => 1
@@ -115,8 +117,6 @@ class UserTags extends LampcmsObject
 		 * order by count and same to collection
 		 */
 		if(empty($a)){
-
-
 			$aTemp = array_count_values($aTags);
 			d('aTemp: '.print_r($aTemp, 1));
 

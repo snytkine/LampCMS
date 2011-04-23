@@ -351,14 +351,14 @@ class Viewquestions extends WebPage
 				 * @todo translate string
 				 */
 				if($uid == $a['i_uid'] || (!empty($a['a_uids']) && in_array($uid, $a['a_uids'])) ){
-					$a['dot'] = '<div class="fr pad2"><span class="ico person ttt" title="You have contributed to this question">&nbsp;</a></div>';
+					$a['dot'] = '<div class="fr pad2"><span class="ico person ttt" title="You have contributed to this question">&nbsp;</span></div>';
 				}
 
 				/**
 				 * @todo translate string
 				 */
 				if(!empty($a['a_flwrs']) && in_array($uid, $a['a_flwrs']) ){
-					$a['following_q'] = '<div class="fr pad2"><span class="icoc check ttt" title="You are following this question">&nbsp;</a></div>';
+					$a['following_q'] = '<div class="fr pad2"><span class="icoc check ttt" title="You are following this question">&nbsp;</span></div>';
 				}
 
 				/**

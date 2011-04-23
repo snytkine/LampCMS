@@ -61,5 +61,3 @@ class tplComdiv extends Lampcms\Template\Template
 
 }
 
-
-?>

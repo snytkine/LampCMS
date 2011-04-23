@@ -59,7 +59,7 @@ class Responder
 <head>
 <title></title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<link type="text/css" rel="stylesheet" href="/main.css">
+<link type="text/css" rel="stylesheet" href="/style/1/www/_main.css">
 </head>
 <body>';
 
@@ -103,8 +103,7 @@ class Responder
 	 * but only if parent object exists and contains
 	 * fParseQfJson script
 	 */
-	public static function sendJSON(array $aJSON, array $headers = null, $httpCode = 200, $addJSTags = false)
-	{
+	public static function sendJSON(array $aJSON, array $headers = null, $httpCode = 200, $addJSTags = false){
 
 		if ( Request::isIframe() || !empty($addJSTags)) {
 			self::sendJsonPage($aJSON);
@@ -157,8 +156,7 @@ class Responder
 	 * @param string $aJson
 	 * @return
 	 */
-	public static function sendJsonPage(array $aJson)
-	{
+	public static function sendJsonPage(array $aJson){
 		$strHeader = "Content-Type: text/html";
 		$json = json_encode($aJson);
 
@@ -190,9 +188,8 @@ class Responder
 	 * @return string Error message to put inside
 	 * the page
 	 */
-	public static function makeErrorPage($sError)
-	{
-		return self::PAGE_OPEN."\n".'<div id="excsl"><pre class="exc">'.$sError.'</pre></div>'."\n".self::PAGE_CLOSE;
+	public static function makeErrorPage($sError){
+		return self::PAGE_OPEN."\n".'<div id="excsl"><div id="tools">'.$sError.'</div></div>'."\n".self::PAGE_CLOSE;
 	}
 
 	/**
@@ -201,8 +198,7 @@ class Responder
 	 *
 	 * @param string $url url where to redirect. Default is '/' meaning to www root
 	 */
-	public static function redirectToPage($url = null)
-	{
+	public static function redirectToPage($url = null){
 
 		if (null === $url) {
 			$url = ( empty($_SERVER['HTTP_REFERER'])) ? '/' : $_SERVER['HTTP_REFERER'];
@@ -223,8 +219,7 @@ class Responder
 	 *
 	 * @return string a assembled url
 	 */
-	public static function makeUrlFromLocation()
-	{
+	public static function makeUrlFromLocation(){
 		$sUrl = null;
 		if (isset($_SESSION) &&
 		!empty($_SESSION['LOCATION']) &&

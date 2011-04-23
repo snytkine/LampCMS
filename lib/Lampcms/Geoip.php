@@ -373,8 +373,7 @@ class Geoip
 		 * @param int $flags
 		 * @see getInstance()
 		 */
-		protected function __construct($filename = null, $flags = null)
-		{
+		protected function __construct($filename = null, $flags = null){
 			if( null !== $filename) {
 				$this->open($filename, $flags);
 			}
@@ -384,8 +383,7 @@ class Geoip
 		 * Getter for $this->ip
 		 * @return string
 		 */
-		public function getIP()
-		{
+		public function getIP(){
 			return $this->ip;
 		}
 
@@ -393,8 +391,7 @@ class Geoip
 		 * Getter for $this->ip
 		 * @return string
 		 */
-		public function getIpnum()
-		{
+		public function getIpnum(){
 			return $this->ipnum;
 		}
 
@@ -442,15 +439,14 @@ class Geoip
 		 *                                                     This is useful if you access the database several times in a script.
 		 *                         + Net_GeoIp::STANDARD            - [default] standard no-cache version.
 		 */
-		public static function getInstance($filename = null, $flags = null)
-		{
+		public static function getInstance($filename = null, $flags = null){
 			if (!isset(self::$instances[$filename])) {
 				$flags = (null === $flags) ? self::SHARED_MEMORY : $flags;
 
 				if(!function_exists('shmop_open') && ($flags & self::SHARED_MEMORY)){
-						
+
 					d('cannot use SHARED_MEMORY flag because shmop_open function not available. Must recompile php using  --enable-shmop in order to use this option');
-						
+
 					$flags = self::STANDARD;
 				}
 
@@ -464,14 +460,14 @@ class Geoip
 			return self::$instances[$filename];
 		}
 
+
 		/**
 		 * Opens geoip database at filename and with specified flags.
 		 * @param string $filename
 		 * @param int $flags
 		 * @throws Exception     - if unable to open specified file or shared memory.
 		 */
-		public function open($filename, $flags = null)
-		{
+		public function open($filename, $flags = null){
 			if ($flags !== null) {
 				$this->flags = $flags;
 			}
@@ -497,19 +493,20 @@ class Geoip
 
 			$this->setupSegments();
 		}
-
+		
+		
 		/**
 		 * Loads the database file into shared memory.
 		 * @param string $filename Path to database file to read into shared memory.
 		 * @return void
 		 * @throws Exception     - if unable to read the db file.
 		 */
-		protected function loadSharedMemory($filename)
-		{
+		protected function loadSharedMemory($filename){
 			$fp = \fopen($filename, "rb");
 			if (!$fp) {
 				throw new Net_GeoIP_DB_Exception("Unable to open file: $filename");
 			}
+
 			$s_array = \fstat($fp);
 			$size = $s_array['size'];
 
@@ -524,14 +521,14 @@ class Geoip
 			\fclose($fp);
 		}
 
+		
 		/**
 		 * Parses the database file to determine what kind of database is being used and setup
 		 * segment sizes and start points that will be used by the seek*() methods later.
 		 *
 		 * @return void
 		 */
-		protected function setupSegments()
-		{
+		protected function setupSegments(){
 
 			$this->databaseType = self::COUNTRY_EDITION;
 			$this->recordLength = self::STANDARD_RECORD_LENGTH;
@@ -607,12 +604,12 @@ class Geoip
 			}
 		}
 
+
 		/**
 		 * Closes the geoip database.
 		 * @return int Status of close command.
 		 */
-		public function close()
-		{
+		public function close(){
 			if ($this->flags & self::SHARED_MEMORY) {
 				return shmop_close($this->shmid);
 			} else {
@@ -621,6 +618,7 @@ class Geoip
 				return fclose($this->filehandle);
 			}
 		}
+
 
 		/**
 		 * Get the country index.
@@ -633,8 +631,7 @@ class Geoip
 		 * @throws Exception     - if IP address is invalid.
 		 *                         - if database type is incorrect
 		 */
-		protected function lookupCountryId($addr)
-		{
+		protected function lookupCountryId($addr){
 			$ipnum = ip2long($addr);
 			if ($ipnum === false) {
 				throw new Exception("Invalid IP address: " . var_export($addr, true));
@@ -645,6 +642,7 @@ class Geoip
 			return $this->seekCountry($ipnum) - self::COUNTRY_BEGIN;
 		}
 
+
 		/**
 		 * Returns 2-letter country code (e.g. 'CA') for specified IP address.
 		 * Use this method if you have a Country database.
@@ -653,10 +651,10 @@ class Geoip
 		 * @throws Exception (see lookupCountryId())
 		 * @see lookupCountryId()
 		 */
-		public function lookupCountryCode($addr)
-		{
+		public function lookupCountryCode($addr){
 			return self::$COUNTRY_CODES[$this->lookupCountryId($addr)];
 		}
+
 
 		/**
 		 * Returns full country name for specified IP address.
@@ -666,10 +664,10 @@ class Geoip
 		 * @throws Exception (see lookupCountryId())
 		 * @see lookupCountryId()
 		 */
-		public function lookupCountryName($addr)
-		{
+		public function lookupCountryName($addr){
 			return self::$COUNTRY_NAMES[$this->lookupCountryId($addr)];
 		}
+
 
 		/**
 		 * Using the record length and appropriate start points, seek to the country that corresponds
@@ -678,8 +676,7 @@ class Geoip
 		 * @return int Offset of start of record.
 		 * @throws Exception - if fseek() fails on the file or no results after traversing the database (indicating corrupt db).
 		 */
-		protected function seekCountry($ipnum)
-		{
+		protected function seekCountry($ipnum){
 			$offset = 0;
 			for ($depth = 31; $depth >= 0; --$depth) {
 				if ($this->flags & self::MEMORY_CACHE) {
@@ -713,6 +710,7 @@ class Geoip
 			throw new Net_GeoIP_DB_Exception("Error traversing database - perhaps it is corrupt?");
 		}
 
+
 		/**
 		 * Lookup the organization (or ISP) for given IP address.
 		 * Use this method if you have an Organization/ISP database.
@@ -720,14 +718,14 @@ class Geoip
 		 * @throws Exception     - if IP address is invalid.
 		 *                         - if database is of wrong type
 		 */
-		public function lookupOrg($addr)
-		{
+		public function lookupOrg($addr){
 			if ($this->databaseType !== self::ORG_EDITION) {
 				throw new Net_GeoIP_DB_Exception("Invalid database type; lookupOrg() method expects Org/ISP database.");
 			}
 
 			return $this->validateIP($addr)->getOrg();
 		}
+
 
 		/**
 		 * Lookup the region for given IP address.
@@ -736,14 +734,14 @@ class Geoip
 		 * @return array Array containing country code and region: array($country_code, $region)
 		 * @throws Exception - if IP address is invalid.
 		 */
-		public function lookupRegion($addr)
-		{
+		public function lookupRegion($addr){
 			if ($this->databaseType !== self::REGION_EDITION_REV0 && $this->databaseType !== self::REGION_EDITION_REV1) {
 				throw new Net_GeoIP_DB_Exception("Invalid database type; lookupRegion() method expects Region database.");
 			}
 
 			return $this->validateIP($addr)->getRegion();
 		}
+
 
 		/**
 		 * Lookup the location record for given IP address.
@@ -752,8 +750,7 @@ class Geoip
 		 * @return Net_GeoIP_Location The full location record.
 		 * @throws Exception - if IP address is invalid.
 		 */
-		public function lookupLocation($addr)
-		{
+		public function lookupLocation($addr){
 			if ($this->databaseType !== self::CITY_EDITION_REV0 && $this->databaseType !== self::CITY_EDITION_REV1) {
 				throw new Net_GeoIP_DB_Exception("Invalid database type; lookupLocation() method expects City database.");
 			}
@@ -761,13 +758,13 @@ class Geoip
 			return $this->validateIP($addr)->getRecord();
 		}
 
+
 		/**
 		 * Seek and return organization (or ISP) name for converted IP addr.
 		 * @param int $ipnum Converted IP address.
 		 * @todo -cGeoIP Consider adding MEMORY_CACHE support to the getOrg() method (if there is a perf. difference).
 		 */
-		protected function getOrg()
-		{
+		protected function getOrg(){
 			$seek_org = $this->seekCountry($this->ipnum);
 			if ($seek_org == $this->databaseSegments) {
 				return null;
@@ -784,6 +781,7 @@ class Geoip
 			return $org_buf;
 		}
 
+
 		/**
 		 * Seek and return the region info
 		 * (array containing country code and region name)
@@ -792,8 +790,7 @@ class Geoip
 		 * @return array Array containing
 		 * country code and region: array($country_code, $region)
 		 */
-		protected function getRegion()
-		{
+		protected function getRegion(){
 			if ($this->databaseType == self::REGION_EDITION_REV0) {
 				$seek_region = $this->seekCountry($this->ipnum) - self::STATE_BEGIN_REV0;
 				if ($seek_region >= 1000){
@@ -825,12 +822,12 @@ class Geoip
 			}
 		}
 
+
 		/**
 		 * Seek and populate Net_GeoIP_Location object for converted IP addr.
 		 * @return mixed object of type Net_GeoIP_Location | null
 		 */
-		protected function getRecord()
-		{
+		protected function getRecord(){
 			$seek_country = $this->seekCountry($this->ipnum);
 			if ($seek_country == $this->databaseSegments) {
 				return null;
@@ -932,8 +929,7 @@ class Geoip
 		 *
 		 * @throws Net_GeoIP_IP_Exception if $addr is an invalid ip address
 		 */
-		protected function validateIP($addr)
-		{
+		protected function validateIP($addr){
 			if(false === filter_var($addr, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)){
 				throw new Net_GeoIP_IP_Exception('invalid ip address: '.$addr);
 			}
@@ -945,7 +941,6 @@ class Geoip
 		}
 
 
-
 		/**
 		 * Get GEO Record from NET_GeoIP class
 		 *
@@ -953,9 +948,20 @@ class Geoip
 		 *
 		 * @return object $objGeoData geolocation information data
 		 */
-		public static function getGeoData($strIp)
-		{
-				
+		public static function getGeoData($strIp){
+
+			if(!defined('GEOIP_FILE')){
+				d('GEOIP_FILE not defined');
+				return new GeoipLocation();
+			}
+
+			$file = constant('GEOIP_FILE');
+			if(empty($file)){
+				d('GeoIP lookup not enabled because name of GEOIP_FILE is left blank in !config.ini');
+
+				return new GeoipLocation();
+			}
+
 			if (!is_string($strIp)) {
 				throw new \Lampcms\DevException('$strIp MUST be a string. Supplied value was: '.gettype($strIp));
 					
@@ -978,31 +984,16 @@ class Geoip
 				/**
 				 * If running in debug mode and not a public
 				 * ip (meaning using localhost)
-				 * then use this ip just for testing
-				 * 
+				 * then can use this ip for testing: $strIp = '96.255.94.11';
+				 * use this ip just for testing
+				 *
 				 */
-				if(true == LAMPCMS_DEBUG){
-					d('using test ip address');
 					
-					$strIp = '96.255.94.11';
-				} else {
-					return new GeoipLocation();
-				}
-			}
-
-			if(!defined('GEOIP_FILE')){
-				e('GEOIP_FILE not defined');
 				return new GeoipLocation();
+
 			}
 
-			$file = \trim(constant('GEOIP_FILE'));
-			if(empty($file)){
-				e('GEOIP_FILE is empty');
-
-				return new GeoipLocation();
-			}
-
-			$strFileGeoipRegion = LAMPCMS_PATH.DS.GEOIP_FILE;
+			$strFileGeoipRegion = LAMPCMS_PATH.DS.$file;
 
 			/**
 			 * This will set the empty object

@@ -67,6 +67,7 @@ class UserAuth extends LampcmsObject
 		$this->oRegistry = $oRegistry;
 	}
 
+	
 	/**
 	 * Check the username and password
 	 * to make sure they are in valid format
@@ -80,8 +81,8 @@ class UserAuth extends LampcmsObject
 	 *
 	 * @param string $sPassword password entered in login form
 	 */
-	public function preCheckLogin($sUsername, $sPassword)
-	{
+	public function preCheckLogin($sUsername, $sPassword){
+		
 		$this->checkMultipleLoginErrors($sUsername);
 		$this->checkForBannedIP();
 		if (false === Validate::enforcePwd($sPassword)) {
@@ -104,8 +105,7 @@ class UserAuth extends LampcmsObject
 		 */
 		if (false !== filter_var($sUsername, FILTER_VALIDATE_EMAIL)){
 			$this->byEmail = true;
-			$aEmail = $this->oRegistry->Mongo->getCollection('EMAILS')
-			->findOne(array('_id' => $sUsername));
+			$aEmail = $this->oRegistry->Mongo->EMAILS->findOne(array('_id' => $sUsername));
 
 			if(empty($aEmail)){
 				
@@ -113,8 +113,7 @@ class UserAuth extends LampcmsObject
 			}
 
 			d('$aEmail: '.print_r($aEmail, 1));
-			$aResult = $this->oRegistry->Mongo->getCollection('USERS')
-			->findOne(array('_id' => $aEmail['i_uid']));
+			$aResult = $this->oRegistry->Mongo->USERS->findOne(array('_id' => $aEmail['i_uid']));
 			d('$aResult', print_r($aResult, 1));
 			if(empty($aResult)){
 				
@@ -166,8 +165,8 @@ class UserAuth extends LampcmsObject
 	 * @throws LampcmsLoginException
 	 * in case user does not exist
 	 */
-	protected function getUser($sUsername, $sPassword)
-	{
+	protected function getUser($sUsername, $sPassword){
+		
 		d('$sUsername: '.$sUsername);
 		/**
 		 * @todo
@@ -179,8 +178,7 @@ class UserAuth extends LampcmsObject
 		 * and index on login_lc
 		 * @var unknown_type
 		 */
-		$arrResult = $this->oRegistry->Mongo->getCollection('USERS')
-		->findOne(array('username_lc' => strtolower($sUsername)));
+		$arrResult = $this->oRegistry->Mongo->USERS->findOne(array('username_lc' => strtolower($sUsername)));
 
 		d('$arrResult: '.print_r($arrResult, true));
 
@@ -213,11 +211,9 @@ class UserAuth extends LampcmsObject
 	 * some other object cancells the 'onBeforeLogin'
 	 * notification
 	 */
-	public function validateLogin($sUsername, $sPassword)
-	{
+	public function validateLogin($sUsername, $sPassword){
 
 		return $this->preCheckLogin($sUsername, $sPassword);
-
 	}
 
 
@@ -234,8 +230,7 @@ class UserAuth extends LampcmsObject
 	 * @throws LampcmsMultiLoginException in case
 	 * multiple login error detected form this $sUsername
 	 */
-	protected function checkMultipleLoginErrors($sUsername)
-	{
+	protected function checkMultipleLoginErrors($sUsername){
 		d('cp');
 
 		$aLockParams = $this->oRegistry->Ini->getSection('LOGIN_ERROR_LOCK');
@@ -257,7 +252,7 @@ class UserAuth extends LampcmsObject
 		$interval = ($now - $aLockParams['interval']);
 		$wait = $aLockParams['wait'];
 
-		$cur = $this->oRegistry->Mongo->getCollection('LOGIN_ERROR')
+		$cur = $this->oRegistry->Mongo->LOGIN_ERROR
 		->find(array('usr_lc' => strtolower($sUsername), 'i_ts' => array('$gt' => $interval)))
 		->sort(array('i_ts' => -1));
 
@@ -285,9 +280,7 @@ class UserAuth extends LampcmsObject
 		}
 
 		return true;
-
 	}
-
 
 
 	/**
@@ -302,13 +295,12 @@ class UserAuth extends LampcmsObject
 	 * was banned for attempting to hack
 	 * login by cookie
 	 */
-	protected function checkForBannedIP()
-	{
+	protected function checkForBannedIP(){
 		$ip = Request::getIP();
 
 		$timediff = (time() - 600); // 10 minutes
 
-		$cur = $this->oRegistry->Mongo->getCollection('LOGIN_ERROR')
+		$cur = $this->oRegistry->Mongo->LOGIN_ERROR
 		->find(array('ip' => $ip, 'i_ts' => array('$gt' => $timediff)))
 		->limit(7);
 
@@ -339,8 +331,7 @@ class UserAuth extends LampcmsObject
 	 * as a return of fnLogin
 	 */
 	protected function logLoginError($username, $pwd = '', $username_exists = true, $strIp = null,
-	$login_type = 'www')
-	{
+	$login_type = 'www'){
 		if (!$username_exists) {
 			d('NO User with nick '.$username);
 		} else {
@@ -369,7 +360,7 @@ class UserAuth extends LampcmsObject
 		 * ensured in saveResourceLocation()
 		 *
 		 */
-		$coll = $this->oRegistry->Mongo->getCollection('LOGIN_ERROR');
+		$coll = $this->oRegistry->Mongo->LOGIN_ERROR;
 		$indexed1 = $coll->ensureIndex(array('usr_lc' => 1));
 		$indexed1 = $coll->ensureIndex(array('i_ts' => 1));
 		$indexed2 = $coll->ensureIndex(array('ip' => 1));
@@ -393,8 +384,7 @@ class UserAuth extends LampcmsObject
 	 * @param string $supplied
 	 * @param string $stored
 	 */
-	protected function comparePasswords($supplied, $stored)
-	{
+	protected function comparePasswords($supplied, $stored){
 		/**
 		 * Very important to trim,
 		 * some browsers pass extra white space sometimes!

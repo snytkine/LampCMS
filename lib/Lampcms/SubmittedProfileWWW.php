@@ -93,7 +93,10 @@ class SubmittedProfileWWW extends SubmittedProfile
 	}
 
 	public function getGender(){
-		return  $this->oForm->getSubmittedValue('gender');
+		$val =  $this->oForm->getSubmittedValue('gender');
+		$val = strtoupper($val);
+		
+		return (('M' !== $val) && ('F' !== $val)) ? '' : $val;
 	}
 
 	public function getUrl(){

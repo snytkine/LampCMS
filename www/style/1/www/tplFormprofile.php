@@ -114,7 +114,7 @@
 <div class="form_error">%26$s</div>
 <table class="larger vtop eprofile">
 <tr><td>%44$s</td><td>%43$s</td></tr>
-<tr class="tr%40$s">
+<tr>
 <td>%32$s</td>
  <td>
 	<table padding="0"><tr class="profile_img">
@@ -122,10 +122,11 @@
 	 <img src="%33$s" width="%34$spx" height="%34$spx" class="fl img_avatar">
 	 </td>
 	 <td>
-	 <div class="picture_change"> 
-	        <div class="follow ajax slvrbtn change_image rounded4 ">%36$s</div> 
+	 <div class="fl%40$s"> 
+	        <!-- <div class="follow ajax slvrbtn change_image rounded4 ">%36$s</div> --> 
 	        <!-- <a href="#" id="adel_%39$s" class="ajax delete_image smaller ml10">%38$s</a> -->
-	  	<span id="avatar_upload" class="cb fl mt10 pic_upload"> 
+	  	<span id="avatar_upload" class="fl _pic_upload"> 
+	  	<span class="fl">You may upload your avatar image</span>
 	  	  <input type="hidden" name="MAX_FILE_SIZE" value="%41$s" />
 	      <input id="id_profile_image" name="profile_image" size="20" type="file" /> 
 	      <span class="f_err">%42$s</span>

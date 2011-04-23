@@ -67,13 +67,6 @@ namespace Lampcms;
  */
 class Answers extends LampcmsObject
 {
-	/**
-	 * How many answers to show per page
-	 * @todo this should be in settings
-	 *
-	 * @var int
-	 */
-	//protected $perPage = 3;
 
 	/**
 	 * Mongo cursor
@@ -85,7 +78,6 @@ class Answers extends LampcmsObject
 
 	public function __construct(Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
-		//$this->perPage = $oRegistry->Ini->PER_PAGE_ANSWERS;
 	}
 
 

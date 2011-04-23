@@ -58,6 +58,7 @@ class Mongo extends LampcmsObject
 
 	protected static $oMongo;
 
+	
 	/**
 	 * Mongo connection resource
 	 *
@@ -65,12 +66,14 @@ class Mongo extends LampcmsObject
 	 */
 	protected $conn;
 
+	
 	/**
 	 * Object MongoDB
 	 * @var object of type MongoDB
 	 */
 	protected $db;
 
+	
 	/**
 	 * Name of database
 	 *
@@ -78,6 +81,7 @@ class Mongo extends LampcmsObject
 	 */
 	protected $dbname;
 
+	
 	/**
 	 * Extra options used during insert and save
 	 * @var array
@@ -103,25 +107,24 @@ class Mongo extends LampcmsObject
 			e($err);
 			throw new DevException($err);
 		}
-
 	}
 
 
-	public function __clone()
-	{
+	public function __clone(){
 		throw new DevException('cloning Mongo object is not allowed');
 	}
 
+	
 	/**
 	 * By default pass methos to $this->db (MongoDatabase object)
 	 * @param unknown_type $method
 	 * @param unknown_type $args
 	 */
-	public function __call($method, $args)
-	{
+	public function __call($method, $args){
 		return call_user_func_array(array($this->getDb(), $method), $args);
 	}
 
+	
 	/**
 	 * Insert array into MongoDB collection
 	 *
@@ -141,8 +144,7 @@ class Mongo extends LampcmsObject
 	 * By default mongo generates the unique value and it's an object
 	 * of type MongoId
 	 */
-	public function insertData($collName, array $aValues, $option = true, $strErr2 = '')
-	{
+	public function insertData($collName, array $aValues, $option = true, $strErr2 = ''){
 		d('cp $option: '.var_export($option, true));
 
 		$collName = filter_var($collName, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
@@ -172,6 +174,7 @@ class Mongo extends LampcmsObject
 
 	}
 
+	
 	/**
 	 * @todo this is dangerous!
 	 * it will replace record with arrValues and will not keep
@@ -189,8 +192,7 @@ class Mongo extends LampcmsObject
 	 * @param unknown_type $whereVal
 	 * @param unknown_type $strErr2
 	 */
-	public function updateCollection($collName, array $arrValues, $whereCol, $whereVal)
-	{
+	public function updateCollection($collName, array $arrValues, $whereCol, $whereVal){
 		$strTableName = filter_var($collName, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
 		$strTableName = str_replace(';', '', $strTableName);
 		$strTableName = addslashes($strTableName);
@@ -210,9 +212,9 @@ class Mongo extends LampcmsObject
 		}
 
 		return $ret;
-
 	}
 
+	
 	/**
 	 * @todo unfinished
 	 * its supposed to save Serializable object in a special way: inside the
@@ -221,8 +223,7 @@ class Mongo extends LampcmsObject
 	 * @param unknown_type $_id
 	 * @param Serializable $object
 	 */
-	public function saveObject($collName, $_id, Serializable $object)
-	{
+	public function saveObject($collName, $_id, Serializable $object){
 
 	}
 
@@ -232,11 +233,11 @@ class Mongo extends LampcmsObject
 	 *
 	 * @return object of type MongoDB
 	 */
-	public function getDb()
-	{
+	public function getDb(){
 		return $this->conn->selectDB($this->dbname);
 	}
 
+	
 	/**
 	 * Return Mongo Collection object from default database
 	 * if you need to select collection from different database, then
@@ -250,6 +251,7 @@ class Mongo extends LampcmsObject
 		return $this->conn->selectCollection($this->dbname, $collName);
 	}
 
+	
 	/**
 	 * Magic getter to simplify selecting collection
 	 * Same as getCollection() but simpler code
@@ -270,11 +272,8 @@ class Mongo extends LampcmsObject
 	 *
 	 * @return object Mongo
 	 */
-	public function getMongo()
-	{
+	public function getMongo(){
 		return $this->conn;
 	}
 
 }
-
-?>

@@ -53,13 +53,19 @@
 
 namespace Lampcms;
 
-
+/**
+ * 
+ * Class for rendering <div> with user profile
+ * This class is used for generating div on page
+ * /user/$id/ 
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class ProfileDiv extends LampcmsObject
 {
 	/**
 	 * Created and returns html for the user profile div
-	 *
-	 * @todo translate string 'ago'
 	 *
 	 * @param Registry $oRegistry
 	 * @param User $oUser
@@ -72,8 +78,8 @@ class ProfileDiv extends LampcmsObject
 
 		d('rep: '.$rep);
 		$uid = $oUser->getUid();
-		
-		if(($oRegistry->Viewer->getUid() === $uid) || $oRegistry->Viewer->isModerator()){
+		$isSameUser = ($oRegistry->Viewer->getUid() === $uid);
+		if($isSameUser || $oRegistry->Viewer->isModerator()){
 			$edit = '<div class="fl middle"><span class="icoc key">&nbsp;</span><a href="/editprofile/'.$uid.'" class="edit middle">Edit profile</a></div>';
 		}
 
@@ -91,9 +97,9 @@ class ProfileDiv extends LampcmsObject
 			'since' => date('F j, Y', $oUser->i_reg_ts),
 			'lastActivity' => TimeAgo::format(new \DateTime(date('r', $lastActive))),
 			'website' => $oUser->getUrl(),
-			'twitter' => $oUser->getTwitterUrl(),
+			'twitter' => '<div id="my_tw">'.self::getTwitterAccount($oRegistry, $oUser, $isSameUser).'</div>',
 			'age' => $oUser->getAge(),
-			'facebook' => $oUser->getFacebookUrl(),
+			'facebook' => '<div id="my_fb">'.self::getFacebookAccount($oRegistry, $oUser, $isSameUser).'</div>',
 			'location' => $oUser->getLocation(),
 			'description' => \wordwrap($desc, 50),
 			'editRole' => Usertools::getHtml($oRegistry, $oUser),
@@ -103,6 +109,70 @@ class ProfileDiv extends LampcmsObject
 		);
 
 		return \tplUserInfo::parse($vars);
+	}
+
+
+	/**
+	 * Get either the @username of Twitter account if user has one
+	 * OR html for the button to connect Twitter account
+	 * to Existing Account
+	 *
+	 *
+	 * @param object $oRegistry
+	 * @param object $oUser
+	 *
+	 * @return string html html of Connect button
+	 * or just plain text string with @username
+	 *
+	 */
+	public static function getTwitterAccount(Registry $oRegistry, User $oUser, $isSameUser){
+
+		$t = $oUser->getTwitterUrl();
+		if(!empty($t)){
+			return $t;
+		}
+
+
+		if(extension_loaded('oauth') && $isSameUser){
+			$aTwitter = $oRegistry->Ini->getSection('TWITTER');
+			if(!empty($aTwitter['TWITTER_OAUTH_KEY']) && !empty($aTwitter['TWITTER_OAUTH_SECRET'])){
+				return '<div id="connect_twtr" class="twsignin ajax ttt btn_connect rounded4" title="Connect Twitter Account"><img src="/images/tw-user.png" width="16" height="16"><span class="_bg_tw">Connect Twitter</span></div>';
+			}
+		}
+
+		return '';
+	}
+
+
+	/**
+	 * Get either the @username of Twitter account if user has one
+	 * OR html for the button to connect Twitter account
+	 * to Existing Account
+	 *
+	 *
+	 * @param object $oRegistry
+	 * @param object $oUser
+	 *
+	 * @return string html html of Connect button
+	 * or just plain text string with @username
+	 *
+	 */
+	public static function getFacebookAccount(Registry $oRegistry, User $oUser, $isSameUser){
+
+		$f = $oUser->getFacebookUrl();
+		if(!empty($f)){
+			return $f;
+		}
+
+		if(extension_loaded('curl') && $isSameUser){
+			$aFB = $oRegistry->Ini->getSection('FACEBOOK');
+			if(!empty($aFB) && !empty($aFB['APP_ID'])){
+
+				return '<div id="connect_fb" class="fbsignup ajax ttt btn_connect rounded4" title="Connect Facebook Account"><img src="/images/facebook_16.png" width="16" height="16"><span class="_bg_tw">Connect Facebook</span></div>';
+			}
+		}
+
+		return '';
 	}
 
 
@@ -169,15 +239,9 @@ class ProfileDiv extends LampcmsObject
 			}
 
 			$button = '<div class="fl mt10 mb10"><div class="follow_wrap">'.\tplFollowButton::parse($aVars, false).'</div></div>';
-
 		}
 
 		return $button;
 	}
 
-	/*
-
-	public function getShredButton(Registry $oRegistry, User $oUser){
-
-	}*/
 }

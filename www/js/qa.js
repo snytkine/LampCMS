@@ -66,11 +66,11 @@
  * 
  */
 
-if (top !== self) {
+/*if (top !== self) {
 	alert('The URL ' + self.location.href
 			+ ' cannot be viewed inside a frame.  You will be redirected.');
 	top.location.href = self.location.href;
-}
+}*/
 
 // include.js
 
@@ -957,7 +957,7 @@ YUI({
 	
 		
 	var YAHOO = Y.YUI2, //
-	TTT2 = document.getElementsByClassName('ttt2'),
+	TTT2 = Y.all('.ttt2'),
 	ttB, // Tooltip object
 	ttB2, // Tooltip2 object for all the "sort" tabs
 	oMetas = {}, // cache storage for resolved meta tags
@@ -965,8 +965,15 @@ YUI({
 	 * Storage for already resolved
 	 * answers tab
 	 */
-	loader,
-	oCTabs = {},
+	loader, //
+	getMeta, //
+	setMeta, //
+	getToken, //
+	ensureLogin, //
+	setToken, //
+	isLoggedIn, //
+	getViewerId, //
+	oCTabs = {}, //
 	foldGroup, //
 	revealComments, //
 	dnd = false, //
@@ -1195,14 +1202,14 @@ YUI({
 		
 	}, *///
 	
-	showLoading = function(node){
-		var target, box, width, height;
+	showLoading = function(node, header){
+		var target, box, label = (header) ? header : 'Loading...', width, height;
 		if(!loader){			
 		loader = new Y.Overlay({
 			centered: true,
 			srcNode:"#loading",
-		    width:"90px",
-		    height:"60px",
+		    width:"100px",
+		    /*height:"60px",*/
 		    headerContent: "Loading...",
 		    bodyContent: "<img src='/images/loading-bar.gif'>",
 		    zIndex:1000
@@ -1211,6 +1218,8 @@ YUI({
 			loader.render();
 		}
 
+		loader.set('headerContent', label);
+		
 		if(node && (node instanceof Y.Node)){
 			loader.set("centered", node);
 		} else {
@@ -1613,51 +1622,34 @@ YUI({
 			
 		case (id === 'logout'):
 			e.preventDefault();
-			//Y.log('clicked logout');
+			e.halt();
 
 			if(typeof FB !== 'undefined'){
-				//Y.log('has FB');
 				fbappid = getMeta('fbappid');
-				//Y.log('fbappid: ' + fbappid);
+	
+				/*FB.getLoginStatus(function(response) {
+					 Y.log('FB loginStatus: ' + Y.dump(response));
+					});*/
+				
+				// Y.log('FB Session: ' + Y.dump(FB.getSession()));
 				FB.logout(function(response) {
-					//Y.log('FB response ' + response);
+					Y.log('FB response ' + Y.dump(response));
 				});
+				
 				if (fbappid) {
 					fbcookie = "fbs_" + fbappid;
-					//Y.log('fbcookie: ' + fbcookie);
+					Y.log('removing fbcookie: ' + fbcookie);
 					Y.Cookie.remove(fbcookie);
 				}
+				// Y.log('FB Session after logout: ' + Y.dump(FB.getSession()));
+				/*Y.later(500, this, function() {
+					FB.getLoginStatus(function(response) {
+						 Y.log('FB loginStatus after Logout: ' + Y.dump(response));
+						});
+				});*/
 			}
 			
-			if((typeof google !=='undefined') && google.friendconnect){
-				//Y.log('has GFC for logout');
-				if (!window.gfc_timesloaded) {
-				      window.gfc_timesloaded = 1;
-				      //Y.log('requesting gfc signout');
-				      google.friendconnect.requestSignOut();
-				      /**
-				       * Must logout NOW!
-				       * because we also have js in actual html page
-				       * which is loaded BEFORE this script and it will
-				       * reload the page WHEN it detects
-				       * the FriendCoect callback (GFC will issue callback
-				       * after the request signout)
-				       * and so we will never get to 
-				       * this script, thus will never call logout controller
-				       * 
-				       */
-				      window.location.assign('/index.php?a=logout');
-				    } else {
-				      window.gfc_timesloaded++;
-				    }
-				    if (window.gfc_timesloaded > 1) {
-				    	//Y.log('gfc_timesloaded > 1');
-				     //window.top.location.href = "/index.php?a=logout";
-				    }
-
-			}
-			
-			Y.later(500, this, function() {
+			Y.later(600, this, function() {
 				window.location.assign('/index.php?a=logout');
 			});
 			
@@ -2076,7 +2068,7 @@ YUI({
 			foldGroup.fetch();
 			initTooltip();
 			revealHidden();
-			return;
+			//return;
 		}
 		
 		
@@ -2113,18 +2105,24 @@ YUI({
 			return;
 		}
 		
+		if(data.setmeta && data.setmeta.key && data.setmeta.val){
+			setMeta(data.setmeta.key, data.setmeta.val);
+		}
+		
 		if(data.paginated){
 			paginated = Y.one(".paginated");
 			//Y.log('paginated: ' + paginated);
-			paginated.setContent(data.paginated);
-			/**
-			 * Fire image loader again
-			 * so content of newly downloaded div
-			 * gets populated with images
-			 */
-			foldGroup.fetch();
-			initTooltip();
-			return;
+			if(paginated){
+				paginated.setContent(data.paginated);
+				/**
+				 * Fire image loader again
+				 * so content of newly downloaded div
+				 * gets populated with images
+				 */
+				foldGroup.fetch();
+				initTooltip();
+				return;
+			}
 		}
 		
 		
@@ -2769,14 +2767,14 @@ YUI({
 				oAlert.show(); 
 	};
 	
-	var setMeta = function(metaName, value){
+	setMeta = function(metaName, value){
 		var node = getMeta(metaName, true);
 		if(node && value){
 			node.set('content', value);
 		}
 	};
 	
-	var ensureLogin = function(bForceAlert){
+	ensureLogin = function(bForceAlert){
 		//Y.log('ensureLogin');
 		var message;
 		if(bForceAlert || !isLoggedIn()){
@@ -2795,18 +2793,18 @@ YUI({
 	 * Get value of 'mytoken' meta tag which serves as a security token for form
 	 * validation.
 	 */
-	var getToken = function() {		
+	getToken = function() {		
 		return getMeta('version_id');
 	};
 	
 	/**
 	 * Set (update) the value of meta name="mytoken" meta tag with the new value
 	 */
-	var setToken = function(val) {
+	setToken = function(val) {
 		setMeta('version_id', val);
 	};
 	
-	var getViewerId = function(){
+	getViewerId = function(){
 		var uid;
 		//Y.log('starting getViewerId');
 		if(null === viewerId){
@@ -2823,7 +2821,7 @@ YUI({
 	 * Test to determine if page is being viewed by a logged in user a logged in
 	 * user has the session-tid meta tag set to value of twitter userid
 	 */
-	var isLoggedIn = function() {
+	isLoggedIn = function() {
 		
 		var ret, uid = getViewerId();
 		//Y.log('isLoggedIn uid: ' + uid);
@@ -2984,31 +2982,59 @@ YUI({
 	 * using Facebook Javascript API
 	 */
 	var initFBSignup = function() {
-		var fbPerms = getMeta('fbperms');
-		if (!fbPerms) {
-			fbPerms = '';
-		}
+		Y.log('initFBSignup');
+		var callback, fbPerms;
 		if (typeof FB !== 'undefined') {
-			FB.login(function(response) {
-				if (response.session) {
-					//Y.log('FB Signed in');
-					if (response.perms) {
-						// user is logged in and granted some
-						// permissions.
-						// perms is a comma separated list of granted
-						// permissions
-						// alert('Granted perms: ' + response.perms);
-						window.top.location.reload(true);
-					} else {
-						// user is logged in, but did not grant any
-						// permissions
+			fbPerms = getMeta('fbperms');
+			if (!fbPerms) {
+				fbPerms = '';
+			}
+			
+			/**
+			 * If user is logged in then this is a request
+			 * to Connect Facebook to existing user
+			 * in this case we send IO request to special
+			 * controller that will do its thing and 
+			 * return some json data which will result 
+			 * in setting meta 'fb' to '1'
+			 * and replacing a div of "connect" button with
+			 * link to FB profile
+			 */
+			if(isLoggedIn()){
+				callback = function(response) {
+					Y.log('Connecting Facebook account', 'warn');
+					if (response.session) {
+						//Y.log('FB Signed in');
+						if (response.perms) {
+							showLoading(null, 'Connecting<br>Facebook account');
+							Y.io('/index.php?a=connectfb');
+						} else {
+							Y.log('No permissions from Facebook', 'error');
+						}
 					}
-				} else {
-					// user is not logged in
-				}
-			}, {
-				perms : fbPerms
-			});
+				};
+			} else {
+				callback = function(response) {
+					if (response.session) {
+						//Y.log('FB Signed in');
+						if (response.perms) {
+							// user is logged in and granted some
+							// permissions.
+							// perms is a comma separated list of granted
+							// permissions
+							// alert('Granted perms: ' + response.perms);
+							window.top.location.reload(true);
+						} else {
+							// user is logged in, but did not grant any
+							// permissions
+						}
+					} else {
+						Y.log('Facebook login did not work', 'error');
+					}
+				};
+			}
+		
+			FB.login(callback, {perms : fbPerms});
 		}
 
 		return;
@@ -3052,7 +3078,7 @@ YUI({
 		return oAlerter;
 	};
 	
-	var getMeta = function(metaName, asNode){
+	getMeta = function(metaName, asNode){
 		var ret, node;	
 		//Y.log('looking for meta: ' + metaName + ' oMetas ' + oMetas);
 		if(!oMetas[metaName]){
@@ -3104,7 +3130,7 @@ YUI({
 			/**
 			 * Start the oAuth login process by opening the popup window
 			 */
-			startDance : function() {
+			startDance : function(isJoin) {
 				//Y.log('1084 starting oAuth dance this is: ' + this, 'window'); // Object Twitter
 				var popupParams = 'location=0,status=0,width=800,height=450,alwaysRaised=yes,modal=yes', mydomain = window.location.hostname;
 
@@ -3195,13 +3221,13 @@ YUI({
 		};
 	
 	var initTooltip = function(){
-		var TTT = document.getElementsByClassName('ttt');
-		if(TTT){
+		var TTT = Y.all('.ttt');//document.getElementsByClassName('ttt');
+		if(TTT && TTT.size() > 0){
 			if(ttB){
 				ttB.destroy();
 			}
 		ttB = new YAHOO.widget.Tooltip("ttB", { 
-			context:TTT,
+			context:TTT._nodes,
 			autodismissdelay: 5500,
 			hidedelay: 350,
 			xyoffset: [-10, -45],
@@ -3212,9 +3238,10 @@ YUI({
 	
 	};
 
-	if(TTT2){
+	if(TTT2 && TTT2.size() > 0){
+		//Y.log('TTT2 dom nodes: ' + TTT2._nodes, 'warn');
 		ttB2 = new YAHOO.widget.Tooltip("ttB2", { 
-			context:TTT2,
+			context:TTT2._nodes,
 			autodismissdelay: 5500,
 			hidedelay: 350,
 			xyoffset: [-10, -45],
@@ -3361,4 +3388,3 @@ YUI({
 	 addAdminControls();
 
 });
-

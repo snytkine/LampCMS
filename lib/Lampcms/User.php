@@ -454,12 +454,11 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		 * does not have these keys yet,
 		 * in which case offsetUnset will raise error
 		 */
-		$this->offsetSet('fb_id', null);
+		// $this->offsetSet('fb_id', null);
 		$this->offsetSet('fb_token', null);
 		$this->save();
 
-		$coll = $this->getRegistry()->Mongo->USERS_FACEBOOK;
-		$coll->update(array('i_uid' => $this->getUid()), array('$set' => array('access_token' => '')));
+		$this->getRegistry()->Mongo->USERS_FACEBOOK->update(array('i_uid' => $this->getUid()), array('$set' => array('access_token' => '')));
 		d('revoked FB token for user: '.$uid);
 
 		return $this;
@@ -477,8 +476,12 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 
 
 	/**
-	 *
-	 * Enter description here ...
+	 * Get html for the link to user's 
+	 * Facebook profile
+	 * 
+	 * @return string empty string if user does not
+	 * have fb_url value or html fragment for the link
+	 * to this User's Facebok page
 	 */
 	public function getFacebookUrl(){
 		$url = $this->offsetGet('fb_url');

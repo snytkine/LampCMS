@@ -457,6 +457,15 @@ class GFCAuthException extends ExternalAuthException{}
 class TwitterAuthException extends ExternalAuthException{}
 
 class FacebookAuthException extends ExternalAuthException{}
+/**
+ * This exception contains details
+ * that can be shown to the user.
+ * For example if Facebook server timed-out
+ * it's better to throw this exception so that
+ * user will see some meaningful details
+ *
+ */
+class FacebookAuthUserException extends FacebookAuthException{}
 
 class CaptchaLimitException extends Exception{}
 
