@@ -51,6 +51,7 @@
 
 
 
+
 namespace Lampcms;
 
 /**
@@ -71,10 +72,10 @@ class LoginForm
 			d('invite: '.$invite);
 			$url = $oViewer->getProfileUrl();
 			d('url: '.$url);
-				
+
 			$avatar = $oViewer->getAvatarImgSrc();
 			d('avatar: '.$avatar);
-				
+
 			$displayName = $oViewer->getDisplayName();
 
 			$a = array(
@@ -106,8 +107,7 @@ class LoginForm
 	 * @return html of the Welcome or Login Block
 	 * that will be shown on top of page (in header)
 	 */
-	public static function makeWelcomeMenu(Registry $oRegistry)
-	{
+	public static function makeWelcomeMenu(Registry $oRegistry){
 		//d('makeWelcomeMenu')
 		if($oRegistry->Viewer->isGuest()){
 			d('going to make login form');
@@ -116,7 +116,6 @@ class LoginForm
 		} else {
 			return self::forMember($oRegistry);
 		}
-
 	}
 
 
@@ -164,11 +163,20 @@ class LoginForm
 		}
 
 		return $_SESSION['guest_block'];
-
 	}
 
 
-
+	/**
+	 *
+	 * Generates login form and stores it in SESSION for caching
+	 * if login form already exists in SESSION then use it and skip
+	 * creation of html part
+	 *
+	 * @param Registry $oRegistry
+	 *
+	 * @return string html fragment containing div with login Form
+	 * and buttons for external login providers like facebook
+	 */
 	protected static function makeWelcomeGuest(Registry $oRegistry){
 
 		if(empty($_SESSION['welcome_guest'])){
@@ -185,7 +193,6 @@ class LoginForm
 		}
 
 		return $_SESSION['welcome_guest'];
-
 	}
 
 
@@ -211,7 +218,7 @@ class LoginForm
 				if(!empty($aFB['APP_ID'])){
 					//id="fbsignup"
 					d('$aFB: '.print_r($aFB, 1));
-					$socialBtns .= '<img class="ajax fbsignup hand" src='.IMAGE_SITE.'"/images/f_32.png" width="32" height="32" alt="F" title="Sign in with an account">';
+					$socialBtns .= '<img class="ajax fbsignup hand ttt" src='.IMAGE_SITE.'"/images/f_32.png" width="32" height="32" alt="F" title="Sign in with your Facebook account">';
 
 				}
 			}
@@ -221,7 +228,7 @@ class LoginForm
 				$aTW = $oIni['TWITTER'];
 				if(!empty($aTW['TWITTER_OAUTH_KEY']) && !empty($aTW['TWITTER_OAUTH_SECRET'])){
 					d('$aTW: '.print_r($aTW, 1));
-					$socialBtns .= '<img class="ajax twsignin hand" src='.IMAGE_SITE.'"/images/t_32.png" width="32" height="32" alt="T" title="Sign in with account">';
+					$socialBtns .= '<img class="ajax twsignin hand ttt" src='.IMAGE_SITE.'"/images/t_32.png" width="32" height="32" alt="T" title="Sign in with Twitter account">';
 				}
 			}
 
@@ -229,7 +236,7 @@ class LoginForm
 			if(extension_loaded('curl') && !empty($GfcSiteID)){
 				d('cp '.strlen($gfcButton));
 
-				$socialBtns .= '<img class="ajax gfcsignin hand" src='.IMAGE_SITE.'"/images/google_32.png" width="32" height="32" alt="Google" title="Sign in with Google"><img class="ajax gfcsignin hand" src='.IMAGE_SITE.'"/images/openid_32.png" width="32" height="32" alt="Open ID" title="Sign in with OpenID"><img class="ajax gfcsignin hand" src='.IMAGE_SITE.'"/images/aim_32.png" width="32" height="32" alt="AIM" title="Sign in with AOL"><img class="ajax gfcsignin hand" src='.IMAGE_SITE.'"/images/yahoo_32.png" width="32" height="32" alt="Yahoo" title="Sign in with Yahoo">';
+				$socialBtns .= '<img class="ajax gfcsignin hand ttt" src='.IMAGE_SITE.'"/images/google_32.png" width="32" height="32" alt="Google" title="Sign in with Google"><img class="ajax gfcsignin hand ttt" src='.IMAGE_SITE.'"/images/openid_32.png" width="32" height="32" alt="Open ID" title="Sign in with OpenID"><img class="ajax gfcsignin hand ttt" src='.IMAGE_SITE.'"/images/aim_32.png" width="32" height="32" alt="AIM" title="Sign in with AOL"><img class="ajax gfcsignin hand ttt" src='.IMAGE_SITE.'"/images/yahoo_32.png" width="32" height="32" alt="Yahoo" title="Sign in with Yahoo">';
 			}
 
 			$_SESSION['social_buttons'] = $socialBtns;

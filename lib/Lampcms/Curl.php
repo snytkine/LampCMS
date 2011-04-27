@@ -148,8 +148,7 @@ class Curl extends LampcmsObject
 	 *
 	 *
 	 */
-	public function getDocument($url, $since = null, $etag = '', array $aOptions = array())
-	{
+	public function getDocument($url, $since = null, $etag = null, array $aOptions = array()){
 
 		$aHeaders = array();
 		$this->request = curl_init();
@@ -255,8 +254,7 @@ class Curl extends LampcmsObject
 	 * Set request headers
 	 * @param array $aHeaders
 	 */
-	public function setHeaders(array $aHeaders)
-	{
+	public function setHeaders(array $aHeaders){
 		foreach ($aHeaders as $key => $value) {
 			$headers[] = $key.': '.$value;
 		}
@@ -273,8 +271,9 @@ class Curl extends LampcmsObject
 	 * usually it's run automatically from getDocument()
 	 * @param array $aOptions
 	 */
-	protected function setOptions(array $aOptions = array())
-	{
+	protected function setOptions(array $aOptions = array()){
+		d('starting to set curl options');
+		
 		if(!empty($aOptions)){
 			$this->aOptions = array_merge($this->aOptions, $aOptions);
 		}
@@ -303,8 +302,11 @@ class Curl extends LampcmsObject
 		}
 
 		if(!empty($this->aOptions['formVars'])){
-			curl_setopt($this->request, CURLOPT_POST, true);
-			curl_setopt($this->request, CURLOPT_POSTFIELDS, $this->aOptions['formVars']);
+			d('setting method to POST');
+			$r1 = \curl_setopt($this->request, CURLOPT_POST, true);
+			d('set CURLOPT_POST '.$r1);
+			$r2 = \curl_setopt($this->request, CURLOPT_POSTFIELDS, $this->aOptions['formVars']);
+			d('set CURLOPT_POSTFIELDS: '.print_R($this->aOptions['formVars'], 1). ' ret: '.$r2);
 		}
 
 		if(!empty($this->aOptions['gzip'])){
@@ -334,8 +336,7 @@ class Curl extends LampcmsObject
 	 * Destructor method to close open curl connection
 	 * and free up resource
 	 */
-	public function __destruct()
-	{
+	public function __destruct(){
 		if($this->request && is_resource($this->request)){
 			@curl_close($this->request);
 		}
@@ -356,8 +357,7 @@ class Curl extends LampcmsObject
 	 * available.
 	 *
 	 */
-	public function getCharset()
-	{
+	public function getCharset(){
 		$contentType = $this->info['content_type'];
 		if(!empty($contentType) && preg_match('/charset=([\S]+)/', $contentType, $matches)){
 
@@ -373,8 +373,7 @@ class Curl extends LampcmsObject
 	 *
 	 * @return array
 	 */
-	public function getCurlInfo()
-	{
+	public function getCurlInfo(){
 		return $this->info;
 	}
 
@@ -383,8 +382,7 @@ class Curl extends LampcmsObject
 	 * Getter for $this->body
 	 * @return string body of http response
 	 */
-	public function getResponseBody()
-	{
+	public function getResponseBody(){
 		return $this->body;
 	}
 
@@ -394,8 +392,7 @@ class Curl extends LampcmsObject
 	 * 
 	 * @return int http response code
 	 */
-	public function getHttpResponseCode()
-	{
+	public function getHttpResponseCode(){
 		return (int)$this->httpResponseCode;
 	}
 
@@ -406,8 +403,7 @@ class Curl extends LampcmsObject
 	 * 
 	 * @param string $sHeader
 	 */
-	public function getHeader($sHeader)
-	{
+	public function getHeader($sHeader){
 		$sHeader = strtolower($sHeader);
 
 		return (array_key_exists($sHeader, $this->aResponseHeaders)) ? $this->aResponseHeaders[$sHeader]: '';
@@ -421,8 +417,7 @@ class Curl extends LampcmsObject
 	 *
 	 * @return string in the RFC 2822 date format
 	 */
-	public function getLastModified()
-	{
+	public function getLastModified(){
 		if(!empty($this->aResponseHeaders['last-modified'])){
 
 			return $this->aResponseHeaders['last-modified'];
@@ -440,14 +435,12 @@ class Curl extends LampcmsObject
 	 * @return string value of 'Etag' header or empty string
 	 * if Etag is not present
 	 */
-	public function getEtag()
-	{
+	public function getEtag(){
 		return $this->getHeader('Etag');
 	}
 
 
-	public function getResponseHeaders()
-	{
+	public function getResponseHeaders(){
 		return $this->aResponseHeaders;
 	}
 

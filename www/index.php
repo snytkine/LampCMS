@@ -79,7 +79,7 @@ try {
 
 	header('Content-Type: text/html; charset=utf-8');
 	echo new $class($oRegistry);
-	fastcgi_finish_request();
+	//fastcgi_finish_request();
 
 } catch(\Exception $e) {
 	header("HTTP/1.0 500 Exception");

@@ -126,8 +126,7 @@ class Acl implements \Serializable
 	 * via allow() or deny() methods
 	 *
 	 */
-	public function __construct()
-	{
+	public function __construct(){
 
 		$iniFile = LAMPCMS_PATH.DIRECTORY_SEPARATOR.'acl.ini';
 
@@ -201,8 +200,7 @@ class Acl implements \Serializable
 	 * @uses   RoleRegistry::add()
 	 * @return object $this
 	 */
-	public function addRole($role, $parents = null)
-	{
+	public function addRole($role, $parents = null){
 		if (is_string($role)) {
 			$role = new Role($role);
 		}
@@ -228,11 +226,11 @@ class Acl implements \Serializable
 	 * @uses   RoleRegistry::get()
 	 * @return AclRole
 	 */
-	public function getRole($role)
-	{
+	public function getRole($role){
 		return $this->_getRoleRegistry()->get($role);
 	}
 
+	
 	/**
 	 * Returns true if and only if the Role exists in the registry
 	 *
@@ -242,11 +240,11 @@ class Acl implements \Serializable
 	 * @uses   RoleRegistry::has()
 	 * @return boolean
 	 */
-	public function hasRole($role)
-	{
+	public function hasRole($role){
 		return $this->_getRoleRegistry()->has($role);
 	}
 
+	
 	/**
 	 * Returns true if and only if $role inherits from $inherit
 	 *
@@ -262,11 +260,11 @@ class Acl implements \Serializable
 	 * @uses   RoleRegistry::inherits()
 	 * @return boolean
 	 */
-	public function inheritsRole($role, $inherit, $onlyParents = false)
-	{
+	public function inheritsRole($role, $inherit, $onlyParents = false){
 		return $this->_getRoleRegistry()->inherits($role, $inherit, $onlyParents);
 	}
 
+	
 	/**
 	 * Removes the Role from the registry
 	 *
@@ -276,8 +274,7 @@ class Acl implements \Serializable
 	 * @uses   RoleRegistry::remove()
 	 * @return Acl Provides a fluent interface
 	 */
-	public function removeRole($role)
-	{
+	public function removeRole($role){
 		$this->_getRoleRegistry()->remove($role);
 
 		if ($role instanceof RoleInterface) {
@@ -304,14 +301,14 @@ class Acl implements \Serializable
 		return $this;
 	}
 
+	
 	/**
 	 * Removes all Roles from the registry
 	 *
 	 * @uses   RoleRegistry::removeAll()
 	 * @return Acl Provides a fluent interface
 	 */
-	public function removeRoleAll()
-	{
+	public function removeRoleAll(){
 		$this->_getRoleRegistry()->removeAll();
 
 		foreach ($this->_rules['allResources']['byRoleId'] as $roleIdCurrent => $rules) {
@@ -326,6 +323,7 @@ class Acl implements \Serializable
 		return $this;
 	}
 
+	
 	/**
 	 * Adds a Resource having an identifier unique to the ACL
 	 *
@@ -337,9 +335,7 @@ class Acl implements \Serializable
 	 * @throws AclException
 	 * @return Acl Provides a fluent interface
 	 */
-	public function addResource(Resource $resource, $parent = null)
-	{
-
+	public function addResource(Resource $resource, $parent = null){
 
 		$resourceId = $resource->getResourceId();
 
@@ -383,8 +379,7 @@ class Acl implements \Serializable
 	 * @throws AclException
 	 * @return ResourceInterface
 	 */
-	public function get($resource)
-	{
+	public function get($resource){
 		if ($resource instanceof Resource) {
 			$resourceId = $resource->getResourceId();
 		} else {
@@ -399,6 +394,7 @@ class Acl implements \Serializable
 		return $this->_resources[$resourceId]['instance'];
 	}
 
+	
 	/**
 	 * Returns true if and only if the Resource exists in the ACL
 	 *
@@ -407,8 +403,7 @@ class Acl implements \Serializable
 	 * @param  ResourceInterface|string $resource
 	 * @return boolean
 	 */
-	public function has($resource)
-	{
+	public function has($resource){
 		if ($resource instanceof Resource) {
 			$resourceId = $resource->getResourceId();
 		} else {
@@ -418,6 +413,7 @@ class Acl implements \Serializable
 		return isset($this->_resources[$resourceId]);
 	}
 
+	
 	/**
 	 * Returns true if and only if $resource inherits from $inherit
 	 *
@@ -433,8 +429,7 @@ class Acl implements \Serializable
 	 * @throws AclException
 	 * @return boolean
 	 */
-	public function inherits($resource, $inherit, $onlyParent = false)
-	{
+	public function inherits($resource, $inherit, $onlyParent = false){
 		try {
 			$resourceId     = $this->get($resource)->getResourceId();
 			$inheritId = $this->get($inherit)->getResourceId();
@@ -463,6 +458,7 @@ class Acl implements \Serializable
 		return false;
 	}
 
+	
 	/**
 	 * Removes a Resource and all of its children
 	 *
@@ -472,8 +468,7 @@ class Acl implements \Serializable
 	 * @throws AclException
 	 * @return Acl Provides a fluent interface
 	 */
-	public function remove(Resource $resource)
-	{
+	public function remove(Resource $resource){
 		try {
 			$resourceId = $this->get($resource)->getResourceId();
 		} catch (AclException $e) {
@@ -502,13 +497,13 @@ class Acl implements \Serializable
 		return $this;
 	}
 
+	
 	/**
 	 * Removes all Resources
 	 *
 	 * @return Acl Provides a fluent interface
 	 */
-	public function removeAll()
-	{
+	public function removeAll(){
 		foreach ($this->_resources as $resourceId => $resource) {
 			foreach ($this->_rules['byResourceId'] as $resourceIdCurrent => $rules) {
 				if ($resourceId === $resourceIdCurrent) {
@@ -522,6 +517,7 @@ class Acl implements \Serializable
 		return $this;
 	}
 
+	
 	/**
 	 * Adds an "allow" rule to the ACL
 	 *
@@ -531,11 +527,11 @@ class Acl implements \Serializable
 	 * @param  Assert Interface $assert
 	 * @return Acl Provides
 	 */
-	public function allow($roles = null, $resources = null, $privileges = null, Assert $assert = null)
-	{
+	public function allow($roles = null, $resources = null, $privileges = null, Assert $assert = null){
 		return $this->setRule(self::OP_ADD, self::TYPE_ALLOW, $roles, $resources, $privileges, $assert);
 	}
 
+	
 	/**
 	 * Adds a "deny" rule to the ACL
 	 *
@@ -546,11 +542,11 @@ class Acl implements \Serializable
 	 * @uses   Acl::setRule()
 	 * @return Acl Provides a fluent interface
 	 */
-	public function deny($roles = null, $resources = null, $privileges = null, Assert $assert = null)
-	{
+	public function deny($roles = null, $resources = null, $privileges = null, Assert $assert = null){
 		return $this->setRule(self::OP_ADD, self::TYPE_DENY, $roles, $resources, $privileges, $assert);
 	}
 
+	
 	/**
 	 * Removes "allow" permissions from the ACL
 	 *
@@ -560,11 +556,11 @@ class Acl implements \Serializable
 	 * @uses   Acl::setRule()
 	 * @return Acl Provides a fluent interface
 	 */
-	public function removeAllow($roles = null, $resources = null, $privileges = null)
-	{
+	public function removeAllow($roles = null, $resources = null, $privileges = null){
 		return $this->setRule(self::OP_REMOVE, self::TYPE_ALLOW, $roles, $resources, $privileges);
 	}
 
+	
 	/**
 	 * Removes "deny" restrictions from the ACL
 	 *
@@ -574,11 +570,11 @@ class Acl implements \Serializable
 	 * @uses   Acl::setRule()
 	 * @return Acl Provides a fluent interface
 	 */
-	public function removeDeny($roles = null, $resources = null, $privileges = null)
-	{
+	public function removeDeny($roles = null, $resources = null, $privileges = null){
 		return $this->setRule(self::OP_REMOVE, self::TYPE_DENY, $roles, $resources, $privileges);
 	}
 
+	
 	/**
 	 * Performs operations on ACL rules
 	 *
@@ -632,8 +628,7 @@ class Acl implements \Serializable
 	 * @return Acl Provides a fluent interface
 	 */
 	public function setRule($operation, $type, $roles = null, $resources = null, $privileges = null,
-	Assert $assert = null)
-	{
+	Assert $assert = null){
 		// ensure that the rule type is valid; normalize input to uppercase
 		$type = strtoupper($type);
 		if (self::TYPE_ALLOW !== $type && self::TYPE_DENY !== $type) {
@@ -751,6 +746,7 @@ class Acl implements \Serializable
 		return $this;
 	}
 
+	
 	/**
 	 * Returns true if and only if the Role has access to the Resource
 	 *
@@ -779,8 +775,7 @@ class Acl implements \Serializable
 	 * @uses   RoleRegistry::get()
 	 * @return boolean
 	 */
-	public function isAllowed($role = null, $resource = null, $privilege = null)
-	{
+	public function isAllowed($role = null, $resource = null, $privilege = null){
 		// reset role & resource to null
 		$this->_isAllowedRole = $this->_isAllowedResource = null;
 
@@ -848,6 +843,7 @@ class Acl implements \Serializable
 		}
 	}
 
+	
 	/**
 	 * Returns the Role registry for this ACL
 	 *
@@ -856,14 +852,14 @@ class Acl implements \Serializable
 	 *
 	 * @return AclRoleRegistry
 	 */
-	protected function _getRoleRegistry()
-	{
+	protected function _getRoleRegistry(){
 		if (null === $this->_roleRegistry) {
 			$this->_roleRegistry = new RoleRegistry();
 		}
 		return $this->_roleRegistry;
 	}
 
+	
 	/**
 	 * Performs a depth-first search of the Role DAG, starting at $role, in order to find a rule
 	 * allowing/denying $role access to all privileges upon $resource
@@ -875,8 +871,7 @@ class Acl implements \Serializable
 	 * @param  ResourceInterface $resource
 	 * @return boolean|null
 	 */
-	protected function _roleDFSAllPrivileges(RoleInterface $role, Resource $resource = null)
-	{
+	protected function _roleDFSAllPrivileges(RoleInterface $role, Resource $resource = null){
 		$dfs = array(
             'visited' => array(),
             'stack'   => array()
@@ -897,6 +892,7 @@ class Acl implements \Serializable
 		return null;
 	}
 
+	
 	/**
 	 * Visits an $role in order to look for a rule allowing/denying $role access to all privileges upon $resource
 	 *
@@ -911,8 +907,7 @@ class Acl implements \Serializable
 	 * @return boolean|null
 	 * @throws AclException
 	 */
-	protected function _roleDFSVisitAllPrivileges(RoleInterface $role, Resource $resource = null, &$dfs = null)
-	{
+	protected function _roleDFSVisitAllPrivileges(RoleInterface $role, Resource $resource = null, &$dfs = null){
 		if (null === $dfs) {
 
 			throw new AclException('$dfs parameter may not be null');
@@ -937,6 +932,7 @@ class Acl implements \Serializable
 		return null;
 	}
 
+	
 	/**
 	 * Performs a depth-first search of the Role DAG, starting at $role, in order to find a rule
 	 * allowing/denying $role access to a $privilege upon $resource
@@ -950,8 +946,7 @@ class Acl implements \Serializable
 	 * @return boolean|null
 	 * @throws AclException
 	 */
-	protected function _roleDFSOnePrivilege(RoleInterface $role, Resource $resource = null, $privilege = null)
-	{
+	protected function _roleDFSOnePrivilege(RoleInterface $role, Resource $resource = null, $privilege = null){
 		if (null === $privilege) {
 
 			throw new AclException('$privilege parameter may not be null');
@@ -977,6 +972,7 @@ class Acl implements \Serializable
 		return null;
 	}
 
+	
 	/**
 	 * Visits an $role in order to look for a rule allowing/denying $role access to a $privilege upon $resource
 	 *
@@ -993,8 +989,7 @@ class Acl implements \Serializable
 	 * @throws AclException
 	 */
 	protected function _roleDFSVisitOnePrivilege(RoleInterface $role, Resource $resource = null,
-	$privilege = null, &$dfs = null)
-	{
+	$privilege = null, &$dfs = null){
 		if (null === $privilege) {
 			/**
 			 * @see AclException
@@ -1023,6 +1018,7 @@ class Acl implements \Serializable
 		return null;
 	}
 
+	
 	/**
 	 * Returns the rule type associated with the specified Resource, Role, and privilege
 	 * combination.
@@ -1044,8 +1040,7 @@ class Acl implements \Serializable
 	 * @param  string                      $privilege
 	 * @return string|null
 	 */
-	protected function _getRuleType(Resource $resource = null, RoleInterface $role = null, $privilege = null)
-	{
+	protected function _getRuleType(Resource $resource = null, RoleInterface $role = null, $privilege = null){
 		// get the rules for the $resource and $role
 		if (null === ($rules = $this->_getRules($resource, $role))) {
 			return null;
@@ -1086,6 +1081,7 @@ class Acl implements \Serializable
 		}
 	}
 
+	
 	/**
 	 * Returns the rules associated with a Resource and a Role, or null if no such rules exist
 	 *
@@ -1099,8 +1095,7 @@ class Acl implements \Serializable
 	 * @param  boolean                     $create
 	 * @return array|null
 	 */
-	protected function &_getRules(Resource $resource = null, RoleInterface $role = null, $create = false)
-	{
+	protected function &_getRules(Resource $resource = null, RoleInterface $role = null, $create = false){
 		// create a reference to null
 		$null = null;
 		$nullRef =& $null;
@@ -1147,8 +1142,7 @@ class Acl implements \Serializable
 	 * @return array of registered roles
 	 *
 	 */
-	public function getRegisteredRoles()
-	{
+	public function getRegisteredRoles(){
 		return $this->_getRoleRegistry()->getRoles();
 	}
 
@@ -1166,8 +1160,7 @@ class Acl implements \Serializable
 	}
 
 
-	public function unserialize($serialized)
-	{
+	public function unserialize($serialized){
 		$a = unserialize($serialized);
 		$this->_resources = $a['resources'];
 		$this->_getRoleRegistry()->setRoles($a['roles']);

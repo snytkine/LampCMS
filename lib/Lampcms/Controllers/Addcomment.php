@@ -178,6 +178,16 @@ class Addcomment extends WebPage
 	protected function checkPermission(){
 		$viewerID = $this->oRegistry->Viewer->getUid();
 
+		/**
+		 * If NOT question owner AND NOT Resource owner
+		 * AND Reputation below required 
+		 * THEN must have 'comment' permission
+		 * 
+		 * This means in order to comment Viewer
+		 * must be owner of Question OR owner of Answer
+		 * OR have enough reputation
+		 * OR have special 'comment' permission
+		 */
 		if(
 		($this->oResource->getQuestionOwnerId() !== $viewerID) &&
 		($this->oResource->getOwnerId() !== $viewerID) &&

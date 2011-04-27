@@ -51,6 +51,8 @@
 
 namespace Lampcms\Controllers;
 
+use Lampcms\SocialCheckboxes;
+
 use Lampcms\WebPage;
 use Lampcms\RegBlockQuickReg;
 use Lampcms\RegBlock;
@@ -67,15 +69,23 @@ class Askform extends WebPage
 {
 
 	protected $permission = 'ask';
-	
-	protected $aTplVars = array();
 
+	/**
+	 * Form object
+	 *
+	 * @var object of type \Lampcms\Forms\Askform
+	 */
 	protected $oForm;
 
 	protected $qtab = 'ask';
 
 	protected $title;
 
+	/**
+	 *
+	 * Layout 1 means no side columns - just one main area
+	 * @var int
+	 */
 	protected $layoutID = 1;
 
 
@@ -95,22 +105,37 @@ class Askform extends WebPage
 		->makeTopTabs()
 		->makeMemo()
 		->makeHintBlocks();
-		//->makeHtml();
 	}
 
+
+	/**
+	 * Instantiate the $this->oForm object
+	 * and sets the value of 'social' var
+	 *
+	 * @return object $this
+	 */
 	protected function makeForm(){
 		d('cp');
 		$this->oForm = new \Lampcms\Forms\Askform($this->oRegistry);
-
+		if(!$this->oForm->isSubmitted()){
+			$this->oForm->socials = SocialCheckboxes::get($this->oRegistry);
+		}
+		
 		return $this;
 	}
 
+
+	/**
+	 * Set the value of $this->aPageVars['body']
+	 * to the html of the form
+	 *
+	 * @return object $this
+	 */
 	protected function setForm(){
 		$form = $this->oForm->getForm();
 		/**
 		 * In case of Ajax can just return the form now
 		 */
-
 		$this->aPageVars['body'] = $form;
 
 		return $this;
@@ -174,7 +199,7 @@ class Askform extends WebPage
 			$this->oForm->disabled = ' disabled="disabled"';
 
 			$oQuickReg = new RegBlockQuickReg($this->oRegistry);
-			
+
 			$socialButtons = LoginForm::makeSocialButtons($this->oRegistry);
 			/**
 			 * @todo Translate string
@@ -187,16 +212,4 @@ class Askform extends WebPage
 		return $this;
 	}
 
-
-
-	protected function makeHtml(){
-		d('$this->aTplVars: '.print_r($this->aTplVars, 1));
-
-		$html = \tplQview::parse($this->aTplVars);
-		d('html: '.$html);
-
-		$this->aPageVars['body'] = $html;
-
-		d('cp');
-	}
 }

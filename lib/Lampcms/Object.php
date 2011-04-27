@@ -295,10 +295,10 @@ class LampcmsObject implements Interfaces\LampcmsObject
 	 * @param Registry $oRegistry
 	 */
 	public static function factory(Registry $oRegistry){
-
 		return new static($oRegistry);
 	}
 
+	
 	/**
 	 * Get unique hash code for the object
 	 * This code uniquely identifies an object,
@@ -308,26 +308,25 @@ class LampcmsObject implements Interfaces\LampcmsObject
 	 *
 	 * @return string
 	 */
-	public function hashCode()
-	{
+	public function hashCode(){
 		return spl_object_hash($this);
 	}
 
+	
 	/**
 	 * Getter of the class name
 	 * @return string the class name of this object
 	 */
-	public function getClass()
-	{
+	public function getClass(){
 		return get_class($this);
 	}
 
+	
 	/**
 	 * Outputs the name and uniqe code of this object
 	 * @return string
 	 */
-	public function __toString()
-	{
+	public function __toString(){
 		return 'object of type: '.$this->getClass().' hashCode: '.$this->hashCode();
 	}
 
@@ -345,16 +344,15 @@ class LampcmsObject implements Interfaces\LampcmsObject
 class LampcmsArray extends \ArrayObject implements \Serializable, Interfaces\LampcmsObject
 {
 
-	public function __isset($name)
-	{
+	public function __isset($name){
 		return $this->offsetExists($name);
 	}
 
-	public function __unset($name)
-	{
+	public function __unset($name){
 		return $this->offsetUnset($name);
 	}
 
+	
 	/**
 	 * Some functions must just return
 	 * result of calling a functions
@@ -373,8 +371,7 @@ class LampcmsArray extends \ArrayObject implements \Serializable, Interfaces\Lam
 	 * @param $arguments
 	 * @return unknown_type
 	 */
-	public function __call($name, $arguments)
-	{
+	public function __call($name, $arguments){
 		/**
 		 * These functions don't return anything
 		 * they modify current array
@@ -392,19 +389,28 @@ class LampcmsArray extends \ArrayObject implements \Serializable, Interfaces\Lam
 
 	}
 
-	public function serialize()
-	{
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see ArrayObject::serialize()
+	 */
+	public function serialize(){
 		$a = $this->getArrayCopy();
 
 		return serialize($a);
 	}
 
-	public function unserialize($serialized)
-	{
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see ArrayObject::unserialize()
+	 */
+	public function unserialize($serialized){
 		$a = unserialize($serialized);
 		$this->exchangeArray($a);
 	}
 
+	
 	/**
 	 * Merges the input array with existing
 	 * array. But instead of using array_merge,
@@ -419,8 +425,7 @@ class LampcmsArray extends \ArrayObject implements \Serializable, Interfaces\Lam
 	 * @param array $a
 	 * @return object $this
 	 */
-	public function addArray(array $a)
-	{
+	public function addArray(array $a){
 		foreach($a as $key => $val){
 			$this->offsetSet($key, $val);
 		}
@@ -437,8 +442,7 @@ class LampcmsArray extends \ArrayObject implements \Serializable, Interfaces\Lam
 	 *
 	 * @throws InvalidArgumentException if argument is not an array and not ArrayObject object
 	 */
-	public function getMerged($arr)
-	{
+	public function getMerged($arr){
 		if (is_array($arr)) {
 			return array_merge($this->getArrayCopy(), $arr);
 		} elseif (is_object($arr)) {
@@ -463,23 +467,25 @@ class LampcmsArray extends \ArrayObject implements \Serializable, Interfaces\Lam
 	 *
 	 * @return string
 	 */
-	public function hashCode()
-	{
+	public function hashCode(){
 		return spl_object_hash($this);
 	}
 
+	
 	/**
 	 * Getter of the class name
 	 * @return string the class name of this object
 	 */
-	public function getClass()
-	{
+	public function getClass(){
 		return get_class($this);
 	}
 
 
-	public function __toString()
-	{
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.LampcmsObject::__toString()
+	 */
+	public function __toString(){
 		return 'object of type: '.$this->getClass().' hashCode: '.$this->hashCode().' with array: '.print_r($this->getArrayCopy(), true);
 	}
 
@@ -496,12 +502,19 @@ class ArrayDefaults extends LampcmsArray
 
 	protected $defaultValue = self::DEFAULT_VAL;
 
-	public function __construct(array $a = array(), $defaultVal = null)
-	{
+	/**
+	 * Constructor
+	 * 
+	 * @param array $a underlying array represented by this object
+	 * @param string $defaultVal value to return in case
+	 * the element does not exist in array
+	 */
+	public function __construct(array $a = array(), $defaultVal = null){
 		parent::__construct($a);
 		$this->defaultValue = $defaultVal;
 	}
 
+	
 	/**
 	 * Redefine offsetExists to allways return true
 	 * this way a request for $obj['blabla']
@@ -512,16 +525,20 @@ class ArrayDefaults extends LampcmsArray
 	 *
 	 * @return true
 	 */
-	public function offsetExists($name)
-	{
+	public function offsetExists($name){
 		return true;
 	}
 
-	public function __isset($name)
-	{
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms.LampcmsArray::__isset()
+	 */
+	public function __isset($name){
 		return $this->checkOffset($name);
 	}
 
+	
 	/**
 	 * This checks wheather index really exists
 	 * since we can no longer rely on the
@@ -531,11 +548,11 @@ class ArrayDefaults extends LampcmsArray
 	 * @param string $name
 	 * @return bool
 	 */
-	public function checkOffset($name)
-	{
+	public function checkOffset($name){
 		return parent::offsetExists($name);
 	}
 
+	
 	/**
 	 * Redefine offsetGet to return defaultValue
 	 * if index $name does not actually exists.
@@ -543,13 +560,10 @@ class ArrayDefaults extends LampcmsArray
 	 * the value of $this->defaultValue
 	 * instead of raising error
 	 *
-	 *
-	 *
 	 * @param string $name
 	 * @return unknown
 	 */
-	public function offsetGet($name)
-	{
+	public function offsetGet($name){
 		if (parent::offsetExists($name)) {
 
 			return parent::offsetGet($name);
@@ -558,19 +572,20 @@ class ArrayDefaults extends LampcmsArray
 		return $this->defaultValue;
 	}
 
+	
 	/**
 	 * Setter for $this->defaultValue
 	 *
 	 * @param mixed $val
 	 * @return object $this
 	 */
-	public function setDefaultValue($val)
-	{
+	public function setDefaultValue($val){
 		$this->defaultValue = $val;
 
 		return $this;
 	}
 
+	
 	/**
 	 * Getter method for $this->defaultValue
 	 * this is not very usefull, usually only used
@@ -579,24 +594,24 @@ class ArrayDefaults extends LampcmsArray
 	 *
 	 * @return value of $this->defaultValue
 	 */
-	public function getDefaultValue()
-	{
+	public function getDefaultValue(){
 		return $this->defaultValue;
 	}
 
+	
 	/**
 	 * Resets the value of $this->defaultValue
 	 * to value of DEFAULT_VAL constant
 	 *
 	 * @return object $this
 	 */
-	public function resetDefaultValue()
-	{
+	public function resetDefaultValue(){
 		$this->defaultValue = self::DEFAULT_VAL;
 
 		return $this;
 	}
 
+	
 	/**
 	 * If the key $key does not actually exists in
 	 * the array, then return the value passed as
@@ -609,8 +624,7 @@ class ArrayDefaults extends LampcmsArray
 	 * @param mixed $default
 	 * @return mixed
 	 */
-	public function getFallback($key, $default = null)
-	{
+	public function getFallback($key, $default = null){
 		if (parent::offsetExists($key)) {
 
 			return parent::offsetGet($key);
@@ -619,11 +633,20 @@ class ArrayDefaults extends LampcmsArray
 		return ( null !== $default) ? $default : $key;
 	}
 
-	public function getFallbackLc($key, $default = null)
-	{
-		return $this->getFallback(strtolower($key), $default);
+	
+	/**
+	 * 
+	 * Get value of $key previously converting
+	 * $key to lower case
+	 * 
+	 * @param string $key
+	 * @param string $default
+	 */
+	public function getFallbackLc($key, $default = null){
+		return $this->getFallback(\strtolower($key), $default);
 	}
 
+	
 	/**
 	 * This method lets you get undefined array keys as
 	 * object properties
@@ -635,23 +658,29 @@ class ArrayDefaults extends LampcmsArray
 	 * @param string $name
 	 * @return mixed
 	 */
-	public function __get($name)
-	{
+	public function __get($name){
 		return $this->offsetGet($name);
 	}
 
 
-	public function serialize()
-	{
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms.LampcmsArray::serialize()
+	 */
+	public function serialize(){
 		return serialize(array('array' => $this->getArrayCopy(), 'default' => $this->defaultValue));
 	}
 
-	public function unserialize($serialized)
-	{
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms.LampcmsArray::unserialize()
+	 */
+	public function unserialize($serialized){
 		$a = unserialize($serialized);
 		$this->exchangeArray($a['array']);
 		$this->defaultValue = $a['default'];
 	}
 
-} // ArrayDefaults
+}
 

@@ -560,11 +560,12 @@ class Captcha extends LampcmsObject
 		d('$image: '.gettype($image). ' image file: '.$this->get_filename().' $this->jpegquality: '.$this->jpegquality);
 		if(true !== imagejpeg($image, $this->get_filename(), $this->jpegquality)){
 			e('error writing captcha image');
+			throw new DevException('Unable to save captcha-image to '.$this->get_filename());
 		}
 
 		if(!file_exists($this->get_filename())){
 			e('Captcha-Debug unable to save captcha file to '.$this->get_filename());
-			throw new DevException('Unable to save captcha-image.');
+			throw new DevException('Unable to save captcha-image to '.$this->get_filename());
 		}
 
 		d('Captcha-Debug');

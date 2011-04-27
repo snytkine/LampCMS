@@ -91,6 +91,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		return 'QUESTION';
 	}
 
+
 	/**
 	 * (non-PHPdoc)
 	 * @see ResourceInterface::getResourceId()
@@ -102,6 +103,22 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 
 	/**
+	 * Convenience method so that it can be used from
+	 * objects that expect a Resource but not necessaraly know
+	 * if Resource is going to be Question or Answer
+	 *
+	 * @todo Add Interface for this and implement it in Question
+	 * and Answer
+	 *
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.Resource::getResourceId()
+	 */
+	public function getQuestionId(){
+		return $this->getResourceId();
+	}
+
+
+	/**
 	 * (non-PHPdoc)
 	 * @see LampcmsResourceInterface::getDeletedTime()
 	 */
@@ -109,6 +126,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		return $this->offsetGet('i_del_ts');
 	}
+
 
 	/**
 	 * (non-PHPdoc)
@@ -149,9 +167,11 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 *
 	 * @return string url for this question
 	 */
-	public function getUrl(){
+	public function getUrl($short = false){
 
-		return $this->oRegistry->Ini->SITE_URL.'/q'.$this->offsetGet('_id').'/'.$this->offsetGet('url');
+		$url = $this->oRegistry->Ini->SITE_URL.'/q'.$this->offsetGet('_id').'/';
+
+		return ($short) ? $url : $url.$this->offsetGet('url');
 	}
 
 
@@ -527,6 +547,10 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	}
 
 
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.UpDownRatable::addDownVote()
+	 */
 	public function addDownVote($inc = 1){
 
 		if($inc !== 1 && $inc !== -1){
@@ -553,6 +577,10 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	}
 
 
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.UpDownRatable::getVotesArray()
+	 */
 	public function getVotesArray(){
 
 		$a = array(
@@ -564,11 +592,19 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	}
 
 
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.UpDownRatable::getScore()
+	 */
 	public function getScore(){
 		return $this->offsetGet('i_votes');
 	}
 
 
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.CommentedResource::addComment()
+	 */
 	public function addComment(CommentParser $oComment){
 		$aKeys = array(
 		'_id', 
@@ -616,13 +652,22 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	}
 
 
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.CommentedResource::getCommentsCount()
+	 */
 	public function getCommentsCount(){
 		$aComments = $this->getComments();
 
 		return count($aComments);
 	}
 
-
+	
+	/**
+	 *
+	 * Increase value of i_commets by 1
+	 * @return object $this
+	 */
 	public function increaseCommentsCount(){
 		/**
 		 * Now increase comments count
@@ -634,7 +679,6 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		return $this;
 	}
-
 
 
 	/**
@@ -740,7 +784,6 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	}
 
 
-
 	/**
 	 * Add userID of user to the array
 	 * of a_flwrs
@@ -835,6 +878,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	public function getQuestionOwnerId(){
 		return $this->getOwnerId();
 	}
+
 
 	/**
 	 * Get username of asker

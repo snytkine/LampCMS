@@ -80,18 +80,18 @@ class Registry implements Interfaces\LampcmsObject
 {
 	protected static $instance;
 
-	
+
 	/**
-	 * 
+	 *
 	 * Storate array of callable methods
 	 * that know how to instantiate object
 	 * OR element could be an object
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $values = array();
 
-	
+
 	/**
 	 * Add known classes to this injector
 	 * This is important to add all classes
@@ -117,10 +117,11 @@ class Registry implements Interfaces\LampcmsObject
 		$Viewer = $this->__get('Viewer');
 		if(is_object($Viewer)){
 			$Viewer->setLastActive();
+			$Viewer->saveIfChanged();
 		}
 	}
 
-	
+
 	/**
 	 *
 	 * Enter description here ...
@@ -167,6 +168,15 @@ class Registry implements Interfaces\LampcmsObject
 		});
 
 
+		$this->values['Acl'] = $this->asShared(function ($c) {
+			/*if($c->Ini->CACHE_ACL){
+				return $c->Cache->Acl;
+				}*/
+
+			return new \Lampcms\Acl\Acl();
+		});
+
+
 		/**
 		 * Our main default EventDispatcher
 		 * singleton pattern
@@ -177,7 +187,6 @@ class Registry implements Interfaces\LampcmsObject
 		});
 
 
-
 		/**
 		 * Resource object is not singleton
 		 * we want new instance every time
@@ -186,6 +195,7 @@ class Registry implements Interfaces\LampcmsObject
 		$this->__set('MongoDoc', function($c){
 			return new MongoDoc($c);
 		});
+
 
 		/**
 		 * Resource object is not singleton
@@ -199,7 +209,7 @@ class Registry implements Interfaces\LampcmsObject
 		return $this;
 	}
 
-	
+
 	public static function getInstance(){
 		if(!isset(self::$instance)){
 			self::$instance = new self();
@@ -208,7 +218,7 @@ class Registry implements Interfaces\LampcmsObject
 		return self::$instance;
 	}
 
-	
+
 	/**
 	 * Cannot call this from constructor
 	 * because this object instantiated before
@@ -251,7 +261,7 @@ class Registry implements Interfaces\LampcmsObject
 			return $o;
 		}
 
-		if (!isset($this->values[$id])){			
+		if (!isset($this->values[$id])){
 			d(sprintf('Value "%s" is not defined.', $id));
 
 			return null;
@@ -335,7 +345,7 @@ class Registry implements Interfaces\LampcmsObject
 		return $defaultLang;
 	}
 
-	
+
 	/**
 	 * Get unique hash code for the object
 	 * This code uniquely identifies an object,
@@ -349,7 +359,7 @@ class Registry implements Interfaces\LampcmsObject
 		return spl_object_hash($this);
 	}
 
-	
+
 	/**
 	 * Getter of the class name
 	 * @return string the class name of this object
@@ -358,7 +368,7 @@ class Registry implements Interfaces\LampcmsObject
 		return get_class($this);
 	}
 
-	
+
 	/**
 	 * Outputs the name and uniqe code of this object
 	 * @return string

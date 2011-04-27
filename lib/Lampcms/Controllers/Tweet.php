@@ -77,26 +77,29 @@ class Tweet extends WebPage
 
 	protected $aRequired = array('tweet', 'token');
 
-	protected $bInitPageDoc = false;
+	protected $bInitPageVars = false;
+	
+	protected $requireToken = true;
+	
+	protected $bRequirePost = true;
 
 	/**
 	 *
 	 */
-	protected function main()
-	{
+	protected function main(){
 
 		if(!Request::isAjax()){
 			e('Tweet called as non-ajax');
 			throw new \Lampcms\Exception('This page can only be accessed using XHR request (ajax)');
 		}
 
-		if(empty($_SESSION['secret']) || $this->oRequest['token'] !== $_SESSION['secret']){
+		/*if(empty($_SESSION['secret']) || $this->oRequest['token'] !== $_SESSION['secret']){
 			throw new \Lampcms\FormException('Access token mismatch');
-		}
+		}*/
 
 		try{
 			$oTwitter = new Twitter($this->oRegistry);
-			$aResponse = $oTwitter->prepareAndPost($this->oRequest['tweet']);
+			$aResponse = $oTwitter->prepareAndPost($this->oRequest->getUTF8('tweet'));
 			Responder::sendJSON(array('tweet' => 'done'));
 		} catch (\Lampcms\Exception $e){
 			e('Unable to post message to Twitter: '.$e->getFile(). ' line: '.$e->getLine().' '.$e->getMessage());

@@ -342,7 +342,9 @@ class ExternalAuthFb extends Facebook
 		if(!empty($aUser)){
 			$this->oUser = UserFacebook::factory($this->oRegistry, $aUser);
 			d('existing user $this->oUser: '.print_r($this->oUser->getArrayCopy(), 1));
-			$this->updateUser()->updateFbUserRecord($bFacebookId);
+			$this->updateUser()->updateFbUserRecord();
+			d('cp');
+			
 			return $this->oUser;
 		}
 
@@ -417,7 +419,7 @@ class ExternalAuthFb extends Facebook
 			 * in this case we still have to create a new
 			 * record in USERS_FACEBOOK
 			 */
-			$this->updateFbUserRecord($bFacebookId);
+			$this->updateFbUserRecord();
 		} else {
 			/**
 			 * This is the case where we found $uid either is USERS_FACEBOOK
@@ -538,20 +540,36 @@ class ExternalAuthFb extends Facebook
 		$this->oUser['fn'] = $this->aFbUserData['first_name'];
 		$this->oUser['ln'] = $this->aFbUserData['last_name'];
 		$extAvatar = $this->oUser['avatar_external'];
-		
-		if($updateAvatar || empty($extAvatar)){
+
+		/**
+		 * Reason why not checking $updateAvatar anymore
+		 * is because if logged in with Twitter,
+		 * then added FB using Connect - the avatar is not
+		 * updated (good)
+		 * but then same user loggs in with FB and
+		 * at that time $updateAvatar = false not passed
+		 * and avatar is then just changed to FB!
+		 * Unexpected turn of events!
+		 */
+		if(empty($extAvatar)){
 			$this->oUser['avatar_external'] = 'http://graph.facebook.com/'.$this->aFbUserData['id'].'/picture';
 		}
-		
+
 		if(!empty($this->aFbUserData['link'])){
 			$this->oUser['fb_url'] = $this->aFbUserData['link'];
 		}
 
-		$this->oUser->save();
-		d('cp');
-		$this->oRegistry->Dispatcher->post($this->oUser, 'onUserUpdate');
-		d('cp');
+		try{
+			$this->oUser->save();
+			d('cp');
 
+			$this->oRegistry->Dispatcher->post($this->oUser, 'onUserUpdate');
+			d('cp');
+		} catch (\Exception $e){
+			e('Error while saving user: '.$e->getMessage().' file: '.$e->getFile().' on line '.$e->getLine());
+		}
+
+			
 		return $this;
 	}
 
@@ -713,7 +731,8 @@ class ExternalAuthFb extends Facebook
 	 *
 	 * @return object $this
 	 */
-	protected function updateFbUserRecord($isUpdate = false){
+	protected function updateFbUserRecord(){
+		d('cp');
 
 		$uid = $this->oUser->getUid();
 		d('uid '.$uid);
@@ -739,10 +758,17 @@ class ExternalAuthFb extends Facebook
 	 *
 	 * @todo have site logo image in settings
 	 *
+	 * @todo unfinished. Must ask user permission
+	 * during registration to post something to the wall
+	 * like "I joined this cool site"
+	 *
 	 * Post to user wall
 	 *
 	 */
 	protected function postRegistrationToWall(){
+
+		return $this;
+
 		d('bToWall: '.$this->bToWall);
 		if($this->bToWall){
 			$aData = array(
@@ -750,13 +776,12 @@ class ExternalAuthFb extends Facebook
 		'message' => 'Joined this website',
 		'link' => $this->oRegistry->Ini->SITE_URL,
 		'caption' => 'Interesting stuff',
-		'picture' => 'http://www.apacheserver.net/images/apache.jpg',
 		'name' => $this->oRegistry->Ini->SITE_TITLE,
 		'description' => '<b>Cool stuff </b>');
 
-			$this->postUpdate($aData);
-
 		}
+
+		return $this;
 	}
 
 

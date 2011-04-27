@@ -79,10 +79,7 @@ class Usertools
 	 * @return string html fragment with Form and button
 	 */
 	public static function getHtml(Registry $oRegistry, User $oUser){
-		$oACL = new Acl();
-
-		/*print_r($oACL);
-		 exit;*/
+		$oACL = $oRegistry->Acl;
 
 		$options = '';
 		$shredButton = '';

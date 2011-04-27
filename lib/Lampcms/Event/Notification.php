@@ -70,17 +70,20 @@ class Notification extends Dispatcher
 	 */
 	const DEFAULT_STATE = 0;
 
+	
 	/**
 	 * Notification has been cancelled
 	 */
 	const CANCELLED_STATE = 1;
 
+	
 	/**
 	 * name of the notofication
 	 * @var string
 	 */
 	protected $notificationName;
 
+	
 	/**
 	 * object of interest
 	 * (the sender of the notification, in most cases)
@@ -88,12 +91,14 @@ class Notification extends Dispatcher
 	 */
 	protected $notificationObject;
 
+	
 	/**
 	 * additional information about the notification
 	 * @var mixed
 	 */
 	protected $notificationInfo = array();
 
+	
 	/**
 	 * state of the notification
 	 *
@@ -105,6 +110,7 @@ class Notification extends Dispatcher
 	 */
 	protected $notificationState = self::DEFAULT_STATE;
 
+	
 	/**
 	 * amount of observers that received this notification
 	 * @var mixed
@@ -122,13 +128,13 @@ class Notification extends Dispatcher
 	 *
 	 * @return void
 	 */
-	public function __construct($object, $name, array $info = array())
-	{
+	public function __construct($object, $name, array $info = array()){
 		$this->notificationObject = $object;
 		$this->notificationName   = $name;
 		$this->notificationInfo   = $info;
 	}
 
+	
 	/**
 	 * For information purposed and for purposes on loggin, so
 	 * you may add the class to log like $log($oEvent)
@@ -136,81 +142,80 @@ class Notification extends Dispatcher
 	 *
 	 * @return string with info about this object
 	 */
-	public function __toString()
-	{
+	public function __toString(){
 		return 'Notification object. "Event notification name":'.$this->notificationName;
 			
 	}
 
+	
 	/**
 	 * Returns the notification name
 	 *
 	 * @return  string Notification name
 	 */
-	function getNotificationName()
-	{
+	function getNotificationName(){
 		return $this->notificationName;
 	}
 
+	
 	/**
 	 * Returns the contained object
 	 *
 	 * @return  object Contained object
 	 */
-	public function getNotificationObject()
-	{
+	public function getNotificationObject(){
 		return $this->notificationObject;
 	}
 
+	
 	/**
 	 * Returns the user info array
 	 *
 	 * @return  array user info
 	 */
-	public function getNotificationInfo()
-	{
+	public function getNotificationInfo(){
 		return $this->notificationInfo;
 	}
 
+	
 	/**
 	 * Increase the internal count
 	 *
 	 * @access   public
 	 * @return void
 	 */
-	public function increaseNotificationCount()
-	{
+	public function increaseNotificationCount(){
 		++$this->notificationCount;
 	}
 
+	
 	/**
 	 * Get the number of posted notifications
 	 * This info is usefull for testing and debuging
 	 *
 	 * @return   int
 	 */
-	public function getNotificationCount()
-	{
+	public function getNotificationCount(){
 		return $this->notificationCount;
 	}
 
+	
 	/**
 	 * Cancel the notification
 	 *
 	 * @return   void
 	 */
-	public function cancelNotification()
-	{
+	public function cancelNotification(){
 		$this->notificationState = self::CANCELLED_STATE;
 	}
 
+	
 	/**
 	 * Checks whether the notification has been cancelled
 	 *
 	 * @return   boolean
 	 */
-	public function isNotificationCancelled()
-	{
+	public function isNotificationCancelled(){
 		return ($this->notificationState === self::CANCELLED_STATE);
 	}
 }

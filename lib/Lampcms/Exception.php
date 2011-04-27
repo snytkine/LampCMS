@@ -92,9 +92,7 @@ class Exception extends \Exception
 
 	protected $bHtml = false;
 
-	public function __construct($sMessage = null, array $aArgs = null, $intCode = 0,
-	$bHTML = false)
-	{
+	public function __construct($sMessage = null, array $aArgs = null, $intCode = 0, $bHTML = false){
 		parent::__construct($sMessage, $intCode);
 		$this->aArgs = $aArgs;
 		$this->bHTML = $bHTML;
@@ -106,8 +104,7 @@ class Exception extends \Exception
 	 *
 	 * @return array
 	 */
-	public function getArgs()
-	{
+	public function getArgs(){
 		return $this->aArgs;
 	}
 
@@ -117,8 +114,7 @@ class Exception extends \Exception
 	 *
 	 * @return unknown
 	 */
-	public function getHtmlFlag()
-	{
+	public function getHtmlFlag(){
 		return $this->bHtml;
 	}
 
@@ -139,8 +135,7 @@ class Exception extends \Exception
 	 *
 	 * from data in Exception object
 	 */
-	public static function formatException(\Exception $e, $sMessage = '')
-	{
+	public static function formatException(\Exception $e, $sMessage = ''){
 		$sMessage = (!empty($sMessage)) ? $sMessage : $e->getMessage();
 		$sMessage = $e->getMessage();
 		$bHtml = ($e instanceof \Lampcms\Exception) ? $e->getHtmlFlag() : false;
@@ -534,7 +529,7 @@ class HttpResponseCodeException extends HttpResponseErrorException
 		 * which does NOT accept the third param,
 		 * so we must only pass $message and $code here!
 		 */
-		parent::__construct($message, $code);
+		parent::__construct($message,null, $code);
 
 		$this->httpResponseCode = $httpCode;
 	}
@@ -544,8 +539,7 @@ class HttpResponseCodeException extends HttpResponseErrorException
 	 *
 	 * @return int value of $this->httpResponseCode
 	 */
-	public function getHttpCode()
-	{
+	public function getHttpCode(){
 		return $this->httpResponseCode;
 	}
 }

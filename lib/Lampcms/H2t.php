@@ -94,6 +94,7 @@ class H2t
 	 */
 	protected $oInputDom;
 
+	
 	/**
 	 * Object of type XSLProcessor
 	 *
@@ -101,6 +102,7 @@ class H2t
 	 */
 	protected $oXSL;
 
+	
 	/**
 	 * Location of template file
 	 * must point to plaintext.xsl file
@@ -109,14 +111,14 @@ class H2t
 	 */
 	protected $templateFile = 'plaintext.xsl';
 
+	
 	/**
 	 * Constructor, cannot be called
 	 * directly, only via factory!
 	 *
 	 * @return void
 	 */
-	protected function __construct()
-	{
+	protected function __construct(){
 		if(!extension_loaded('xsl')){
 			
 			throw new Exception('php_xsl extension not loaded. If you are on Windows, please uncomment ;extension=php_xsl.dll in your php.ini');
@@ -127,6 +129,7 @@ class H2t
 		$this->makeXslProcessor();
 	}
 
+	
 	/**
 	 * Factory method to make the object,
 	 * load html string
@@ -136,14 +139,14 @@ class H2t
 	 * @param string $sHtml input html string
 	 * @return object of this class
 	 */
-	public static function factory($sHtml)
-	{
+	public static function factory($sHtml){
 		$o = new self();
 		$o->loadHtml($sHtml);
 
 		return $o;
 	}
 
+	
 	/**
 	 * Loads the input html string
 	 * into the DOMDocument object
@@ -177,8 +180,7 @@ class H2t
 	 * @throws HTML2TextException if unable to load html string
 	 * into DOM
 	 */
-	public function loadHtml($sHtml)
-	{
+	public function loadHtml($sHtml){
 
 		if(extension_loaded('tidy')){
 			$tidy = new \tidy;
@@ -197,8 +199,7 @@ class H2t
 	}
 
 
-	protected function makeXslProcessor()
-	{
+	protected function makeXslProcessor(){
 		$xsl = new \DOMDocument;
 		$tpl = LAMPCMS_PATH.DIRECTORY_SEPARATOR.$this->templateFile;
 		if(!is_file($tpl)){
@@ -227,8 +228,7 @@ class H2t
 	 * @return string output text
 	 * @throws HTML2TextException if unable to transform to text
 	 */
-	public function getText()
-	{
+	public function getText(){
 		if(false === $text = $this->oXSL->transformToXML($this->oInputDom)){
 			throw new HTML2TextException('Unable to transform to text');
 		}
@@ -236,14 +236,14 @@ class H2t
 		return wordwrap($text);
 	}
 
+	
 	/**
 	 * Magic method to enable echoing
 	 * of this object
 	 *
 	 * @return string result of getText()
 	 */
-	public function __toString()
-	{
+	public function __toString(){
 		return $this->getText();
 	}
 }

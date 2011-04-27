@@ -322,7 +322,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 	 *
 	 * @return string url for this question
 	 */
-	public function getUrl(){
+	public function getUrl($short = false){
 
 		return $this->oRegistry->Ini->SITE_URL.'/q'.$this->offsetGet('i_qid').'/#ans'.$this->offsetGet('_id');
 	}

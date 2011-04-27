@@ -284,12 +284,25 @@ TWITTER_OAUTH_SECRET =
 ; we may also add new user to follow this account when they
 ; join
 TWITTER_USERNAME = 
+; These prefixes
+; are added to user's tweets when they
+; post question or answer to twitter
+; You can use whatever you like or leave them blank
+QUESTION_TWEET_PREFIX = "#question"
+ANSWER_TWEET_PREFIX = "My answer to: "
 
 [FACEBOOK]
 ; Get your APP_ID and API_SECRET here: 
 ; http://developers.facebook.com/setup/
 ; To setup new application and get API_KEY
 ; go here: http://www.facebook.com/developers/
+;
+; IMPORTANT! when settin up your Facebook APP,
+; DO NOT SET value for "Site Domain" - leave it blank
+; otherwise Facebook will be setting cookie using
+; .yourdomain.com and it will be very difficult to delete
+; this cookie unless you also set the exact same value
+; like .yourdomain.com in site file's COOKIE_DOMAIN setting
 ;
 ; user picture is not in any json, its simply this:
 ; http://graph.facebook.com/$UID/picture
@@ -301,7 +314,10 @@ APP_SECRET =
 ; You should require publish_stream also if
 ; you want to post something to user 'wall'
 EXTENDED_PERMS = "email,publish_stream,offline_access"
-POST_TO_WALL = true
+; Enter full url of your site's logo image
+; This should be fairly small image (about 50x50 or so)
+; If set, it will appear on posts to Facebook as an icon
+SITE_LOGO =
 
 ; Custom classes that extend LampcmsObserver
 ; can be listed here and they will be automatically
@@ -319,7 +335,45 @@ POST_TO_WALL = true
 ipFilter= "\\Lampcms\\Modules\\Observers\\IpFilter"
 floodCheck = "\\Lampcms\\Modules\\Observers\\FloodCheck"
 questionSimilar = "\\Lampcms\\Modules\\Observers\\Similars"
+
+; If twitter filter is enabled (not commented out here)
+; then a checkbox to "Post to Twitter" will be
+; added to "Ask" and "Answer" forms
+; Make sure you actually enabled Twitter API integration
+; before enabling this filter otherwise it will not work
+; Check the [TWITTER] section of this file for enabling 
+; the Twitter API
+;
+;twitter = "\\Lampcms\\Modules\\Observers\\PostTweet"
+
+; If facebook filter is enabled (not commented out here)
+; then a checkbox to "Post to Twitter" will be
+; added to "Ask" and "Answer" forms
+; Make sure you actually enabled Facebook API integration
+; before enabling this filter otherwise it will not work
+; Check the [FACEBOOK] section of this file for enabling 
+; the FACEBOOK API
+;
+;facebook = "\\Lampcms\\Modules\\Observers\\PostFacebook"
+
+; EmailNotifier can take long to run
+; it's best to put this filter as the last filter
+; 
 EmailNotifier = "\\Lampcms\\Modules\\Observers\\EmailNotifier"
+
+; bit.ly use used for shortening urls
+; this is useful when posting questions/answers
+; to Twitter.
+; if you not using the Twitter Module then
+; you not going to need this
+; 
+; Signup for bit.ly account to get
+; your username and api key
+; go here to get started: http://bit.ly/a/your_api_key
+; 
+[BITLY]
+user=
+api_key =
 
 [CURL]
 ; primary ip address from which curl will connect

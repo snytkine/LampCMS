@@ -723,7 +723,7 @@ class Utf8String extends String
 		$numwords = 0;
 
 		foreach ($words as $word) {
-			if ((mb_strlen($newstring) + 1 + mb_strlen($word)) < $max) {
+			if ((mb_strlen($newstring) + 1 + \mb_strlen($word)) < $max) {
 				$newstring .= ' '.$word;
 				++$numwords;
 			} else {
@@ -800,7 +800,7 @@ class Utf8String extends String
 
 			unset($new_lines[$index]);
 
-			$ret = implode($break, $new_lines);
+			$ret = \implode($break, $new_lines);
 		}
 
 		return $this->handleReturn($ret);

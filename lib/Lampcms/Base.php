@@ -82,6 +82,11 @@ class Base extends LampcmsObject
 	 */
 	protected $bLoggedIn;
 
+
+	public function __construct(Registry $oRegistry){
+		$this->oRegistry = $oRegistry;
+	}
+
 	
 	/**
 	 * Updates the value of last_login in LOGIN_LOG table
@@ -110,7 +115,6 @@ class Base extends LampcmsObject
 		return $this;
 
 	}
-
 
 	/**
 	 * Given the $intResourceId and $ip this functon
@@ -337,7 +341,7 @@ class Base extends LampcmsObject
 		 * Acl key from cache. (from C_Cache collection)
 		 */
 		//$oACL = $this->oRegistry->Cache->Acl;
-		$oACL = new \Lampcms\Acl\Acl();
+		$oACL = $this->oRegistry->Acl;//new \Lampcms\Acl\Acl();
 
 		$roleID = $role->getRoleId();
 		d('$roleID '.$roleID.' $privilege: '.$privilege);

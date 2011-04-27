@@ -151,18 +151,6 @@ abstract class WebPage extends Base
 
 
 	/**
-	 * The section is added to generated xml file
-	 * and helps a template to make
-	 * title of the section a non-link,
-	 * for example if user is on 'news' section
-	 * then then 'news' should not be a link but
-	 * instead a visually 'active' div
-	 * @var string
-	 */
-	protected $section = 'home';
-
-
-	/**
 	 * extra javascript(s) to add to this page
 	 * if class extending this class has this property,
 	 * then value will be added to the bottom
@@ -254,6 +242,17 @@ abstract class WebPage extends Base
 	 * @var array
 	 */
 	protected $aPageVars;
+	
+	
+	/**
+	 * Controller may override this 
+	 * to skip initPageVars() method
+	 * This is helpful when controller is called by Ajax only
+	 * so int's not necessary to initialize page vars
+	 * 
+	 * @var bool
+	 */
+	protected $bInitPageVars = true;
 
 
 	/**
@@ -263,7 +262,8 @@ abstract class WebPage extends Base
 	 * @param string $strVirtual[optional]
 	 */
 	public function __construct(Registry $oRegistry, Request $oRequest = null){
-		$this->oRegistry = $oRegistry;
+
+		parent::__construct($oRegistry);
 
 		$this->oRequest = (null !== $oRequest) ? $oRequest : $oRegistry->Request;
 		d('cp');
@@ -409,7 +409,8 @@ abstract class WebPage extends Base
 	 * @return object $this
 	 */
 	protected function initPageVars(){
-		if (Request::isAjax() 
+		if (!$this->bInitPageVars 
+		||  Request::isAjax() 
 		|| 'logout' === $this->oRequest['a'] 
 		|| 'login' === $this->oRequest['a']) {
 			d('special case: '.$this->oRequest['a']);
@@ -512,9 +513,8 @@ abstract class WebPage extends Base
 		 * in order to prevent FB from adding
 		 * fb cookie again
 		 */
-		//if('1' != $this->oRequest->get('logout', 's', '')){
 			$this->aPageVars['fb_js'] = \tplFbJs::parse(array($appId), false);
-		//}
+		
 
 		return $this;
 	}
@@ -999,7 +999,7 @@ abstract class WebPage extends Base
 	 * @return object $this
 	 */
 	protected function addJoinForm(){
-		if(!Request::isAjax() && ('remindpwd' !== $this->oRequest['a']) && ('logout' !== $this->oRequest['a'])){
+		if(!$this->bInitPageVars || !Request::isAjax() && ('remindpwd' !== $this->oRequest['a']) && ('logout' !== $this->oRequest['a'])){
 			/**
 			 * If user opted out of continuing
 			 * registration, the special 'dnd' or "Do not disturb"

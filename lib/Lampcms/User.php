@@ -63,8 +63,9 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 
 	/**
 	 * Special flag indicates that user has
-	 * just registered. This flag stays only during
-	 * the session, so for the whole duraction of the session
+	 * just registered. 
+	 * This flag stays only during
+	 * the session, so for the whole duration of the session
 	 * we know that this is a new user
 	 * @var bool
 	 */
@@ -88,6 +89,18 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * @var bool
 	 */
 	protected $bIsModerator;
+	
+	/**
+	 * 
+	 * Array of resolved permission values
+	 * used for memoization of the hasPermission() method
+	 * values are boolean, keys are permission name
+	 * Not included in serialization, so it's lost
+	 * between page views.
+	 * 
+	 * @var array
+	 */
+	protected $aPermissions = array();
 
 
 	/**
@@ -373,6 +386,13 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	}
 
 
+	/**
+	 * Get html of the link to User's Twitter page
+	 * If user has Twitter account
+	 * 
+	 * @return string html code for link or
+	 * empty string if user does not have Twitter account
+	 */
 	public function getTwitterUrl(){
 		$user = $this->getTwitterUsername();
 		if(empty($user)){
@@ -389,7 +409,6 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * @return string
 	 */
 	public function getTwitterToken(){
-
 		return $this->offsetGet('oauth_token');
 	}
 
@@ -399,8 +418,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * @return string
 	 */
 	public function getTwitterSecret(){
-
-		return $this->offsetGet('oauth_token_secret'); //twitter_token
+		return $this->offsetGet('oauth_token_secret'); 
 	}
 
 
@@ -409,7 +427,6 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * @see Lampcms\Interfaces.TwitterUser::getTwitterUsername()
 	 */
 	public function getTwitterUsername(){
-
 		return $this->offsetGet('twtr_username');
 	}
 
@@ -454,7 +471,6 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		 * does not have these keys yet,
 		 * in which case offsetUnset will raise error
 		 */
-		// $this->offsetSet('fb_id', null);
 		$this->offsetSet('fb_token', null);
 		$this->save();
 
@@ -587,6 +603,17 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 
 
 	/**
+	 * Test to see if this user has permission
+	 * 
+	 * @param string $permission
+	 * @return bool true if User has this permission, false otherwise
+	 */
+	public function isAllowed($permission){
+		return $this->getRegistry()->Acl->isAllowed($this->getRoleId(), null, $permission);
+	}
+	
+	
+	/**
 	 * Change reputation score
 	 * Makes sure new score can never go lower than 1
 	 * @param int $iPoints
@@ -650,7 +677,6 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		if((($now - $lastActive) > 300) && !$this->isGuest()){
 			d('updating i_lm_ts of user');
 			$this->offsetSet('i_lm_ts', $now);
-			$this->save();
 		}
 
 		return $this;

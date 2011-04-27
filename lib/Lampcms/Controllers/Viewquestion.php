@@ -64,14 +64,16 @@ use \Lampcms\Template\Urhere;
 use \Lampcms\Forms\Answerform;
 use \Lampcms\QuestionInfo;
 use \Lampcms\Responder;
+use \Lampcms\ReputationAcl;
+use \Lampcms\SocialCheckboxes;
 
 /**
- * Controller for displaying 
+ * Controller for displaying
  * a Question, Answers to a question (paginated)
  * and an Answer form
  * as well as adding Question Info block
- * 
- * 
+ *
+ *
  * @author Dmitri Snytkine
  *
  */
@@ -113,6 +115,7 @@ class Viewquestion extends WebPage
 
 	protected $pageID = 1;
 
+	
 	/**
 	 * Flag indicates that comments have
 	 * been disabled, causing a special 'nocomments' css
@@ -133,24 +136,25 @@ class Viewquestion extends WebPage
 	 * @var string
 	 */
 	protected $tab = 'i_lm_ts';
-	
+
 	/**
 	 * html of parsed answers
-	 * 
-	 * 
+	 *
+	 *
 	 * @var string
 	 */
 	protected $answers = '';
-	
-	
+
+
 	/**
 	 * Number of total answers for this question
-	 * 
-	 * 
+	 *
+	 *
 	 * @var int
 	 */
 	protected $numAnswers = 0;
 
+	
 	/**
 	 * Main entry point
 	 * (non-PHPdoc)
@@ -161,7 +165,7 @@ class Viewquestion extends WebPage
 			$this->getQuestion()->getAnswers();
 			Responder::sendJSON(array('paginated' => $this->answers));
 		}
-		
+
 		$this->pageID = $this->oRegistry->Request->get('pageID', 'i', 1);
 		$this->tab = $this->oRegistry->Request->get('sort', 's', 'i_lm_ts');
 		$this->oRegistry->registerObservers();
@@ -187,19 +191,26 @@ class Viewquestion extends WebPage
 	}
 
 
+	/**
+	 * Adds block with info about
+	 * this question to the 
+	 * $this->aPageVars['side']
+	 * 
+	 * @return object $this
+	 */
 	protected function setQuestionInfo(){
 
 		$this->aPageVars['side'] .= QuestionInfo::factory($this->oRegistry)->getHtml($this->oQuestion);
 
 		return $this;
 	}
-	
-	
+
+
 	/**
 	 * If this question has any followers
 	 * then add block with
 	 * some followers' avatars
-	 * 
+	 *
 	 * @return object $this
 	 */
 	protected function setFollowersBlock(){
@@ -210,7 +221,7 @@ class Viewquestion extends WebPage
 			d('followers: '.$s);
 			$this->aPageVars['side'] .= '<div class="fr cb w90 lg rounded3 pl10 mb10">'.$s.'</div>';
 		}
-		
+
 		return $this;
 	}
 
@@ -220,18 +231,23 @@ class Viewquestion extends WebPage
 	 * last modified timestamp
 	 * The javascript will be able to query the server
 	 * to check for the new answers for this qid since that lmts
+	 * Some of these meta tags will be used by JavaScript
+	 * to determine if viewer has permissions to comment
 	 *
 	 * @return object $this
 	 */
 	protected function addMetaTags(){
 		$this->addMetaTag('lmts', $this->oQuestion['i_lm_ts']);
 		$this->addMetaTag('qid', $this->oQuestion['_id']);
+		$this->addMetaTag('asker_id', $this->oQuestion->getOwnerId());
 		$this->addMetaTag('etag', $this->oQuestion['i_etag']);
+		$this->addMetaTag('min_com_rep', ReputationAcl::COMMENT);
+		$this->addMetaTag('comment', $this->oRegistry->Viewer->isAllowed('comment'));
 
 		return $this;
 	}
 
-	
+
 	/**
 	 * Get array for this one question,
 	 * set $this->oQuestion
@@ -368,10 +384,8 @@ class Viewquestion extends WebPage
 
 
 	/**
-	 * @todo finish this
-	 * use pageID, num Answers, user object
-	 *
-	 *
+	 * Send out HTTP Cache control Headers
+	 * 
 	 */
 	protected function sendCacheHeaders(){
 
@@ -417,24 +431,24 @@ class Viewquestion extends WebPage
 	 *
 	 */
 	protected function setAnswers(){
-		
+
 		$tpl = '<div id="answers" class="sortable paginated fl cb w100" lampcms:total="%1$s" lampcms:perpage="%2$s">%3$s</div><!-- // answers -->';
 		$this->aPageVars['body'] .= vsprintf($tpl, array($this->numAnswers, $this->oRegistry->Ini->PER_PAGE_ANSWERS, $this->answers));
 
 		return $this;
 	}
-	
-	
+
+
 	/**
-	 * Uses the Answers class to get the 
+	 * Uses the Answers class to get the
 	 * block of parsed answers (in html)
 	 * It will automatically apply pagination if necessary,
 	 * add pagination links and return the content of just one page
 	 * of answers. It's just that smart!
-	 * 
+	 *
 	 * Sets values of $this->answers
 	 * and $this->numAnswers
-	 * 
+	 *
 	 * @return object $this
 	 */
 	protected function getAnswers(){
@@ -462,7 +476,7 @@ class Viewquestion extends WebPage
 		if(!empty($this->answers) && !$this->isLoggedIn()){
 			$this->answers = Badwords::filter($this->answers, true);
 		}
-		
+
 		return $this;
 	}
 
@@ -510,6 +524,7 @@ class Viewquestion extends WebPage
 	 */
 	protected function makeForm(){
 		$this->oForm = Answerform::factory($this->oRegistry);
+		$this->oForm->socials = SocialCheckboxes::get($this->oRegistry);
 
 		return $this;
 	}
@@ -564,11 +579,16 @@ class Viewquestion extends WebPage
 	}
 
 
-
+	/**
+	 * Makes the button to "Follow" or "Following"
+	 * for this question and sets this html as value
+	 * of $this->aPageVars['side']
+	 *
+	 * @return object $this
+	 */
 	protected function makeFollowButton(){
 
 		$qid = $this->oQuestion->getResourceId();
-		//d('qid: '.$qid);
 
 		$aVars = array(
 		'id' => $qid,
@@ -579,7 +599,7 @@ class Viewquestion extends WebPage
 		'title' => 'Follow this question to be notified of new answers, comments and edits'
 		);
 
-		
+
 		if(in_array($this->oRegistry->Viewer->getUid(), $this->oQuestion['a_flwrs'])){
 			$aVars['label'] = 'Following';
 			$aVars['class'] = 'following';

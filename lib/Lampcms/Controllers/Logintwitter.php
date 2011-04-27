@@ -155,18 +155,7 @@ class Logintwitter extends WebPage
 	 *
 	 * @see classes/WebPage#main()
 	 */
-	protected function main()
-	{
-
-		/**
-		 * In case user is already logged in we will output
-		 * the close window HTML and end the process
-		 * This is to prevent crackers from continuesly using this
-		 * page to bug down the server
-		 */
-		//if($this->isLoggedIn()){
-		//	return $this->closeWindow();
-		//}
+	protected function main(){
 
 		/**
 		 * If user is logged in then this is
@@ -182,7 +171,6 @@ class Logintwitter extends WebPage
 			$this->bConnect = true;
 		}
 
-		//$this->bConnect = $this->oRequest->get('cflag');
 		d('$this->bConnect: '.$this->bConnect);
 
 		$this->aTW = $this->oRegistry->Ini['TWITTER'];
@@ -202,14 +190,10 @@ class Logintwitter extends WebPage
 		 * in session and redirect to twitter authorization page
 		 */
 		if(empty($_SESSION['oauth']) || empty($this->oRequest['oauth_token'])){
-
 			$this->startOauthDance();
-
 		} else {
 			$this->finishOauthDance();
-
 		}
-
 	}
 
 
@@ -222,14 +206,14 @@ class Logintwitter extends WebPage
 	 * @throws Exception in case something goes wrong during
 	 * this stage
 	 */
-	protected function startOauthDance()
-	{
+	protected function startOauthDance(){
+
 		try {
 			// State 0 - Generate request token and redirect user to Twitter to authorize
 			$_SESSION['oauth'] = $this->oAuth->getRequestToken(self::REQUEST_TOKEN_URL);
 
-			d('$_SESSION[\'oauth\']: '.print_r($_SESSION['oauth'], 1));
-			if(!empty($_SESSION['oauth'])){
+			e('$_SESSION[\'oauth\']: '.print_r($_SESSION['oauth'], 1));
+			if(!empty($_SESSION['oauth']) && !empty($_SESSION['oauth']['oauth_token'])){
 
 				/**
 				 * A more advanced way is to NOT use Location header
@@ -279,9 +263,13 @@ class Logintwitter extends WebPage
 			 * send cookie to remember user
 			 * and then send out HTML with js instruction to close the popup window
 			 */
-			d('Looks like we are at step 2 of authentication');
+			d('Looks like we are at step 2 of authentication. Request: '.print_r($_REQUEST, 1));
 
 			// State 1 - Handle callback from Twitter and get and store an access token
+			/**
+			 * @todo check first to make sure we do have oauth_token
+			 * on REQUEST, else close the window
+			 */
 			$this->oAuth->setToken($this->oRequest['oauth_token'], $_SESSION['oauth']['oauth_token_secret']);
 			$aAccessToken = $this->oAuth->getAccessToken(self::ACCESS_TOKEN_URL);
 			d('$aAccessToken: '.print_r($aAccessToken, 1));
@@ -308,7 +296,12 @@ class Logintwitter extends WebPage
 			$this->oAuth->setToken($aAccessToken['oauth_token'], $aAccessToken['oauth_token_secret']);
 			$this->oAuth->fetch('http://api.twitter.com/1/account/verify_credentials.json');
 
-			$this->aUserData = json_decode($this->oAuth->getLastResponse(), 1);
+			if(false === $this->aUserData = \json_decode($this->oAuth->getLastResponse(), true)){
+				e('Unable to json_decode data returned by Twitter API: '. $this->oAuth->getLastResponse());
+				$this->closeWindow();
+				exit;
+			}
+
 			if(isset($this->aUserData['status'])){
 				unset($this->aUserData['status']);
 			}
@@ -324,11 +317,18 @@ class Logintwitter extends WebPage
 			$this->aUserData['_id'] = (!empty($this->aUserData['id_str'])) ? $this->aUserData['id_str'] : (string)$this->aUserData['id'];
 			unset($this->aUserData['user_id']);
 
+
 			$this->updateTwitterUserRecord();
 
 			$this->createOrUpdate();
 			if(!$this->bConnect){
 				Cookie::sendLoginCookie($this->oRegistry->Viewer->getUid(), $this->oUser->rs);
+			} else {
+				/**
+				 * Set flag to session indicating that user just
+				 * connected Twitter Account
+				 */
+				$this->oRegistry->Viewer['b_tw'] = true;
 			}
 
 			$this->closeWindow();
@@ -384,7 +384,7 @@ class Logintwitter extends WebPage
 
 			$this->oUser = $this->oRegistry->Viewer;
 			$this->connect($tid);
-				
+
 		} elseif(!empty($aUser)){
 			$this->oUser = $oUser = \Lampcms\UserTwitter::factory($this->oRegistry, $aUser);
 			$this->updateUser();
@@ -428,15 +428,26 @@ class Logintwitter extends WebPage
 		$aUser = $this->getUserByTid($tid);
 		d('$aUser: '.print_r($aUser, 1));
 		if(!empty($aUser) && ($aUser['_id'] != $this->oUser->getUid())){
+
+			$name = '';
+			if(!empty($aUser['fn'])){
+				$name .= $aUser['fn'];
+			}
+				
+			if(!empty($aUser['ln'])){
+				$name .= ' '.$aUser['fn'];
+			}
+			$trimmed = \trim($name);
+			$name = (!empty($trimmed)) ? \trim($name) : $aUser['username'];
 			
 			/**
-			 * This error message will appear inside the 
+			 * This error message will appear inside the
 			 * Small extra browser Window that Login with Twitter
 			 * opens
-			 * 
+			 *
 			 */
 			$err = '<div class="larger"><p>This Twitter account is already connected to
-			another registered user: <strong>' .$aUser['fn']. ' '.$aUser['ln']. '</strong><br>
+			another registered user: <strong>' .$name. '</strong><br>
 			<br>
 			A Twitter account cannot be associated with more than one account on this site<br>
 			If you still want to connect Twitter account to this account you must use a different Twitter account</p>';
@@ -535,17 +546,9 @@ class Logintwitter extends WebPage
 		$this->oUser['oauth_token'] = $this->aUserData['oauth_token'];
 		$this->oUser['oauth_token_secret'] = $this->aUserData['oauth_token_secret'];
 		$this->oUser['twitter_uid'] = $this->aUserData['_id'];
-		/**
-		 * If NOT bUpdateAvatar then
-		 * check avatar_external and only add one
-		 * if one does not already exist
-		 */
-		if(!$bUpdateAvatar){
-			$avatarTwitter = $this->oUser['avatar_external'];
-			if(empty($avatarTwitter)){
-				$this->oUser['avatar_external'] = $this->aUserData['profile_image_url'];
-			}
-		} else {
+
+		$avatarTwitter = $this->oUser['avatar_external'];
+		if(empty($avatarTwitter)){
 			$this->oUser['avatar_external'] = $this->aUserData['profile_image_url'];
 		}
 
@@ -593,7 +596,7 @@ class Logintwitter extends WebPage
 				 }*/
 			});
 		}
-		
+
 		return $this;
 	}
 
@@ -641,9 +644,9 @@ class Logintwitter extends WebPage
 		d('cp a: '.print_r($a, 1));
 		$js = '';
 		/*if(!empty($a)){
-			$o = json_encode($a);
-			$js = 'window.opener.oSL.processLogin('.$o.')';
-			}*/
+		 $o = json_encode($a);
+		 $js = 'window.opener.oSL.processLogin('.$o.')';
+		 }*/
 
 		$tpl = '
 		var myclose = function(){
@@ -651,12 +654,13 @@ class Logintwitter extends WebPage
 		}
 		if(window.opener){
 		%s
-		setTimeout(myclose, 500); // give opener window time to process login and cancell intervals
+		setTimeout(myclose, 300); // give opener window time to process login and cancell intervals
 		}else{
-			alert("not a popup window")
+			alert("not a popup window or opener window gone away");
 		}';
 		d('cp');
-		$script = sprintf($tpl, $js);
+
+		$script = \sprintf($tpl, $js);
 
 		$s = Responder::PAGE_OPEN. Responder::JS_OPEN.
 		$script.
@@ -681,6 +685,7 @@ class Logintwitter extends WebPage
 	 * @return void
 	 */
 	protected function redirectToTwitter($url){
+		e('twitter redirect url: '.$url);
 		/**
 		 * @todo translate this string
 		 *
@@ -705,6 +710,8 @@ class Logintwitter extends WebPage
 		Responder::JS_CLOSE.
 		'<div class="centered"><a href="'.$url.'">If you are not redirected in 2 seconds, click here to authenticate with Twitter</a></div>'.
 		Responder::PAGE_CLOSE;
+
+		e('exising with this $s: '.$s);
 
 		exit($s);
 	}

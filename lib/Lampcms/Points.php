@@ -67,6 +67,7 @@ class Points
 	 */
 	const UPVOTE_Q = 5;
 
+	
 	/**
 	 *
 	 * Someone voted for your answer
@@ -74,6 +75,7 @@ class Points
 	 */
 	const UPVOTE_A = 10;
 
+	
 	/**
 	 *
 	 * Someone accepted your answer as best answer
@@ -81,6 +83,7 @@ class Points
 	 */
 	const BEST_ANSWER = 15;
 
+	
 	/**
 	 *
 	 * You accepted someones answer to your question
@@ -96,6 +99,7 @@ class Points
 	 */
 	const CAST_DOWNVOTE = -1;
 
+	
 	/**
 	 *
 	 * Someone voted down your answer or question
@@ -103,11 +107,21 @@ class Points
 	 */
 	const DOWNVOTE = -2;
 	
+	
 	/**
 	 * Your Q or A received marked as offensive 5 times
 	 * @var int
 	 */
 	const OFFENSIVE = -100;
-
+	
+	
+	/**
+	 * User shared (posted)
+	 * Question or Answer to external site
+	 * via API (like Twitter or Facebook)
+	 * Enter description here ...
+	 * @var unknown_type
+	 */
+	const SHARED_CONTENT = 5;
 
 }

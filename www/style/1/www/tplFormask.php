@@ -66,7 +66,8 @@ class tplFormask extends Lampcms\Template\Template
 	'disabled' => '', // 17
 	'connectBlock' => '', //18
 	'formError' => '', //19
-	'tags_required' => '' //20
+	'tags_required' => '', //20
+	'socials' => '' //21
 	); 
 
 	protected static $tpl = '
@@ -98,7 +99,9 @@ class tplFormask extends Lampcms\Template\Template
             	<div id="tags_d" class="caption">%12$s</div> 
             </div>
             <!-- // el tags -->
-            
+            <div class="fl cb socials">
+            %21$s
+            </div>
             <div class="form_el">
             	<input id="dostuff" name="submit" type="submit" value="%14$s" %17$s class="btn btn-m"> 
             </div>

@@ -50,6 +50,7 @@
  */
 
 
+
 namespace Lampcms;
 
 use \Lampcms\Interfaces\FacebookUser;
@@ -61,14 +62,27 @@ use \Lampcms\Interfaces\FacebookUser;
  */
 class Facebook extends ExternalAuth
 {
-	protected $wallUpdateUrl = 'http://graph.facebook.com/%s/feed';
+	/**
+	 * Url of Facebook Graph API for posting message to wall
+	 * This is a template url. %s will be replaced with actual facebookID
+	 * of User
+	 *
+	 * This same url can also be used to get data from API, just
+	 * set method to GET instead of post
+	 * and can get the DATA from Facebook
+	 *
+	 * @var string
+	 */
+	protected $wallUpdateUrl = 'https://graph.facebook.com/%s/feed';
 
+	
 	/**
 	 * Url of facebook API
 	 * @var string
 	 */
 	protected $graphUrl = 'https://graph.facebook.com/me?access_token=';
 
+	
 	/**
 	 * Object User that we either found
 	 * or created new user
@@ -85,6 +99,7 @@ class Facebook extends ExternalAuth
 	 */
 	protected $sAccessToken = null;
 
+	
 	/**
 	 * Facebook Application ID
 	 * You get this by setting up your own application on facebook
@@ -102,6 +117,7 @@ class Facebook extends ExternalAuth
 	 */
 	protected $oResponse;
 
+	
 	/**
 	 * Object of type \Lampcms\Curl;
 	 * @var object
@@ -115,22 +131,44 @@ class Facebook extends ExternalAuth
 	 */
 	protected $aFbUserData = array();
 
-	
+
+	/**
+	 * Constructor
+	 * 
+	 * @param object $oRegistry
+	 * @param object $oUser
+	 */
 	protected function __construct(Registry $oRegistry, FacebookUser $oUser = null){
 		parent::__construct($oRegistry);
 		$this->oUser = (null !== $oUser) ? $oUser : $oRegistry->Viewer;
 		$this->initHttpObject();
 	}
 
-	
+
+	/**
+	 * Instantiates (or resets) the
+	 * $this->oHTTP which is our instance of Curl class
+	 */
 	protected function initHttpObject(){
-		
 		$this->oHTTP = new Curl();
 
 		return $this;
 	}
 
-	
+
+	/**
+	 * Setter for $this->oUser
+	 *
+	 * @param FacebookUser $oUser
+	 * @return object $this
+	 */
+	public function setUser(FacebookUser $oUser){
+		$this->oUser = $oUser;
+
+		return $this;
+	}
+
+
 	/**
 	 * Post message to the wall of user
 	 *
@@ -138,58 +176,77 @@ class Facebook extends ExternalAuth
 	 * with actual message to post some html allowed, some not.
 	 * It's up to facebook to decide which html is not allowed
 	 *
-	 * @param object $oGlobal
+	 * @param object $oRegistry Registry object
 	 * @param object $oUser user object or null
 	 * in case of null the currently logged in user is used
+	 *
+	 * @return mixed whatever is returned by postUpdate method
+	 * @see postUpdate()
 	 */
 	public static function postToWall(Registry $oRegistry, $aData, FacebookUser $oUser = null){
 		$o = new self($oRegistry, $oUser);
-		$o->postUpdate($aData);
-
+		return $o->postUpdate($aData);
 	}
 
-	
+
 	/**
 	 * Post update to user Wall
 	 *
 	 *
-	 * @param array $sMessage
+	 * @param mixed array $aData | string can provide just
+	 * a string it will be posted to Facebook User's Wall as a message
+	 * it can contain some html code - it's up to Facebook to allow
+	 * or disallow certain html tags
+	 *
+	 * @return mixed if successful post to Facebook API
+	 * then it will return the string returned by API
+	 * This could be raw string of json data - not json decoded yet
+	 * or false in case there were some errors
+	 *
+	 * @throws FacebookApiException in case of errors with
+	 * using API or more general \Lampcms\Exception in case there
+	 * were some other problems sowhere along the line like
+	 * in case with Curl object
+	 *
 	 */
-	protected function postUpdate($aData){
-		if(is_string($aData)){
-			$aData = array('message' => $aData);
-		}
-		if(is_array($aData)){
-			$this->validateData($aData);
+	public function postUpdate($aData){
+
+		if(!is_string($aData) && !is_array($aData)){
+			throw new \InvalidArgumentException('Invalid data type of $aData: '.\gettype($aData));
 		}
 
-		$facebookUid = $this->oUser->getFacebookUid(); //$this->oUser->facebook_uid;
+		$aData = \is_array($aData) ? $aData : array('message' => $aData);
+
+		$facebookUid = $this->oUser->getFacebookUid();
 		$facebookToken = $this->oUser->getFacebookToken();
-
 		d('$facebookUid: '.$facebookUid.' $facebookToken: '.$facebookToken);
 
 		if(empty($facebookUid) || empty($facebookToken)){
 			d('User is not connected with Facebook');
 
-			return $this;
+			return false;
 		}
 
-		$url = 'https://graph.facebook.com/me/feed';
+		$aData['access_token'] = $this->oUser->getFacebookToken();
+		d('$aData: '.print_r($aData, 1));
+
+		$url = \sprintf($this->wallUpdateUrl, $facebookUid);
 		d('cp url: '.$url);;
 		try{
-			
-			$this->oHTTP->getDocument($urlnull, null, array('formVars' => $aData));
+			$this->oHTTP->getDocument($url, null, null, array('formVars' => $aData));
 			$retCode = $this->oHTTP->getHttpResponseCode();
-			d('retCode: '.$retCode.' resp: '.$this->oHTTP->getResponseBody());
+			$body = $this->oHTTP->getResponseBody();
+			d('retCode: '.$retCode.' resp: '.$body);
+			return $body;
 		} catch(HttpTimeoutException $e ){
 			d('Request to Facebook server timedout');
 			throw new FacebookApiException('Request to Facebook server timed out. Please try again later');
 		} catch(Http401Exception $e){
 			d('Unauthorized to get data from Facebook, most likely user unjoined the site');
-			$this->revokeFcauth();
+			$this->revokeFacebookConnect();
 			throw new FacebookApiException('Anauthorized with Facebook');
 		} catch(HttpResponseCodeException $e){
-			e('LampcmsError Facebook response exception: '.$e->getHttpCode().' '.$e->getMessage());
+			e('LampcmsError Facebook response exception: '.$e->getHttpCode().' '.$e->getMessage().' body: '.$this->oHTTP->getResponseBody());
 			/**
 			 * The non-200 response code means there is some kind
 			 * of error, maybe authorization failed or something like that,
@@ -202,14 +259,15 @@ class Facebook extends ExternalAuth
 			throw new FacebookApiException('Error during authentication with Facebook server');
 		}catch (\Exception $e){
 			e('Unable to post: '.$e->getMessage().' code: '.$e->getCode());
+			throw $e;
 		}
 
 		d('cp');
 
-		return $this;
+		return false;
 	}
 
-	
+
 	/**
 	 * Validation to make sure data array
 	 * has required keys 'message'

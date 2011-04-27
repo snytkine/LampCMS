@@ -57,7 +57,8 @@ class tplFormanswer extends Lampcms\Template\Template
 	'connectBlock' => '', // 9
  	'formError' => '', // 10
 	'title' => 'Your answer', //11
-	'qid' => '' //12
+	'qid' => '', //12
+	'socials' => '' //13
 	);
 
 	protected static $tpl = '
@@ -77,7 +78,9 @@ class tplFormanswer extends Lampcms\Template\Template
                 <div id="tmp_preview"></div>
             </div>
             <!-- // el body -->
-            
+            <div class="fl cb socials">
+            %13$s
+            </div>
             <div class="form_el">
             	<input id="dostuff" name="submit" type="submit" value="%5$s" %8$s class="btn btn-m"> 
             </div>

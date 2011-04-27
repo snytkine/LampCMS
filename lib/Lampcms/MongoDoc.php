@@ -72,6 +72,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 */
 	protected $oRegistry;
 
+	
 	/**
 	 * Checksum of array data
 	 *
@@ -79,6 +80,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 */
 	protected $md5 = null;
 
+	
 	/**
 	 * Flag indicates that data
 	 * has already been saved, usually
@@ -91,6 +93,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 */
 	protected $bSaved = false;
 
+	
 	/**
 	 * Name of table which holds
 	 * this row.
@@ -140,6 +143,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 */
 	protected static $aDefaults = array();
 
+	
 	/**
 	 * Array of fileds that should be ignored
 	 * when saving to DB (unset these before saving array)
@@ -147,6 +151,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 */
 	protected $aIgnore = array();
 
+	
 	/**
 	 * Minimal value for auto_increment
 	 *
@@ -155,12 +160,24 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	protected $minAutoIncrement = 1;
 
 
+	/**
+	 * 
+	 * Static factory method
+	 * @param Registry $oRegistry
+	 * @param string $collectionName
+	 * @param array $a
+	 * @param stirng $default fallback value for element
+	 * that does not exist in this ArrayObject
+	 * 
+	 * @return object of this class OR class extending this class
+	 */
 	public static function factory(Registry $oRegistry, $collectionName = null, array $a = array(), $default = ''){
 		$o = new static($oRegistry, $collectionName, $a, $default);
 
 		return $o;
 	}
 
+	
 	/**
 	 * Constructor
 	 * @param array $a
@@ -180,6 +197,12 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	}
 
 
+	/**
+	 * Setter for $this->minAutoIncrement
+	 * 
+	 * @param mixed string|int $val if string then must
+	 * be numeric string
+	 */
 	public function setMinAutoIncrement($val){
 		$this->minAutoIncrement = (int)$val;
 
@@ -187,6 +210,10 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	}
 
 	
+	/**
+	 * Getter for $this->minAutoIncrement
+	 * @return int value of $this->minAutoIncrement
+	 */
 	public function getMinAutoIncrement(){
 
 		return $this->minAutoIncrement;
@@ -265,6 +292,12 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		return $this;
 	}
 
+	
+	/**
+	 * Setter for $this->collectionName
+	 * 
+	 * @param string $name
+	 */
 	public function setCollectionName($name){
 		$this->collectionName = $name;
 
@@ -656,6 +689,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 
 	}
 
+	
 	/**
 	 * Set the this->bSaved flag to true
 	 * This will prevent the object from trying
@@ -717,6 +751,10 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	}
 
 
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms.ArrayDefaults::serialize()
+	 */
 	public function serialize(){
 		$a = array('array' => $this->getArrayCopy(),
 		            'collectionName' => $this->collectionName,
@@ -731,6 +769,10 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	}
 
 
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms.ArrayDefaults::unserialize()
+	 */
 	public function unserialize($serialized){
 		$a = unserialize($serialized);
 		$this->exchangeArray($a['array']);

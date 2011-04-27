@@ -970,7 +970,24 @@ YUI({
 	setMeta, //
 	getToken, //
 	ensureLogin, //
+	initTooltip, //
+	showDeleteForm, //
+	showRetagForm, //
+	showShredForm, //
+	showCommentForm, //
+	addAdminControls, //
+	checkExtApi, //
+	showFlagForm, //
+	showCloseForm, //
+	initAutoComplete, //
+	getAlerter, //
+	isModerator, //
+	isEditable, //
+	initFBSignup, //
+	Twitter, //
+	showEditComment, //
 	setToken, //
+	getReputation, //
 	isLoggedIn, //
 	getViewerId, //
 	oCTabs = {}, //
@@ -985,7 +1002,9 @@ YUI({
 	}, //
 	saveToStorage = function() {
 		Y.StorageLite.on('storage-lite:ready', function() {
-			var html = editor.saveHTML();
+			var tags, html = editor.saveHTML();
+			saveTitle();
+			saveTags();
 			Y.StorageLite.setItem(getStorageKey(), html);
 			write('Draft saved..');
 		});
@@ -1437,6 +1456,12 @@ YUI({
 		
 	}, //
 	/**
+	 * Show QuickReg modal window
+	 */
+	getQuickRegForm = function(){
+		oSL.getQuickRegForm();
+	},
+	/**
 	 * Use Facebook UI to initiate
 	 * promnt to post to user wall
 	 * an invitation to join this site
@@ -1547,7 +1572,7 @@ YUI({
 		fbcookie, //
 		el = e.currentTarget,
 		target = e.target;
-		//Y.log('el is ' + el + ' id is: ' + el.get('id') + ' target: ' + target);
+		Y.log('el is ' + el + ' id is: ' + el.get('id') + ' target: ' + target + ' tagName: ' + el.get('tagName'));
 		id = el.get('id');
 		//e.halt();
 		//e.preventDefault();
@@ -1558,6 +1583,10 @@ YUI({
 				e.halt();
 				handlePagination(e.target);
 			}
+			break;
+			
+		case el.test('.ext_api'):
+			checkExtApi(el);
 			break;
 			
 		case el.test('span.ru'):
@@ -1572,6 +1601,7 @@ YUI({
 			break;
 			
 		case el.test('.c_like'):
+			e.halt();
 			if(ensureLogin()){
 				handleLikeComment(el);
 			}
@@ -1623,36 +1653,22 @@ YUI({
 		case (id === 'logout'):
 			e.preventDefault();
 			e.halt();
-
-			if(typeof FB !== 'undefined'){
-				fbappid = getMeta('fbappid');
-	
-				/*FB.getLoginStatus(function(response) {
-					 Y.log('FB loginStatus: ' + Y.dump(response));
-					});*/
-				
-				// Y.log('FB Session: ' + Y.dump(FB.getSession()));
+			showLoading(el);
+			fbappid = getMeta('fbappid');
+			
+			if((typeof FB !== 'undefined') && fbappid && FB.getSession()){
 				FB.logout(function(response) {
 					Y.log('FB response ' + Y.dump(response));
-				});
-				
-				if (fbappid) {
 					fbcookie = "fbs_" + fbappid;
 					Y.log('removing fbcookie: ' + fbcookie);
 					Y.Cookie.remove(fbcookie);
-				}
-				// Y.log('FB Session after logout: ' + Y.dump(FB.getSession()));
-				/*Y.later(500, this, function() {
-					FB.getLoginStatus(function(response) {
-						 Y.log('FB loginStatus after Logout: ' + Y.dump(response));
-						});
-				});*/
-			}
-			
-			Y.later(600, this, function() {
+					Y.log('FB Session after logout: ' + Y.dump(FB.getSession()), 'warn');
+					window.location.assign('/index.php?a=logout');
+				});
+
+			} else {
 				window.location.assign('/index.php?a=logout');
-			});
-			
+			}
 			break;
 			
 		case el.test('.flag'):
@@ -2159,6 +2175,8 @@ YUI({
 
 			if (data.redirect || data.answer) {
 				Y.StorageLite.removeItem(getStorageKey());
+				removeTitle();
+				removeTags();
 				if (data.redirect) {
 					getAlerter('<h3>Success</h3>')
 					.set("bodyContent", 'Item saved! Redirecting to <br><a href="' + data.redirect + '">' + data.redirect + '</a>')
@@ -2175,9 +2193,58 @@ YUI({
 				 * scrollIntoView
 				 */
 				if(Y.one("#answers")){
+					if(editor){
+						editor.setEditorHTML('<br>');
+					}
 					Y.one("#answers").append(data.answer).scrollIntoView();
 				}
 			}
+		}
+	}, //
+	/**
+	 * Save value of id_title input
+	 * to Storage
+	 */
+	saveTitle = function(){
+		var title = Y.one("#id_title");
+		if(title){
+			Y.log('2201 saving title to storage: ' + title.get('value'), 'warn');
+			Y.StorageLite.setItem('title', title.get('value'));
+		}
+	}, //
+	/**
+	 * Save value of "tags" from "tags" input to
+	 * Storage
+	 */
+	saveTags = function(){
+		var tags = Y.one("#id_tags");
+		if(tags){
+			Y.StorageLite.setItem('tags', tags.get('value'));
+		}
+	}, //
+	/**
+	 * Remove 'title' key 
+	 * from StorageLite
+	 * but only if id_title element
+	 * exists on page. This way it will not
+	 * be removed from the Answer page, only
+	 * from the Ask page.
+	 */
+	removeTitle = function(){
+		var title = Y.one("#id_title");
+		if(title){
+			Y.StorageLite.removeItem('title');
+		}
+	}, //
+	/**
+	 * Remove 'tags' key from LocalStorage
+	 * but only if element with id id_tags
+	 * is on the page
+	 */
+	removeTags = function(){
+		var tags = Y.one("#id_tags");
+		if(tags){
+			Y.StorageLite.removeItem('nuts');
 		}
 	}, //
 	/**
@@ -2296,7 +2363,7 @@ YUI({
 
 	// alert('Got com_hand ' + aComHand);
 	if (aComHand && !aComHand.isEmpty()) {
-		aComHand.on('focus', oSL.getQuickRegForm);
+		aComHand.on('focus', getQuickRegForm);
 	} else {
 
 		/**
@@ -2316,11 +2383,11 @@ YUI({
 					label : 'Save / New',
 					buttons : [ {
 						type : 'push',
-						label : 'Save',
+						label : 'Save Draft',
 						value : 'save'
 					}, {
 						type : 'push',
-						label : 'New',
+						label : 'New Document',
 						value : 'clear'
 					} ]
 				}, {
@@ -2466,10 +2533,20 @@ YUI({
 		}
 
 		Y.StorageLite.on('storage-lite:ready', function() {
-			var editorValue, body = Y.one('#id_qbody');
+			var title, tags, editorValue, body = Y.one('#id_qbody');
 			editorValue = Y.StorageLite.getItem(getStorageKey());
 			if (body && !Y.one('#iedit') && null !== editorValue && '' !== editorValue) {
 				body.set('value', editorValue);
+				if(Y.one("#id_title")){
+					title = Y.StorageLite.getItem('title');
+					tags = Y.StorageLite.getItem('tags');
+					if(title){
+						Y.one("#id_title").set('value', title);
+					}
+					if(title){
+						Y.one("#id_tags").set('value', tags);
+					}
+				}
 				write('Loaded content draft from Local Storage');
 			} else {
 				write('Editor ready');
@@ -2500,7 +2577,7 @@ YUI({
 		
 	} // end if NOT com_hand, means if we going to use RTE
 	
-	var showFlagForm = function(o){
+	showFlagForm = function(o){
 		var oAlert, form, faction = 'flagger';
 		if(ensureLogin()){
 			if(o.rtype && 'c' === o.rtype){
@@ -2531,7 +2608,7 @@ YUI({
 	};
 	
 	
-	var showCloseForm = function(qid){
+	showCloseForm = function(qid){
 		var oAlert, form;
 		if(ensureLogin()){
 		form = '<div style="text-align: left">'
@@ -2558,7 +2635,7 @@ YUI({
 	};
 	
 	
-	var showRetagForm = function(){
+	showRetagForm = function(){
 		var oAlert, form, oTags, sTags = '';
 		if(ensureLogin()){
 			oTags = Y.all('td.td_question > div.tgs a');
@@ -2622,7 +2699,7 @@ YUI({
 		}	
 	};
 	
-	var showDeleteForm = function(o){
+	showDeleteForm = function(o){
 		var oAlert, form, banCheckbox = '', a='delete';
 		if(ensureLogin()){
 			if(o.rtype && 'c' === o.rtype){
@@ -2654,13 +2731,16 @@ YUI({
 		}
 	};
 	
-	var showCommentForm = function(el){
-		var form, reputation, resID;
-		reputation = getReputation();
-		//Y.log('el: ' + el + 'reputation: ' + reputation);
+	showCommentForm = function(el){
+		var minrep, vid, form, rep, resID;
+		rep = getReputation();
+		vid = getViewerId();
+		minrep = getMeta('min_com_rep');
+		Y.log('rep: ' + rep + ' minrep: ' + minrep);
 		//Y.log('rid' + el.get('id'));
 		if(ensureLogin()){
-		if( isModerator() || (reputation > 0) || el.test('.uid-' + getViewerId())){
+		//if( isModerator() || (reputation > 0) || el.test('.uid-' + getViewerId())){
+		if( ('1' == getMeta('comment')) || (getMeta('asker_id') == vid) || (rep > minrep) || el.test('.uid-' + vid)){	
 			resID = el.get('id');
 		    resID = resID.substr(8);
 		    //Y.log('resID ' + resID);
@@ -2697,7 +2777,9 @@ YUI({
 		
 		
 		} else {
-			alert('You must have a reputation of at least 1<br>to be able to add comments');
+			alert('You must have a reputation of at least <b>'+minrep+'</b><br>'
+					+'to be able to add comments<br>'
+					+'Your current reputation is: <b>' + rep + '</b>');
 			return;
 			}
 		}
@@ -2705,7 +2787,7 @@ YUI({
 		
 	};
 	
-	var showEditComment = function(resID){
+	showEditComment = function(resID){
 		var form, wrapDiv, body, content;
 		/**
 		 * Check for comment edit timeout
@@ -2744,7 +2826,7 @@ YUI({
 		}
 	};
 	
-	var showShredForm = function(uid){
+	showShredForm = function(uid){
 		var id = uid.substr(5);
 		//Y.log('uid: ' +id);
 		form = '<div id="div_del" style="text-align: left">'
@@ -2837,7 +2919,7 @@ YUI({
 	 * 
 	 * @return bool true if moderator or admin
 	 */
-	var isModerator = function(){
+	isModerator = function(){
 		var role;
 		if(bModerator < 2){
 			role = getMeta('role');
@@ -2856,7 +2938,7 @@ YUI({
 	 * 
 	 * @return int reputation score
 	 */
-	var getReputation = function(){
+	getReputation = function(){
 		var score;
 		if(!reputation){
 			score = getMeta('rep');
@@ -2871,7 +2953,7 @@ YUI({
 	 * only if viewer is moderator or 
 	 * has enough reputation to use them
 	 */
-	var addAdminControls = function(){
+	addAdminControls = function(){
 		
 		var controls = Y.all('div.controls');
 		//Y.log('controls ' + controls);
@@ -2934,14 +3016,14 @@ YUI({
 	 * Comments older than 5 minutes are not editable
 	 * unless viewer is moderator
 	 */
-	var isEditable = function(controls){
+	isEditable = function(controls){
 		
 		var timeOfComment, timeDiff, maxDiff;
 		//Y.log('controls passed to isEditable: ' + controls);
 		
 		if(isModerator()){
 			//Y.log('isEditable does not apply to moderators');
-			return true;
+			//return true;
 		}
 		
 		maxDiff = getMeta('comments_timeout');
@@ -2963,14 +3045,17 @@ YUI({
 
 		timeOfComment = new Date(timeOfComment);
 		//Y.log('timeOfComment: ' + timeOfComment);
-		timeDiff = (Date.now() - timeOfComment.getTime());
-		//Y.log('timeDiff: ' +  timeDiff);
+		//timeDiff = (Date.now() - timeOfComment.getTime());
+		// Changed Date.now() to Date.getTime() to please IE browser
+		timeDiff = ((new Date()).getTime() - timeOfComment.getTime());
+		Y.log('3042 timeDiff: ' +  timeDiff);
 		
 		if(timeDiff > maxDiff){
-			//Y.log('comment is older than maxDiff', 'warn');
+			Y.log('comment is older than maxDiff', 'warn');
 			
 			return false;
 		}
+		Y.log('Comment is editable');
 		
 		return true;
 		
@@ -2981,7 +3066,7 @@ YUI({
 	 * Start the Facebook Login process
 	 * using Facebook Javascript API
 	 */
-	var initFBSignup = function() {
+	initFBSignup = function() {
 		Y.log('initFBSignup');
 		var callback, fbPerms;
 		if (typeof FB !== 'undefined') {
@@ -3044,7 +3129,7 @@ YUI({
 	/**
 	 * Get fbOverlay, reuse existing one
 	 */
-	var getAlerter = function(header){
+	getAlerter = function(header){
 		if(!oAlerter){
 			oAlerter = new Y.Overlay({
 				srcNode : '#fbOverlay',
@@ -3102,6 +3187,29 @@ YUI({
 		return ret;
 		
 	};
+	/**
+	 * When user clicked on checkbox
+	 * like "post to Twitter"
+	 * we check to make sure Viewer has
+	 * Twitter account connected, else
+	 * initiate Twitter dance
+	 */
+	checkExtApi = function(el){
+		Y.log('3126 is Checked: ' + el.get('checked'));
+		if((el.get('tagName') == 'INPUT')  && el.get('checked')){
+			saveToStorage();			
+			switch(true){
+			case ((el.get('id') == 'api_tweet') && (!getMeta('tw'))):
+				Twitter.startDance();
+				break;
+			
+			case ((el.get('id') == 'api_facebook') && ('1' != getMeta('fb'))):
+				initFBSignup();
+				break;
+
+			}
+		}
+	};
 	
 	revealComments = function(){
 		var comments, limit = getMeta('max_comments');
@@ -3113,7 +3221,7 @@ YUI({
 		}
 	};
 	
-	var Twitter = {
+	Twitter = {
 			/**
 			 * Popup window object
 			 */
@@ -3130,9 +3238,11 @@ YUI({
 			/**
 			 * Start the oAuth login process by opening the popup window
 			 */
-			startDance : function(isJoin) {
+			startDance : function(url) {
 				//Y.log('1084 starting oAuth dance this is: ' + this, 'window'); // Object Twitter
-				var popupParams = 'location=0,status=0,width=800,height=450,alwaysRaised=yes,modal=yes', mydomain = window.location.hostname;
+				var u, mydomain, popupParams = 'location=0,status=0,width=800,height=450,alwaysRaised=yes,modal=yes'; //
+
+				u = (!url) ? 'http://' + window.location.hostname + '/index.php?a=logintwitter&ajaxid=1' : url;
 
 
 				/**
@@ -3142,14 +3252,12 @@ YUI({
 				 * 
 				 */
 				if (this.popupWindow && !this.popupWindow.closed) {
-					this.popupWindow.location.href = 'http://' + mydomain
-							+ '/index.php?a=logintwitter';
+					this.popupWindow.location.href = u;
 					this.popupWindow.focus();
 					return;
 				}
 
-				this.popupWindow = window.open('http://' + mydomain
-						+ '/index.php?a=logintwitter', 'twitterWindow', popupParams);
+				this.popupWindow = window.open(u, 'twitterWindow', popupParams);
 
 				if (!this.popupWindow) {
 					alert('Unable to open login window. Please make sure to disable popup blockers in your browser');
@@ -3183,9 +3291,6 @@ YUI({
 			 * to see if session now has user object
 			 */
 			checkLogin : function() {
-				//Y.log('Checking login. this is ' + this, 'window'); // this is object Window
-
-				var transaction, cObj;
 
 				if (!Twitter.popupWindow || Twitter.popupWindow.closed) {
 
@@ -3220,7 +3325,7 @@ YUI({
 			}
 		};
 	
-	var initTooltip = function(){
+	initTooltip = function(){
 		var TTT = Y.all('.ttt');//document.getElementsByClassName('ttt');
 		if(TTT && TTT.size() > 0){
 			if(ttB){
@@ -3249,7 +3354,7 @@ YUI({
 		});
 	}
 	
-	var initAutoComplete = function(){
+	initAutoComplete = function(){
 		var isearch, id_title;
 		if("1" == getMeta('noac')){
 			return;
