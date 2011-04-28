@@ -93,10 +93,6 @@ class Tweet extends WebPage
 			throw new \Lampcms\Exception('This page can only be accessed using XHR request (ajax)');
 		}
 
-		/*if(empty($_SESSION['secret']) || $this->oRequest['token'] !== $_SESSION['secret']){
-			throw new \Lampcms\FormException('Access token mismatch');
-		}*/
-
 		try{
 			$oTwitter = new Twitter($this->oRegistry);
 			$aResponse = $oTwitter->prepareAndPost($this->oRequest->getUTF8('tweet'));

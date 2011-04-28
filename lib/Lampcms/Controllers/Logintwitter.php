@@ -77,7 +77,6 @@ class Logintwitter extends WebPage
 
 	const AUTHORIZE_URL = 'https://api.twitter.com/oauth/authorize';
 
-	protected $aAllowedVars = array('oauth_token');
 
 	/**
 	 * Array of data returned from Twitter
@@ -95,22 +94,15 @@ class Logintwitter extends WebPage
 	 */
 	protected $oAuth;
 
-	/**
-	 * If user with the sid cookie already exists
-	 * then we will create another record
-	 * in the JOINT_ACCOUNT table
-	 * this will be just for our own statistics and refs
-	 * it holds records of account_a to account_b
-	 * If during registration we detect by using sid cookie
-	 * that user was already registered (but currently logged out)
-	 * then we will create a record of this fact for our own references
-	 * and then we will create new sid cookie and send it to user
-	 * @var int
-	 */
-	protected $existingUidBySid;
-
 	protected $bInitPageDoc = false;
 
+	/**
+	 * Configuration of Twitter API
+	 * this is array of values TWITTER section
+	 * in !config.ini
+	 *
+	 * @var array
+	 */
 	protected $aTW = array();
 
 
@@ -136,6 +128,7 @@ class Logintwitter extends WebPage
 	 */
 	protected $oUser;
 
+
 	/**
 	 * Flag indicates that this is the
 	 * request to connect Twitter account
@@ -144,6 +137,7 @@ class Logintwitter extends WebPage
 	 * @var bool
 	 */
 	protected $bConnect = false;
+
 
 	/**
 	 * The main purpose of this class is to
@@ -157,6 +151,10 @@ class Logintwitter extends WebPage
 	 */
 	protected function main(){
 
+		if(!extension_loaded('oauth')){
+			throw new \Lampcms\Exception('Unable to use Twitter API because OAuth extension is not available');
+		}
+		
 		/**
 		 * If user is logged in then this is
 		 * a request to connect Twitter Account
@@ -409,7 +407,6 @@ class Logintwitter extends WebPage
 
 		$this->updateLastLogin();
 
-		//exit('processed');
 
 		if($this->isNewAccount){
 			$this->postTweetStatus();
@@ -433,13 +430,13 @@ class Logintwitter extends WebPage
 			if(!empty($aUser['fn'])){
 				$name .= $aUser['fn'];
 			}
-				
+
 			if(!empty($aUser['ln'])){
 				$name .= ' '.$aUser['fn'];
 			}
 			$trimmed = \trim($name);
 			$name = (!empty($trimmed)) ? \trim($name) : $aUser['username'];
-			
+				
 			/**
 			 * This error message will appear inside the
 			 * Small extra browser Window that Login with Twitter
