@@ -358,6 +358,16 @@ questionSimilar = "\\Lampcms\\Modules\\Observers\\Similars"
 ;
 ;facebook = "\\Lampcms\\Modules\\Observers\\PostFacebook"
 
+; If tumblr filter is enabled (not commented out here)
+; then a checkbox to "Post to Tumblr" will be
+; added to "Ask" and "Answer" forms
+; Make sure you actually enabled Tumblr API integration
+; before enabling this filter otherwise it will not work
+; Check the [TUMBLR] section of this file for enabling 
+; the Tumblr API
+;
+;tumblr = "\\Lampcms\\Modules\\Tumblr\\PostTumblr"
+
 ; EmailNotifier can take long to run
 ; it's best to put this filter as the last filter
 ; 
