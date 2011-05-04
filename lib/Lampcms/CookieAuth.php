@@ -81,8 +81,7 @@ class CookieAuth extends UserAuth
 
 	protected $sid;
 
-	public function authByCookie()
-	{
+	public function authByCookie(){
 
 		d('$_COOKIE: '.print_r($_COOKIE, 1));
 
@@ -113,8 +112,7 @@ class CookieAuth extends UserAuth
 	 * @throws Lampcms\LoginException
 	 * in case user does not exist
 	 */
-	protected function getSidUser()
-	{
+	protected function getSidUser(){
 
 		$arrResult = $this->oRegistry->Mongo->getCollection('USERS')
 		->findOne(array('_id' => $this->uid));
@@ -142,19 +140,20 @@ class CookieAuth extends UserAuth
 	 * if sid or uid cookie are not present
 	 * in request
 	 */
-	protected function checkRequiredCookies()
-	{
+	protected function checkRequiredCookies(){
+		
 		if (!isset($_COOKIE) || empty($_COOKIE['uid']) || empty($_COOKIE['sid'])) {
 
 			throw new CookieAuthException('No uid or sid cookie');
 		}
 
-		$this->cookie = filter_input(INPUT_COOKIE, 'uid', FILTER_SANITIZE_STRING);// $_COOKIE['uid'];
-		$this->sid = filter_input(INPUT_COOKIE, 'sid', FILTER_SANITIZE_STRING);//filter_var($_COOKIE['sid']);
+		$this->cookie = filter_input(INPUT_COOKIE, 'uid', FILTER_SANITIZE_STRING);
+		$this->sid = filter_input(INPUT_COOKIE, 'sid', FILTER_SANITIZE_STRING);
 
 		return $this;
 	}
 
+	
 	/**
 	 * Parse the value of uid cookie and
 	 * it must become an array of uid=>intUserId
@@ -168,8 +167,7 @@ class CookieAuth extends UserAuth
 	 *
 	 * @return object $this
 	 */
-	protected function validateCookieSalt()
-	{
+	protected function validateCookieSalt(){
 		parse_str($this->cookie, $a);
 		d('parsed cookie: '.print_r($a, 1));
 		if(!is_array($a) || !array_key_exists('uid', $a) || !array_key_exists('s', $a)){
@@ -222,8 +220,7 @@ class CookieAuth extends UserAuth
 	 * was banned for attempting to hack
 	 * login by cookie
 	 */
-	protected function checkForBannedIP()
-	{
+	protected function checkForBannedIP(){
 		$ip = Request::getIP();
 
 		/**
@@ -262,8 +259,7 @@ class CookieAuth extends UserAuth
 	 * string also must be in all lower case letters
 	 * in order to pass validation
 	 */
-	protected function checkSidFormat()
-	{
+	protected function checkSidFormat(){
 		if(48 !== $len = strlen($this->sid)){
 			d('invalid sid cookie length: '.$len);
 			$this->logLoginError($this->uid, $this->sid, false, null, true);
@@ -303,8 +299,7 @@ class CookieAuth extends UserAuth
 	 * in the pas 60 minutes and the latest attempt
 	 * was less than 30 minutes ago
 	 */
-	protected function checkMultipleSidLoginErrors()
-	{
+	protected function checkMultipleSidLoginErrors(){
 		$now = time();
 		$interval = ($now - 3600);
 		$wait = 1800;
@@ -355,8 +350,8 @@ class CookieAuth extends UserAuth
 	 * @return bool true if they match
 	 * or false if dont match
 	 */
-	protected function compareSids($stored)
-	{
+	protected function compareSids($stored){
+		
 		return ($stored === $this->sid);
 	}
 }

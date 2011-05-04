@@ -111,8 +111,9 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	protected $oGeo;
 
 
-	public function __construct(array $array){
-		parent::__construct($array);
+	public function __construct(array $a = null){
+		$a = (null === $a) ? array() : $a;
+		parent::__construct($a);
 	}
 
 

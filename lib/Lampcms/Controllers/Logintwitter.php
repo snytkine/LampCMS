@@ -682,7 +682,7 @@ class Logintwitter extends WebPage
 	 * @return void
 	 */
 	protected function redirectToTwitter($url){
-		e('twitter redirect url: '.$url);
+		d('twitter redirect url: '.$url);
 		/**
 		 * @todo translate this string
 		 *
@@ -708,7 +708,7 @@ class Logintwitter extends WebPage
 		'<div class="centered"><a href="'.$url.'">If you are not redirected in 2 seconds, click here to authenticate with Twitter</a></div>'.
 		Responder::PAGE_CLOSE;
 
-		e('exising with this $s: '.$s);
+		d('exising with this $s: '.$s);
 
 		exit($s);
 	}

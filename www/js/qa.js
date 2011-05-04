@@ -1617,9 +1617,15 @@ YUI({
 			break;
 			
 		case el.test('.twsignin'):
-			//Y.log('clicked on twsignin.');
+			Y.log('clicked on twsignin.');
 			//Y.log('Twitter: ' + Twitter);
 			Twitter.startDance();
+			break;
+			
+		case el.test('.add_tumblr'):
+			Y.log('clicked on .add_tumblr');
+			
+			Twitter.startDance('/index.php?a=logintumblr', 680, 540);
 			break;
 			
 		case (id == 'gfcset'):
@@ -3187,6 +3193,7 @@ YUI({
 		return ret;
 		
 	};
+	
 	/**
 	 * When user clicked on checkbox
 	 * like "post to Twitter"
@@ -3205,6 +3212,11 @@ YUI({
 			
 			case ((el.get('id') == 'api_facebook') && ('1' != getMeta('fb'))):
 				initFBSignup();
+				break;
+				
+			case ((el.get('id') == 'api_tumblr') && ('1' != getMeta('tm'))):
+				Y.log('3216 api_tumblr');
+				Twitter.startDance('/index.php?a=logintumblr', 800, 540);
 				break;
 
 			}
@@ -3238,9 +3250,14 @@ YUI({
 			/**
 			 * Start the oAuth login process by opening the popup window
 			 */
-			startDance : function(url) {
+			startDance : function(url, w, h) {
+				showLoading();
 				//Y.log('1084 starting oAuth dance this is: ' + this, 'window'); // Object Twitter
-				var u, mydomain, popupParams = 'location=0,status=0,width=800,height=450,alwaysRaised=yes,modal=yes'; //
+				var u, mydomain, popupParams, height, width; //
+				
+				width = (w) ? w : 800;
+				height = (h) ? h : 800;
+				popupParams =  'location=0,status=0,width=' + width + ',height=' + height + ',alwaysRaised=yes,modal=yes';
 
 				u = (!url) ? 'http://' + window.location.hostname + '/index.php?a=logintwitter&ajaxid=1' : url;
 
@@ -3254,11 +3271,12 @@ YUI({
 				if (this.popupWindow && !this.popupWindow.closed) {
 					this.popupWindow.location.href = u;
 					this.popupWindow.focus();
+					hideLoading();
 					return;
 				}
 
 				this.popupWindow = window.open(u, 'twitterWindow', popupParams);
-
+				hideLoading();
 				if (!this.popupWindow) {
 					alert('Unable to open login window. Please make sure to disable popup blockers in your browser');
 					return;

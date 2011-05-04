@@ -77,8 +77,9 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 */
 	protected $ansCollection = 'ANSWERS';
 
-	public function __construct(Registry $oRegistry, array $a = array()){
+	public function __construct(Registry $oRegistry, array $a = null){
 
+		$a = ($a) ? $a : array();
 		parent::__construct($oRegistry, 'QUESTIONS', $a);
 	}
 
@@ -174,7 +175,34 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		return ($short) ? $url : $url.$this->offsetGet('url');
 	}
 
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.Post::getBody()
+	 */
+	public function getBody(){
+		return $this->offsetGet('b');
+	}
 
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.Post::getTitle()
+	 */
+	public function getTitle(){
+		return $this->offsetGet('title');
+	}
+
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.Post::getSeoUrl()
+	 */
+	public function getSeoUrl(){
+		return $this->offsetGet('url');
+	}
+	
+	
 	/**
 	 * Should return false if NOT closed
 	 * otherwise either true or timestamp
@@ -662,7 +690,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		return count($aComments);
 	}
 
-	
+
 	/**
 	 *
 	 * Increase value of i_commets by 1

@@ -113,9 +113,9 @@ class ExternalAuth extends LampcmsObject
 
 		$this->oRegistry = $oRegistry;
 	}
-	
-	
-/**
+
+
+	/**
 	 * Checks in username of twitter user
 	 * already exists in our regular USERS table
 	 * and if it does then prepends the @ to the username
@@ -134,12 +134,12 @@ class ExternalAuth extends LampcmsObject
 	 */
 	protected function makeUsername($displayName){
 		d('going to auto_create username based on displayName: '.$displayName);
-		
+
 		/**
 		 * Make 100% sure that displayName is in UTF8 encoding
 		 */
 		$displayName = Utf8String::factory($displayName)->valueOf();
-		
+
 		$coll = $this->oRegistry->Mongo->USERS;
 		$res = null;
 
@@ -185,5 +185,4 @@ class ExternalAuth extends LampcmsObject
 
 		return $username;
 	}
-
 }

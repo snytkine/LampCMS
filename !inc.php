@@ -51,14 +51,14 @@ if(function_exists('mb_internal_encoding')){
 
 function exception_handler($e)
 {
-	echo 'Eeeeee '.$e->getMessage()."\n<br>";
+	//echo 'Eeeeee '.$e->getMessage()."\n<br>";
 	try {
-		$strHtml =  'ooopsy... '.Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
+		$err =  Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
 		$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';
 		if(strlen(trim(constant('DEVELOPER_EMAIL'))) > 1){
-			@mail(DEVELOPER_EMAIL, 'ErrorHandle in inc.php', $strHtml.$extra);
+			@mail(DEVELOPER_EMAIL, 'ErrorHandle in inc.php', $err.$extra);
 		}
-		exit ($strHtml);
+		exit ($err);
 	}catch(\Exception $e) {
 		echo 'Error in Exception handler: : '.$e->getMessage().' line '.$e->getLine().$e->getTraceAsString();
 	}

@@ -54,11 +54,11 @@
 namespace Lampcms;
 
 /**
- * 
+ *
  * Class for rendering <div> with user profile
  * This class is used for generating div on page
- * /user/$id/ 
- * 
+ * /user/$id/
+ *
  * @author Dmitri Snytkine
  *
  */
@@ -100,6 +100,7 @@ class ProfileDiv extends LampcmsObject
 			'twitter' => '<div id="my_tw">'.self::getTwitterAccount($oRegistry, $oUser, $isSameUser).'</div>',
 			'age' => $oUser->getAge(),
 			'facebook' => '<div id="my_fb">'.self::getFacebookAccount($oRegistry, $oUser, $isSameUser).'</div>',
+			'tumblr' => '<div id="my_tm">'.self::getTumblrAccount($oRegistry, $oUser, $isSameUser).'</div>',
 			'location' => $oUser->getLocation(),
 			'description' => \wordwrap($desc, 50),
 			'editRole' => Usertools::getHtml($oRegistry, $oUser),
@@ -113,7 +114,7 @@ class ProfileDiv extends LampcmsObject
 
 
 	/**
-	 * Get either the @username of Twitter account if user has one
+	 * Get either the link to @username of Twitter account if user has one
 	 * OR html for the button to connect Twitter account
 	 * to Existing Account
 	 *
@@ -145,16 +146,50 @@ class ProfileDiv extends LampcmsObject
 
 
 	/**
-	 * Get either the @username of Twitter account if user has one
-	 * OR html for the button to connect Twitter account
+	 * Get either the link to Tumblr blog
+	 * if user has one
+	 * OR html for the button to connect Tumblr account
 	 * to Existing Account
 	 *
 	 *
 	 * @param object $oRegistry
 	 * @param object $oUser
 	 *
-	 * @return string html html of Connect button
-	 * or just plain text string with @username
+	 * @return string html of Connect button
+	 * or link to user's Tumblr blog
+	 *
+	 */
+	public static function getTumblrAccount(Registry $oRegistry, User $oUser, $isSameUser){
+
+		$t = $oUser->getTumblrBlogLink();
+		d('tumblr blog url: '.$t);
+		if(!empty($t)){
+			return $t;
+		}
+
+		if(extension_loaded('oauth') && $isSameUser){
+			$a = $oRegistry->Ini->getSection('TUMBLR');
+			if(!empty($a) && !empty($a['OAUTH_KEY']) && !empty($a['OAUTH_SECRET'])){
+				return '<div id="connect_tumblr" class="add_tumblr ajax ttt btn_connect rounded4" title="Connect Tumblr Blog"><img src="/images/tumblr_16.png" width="16" height="16"><span class="_bg_tw">Connect Tumblr Blog</span></div>';
+			}
+		}
+
+		return '';
+	}
+
+
+	/**
+	 * Get either the link to Facebook profile
+	 * if user has one
+	 * OR html for the button to connect Facebook account
+	 * to Existing Account
+	 *
+	 *
+	 * @param object $oRegistry
+	 * @param object $oUser
+	 *
+	 * @return string html of Connect button
+	 * or link to Facebook profile page
 	 *
 	 */
 	public static function getFacebookAccount(Registry $oRegistry, User $oUser, $isSameUser){

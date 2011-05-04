@@ -75,7 +75,7 @@ class Login extends WebPage
 	 *
 	 * @var bool
 	 */
-	protected $guestsOnly = true;
+	// protected $guestsOnly = true;
 
 	/**
 	 * REQUEST_METHOD

@@ -58,12 +58,16 @@ namespace Lampcms;
  * @author Dmitri Snytkine
  *
  */
-class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User, Interfaces\TwitterUser, Interfaces\FacebookUser
+class User extends MongoDoc implements Interfaces\RoleInterface,
+Interfaces\User,
+Interfaces\TwitterUser,
+Interfaces\FacebookUser,
+Interfaces\TumblrUser
 {
 
 	/**
 	 * Special flag indicates that user has
-	 * just registered. 
+	 * just registered.
 	 * This flag stays only during
 	 * the session, so for the whole duration of the session
 	 * we know that this is a new user
@@ -89,15 +93,15 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * @var bool
 	 */
 	protected $bIsModerator;
-	
+
 	/**
-	 * 
+	 *
 	 * Array of resolved permission values
 	 * used for memoization of the hasPermission() method
 	 * values are boolean, keys are permission name
 	 * Not included in serialization, so it's lost
 	 * between page views.
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $aPermissions = array();
@@ -294,7 +298,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 
 				if(!empty($email) && (count($aGravatar) > 0)){
 					d('cp');
-						
+
 					return $aGravatar['url'].hash('md5', $email).'?s='.$aGravatar['size'].'&d='.$aGravatar['fallback'].'&r='.$aGravatar['rating'];
 				}
 				d('cp');
@@ -389,7 +393,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	/**
 	 * Get html of the link to User's Twitter page
 	 * If user has Twitter account
-	 * 
+	 *
 	 * @return string html code for link or
 	 * empty string if user does not have Twitter account
 	 */
@@ -418,7 +422,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 	 * @return string
 	 */
 	public function getTwitterSecret(){
-		return $this->offsetGet('oauth_token_secret'); 
+		return $this->offsetGet('oauth_token_secret');
 	}
 
 
@@ -492,9 +496,9 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 
 
 	/**
-	 * Get html for the link to user's 
+	 * Get html for the link to user's
 	 * Facebook profile
-	 * 
+	 *
 	 * @return string empty string if user does not
 	 * have fb_url value or html fragment for the link
 	 * to this User's Facebok page
@@ -517,7 +521,7 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $this->offsetGet('fb_token');
 	}
 
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Lampcms.LampcmsArray::__toString()
@@ -604,15 +608,15 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 
 	/**
 	 * Test to see if this user has permission
-	 * 
+	 *
 	 * @param string $permission
 	 * @return bool true if User has this permission, false otherwise
 	 */
 	public function isAllowed($permission){
 		return $this->getRegistry()->Acl->isAllowed($this->getRoleId(), null, $permission);
 	}
-	
-	
+
+
 	/**
 	 * Change reputation score
 	 * Makes sure new score can never go lower than 1
@@ -703,4 +707,177 @@ class User extends MongoDoc implements Interfaces\RoleInterface, Interfaces\User
 		return $oDiff->format("%y");
 	}
 
+
+	/**
+	 * Get array of blogs
+	 *
+	 * @return array
+	 */
+	public function getTumblrBlogs(){
+		$a = $this->offsetGet('tumblr');
+		if(empty($a) || empty($a['blogs'])){
+			return null;
+		}
+
+		return $a['blogs'];
+	}
+
+
+	/**
+	 * Set value of tumblr['blogs']
+	 *
+	 * @param array $blogs array of blogs
+	 *
+	 * @return object $this
+	 */
+	public function setTumblrBlogs(array $blogs){
+		$a = $this->offsetGet('tumblr');
+		if(empty($a) || empty($a['blogs'])){
+			return $this;
+		}
+
+		$a['blogs'] = $blogs;
+
+		$this->offsetSet('tumblr', $a);
+
+		return $this;
+	}
+
+
+	/**
+	 * Get array of all user's blogs
+	 * @return mixed array of at least one blog | null
+	 * if user does not have any blogs (not a usual situation)
+	 *
+	 */
+	public function getTumblrToken(){
+		$a = $this->offsetGet('tumblr');
+		if(empty($a) || empty($a['tokens'])){
+			return null;
+		}
+
+		return $a['tokens']['oauth_token'];
+	}
+
+
+	/**
+	 * Get oAuth sercret that we got for this user
+	 * @return string
+	 */
+	public function getTumblrSecret(){
+		$a = $this->offsetGet('tumblr');
+		if(empty($a) || empty($a['tokens'])){
+			return null;
+		}
+
+		return $a['tokens']['oauth_token_secret'];
+	}
+
+
+	/**
+	 * Set the value of ['tumblr']['tokens'] to null
+	 * This removes both the token and token_secret
+	 * for the tumblr oauth credentials
+	 *
+	 * @return object $this
+	 */
+	public function revokeTumblrToken(){
+		$a = $this->offsetGet('tumblr');
+		if(!empty($a) && !empty($a['tokens'])){
+			$a['tokens'] = null;
+			$this->offsetSet('tumblr', $a);
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Get html for the link to tumblr blog
+	 * 
+	 * @return string html of link
+	 */
+	public function getTumblrBlogLink(){
+		$a = $this->offsetGet('tumblr');
+		if(empty($a) || empty($a['blogs'])){
+			return '';
+		}
+
+		$aBlog = $a['blogs'][0];
+		if(!empty($aBlog['url']) && !empty($aBlog['title'])){
+			$tpl = '<a href="%s" rel="nofollow">%s</a>';
+
+			return sprintf($tpl, $aBlog['url'], $aBlog['title']);
+		}
+
+		return '';
+	}
+
+
+	/**
+	 * Get Title of "default" Tumblr Blog
+	 * Default blog is the one blog
+	 * that user connected to this site
+	 * If user has only one blog on Tumblr then
+	 * it's automatically is default blog
+	 *
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.TumblrUser::getTumblrBlogTitle()
+	 */
+	public function getTumblrBlogTitle(){
+		$a = $this->offsetGet('tumblr');
+		if(empty($a) || empty($a['blogs'])){
+			return '';
+		}
+
+		$aBlog = $a['blogs'][0];
+
+		return(!empty($a['blogs'][0]['title'])) ? $a['blogs'][0]['title'] : '';
+	}
+
+
+	/**
+	 * Get full url of the "default" Tumblr blog
+	 * Default blog is the one blog
+	 * that user connected to this site
+	 * If user has only one blog on Tumblr then
+	 * it's automatically is default blog
+	 *
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.TumblrUser::getTumblrBlogUrl()
+	 */
+	public function getTumblrBlogUrl(){
+		$a = $this->offsetGet('tumblr');
+		if(empty($a) || empty($a['blogs'])){
+			return '';
+		}
+
+		$aBlog = $a['blogs'][0];
+
+		return(!empty($a['blogs'][0]['url'])) ? $a['blogs'][0]['url'] : '';
+	}
+
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.TumblrUser::getTumblrBlogId()
+	 */
+	public function getTumblrBlogId(){
+		$a = $this->offsetGet('tumblr');
+		if(empty($a) || empty($a['blogs']) || empty($a['blogs'][0])){
+			throw new DevException('User does not have any blogs on Tumblr');
+		}
+
+		$blog = $a['blogs'][0];
+		if(!empty($blog['private-id'])){
+			return $blog['private-id'];
+		}
+
+		if(!empty($blog['name'])){
+			return $blog['name'].'.tumblr.com';
+		}
+
+		return null;
+	}
+	
 }

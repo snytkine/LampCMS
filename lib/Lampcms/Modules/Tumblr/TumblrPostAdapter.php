@@ -50,119 +50,139 @@
  */
 
 
-namespace Lampcms\String;
+namespace Lampcms\Modules\Tumblr;
+
+
+use \Lampcms\LampcmsObject;
+use \Lampcms\Interfaces\Post;
+use \Lampcms\Interfaces\Question;
+use \Lampcms\Interfaces\Answer;
+use \Lampcms\Registry;
 
 /**
- * String tokenizer
- * Minics the behaviour
- * or java.unil.StringTokenizer class
- *
- * If you need to just get array
- * of tokens and not bother with
- * the nextToken() methods you can
- * just call getArrayCopy() on this object
- * and get array of tokens
+ * Adapter class that takes in
+ * Question or Answer
+ * and returns object TumblrContent which can
+ * then be used to post to TumblrApi
+ * That object TumblrContent is usually a TumblrPost object
+ * but can also be TumblrLink in we decide to just post
+ * a Link to Tumblr instead of a full Blog post
+ * Enter description here ...
  *
  * @author Dmitri Snytkine
  *
  */
-class Tokenizer extends \ArrayObject
+class TumblrPostAdapter extends LampcmsObject
 {
+
 	/**
-	 * By default the string will be split
-	 * buy one or more space or tab or new line char
+	 * TumblrPost object
 	 *
-	 * @var string Regex pattern
+	 * @var object of type TumblrPost
 	 */
-	protected $delim = '/([\s]+)/';
+	protected $oTumblrPost;
 
-	protected $origString;
+	public function __construct(Registry $o){
+		$this->oRegistry = $o;
+	}
 
-	protected $iterator;
 
 	/**
-	 * @param string $string Original string to be tokenized
-	 * @param string $delim must be a valid PCRE pattern!
-	 * It's recommended to add the /u switch to pattern to treat
-	 * chars in pattern as UTF-8 chars
+	 * Main method to get the TumblrPost object
+	 * from the Question or Answer input object
+	 *
+	 * @param Post $o object of type Post which
+	 * could be Question OR Answer
+	 *
+	 * @return object of type TumblrPost
 	 */
-	public function __construct($string, $delim = '/([\s,]+)/u'){
-		if(!is_string($string) || !is_string($delim)){
-			throw new \InvalidArgimentException('$string and $delim params must be string');
+	public function get(Post $o){
+		d('cp');
+		if($o instanceof Question){
+			$this->getQuestionPost($o);
+		} elseif($o instanceof Answer){
+			$this->getAnswerPost($o);
+		}
+		d('cp');
+
+		return $this->getTumblrPost();
+	}
+
+
+	/**
+	 * Getter for $this->oTumblrPost
+	 * @return object of type TumblrPost
+	 */
+	public function getTumblrPost(){
+		return $this->oTumblrPost;
+	}
+
+
+	/**
+	 *
+	 * Setup values in $this->oTumblrPost using
+	 * values of Question
+	 *
+	 * @param Question $o
+	 */
+	protected function getQuestionPost(Question $o){
+		d('cp');
+		$this->oTumblrPost = new TumblrPost();
+
+		/**
+		 * @todo Translate strings
+		 *
+		 * @var string
+		 */
+		$qUrl = $o->getUrl();
+		$tpl1 = '<p><a href="%s">My question</a> on %s</p>';
+		$tpl2 = '<p><a href="%s">Click here</a> to post your reply</p><br>';
+		$body = sprintf($tpl1, $qUrl, $this->oRegistry->Ini->SITE_NAME);
+		$body .= $o->getBody();
+		$body .= sprintf($tpl2, $qUrl);
+
+		$this->oTumblrPost->setBody($body)->setTitle($o->getTitle());
+
+		$tags = $o['a_tags'];
+		d('$tags: '.print_r($tags, 1));
+		if(!empty($tags)){
+			$this->oTumblrPost->setTags($tags);
 		}
 
-		parent::__construct(array());
-		$this->origString = $string;
-		$this->delim = $delim;
+		d('cp');
+		$this->oTumblrPost->setSlug($o->getSeoUrl());
 
-		$this->exchangeArray($this->parse($string));
-		$this->iterator = $this->getIterator();
-	}
-
-
-	public function getDelim(){
-		return $this->delim;
-	}
-
-
-	public function getOrigString(){
-		return $this->origString;
-	}
-
-
-	/**
-	 * Parse string into tokens
-	 * Sub-class may override this to
-	 * tokenize any other way.
-	 * For example, may also apply a filter
-	 * like array_unique or filter agains stopwords list
-	 *
-	 * @return array array of tokens (individual parts of string)
-	 */
-	public function parse(){
-		$a = \preg_split($this->delim, $this->origString, -1, PREG_SPLIT_NO_EMPTY);
-		d('tokenized: '.print_r($a, 1));
-
-		return $a;
-	}
-
-
-	/**
-	 * Tests if there are more tokens available
-	 * from this tokenizer's string
-	 *
-	 * @return bool true if there are more tokens
-	 *
-	 */
-	public function hasMoveTokens(){
-		return $this->iterator->valid();
+		return $this;
 	}
 
 
 	/**
 	 *
-	 * Returns the next token from this string tokenizer
+	 * Setup values in $this->oTumblrPost using
+	 * values of Answer
 	 *
-	 * @return string
+	 * @param Answer $o
 	 */
-	public function nextToken(){
-		$s = $this->iterator->current();
-		$this->iterator->next();
+	protected function getAnswerPost(Answer $o){
+		d('cp');
+		$this->oTumblrPost = new TumblrPost();
+		$qlink = $this->oRegistry->Ini->SITE_URL.'/q/'.$o->getQuestionId();
 
-		return $s;
+		/**
+		 * @todo Translate string
+		 *
+		 * @var string
+		 */
+		$tpl = '<p>This is my answer to a <a href="%s"><strong>question</strong></a> on %s</p><br>';
+		$body = sprintf($tpl, $qlink, $this->oRegistry->Ini->SITE_NAME);
+
+		$body .= $o->getBody();
+		d('body: '.$body);
+
+		$title = 'My answer to "'.$o->getTitle().'"';
+
+		$this->oTumblrPost->setBody($body)->setTitle($title);
+
+		return $this;
 	}
-
-
-	/**
-	 *
-	 * Calculates the number of times that this tokenizer's
-	 * nextToken method can be called
-	 * before it generates an exception.
-	 *
-	 * @return int number of tokens in the origString
-	 */
-	public function countTokens(){
-		return $this->count();
-	}
-
 }

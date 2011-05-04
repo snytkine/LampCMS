@@ -76,6 +76,7 @@ class MongoCache implements Interfaces\Cache
 	 */
 	protected $_collection;
 
+	
 	/**
 	 * Special tag that will be
 	 * prepended to every item key
@@ -85,6 +86,7 @@ class MongoCache implements Interfaces\Cache
 	 */
 	protected $nameSpace = '';
 
+	
 	/**
 	 * Flag indicates to compress data
 	 * this will save storage space if
@@ -97,8 +99,7 @@ class MongoCache implements Interfaces\Cache
 	protected $bCompress = false;
 
 
-	public static function factory(Registry $oRegistry)
-	{
+	public static function factory(Registry $oRegistry){
 		$oIni = $oRegistry->Ini;
 		$aConfig = $oIni->getSection('CACHE_MONGO');
 		d('cp');
@@ -109,6 +110,7 @@ class MongoCache implements Interfaces\Cache
 		return $o;
 	}
 
+	
 	/**
 	 * Constructor
 	 *
@@ -120,8 +122,7 @@ class MongoCache implements Interfaces\Cache
 	 *
 	 * @param string $collection name of collection
 	 */
-	public function __construct(\Mongo $oMongo, $db, $collection, $nameSpace = null, $compress = false)
-	{
+	public function __construct(\Mongo $oMongo, $db, $collection, $nameSpace = null, $compress = false){
 		d('cp');
 		if (!extension_loaded('mongo')) {
 			throw new \LogicException('The MongoDB extension must be loaded for using this backend !');
@@ -152,8 +153,7 @@ class MongoCache implements Interfaces\Cache
 	 * @param  string $id Cache id
 	 * @return mixed|false (a cache is not available) or "last modified" timestamp (int) of the available cache record
 	 */
-	public function test($key)
-	{
+	public function test($key){
 		$cursor = $this->get($key);
 		if ($tmp = $cursor->getNext()) {
 
@@ -163,14 +163,14 @@ class MongoCache implements Interfaces\Cache
 		return false;
 	}
 
+	
 	/**
 	 * Remove a cache record
 	 *
 	 * @param  string $id Cache id
 	 * @return boolean True if no problem
 	 */
-	public function delete($key, $exp = 0)
-	{
+	public function delete($key, $exp = 0){
 		/**
 		 * If expires immediately then just remove data
 		 * otherwise set expiration time.
@@ -194,6 +194,7 @@ class MongoCache implements Interfaces\Cache
 		return true;
 	}
 
+	
 	/**
 	 * Maintainance function to remove expired entries
 	 * This should be run from special script
@@ -201,8 +202,7 @@ class MongoCache implements Interfaces\Cache
 	 * this method periodically via cron
 	 *
 	 */
-	public function clean()
-	{
+	public function clean(){
 		return $this->_collection->remove(array('$where' => new MongoCode('function() { return this.exp < '.(time() - 1).'; }')));
 	}
 
@@ -313,9 +313,10 @@ class MongoCache implements Interfaces\Cache
 
 		} elseif($this->bCompress && is_array($value)) {
 
-			$value = serialize($value);
+			$value = \serialize($value);
 			$isSerialized = true;
 		}
+		
 		d('cp');
 		if($this->bCompress){
 			d('cp');
@@ -324,6 +325,7 @@ class MongoCache implements Interfaces\Cache
 			d('cp');
 			$data = $value;
 		}
+		
 		d('cp');
 		$aData = array('_id'     => $this->nameSpace.$key,
             		   'd'       => $data,
@@ -347,6 +349,7 @@ class MongoCache implements Interfaces\Cache
 
 	}
 
+	
 	/**
 	 * Add item to cache but only if it does not already exist
 	 *
@@ -354,14 +357,12 @@ class MongoCache implements Interfaces\Cache
 	 * @param mixed $value
 	 * @param int $ttl
 	 */
-	public function add($key, $value, $ttl = 0)
-	{
+	public function add($key, $value, $ttl = 0){
 
 	}
 
 
-	public function setMulti(array $aItems, $ttl = 0)
-	{
+	public function setMulti(array $aItems, $ttl = 0){
 
 		foreach($aItems as $key => $item){
 			$this->set($key, $item, $ttl);
@@ -370,6 +371,7 @@ class MongoCache implements Interfaces\Cache
 		return true;
 	}
 
+	
 	/**
 	 * @param string $key cache key
 	 *
@@ -378,8 +380,7 @@ class MongoCache implements Interfaces\Cache
 	 * as a way to do mainainance without relying on cron job
 	 * and false is returned
 	 */
-	public function get($key)
-	{
+	public function get($key){
 		$key = $this->nameSpace.$key;
 		d('looking for key: '.$key);
 		d('in collection: '.$this->_collection->getName().' in DB: '.$this->_collection->db);
@@ -394,6 +395,7 @@ class MongoCache implements Interfaces\Cache
 		return $this->getData($ret);
 	}
 
+	
 	/**
 	 * Get array of requested keys
 	 * Rather than getting each key individually
@@ -404,8 +406,7 @@ class MongoCache implements Interfaces\Cache
 	 * @param array $aKeys
 	 * @return array array of found key=>value pairs
 	 */
-	public function getMulti(array $aKeys)
-	{
+	public function getMulti(array $aKeys){
 		/**
 		 * Prepend namespace to every key
 		 * @var unknown_type
@@ -448,6 +449,7 @@ class MongoCache implements Interfaces\Cache
 		return $ret;
 	}
 
+	
 	/**
 	 * Decode the value and return it
 	 * @param array $a
@@ -462,8 +464,7 @@ class MongoCache implements Interfaces\Cache
 	 * If data is determied to be in gzipped format, it is
 	 * uncompressed before it is returned
 	 */
-	protected function getData(array $a)
-	{
+	protected function getData(array $a){
 
 		if( (0 !== $a['exp']) && ((time() - 1) > $a['exp']) ){
 			d('going to delete this key '.$a['_id']);

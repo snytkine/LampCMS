@@ -73,6 +73,7 @@ class Responder
 
 	const CSS_CLOSE = '</style>';
 
+	
 	/**
 	 * Flag indicates that
 	 * request came to the iframe
@@ -89,6 +90,7 @@ class Responder
 	 */
 	protected static $bIframe = false;
 
+	
 	/**
 	 * Send the string to a browser and exit
 	 *
@@ -192,6 +194,7 @@ class Responder
 		return self::PAGE_OPEN."\n".'<div id="excsl"><div id="tools">'.$sError.'</div></div>'."\n".self::PAGE_CLOSE;
 	}
 
+	
 	/**
 	 * Redirecting browser to a new url
 	 * using the header "Location" value
@@ -209,6 +212,7 @@ class Responder
 		}
 
 		header("Location: ".$url);
+		fastcgi_finish_request();
 		exit(0);
 	}
 

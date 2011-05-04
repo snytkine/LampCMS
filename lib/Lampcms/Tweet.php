@@ -66,7 +66,11 @@ class Tweet
 	/**
 	 * Post the title of Question or Answer to Twitter
 	 * Usually this method is called as a shutdown_function
-	 *
+	 * @todo if space allows add "prefixes" to Tweets
+	 * Prefixes will be strings, in translation...
+	 * 
+	 * @todo if space allows also add "via @ourname" to tweet if the
+	 * value of TWITTER_USERNAME exists if setting
 	 *
 	 * @param \Lampcms\Twitter $oTwitter
 	 * @param \Lampcms\Bitly $oBitly

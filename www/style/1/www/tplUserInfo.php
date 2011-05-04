@@ -80,7 +80,9 @@ class tplUserInfo extends Lampcms\Template\Template
 	'gender' => '', //26
 	'genderLabel' => 'Gender', //27
 	'editLink' => '', //28
-	'usernameLabel' => 'Username' //29
+	'usernameLabel' => 'Username', //29
+	'tumblr' => '', //30
+	'tumblrLabel' => 'Tumblr', //31
 	);
 	
 	
@@ -123,6 +125,10 @@ class tplUserInfo extends Lampcms\Template\Template
 	<tr>
 		<td class="ar">%16$s</td>
 		<td>%15$s</td>
+	</tr>
+	<tr>
+		<td class="ar">%31$s</td>
+		<td>%30$s</td>
 	</tr>
 	<tr>
 		<td class="ar">%18$s</td>

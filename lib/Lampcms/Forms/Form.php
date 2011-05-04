@@ -678,20 +678,11 @@ class Form extends LampcmsObject
 	 * it will be used by ajax based forms when submitting
 	 * form via ajax
 	 *
-	 * The form token is tied to current session but
-	 * does not use sessionID and it is also tied to
-	 * the concrete form because each concrete form
-	 * has different class name
-	 *
-	 * @IMPORTANT the token is now NOT global, it cannot
-	 * be used as value of some meta tag because it will be different
-	 * for different forms.
 	 *
 	 * @return string value of form token
 	 * for this class.
 	 */
-	public static function generateToken()
-	{
+	public static function generateToken(){
 		if (!array_key_exists('secret', $_SESSION)) {
 
 			$token = uniqid(mt_rand());

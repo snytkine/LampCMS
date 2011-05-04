@@ -427,6 +427,14 @@ class Cache extends Observer
 	{
 		if (!$this->skipCache) {
 			if (is_string($key)) {
+				
+				/**
+				 * @todo must ensure $val is utf-8 by
+				 * running it through Utf8String::factory()!
+				 * or better yet make setValue() that requires
+				 * Utf8string as value!
+				 * 
+				 */
 				/**
 				 * must have a way to
 				 * set an empty result into cache

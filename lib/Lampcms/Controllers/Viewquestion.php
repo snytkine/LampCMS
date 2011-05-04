@@ -115,7 +115,7 @@ class Viewquestion extends WebPage
 
 	protected $pageID = 1;
 
-	
+
 	/**
 	 * Flag indicates that comments have
 	 * been disabled, causing a special 'nocomments' css
@@ -154,7 +154,7 @@ class Viewquestion extends WebPage
 	 */
 	protected $numAnswers = 0;
 
-	
+
 	/**
 	 * Main entry point
 	 * (non-PHPdoc)
@@ -169,7 +169,7 @@ class Viewquestion extends WebPage
 		$this->pageID = $this->oRegistry->Request->get('pageID', 'i', 1);
 		$this->tab = $this->oRegistry->Request->get('sort', 's', 'i_lm_ts');
 		$this->oRegistry->registerObservers();
-
+		$this->addMetaTag('tm', (null !== $this->oRegistry->Viewer->getTumblrToken()));
 		$this->getQuestion()
 		->sendCacheHeaders()
 		->setTitle()
@@ -193,9 +193,9 @@ class Viewquestion extends WebPage
 
 	/**
 	 * Adds block with info about
-	 * this question to the 
+	 * this question to the
 	 * $this->aPageVars['side']
-	 * 
+	 *
 	 * @return object $this
 	 */
 	protected function setQuestionInfo(){
@@ -385,7 +385,7 @@ class Viewquestion extends WebPage
 
 	/**
 	 * Send out HTTP Cache control Headers
-	 * 
+	 *
 	 */
 	protected function sendCacheHeaders(){
 

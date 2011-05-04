@@ -58,21 +58,8 @@ use \Lampcms\Facebook;
 use \Lampcms\Points;
 
 /**
- * This observer will post a tweet to Twitter API
- * In case of Question it will prefix some prefix like
- * #question + title + link + via @ourtwitter
- * It will test the length of title and will not add
- * prefix and not add @ourtwitter if that would cause
- * tweet to go over 140
- * It will truncate title if title is
- * already over 140
- *
- * In case of answer it will prefix I answered: $title + link
- *
- * It will try to use bit.ly shortener is it's setup
- * in !config.ini or will use our own domain/q/$id/#ans$aid
- *  It's always best to setup bit.ly api to get
- *  shorter url
+ * This observer will post Question or Answer link
+ * to Facebook API (to Question/Answer poster's Wall)
  *
  * @author Dmitri Snytkine
  *
@@ -95,7 +82,7 @@ class PostFacebook extends \Lampcms\Observer
 			d('facebook checkbox not checked');
 			/**
 			 * Set the preference in Viewer object
-			 * for that "Post to Twitter" checkbox to be not checked
+			 * for that "Post to Faebook" checkbox to be not checked
 			 * This is just in case it was checked before
 			 */
 			$this->oRegistry->Viewer['b_fb'] = false;
@@ -103,11 +90,11 @@ class PostFacebook extends \Lampcms\Observer
 		}
 
 		/**
-		 * First if this site does not have support for Twitter API
-		 * OR if User does not have Twitter credentials then
+		 * First if this site does not have support for Facebook API
+		 * OR if User does not have Facebook credentials then
 		 * there is nothing to do here
-		 * This is unlikely because user without Twitter credentials
-		 * will not get to see the checkbox to post to Twitter
+		 * This is unlikely because user without Facebook credentials
+		 * will not get to see the checkbox to post to Facebook
 		 * but still it's better to check just to be sure
 		 */
 		if(!extension_loaded('curl')){
@@ -130,10 +117,10 @@ class PostFacebook extends \Lampcms\Observer
 			d('User does not have Facebook token');
 			return;
 		}
-		
+
 		/**
 		 * Now we know that user checked that checkbox
-		 * to Tweet content
+		 * to post content to Facebook
 		 * and we now going to save this preference
 		 * in User object
 		 *
@@ -150,8 +137,9 @@ class PostFacebook extends \Lampcms\Observer
 
 
 	/**
-	 * Post a Tweet with link to this
-	 * question
+	 * Post a Link to this question or answer
+	 * To User's Facebook Wall
+	 *
 	 */
 	protected function post(){
 
@@ -172,7 +160,7 @@ class PostFacebook extends \Lampcms\Observer
 			$description = Utf8String::factory($this->obj['b'], 'utf-8', true)->asPlainText()->valueOf();
 			d('cp');
 		} catch (\Exception $e){
-			d('Unable to post tweet because of this exception: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
+			d('Unable to post to facebook because of this exception: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
 			return;
 		}
 
@@ -202,7 +190,7 @@ class PostFacebook extends \Lampcms\Observer
 			if(!empty($result) && (false !== $decoded = json_decode($result, true)) ){
 				d('Got result from Facebook API: '.print_r($decoded, 1));
 				/**
-				 * If status is OK (Tweet was posted)
+				 * If status is OK 
 				 * then reward the user with points!
 				 */
 				if(!empty($decoded['id'])){
@@ -212,8 +200,18 @@ class PostFacebook extends \Lampcms\Observer
 					 * Now need to also record Facebook id
 					 * to FB_STATUSES collection
 					 */
-					try {
-						$coll = $Mongo->FB_STATUSES;
+					try {	
+						/**
+						 * 
+						 * Later can query Facebook to find
+						 * replies to this post and add them
+						 * as "comments" to this Question or Answer
+						 *
+						 * HINT: if i_rid !== i_qid then it's an ANSWER
+						 * if these are the same then it's a Question
+						 * @var array
+						 */				
+						/*$coll = $Mongo->FB_STATUSES;
 						$coll->ensureIndex(array('i_uid' => 1));
 						$coll->ensureIndex(array('status_id' => 1));
 
@@ -222,16 +220,7 @@ class PostFacebook extends \Lampcms\Observer
 						$rid = $oResource->getResourceId();
 						$qid = $oResource->getQuestionId();
 
-						/**
-						 * Record Tweet status to TWEETS collection.
-						 * Later can query Twitter to find
-						 * replies to these Tweets and add them
-						 * as "comments" to this Question or Answer
-						 *
-						 * HINT: if i_rid !== i_qid then it's an ANSWER
-						 * if these are the same then it's a Question
-						 * @var array
-						 */
+						
 						$aData = array(
 						'status_id' => $status_id, 
 						'i_uid' => $uid, 
@@ -242,6 +231,18 @@ class PostFacebook extends \Lampcms\Observer
 						);
 
 						$coll->save($aData);
+						*/
+						/**
+						 * Also save fb_status to QUESTIONS or ANSWERS
+						 * collection.
+						 * This way later on (maybe way later...)
+						 * We can add a function so that if user edits 
+						 * Post on the site we can also edit it 
+						 * on Tumblr via API
+						 *
+						 */
+						$oResource['fb_status'] = $status_id;
+						$oResource->save();
 
 					} catch (\Exception $e){
 						e('Unable to save data to FB_STATUSES collection because of '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());

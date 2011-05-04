@@ -50,95 +50,166 @@
  */
 
 
-namespace Lampcms;
+namespace Lampcms\Modules\Tumblr;
 
 /**
- * Class for working with Bit.ly API
- * to get Short URL
- * Later it may even support more API functions
- * like expand short url back to original
- * or to view some click stats
- * but primaraly we just need to make short URL
+ * Class repsesents on blog post to be
+ * sent to Tumblr Blog
  *
  * @author Dmitri Snytkine
  *
  */
-class Bitly
+class TumblrPost extends TumblrContent
 {
-	
 	/**
-	 * Array of Bit.ly api config
-	 * - array of !config.ini BITLY section
+	 * Title of blog post
 	 *
-	 * @var array
+	 * @var string
 	 */
-	protected $config;
-	
-	
-	/**
-	 * Set timeout to 4.5 seconds
-	 * and a "normal" useragent
-	 * These params are used by file_get_contents to
-	 * access Bit.ly api
-	 * 
-	 * @var array
-	 */
-	protected $aStreamOptions = array(
-	'http' => array('timeout' => 4.5,
-					'user_agent' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.4) Gecko/20091016 Firefox/3.5.4 GTB5')
-	);
+	protected $title = '';
 
-	
+
 	/**
-	 * Constructor
-	 * 
-	 * @param mixed $config usually this is array
-	 * of BITLY section from !config.ini
+	 * Body of blog post
+	 * may contain html
+	 *
+	 * @var string
 	 */
-	public function __construct($config){
-		$this->config = $config;
+	protected $body = '';
+
+
+	/**
+	 * string to make SEO-friendly url
+	 *
+	 * @var string
+	 */
+	protected $slug = '';
+
+
+	/**
+	 * Comma-separated tags
+	 *
+	 * @var string
+	 */
+	protected $tags = '';
+
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Modules\Tumblr.TumblrContent::getType()
+	 */
+	public function getType(){
+		return 'regular';
 	}
 
 
 	/**
-	 * Get the Short URL using bit.ly api
-	 * 
-	 * @todo pass timeout as stream option to be
-	 * no more than 5 seconds. This is not really necessary
+	 * Setter for $this->title
 	 *
-	 * @return mixed string | false if no support for bit.ly api
-	 * or if call to bit.ly api fails
-	 *
+	 * @param string $s title of blog post
+	 * @throws \InvalidArgumentException if $s not a string
+	 * @return object $this
 	 */
-	public function getShortUrl($url){
-		d('input url: '.$url);
-		$tplUrl = 'http://api.bitly.com/v3/shorten?login=%s&apiKey=%s&longUrl=%s&format=json';
-		if(!empty($this->config) && !empty($this->config['user']) && !empty($this->config['api_key'])){
-			$context = \stream_context_create($this->aStreamOptions);
-			$res = \file_get_contents(sprintf($tplUrl, $this->config['user'], $this->config['api_key'], urlencode($url) ), false, $context);
-			if(empty($res)){
-				d('did not get data back from bit.ly');
-				return false;
-			}
-
-			if(false === $a = json_decode($res, true)){
-				d('unable to json_decode data returned by bit.ly '.$res);
-				return false;
-			}
-
-			d('bit.ly decoded json data: '.print_r($a, 1));
-			
-			if(!empty($a)
-			&& !empty($a['status_code'])
-			&& ('200' == $a['status_code'])
-			&& !empty($a['data'])
-			&& !empty($a['data']['url']) ){
-				d('got short url from bit.ly: '.$a['data']['url']);
-				return $a['data']['url'];
-			}
+	public function setTitle($s){
+		if(!is_string($s)){
+			throw new \InvalidArgumentException('$s must be a string. Was: '.gettype($s));
 		}
 
-		d('no short url from bitly');
-		return false;
+		$this->title = $s;
+
+		return $this;
+	}
+
+
+	/**
+	 * Getter for $this->title
+	 * @return string
+	 */
+	public function getTitle(){
+		return $this->title;
+	}
+
+
+	/**
+	 * Getter for $this->body
+	 * @return string of blog post body (may be html)
+	 */
+	public function getBody(){
+		return $this->body;
+	}
+
+
+	/**
+	 * Getter for this->tags
+	 *
+	 * @return string comma separated list of tags
+	 * or empty string if there are no tags
+	 */
+	public function getTags(){
+		return $this->tags;
+	}
+
+
+	/**
+	 * Getter for $this->slug
+	 *
+	 * @return string
+	 */
+	public function getSlug(){
+		return $this->slug;
+	}
+
+
+	/**
+	 * Setter for $this->body
+	 *
+	 * @param string $s
+	 * @throws \InvalidArgumentException if input not a string
+	 *
+	 * @return object $this
+	 */
+	public function setBody($s){
+		if(!is_string($s)){
+			throw new \InvalidArgumentException('$s must be a string. Was: '.gettype($s));
+		}
+
+		$this->body = $s;
+
+		return $this;
+	}
+
+
+	/**
+	 * Setter for $this->tags
+	 *
+	 * @param array $a array of tags
+	 *
+	 * @return object $this
+	 */
+	public function setTags(array $a){
+
+		$this->tags = implode(',', $a);
+		d('$this->tags: '.$this->tags);
+		
+		return $this;
+	}
+
+
+	/**
+	 * Setter for $this->slug
+	 *
+	 * @param string $s
+	 * @throws \InvalidArgumentException if input not a string
+	 *
+	 * @return object $this
+	 */
+	public function setSlug($s = ''){
+		if(!is_string($s)){
+			throw new \InvalidArgumentException('$s must be a string. Was: '.gettype($s));
+		}
+
+		$this->slug = $s;
+
+		return $this;
 	}
 }

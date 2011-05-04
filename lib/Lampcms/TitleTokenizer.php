@@ -113,5 +113,4 @@ class TitleTokenizer extends \Lampcms\String\Tokenizer
 		 */
 		return \array_values($aTokens);
 	}
-
 }

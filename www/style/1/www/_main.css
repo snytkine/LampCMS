@@ -9030,8 +9030,9 @@ table.ans_table {
 	clear: both;
 }
 
-td.td_votes,td.td_answer {
+td.td_votes {
 	vertical-align: top;
+	width: 86px;
 }
 
 #recent-tags .similars a {
@@ -9110,8 +9111,9 @@ table.question_table {
 	width: 98%;
 }
 
-td.td_question {
-	width: 90%;
+td.td_question, td.td_answer {
+	vertical-align: top;
+	width: 615px;
 }
 
 .rq,.fl {
@@ -10245,4 +10247,16 @@ div.social_post span {
 
 .bg_facebook {
 	background: url('/images/facebook_16.png') no-repeat;
+}
+
+.bg_tumblr {
+	background: url('/images/tumblr_16.png') no-repeat;
+}
+
+.bg_linkedin {
+	background: url('/images/linkedin_16.png') no-repeat;
+}
+
+.bg_blogger {
+	background: url('/images/blogger_16.png') no-repeat;
 }

@@ -494,9 +494,9 @@ class Twitter extends LampcmsObject
 
 			e('OAuthException: '.$e->getMessage().' e: '.print_r($e, 1));
 			/**
-			 * Should NOT throw LampcmsTwitterAuthException because
+			 * Should NOT throw TwitterException because
 			 * we are not sure it was actually due to authorization
-			 * or many Twitter was bugged down or something else
+			 * or maby Twitter was bugged down or something else
 			 */
 			throw new TwitterException('Something went wrong during connection with Twitter. Please try again later'.$e->getMessage());
 		}

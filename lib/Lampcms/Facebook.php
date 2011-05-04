@@ -54,6 +54,7 @@
 namespace Lampcms;
 
 use \Lampcms\Interfaces\FacebookUser;
+
 /**
  * Class for working with Facebook REST Oauth based API
  * @author Dmitri Snytkine

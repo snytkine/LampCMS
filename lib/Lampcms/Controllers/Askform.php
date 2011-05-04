@@ -99,6 +99,7 @@ class Askform extends WebPage
 	protected function main(){
 		d('cp');
 		$this->aPageVars['title'] = $this->title = 'Ask a question';
+		$this->addMetaTag('tm', (null !== $this->oRegistry->Viewer->getTumblrToken()));
 		$this->makeForm()
 		->setMustLogin()
 		->setForm()

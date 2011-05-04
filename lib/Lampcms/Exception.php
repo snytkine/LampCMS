@@ -250,8 +250,7 @@ class NoemailException extends \Lampcms\Exception{}
  */
 class DevException extends Exception
 {
-	public function __construct($message = null, array $aArgs = null, $intCode = 0, $boolHTML = false)
-	{
+	public function __construct($message = null, array $aArgs = null, $intCode = 0, $boolHTML = false){
 		/**
 		 * sets the error code to E_ERROR, which will cause the Log observer
 		 * to set high priority in the emails sent to admins/developers
@@ -268,8 +267,7 @@ class DBException extends DevException
 {
 	protected $sqlState;
 
-	public function __construct($message, $mysqlErrCode = 0, $sqlState = 0)
-	{
+	public function __construct($message, $mysqlErrCode = 0, $sqlState = 0){
 		parent::__construct($message, null, $mysqlErrCode);
 		$this->sqlState = $sqlState;
 	}
@@ -303,21 +301,17 @@ class PDODuplicateException extends DBException
 	 */
 	protected $dupKey;
 
-	public function __construct($message, $dupValue, $key)
-	{
+	public function __construct($message, $dupValue, $key){
 		parent::__construct($message, 1062, 23000);
 		$this->dupValue = $dupValue;
 		$this->dupKey = $key;
-
 	}
 
-	public function getDupValue()
-	{
+	public function getDupValue(){
 		return $this->dupValue;
 	}
 
-	protected function getDupKey()
-	{
+	protected function getDupKey(){
 		return $this->dupKey;
 	}
 }
@@ -393,8 +387,7 @@ class RedirectException extends Exception
 	 * @param str $strNewLocation must be a full url where
 	 * the page can be found
 	 */
-	public function __construct($strNewLocation, $intHttpCode = 301, $boolHTML = true)
-	{
+	public function __construct($strNewLocation, $intHttpCode = 301, $boolHTML = true){
 		parent::__construct($strNewLocation, null, $intHttpCode, $boolHTML);
 	}
 }
@@ -424,8 +417,7 @@ class FormException extends DevException{
 	 * vsprintf. This is in case we need to translate the error message
 	 * and then apply the replacement vars.
 	 */
-	public function __construct($sMessage, $formFields = null, array $aArgs = null)
-	{
+	public function __construct($sMessage, $formFields = null, array $aArgs = null){
 		parent::__construct($sMessage, $aArgs);
 
 		if(is_string($formFields)){
@@ -435,8 +427,8 @@ class FormException extends DevException{
 		$this->aFields = $formFields;
 	}
 
-	public function getFormFields()
-	{
+	
+	public function getFormFields(){
 		return $this->aFields;
 	}
 }
@@ -588,14 +580,13 @@ class HttpRedirectException extends HttpResponseCodeException
 
 
 	public function __construct($newLocation, $httpCode, $code = 0, Exception $prevException = null){
-		$m = 'URI changed to '.$newLocation;
+		$m = 'Http Redirect Detected! URI changed to '.$newLocation;
 
 		parent::__construct($m, $httpCode, $code, $prevException);
-
 		$this->newURI = $newLocation;
-
 	}
 
+	
 	/**
 	 * Getter for $newURI member variable
 	 *
@@ -603,12 +594,12 @@ class HttpRedirectException extends HttpResponseCodeException
 	 * This is the value of the new URI sent as a
 	 * result of redirect http message
 	 */
-	public function getNewURI()
-	{
+	public function getNewURI(){
+		
 		return $this->newURI;
 	}
-
 }
+
 
 /**
  * Thrown by Questionparser in case question could not be
@@ -651,4 +642,3 @@ class FilterException extends Exception {}
 
 class HTML2TextException extends Exception{}
 
-?>

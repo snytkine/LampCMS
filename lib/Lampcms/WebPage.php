@@ -180,6 +180,7 @@ abstract class WebPage extends Base
 	 */
 	protected $membersOnly = false;
 
+
 	/**
 	 * Special type of permission check where we don't
 	 * need to check the specific permission but only
@@ -194,9 +195,6 @@ abstract class WebPage extends Base
 	/**
 	 * Flag indicates that
 	 * we require to validate a form token
-	 *
-	 * @todo remove this, no longer using it here,
-	 * now only in Form class
 	 *
 	 * @var bool
 	 */
@@ -242,14 +240,14 @@ abstract class WebPage extends Base
 	 * @var array
 	 */
 	protected $aPageVars;
-	
-	
+
+
 	/**
-	 * Controller may override this 
+	 * Controller may override this
 	 * to skip initPageVars() method
 	 * This is helpful when controller is called by Ajax only
 	 * so int's not necessary to initialize page vars
-	 * 
+	 *
 	 * @var bool
 	 */
 	protected $bInitPageVars = true;
@@ -409,15 +407,15 @@ abstract class WebPage extends Base
 	 * @return object $this
 	 */
 	protected function initPageVars(){
-		if (!$this->bInitPageVars 
-		||  Request::isAjax() 
-		|| 'logout' === $this->oRequest['a'] 
+		if (!$this->bInitPageVars
+		||  Request::isAjax()
+		|| 'logout' === $this->oRequest['a']
 		|| 'login' === $this->oRequest['a']) {
 			d('special case: '.$this->oRequest['a']);
 
 			return $this;
 		}
-		
+
 		$Viewer = $this->oRegistry->Viewer;
 		$this->aPageVars = \tplMain::getVars();
 			
@@ -513,8 +511,8 @@ abstract class WebPage extends Base
 		 * in order to prevent FB from adding
 		 * fb cookie again
 		 */
-			$this->aPageVars['fb_js'] = \tplFbJs::parse(array($appId), false);
-		
+		$this->aPageVars['fb_js'] = \tplFbJs::parse(array($appId), false);
+
 
 		return $this;
 	}
@@ -592,7 +590,7 @@ abstract class WebPage extends Base
 	 * fcauth
 	 */
 	protected function loginByGfcCookie(){
-		if ($this->isLoggedIn() 
+		if ($this->isLoggedIn()
 		|| 'logout' === $this->oRequest['a']
 		|| 'login' === $this->oRequest['a']) {
 			d('cp');
@@ -634,10 +632,10 @@ abstract class WebPage extends Base
 		//d('$logout: '.$logout);
 		$action = $this->oRequest['a'];
 
-		/*('1' === $logout) 
-		|| */
-		if ($this->isLoggedIn() 
-		|| 'logout' === $action 
+		/*('1' === $logout)
+		 || */
+		if ($this->isLoggedIn()
+		|| 'logout' === $action
 		|| 'connectfb' === $action
 		|| 'login' === $action) {
 			d('skipping loginByFacebookCookie');
@@ -679,9 +677,9 @@ abstract class WebPage extends Base
 		/**
 		 * This little thing is not
 		 * necessary for web-page type of request
-		 * but just in case request was made by 
+		 * but just in case request was made by
 		 * some other means like by email
-		 * 
+		 *
 		 */
 		if(!isset($_SESSION)){
 			$_SESSION = array();
@@ -864,6 +862,7 @@ abstract class WebPage extends Base
 
 			if($le instanceof RedirectException){
 				header("Location: ".$le->getMessage(), true, $le->getCode());
+				fastcgi_finish_request();
 				exit;
 			}
 
@@ -901,8 +900,10 @@ abstract class WebPage extends Base
 				$this->httpCode = 404;
 			}
 
-			e('Exception caught in: '.$le->getFile().' on line: '.$le->getLine().' '.$le->getMessage());
-
+			if(!($le instanceof AuthException)){
+				e('Exception caught in: '.$le->getFile().' on line: '.$le->getLine().' '.$le->getMessage());
+			}
+			
 			/**
 			 *
 			 * Exception::formatException will correctly
@@ -916,11 +917,12 @@ abstract class WebPage extends Base
 			 *
 			 */
 			$this->aPageVars['layoutID'] = 1;
-			$this->aPageVars['body'] = \tplException::parse(array('message' => $err, 'class' => $class, 'title' => 'La La La...'));
+			$this->aPageVars['body'] = \tplException::parse(array('message' => $err, 'class' => $class, 'title' => 'Alert'));
 
 		} catch(\Exception $e) {
 			e('Exception object '.$e->getMessage());
 			$err = Responder::makeErrorPage($le->getMessage().' in '.$e->getFile());
+			fastcgi_finish_request();
 			exit ($err);
 		}
 	}

@@ -75,8 +75,10 @@ class SocialCheckboxes
 	 * @return string html fragment
 	 */
 	public static function get(Registry $oRegistry){
+
 		d('cp');
-		if($oRegistry->Viewer->isGuest()){
+		$oViewer = $oRegistry->Viewer;
+		if($oViewer->isGuest()){
 			d('User is guest, no social checkboxes to be added for guest');
 			return '';
 		}
@@ -100,8 +102,8 @@ class SocialCheckboxes
 			 * Enter description here ...
 			 * @var unknown_type
 			 */
-			$isConnected = ('' !== (string)$oRegistry->Viewer->getTwitterSecret());
-			$checked = ( $isConnected && (true === $oRegistry->Viewer['b_tw'])) ? ' checked' : '';
+			$isConnected = ('' !== (string)$oViewer->getTwitterSecret());
+			$checked = ( $isConnected && (true === $oViewer['b_tw'])) ? ' checked' : '';
 			d('$checked: '.$checked);
 			$label = sprintf($tpl, 'Twitter', Points::SHARED_CONTENT);
 			$vars = array('tweet', $label, $checked);
@@ -112,10 +114,21 @@ class SocialCheckboxes
 		 * Is has facebook observer module
 		 */
 		if(array_key_exists('facebook', $aFilters)){
-			$isFbConnected = (1 < \strlen((string)$oRegistry->Viewer->getFacebookToken()));
-			$checked = ($isFbConnected && true === $oRegistry->Viewer['b_fb']) ? ' checked' : '';
+			$isFbConnected = (1 < \strlen((string)$oViewer->getFacebookToken()));
+			$checked = ($isFbConnected && true === $oViewer['b_fb']) ? ' checked' : '';
 			$label = sprintf($tpl, 'Facebook', Points::SHARED_CONTENT);
 			$vars = array('facebook', $label, $checked);
+			$ret .= \tplSocialPost::parse($vars, false);
+		}
+
+		/**
+		 * Is has tumblr observer module
+		 */
+		if(array_key_exists('tumblr', $aFilters)){
+			$isTmConnected = (null !== $oViewer->getTumblrToken());
+			$checked = ($isTmConnected && true === $oViewer['b_tm']) ? ' checked' : '';
+			$label = sprintf($tpl, 'Tumblr', Points::SHARED_CONTENT);
+			$vars = array('tumblr', $label, $checked);
 			$ret .= \tplSocialPost::parse($vars, false);
 		}
 

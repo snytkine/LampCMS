@@ -104,8 +104,8 @@ SKIP_CACHE = false
 ;
 COOKIE_DOMAIN = 
 ;
-;system path to temporary directory. Must we writable to php
-; if not sure - leave blank to use system's default temporary directory
+; system path to temporary directory. Must we writable to php
+; if not sure - leave blank
 ; 
 ;
 TEMP_DIR = 
@@ -284,12 +284,14 @@ TWITTER_OAUTH_SECRET =
 ; we may also add new user to follow this account when they
 ; join
 TWITTER_USERNAME = 
-; These prefixes
-; are added to user's tweets when they
-; post question or answer to twitter
-; You can use whatever you like or leave them blank
-QUESTION_TWEET_PREFIX = "#question"
-ANSWER_TWEET_PREFIX = "My answer to: "
+
+[TUMBLR]
+; You must register your app
+; with Tumblr and get OAUTH_KEY and OAUTH_SECRET
+; Go to this url to get yours: http://www.tumblr.com/oauth/apps
+;
+OAUTH_KEY = 
+OAUTH_SECRET = 
 
 [FACEBOOK]
 ; Get your APP_ID and API_SECRET here: 

@@ -310,6 +310,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 		return $this->offsetGet('i_votes');
 	}
 
+	
 	/**
 	 * Get full (absolute) url for this question,
 	 * including the http and our domain
@@ -325,6 +326,33 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 	public function getUrl($short = false){
 
 		return $this->oRegistry->Ini->SITE_URL.'/q'.$this->offsetGet('i_qid').'/#ans'.$this->offsetGet('_id');
+	}
+
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.Post::getBody()
+	 */
+	public function getBody(){
+		return $this->offsetGet('b');
+	}
+
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.Post::getTitle()
+	 */
+	public function getTitle(){
+		return $this->offsetGet('title');
+	}
+
+	
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.Post::getSeoUrl()
+	 */
+	public function getSeoUrl(){
+		return '';
 	}
 
 
@@ -450,7 +478,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 		return $this->getFallback('comments', array());
 	}
 
-	
+
 	/**
 	 * Get id of question for this answer
 	 *
@@ -459,8 +487,8 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 	public function getQuestionId(){
 		return (int)$this->offsetGet('i_qid');
 	}
-	
-	
+
+
 	/**
 	 * Get uid of user who asked the question
 	 * for which this is the answer

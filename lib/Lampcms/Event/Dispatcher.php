@@ -66,12 +66,6 @@ class Dispatcher implements \SplSubject
 	const EVENT_DISPATCHER_GLOBAL = 'EVENT_DISPATCHER_GLOBAL';
 
 	/**
-	 * array of dispatchers objects
-	 * @var array
-	 */
-	protected static $dispatchers = array();
-
-	/**
 	 * Registered observer callbacks
 	 * @var array
 	 */
@@ -115,47 +109,6 @@ class Dispatcher implements \SplSubject
 		$this->name = $name;
 		$this->notificationClass = $notificationClass;
 		$this->ro[self::EVENT_DISPATCHER_GLOBAL] = array();
-	}
-
-
-	/**
-	 * Returns a notification dispatcher singleton
-	 *
-	 * There is usually no need to have more than one notification
-	 * center for an application so this is the recommended way
-	 * to get a Event_Dispatcher2 object.
-	 *
-	 * @param string $name              Name of the
-	 *                                  notification dispatcher.
-	 * The default notification dispatcher is named __default.
-	 *
-	 * @param string $notificationClass This one is tricky.
-	 * Its the name of class which will be used an
-	 * a notification class.
-	 * By default its an Even_Notification class,
-	 * which extends this class and because
-	 * of it it implements the SplSubject interface.
-	 *
-	 * The ability to set a different class name gives you
-	 * the flexibility to use your very own class
-	 * as an event notification class.
-	 * If you decide that you really need to write and use
-	 * your own notification class,
-	 * then make sure it implements the SplSubject interface
-	 * and make sure to include the path to
-	 * your class definition somewhere in your script
-	 * that uses this class
-	 * If you have no clue what this means, then
-	 * leave the default value!
-	 *
-	 * @return object Event_Dispatcher2
-	 */
-	public static final function getInstance($name = '__default', $notificationClass = 'Notification'){
-		if (!isset(self::$dispatchers[$name]) || !isset(self::$dispatchers[$name][$notificationClass]) ) {
-			self::$dispatchers[$name][$notificationClass] = new self($name, $notificationClass);
-		}
-
-		return self::$dispatchers[$name][$notificationClass];
 	}
 
 
