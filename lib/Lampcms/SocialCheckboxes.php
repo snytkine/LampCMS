@@ -132,13 +132,10 @@ class SocialCheckboxes
 			$ret .= \tplSocialPost::parse($vars, false);
 		}
 
-		d('ret: '.$ret);
-
-
 		/**
-		 * Is has tumblr observer module
+		 * Is has blogger observer module
 		 */
-		if(LAMPCMS_DEBUG && array_key_exists('blogger', $aFilters)){
+		if(array_key_exists('blogger', $aFilters)){
 			$isBConnected = (null !== $oViewer->getBloggerToken());
 			$checked = ($isBConnected && true === $oViewer['b_bg']) ? ' checked' : '';
 			$label = sprintf($tpl, 'Blogger', Points::SHARED_CONTENT);

@@ -55,6 +55,7 @@ namespace Lampcms\Modules\Blogger;
 use \Lampcms\Interfaces\Post;
 use \Lampcms\Interfaces\Question;
 use \Lampcms\Interfaces\Answer;
+use Lampcms\String\HTMLString;
 
 /**
  * Adapter class that takes Post
@@ -145,7 +146,7 @@ class BloggerPostAdapter
 		$body = sprintf($tpl1, $qUrl, $this->oRegistry->Ini->SITE_NAME);
 		$body .= $o->getBody();
 		$body .= sprintf($tpl2, $qUrl);
-
+		$body = HtmlString::factory($body);
 
 		$this->oEntry->setBody($body)->setTitle($o->getTitle());
 
@@ -181,6 +182,7 @@ class BloggerPostAdapter
 		$body .= $o->getBody();
 		d('body: '.$body);
 
+		$body = HtmlString::factory($body);
 		$title = 'My answer to "'.$o->getTitle().'"';
 
 		$this->oEntry->setBody($body)->setTitle($title);

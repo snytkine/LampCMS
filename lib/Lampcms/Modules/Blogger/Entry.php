@@ -154,26 +154,24 @@ class Entry extends Document implements EntryInterface
 	 * Set the value of body
 	 * of this entry
 	 *
-	 * @param string $content html fragment
+	 * @param object $content object HtmlString
+	 * html fragment. Be requiring this to be an object HtmlString
+	 * we guarantee that it is a valid html and also that 
+	 * is has getXML() method - so we can get a valid XML representation
+	 * of the HTML fragment. This way tag like <br> which is valid in 
+	 * HTML string but not valid in XML (XML must be <br/> will be 
+	 * automatically converted to XML version of tag - <br/>
+	 * This is all done by DOMDocument object which basically can convert
+	 * valid html to valid xml when doing loadHTML() and then saveXML()
+	 * 
+	 * 
 	 * 
 	 * @param string $type should not change this -it should
 	 * be xhtml for the html type of $content
 	 */
-	public function setBody($content, $type = 'xhtml'){
+	public function setBody(HtmlString $content, $type = 'xhtml'){
 		
-		/**
-		 * $content is an html fragment but 
-		 * we need an xml fragment. HTML is different -
-		 * it may contain tags that are not valid XML tags,
-		 * for example <br> is valid in html but not in XML
-		 * 
-		 * So we need to convert html into a valid XML
-		 * string. For this we need to use another 
-		 * instance of DOMDocument - loadHTML but then
-		 * saveXML() - this will create output in XML
-		 * 
-		 */		
-		$content = HtmlString::factory($content)->getXML();
+		$content = $content->getXML();
 		$this->documentElement
 		->getElementByTagName('content', true)
 		->addAttribute('type', $type)
