@@ -164,7 +164,9 @@ class Entry extends Document implements EntryInterface
 	 * This is all done by DOMDocument object which basically can convert
 	 * valid html to valid xml when doing loadHTML() and then saveXML()
 	 * 
-	 * 
+	 * @todo if $type is 'html' then we can just use getHTML() instead
+	 * But there is no reason to use any type other than xhtml
+	 * as it is the default type when posting entry to blogger
 	 * 
 	 * @param string $type should not change this -it should
 	 * be xhtml for the html type of $content

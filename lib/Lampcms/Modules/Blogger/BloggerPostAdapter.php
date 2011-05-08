@@ -55,7 +55,7 @@ namespace Lampcms\Modules\Blogger;
 use \Lampcms\Interfaces\Post;
 use \Lampcms\Interfaces\Question;
 use \Lampcms\Interfaces\Answer;
-use Lampcms\String\HTMLString;
+use \Lampcms\String\HTMLString;
 
 /**
  * Adapter class that takes Post

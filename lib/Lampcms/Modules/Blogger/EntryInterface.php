@@ -67,7 +67,7 @@ interface EntryInterface
 
 	public function setTitle($title, $type = 'text');
 
-	public function setBody($content, $type = 'xhtml');
+	public function setBody(\Lampcms\String\HTMLString $content, $type = 'xhtml');
 
 	public function addTag($tag);
 

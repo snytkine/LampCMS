@@ -131,10 +131,11 @@ class PostBlogger extends \Lampcms\Observer
 		 *
 		 */
 		$this->oRegistry->Viewer['b_bg'] = true;
-		d('cp');
+		d('cp $this->eventName: '.$this->eventName);
 		switch($this->eventName){
 			case 'onNewQuestion':
 			case 'onNewAnswer':
+				d('cp');
 				$this->post();
 				break;
 		}
@@ -146,26 +147,29 @@ class PostBlogger extends \Lampcms\Observer
 	 *
 	 */
 	protected function post(){
-
+		d('cp');
 		try{
-				
+			d('cp');
 			$oBlogger = new ApiClient($this->oRegistry);
+			d('cp');
 			$User = $this->oRegistry->Viewer;
+			d('cp');
 			if(false === $oBlogger->setUser($User)){
 				d('User does not have Blogger Oauth credentials');
 
 				return;
 			}
-
+			d('cp');
 			$reward = Points::SHARED_CONTENT;
 			$oResource = $this->obj;
+			d('cp');
 			$oAdapter = new BloggerPostAdapter($this->oRegistry);
 			d('cp');
 		} catch (\Exception $e){
 			d('Unable to post to blogger because of this exception: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
 			return;
 		}
-
+		d('cp');
 		$func = function() use ($oBlogger, $oAdapter, $oResource, $User, $reward){
 
 			$result = null;
@@ -199,7 +203,7 @@ class PostBlogger extends \Lampcms\Observer
 
 			}
 		};
-
+		//$func();
 		\Lampcms\runLater($func);
 	}
 }

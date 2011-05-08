@@ -63,7 +63,13 @@ class FloodCheck extends \Lampcms\Observer
 
 
 	public function main(){
-
+		
+		if(LAMPCMS_DEBUG){
+			d('flood check not performed in debug mode');
+			
+			return;
+		}
+		
 		$this->minutesToWait = (int)$this->oRegistry->Ini->FLOOD_CHECK_TIME;
 		/**
 		 * Do not apply this filter
@@ -101,7 +107,7 @@ class FloodCheck extends \Lampcms\Observer
 			$since = time() - $timeout;
 			$where = array('i_uid' => $uid, 'i_ts' => array('$gt' => $since));
 			d('where: '.print_r($where, 1));
-			
+				
 			$a = $this->oRegistry->Mongo->COMMENTS->findOne($where);
 
 			d('existing: '.print_r($a, 1));
