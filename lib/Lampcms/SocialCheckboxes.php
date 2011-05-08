@@ -134,6 +134,20 @@ class SocialCheckboxes
 
 		d('ret: '.$ret);
 
+
+		/**
+		 * Is has tumblr observer module
+		 */
+		if(LAMPCMS_DEBUG && array_key_exists('blogger', $aFilters)){
+			$isBConnected = (null !== $oViewer->getBloggerToken());
+			$checked = ($isBConnected && true === $oViewer['b_bg']) ? ' checked' : '';
+			$label = sprintf($tpl, 'Blogger', Points::SHARED_CONTENT);
+			$vars = array('blogger', $label, $checked);
+			$ret .= \tplSocialPost::parse($vars, false);
+		}
+
+		d('ret: '.$ret);
+
 		return $ret;
 	}
 }

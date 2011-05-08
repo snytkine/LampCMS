@@ -551,8 +551,9 @@ interface TwitterUser
 
 
 /**
- * Twitter user
- * user who had signed in with Twitter
+ * Tumblr user
+ * user who has connected
+ * Tumblr blog to account
  *
  * @author Dmitri Snytkine
  *
@@ -609,10 +610,90 @@ interface TumblrUser
 	 *
 	 * @return string value to be used as 'group' param
 	 * in WRITE API call
-	 * Enter description here ...
+	 * 
 	 */
 	public function getTumblrBlogId();
+	
+	public function setTumblrBlogs(array $blogs);
 }
+
+
+/**
+ * Blogger user
+ * user who has connected
+ * Blogger blog to account
+ *
+ * @author Dmitri Snytkine
+ *
+ */
+interface BloggerUser
+{
+	/**
+	 * Get oAuth token
+	 * that we got from Twitter for this user
+	 * @return string
+	 */
+	public function getBloggerToken();
+
+	/**
+	 * Get oAuth sercret that we got for this user
+	 * @return string
+	 */
+	public function getBloggerSecret();
+
+	/**
+	 * Revoke token and secret - remove
+	 * these values from User object
+	 *
+	 */
+	public function revokeBloggerToken();
+
+	/**
+	 * Get html for the link to Blogger blog
+	 * @return string html of link
+	 */
+	public function getBloggerBlogLink();
+
+	/**
+	 * Get array of all user's blogs
+	 * @return mixed array of at least one blog | null
+	 * if user does not have any blogs (not a usual situation)
+	 *
+	 */
+	public function getBloggerBlogs();
+
+	/**
+	 * Get title of default blog
+	 * 
+	 */
+	public function getBloggerBlogTitle();
+
+	/**
+	 * 
+	 * Get url of default blog
+	 */
+	public function getBloggerBlogUrl();
+
+
+	/**
+	 * @return string value to be used as '<blogid>' param
+	 * in WRITE API call
+	 * 
+	 */
+	public function getBloggerBlogId();
+	
+	/**
+	 * Set value of 'blogs' under the 'blogger' element
+	 * 
+	 * 
+	 * @param array $blogs array of all blogs
+	 * user has on Blogger. Each element is an array
+	 * with 3 keys: id, url, title
+	 */
+	public function setBloggerBlogs(array $blogs);
+}
+
+
 
 /**
  *

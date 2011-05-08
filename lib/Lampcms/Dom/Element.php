@@ -57,17 +57,17 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
 
 	/**
 	 * Remove all next siblings of this node
-	 * 
+	 *
 	 * This works OK
-	 * 
+	 *
 	 * @param DOMNode $node do not pass this param manually
 	 * it is here only for recursively calling this function
-	 * 
+	 *
 	 * @return object $this node
 	 */
 	public function removeNextSiblings(\DOMNode $node = null){
 		$node = ($node) ? $node : $this->nextSibling;
-		if($node){			
+		if($node){
 			$next = $node->nextSibling;
 			if($next){
 				$this->removeNextSibling($next);
@@ -75,9 +75,10 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
 
 			$node->parentNode->removeChild($node);
 		}
-		
+
 		return $this;
 	}
+
 
 	/**
 	 * Remove itself from DOM Tree
@@ -98,8 +99,7 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
 	 *
 	 * @return object $this
 	 */
-	public function removeChildNodes()
-	{
+	public function removeChildNodes(){
 		$len = $this->childNodes->length;
 		while($len > 0){
 			$this->removeChild($this->firstChild);
@@ -111,33 +111,148 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
 
 
 	/**
+	 * Append xml string to this
+	 * Element
 	 *
-	 * Append child node with name $nodename
-	 * and under it append CData section using
-	 * contents of $cdata as CData value
-	 * 
-	 * This method was created specifically to add the 
-	 * value of content:encoded section to the rss feed.
-	 * 
-	 * 
-	 * @todo probably better to NOT add extra node first
-	 * and instead just directly add CDATA section to this element?
+	 * @param string $xml
+	 * @param bool $bReplace if true then remove
+	 * all child nodes first. This will have an effect of
+	 * replacing all child nodes with the content
+	 * of the $xml string
 	 *
-	 * @param string $nodename
-	 * @param string $cdata
-	 * @param string $ns
+	 * @return object $this
 	 */
-	public function addCData($nodename, $cdata, $ns = 'http://purl.org/rss/1.0/modules/content/')
-	{
+	public function appendXml($xml, $bReplace = false){
+		if(!is_string($xml)){
+			throw new \Lampcms\Dom\XMLException('param $xml must be a string. Was: '.gettype($xml));
+		}
+
+		$oDF = $this->ownerDocument->createDocumentFragment();
+		if(false === $oDF->appendXML($xml)){
+			throw new Exception('Unable to load raw XML as document fragment. check the input xml string: '.$xml);
+		}
+
+		if(true === $bReplace){
+			$this->removeChildNodes();
+		}
+
+		$this->appendChild($oDF);
+
+		return $this;
+	}
+
+
+	/**
+	 *
+	 * Append CData section using
+	 * contents of $cdata as CData value
+	 *
+	 * @param string $cdata html string which will
+	 * become the content of CDATA
+	 * @param string $ns namespace
+	 */
+	public function addCData($cdata, $ns = 'http://purl.org/rss/1.0/modules/content/'){
 		if(empty($cdata)){
 			return $this;
 		}
 
-		$elChild = $this->appendChild(new self($nodename, '', $ns));
 		$elCdata = $this->ownerDocument->createCDATASection($cdata);
-		$elChild->appendChild($elCdata);
+		$this->appendChild($elCdata);
 
 		return $this;
+	}
+
+
+	/**
+	 * Sets attribute of this element
+	 *
+	 * @param string $name attribute name
+	 * @param string $val attribute value
+	 * @return object $this
+	 */
+	public function addAttribute($name, $val = null){
+
+		$this->setAttribute($name, $val);
+
+		return $this;
+	}
+
+
+	/**
+	 * Adds array of attributes in one operation
+	 *
+	 * @param array $aAttributes must be assiciative array where
+	 * keys are attribute keys and values are simple values
+	 *
+	 * @return object $this
+	 */
+	public function addAttributes(array $aAttributes){
+		foreach($aAttributes as $name => $val){
+			$this->setAttribute($name, $val);
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Strips all white space nodes
+	 * from the node
+	 *
+	 * @param object $node
+	 * object of type DOMNode
+	 * if not provided, then the $this->oDomDoc is used
+	 *
+	 * @return object $this
+	 */
+	public function removeWhitespace(\DOMNode $node = null){
+		$node = (null === $node) ? $this : $node;
+
+		for ($i = 0; $i < $node->childNodes->length; $i += 1) {
+			$childNode = $node->childNodes->item($i);
+			if (($childNode->nodeType === XML_TEXT_NODE) &&
+			($childNode->isWhitespaceInElementContent())
+			) {
+				$node->removeChild($node->childNodes->item($i));
+				$i--;
+			}
+			if (XML_ELEMENT_NODE === $childNode->nodeType) {
+				$this->removeWhitespace($childNode);
+			}
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Returns the first instance of requested element.
+	 * If element does not exist, one will be
+	 * created
+	 *
+	 * @param string $name name of element
+	 * @return object of type DOMNode
+	 */
+	public function getOne($name){
+		$e = $this->getElementsByTagName($name);
+		$el = ($e->length > 0) ? $e->item(0) : $this->addChild($name);
+
+		return $el;
+	}
+
+
+	/**
+	 * Appends child element under this node
+	 * and sets its value
+	 *
+	 * @param string $name
+	 * @param string $value
+	 * @return object of type clsDomElement
+	 * the newly added child element
+	 */
+	public function addChild($name, $value = null, $ns = null){
+		return $this->appendChild(new static($name, $value, $ns));
+
 	}
 
 
@@ -166,4 +281,27 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
 	public function __toString(){
 		return 'Object of type '.$this->getClass().' nodeName: '.$this->nodeName.' value: '.$this->nodeValue;
 	}
+
+
+
+
+	/**
+	 * Get the first element that matches the tagname
+	 * if element does not exist and $create param is true,
+	 * then create one and append it
+	 * as child of this element
+	 *
+	 * 
+	 * @param string $name
+	 * @param bool $create
+	 */
+	public function getElementByTagName($name, $create = false){
+		$e = $this->getElementsByTagName($name);
+		if($e->length > 0){
+			return $e->item(0);
+		}
+
+		return (true === (bool)$create) ? $this->addChild($name): null;
+	}
+
 }

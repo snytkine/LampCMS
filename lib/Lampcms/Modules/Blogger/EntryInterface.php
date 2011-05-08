@@ -49,41 +49,27 @@
  *
  */
 
+
+namespace Lampcms\Modules\Blogger;
+
 /**
- * This template is for a "Select Tumblr blog"
- * small html form that will apper
- * in a popup "Connect to Tumblr" window
- * only if it's detected that User has more than one
- * blog on Tumblr, in which case use must select
- * which one of his blog will be used as "connected" blog
+ * Interface represents one blogger entry
+ * an entry is an XML, so the implementing
+ * class should be generating the XML output
  * 
  * 
  * @author Dmitri Snytkine
  *
- */ 
-class tplTumblrblogs extends \Lampcms\Template\Template
+ */
+interface EntryInterface
 {
-	protected static $vars = array(
-	'token' => '', //1
-	'options' => '', //2
-	'label' => '', //3
-	'save' => '', //4
-	'a' => 'tumblrselect' //5
-	);
-	
-	
-	protected static $tpl = '
-		<form action="/index.php" name="tumblrblogs" method="POST" action="/index.php" accept-charset="utf-8">
-			<input type="hidden" name="a" value="%5$s">
-			<input type="hidden" name="blogselect" value="1">
-			<input type="hidden" name="token" value="%1$s">
-			<br>
-				<span>%3$s</span>
-				<br><br>
-				<select tabindex="1" name="blog">%2$s</select>
-				<br><br>
-				<input  tabindex="2" id="dostuff" name="submit" type="submit" value="%4$s" class="btn_comment"> 
-		</form>
-	';
-	
+	public function getId();
+
+	public function setTitle($title, $type = 'text');
+
+	public function setBody($content, $type = 'xhtml');
+
+	public function addTag($tag);
+
+	public function addTags(array $tags);
 }

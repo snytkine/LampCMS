@@ -83,6 +83,8 @@ class tplUserInfo extends Lampcms\Template\Template
 	'usernameLabel' => 'Username', //29
 	'tumblr' => '', //30
 	'tumblrLabel' => 'Tumblr', //31
+	'blogger' => '', //32
+	'bloggerLabel' => 'Blogger', //33
 	);
 	
 	
@@ -129,6 +131,10 @@ class tplUserInfo extends Lampcms\Template\Template
 	<tr>
 		<td class="ar">%31$s</td>
 		<td>%30$s</td>
+	</tr>
+	<tr>
+		<td class="ar">%33$s</td>
+		<td>%32$s</td>
 	</tr>
 	<tr>
 		<td class="ar">%18$s</td>

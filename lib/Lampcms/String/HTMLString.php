@@ -87,7 +87,7 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
 	 * and load the html string, first wraps the html
 	 * string into the <div>
 	 *
-	 * @param object of type Utf8String $oHtml
+	 * @param mixed string | object of type Utf8String $oHtml
 	 * by being an object of type Utf8String it's guaranteed
 	 * to be in utf-8 charset
 	 *
@@ -95,14 +95,52 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
 	 *
 	 * @throws \Lampcms\DevException if unable to load the string
 	 */
-	public static function factory(\Lampcms\Utf8String $oHtml)
-	{
+	public static function factory($s){
 
 		$oDom = new static();
 		$oDom->preserveWhiteSpace = true;
-		$oDom->recover = true;
-		$sHtml = $oHtml->valueOf();
+		if(\is_string($s)){
+			$sHtml = $s;
+		} elseif($s instanceof \Lampcms\Utf8String){
+			$sHtml = $s->valueOf();
+		} else {
+			throw new \Lampcms\DevException('Input param $s must be string or instance of Utf8String. was: '.var_export($s, true));
+		}
 
+		$ER = error_reporting(0);
+		if(false === @$oDom->loadHTMLString($sHtml)){
+			throw new \Lampcms\DevException('Error. Unable to load html string: '.$sHtml);
+		}
+		error_reporting($ER);
+		\mb_regex_encoding('UTF-8');
+
+		return $oDom;
+	}
+
+
+	/**
+	 * Same as loadHTMLString() only the input
+	 * is an object of type Utf8String
+	 *
+	 * @param \Lampcms\Utf8String $oHtml
+	 */
+	public function loadUTF8String(\Lampcms\Utf8String $oHtml){
+		$s = $oHtml->valueOf();
+
+		return $this->loadHTMLString($s);
+	}
+
+
+	/**
+	 * Load html string into this object
+	 *
+	 * @param string $s
+	 * Must be absolutely sure that this string
+	 * is in a valid UTF-8 encoding!
+	 *
+	 * @return bool true if loadHTML() succeed or false if not
+	 */
+	public function loadHTMLString($s){
 		/**
 		 * Extremely important to add the
 		 * <META CONTENT="text/html; charset=utf-8">
@@ -120,21 +158,14 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
 		 * the first div
 		 *
 		 */
-		$sHtml = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
+		$s = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN"
                       "http://www.w3.org/TR/REC-html40/loose.dtd">
 			<head>
   			<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">
 			</head>
-			<body><div>'.$sHtml.'</div></body></html>';
+			<body><div>'.$s.'</div></body></html>';
 
-		$ER = error_reporting(0);
-		if(false === @$oDom->loadHTML($sHtml)){
-			throw new \Lampcms\DevException('Error. Unable to load html string: '.$sHtml);
-		}
-		error_reporting($ER);
-		\mb_regex_encoding('UTF-8');
-
-		return $oDom;
+		return $this->loadHTML($s);
 	}
 
 
@@ -149,6 +180,30 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
 	public function getHtml(){
 
 		$s = $this->saveHTML();
+		preg_match('/(\<body>\<div>)(.*)(\<\/div>\<\/body>)/sm', $s, $matches);
+
+		if(!is_array($matches) || empty($matches[2])){
+			throw new \Lampcms\Exception('unable to extract string from result html: '.$s);
+		}
+
+		return $matches[2];
+	}
+
+
+	/**
+	 * Get HTML fragment (the contents of the <body>,
+	 * without the actual <body> tag
+	 *
+	 * @return string XML string
+	 * It may be different from the input html because
+	 * <br> will be replaced with <br/> and may be other
+	 * changed to make it a valid XML string
+	 *
+	 */
+	public function getXML(){
+		$this->preserveWhiteSpace = false;
+		$this->documentElement->removeWhitespace();
+		$s = $this->saveXML();
 		preg_match('/(\<body>\<div>)(.*)(\<\/div>\<\/body>)/sm', $s, $matches);
 
 		if(!is_array($matches) || empty($matches[2])){
@@ -225,11 +280,11 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
 	 * methods, false otherwise
 	 */
 	public function hasCDATA(){
-		
+
 		return $this->bCDATA;
 	}
 
-	
+
 	/**
 	 * @Important to override the one from parent
 	 * because parent's class returns the saveXML() version

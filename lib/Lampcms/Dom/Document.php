@@ -54,7 +54,7 @@ namespace Lampcms\Dom;
 /**
  * The main class for parsing HTML Document
  * as DOM Tree.
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
@@ -62,10 +62,12 @@ class Document extends \DOMDocument implements \Lampcms\Interfaces\LampcmsObject
 {
 	public function __construct(){
 		parent::__construct('1.0', 'utf-8');
+		$this->encoding = 'utf-8';
+		$this->recover = true;
 		$this->registerNodeClass('DOMElement', '\Lampcms\Dom\Element');
 		//$this->registerNodeClass('DOMNode', '\Lampcms\Dom\Node');
 		//$this->registerNodeClass('DOMText', '\Lampcms\Dom\Text');
-		$oDom->encoding = 'utf-8';
+		
 	}
 
 
@@ -79,7 +81,7 @@ class Document extends \DOMDocument implements \Lampcms\Interfaces\LampcmsObject
 	 * @return string
 	 */
 	public function hashCode(){
-		
+
 		return spl_object_hash($this);
 	}
 
@@ -130,6 +132,13 @@ class Document extends \DOMDocument implements \Lampcms\Interfaces\LampcmsObject
 		 */
 		$this->registerNodeClass('DOMElement', '\Lampcms\Dom\Element');
 
+	}
+
+
+	public function xpath($query){
+		$oXpath = new \DOMXPath($this);
+
+		return $oXpath->query($query);
 	}
 
 }

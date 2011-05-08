@@ -368,6 +368,16 @@ questionSimilar = "\\Lampcms\\Modules\\Observers\\Similars"
 ;
 ;tumblr = "\\Lampcms\\Modules\\Tumblr\\PostTumblr"
 
+; If blogger filter is enabled (not commented out here)
+; then a checkbox to "Post to Blogger" will be
+; added to "Ask" and "Answer" forms
+; Make sure you actually enabled Blogger API integration
+; before enabling this filter otherwise it will not work
+; Check the [BLOGGER] section of this file for enabling 
+; the Blogger API
+;
+;blogger = "\\Lampcms\\Modules\\Blogger\\PostBlogger"
+
 ; EmailNotifier can take long to run
 ; it's best to put this filter as the last filter
 ; 
@@ -392,3 +402,26 @@ api_key =
 ip = "127.0.0.1"
 ; secondary ip address
 ip2 = "127.0.0.2"
+
+[BLOGGER]
+; You must do these steps while logged in to Google with you
+; Google account - this is usually the same as your Gmail account
+;
+; To get your blogger API KEY and Secret start here:
+; http://code.google.com/apis/accounts/docs/RegistrationForWebAppsAuto.html
+;
+; You will need to register your domain with Google. 
+; This included downloading some html file from Google 
+; then uploading it to root dir of your site and then clicking "verify" button, 
+; proving to Google that you are the admin of that domain.
+;
+; Once that is done you need to go here: https://www.google.com/accounts/UpdateDomain
+; and enter some string that you must create yourself - 
+; some type of long secret string, into the
+; "Target URL path prefix"
+; That will become your app's OAuth Consumer Key 
+; and Google will generate the OAuth Consumer Secret value for you. 
+; Then enter the values here
+;
+OAUTH_KEY =
+OAUTH_SECRET =

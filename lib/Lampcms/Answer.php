@@ -64,8 +64,8 @@ namespace Lampcms;
 class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRatable, Interfaces\CommentedResource
 {
 
-	public function __construct(Registry $oRegistry, array $a = array()){
-
+	public function __construct(Registry $oRegistry, array $a = null){
+		$a = ($a) ? $a : array();
 		parent::__construct($oRegistry, 'ANSWERS', $a);
 	}
 
@@ -310,7 +310,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 		return $this->offsetGet('i_votes');
 	}
 
-	
+
 	/**
 	 * Get full (absolute) url for this question,
 	 * including the http and our domain
@@ -328,7 +328,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 		return $this->oRegistry->Ini->SITE_URL.'/q'.$this->offsetGet('i_qid').'/#ans'.$this->offsetGet('_id');
 	}
 
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Lampcms\Interfaces.Post::getBody()
@@ -337,7 +337,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 		return $this->offsetGet('b');
 	}
 
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Lampcms\Interfaces.Post::getTitle()
@@ -346,7 +346,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 		return $this->offsetGet('title');
 	}
 
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Lampcms\Interfaces.Post::getSeoUrl()

@@ -156,9 +156,9 @@ class Userinfo extends WebPage
 	 * @return object $this
 	 */
 	protected function addProfile(){
-
-		$this->aPageVars['body'] = ProfileDiv::get($this->oRegistry, $this->oUser);
-
+		$profile = ProfileDiv::factory($this->oRegistry)->setUser($this->oUser)->getHtml();
+		$this->aPageVars['body'] = $profile;
+		
 		return $this;
 	}
 

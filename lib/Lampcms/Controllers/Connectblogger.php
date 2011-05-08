@@ -50,44 +50,36 @@
  */
 
 
-
 namespace Lampcms\Controllers;
 
-use \Lampcms\WebPage;
-use \Lampcms\Request;
-use \Lampcms\Responder;
-
+use Lampcms\WebPage;
+use Lampcms\Responder;
+use Lampcms\Modules\Blogger\Blogs;
+use Lampcms\Request;
 
 /**
- * Class for generating a popup page that starts the oauth dance
- * and this also serves as a callback url
- * to which Tumblr Oauth redirects after authorization
+ * Controller for displaying "Connect blogger account"
+ * page and processing Blogger OAuth authentication
+ * to add Blogger oauth token/secret to user's account
  *
- * Dependency is pecl OAuth extension!
- * 
- * @todo add selectBlog() method to process submitted
- * blog select form instead of using separate tumblrselect
- * controller!
- * 
- * Then can add special form to post first entry on the
- * closePage() method!
  *
  * @author Dmitri Snytkine
  *
  */
-class Logintumblr extends WebPage
+class Connectblogger extends WebPage
 {
 
-	const REQUEST_TOKEN_URL = 'http://www.tumblr.com/oauth/request_token';
+	const REQUEST_TOKEN_URL = 'https://www.google.com/accounts/OAuthGetRequestToken?scope=http://www.blogger.com/feeds/&oauth_callback=';
 
-	const ACCESS_TOKEN_URL = 'http://www.tumblr.com/oauth/access_token';
+	const AUTHORIZE_URL = 'https://www.google.com/accounts/OAuthAuthorizeToken';
 
-	const AUTHORIZE_URL = 'http://www.tumblr.com/oauth/authorize';
+	const ACCESS_TOKEN_URL = 'https://www.google.com/accounts/OAuthGetAccessToken';
 
-	const ACCOUNT_DATA_URL = 'http://www.tumblr.com/api/authenticate';
+	const GET_BLOGS = 'https://www.blogger.com/feeds/default/blogs';
+
 
 	/**
-	 * Array of Tumblr's
+	 * Array of Blogger's
 	 * oauth_token and oauth_token_secret
 	 *
 	 * @var array
@@ -108,23 +100,25 @@ class Logintumblr extends WebPage
 
 
 	/**
-	 * Configuration of Tumblr API
-	 * this is array of values TUMBLR section
+	 * Configuration of Blogger API
+	 * this is array of values Blogger section
 	 * in !config.ini
 	 *
 	 * @var array
 	 */
-	protected $aTM = array();
+	protected $aConfig = array();
 
 
 	/**
-	 * Array of User's Tumblr blogs
-	 * User can have more than one blog on Tumblr
+	 * Array of User's Blogger blogs
+	 * User can have more than one blog on Blogger
 	 *
 	 * @var array
 	 */
 	protected $aBlogs;
 
+
+	protected $callback = '/index.php?a=connectblogger';
 
 	/**
 	 * The main purpose of this class is to
@@ -137,16 +131,27 @@ class Logintumblr extends WebPage
 	 * @see classes/WebPage#main()
 	 */
 	protected function main(){
-
-		if(!extension_loaded('oauth')){
-			throw new \Exception('Unable to use Tumblr API because OAuth extension is not available');
+		$Request = $this->oRegistry->Request;
+		d('Request: '.var_export($Request, true));
+		
+		if('1' == $Request->get('blogselect', 's', '')){
+			d('cp');
+			
+			return $this->selectBlog();
 		}
 
-		$this->aTm = $this->oRegistry->Ini['TUMBLR'];
+		$this->callback = $this->oRegistry->Ini->SITE_URL.$this->callback;
+		d('$this->callback: '.$this->callback);
+
+		if(!extension_loaded('oauth')){
+			throw new \Exception('Unable to use Blogger API because OAuth extension is not available');
+		}
+
+		$this->aConfig = $this->oRegistry->Ini['BLOGGER'];
 
 		try {
-			$this->oAuth = new \OAuth($this->aTm['OAUTH_KEY'], $this->aTm['OAUTH_SECRET'], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
-			$this->oAuth->enableDebug();  
+			$this->oAuth = new \OAuth($this->aConfig['OAUTH_KEY'], $this->aConfig['OAUTH_SECRET'], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
+			$this->oAuth->enableDebug();
 		} catch(\OAuthException $e) {
 			e('OAuthException: '.$e->getMessage());
 
@@ -157,11 +162,11 @@ class Logintumblr extends WebPage
 		/**
 		 * If this is start of dance then
 		 * generate token, secret and store them
-		 * in session and redirect to tumblr authorization page
+		 * in session and redirect to Blogger authorization page
 		 */
-		if(empty($_SESSION['tumblr_oauth']) || empty($this->oRequest['oauth_token'])){
+		if(empty($_SESSION['blogger_oauth']) || empty($this->oRequest['oauth_token'])){
 			/**
-			 * Currently Tumblr does not handle "Deny" response of user
+			 * Currently Blogger does not handle "Deny" response of user
 			 * too well - they just redirect back to this url
 			 * without any clue that user declined to authorize
 			 * our application.
@@ -174,8 +179,69 @@ class Logintumblr extends WebPage
 
 
 	/**
+	 * Process the submitted "select default blog" form
+	 * This form is displayed to user when we detect that
+	 * user has more than one blog on Blogger, in which
+	 * case user is asked to pick one blog that will
+	 * be connected to this account
+	 *
+	 *
+	 * @throws \Exception if user does not have any blogs, which
+	 * is not really possible, so this would be totally unexpected
+	 */
+	protected function selectBlog(){
+		if ('POST' !== Request::getRequestMethod() ) {
+			throw new \Lampcms\Exception('POST method required');
+		}
+
+		\Lampcms\Forms\Form::validateToken($this->oRegistry);
+
+		$a = $this->oRegistry->Viewer->getBloggerBlogs();
+		d('$a: '.print_r($a, 1));
+
+		if(empty($a)){
+			throw new \Exception('No blogs found for this user');
+		}
+
+		$selectedID = (int)substr($this->oRequest->get('blog'), 4);
+		d('$selectedID: '. $selectedID);
+
+		/**
+		 * Pull the selected blog from array of user blogs
+		 *
+		 * @var unknown_type
+		 */
+		$aBlog = \array_splice($a, $selectedID, 1);
+		d('$aBlog: '.print_r($aBlog, 1));
+		d('a now: '.print_r($a, 1));
+
+		/**
+		 * Now stick this blog to the
+		 * beginning of array. It will become
+		 * the first element, pushing other blogs
+		 * down in the array
+		 * User's "Connected" blog is always
+		 * the first blog in array!
+		 *
+		 */
+		\array_unshift($a, $aBlog[0]);
+		d('a after unshift: '.print_r($a, 1));
+
+		$this->oRegistry->Viewer->setBloggerBlogs($a);
+		/**
+		 * Set b_bg to true which will result
+		 * in "Post to Blogger" checkbox to
+		 * be checked. User can uncheck in later
+		 */
+		$this->oRegistry->Viewer['b_bg'] = true;
+		$this->oRegistry->Viewer->save();
+		$this->closeWindow();
+	}
+
+
+	/**
 	 * Generate oAuth request token
-	 * and redirect to tumblr for authentication
+	 * and redirect to Blogger for authentication
 	 *
 	 * @return object $this
 	 *
@@ -185,27 +251,20 @@ class Logintumblr extends WebPage
 	protected function step1(){
 
 		try {
-			// State 0 - Generate request token and redirect user to tumblr to authorize
-			$_SESSION['tumblr_oauth'] = $this->oAuth->getRequestToken(self::REQUEST_TOKEN_URL);
+			// State 0 - Generate request token and redirect user to Blogger to authorize
+			$url =
+			$_SESSION['blogger_oauth'] = $this->oAuth->getRequestToken(self::REQUEST_TOKEN_URL.$this->callback);
 
-			d('$_SESSION[\'tumblr_oauth\']: '.print_r($_SESSION['tumblr_oauth'], 1));
-			if(!empty($_SESSION['tumblr_oauth']) && !empty($_SESSION['tumblr_oauth']['oauth_token'])){
+			d('$_SESSION[\'blogger_oauth\']: '.print_r($_SESSION['blogger_oauth'], 1));
+			if(!empty($_SESSION['blogger_oauth']) && !empty($_SESSION['blogger_oauth']['oauth_token'])){
 
-				/**
-				 * A more advanced way is to NOT use Location header
-				 * but instead generate the HTML that contains the onBlur = focus()
-				 * and then redirect with javascript
-				 * This is to prevent from popup window going out of focus
-				 * in case user clicks outsize the popup somehow
-				 */
-				$this->redirectToTumblr(self::AUTHORIZE_URL.'?oauth_token='.$_SESSION['tumblr_oauth']['oauth_token']);
+				Responder::redirectToPage(self::AUTHORIZE_URL.'?oauth_token='.$_SESSION['blogger_oauth']['oauth_token'].'&oauth_callback='.$this->callback);
 			} else {
 				/**
 				 * Here throw regular Exception, not Lampcms\Exception
 				 * so that it will be caught ONLY by the index.php and formatted
 				 * on a clean page, without any template
 				 */
-
 				throw new \Exception("Failed fetching request token, response was: " . $this->oAuth->getLastResponse());
 			}
 		} catch(\OAuthException $e) {
@@ -220,7 +279,7 @@ class Logintumblr extends WebPage
 
 	/**
 	 * Step 2 in oAuth process
-	 * this is when tumblr redirected the user back
+	 * this is when Blogger redirected the user back
 	 * to our callback url, which calls this controller
 	 * @return object $this
 	 *
@@ -230,7 +289,7 @@ class Logintumblr extends WebPage
 
 		try {
 			/**
-			 * This is a callback (redirected back from tumblr page
+			 * This is a callback (redirected back from Blogger page
 			 * after user authorized us)
 			 * In this case we must: create account or update account
 			 * in USER table
@@ -244,11 +303,17 @@ class Logintumblr extends WebPage
 			 * @todo check first to make sure we do have oauth_token
 			 * on REQUEST, else close the window
 			 */
-			$this->oAuth->setToken($this->oRequest['oauth_token'], $_SESSION['tumblr_oauth']['oauth_token_secret']);
+
+			$this->oAuth->setToken($this->oRequest['oauth_token'], $_SESSION['blogger_oauth']['oauth_token_secret']);
+			$ver = $this->oRegistry->Request['oauth_verifier'];
+			d(' $ver: '.$ver);
+			$url = self::ACCESS_TOKEN_URL.'?oauth_verifier='.$ver;
+			d('url: '.$url);
+
 			$this->aAccessToken = $this->oAuth->getAccessToken(self::ACCESS_TOKEN_URL);
 			d('$this->aAccessToken: '.print_r($this->aAccessToken, 1));
 
-			unset($_SESSION['tumblr_oauth']);
+			unset($_SESSION['blogger_oauth']);
 
 			$this->oAuth->setToken($this->aAccessToken['oauth_token'], $this->aAccessToken['oauth_token_secret']);
 
@@ -258,9 +323,8 @@ class Logintumblr extends WebPage
 			 * display a form with "select blog"
 			 * + description about it
 			 *
-			 * Make sure to run connect() first so that oViewer['tumblr']
+			 * Make sure to run connect() first so that oViewer['Blogger']
 			 * element will be created and will have all user blogs
-			 *
 			 *
 			 * Else - user has just one blog then close Window!
 			 *
@@ -268,7 +332,7 @@ class Logintumblr extends WebPage
 			d('cp');
 			$this->getUserBlogs()->connect();
 			d('cp');
-			
+
 			/**
 			 * If user has more than one blog
 			 * then show special form
@@ -279,19 +343,28 @@ class Logintumblr extends WebPage
 				d('$form: '.$form);
 				exit(Responder::makeErrorPage($form));
 			} else {
-				d('User has one tumblr blog, using it now');
+				d('User has one Blogger blog, using it now');
 				/**
 				 * Set flag to session indicating that user just
-				 * connected tumblr Account
+				 * connected Blogger Account
 				 */
-				$this->oRegistry->Viewer['b_tm'] = true;
+				$this->oRegistry->Viewer['b_bg'] = true;
 				$this->closeWindow();
 			}
 
 		} catch(\OAuthException $e) {
-			e('OAuthException: '.$e->getMessage().' '.print_r($e, 1));
+			$aDebug = $this->oAuth->getLastResponseInfo();
+			/**
+			 * Always check for response code first!
+			 * it must be 201 or it's no good!
+			 *
+			 * Also check the 'url' part of it
+			 * if it does not match url you used
+			 * in request then it was redirected!
+			 */
+			e('OAuthException: '.$e->getMessage().' in file '.$e->getFile().' on line: '.$e->getLine(). ' Debug: '.print_r($aDebug, 1));
 
-			$err = 'Something went wrong during authorization. Please try again later'.$e->getMessage();
+			$err = 'Something went wrong during authorization. Please try again later. '.$e->getMessage();
 			throw new \Exception($err);
 		}
 
@@ -299,13 +372,21 @@ class Logintumblr extends WebPage
 	}
 
 
+	/**
+	 *
+	 * Make html form that asks
+	 * a user to select one blog from the
+	 * list of all user's blogs on Blogger
+	 * 
+	 * @return string html of the form
+	 */
 	protected function makeBlogSelectionForm(){
 		/**
 		 * @todo Translate string
 		 */
-		$label = 'You have more than one blog on Tumblr.<br>
+		$label = 'You have more than one blog on Blogger.<br>
 			 Please select one blog that will be connected to this account.<br>
-			 <br>When you select the "Post to Tumblr" option, your<br>
+			 <br>When you select the "Post to Blogger" option, your<br>
 			 Question or Answer will be posted to this blog.';
 
 		/**
@@ -319,103 +400,14 @@ class Logintumblr extends WebPage
 			$options .= sprintf($tpl, $id, $blog['title']);
 		}
 
-		$vars = array('token' => $token, 'options' => $options, 'label' => $label, 'save' => $save);
+		$vars = array(
+		'token' => $token, 
+		'options' => $options, 
+		'label' => $label, 
+		'save' => $save,
+		'a' => 'connectblogger');
 
 		return \tplTumblrblogs::parse($vars);
-	}
-
-
-	/**
-	 * Fetch xml from Tumblr, parse it
-	 * and generate array of $this->aBlogs
-	 *
-	 *
-	 * @throws \Exception if something does not work
-	 * as expected
-	 *
-	 * @return object $this
-	 */
-	protected function getUserBlogs(){
-
-		d('fetchind data from: '.self::ACCOUNT_DATA_URL);
-		$this->oAuth->fetch(self::ACCOUNT_DATA_URL);
-		$res = $this->oAuth->getLastResponse();
-		d('res: '.$res);
-			
-		$aDebug = $this->oAuth->getLastResponseInfo();
-		/**
-		 * Always check for response code first!
-		 * it must be 201 or it's no good!
-		 *
-		 * Also check the 'url' part of it
-		 * if it does not match url you used
-		 * in request then it was redirected!
-		 */
-		d('debug: '.print_r($aDebug, 1));
-
-		if(empty($res) || empty($aDebug['http_code']) || '200' != $aDebug['http_code']){
-			$err = 'Unexpected Error parsing API response';
-
-			throw new \Exception($err);
-		}
-
-		/**
-		 * $res is xml like this (can have multiple 'tumblelog' elements):
-		 *
-		 * <?xml version="1.0" encoding="UTF-8"?>
-		 * <tumblr version="1.0">
-		 * <user default-post-format="html" can-upload-audio="1" can-upload-aiff="1" can-ask-question="1" can-upload-video="1" max-video-bytes-uploaded="26214400" liked-post-count="0"/>
-		 * <tumblelog title="Snytkine" is-admin="1" posts="1" twitter-enabled="0" draft-count="0" messages-count="0" queue-count="" name="snytkine" url="http://snytkine.tumblr.com/" type="public" followers="0" avatar-url="http://assets.tumblr.com/images/default_avatar_128.gif" is-primary="yes" backup-post-limit="30000"/>
-		 * </tumblr>
-		 *
-		 */
-		$XML = new \DOMDocument('1.0', 'utf-8');
-		if(false === $XML->loadXML($res)){
-			$err = 'Unexpected Error parsing response XML';
-			throw new \Exception($err);
-		}
-
-		$aParsed = $XML->getElementsByTagName('tumblelog');
-		d('Blogs count: '.$aParsed->length);
-
-		if(0 === $aParsed->length){
-			e('Looks like user does not have any blogs: $xml: '.$res);
-
-			$err = ('Looks like you have Tumblr account but do not have any blogs on Tumblr');
-			throw new \Exception($err);
-		}
-
-		foreach($aParsed as $blog){
-
-			$aBlog = array('url' => null);
-			$aBlog['title'] = $blog->getAttribute('title');
-			$type = $blog->getAttribute('type');
-			$aBlog['type'] = $type;
-
-			if($blog->hasAttribute('is-primary')){
-				$aBlog['is-primary'] = $blog->getAttribute('is-primary');
-			}
-	
-			if('public' === $type){
-				if($blog->hasAttribute('url')){
-					$aBlog['url'] = $blog->getAttribute('url');
-				}
-				if($blog->hasAttribute('name')){
-					$aBlog['name'] = $blog->getAttribute('name');
-				}
-			} else {
-
-				if($blog->hasAttribute('private-id')){
-					$aBlog['private-id'] = $blog->getAttribute('private-id');
-				}
-			}
-
-			$this->aBlogs[] = $aBlog;
-		}
-
-		d('aBlogs: '.print_r($this->aBlogs, 1));
-
-		return $this;
 	}
 
 
@@ -428,7 +420,7 @@ class Logintumblr extends WebPage
 	 */
 	protected function connect(){
 
-		$this->oRegistry->Viewer['tumblr'] = array('tokens' => $this->aAccessToken, 'blogs' => $this->aBlogs);
+		$this->oRegistry->Viewer['blogger'] = array('tokens' => $this->aAccessToken, 'blogs' => $this->aBlogs);
 		$this->oRegistry->Viewer->save();
 
 		return $this;
@@ -436,12 +428,24 @@ class Logintumblr extends WebPage
 
 
 	/**
-	 * Return html that contains JS window.close code and nothing else
+	 * Return html that contains JS window.close code
+	 * and nothing else
 	 *
-	 * @return unknown_type
+	 * @todo instead of just closing window
+	 * can show a small form with pre-populated
+	 * text to be posted to user's blog,
+	 * for example "I just connected this blog
+	 * to my account on SITE_NAME so I can
+	 * automatically send some Questions and Answers
+	 * to this blog. Check it out <- link
+	 *
+	 * And there will be 2 buttons Submit and Cancel
+	 * Cancel will close window
+	 *
+	 * @return void
 	 */
-	protected function closeWindow(array $a = array()){
-		d('cp a: '.print_r($a, 1));
+	protected function closeWindow(){
+
 		$js = '';
 
 		$tpl = '
@@ -461,7 +465,7 @@ class Logintumblr extends WebPage
 		$s = Responder::PAGE_OPEN. Responder::JS_OPEN.
 		$script.
 		Responder::JS_CLOSE.
-		'<h2>You have successfully connected your Tumblr Blog. You should close this window now</h2>'.
+		'<h2>You have successfully connected your Blogger Blog. You should close this window now</h2>'.
 
 		Responder::PAGE_CLOSE;
 		d('cp s: '.$s);
@@ -472,43 +476,40 @@ class Logintumblr extends WebPage
 
 
 	/**
-	 * @todo add YUI Event lib
-	 * and some JS to subscribe to blur event
-	 * so that onBlur runs not just the first onBlur time
-	 * but all the time
+	 * Fetch xml from Tumblr, parse it
+	 * and generate array of $this->aBlogs
 	 *
-	 * @param string $url of tumblr oauth, including request token
-	 * @return void
+	 *
+	 * @throws \Exception if something does not work
+	 * as expected
+	 *
+	 * @return object $this
 	 */
-	protected function redirectToTumblr($url){
-		d('tumblr redirect url: '.$url);
+	protected function getUserBlogs(){
+		$this->oAuth->fetch(self::GET_BLOGS);
+		$res = $this->oAuth->getLastResponse();
+		d('res: '.$res);
+			
+		$aDebug = $this->oAuth->getLastResponseInfo();
 		/**
-		 * @todo translate this string
+		 * Always check for response code first!
+		 * it must be 201 or it's no good!
 		 *
+		 * Also check the 'url' part of it
+		 * if it does not match url you used
+		 * in request then it was redirected!
 		 */
-		$s = Responder::PAGE_OPEN. Responder::JS_OPEN.
-		'setTZOCookie = (function() {
-		getTZO = function() {
-		var tzo, nd = new Date();
-		tzo = (0 - (nd.getTimezoneOffset() * 60));
-		return tzo;
-	    }
-		var tzo = getTZO();
-		document.cookie = "tzo="+tzo+";path=/";
-		})();
-		
-		
-		var myredirect = function(){
-			window.location.assign("'.$url.'");
-		};
-			setTimeout(myredirect, 300);
-			'.
-		Responder::JS_CLOSE.
-		'<div class="centered"><a href="'.$url.'">If you are not redirected in 2 seconds, click here to authenticate with tumblr</a></div>'.
-		Responder::PAGE_CLOSE;
+		d('debug: '.print_r($aDebug, 1));
+		if(empty($res) || empty($aDebug['http_code']) || '200' != $aDebug['http_code']){
+			$err = 'Unexpected Error parsing API response';
 
-		d('exiting with this $s: '.$s);
+			throw new \Exception($err);
+		}
 
-		exit($s);
+		$oBlogs = new Blogs();
+		$this->aBlogs = $oBlogs->getBlogs($res);
+
+		return $this;
 	}
+
 }

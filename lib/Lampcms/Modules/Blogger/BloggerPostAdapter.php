@@ -49,41 +49,142 @@
  *
  */
 
+
+namespace Lampcms\Modules\Blogger;
+
+use \Lampcms\Interfaces\Post;
+use \Lampcms\Interfaces\Question;
+use \Lampcms\Interfaces\Answer;
+
 /**
- * This template is for a "Select Tumblr blog"
- * small html form that will apper
- * in a popup "Connect to Tumblr" window
- * only if it's detected that User has more than one
- * blog on Tumblr, in which case use must select
- * which one of his blog will be used as "connected" blog
- * 
- * 
+ * Adapter class that takes Post
+ * (instance of Question or Answer)
+ * as input and returns instance of Entry
+ * as output
+ *
+ *
  * @author Dmitri Snytkine
  *
- */ 
-class tplTumblrblogs extends \Lampcms\Template\Template
+ */
+class BloggerPostAdapter
 {
-	protected static $vars = array(
-	'token' => '', //1
-	'options' => '', //2
-	'label' => '', //3
-	'save' => '', //4
-	'a' => 'tumblrselect' //5
-	);
-	
-	
-	protected static $tpl = '
-		<form action="/index.php" name="tumblrblogs" method="POST" action="/index.php" accept-charset="utf-8">
-			<input type="hidden" name="a" value="%5$s">
-			<input type="hidden" name="blogselect" value="1">
-			<input type="hidden" name="token" value="%1$s">
-			<br>
-				<span>%3$s</span>
-				<br><br>
-				<select tabindex="1" name="blog">%2$s</select>
-				<br><br>
-				<input  tabindex="2" id="dostuff" name="submit" type="submit" value="%4$s" class="btn_comment"> 
-		</form>
-	';
-	
+	/**
+	 * Registry object
+	 *
+	 * @var object
+	 */
+	protected $oRegistry;
+
+
+	/**
+	 * Object Entry
+	 *
+	 * @var object
+	 */
+	protected $oEntry;
+
+
+	/**
+	 * Constructor
+	 *
+	 * @param \Lampcms\Registry $o
+	 */
+	public function __construct(\Lampcms\Registry $o){
+		$this->oRegistry = $o;
+	}
+
+
+	/**
+	 * Getter for $this->oEntry
+	 *
+	 * @return object of type Entry
+	 */
+	public function getEntry(){
+		return $this->oEntry;
+	}
+
+
+	/**
+	 * Make object Entry
+	 * from object Post (which can be Answer or Question)
+	 *
+	 * @param Post $post object of type Post which
+	 * can be Answer or Question
+	 */
+	public function makeEntry(Post $o){
+		$this->oEntry = new Entry();
+		if($o instanceof Question){
+			$this->makeQuestionPost($o);
+		} elseif($o instanceof Answer){
+			$this->makeAnswerPost($o);
+		}
+		d('cp');
+
+		return $this->getEntry();
+	}
+
+
+	/**
+	 *
+	 * Setup values in $this->oTumblrPost using
+	 * values of Question
+	 *
+	 * @param Question $o
+	 */
+	protected function makeQuestionPost(Question $o){
+		d('cp');
+
+		/**
+		 * @todo Translate strings
+		 *
+		 * @var string
+		 */
+		$qUrl = $o->getUrl();
+		$tpl1 = '<p><a href="%s"><strong>My Question</strong></a> on %s</p>';
+		$tpl2 = '<p><a href="%s">Click here</a> to post your reply</p><br>';
+		$body = sprintf($tpl1, $qUrl, $this->oRegistry->Ini->SITE_NAME);
+		$body .= $o->getBody();
+		$body .= sprintf($tpl2, $qUrl);
+
+
+		$this->oEntry->setBody($body)->setTitle($o->getTitle());
+
+		$tags = $o['a_tags'];
+		d('$tags: '.print_r($tags, 1));
+		if(!empty($tags)){
+			$this->oEntry->addTags($tags);
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 *
+	 * Setup values in $this->oTumblrPost using
+	 * values of Answer
+	 *
+	 * @param Answer $o
+	 */
+	protected function makeAnswerPost(Answer $o){
+		d('cp');
+		$qlink = $this->oRegistry->Ini->SITE_URL.'/q'.$o->getQuestionId().'/';
+
+		/**
+		 * @todo Translate string
+		 *
+		 * @var string
+		 */
+		$tpl = '<p>This is my answer to a <a href="%s"><strong>Question</strong></a> on %s</p><br>';
+		$body = sprintf($tpl, $qlink, $this->oRegistry->Ini->SITE_NAME);
+
+		$body .= $o->getBody();
+		d('body: '.$body);
+
+		$title = 'My answer to "'.$o->getTitle().'"';
+
+		$this->oEntry->setBody($body)->setTitle($title);
+
+		return $this;
+	}
 }

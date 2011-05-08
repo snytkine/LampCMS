@@ -109,8 +109,8 @@ class SubmittedQuestionWWW extends SubmittedQuestion
 	
 	
 	/**
-	 * Returns Tags string in lower case
-	 * it's lower-cased using utf8-safe version of toLowerCase()
+	 * Returns Tags which is 
+	 * object of type Utf8String
 	 * 
 	 * (non-PHPdoc)
 	 * @see Lampcms.SubmittedQuestion::getTags()

@@ -169,8 +169,9 @@ class Viewquestion extends WebPage
 		$this->pageID = $this->oRegistry->Request->get('pageID', 'i', 1);
 		$this->tab = $this->oRegistry->Request->get('sort', 's', 'i_lm_ts');
 		$this->oRegistry->registerObservers();
-		$this->addMetaTag('tm', (null !== $this->oRegistry->Viewer->getTumblrToken()));
+		
 		$this->getQuestion()
+		->addMetas()
 		->sendCacheHeaders()
 		->setTitle()
 		->addMetaTags()
@@ -190,6 +191,20 @@ class Viewquestion extends WebPage
 		$this->oRegistry->Dispatcher->post($this->oQuestion, 'onQuestionView');
 	}
 
+
+	/**
+	 * Add extra meta tags to indicate
+	 * that user has or does not have
+	 * blogger and tumblr Oauth keys
+	 *
+	 * @return object $this
+	 */
+	protected function addMetas(){
+		$this->addMetaTag('tm', (null !== $this->oRegistry->Viewer->getTumblrToken()));
+		$this->addMetaTag('blgr', (null !== $this->oRegistry->Viewer->getBloggerToken()));
+
+		return $this;
+	}
 
 	/**
 	 * Adds block with info about

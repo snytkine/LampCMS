@@ -58,11 +58,14 @@ namespace Lampcms;
  * @author Dmitri Snytkine
  *
  */
+use Lampcms\Interfaces\Answer;
+
 class User extends MongoDoc implements Interfaces\RoleInterface,
 Interfaces\User,
 Interfaces\TwitterUser,
 Interfaces\FacebookUser,
-Interfaces\TumblrUser
+Interfaces\TumblrUser,
+Interfaces\BloggerUser
 {
 
 	/**
@@ -403,7 +406,7 @@ Interfaces\TumblrUser
 			return '';
 		}
 
-		return '<a rel="nofollow" href="http://twitter.com/'.$user.'">@'.$user.'</a>';
+		return '<a rel="nofollow" class="twtr" href="http://twitter.com/'.$user.'">@'.$user.'</a>';
 	}
 
 
@@ -509,7 +512,7 @@ Interfaces\TumblrUser
 			return '';
 		}
 
-		return '<a rel="nofollow" href="'.$url.'">'.$url.'</a>';
+		return '<a rel="nofollow" class="fbook" href="'.$url.'">'.$url.'</a>';
 	}
 
 
@@ -732,13 +735,10 @@ Interfaces\TumblrUser
 	 */
 	public function setTumblrBlogs(array $blogs){
 		$a = $this->offsetGet('tumblr');
-		if(empty($a) || empty($a['blogs'])){
-			return $this;
+		if(!empty($a) && !empty($a['blogs'])){
+			$a['blogs'] = $blogs;
+			$this->offsetSet('tumblr', $a);
 		}
-
-		$a['blogs'] = $blogs;
-
-		$this->offsetSet('tumblr', $a);
 
 		return $this;
 	}
@@ -794,7 +794,7 @@ Interfaces\TumblrUser
 
 	/**
 	 * Get html for the link to tumblr blog
-	 * 
+	 *
 	 * @return string html of link
 	 */
 	public function getTumblrBlogLink(){
@@ -805,7 +805,7 @@ Interfaces\TumblrUser
 
 		$aBlog = $a['blogs'][0];
 		if(!empty($aBlog['url']) && !empty($aBlog['title'])){
-			$tpl = '<a href="%s" rel="nofollow">%s</a>';
+			$tpl = '<a href="%s" class="tmblr" rel="nofollow">%s</a>';
 
 			return sprintf($tpl, $aBlog['url'], $aBlog['title']);
 		}
@@ -857,7 +857,7 @@ Interfaces\TumblrUser
 		return(!empty($a['blogs'][0]['url'])) ? $a['blogs'][0]['url'] : '';
 	}
 
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Lampcms\Interfaces.TumblrUser::getTumblrBlogId()
@@ -880,4 +880,142 @@ Interfaces\TumblrUser
 		return null;
 	}
 	
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.BloggerUser::getBloggerToken()
+	 */
+	public function getBloggerToken(){
+		$a = $this->offsetGet('blogger');
+		if(empty($a) || empty($a['tokens'])){
+			return null;
+		}
+
+		return $a['tokens']['oauth_token'];
+	}
+
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.BloggerUser::getBloggerSecret()
+	 */
+	public function getBloggerSecret(){
+		$a = $this->offsetGet('blogger');
+		if(empty($a) || empty($a['tokens'])){
+			return null;
+		}
+
+		return $a['tokens']['oauth_token_secret'];
+	}
+
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.BloggerUser::revokeBloggerToken()
+	 */
+	public function revokeBloggerToken(){
+		$a = $this->offsetGet('blogger');
+		if(!empty($a) && !empty($a['tokens'])){
+			$a['tokens'] = null;
+			$this->offsetSet('blogger', $a);
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Get html for the link to Blogger blog
+	 * @return string html of link
+	 */
+	public function getBloggerBlogLink(){
+		$a = $this->offsetGet('blogger');
+		if(empty($a) || empty($a['blogs'])){
+			return '';
+		}
+
+		$aBlog = $a['blogs'][0];
+		if(!empty($aBlog['url']) && !empty($aBlog['title'])){
+			$tpl = '<a href="%s" class="blgr" rel="nofollow">%s</a>';
+
+			return sprintf($tpl, $aBlog['url'], $aBlog['title']);
+		}
+
+		return '';
+	}
+
+	
+	/**
+	 * Get array of all user's blogs
+	 * @return mixed array of at least one blog | null
+	 * if user does not have any blogs (not a usual situation)
+	 *
+	 */
+	public function getBloggerBlogs(){
+		$a = $this->offsetGet('blogger');
+		if(empty($a) || empty($a['blogs'])){
+			return null;
+		}
+
+		return $a['blogs'];
+	}
+
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.BloggerUser::getBloggerBlogTitle()
+	 */
+	public function getBloggerBlogTitle(){
+		$a = $this->offsetGet('blogger');
+		if(empty($a) || empty($a['blogs'])){
+			return '';
+		}
+
+		return $a['blogs'][0]['title'];
+	}
+
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.BloggerUser::getBloggerBlogUrl()
+	 */
+	public function getBloggerBlogUrl(){
+		$a = $this->offsetGet('blogger');
+		if(empty($a) || empty($a['blogs'])){
+			return '';
+		}
+
+		return $a['blogs'][0]['url'];
+	}
+
+
+	/**
+	 * @return string value to be used as '<blogid>' param
+	 * in WRITE API call
+	 *
+	 */
+	public function getBloggerBlogId(){
+		$a = $this->offsetGet('blogger');
+		if(empty($a) || empty($a['blogs']) || empty($a['blogs'][0])){
+			throw new DevException('User does not have any blogs on Blogger');
+		}
+
+		return $a['blogs'][0]['id'];
+	}
+
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.BloggerUser::setBloggerBlogs()
+	 */
+	public function setBloggerBlogs(array $blogs){
+		$a = $this->offsetGet('blogger');
+		if(!empty($a) && !empty($a['blogs'])){
+			$a['blogs'] = $blogs;
+			$this->offsetSet('blogger', $a);
+		}
+
+		return $this;
+	}
+
 }

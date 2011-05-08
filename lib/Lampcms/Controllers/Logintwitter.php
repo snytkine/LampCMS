@@ -633,7 +633,17 @@ class Logintwitter extends WebPage
 
 
 	/**
-	 * Return html that contains JS window.close code and nothing else
+	 * Return html that contains JS window.close 
+	 * code and nothing else
+	 * 
+	 * @todo instead of just closing window
+	 * can show a small form with pre-populated
+	 * text to be posted to Twitter,
+	 * for example "I just joined SITE_NAME, awesome site
+	 * + link +
+	 *
+	 * And there will be 2 buttons Submit and Cancel
+	 * Cancel will close window
 	 *
 	 * @return unknown_type
 	 */

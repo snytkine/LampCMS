@@ -1624,8 +1624,12 @@ YUI({
 			
 		case el.test('.add_tumblr'):
 			Y.log('clicked on .add_tumblr');
-			
 			Twitter.startDance('/index.php?a=logintumblr', 680, 540);
+			break;
+			
+		case el.test('.add_blogger'):
+			Y.log('clicked on .add_blogger');
+			Twitter.startDance('/index.php?a=connectblogger', 680, 540);
 			break;
 			
 		case (id == 'gfcset'):
@@ -3215,8 +3219,13 @@ YUI({
 				break;
 				
 			case ((el.get('id') == 'api_tumblr') && ('1' != getMeta('tm'))):
-				Y.log('3216 api_tumblr');
+				Y.log('3222 api_tumblr');
 				Twitter.startDance('/index.php?a=logintumblr', 800, 540);
+				break;
+				
+			case ((el.get('id') == 'api_blogger') && ('1' != getMeta('blgr'))):
+				Y.log('3227 api_blogger');
+			    Twitter.startDance('/index.php?a=connectblogger', 680, 540);
 				break;
 
 			}

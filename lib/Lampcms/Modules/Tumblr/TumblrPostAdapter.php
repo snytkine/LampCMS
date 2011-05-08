@@ -99,9 +99,9 @@ class TumblrPostAdapter extends LampcmsObject
 	public function get(Post $o){
 		d('cp');
 		if($o instanceof Question){
-			$this->getQuestionPost($o);
+			$this->makeQuestionPost($o);
 		} elseif($o instanceof Answer){
-			$this->getAnswerPost($o);
+			$this->makeAnswerPost($o);
 		}
 		d('cp');
 
@@ -125,7 +125,7 @@ class TumblrPostAdapter extends LampcmsObject
 	 *
 	 * @param Question $o
 	 */
-	protected function getQuestionPost(Question $o){
+	protected function makeQuestionPost(Question $o){
 		d('cp');
 		$this->oTumblrPost = new TumblrPost();
 
@@ -135,7 +135,7 @@ class TumblrPostAdapter extends LampcmsObject
 		 * @var string
 		 */
 		$qUrl = $o->getUrl();
-		$tpl1 = '<p><a href="%s">My question</a> on %s</p>';
+		$tpl1 = '<p><a href="%s"><strong>My question</strong></a> on %s</p>';
 		$tpl2 = '<p><a href="%s">Click here</a> to post your reply</p><br>';
 		$body = sprintf($tpl1, $qUrl, $this->oRegistry->Ini->SITE_NAME);
 		$body .= $o->getBody();
@@ -163,10 +163,10 @@ class TumblrPostAdapter extends LampcmsObject
 	 *
 	 * @param Answer $o
 	 */
-	protected function getAnswerPost(Answer $o){
+	protected function makeAnswerPost(Answer $o){
 		d('cp');
 		$this->oTumblrPost = new TumblrPost();
-		$qlink = $this->oRegistry->Ini->SITE_URL.'/q/'.$o->getQuestionId();
+		$qlink = $this->oRegistry->Ini->SITE_URL.'/q'.$o->getQuestionId().'/';
 
 		/**
 		 * @todo Translate string

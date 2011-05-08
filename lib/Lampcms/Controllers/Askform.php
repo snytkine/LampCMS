@@ -99,13 +99,29 @@ class Askform extends WebPage
 	protected function main(){
 		d('cp');
 		$this->aPageVars['title'] = $this->title = 'Ask a question';
-		$this->addMetaTag('tm', (null !== $this->oRegistry->Viewer->getTumblrToken()));
-		$this->makeForm()
+
+		$this->addMetas()
+		->makeForm()
 		->setMustLogin()
 		->setForm()
 		->makeTopTabs()
 		->makeMemo()
 		->makeHintBlocks();
+	}
+
+	
+	/**
+	 * Add extra meta tags to indicate
+	 * that user has or does not have
+	 * blogger and tumblr Oauth keys
+	 *
+	 * @return object $this
+	 */
+	protected function addMetas(){
+		$this->addMetaTag('tm', (null !== $this->oRegistry->Viewer->getTumblrToken()));
+		$this->addMetaTag('blgr', (null !== $this->oRegistry->Viewer->getBloggerToken()));
+
+		return $this;
 	}
 
 
@@ -121,7 +137,7 @@ class Askform extends WebPage
 		if(!$this->oForm->isSubmitted()){
 			$this->oForm->socials = SocialCheckboxes::get($this->oRegistry);
 		}
-		
+
 		return $this;
 	}
 

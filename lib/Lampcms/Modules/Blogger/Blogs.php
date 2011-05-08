@@ -49,41 +49,92 @@
  *
  */
 
+
+namespace Lampcms\Modules\Blogger;
+
 /**
- * This template is for a "Select Tumblr blog"
- * small html form that will apper
- * in a popup "Connect to Tumblr" window
- * only if it's detected that User has more than one
- * blog on Tumblr, in which case use must select
- * which one of his blog will be used as "connected" blog
- * 
- * 
+ *
+ * Class for parsing (extracting) array
+ * of all blogs that user has with Blogger
+ * The input xml file is returned from Blogger API
+ * as result to call to this url: https://www.blogger.com/feeds/default/blogs
+ * by an authenticated user
+ * We usually call this url during the "connect blogger" process
+ * right after the user just authorized blogger account via OAuth
+ *
  * @author Dmitri Snytkine
  *
- */ 
-class tplTumblrblogs extends \Lampcms\Template\Template
+ */
+class Blogs
 {
-	protected static $vars = array(
-	'token' => '', //1
-	'options' => '', //2
-	'label' => '', //3
-	'save' => '', //4
-	'a' => 'tumblrselect' //5
-	);
-	
-	
-	protected static $tpl = '
-		<form action="/index.php" name="tumblrblogs" method="POST" action="/index.php" accept-charset="utf-8">
-			<input type="hidden" name="a" value="%5$s">
-			<input type="hidden" name="blogselect" value="1">
-			<input type="hidden" name="token" value="%1$s">
-			<br>
-				<span>%3$s</span>
-				<br><br>
-				<select tabindex="1" name="blog">%2$s</select>
-				<br><br>
-				<input  tabindex="2" id="dostuff" name="submit" type="submit" value="%4$s" class="btn_comment"> 
-		</form>
-	';
-	
+
+	/**
+	 *
+	 * Parse $xml and return array of blogs
+	 * each element in that array is an array
+	 * with keys: 'id', 'title' and 'url'
+	 *
+	 * @param string $xml xml returned by Blogger API
+	 * in response to request https://www.blogger.com/feeds/default/blogs
+	 * by an authenticated user (using OAuth credentials)
+	 *
+	 * @throws \Exception
+	 */
+	public function getBlogs($xml){
+
+		$aBlogs = array();
+		$XML = new \Lampcms\Dom\Document();
+		if(false === $XML->loadXML($xml)){
+			$err = 'Unexpected Error parsing response XML';
+			throw new \Exception($err);
+		}
+
+		$xp = new \DOMXPath($XML);
+		$xp->registerNamespace('atom', "http://www.w3.org/2005/Atom");
+
+		$aParsed = $XML->getElementsByTagName('entry');
+
+		if(0 === $aParsed->length){
+			e('Looks like user does not have any blogs: $xml: '.$xml);
+
+			$err = ('Looks like you have Blogger account but do not have any blogs setup yet');
+			throw new \Exception($err);
+		}
+
+		foreach($aParsed as $blog){
+			$aBlog = array();
+			$aBlog['id'] = $this->getId($blog);
+			$aBlog['title'] = $blog->getElementsByTagName('title')->item(0)->nodeValue;
+			$r = $xp->query('atom:link[@type = "text/html"]/@href', $blog );
+			$aBlog['url'] = ($r->length > 0) ? $r->item(0)->nodeValue : null;
+			if(!empty($aBlog['url']) && !empty($aBlog['id'])){
+				$aBlogs[] = $aBlog;
+			}
+		}
+
+		return $aBlogs;
+	}
+
+
+	/**
+	 * Extract value of actual blog ID
+	 * from the 'id' tag
+	 * the value looks like this:
+	 * <id>tag:blogger.com,1999:user-850590157766.blog-4083976222769752292</id>
+	 * we need only the numeric value after the id-
+	 *
+	 * @param \DOMElement $el
+	 * @return mixed null if not found | string numeric value
+	 */
+	public function getId(\DOMElement $el){
+		$a = $el->getElementsByTagName('id');
+		if(0 === $a->length){
+			return null;
+		}
+
+		$val = $a->item(0)->nodeValue;
+		$pos = \strrpos($val, '-');
+
+		return (!$pos) ? null : \trim(\substr($val, ($pos + 1)));
+	}
 }
