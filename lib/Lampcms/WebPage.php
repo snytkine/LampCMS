@@ -794,18 +794,15 @@ abstract class WebPage extends Base
 
 
 	/**
-	 * @todo we shoud probably use oDocGlobal for this
-	 * since calls to oPageDoc are passed via __call
-	 * to ownerDocument anyway
+	 * Adds (appends) value to last_js element of page
+	 *
+	 * @return object $this
 	 */
 	protected function addLastJs(){
-		d('cp');
 		if(!empty($this->lastJs)){
-			d('cp');
 			foreach ((array)$this->lastJs as $val) {
 				$this->aPageVars['last_js'] .= CRLF.sprintf('<script type="text/javascript" src="%s"></script>', $val);
 			}
-			d('cp');
 		}
 
 		return $this;
@@ -819,12 +816,36 @@ abstract class WebPage extends Base
 	 * @return object $this
 	 */
 	protected function addExtraCss(){
-		d('cp');
 		if(!empty($this->extraCss)){
-			d('cp');
+			d('got extra css to add');
 			foreach ((array)$this->extraCss as $val) {
 				$this->aPageVars['extra_css'] .= CRLF.sprintf('<link rel="stylesheet" type="text/css" href="%s">', $val);
 			}
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * If ENABLE_CODE_EDITOR is set to true
+	 * in !config.ini then
+	 * add additional 2 js and 1 css file to the page
+	 * This will enable the "Code Editor" and "Code highlighter"
+	 * widgets in the YUI Editor
+	 *
+	 * This method is called from 2 different controllers:
+	 * Ask and Viewquestion
+	 * That's why it's here in just one place - so it does
+	 * not have to be duplicated in each controller
+	 *
+	 * @return object $this
+	 */
+	protected function enableCodeEditor(){
+		if($this->oRegistry->Ini->ENABLE_CODE_EDITOR){
+			d('enabling code highlighter');
+			$this->lastJs = array('/js/min/shCoreMin.js', '/js/min/dsBrushes.js');
+			$this->extraCss = '/js/min/sh.css';	
 		}
 
 		return $this;
@@ -837,7 +858,6 @@ abstract class WebPage extends Base
 	 * @return object $this
 	 */
 	protected function addLoginBlock(){
-		d('cp');
 		if('logout' !== $this->oRequest['a']){
 			$this->aPageVars['header'] = LoginForm::makeWelcomeMenu($this->oRegistry);
 			d('cp');
@@ -903,7 +923,7 @@ abstract class WebPage extends Base
 			if(!($le instanceof AuthException)){
 				e('Exception caught in: '.$le->getFile().' on line: '.$le->getLine().' '.$le->getMessage());
 			}
-			
+
 			/**
 			 *
 			 * Exception::formatException will correctly
@@ -1055,7 +1075,6 @@ abstract class WebPage extends Base
 
 		define('STYLE_ID', $this->styleID);
 		define('VTEMPLATES_DIR', $this->tplDir);
-
 
 		return $this;
 	}

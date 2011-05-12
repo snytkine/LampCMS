@@ -97,10 +97,10 @@ class Askform extends WebPage
 	 * @see WebPage::main()
 	 */
 	protected function main(){
-		d('cp');
 		$this->aPageVars['title'] = $this->title = 'Ask a question';
 
 		$this->addMetas()
+		->enableCodeEditor()
 		->makeForm()
 		->setMustLogin()
 		->setForm()
@@ -109,7 +109,7 @@ class Askform extends WebPage
 		->makeHintBlocks();
 	}
 
-	
+
 	/**
 	 * Add extra meta tags to indicate
 	 * that user has or does not have

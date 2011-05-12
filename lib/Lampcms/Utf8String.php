@@ -865,8 +865,8 @@ class Utf8String extends String
 	 *
 	 * @return unknown_type
 	 */
-	public function tidy(array $aTidyConfig = array())
-	{
+	public function tidy(array $aTidyConfig = null){
+		$aTidyConfig = ($aTidyConfig) ? $aTidyConfig : array();
 		$ret = $this->string;
 		if($this->isHtml()){
 			if (function_exists('tidy_parse_string')) {
@@ -886,9 +886,10 @@ class Utf8String extends String
 
 				);
 
+				
 				$config = array_merge($aConfig, $aTidyConfig);
 
-				$oTidy = tidy_parse_string($this->string, $config, 'UTF8');
+				$oTidy = \tidy_parse_string($this->string, $config, 'UTF8');
 				$oTidy->cleanRepair();
 				$ret = (string)$oTidy;
 				d('after tidy: '.$ret);
@@ -1028,7 +1029,6 @@ class Utf8String extends String
 		}
 
 		return $this->handleReturn($ret);
-
 	}
 
 
@@ -1102,8 +1102,7 @@ class Utf8String extends String
 	 *
 	 * @return object of this type
 	 */
-	public function truncateHtml($intCut = 0, $strLink = '', $bUseTidy = true)
-	{
+	public function truncateHtml($intCut = 0, $strLink = '', $bUseTidy = true){
 
 		$strText = $this->string;
 
@@ -1346,6 +1345,7 @@ class Utf8String extends String
 
 	/**
 	 * UTF-8 safe strtoupper
+	 * 
 	 * (non-PHPdoc)
 	 * @see Lampcms.String::toUpperCase()
 	 */
@@ -1356,13 +1356,16 @@ class Utf8String extends String
 	}
 
 
+	/**
+	 * UTF-8 safe version of substr
+	 * 
+	 * (non-PHPdoc)
+	 * @see Lampcms.String::substr()
+	 */
 	public function substr($start, $len = null){
 		$s = \mb_substr($this->string, $start, $len);
 
 		return $this->handleReturn($s);
 	}
 
-
-
 }
-

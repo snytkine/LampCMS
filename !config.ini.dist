@@ -204,6 +204,12 @@ GFC_ID =
 ; to disable autocomplete
 ;
 DISABLE_AUTOCOMPLETE = false
+;
+; Add "Code editor" tools to RTE Editor
+; This is very useful for programming - related Q&A Sites
+; but totally unnecessary for non-programming sites,
+; so it's disabled by default
+ENABLE_CODE_EDITOR = false;
 
 [CAPTCHA]
 ; to disable captcha for any reason

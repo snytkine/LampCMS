@@ -60,27 +60,46 @@ use Lampcms\WebPage;
  * to edit question or answer
  * It creates the form object
  * and adds form to the page template
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
 class Edit extends WebPage
 {
-
+	/**
+	 * Name of collection that this resource
+	 * belongs to. This is either QUESTIONS or ANSWERS
+	 *
+	 * @var string
+	 */
 	protected $collection;
 
+	
+	/**
+	 * Resource being edited - either Question or Answer object
+	 * 
+	 * @var object 
+	 */
 	protected $oResource;
 
+	
+	/**
+	 * Form object
+	 * 
+	 * @var object
+	 */
 	protected $oForm;
 
 	protected function main(){
 
 		$this->getResource()
+		->enableCodeEditor()
 		->checkPermission()
 		->makeForm()
 		->setForm()
 		->setMemo();
 	}
+
 
 	/**
 	 * @todo translate string
@@ -104,8 +123,14 @@ class Edit extends WebPage
 	protected function makeForm(){
 		d('cp');
 		$this->oForm = new \Lampcms\Forms\Edit($this->oRegistry);
-		d('body: '.$this->oResource['b']);
-		$this->oForm->qbody = $this->oResource['b'];
+		$body = $this->oResource['b'];
+		
+		/**
+		 * <pre rel="codepreview" class="xml"> 
+		 */
+		d('body: '.$body);
+		$body = str_replace('rel="code"', 'alt="codepreview"', $body);
+		$this->oForm->qbody = $body;
 		$this->oForm->id = $this->oResource['_id'];
 		$this->oForm->rtype = $this->oRequest['rtype'];
 
@@ -116,7 +141,7 @@ class Edit extends WebPage
 			$this->oForm->id_title = $this->oResource['id_title'];
 			$minTitle = $this->oRegistry->Ini->MIN_TITLE_CHARS;
 			$this->oForm->addValidator('title', function($val) use ($minTitle){
-				
+
 				if(mb_strlen($val) < $minTitle){
 					$err = 'Title must contain at least %s letters';
 					return sprintf($err, $minTitle);

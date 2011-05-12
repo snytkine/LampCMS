@@ -166,13 +166,16 @@ class Viewquestion extends WebPage
 			Responder::sendJSON(array('paginated' => $this->answers));
 		}
 
+
+
 		$this->pageID = $this->oRegistry->Request->get('pageID', 'i', 1);
 		$this->tab = $this->oRegistry->Request->get('sort', 's', 'i_lm_ts');
 		$this->oRegistry->registerObservers();
-		
+
 		$this->getQuestion()
 		->addMetas()
 		->sendCacheHeaders()
+		->enableCodeEditor()
 		->setTitle()
 		->addMetaTags()
 		->setAnswersHeader()
@@ -191,7 +194,7 @@ class Viewquestion extends WebPage
 		$this->oRegistry->Dispatcher->post($this->oQuestion, 'onQuestionView');
 	}
 
-
+	
 	/**
 	 * Add extra meta tags to indicate
 	 * that user has or does not have

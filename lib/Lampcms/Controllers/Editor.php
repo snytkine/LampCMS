@@ -124,8 +124,7 @@ class Editor extends Edit
 	 *
 	 * Process submitted form values
 	 */
-	protected function process()
-	{
+	protected function process(){
 		$this->oRegistry->Dispatcher->post($this->oResource, 'onBeforeEdit');
 
 		$formVals = $this->oForm->getSubmittedValues();
@@ -173,8 +172,14 @@ class Editor extends Edit
 	 *
 	 */
 	protected function makeBody($body){
+		/**
+		 * Must pass array('drop-proprietary-attributes' => false)
+		 * otherwise tidy removes rel="code"
+		 */
+		$tidyConfig = ($this->oRegistry->Ini->ENABLE_CODE_EDITOR) ? array('drop-proprietary-attributes' => false) : null;
+		
 		$this->oBody = Utf8String::factory($body)
-		->tidy()
+		->tidy($tidyConfig)
 		->safeHtml()
 		->asHtml();
 

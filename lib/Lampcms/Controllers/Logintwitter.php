@@ -154,7 +154,7 @@ class Logintwitter extends WebPage
 		if(!extension_loaded('oauth')){
 			throw new \Lampcms\Exception('Unable to use Twitter API because OAuth extension is not available');
 		}
-		
+
 		/**
 		 * If user is logged in then this is
 		 * a request to connect Twitter Account
@@ -436,7 +436,7 @@ class Logintwitter extends WebPage
 			}
 			$trimmed = \trim($name);
 			$name = (!empty($trimmed)) ? \trim($name) : $aUser['username'];
-				
+
 			/**
 			 * This error message will appear inside the
 			 * Small extra browser Window that Login with Twitter
@@ -543,6 +543,9 @@ class Logintwitter extends WebPage
 		$this->oUser['oauth_token'] = $this->aUserData['oauth_token'];
 		$this->oUser['oauth_token_secret'] = $this->aUserData['oauth_token_secret'];
 		$this->oUser['twitter_uid'] = $this->aUserData['_id'];
+		if(!empty($this->aUserData['screen_name'])){
+			$this->oUser['twtr_username'] = $this->aUserData['screen_name'];
+		}
 
 		$avatarTwitter = $this->oUser['avatar_external'];
 		if(empty($avatarTwitter)){
@@ -633,9 +636,9 @@ class Logintwitter extends WebPage
 
 
 	/**
-	 * Return html that contains JS window.close 
+	 * Return html that contains JS window.close
 	 * code and nothing else
-	 * 
+	 *
 	 * @todo instead of just closing window
 	 * can show a small form with pre-populated
 	 * text to be posted to Twitter,

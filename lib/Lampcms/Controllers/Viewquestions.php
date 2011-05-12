@@ -214,9 +214,9 @@ class Viewquestions extends WebPage
 		 * Exclude deleted items unless viewer
 		 * is a moderator
 		 */
-		if(!$this->oRegistry->Viewer->isModerator()){
+		/*if(!$this->oRegistry->Viewer->isModerator()){
 			$where['i_del_ts'] = null;
-		}
+		}*/
 
 
 		/**
@@ -327,25 +327,8 @@ class Viewquestions extends WebPage
 		if($uid > 0){
 			$aUserTags = $this->oRegistry->Viewer['a_f_t'];
 			$showDeleted = $this->oRegistry->Viewer->isModerator();
-			/**
-			 * If viewer is moderator then
-			 * Viewer will also be seeing deleted items
-			 * in which case we should add 'deleted' class
-			 * to items
-			 *
-			 * @todo also may add special class 'watching'
-			 * if user is following this question
-			 * like a binonulars
-			 * for that need to check a_flwrs array
-			 * in question agains Viewer ID
-			 * But popular questions may have several numbreds of
-			 * followers. Will this make rendering of page slow?
-			 */
+
 			$func = function(&$a) use($uid, $aUserTags, $showDeleted){
-					
-				if($showDeleted && !empty($a['i_del_ts'])){
-					$a['deleted'] = ' deleted';
-				}
 
 				/**
 				 * @todo translate string
@@ -369,7 +352,6 @@ class Viewquestions extends WebPage
 					$a['following_tag'] = '  followed_tag';
 				}
 			};
-
 		}
 
 		$sQdivs = \tplQrecent::loop($this->oCursor, true, $func);
