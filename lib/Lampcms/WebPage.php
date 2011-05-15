@@ -256,8 +256,8 @@ abstract class WebPage extends Base
 	/**
 	 * Constructor
 	 * @return
-	 * @param array $aQ array or GET or POST params
-	 * @param string $strVirtual[optional]
+	 * @param object $oRegistry
+	 * @param object $oRequest
 	 */
 	public function __construct(Registry $oRegistry, Request $oRequest = null){
 
@@ -332,7 +332,7 @@ abstract class WebPage extends Base
 
 		if(empty($_SESSION['oViewer'])){
 			$_SESSION['oViewer'] = User::factory($this->oRegistry);
-			$_SESSION['oViewer']->setTimezone();
+			$_SESSION['oViewer']->setTime();
 			d('oViewer new: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1));
 			/**
 			 * Send referrer cookie if necessary
@@ -737,7 +737,7 @@ abstract class WebPage extends Base
 		d('SESSION oViewer is now of type '.$_SESSION['oViewer']->getClass().' hash: '.$_SESSION['oViewer']->hashCode().' new userHash: '.$_SESSION['oViewer']->hashCode());
 
 
-		$_SESSION['oViewer']->setTimezone();
+		$_SESSION['oViewer']->setTime();
 
 
 		/**

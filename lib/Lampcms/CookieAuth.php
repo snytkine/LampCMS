@@ -114,15 +114,13 @@ class CookieAuth extends UserAuth
 	 */
 	protected function getSidUser(){
 
-		$arrResult = $this->oRegistry->Mongo->getCollection('USERS')
-		->findOne(array('_id' => $this->uid));
+		$arrResult = $this->oRegistry->Mongo->USERS->findOne(array('_id' => $this->uid));
 
 		if (empty($arrResult)) {
 			d('user not found with id '.$this->uid);
 			$this->logLoginError($this->uid, $this->sid, false, null, 'cookie');
 
 			throw new CookieAuthException('no user by uid cookie');
-
 		}
 
 		return User::factory($this->oRegistry, $arrResult);
@@ -141,19 +139,19 @@ class CookieAuth extends UserAuth
 	 * in request
 	 */
 	protected function checkRequiredCookies(){
-		
+
 		if (!isset($_COOKIE) || empty($_COOKIE['uid']) || empty($_COOKIE['sid'])) {
 
 			throw new CookieAuthException('No uid or sid cookie');
 		}
 
-		$this->cookie = filter_input(INPUT_COOKIE, 'uid', FILTER_SANITIZE_STRING);
-		$this->sid = filter_input(INPUT_COOKIE, 'sid', FILTER_SANITIZE_STRING);
+		$this->cookie = \filter_input(INPUT_COOKIE, 'uid', FILTER_SANITIZE_STRING);
+		$this->sid = \filter_input(INPUT_COOKIE, 'sid', FILTER_SANITIZE_STRING);
 
 		return $this;
 	}
 
-	
+
 	/**
 	 * Parse the value of uid cookie and
 	 * it must become an array of uid=>intUserId
@@ -183,9 +181,9 @@ class CookieAuth extends UserAuth
 
 			throw new CookieAuthException('"uid" cookie is not numeric: '.$this->uid);
 		}
-		
+
 		/**
-		 * 
+		 *
 		 * Must cast to int because _id of user
 		 * in Mongo stored as integer
 		 * but must case after checking is_numeric
@@ -193,18 +191,17 @@ class CookieAuth extends UserAuth
 		 */
 		$this->uid = (int)$this->uid;
 
-		$salt = COOKIE_SALT;
+		$salt = (defined('MOCK_COOKIE_SALT')) ? constant('MOCK_COOKIE_SALT') : COOKIE_SALT;
 		d('cookie salt: '.$salt);
 
-		if($a['s'] !== hash('md5', $this->uid.$salt)){
+		if($a['s'] !== \hash('sha256', $this->uid.$salt)){
 			d('salted uid does not match uid');
 			$this->logLoginError($this->uid, '', false, null, 'cookie');
 
-			throw new CookieAuthException('"uid" cookie does not pass muster: '.$this->uid);
+			throw new CookieAuthException('"uid" cookie does not match: '.$this->uid);
 		}
 
 		return $this;
-
 	}
 
 
@@ -233,7 +230,7 @@ class CookieAuth extends UserAuth
 		 */
 		$timediff = (time() - 604800);
 
-		$cur = $this->oRegistry->Mongo->getCollection('LOGIN_ERROR')
+		$cur = $this->oRegistry->Mongo->LOGIN_ERROR
 		->find(array('i_ts' => array('$gt' => $timediff)))
 		->sort(array('i_ts' => -1));
 
@@ -260,7 +257,7 @@ class CookieAuth extends UserAuth
 	 * in order to pass validation
 	 */
 	protected function checkSidFormat(){
-		if(48 !== $len = strlen($this->sid)){
+		if(48 !== $len = \strlen($this->sid)){
 			d('invalid sid cookie length: '.$len);
 			$this->logLoginError($this->uid, $this->sid, false, null, true);
 
@@ -304,7 +301,7 @@ class CookieAuth extends UserAuth
 		$interval = ($now - 3600);
 		$wait = 1800;
 
-		$cur = $this->oRegistry->Mongo->getCollection('LOGIN_ERROR')
+		$cur = $this->oRegistry->Mongo->LOGIN_ERROR
 		->find(array('usr_lc' => $this->uid, 'i_ts' => array('$gt' => $interval)))
 		->sort(array('i_ts' => -1));
 
@@ -351,7 +348,7 @@ class CookieAuth extends UserAuth
 	 * or false if dont match
 	 */
 	protected function compareSids($stored){
-		
+
 		return ($stored === $this->sid);
 	}
 }

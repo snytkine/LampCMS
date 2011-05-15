@@ -162,18 +162,24 @@ POSTFIX_PATH = /usr/sbin/sendmail
 ; email address of developer. 
 ; Developer will be notified of php errors and various bad situations on the site //message@ptd.net
 EMAIL_DEVELOPER = "me@me.me"
-; email address of admin. Admin will also be notified on important events and errors
+; email address of admin. Required value!
+; Admin will also be notified on important events and errors
 EMAIL_ADMIN = "me@me.me"
 ;
-; emails to new registrations sent from this domain
+;
+; Emails to new registrations sent from this domain
+; Required value!
 EMAIL_DOMAIN = 
+;
+; SALT is Required value!
 ; Make sure to set the value of SALT to a random string of about 40 chars
 ; then write it down and store it like gold!
 ; and never change it again!
 ; if it's lost, you will not be able to authenticate
 ; any existing users - users will never be able to login!
 SALT = 'abcdefg';
-
+;
+; COOKIE_SALT is Required value
 ;Enter some random string BEFORE launching your site
 ;but DONT EVER CHANGE IT AFTER
 ;you launched your site, otherwise users will not be

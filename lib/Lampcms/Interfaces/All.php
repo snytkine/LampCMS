@@ -258,6 +258,9 @@ interface RoleInterface
 	 * @return string
 	 */
 	public function getRoleId();
+	
+		
+	public function setRoleId($role);
 }
 
 
@@ -729,6 +732,13 @@ interface Post extends LampcmsResource
 	public function getBody();
 }
 
+/**
+ * @todo 
+ * add setLastAnswerer()
+ * 
+ * @author admin
+ *
+ */
 interface Question extends Post
 {
 	/**

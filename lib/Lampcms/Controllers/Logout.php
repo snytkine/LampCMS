@@ -125,7 +125,7 @@ class Logout extends WebPage
 			if(!empty($GfcSiteID)){
 				$gfc = sprintf(self::GFC_SIGNOUT, $GfcSiteID);
 				$gfc = Responder::PAGE_OPEN.$gfc.Responder::PAGE_CLOSE;
-				e('sending out GFC Logout page: '.$gfc);
+				d('sending out GFC Logout page: '.$gfc);
 
 				$fcauthSession = 'fcauth'.$GfcSiteID.'-s';
 				 $fcauthRegular = 'fcauth'.$GfcSiteID;
@@ -138,7 +138,7 @@ class Logout extends WebPage
 		$aFB = $this->oRegistry->Ini->getSection('FACEBOOK');
 		if(!empty($aFB) && !empty($aFB['APP_ID'])){
 			$fb_cookie = 'fbs_'.$aFB['APP_ID'];
-			e('deleting Facebook cookie '.$fb_cookie.' len: '.strlen($fb_cookie));
+			d('deleting Facebook cookie '.$fb_cookie.' len: '.strlen($fb_cookie));
 			$aDelete[] = $fb_cookie;
 		}
 

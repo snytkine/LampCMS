@@ -90,15 +90,6 @@ Interfaces\BloggerUser
 
 	/**
 	 *
-	 * Store value of resolved isModerator() call
-	 * for memoization
-	 *
-	 * @var bool
-	 */
-	protected $bIsModerator;
-
-	/**
-	 *
 	 * Array of resolved permission values
 	 * used for memoization of the hasPermission() method
 	 * values are boolean, keys are permission name
@@ -200,15 +191,9 @@ Interfaces\BloggerUser
 	 * @return bool true if moderator, falst otherwise
 	 */
 	public function isModerator(){
+		$role = $this->getRoleId();
 
-		if(!isset($this->bIsModerator)){
-			$role = $this->getRoleId();
-
-			$this->bIsModerator = (('administrator' === $role) || strstr($role, 'moderator') );
-
-		}
-
-		return $this->bIsModerator;
+		return  (('administrator' === $role) || false !== (\strstr($role, 'moderator')) );
 	}
 
 
@@ -237,7 +222,7 @@ Interfaces\BloggerUser
 		 * we can have a string with just 2 spaces, which
 		 * is not considered empty.
 		 */
-		$ret = trim($ret);
+		$ret = \trim($ret);
 		if(!empty($ret)){
 			d('returning full name: '.$ret);
 
@@ -339,32 +324,6 @@ Interfaces\BloggerUser
 	}
 
 
-
-	/**
-	 * Returns array of this array merged with
-	 * array of profile.
-	 * The result is array of all fields from USERS and PROFILE table
-	 * for this user.
-	 *
-	 * This is convenient method to get array for editing of profile
-	 *
-	 * Important: it contains all columns from 2 tables, even those
-	 * that should not always be shown to other users or even
-	 * to this user, like data that user may not even be aware that we store
-	 * about him/her
-	 * So, be very carefull not to show all fields, use some sort of
-	 * custom filters.
-	 *
-	 * @todo change this to return profile
-	 *
-	 * @return unknown_type
-	 */
-	public function getFullProfileArray(){
-
-		return $this->getMerged($this->getProfile());
-	}
-
-
 	/**
 	 * Implements Zend_Acl_Role_Interface
 	 * (non-PHPdoc)
@@ -380,6 +339,39 @@ Interfaces\BloggerUser
 		$role = $this->offsetGet('role');
 
 		return (!empty($role)) ? $role : 'guest';
+	}
+
+
+	/**
+	 * Setter for 'role' key
+	 *
+	 * This setter validates the role name
+	 * to be one in the ACL file
+	 *
+	 * @param string $role
+	 */
+	public function setRoleId($role){
+		if(!\is_string($role)){
+			throw new \InvalidArgumentException('$role must be a string. was: '.gettype($role));
+		}
+		d('cp');
+		$a = $this->getRegistry()->Acl->getRegisteredRoles();
+		d('cp');
+		if(!\array_key_exists($role, $a)){
+			d('cp');
+			throw new \Lampcms\DevException('The $role name: '.$role.' is not one of the roles in the acl.ini file');
+		}
+		d('cp');
+
+		/**
+		 * IMPORTANT: do not make a mistake
+		 * of using $this->offsetSet()
+		 * because it will point back to
+		 * this function and start
+		 * an evil infinite loop untill we will
+		 * run out of memory
+		 */
+		parent::offsetSet('role', $role);
 	}
 
 
@@ -576,19 +568,61 @@ Interfaces\BloggerUser
 	public function hashCode(){
 		$a = $this->getArrayCopy();
 
-		return hash('md5', json_encode($a).$this->getClass().$this->bNewUser);
+		return \hash('md5', \json_encode($a).$this->getClass().$this->bNewUser);
 	}
 
 
-	public function setTimezone(){
-		$tz = $this->offsetGet('timezone');
+	/**
+	 * If user has valid value of 'tz'
+	 * then use it to set global time
+	 * This is the time that will be used
+	 * during the rest of the script execution
+	 *
+	 * @return object $this
+	 */
+	public function setTime(){
+		$tz = $this->offsetGet('tz');
 		if(!empty($tz)){
-			if (false === @date_default_timezone_set( $tz )) {
+			if (false === @\date_default_timezone_set( $tz )) {
 				d( 'Error: wrong value of timezone: '.$tz );
 			}
 		}
 
 		return $this;
+	}
+
+
+	/**
+	 * Setter for value of $tz (timezone)
+	 * it will first check to make
+	 * sure the $tz is a valid timezone name
+	 *
+	 * @param unknown_type $tz
+	 */
+	public function setTimezone($tz){
+		if(!\is_string($tz)){
+			throw new DevException('Param $tz must be string. Was: '.gettype($tz));
+		}
+
+		$currentTz = \date_default_timezone_get();
+		if (false !== @\date_default_timezone_set( $tz )) {
+			parent::offsetSet('tz', $tz);
+		}
+
+		@\date_default_timezone_set($currentTz);
+
+		return $this;
+	}
+
+
+	/**
+	 * Getter for value of 'tz' (timezone) value
+	 *
+	 * @return string valid value of Timezone name or string
+	 * if no value was previously set
+	 */
+	public function getTimezone(){
+		return $this->offsetGet('tz');
 	}
 
 
@@ -602,7 +636,7 @@ Interfaces\BloggerUser
 		$role = $this->offsetGet('role');
 
 		if(('unactivated' === $role) || ('unactivated_external' === $role)){
-			$this->offsetSet('role', 'registered');
+			$this->setRoleId('registered');
 		}
 
 		return $this;
@@ -628,10 +662,14 @@ Interfaces\BloggerUser
 	 * @return object $this
 	 */
 	public function setReputation($iPoints){
+		if(!\is_numeric($iPoints)){
+			throw new DevException('value of $iPoints must be numeric, was: '.$iPoints);
+		}
+
 		$iRep = $this->offsetGet('i_rep');
 		$iNew = max(1, ($iRep + (int)$iPoints));
 
-		$this->offsetSet('i_rep', $iNew);
+		parent::offsetSet('i_rep', $iNew);
 
 		return $this;
 	}
@@ -879,7 +917,7 @@ Interfaces\BloggerUser
 
 		return null;
 	}
-	
+
 
 	/**
 	 * (non-PHPdoc)
@@ -944,7 +982,7 @@ Interfaces\BloggerUser
 		return '';
 	}
 
-	
+
 	/**
 	 * Get array of all user's blogs
 	 * @return mixed array of at least one blog | null
@@ -1018,4 +1056,39 @@ Interfaces\BloggerUser
 		return $this;
 	}
 
+
+	/**
+	 * Some keys should not be set directly
+	 * but instead use proper setter methods
+	 *
+	 * @todo must go over all classes and see
+	 * which classes set values directly using
+	 * ->offsetSet or as assignment
+	 * and add some of the more important
+	 * keys here. For example: language, locale,
+	 * ,username(maybe), pwd(maybe), email,
+	 * timezone should go through validation
+	 *
+	 * (non-PHPdoc)
+	 * @see ArrayObject::offsetSet()
+	 */
+	public function offsetSet($index, $newval){
+		switch($index){
+			case 'role':
+				$this->setRoleId($newval);
+				break;
+
+			case 'i_rep':
+				throw new DevException('value of i_rep cannot be set directly. Use setReputation() method');
+				break;
+
+			case 'tz':
+			case 'timezone':
+				$this->setTimezone($newval);
+				break;
+
+			default:
+				parent::offsetSet($index, $newval);
+		}
+	}
 }

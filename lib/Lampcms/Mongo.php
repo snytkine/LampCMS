@@ -53,12 +53,19 @@
 namespace Lampcms;
 
 
+/**
+ * Wrapped class for working with
+ * php's MongoDB classes
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class Mongo extends LampcmsObject
 {
 
 	protected static $oMongo;
 
-	
+
 	/**
 	 * Mongo connection resource
 	 *
@@ -66,14 +73,14 @@ class Mongo extends LampcmsObject
 	 */
 	protected $conn;
 
-	
+
 	/**
 	 * Object MongoDB
 	 * @var object of type MongoDB
 	 */
 	protected $db;
 
-	
+
 	/**
 	 * Name of database
 	 *
@@ -81,7 +88,7 @@ class Mongo extends LampcmsObject
 	 */
 	protected $dbname;
 
-	
+
 	/**
 	 * Extra options used during insert and save
 	 * @var array
@@ -91,12 +98,22 @@ class Mongo extends LampcmsObject
 
 	public function __construct(Ini $oIni){
 
+		if(!\extension_loaded('mongo')){
+			exit('PHP mongo extension not loaded. Exiting');
+		}
+		
 		$aOptions = array('connect' => true);
 		$aConfig = $oIni->getSection('MONGO');
 		d('$aConfig: '.print_r($aConfig, 1));
 
 		$server = $aConfig['server'];
-		$this->dbname = $aConfig['db'];
+		/**
+		 * For Unit testing we define
+		 * MONGO_DBNAME to be LAMPCMS_TEST
+		 * so that actual database not used during testing
+		 * 
+		 */
+		$this->dbname = (defined('MONGO_DBNAME')) ? constant('MONGO_DBNAME') : $aConfig['db'];
 
 		try{
 			$this->conn = new \Mongo($server, $aOptions);
@@ -110,21 +127,51 @@ class Mongo extends LampcmsObject
 	}
 
 
+	/**
+	 * Getter for $this->dbname
+	 * @return string name of database used
+	 */
+	public function getDbName(){
+		return $this->dbname;
+	}
+
+
+	/**
+	 * Setter for $this->dbname
+	 *
+	 * @param string name Database name
+	 *
+	 * @return object $this
+	 * Enter description here ...
+	 *
+	 */
+	public function setDbName($name){
+
+		if(!is_string($name)){
+			throw new \InvalidArgumentException('$name must be a string. Was: '.gettype($name));
+		}
+		
+		$this->dbname = $name;
+
+		return $this;
+	}
+
+
 	public function __clone(){
 		throw new DevException('cloning Mongo object is not allowed');
 	}
 
-	
+
 	/**
 	 * By default pass methos to $this->db (MongoDatabase object)
-	 * @param unknown_type $method
-	 * @param unknown_type $args
+	 * @param string $method
+	 * @param array $args
 	 */
 	public function __call($method, $args){
-		return call_user_func_array(array($this->getDb(), $method), $args);
+		return \call_user_func_array(array($this->getDb(), $method), $args);
 	}
 
-	
+
 	/**
 	 * Insert array into MongoDB collection
 	 *
@@ -147,9 +194,9 @@ class Mongo extends LampcmsObject
 	public function insertData($collName, array $aValues, $option = true, $strErr2 = ''){
 		d('cp $option: '.var_export($option, true));
 
-		$collName = filter_var($collName, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
-		$collName = str_replace(';', '', $collName);
-		$collName = addslashes($collName);
+		$collName = \filter_var($collName, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
+		$collName = \str_replace(';', '', $collName);
+		$collName = \addslashes($collName);
 		/**
 		 * @todo for mongo we need to filter better
 		 * like only allow alphanumerical values for collection
@@ -174,12 +221,12 @@ class Mongo extends LampcmsObject
 
 	}
 
-	
+
 	/**
 	 * @todo this is dangerous!
 	 * it will replace record with arrValues and will not keep
 	 * any existing values
-	 * the correct method is to use $set operator
+	 * the better way would be to use $set operator
 	 * MUST make sure tha arrValues include new values AND CURRENT
 	 * values that don't have to change. For example, if you
 	 * only updating 'lastName', make sure arrValues also
@@ -188,18 +235,18 @@ class Mongo extends LampcmsObject
 	 *
 	 * @param string $collName
 	 * @param array $arrValues
-	 * @param unknown_type $whereCol
-	 * @param unknown_type $whereVal
-	 * @param unknown_type $strErr2
+	 * @param string $whereCol
+	 * @param string $whereVal
+	 * @param string $strErr2 can be passed to be included in logging
 	 */
 	public function updateCollection($collName, array $arrValues, $whereCol, $whereVal){
-		$strTableName = filter_var($collName, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
-		$strTableName = str_replace(';', '', $strTableName);
-		$strTableName = addslashes($strTableName);
+		$strTableName = \filter_var($collName, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
+		$strTableName = \str_replace(';', '', $strTableName);
+		$strTableName = \addslashes($strTableName);
 
-		$whereCol = filter_var($whereCol, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
-		$whereCol = str_replace(';', '', $whereCol);
-		$whereCol = addslashes($whereCol);
+		$whereCol = \filter_var($whereCol, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
+		$whereCol = \str_replace(';', '', $whereCol);
+		$whereCol = \addslashes($whereCol);
 
 		$ret = false;
 
@@ -214,7 +261,7 @@ class Mongo extends LampcmsObject
 		return $ret;
 	}
 
-	
+
 	/**
 	 * @todo unfinished
 	 * its supposed to save Serializable object in a special way: inside the
@@ -237,7 +284,7 @@ class Mongo extends LampcmsObject
 		return $this->conn->selectDB($this->dbname);
 	}
 
-	
+
 	/**
 	 * Return Mongo Collection object from default database
 	 * if you need to select collection from different database, then
@@ -251,7 +298,7 @@ class Mongo extends LampcmsObject
 		return $this->conn->selectCollection($this->dbname, $collName);
 	}
 
-	
+
 	/**
 	 * Magic getter to simplify selecting collection
 	 * Same as getCollection() but simpler code

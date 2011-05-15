@@ -72,7 +72,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 */
 	protected $oRegistry;
 
-	
+
 	/**
 	 * Checksum of array data
 	 *
@@ -80,7 +80,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 */
 	protected $md5 = null;
 
-	
+
 	/**
 	 * Flag indicates that data
 	 * has already been saved, usually
@@ -93,7 +93,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 */
 	protected $bSaved = false;
 
-	
+
 	/**
 	 * Name of table which holds
 	 * this row.
@@ -143,7 +143,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 */
 	protected static $aDefaults = array();
 
-	
+
 	/**
 	 * Array of fileds that should be ignored
 	 * when saving to DB (unset these before saving array)
@@ -151,7 +151,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 */
 	protected $aIgnore = array();
 
-	
+
 	/**
 	 * Minimal value for auto_increment
 	 *
@@ -161,14 +161,14 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 
 
 	/**
-	 * 
+	 *
 	 * Static factory method
 	 * @param Registry $oRegistry
 	 * @param string $collectionName
 	 * @param array $a
 	 * @param stirng $default fallback value for element
 	 * that does not exist in this ArrayObject
-	 * 
+	 *
 	 * @return object of this class OR class extending this class
 	 */
 	public static function factory(Registry $oRegistry, $collectionName = null, array $a = array(), $default = ''){
@@ -177,7 +177,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		return $o;
 	}
 
-	
+
 	/**
 	 * Constructor
 	 * @param array $a
@@ -193,13 +193,13 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		parent::__construct($a, $default);
 		$this->oRegistry = $oRegistry;
 		$this->collectionName = $collectionName;
-		$this->md5 = md5(serialize($a));
+		$this->md5 = \md5(\serialize($a));
 	}
 
 
 	/**
 	 * Setter for $this->minAutoIncrement
-	 * 
+	 *
 	 * @param mixed string|int $val if string then must
 	 * be numeric string
 	 */
@@ -209,7 +209,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		return $this;
 	}
 
-	
+
 	/**
 	 * Getter for $this->minAutoIncrement
 	 * @return int value of $this->minAutoIncrement
@@ -219,7 +219,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		return $this->minAutoIncrement;
 	}
 
-	
+
 	/**
 	 * It also enforces return type by casting
 	 * return value to int if key starts with 'i_'
@@ -240,11 +240,11 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 
 			case 'a_':
 				/**
-				 * 
+				 *
 				 * Casting empty string to array
 				 * produces array(0 => '')
 				 * which is not what we want.
-				 * for empty result we want 
+				 * for empty result we want
 				 * an empty array
 				 */
 				$ret = (empty($ret)) ? array() : (array)$ret;
@@ -261,7 +261,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		return $ret;
 	}
 
-	
+
 	/**
 	 * Internal getter of Registry object
 	 * We need this for when the object is unserialized
@@ -292,10 +292,10 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		return $this;
 	}
 
-	
+
 	/**
 	 * Setter for $this->collectionName
-	 * 
+	 *
 	 * @param string $name
 	 */
 	public function setCollectionName($name){
@@ -304,7 +304,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		return $this;
 	}
 
-	
+
 	/**
 	 * Use case:
 	 * class MongoComments {}
@@ -347,7 +347,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		return Registry::getInstance()->{'Mongo'.$collectionName}->$method($value);
 	}
 
-	
+
 	/**
 	 * Use case:
 	 * $o->byEmail('something@blank.com')->user_id;
@@ -379,10 +379,10 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		if(empty($a)){
 			throw new \MongoException('Unable to find data in collection '.$this->collectionName.' by '.$column.' = '.$value);
 		}
-		
+
 		if(!empty($a)){
 			d('got data a: '.print_r($a, 1));
-			
+
 			$this->reload($a);
 		}
 
@@ -398,7 +398,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		return $this->md5;
 	}
 
-	
+
 	/**
 	 * Getter for $this->collectionName
 	 * This will be used (among other cases)
@@ -412,15 +412,15 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		return $this->collectionName;
 	}
 
-	
+
 	/**
 	 * Replace the content of array with the new one
 	 * The new array, if not passed here will be
 	 * a result of a database select
-	 * based on tableName and columnID
+	 * based on collection name and columnID
 	 *
 	 * @param array $a
-	 * @return unknown_type
+	 * @return object $this
 	 */
 	public function reload(array $a = array()){
 		if(empty($a)){
@@ -462,12 +462,11 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 *
 	 * @return mixed
 	 */
-	public function delete()
-	{
+	public function delete(){
 
 	}
 
-	
+
 	/**
 	 * Sets the $this-md5 to the md5 checksum of array
 	 *
@@ -483,7 +482,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		return $this;
 	}
 
-	
+
 	/**
 	 * Saves array of data to
 	 * the database table
@@ -628,7 +627,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		$aData = $this->getArrayCopy();
 		$whereVal = $this->offsetGet($this->keyColumn);
 		try{
-			
+
 			$ret = $this->getRegistry()->Mongo->updateCollection($this->collectionName, $aData, $this->keyColumn, $whereVal, __METHOD__);
 		} catch (\Exception $e){
 			d('could not update MongoCollection $whereVal: '.$whereVal. ' $aData: '.print_r($aData, 1));
@@ -689,7 +688,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 
 	}
 
-	
+
 	/**
 	 * Set the this->bSaved flag to true
 	 * This will prevent the object from trying
@@ -703,7 +702,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		return $this;
 	}
 
-	
+
 	/**
 	 * Destructor causes
 	 * the save() to be called automatically
@@ -713,10 +712,10 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 */
 	public function __destruct(){
 		$a = $this->getArrayCopy();
-		if(!$this->bSaved && ($this->md5 !== md5(serialize($a))) && (!empty($a))){
+		if(!$this->bSaved && ($this->md5 !== \md5(\serialize($a))) && (!empty($a))){
 			d('Something was changed and not saved in table: '.$this->collectionName."\n".
-			'orig md5: '.$this->md5.' new md5: '.md5(serialize($a))."\n".
-			'new array: '.print_r($a, 1)."\n".
+			'orig md5: '.$this->md5.' new md5: '.\md5(\serialize($a))."\n".
+			'new array: '.\print_r($a, 1)."\n".
 			'object: '.$this->getClass()."\n".
 			'hashCode: '.$this->hashCode());
 
@@ -740,16 +739,23 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		if(isset(static::$aDefaults) && !empty(static::$aDefaults)){
 			$a = $this->getArrayCopy();
 
-			$a = array_merge($aDefaults, $a);
+			$a = \array_merge($aDefaults, $a);
 
 
-			$this->md5 = md5(serialize($a));
+			$this->md5 = \md5(\serialize($a));
 			$this->exchangeArray($a);
 		}
 
 		return $this;
 	}
 
+	/**
+	 * Getter for $this->bSaved
+	 * @return bool
+	 */
+	public function getSavedFlag(){
+		return $this->bSaved;
+	}
 
 	/**
 	 * (non-PHPdoc)

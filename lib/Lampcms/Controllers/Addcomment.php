@@ -54,7 +54,6 @@ namespace Lampcms\Controllers;
 
 use \Lampcms\Utf8String;
 use \Lampcms\WebPage;
-use \Lampcms\ReputationAcl;
 use \Lampcms\Request;
 use \Lampcms\Responder;
 use \Lampcms\CommentParser;
@@ -191,7 +190,7 @@ class Addcomment extends WebPage
 		if(
 		($this->oResource->getQuestionOwnerId() !== $viewerID) &&
 		($this->oResource->getOwnerId() !== $viewerID) &&
-		($this->oRegistry->Viewer->getReputation() < ReputationAcl::COMMENT)){
+		($this->oRegistry->Viewer->getReputation() < \Lampcms\Points::COMMENT)){
 			try{
 				$this->checkAccessPermission('comment');
 			} catch(\Exception $e){
@@ -206,7 +205,7 @@ class Addcomment extends WebPage
 				 */
 				if($e instanceof \Lampcms\AccessException){
 					
-					throw new \Lampcms\Exception('A minimum reputation score of '.ReputationAcl::COMMENT.
+					throw new \Lampcms\Exception('A minimum reputation score of '.\Lampcms\Points::COMMENT.
 					' is required to comment on someone else\'s question or answer. 
 					Your current reputation score is '.$this->oRegistry->Viewer->getReputation());
 				}else {

@@ -54,7 +54,6 @@ namespace Lampcms\Controllers;
 
 use \Lampcms\Utf8String;
 use \Lampcms\WebPage;
-use \Lampcms\ReputationAcl;
 use \Lampcms\TagsTokenizer;
 use \Lampcms\Request;
 use \Lampcms\Responder;
@@ -207,7 +206,7 @@ class Retag extends WebPage
 	protected function checkPermission(){
 
 		if(!\Lampcms\isOwner($this->oRegistry->Viewer, $this->oQuestion)
-		&& ($this->oRegistry->Viewer->getReputation() < ReputationAcl::RETAG)){
+		&& ($this->oRegistry->Viewer->getReputation() < \Lampcms\Points::RETAG)){
 
 			$this->checkAccessPermission('retag');
 		}

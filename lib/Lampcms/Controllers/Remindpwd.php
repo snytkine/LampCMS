@@ -151,8 +151,11 @@ associated with your account.</div>';
 	 * @return string page with html form
 	 * @param array $arrParams array of GET or POST params
 	 */
-	protected function main()
-	{
+	protected function main(){
+		/**
+		 * @todo Translate String
+		 * 
+		 */
 		$this->title = 'Password help';
 
 		$this->oForm = new \Lampcms\Forms\Pwd($this->oRegistry);
@@ -180,11 +183,10 @@ associated with your account.</div>';
 	 * and in case of false also sets form errors
 	 * so that user will see the form with errors
 	 */
-	protected function validateUser()
-	{
-		$this->login = strtolower($this->oForm->getSubmittedValue('login'));
+	protected function validateUser(){
+		$this->login = \mb_strtolower($this->oForm->getSubmittedValue('login'));
 		d('$this->login: '.$this->login);
-		if (false !== filter_var($this->login, FILTER_VALIDATE_EMAIL)){
+		if (false !== \filter_var($this->login, FILTER_VALIDATE_EMAIL)){
 			d('cp');
 			$this->byEmail = true;
 			$aEmail = $this->oRegistry->Mongo->EMAILS->findOne(array('email' => $this->login));
@@ -229,7 +231,7 @@ associated with your account.</div>';
 		 * But how would we do that? We would bacially activate
 		 * a user on first login.
 		 */
-		d('$aResult: '.print_r($aResult, 1));
+		d('$aResult: '.\print_r($aResult, 1));
 
 		/**
 		 * If username exists but email does not
@@ -267,8 +269,7 @@ associated with your account.</div>';
 	 * @throws LampcmsException in case a unique string
 	 * could not be generated
 	 */
-	protected function generateCode()
-	{
+	protected function generateCode(){
 		d('cp');
 		$counter = 0;
 		$done = false;
@@ -276,7 +277,7 @@ associated with your account.</div>';
 		do {
 			$counter++;
 			$aData = array();
-			$aData['_id'] = strtolower(\Lampcms\String::makeRandomString(12));
+			$aData['_id'] = \strtolower(\Lampcms\String::makeRandomString(12));
 			$aData['i_ts'] = time();
 			$aData['i_uid'] = $this->uid;
 				
@@ -318,8 +319,7 @@ associated with your account.</div>';
 	 *
 	 * @return object $this
 	 */
-	protected function emailCode()
-	{
+	protected function emailCode(){
 		$link = $this->oRegistry->Ini->SITE_URL.'/index.php?a=resetpwd&uid='.$this->uid.'&r='.$this->randomString;
 		$body = vsprintf(self::EMAIL_BODY, array($this->login, $this->oRegistry->Ini->SITE_NAME, $link));
 		$subject = sprintf(self::SUBJECT, $this->oRegistry->Ini->SITE_NAME);
@@ -330,4 +330,3 @@ associated with your account.</div>';
 	}
 
 }
-

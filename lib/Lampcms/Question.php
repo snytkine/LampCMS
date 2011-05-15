@@ -460,7 +460,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		$this->offsetSet('i_etag', $time);
 		if(!$etagOnly){
-			$this->offsetSet('i_lm_ts', time());
+			$this->offsetSet('i_lm_ts', $time);
 		}
 
 		return $this;
@@ -484,14 +484,14 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 *
 	 * @return object $this
 	 */
-	public function increaseViews($inc = 1){
+	public function increaseViews(\Lampcms\User $Viewer, $inc = 1){
 		/**
 		 * @todo Don't count question owner view
 		 * For this we must be able to get Viewer from Registry
 		 *
 		 * Filter out duplicate views
 		 */
-		$viewerId = $this->getRegistry()->Viewer->getUid();
+		$viewerId = $Viewer->getUid();
 
 		/**
 		 * If guest, then don't check for dups
@@ -872,6 +872,11 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	/**
 	 * Sets value of lp_u : a link to Last Poster profile
 	 * and lp_t a time of last post
+	 * 
+	 * @todo should make the last answerer an array
+	 * and then just push the value there
+	 * This way if answer is deleted we can just delete
+	 * that one element from array!
 	 *
 	 * @param User $oUser object of type User who made the last
 	 * Answer or Comment to this question

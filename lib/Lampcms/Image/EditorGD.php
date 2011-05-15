@@ -106,7 +106,7 @@ class EditorGD extends Editor
 	 * @return object $this
 	 */
 	public function loadImage($sPath){
-		throw new \Lampcms\ImageException( 'Unable to parse uploaded file. Unsupported image format or not an image');
+		
 		d('$sPath: '.$sPath);
 		if(false === $this->aOrigSize = @\getimagesize($sPath)){
 			throw new \Lampcms\ImageException( 'Unable to parse uploaded file. Possibly unsupported image format or not an image');

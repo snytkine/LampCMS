@@ -53,7 +53,7 @@
 
 namespace Lampcms\Modules\Tumblr;
 
-use \Lampcms\Points;
+
 
 /**
  * Class for posting Questions ans Answers
@@ -158,7 +158,7 @@ class PostTumblr extends \Lampcms\Observer
 				return;
 			}
 				
-			$reward = Points::SHARED_CONTENT;
+			$reward = \Lampcms\Points::SHARED_CONTENT;
 			$oResource = $this->obj;
 			$oAdapter = new TumblrPostAdapter($this->oRegistry);
 

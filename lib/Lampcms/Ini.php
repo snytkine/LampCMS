@@ -68,36 +68,31 @@ namespace Lampcms;
 class Ini extends LampcmsArray
 {
 
-	protected static $oIni = null;
+	public function __construct($iniFile = null){
+		$iniFile = (!empty($iniFile)) ? $iniFile : LAMPCMS_PATH.DIRECTORY_SEPARATOR.'!config.ini';
 
+		$aIni = \parse_ini_file($iniFile, true);
 
-	public function __construct()
-	{
-		$iniFile = LAMPCMS_PATH.DIRECTORY_SEPARATOR.'!config.ini';
-
-		$aIni = parse_ini_file($iniFile, true);
-
-		if ( empty ($aIni)) {
+		if ( empty($aIni)) {
 			throw new IniException('Unable to parse ini file: '.$iniFile.' probably a syntax error in file');
 		}
 
 		parent::__construct($aIni);
 	}
-
-
+	
+	
 	/**
-	 * Magic method to get
-	 * a value of config param
-	 * from ini array's CONSTANTS section
-	 *
-	 * @return string a value of $name
+	 * Get value of config var from
+	 * object
+	 * 
 	 * @param string $name
-	 * @throws LampcmsIniException if $name
-	 * does not exist as a key in this->aIni
-	 *
+	 * @throws IniException if CONSTANTS key
+	 * does not exist OR if var 
+	 * does not exist and is a required var
+	 * 
+	 * @return string value of $name
 	 */
-	public function __get($name)
-	{
+	public function getVar($name){
 		if (!$this->offsetExists('CONSTANTS')) {
 			throw new IniException('"CONSTANTS" section of ini file is missing');
 		}
@@ -109,7 +104,7 @@ class Ini extends LampcmsArray
 		 * to temp always ends with DIRECTORY_SEPARATOR
 		 * if TEMP_DIR not defined in !config.ini
 		 * then will use system's default temp dir
-		 * 
+		 *
 		 */
 		if ('TEMP_DIR' === $name) {
 			if (!empty($aConstants['TEMP_DIR'])) {
@@ -140,10 +135,10 @@ class Ini extends LampcmsArray
 		switch($name){
 			case 'SITE_URL':
 				if(empty($aConstants['SITE_URL'])){
-					throw new Exception('Value of SITE_URL in !config.inc file SHOULD NOT be empty!');
+					throw new IniException('Value of SITE_URL in !config.inc file SHOULD NOT be empty!');
 				}
 
-				$ret = rtrim($aConstants['SITE_URL'], '/');
+				$ret = \rtrim($aConstants['SITE_URL'], '/');
 				break;
 
 				/**
@@ -173,16 +168,16 @@ class Ini extends LampcmsArray
 			case 'IMG_SITE':
 			case 'JS_SITE':
 			case 'CSS_SITE':
-				$ret = (empty($aConstants[$name])) ? $this->__get('SITE_URL') : rtrim($aConstants[$name], '/');
+				$ret = (empty($aConstants[$name])) ? $this->__get('SITE_URL') : \rtrim($aConstants[$name], '/');
 				break;
 
 			case 'WWW_DIR':
 			case 'EMAIL_ADMIN':
 				if(empty($aConstants[$name])){
-					throw new Exception($name.' parametr in !config.inc file has not been set! Please make sure it is set');
+					throw new IniException($name.' param in !config.inc file has not been set! Please make sure it is set');
 				}
 
-				$ret = trim($aConstants[$name], "\"'");
+				$ret = \trim($aConstants[$name], "\"'");
 				break;
 
 			case 'LOG_FILE_PATH':
@@ -203,6 +198,31 @@ class Ini extends LampcmsArray
 
 
 	/**
+	 * Magic method to get
+	 * a value of config param
+	 * from ini array's CONSTANTS section
+	 * 
+	 * This is how other objects get values
+	 * from this object 
+	 * most of the times
+	 *
+	 * @return string a value of $name
+	 * @param string $name
+	 * @throws LampcmsIniException if $name
+	 * does not exist as a key in this->aIni
+	 *
+	 */
+	public function __get($name){
+		return $this->getVar($name);
+	}
+
+
+	public function __set($name, $val){
+		throw new IniException('Not allowed to set value this way');
+	}
+	
+	
+	/**
 	 *
 	 * @param string $name name of section in !config.ini file
 	 *
@@ -210,15 +230,37 @@ class Ini extends LampcmsArray
 	 * param => val of all params belonging to
 	 * one section in !config.ini file
 	 */
-	public function getSection($name)
-	{
+	public function getSection($name){
 		if(!$this->offsetExists($name)){
 			d('no section '.$name.' in config file');
-			
+
 			throw new IniException('Section '.$name.' does not exist in config');
 		}
 
 		return $this->offsetGet($name);
+	}
+
+
+
+	/**
+	 * Setter to set particular section
+	 * This is useful during unit testing
+	 * We can set the "MONGO" section with arrays
+	 * of out test database so that read/write
+	 * operations are performed only on test database
+	 * Also can set values of other sections like "TWITTER", "FACEBOOK",
+	 * "GRAVATAR" or any other section that we want to "mock" during test
+	 *
+	 * @param string $name name of section in !config.ini file
+	 *
+	 * @param array $val array of values for this section
+	 *
+	 * @return object $this
+	 */
+	public function setSection($name, array $val){
+		$this->offsetSet($name, $val);
+
+		return $this;
 	}
 
 
@@ -233,8 +275,7 @@ class Ini extends LampcmsArray
 	 *
 	 * @return array
 	 */
-	public function getSiteConfigArray()
-	{
+	public function getSiteConfigArray(){
 		$a = array();
 
 		if('' !== $albThum = $this->ALBUM_THUMB_SITE){
@@ -270,4 +311,3 @@ class Ini extends LampcmsArray
 	}
 
 }
-

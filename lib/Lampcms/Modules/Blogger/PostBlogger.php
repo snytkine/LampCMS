@@ -52,7 +52,7 @@
 
 namespace Lampcms\Modules\Blogger;
 
-use \Lampcms\Points;
+
 
 /**
  * Class for posting Questions ans Answers
@@ -160,7 +160,7 @@ class PostBlogger extends \Lampcms\Observer
 				return;
 			}
 			d('cp');
-			$reward = Points::SHARED_CONTENT;
+			$reward = \Lampcms\Points::SHARED_CONTENT;
 			$oResource = $this->obj;
 			d('cp');
 			$oAdapter = new BloggerPostAdapter($this->oRegistry);

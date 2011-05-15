@@ -55,7 +55,6 @@ namespace Lampcms\Modules\Observers;
 
 use \Lampcms\Utf8String;
 use \Lampcms\Facebook;
-use \Lampcms\Points;
 
 /**
  * This observer will post Question or Answer link
@@ -144,7 +143,7 @@ class PostFacebook extends \Lampcms\Observer
 	protected function post(){
 
 		try{
-			$reward = Points::SHARED_CONTENT;
+			$reward = \Lampcms\Points::SHARED_CONTENT;
 			$User = $this->oRegistry->Viewer;
 			$oFB = Facebook::factory($this->oRegistry);
 			$oResource = $this->obj;

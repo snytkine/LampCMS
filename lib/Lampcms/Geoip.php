@@ -443,7 +443,7 @@ class Geoip
 			if (!isset(self::$instances[$filename])) {
 				$flags = (null === $flags) ? self::SHARED_MEMORY : $flags;
 
-				if(!function_exists('shmop_open') && ($flags & self::SHARED_MEMORY)){
+				if(!\function_exists('shmop_open') && ($flags & self::SHARED_MEMORY)){
 
 					d('cannot use SHARED_MEMORY flag because shmop_open function not available. Must recompile php using  --enable-shmop in order to use this option');
 
@@ -471,7 +471,7 @@ class Geoip
 			if ($flags !== null) {
 				$this->flags = $flags;
 			}
-			if ( ($this->flags & self::SHARED_MEMORY) && (function_exists('shmop_open')) ) {
+			if ( ($this->flags & self::SHARED_MEMORY) && (\function_exists('shmop_open')) ) {
 				$this->shmid = @shmop_open(self::SHM_KEY, "a", 0, 0);
 				if ($this->shmid === false) {
 					$this->loadSharedMemory($filename);
@@ -493,8 +493,8 @@ class Geoip
 
 			$this->setupSegments();
 		}
-		
-		
+
+
 		/**
 		 * Loads the database file into shared memory.
 		 * @param string $filename Path to database file to read into shared memory.
@@ -521,7 +521,7 @@ class Geoip
 			\fclose($fp);
 		}
 
-		
+
 		/**
 		 * Parses the database file to determine what kind of database is being used and setup
 		 * segment sizes and start points that will be used by the seek*() methods later.
@@ -684,7 +684,7 @@ class Geoip
 				} elseif ($this->flags & self::SHARED_MEMORY) {
 					$buf = \shmop_read ($this->shmid, 2 * $this->recordLength * $offset, 2 * $this->recordLength );
 				} else {
-					if (fseek($this->filehandle, 2 * $this->recordLength * $offset, SEEK_SET) !== 0) {
+					if (\fseek($this->filehandle, 2 * $this->recordLength * $offset, SEEK_SET) !== 0) {
 						throw new Net_GeoIP_DB_Exception("fseek failed");
 					}
 					$buf = \fread($this->filehandle, 2 * $this->recordLength);
@@ -707,6 +707,7 @@ class Geoip
 					$offset = $x[0];
 				}
 			}
+
 			throw new Net_GeoIP_DB_Exception("Error traversing database - perhaps it is corrupt?");
 		}
 
@@ -824,7 +825,9 @@ class Geoip
 
 
 		/**
-		 * Seek and populate Net_GeoIP_Location object for converted IP addr.
+		 * Seek and populate
+		 * Net_GeoIP_Location object for converted IP addr.
+		 *
 		 * @return mixed object of type Net_GeoIP_Location | null
 		 */
 		protected function getRecord(){
@@ -860,7 +863,7 @@ class Geoip
 				$char = ord(substr($record_buf,$record_buf_pos+$str_length,1));
 			}
 			if ($str_length > 0){
-				$record->set('region', substr($record_buf,$record_buf_pos,$str_length));
+				$record->set('region', \substr($record_buf,$record_buf_pos,$str_length)) ;
 			}
 			$record_buf_pos += $str_length + 1;
 			$str_length = 0;
@@ -872,7 +875,7 @@ class Geoip
 				$char = ord(substr($record_buf,$record_buf_pos+$str_length,1));
 			}
 			if ($str_length > 0){
-				$record->set('city', substr($record_buf,$record_buf_pos,$str_length));
+				$record->set('city', \substr($record_buf,$record_buf_pos,$str_length) );
 			}
 			$record_buf_pos += $str_length + 1;
 			$str_length = 0;
@@ -884,7 +887,7 @@ class Geoip
 				$char = ord(substr($record_buf,$record_buf_pos+$str_length,1));
 			}
 			if ($str_length > 0){
-				$record->set('postalCode', substr($record_buf,$record_buf_pos,$str_length));
+				$record->set('postalCode', \substr($record_buf,$record_buf_pos,$str_length));
 			}
 			$record_buf_pos += $str_length + 1;
 			$str_length = 0;
@@ -908,7 +911,8 @@ class Geoip
 						$char = ord(substr($record_buf, $record_buf_pos++, 1));
 						$dmaarea_combo += ($char << ($j * 8));
 					}
-					$record->set('dmaCode', floor($dmaarea_combo/1000))
+
+					$record->set('dmaCode', \floor($dmaarea_combo/1000))
 					->set('areaCode', $dmaarea_combo%1000)
 					->set('longitude', ($longitude/10000) - 180)
 					->set('latitude', ($latitude/10000) - 180);
@@ -930,7 +934,7 @@ class Geoip
 		 * @throws Net_GeoIP_IP_Exception if $addr is an invalid ip address
 		 */
 		protected function validateIP($addr){
-			if(false === filter_var($addr, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)){
+			if(false === \filter_var($addr, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4)){
 				throw new Net_GeoIP_IP_Exception('invalid ip address: '.$addr);
 			}
 
@@ -1018,5 +1022,4 @@ class Geoip
 
 			return $objGeoData;
 		}
-
 }

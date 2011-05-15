@@ -56,11 +56,7 @@ namespace Lampcms;
  * Class for handling OUR Incoming HTTP Request
  * including headers and query string
  *
- * @todo this class looks a little confused and
- * unsure about itself.
- * Why not just extend ArrayDefaults and use default value of 1?
- *
- * @todo use some type of memoization. When value has been
+ * uses memoization. When value has been
  * filtered just put it into cache array so requests
  * for the same var will not have to go through
  * the same process of resolving  and filtering
@@ -153,13 +149,12 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 
 	/**
-	 * Singleton method
+	 * Factory method
 	 *
-	 * @param array $aRequired
+	 * @param array $aRequired array of required
+	 * params
 	 *
 	 * @return object of this class
-	 * @throws BadFunctionCallException if any of required
-	 * params are missing
 	 */
 	public static function factory(array $aRequired = array()){
 
@@ -228,7 +223,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 * Initial check to see if request contains
 	 * all required parameterns
 	 *
-	 * @throws BadFunctionCallException if at least
+	 * @throws LogicException if at least
 	 * one required param is missing
 	 *
 	 * @return object $this
@@ -237,7 +232,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		if(!empty($this->aRequired)){
 			foreach($this->aRequired as $var){
 				if(!$this->offsetExists($var)){
-					throw new \BadFunctionCallException('Missing required query param: '.$var);
+					throw new \LogicException('Missing required query param: '.$var);
 				}
 			}
 		}
@@ -432,7 +427,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 */
 	public static function getRequestMethod(){
 
-		return strtoupper($_SERVER['REQUEST_METHOD']);
+		return (isset($_SERVER) && !empty($_SERVER['REQUEST_METHOD'])) ? \strtoupper($_SERVER['REQUEST_METHOD']) : null;
 	}
 
 
@@ -444,13 +439,13 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 * if header not found
 	 */
 	public final static function getHttpHeader($strHeader){
-		
+
 		$strKey = 'HTTP_'.strtoupper(str_replace('-', '_', $strHeader));
 		if (!empty($_SERVER[$strKey])) {
 
 			return $_SERVER[$strKey];
 		}
-		
+
 		/**
 		 * Fix case of request header, this way the
 		 * param $strHeader is NOT case sensitive
@@ -513,7 +508,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 * @return string ip address
 	 */
 	public static function getIP(){
-		
+
 		return (isset($_SERVER) && !empty($_SERVER['REMOTE_ADDR'])) ? $_SERVER['REMOTE_ADDR'] : '127.0.0.2';
 	}
 
@@ -525,7 +520,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 *
 	 */
 	public static function getUserAgent(){
-		
+
 		$sUserAgent = (isset($_SERVER) && isset($_SERVER['HTTP_USER_AGENT'])) ? $_SERVER['HTTP_USER_AGENT'] : null;
 
 		return $sUserAgent;

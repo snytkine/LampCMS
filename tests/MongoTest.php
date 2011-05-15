@@ -49,27 +49,56 @@
  *
  */
 
- 
+
 namespace Lampcms;
+require_once 'bootstrap.php';
 
 /**
- * Constants or Actions
- * mapped to reputation score required
- * to perform this action
- * 
- * @author Dmitri Snytkine
+ * Run after RegistryTest
  *
  */
-class ReputationAcl
+class MongoTest extends LampcmsUnitTestCase
 {
-	
-	const RETAG = 500;
-	
-	const VOTE_UP = 15;
-	
-	const VOTE_DOWN = 125;
-	
-	const EDIT = 2000;
-	
-	const COMMENT = 25;
+	protected $COLLNAME = 'MY_MONGO_TEST_COLLECTION';
+
+	public function setUp(){
+		$this->oRegistry = new Registry();
+	}
+
+	public function testConstructor(){
+
+		$oMongo = new Mongo($this->oRegistry->Ini);
+		$this->assertEquals('LAMPCMS_TEST', $oMongo->getDbName());
+		$this->assertTrue($oMongo->getMongo() instanceof \Mongo);
+		$this->assertTrue($oMongo->getDb() instanceof \MongoDB);
+	}
+
+	/**
+	 *
+	 * @depends testConstructor
+	 */
+	public function testGetCollection(){
+		$oMongo = new Mongo($this->oRegistry->Ini);
+		$this->assertTrue($oMongo->getCollection($this->COLLNAME) instanceof \MongoCollection);
+	}
+
+	/**
+	 *
+	 * @depends testConstructor
+	 */
+	public function testGetCollectionMagic(){
+		$oMongo = new Mongo($this->oRegistry->Ini);
+		$this->assertTrue($oMongo->MY_TEST_COLLECTION instanceof \MongoCollection);
+	}
+
+	/**
+	 *
+	 * @depends testConstructor
+	 */
+	public function testInsertData(){
+		$aData = array('one' => 1, 'two' => 2);
+		$oMongo = new Mongo($this->oRegistry->Ini);
+		$res = $oMongo->insertData($this->COLLNAME, $aData);
+		$this->assertTrue($res instanceof \MongoId);
+	}
 }

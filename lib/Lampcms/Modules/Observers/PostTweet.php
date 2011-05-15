@@ -55,7 +55,7 @@ use \Lampcms\Utf8String;
 use \Lampcms\Twitter;
 use \Lampcms\Tweet;
 use \Lampcms\Bitly;
-use \Lampcms\Points;
+
 
 /**
  * This observer will post a tweet to Twitter API
@@ -152,7 +152,7 @@ class PostTweet extends \Lampcms\Observer
 	protected function tweet(){
 
 		try{
-			$reward = Points::SHARED_CONTENT;
+			$reward = \Lampcms\Points::SHARED_CONTENT;
 			$User = $this->oRegistry->Viewer;
 			$oTweet = new Tweet();
 			$oBitly = new Bitly($this->oRegistry->Ini->getSection('BITLY'));

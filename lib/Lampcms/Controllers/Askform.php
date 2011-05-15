@@ -132,7 +132,7 @@ class Askform extends WebPage
 	 * @return object $this
 	 */
 	protected function makeForm(){
-		d('cp');
+		
 		$this->oForm = new \Lampcms\Forms\Askform($this->oRegistry);
 		if(!$this->oForm->isSubmitted()){
 			$this->oForm->socials = SocialCheckboxes::get($this->oRegistry);
@@ -149,11 +149,11 @@ class Askform extends WebPage
 	 * @return object $this
 	 */
 	protected function setForm(){
-		$form = $this->oForm->getForm();
+		
 		/**
 		 * In case of Ajax can just return the form now
 		 */
-		$this->aPageVars['body'] = $form;
+		$this->aPageVars['body'] = $this->oForm->getForm();
 
 		return $this;
 	}
@@ -208,7 +208,7 @@ class Askform extends WebPage
 	 * @return object $this
 	 */
 	protected function setMustLogin(){
-		d('cp');
+		
 		if(!$this->isLoggedIn()){
 			$this->oForm->qbody = 'Please login to post your question';
 			$this->oForm->com_hand = ' com_hand';
@@ -225,7 +225,7 @@ class Askform extends WebPage
 				$this->oForm->connectBlock = '<div class="com_connect"><h3>Join with account you already have</h3>'.$socialButtons.'</div>';
 			}
 		}
-		d('cp');
+		
 		return $this;
 	}
 

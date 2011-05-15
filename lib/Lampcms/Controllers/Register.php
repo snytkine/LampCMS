@@ -200,7 +200,7 @@ You can change your password after you log in.
 	protected function getSubmittedValues(){
 		$this->username = $this->oForm->getSubmittedValue('username');;
 		$this->pwd = \Lampcms\String::makePasswd();
-		$this->email = strtolower($this->oForm->getSubmittedValue('email'));
+		$this->email = \mb_strtolower($this->oForm->getSubmittedValue('email'));
 
 		return $this;
 	}

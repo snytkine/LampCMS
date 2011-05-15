@@ -211,12 +211,10 @@ class Viewquestions extends WebPage
 		}
 
 		/**
-		 * Exclude deleted items unless viewer
-		 * is a moderator
+		 * Exclude deleted items
 		 */
-		/*if(!$this->oRegistry->Viewer->isModerator()){
-			$where['i_del_ts'] = null;
-		}*/
+		$where['i_del_ts'] = null;
+
 
 
 		/**
@@ -323,7 +321,7 @@ class Viewquestions extends WebPage
 		$uid = $this->oRegistry->Viewer->getUid();
 		d(' uid of viewer: '.$uid);
 		$func = null;
-		
+
 		if($uid > 0){
 			$aUserTags = $this->oRegistry->Viewer['a_f_t'];
 			$showDeleted = $this->oRegistry->Viewer->isModerator();

@@ -300,11 +300,9 @@ class Mailer extends LampcmsObject
 			if(function_exists('d')){
 				d('eEmails: '.print_r($aEmails, 1));
 			}
-
-				
 		}
 
-		$aEmails = array_unique($aEmails);
+		$aEmails = \array_unique($aEmails);
 		/**
 		 *
 		 * @todo if count($aEmails) > 100 then formMail,
@@ -360,8 +358,5 @@ class Mailer extends LampcmsObject
 	public function forkMail(array $aTo, $subject, $body){
 
 	}
-
-
-
 
 }

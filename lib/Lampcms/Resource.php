@@ -78,8 +78,7 @@ class Resource extends MongoDoc
 	 *
 	 * @return int value of new resource id
 	 */
-	public function create($type = null)
-	{
+	public function create($type = null){
 		if(null !== $type){
 
 			if( is_numeric($type) || !is_string($type)){

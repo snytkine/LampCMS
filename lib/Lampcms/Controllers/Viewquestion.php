@@ -64,7 +64,6 @@ use \Lampcms\Template\Urhere;
 use \Lampcms\Forms\Answerform;
 use \Lampcms\QuestionInfo;
 use \Lampcms\Responder;
-use \Lampcms\ReputationAcl;
 use \Lampcms\SocialCheckboxes;
 
 /**
@@ -259,7 +258,7 @@ class Viewquestion extends WebPage
 		$this->addMetaTag('qid', $this->oQuestion['_id']);
 		$this->addMetaTag('asker_id', $this->oQuestion->getOwnerId());
 		$this->addMetaTag('etag', $this->oQuestion['i_etag']);
-		$this->addMetaTag('min_com_rep', ReputationAcl::COMMENT);
+		$this->addMetaTag('min_com_rep', \Lampcms\Points::COMMENT);
 		$this->addMetaTag('comment', $this->oRegistry->Viewer->isAllowed('comment'));
 
 		return $this;
@@ -582,7 +581,7 @@ class Viewquestion extends WebPage
 	 *
 	 */
 	protected function increaseView(){
-		$this->oQuestion->increaseViews();
+		$this->oQuestion->increaseViews($this->oRegistry->Viewer);
 
 		return $this;
 	}

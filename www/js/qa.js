@@ -77,7 +77,19 @@
 /**
  * 
  */
-
+var oSL = {
+	Regform : function(){}/*,
+	$D : YAHOO.util.Dom,
+	$C : YAHOO.util.Dom.getElementsByClassName, //
+	$CONN : YAHOO.util.Connect, //
+	$ : YAHOO.util.Dom.get, //
+	$LANG : YAHOO.lang, //
+	$COOKIE : YAHOO.util.Cookie, //
+	$J : YAHOO.lang.JSON, //
+	$W : YAHOO.widget, //
+	$L : YAHOO.log //
+*/
+};
 var $Y = YAHOO, //
 $D = YAHOO.util.Dom, //
 $C = $D.getElementsByClassName, //
@@ -87,15 +99,14 @@ $LANG = YAHOO.lang, //
 $COOKIE = YAHOO.util.Cookie, //
 $J = YAHOO.lang.JSON, //
 $W = YAHOO.widget, //
-$L = YAHOO.log, //
+$L = YAHOO.log;//
+
 LampcmsException = function(message, exceptionName) {
 	this.message = message;
 	this.name = exceptionName || "LampcmsException";
 };
 
-oSL = {
-	Regform : function() {}
-};
+
 
 /**
  * This member handles the success response must determine what the result is

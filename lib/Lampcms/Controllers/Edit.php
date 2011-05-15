@@ -206,7 +206,7 @@ class Edit extends WebPage
 	 */
 	protected function checkPermission(){
 		if(!\Lampcms\isOwner($this->oRegistry->Viewer, $this->oResource)){
-			if(\Lampcms\ReputationAcl::EDIT > $this->oRegistry->Viewer->getReputation()){
+			if(\Lampcms\Points::EDIT > $this->oRegistry->Viewer->getReputation()){
 				$this->checkAccessPermission();
 			}
 		}

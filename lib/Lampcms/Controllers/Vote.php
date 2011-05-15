@@ -55,7 +55,7 @@ namespace Lampcms\Controllers;
 use \Lampcms\Responder;
 use \Lampcms\WebPage;
 use \Lampcms\Request;
-use \Lampcms\Points;
+
 
 /**
  * Controller for processing a vote
@@ -286,11 +286,11 @@ class Vote extends WebPage
 	 */
 	protected function calculatePoints(){
 		if('down' === $this->voteType){
-			$points = Points::DOWNVOTE;
+			$points = \Lampcms\Points::DOWNVOTE;
 		} elseif('QUESTION' === $this->resType){
-			$points = Points::UPVOTE_Q;
+			$points = \Lampcms\Points::UPVOTE_Q;
 		} else {
-			$points = Points::UPVOTE_A;
+			$points = \Lampcms\Points::UPVOTE_A;
 		}
 
 		$points = ($this->inc * $points);

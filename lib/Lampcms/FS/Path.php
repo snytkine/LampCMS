@@ -61,6 +61,7 @@ namespace Lampcms\FS;
  *
  */
 class Path{
+	
 	/**
 	 * It is used to verify or create the path of the file (using HEX logic)
 	 *
@@ -139,6 +140,5 @@ class Path{
 
 		return hexdec($hex);
 	}
-	
 	
 }

@@ -212,7 +212,7 @@ class Answerparser extends LampcmsObject
 		'i_qid' => $qid,
 		'i_uid' => $uid,
 		'i_quid' => $this->oQuestion->getOwnerId(),
-		'title' => $this->oQuestion->title,	
+		'title' => $this->oQuestion->getTitle(),	
 		'hash' => $hash,
 		'username' => $username,
 		'ulink' => '<a href="'.$this->oSubmittedAnswer->getUserObject()->getProfileUrl().'">'.$username.'</a>',

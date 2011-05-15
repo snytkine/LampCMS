@@ -146,9 +146,9 @@ const DIR_XXX = 'xxx';
  *
  */
 function runLater(\Closure $callable){
-	/*if(!is_callable($callable)){
+	if(!is_callable($callable)){
 		throw new Exception('param passed to runLater must be a callable function. Was: '.\gettype($callable));
-	}*/
+	}
 
 	register_shutdown_function($callable);
 	/*if(defined('NO_FFR')){
@@ -444,17 +444,16 @@ class LampcmsArray extends \ArrayObject implements \Serializable, Interfaces\Lam
 	 */
 	public function getMerged($arr){
 		if (is_array($arr)) {
-			return array_merge($this->getArrayCopy(), $arr);
-		} elseif (is_object($arr)) {
+			return \array_merge($this->getArrayCopy(), $arr);
+		} elseif (\is_object($arr)) {
 			if ($arr instanceof ArrayObject) {
-				return array_merge($this->getArrayCopy(), $arr->getArrayCopy());
+				return \array_merge($this->getArrayCopy(), $arr->getArrayCopy());
 			}
 
 			throw new \InvalidArgumentException('getMerged argumet object MUST be of type ArrayObject');
 		}
 
 		throw new \InvalidArgumentException('getMerged argument can only be array or object of type ArrayObject');
-
 	}
 
 
@@ -643,7 +642,7 @@ class ArrayDefaults extends LampcmsArray
 	 * @param string $default
 	 */
 	public function getFallbackLc($key, $default = null){
-		return $this->getFallback(\strtolower($key), $default);
+		return $this->getFallback(\mb_strtolower($key), $default);
 	}
 
 	

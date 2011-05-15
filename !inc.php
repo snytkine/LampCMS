@@ -49,8 +49,7 @@ if(function_exists('mb_internal_encoding')){
 	mb_internal_encoding("UTF-8");
 }
 
-function exception_handler($e)
-{
+function exception_handler($e){
 	//echo 'Eeeeee '.$e->getMessage()."\n<br>";
 	try {
 		$err =  Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
@@ -92,6 +91,17 @@ require $lampcmsClasses.'User.php'; // User is always used
 require $lampcmsClasses.'SplClassLoader.php';
 require $lampcmsClasses.'Registry.php';
 require $lampcmsClasses.'Template'.DIRECTORY_SEPARATOR.'Template.php';
+/**
+ * Points.php is in non-standard directory,
+ * in fact this file is not even included in distro
+ * User must rename Points.php.dist to Points.php
+ * That's why we should manually included it 
+ * because autoloader will not be able to find it.
+ * This file only contains a few constants - it's cheap
+ * to include it every time, and with APC cache it will
+ * be cached.
+ */
+require LAMPCMS_PATH.DIRECTORY_SEPARATOR.'Points.php';
 
 
 
@@ -156,59 +166,9 @@ function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
 }
 
 $old_error_handler = set_error_handler("LampcmsErrorHandler");
+// autoloader here
+require 'autoload.php';
 
-/**
- * Autoloader for vtemplates
- *
- * @param string $classname
- */
-function templateLoader($className){
-
-	//d('className: '.$className);
-
-	/**
-	 * This is important
-	 * This autoloader will be the first
-	 * one in the __autoload stack (we pass true as 3rd arg
-	 * to spl_autoload_register())
-	 *
-	 * Since this autoload can only
-	 * handle template files, any file
-	 * not starting with 'tpl' is not
-	 * the responsibility of this loader
-	 * and we must return false to save further
-	 * pointless processing.
-	 */
-	if(0 !== strpos($className, 'tpl') ){
-
-		return false;
-	}
-
-	$styleId = (defined('STYLE_ID')) ? STYLE_ID : '1';
-	$dir = (defined('VTEMPLATES_DIR')) ? VTEMPLATES_DIR : 'www';
-
-	$file = LAMPCMS_WWW_DIR.'style'.DIRECTORY_SEPARATOR.STYLE_ID.DIRECTORY_SEPARATOR.$dir.DIRECTORY_SEPARATOR.$className.'.php';
-	d('looking for template file : '.$file);
-
-	/**
-	 * Smart fallback to www dir
-	 * if template does not exist in mobile version
-	 * But if template file also does not exist in www
-	 * and in mobile dir, then it will raise an error
-	 * beause we using require this time instead in include  && ('www' !== $dir)
-	 */
-	if( ( false === include($file)) && ('www' !== $dir) ){
-		d('Unable to include template file '.$file.' looking if www dir');
-
-		require LAMPCMS_WWW_DIR.'style'.DIRECTORY_SEPARATOR.STYLE_ID.DIRECTORY_SEPARATOR.'www'.DIRECTORY_SEPARATOR.$className.'.php';
-	}
-
-	return true;
-}
-
-$oLoader = new Lampcms\SplClassLoader(null, $libDir);
-$oLoader->register();
-spl_autoload_register('templateLoader', false, true);
 $oRegistry = \Lampcms\Registry::getInstance();
 
 try{

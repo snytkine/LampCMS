@@ -59,6 +59,8 @@ namespace Lampcms;
  * to better handle timeout condition
  * and to throw specific exceptions
  * based on response codes
+ * 
+ * @deprecated
  *
  * @author Dmitri Snytkine <cms@lampcms.com>
  *

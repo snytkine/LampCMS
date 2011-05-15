@@ -606,7 +606,7 @@ class ExternalAuthFb extends Facebook
 		 * User language
 		 * @var string
 		 */
-		$lang = (!empty($this->aFbUserData['locale'])) ? strtolower(substr($this->aFbUserData['locale'], 0, 2)) : $this->oRegistry->getCurrentLang();
+		$lang = (!empty($this->aFbUserData['locale'])) ? \strtolower(\substr($this->aFbUserData['locale'], 0, 2)) : $this->oRegistry->getCurrentLang();
 
 
 		$this->tempPassword = String::makePasswd();
@@ -658,7 +658,7 @@ class ExternalAuthFb extends Facebook
 		'zip' => $oGeoData->postalCode);
 		d('aProfile: '.print_r($aProfile, 1));
 
-		$aUser = array_merge($aUser, $aProfile);
+		$aUser = \array_merge($aUser, $aProfile);
 
 		if(!empty($this->aFbUserData['locale'])){
 			$aUser['locale'] = $this->aFbUserData['locale'];

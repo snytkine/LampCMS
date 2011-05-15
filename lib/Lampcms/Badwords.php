@@ -110,6 +110,7 @@ class Badwords
 		return self::$aStopwords;
 	}
 
+	
 	public static function filter($string, $isBody = false){
 
 		$link = ($isBody) ? '<a href="#filtered"><sup>1</sup></a>' : '';
@@ -117,6 +118,7 @@ class Badwords
 		return str_ireplace(self::$aStopwords, '*****'.$link, $string);
 	}
 
+	
 	/**
 	 * Check to see if string contains any bad words
 	 *

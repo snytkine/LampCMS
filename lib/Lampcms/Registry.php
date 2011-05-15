@@ -101,7 +101,7 @@ class Registry implements Interfaces\LampcmsObject
 	 * parse it and load the injector via __set or asShared
 	 *
 	 */
-	protected function __construct(){
+	public function __construct(){
 		$this->init();
 	}
 
@@ -151,7 +151,7 @@ class Registry implements Interfaces\LampcmsObject
 		});
 
 		$this->values['Mongo'] = $this->asShared(function ($c) {
-			return new Mongo($c->Ini);
+			return new \Lampcms\Mongo($c->Ini);
 		});
 
 
@@ -160,11 +160,11 @@ class Registry implements Interfaces\LampcmsObject
 		});
 
 		$this->values['Incrementor'] = $this->asShared(function ($c) {
-			return new MongoIncrementor($c->Mongo);
+			return new \Lampcms\MongoIncrementor($c->Mongo);
 		});
 
 		$this->values['Cache'] = $this->asShared(function ($c) {
-			return new Cache($c);
+			return new \Lampcms\Cache($c);
 		});
 
 
@@ -176,19 +176,18 @@ class Registry implements Interfaces\LampcmsObject
 			return new \Lampcms\Acl\Acl();
 		});
 
-
 		/**
 		 * Our main default EventDispatcher
 		 * singleton pattern
 		 *
 		 */
 		$this->values['Dispatcher'] = $this->asShared(function ($c) {
-			return new Event\Dispatcher();
+			return new \Lampcms\Event\Dispatcher();
 		});
 
 
 		/**
-		 * Resource object is not singleton
+		 * MongoDoc object is not singleton
 		 * we want new instance every time
 		 * It will inject $this as dependency
 		 */
@@ -210,6 +209,33 @@ class Registry implements Interfaces\LampcmsObject
 	}
 
 
+	/**
+	 * Singleton pattern method
+	 * 
+	 * Singleton is bad practice
+	 * We never rely on this method to get
+	 * this object -this object is always passed around
+	 * to constructors of other objects that need it,
+	 * except for one specific case - when
+	 * object that needs a registry is stored
+	 * in cache - it is serialized and when it
+	 * is unserialized we need to get instance of
+	 * Registry that is currently used by other 
+	 * objects - it MUST be the same instance
+	 * 
+	 * That's why we must initially instantiate 
+	 * this object using this method so later
+	 * any object can call Registry::getInstance() 
+	 * from unserialize() method and get the same object
+	 * 
+	 * There is just no other way around it - no other
+	 * way to "wake up" serialized object and just give it
+	 * the same Registry object as already used by the rest
+	 * of the program.
+	 * 
+	 * @return object instance of this class
+	 * 
+	 */
 	public static function getInstance(){
 		if(!isset(self::$instance)){
 			self::$instance = new self();
@@ -221,7 +247,8 @@ class Registry implements Interfaces\LampcmsObject
 
 	/**
 	 * Cannot call this from constructor
-	 * because this object instantiated before
+	 * of this class
+	 * because this class instantiates before
 	 * any autoloaders are defined.
 	 *
 	 * We cannot just use class names without the
@@ -235,9 +262,8 @@ class Registry implements Interfaces\LampcmsObject
 		$aObservers = $this->__get('Ini')->getSection($section);
 
 		if(!empty($aObservers)){
-			foreach($aObservers as $key => $className){
-				//$observer = new $className($this);
-				$this->__get('Dispatcher')->attach($className::factory($this));
+			foreach($aObservers as $key => $serviceName){
+				$this->__get('Dispatcher')->attach($serviceName::factory($this));
 			}
 		}
 
@@ -245,40 +271,113 @@ class Registry implements Interfaces\LampcmsObject
 	}
 
 
+	/**
+	 * Magic method allows testing that
+	 * value exists in $values array
+	 * by simply using empty()
+	 * for example if(empty($Registry->Viewer)
+	 *
+	 * @param string $var name of var to test for
+	 */
+	public function __isset($var){
 
-	public function __set($id, $value) {
-		$this->values[$id] = $value;
+		$val = $this->__get($var);
+
+		return (!empty($val));
 	}
 
 
-	public function __get($id) {
+	/**
+	 * Method allows to unset value from
+	 * $values array
+	 * for example unset($Registry['Viewer'])
+	 *
+	 * IMPORTANT - calling this method either
+	 * directly or as \unset($Registry->somekey)
+	 * will unset the method for instantiating object.
+	 * This means that if actual object has already been created
+	 * and returned and has pointers to that object
+	 * then that object is alive as long as some
+	 * references point to it. Only the method
+	 * for instantiating it is destroyed!
+	 * 
+	 * But any subsequent call to $Registry->someobject
+	 * will return null!
+	 * 
+	 * Example:
+	 * $obj = $Registry->Ini;
+	 * unset($Registry->Ini);
+	 * The $obj is still alive!
+	 * 
+	 * But $obj2 = $Registry->Ini; will return null
+	 *
+	 * @param string $var
+	 */
+	public function __unset($var){
+		if(\array_key_exists($var, $this->values)){
+			unset($this->values[$var]);
+		}
+	}
 
-		if('Mongo' === substr($id, 0, 5) && (strlen($id) > 5) ){
-			$collName = strtoupper(substr($id, 5));
+
+	/**
+	 * Magic method that allows to add any
+	 * $var => $val pair to this object
+	 *
+	 * @param string $var
+	 * 
+	 * @param mixed $value
+	 */
+	public function __set($var, $value) {
+		$this->values[$var] = $value;
+	}
+
+
+	/**
+	 * Magic getter
+	 * 
+	 * @param string $service
+	 * 
+	 * @return mixed null | object requested object
+	 * 
+	 */
+	public function __get($service) {
+
+		if('Mongo' === \substr($service, 0, 5) && (strlen($service) > 5) ){
+			$collName = \strtoupper(substr($service, 5));
 			$o = $this->values['MongoDoc']($this);
 			$o->setCollectionName($collName);
 
 			return $o;
 		}
 
-		if (!isset($this->values[$id])){
-			d(sprintf('Value "%s" is not defined.', $id));
+		if (!isset($this->values[$service])){
+			d(\sprintf('Value "%s" is not defined.', $service));
 
 			return null;
 		}
 
-		if (is_callable($this->values[$id])) {
-			return $this->values[$id]($this);
+		if (\is_callable($this->values[$service])) {
+			return $this->values[$service]($this);
 		} else {
-			return $this->values[$id];
+			return $this->values[$service];
 		}
 	}
 
 
-	function asShared($callable) {
+	/**
+	 * Method for adding function
+	 * that will be used for creating object
+	 * Function can make use of one param $c
+	 * which will be replaced with instance of this object
+	 * when it's called
+	 * 
+	 * @param function $callable
+	 */
+	public function asShared($callable) {
 		return function ($c) use ($callable) {
 			static $object;
-			if (is_null($object)) {
+			if (\is_null($object)) {
 				$object = $callable($c);
 			}
 
@@ -317,7 +416,7 @@ class Registry implements Interfaces\LampcmsObject
 		 * @var unknown_type
 		 */
 		$oViewer = $this->__get('Viewer');
-		if(!$oViewer->isGuest()){
+		if(is_object($oViewer) && !$oViewer->isGuest()){
 
 			return $oViewer->offsetGet('lang');
 		}
@@ -356,7 +455,7 @@ class Registry implements Interfaces\LampcmsObject
 	 * @return string
 	 */
 	public function hashCode(){
-		return spl_object_hash($this);
+		return \spl_object_hash($this);
 	}
 
 
@@ -365,7 +464,7 @@ class Registry implements Interfaces\LampcmsObject
 	 * @return string the class name of this object
 	 */
 	public function getClass(){
-		return get_class($this);
+		return \get_class($this);
 	}
 
 
@@ -377,4 +476,3 @@ class Registry implements Interfaces\LampcmsObject
 		return 'object of type: '.$this->getClass().' hashCode: '.$this->hashCode();
 	}
 }
-

@@ -94,8 +94,7 @@ You can also change your password after you log in.
 	 */
 	protected $newPwd;
 
-	protected function main()
-	{
+	protected function main(){
 
 		d('$this->newPwd: '.$this->newPwd);
 
@@ -107,7 +106,6 @@ You can also change your password after you log in.
 
 		$this->aPageVars['title'] = 'Password reset';
 		$this->aPageVars['body'] = '<div class="frm1">'.sprintf(self::TPL_SUCCESS, $this->email).'</div>';
-
 	}
 
 
@@ -134,8 +132,7 @@ You can also change your password after you log in.
 		$salted = String::hashPassword($this->newPwd);
 		$newdata = array('$set' => array("pwd" => $salted));
 
-		$this->oRegistry->Mongo->getCollection('USERS')
-		->update(array('_id' => (int)$this->oRequest['uid']), $newdata);
+		$this->oRegistry->Mongo->USERS->update(array('_id' => (int)$this->oRequest['uid']), $newdata);
 
 		return $this;
 	}
@@ -162,12 +159,11 @@ You can also change your password after you log in.
 	 * supplied code is invalid OR older than 24 hours
 	 *
 	 */
-	protected function validateCode()
-	{
+	protected function validateCode(){
 		$timeOffset = (time() - 86500);
 		$uid = (int)$this->oRequest['uid'];
 
-		$aResult = $this->oRegistry->Mongo->getCollection('PASSWORD_CHANGE')
+		$aResult = $this->oRegistry->Mongo->PASSWORD_CHANGE
 		->findOne(array('_id' => $this->oRequest['r'], 'i_uid' => $uid));
 
 		d('$aResult '.print_r($aResult, true));
@@ -176,7 +172,7 @@ You can also change your password after you log in.
 
 			$this->saveFailedAttempt()->oRegistry->Dispatcher->post($this, 'onFailedPasswordReset');
 
-			throw new \Lampcms\Exception('wrong_password_reset_code');
+			throw new \Lampcms\Exception('wrong password reset code');
 		}
 
 
@@ -193,7 +189,7 @@ You can also change your password after you log in.
 			throw new \Lampcms\Exception('This password reset link was already used on '.date('r', $aResult['i_used'] ));
 		}
 
-		$aVal = $this->oRegistry->Mongo->getCollection('USERS')
+		$aVal = $this->oRegistry->Mongo->USERS
 		->findOne(array('_id' => (int)$aResult['i_uid']));
 
 		$this->username = $aVal['username'];
@@ -201,7 +197,6 @@ You can also change your password after you log in.
 		$this->markCodeUsed();
 
 		return $this;
-
 	}
 
 
@@ -215,11 +210,10 @@ You can also change your password after you log in.
 	 *
 	 * @return object $this
 	 */
-	protected function markCodeUsed()
-	{
+	protected function markCodeUsed(){
 		$newdata = array('$set' => array( 'i_used' => time()));
 
-		$this->oRegistry->Mongo->getCollection('PASSWORD_CHANGE')
+		$this->oRegistry->Mongo->PASSWORD_CHANGE
 		->update(array('_id' => $this->oRequest['r']), $newdata);
 
 		return $this;
@@ -232,8 +226,7 @@ You can also change your password after you log in.
 	 *
 	 * @return object $this
 	 */
-	protected function saveFailedAttempt()
-	{
+	protected function saveFailedAttempt(){
 		$ip = Request::getIP();
 
 		$aData = array(
@@ -262,13 +255,12 @@ You can also change your password after you log in.
 	 *
 	 * @return object $this
 	 */
-	protected function checkHacks()
-	{
+	protected function checkHacks(){
 		$ipHacks = 0;
 		$uidHacks = 0;
 
 		$timeOffset = time() - 86400;
-		$cur = $this->oRegistry->Mongo->getCollection('PASSWORD_CHANGE')
+		$cur = $this->oRegistry->Mongo->PASSWORD_CHANGE
 		->find(array('i_ts' > $timeOffset));
 
 		if($cur && ($cur->count(true) > 0) ){
@@ -302,8 +294,7 @@ You can also change your password after you log in.
 	 * Send out the new password to user
 	 *
 	 */
-	protected function emailPwd()
-	{
+	protected function emailPwd(){
 		$body = vsprintf(self::EMAIL_BODY, array($this->oRegistry->Ini->SITE_NAME, $this->username, $this->newPwd));
 		$subject = sprintf(self::SUBJECT, $this->oRegistry->Ini->SITE_NAME);
 
@@ -311,6 +302,5 @@ You can also change your password after you log in.
 
 		return $this;
 	}
-
 
 }

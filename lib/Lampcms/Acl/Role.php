@@ -34,8 +34,7 @@ class Role implements RoleInterface
 	 * @param  string $id
 	 * @return void
 	 */
-	public function __construct($roleId)
-	{
+	public function __construct($roleId){
 		$this->_roleId = (string)$roleId;
 	}
 
@@ -44,9 +43,20 @@ class Role implements RoleInterface
 	 *
 	 * @return string
 	 */
-	public function getRoleId()
-	{
+	public function getRoleId(){
 		return $this->_roleId;
+	}
+	
+	/**
+	 * This method was not originally in
+	 * Zend_Acl library
+	 * Added by Dmitri Snytkine specifically for
+	 * Lampcms project
+	 * (non-PHPdoc)
+	 * @see Lampcms\Interfaces.RoleInterface::setRoleId()
+	 */
+	public function setRoleId($role){
+		$this->_roleId = $role;
 	}
 
 }
