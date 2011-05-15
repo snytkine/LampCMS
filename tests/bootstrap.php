@@ -64,17 +64,40 @@ define('COOKIE_DOMAIN', '' );
 define('SITE_URL', '' );
 define('IMAGE_SITE', 'http://img.lampcms.com');
 define('AVATAR_IMG_SITE', 'http://img.lampcms.com');
+/**
+ * This is very important!
+ * Use test database!
+ * If this step if overlooked then
+ * the actual database will be used during
+ * test, and can override some actual data!
+ * There is a safeguard in place to prevent
+ * from dropping the actual databse during test
+ * but there is no safeguared for accidentally
+ * overriding actual data here and there
+ */
+define('MONGO_DBNAME', 'LAMPCMS_TEST');
 
-if(!defined('MONGO_DBNAME')){
-	define('MONGO_DBNAME', 'LAMPCMS_TEST');
-}
 
 /**
  * LAMPCMS_PATH may be defined
  * in Eclipse in External Tools Configuration
  * > Enviromnent just add LAMPCMS_PATH and
  * point value to the root dir of your project
+ * This is my value: C:\eclipse\workspace\QA
  * ..
+ * 
+ * To Run individual tests in Eclipse set 
+ * External Tools Configuration > Working Directory 
+ * to location of this dir (/tests), this is my config:
+ * ${workspace_loc:/QA/tests}
+ * 
+ * To run test suite it's different, I setup second "External Tool"
+ * called it TestSuite
+ * and there I don't have Environment variable at all,
+ * and the Working directory is pointed to
+ * ${workspace_loc:/QA}
+ * The phpunit.xml file is located there so phpunit
+ * picks it up and takes it from there
  * @var string
  */
 $path = getenv('LAMPCMS_PATH');
@@ -83,7 +106,6 @@ if(!defined('LAMPCMS_PATH')){
 		define('LAMPCMS_PATH', $path);
 	} else {
 		define('LAMPCMS_PATH', './'); // this looks wrong maybe? Why path is this dir?
-		echo ' LAMPCMS PATH: '.LAMPCMS_PATH;
 	}
 }
 define('LAMPCMS_WWW_DIR', LAMPCMS_PATH.DIRECTORY_SEPARATOR.'www'.DIRECTORY_SEPARATOR);
