@@ -205,13 +205,22 @@ class Utf8String extends String
 	 * @return string name of charset
 	 */
 	public static function guessCharset($string, $charsetHint = ''){
+
+		if(!\function_exists('mb_detect_encoding') ){
+
+			throw new \RuntimeException('Unable to detect charset encoding because mbstring extension is not available and a string is not in UTF-8');
+		}
+		
 		$cs = false;
 		$charsetHint = strtoupper($charsetHint);
-		$charsetHint = ('US-ASCII' === $charsetHint) ? 'ASCII' : $charsetHint;
-		$charsetHint = ('LATIN1' === $charsetHint) ? 'ISO-8859-1' : $charsetHint;
-		$charsetHint = ('LATIN-1' === $charsetHint) ? 'ISO-8859-1' : $charsetHint;
+		if('US-ASCII' === $charsetHint){
+			$charsetHint = 'ASCII';
+		} elseif(('LATIN1' === $charsetHint) || ('LATIN-1' === $charsetHint)){
+			$charsetHint = 'ISO-8859-1';
+		}
 
-		$aDetectOrder = array('ASCII', 'UTF-8','ISO-8859-1', 'JIS', 'ISO-8859-15', 'EUC-JP', 'SJIS' );
+		// UTF-8 Must be before ISO-8859-1, ASCII MUST be before UTF-8
+		$aDetectOrder = array('ASCII', 'Windows-1251', 'CP1251', 'CP1252', 'KOI8-R', 'JIS', 'EUC-CN', 'EUC-TW', 'EUC-JP', 'SJIS', 'UTF-8', 'ISO-8859-1', 'ISO-8859-15');
 
 		/**
 		 * Charset hint is useless to us
@@ -219,20 +228,16 @@ class Utf8String extends String
 		 * it's only usefull if we can't detect it
 		 * using mb_detect_encoding
 		 */
-		if(in_array($charsetHint, $aDetectOrder)){
+		if(\in_array($charsetHint, $aDetectOrder)){
 			$charsetHint = null;
 		}
 
-		if(!function_exists('mb_detect_encoding') ){
 
-			throw new \RuntimeException('Unable to detect charset encoding because mbstring extension is not available and a string is not in UTF-8');
-		}
-
-		if(false === mb_detect_order($aDetectOrder)){
+		if(false === \mb_detect_order($aDetectOrder)){
 			throw new \RuntimeException('Unable to set charset detect order');
 		}
 
-		$cs = mb_detect_encoding($string);
+		$cs = \mb_detect_encoding($string, $aDetectOrder, true);
 		d('guessed charset: '.$cs);
 		$cs = (false === $cs) ? $charsetHint : $cs;
 
@@ -326,7 +331,7 @@ class Utf8String extends String
 	 */
 	public static function validateUtf8($utf8string){
 
-		if ( 0 === strlen($utf8string)) {
+		if ( 0 === \strlen($utf8string)) {
 
 			return true;
 		}
@@ -871,7 +876,7 @@ class Utf8String extends String
 		if($this->isHtml()){
 			if (function_exists('tidy_parse_string')) {
 				d('going to use tidy_parse_string');
-				
+
 				$aConfig = array(
                      'clean' => true,
                      'output-html' => true,
@@ -886,7 +891,7 @@ class Utf8String extends String
 
 				);
 
-				
+
 				$config = array_merge($aConfig, $aTidyConfig);
 
 				$oTidy = \tidy_parse_string($this->string, $config, 'UTF8');
@@ -1345,7 +1350,7 @@ class Utf8String extends String
 
 	/**
 	 * UTF-8 safe strtoupper
-	 * 
+	 *
 	 * (non-PHPdoc)
 	 * @see Lampcms.String::toUpperCase()
 	 */
@@ -1358,7 +1363,7 @@ class Utf8String extends String
 
 	/**
 	 * UTF-8 safe version of substr
-	 * 
+	 *
 	 * (non-PHPdoc)
 	 * @see Lampcms.String::substr()
 	 */
