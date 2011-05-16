@@ -76,17 +76,4 @@ class MockQuestion extends Question
 		parent::__construct($oRegistry, $a);
 	}
 	
-	/**
-	 * Some internal methods that are calling
-	 * save() will not really insert into database
-	 * (non-PHPdoc)
-	 * @see Lampcms.MongoDoc::save()
-	 */
-	public function save(){}
-	
-	
-	public function realSave(){
-		parent::save();
-	}
-	
 }

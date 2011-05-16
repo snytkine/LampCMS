@@ -97,13 +97,13 @@ class String extends LampcmsObject implements \Serializable
 	 * @param string $returnMode if set to StringBuilder will set the StringBuilder return mode
 	 */
 	public function __construct($string, $returnMode = 'default'){
-		if(!is_string($string) && !is_int($string) && !is_object($string)){
+		if(!\is_string($string) && !\is_int($string) && !\is_object($string)){
 			$err = '$string must be a string of int. Was: '.gettype($string);
 			e($err);
 			throw new \InvalidArgumentException($err);
 		}
 
-		if(is_object($string)){
+		if(\is_object($string)){
 
 			if(!($string instanceof \Lampcms\String)){
 				$err = '$string must be instance of \Lampcms\String class';
@@ -232,7 +232,7 @@ class String extends LampcmsObject implements \Serializable
 	public function unserialize($serialized){
 		$a = \unserialize($serialized);
 		$this->string = $a['s'];
-		$this->returnMode = $a['r'];
+		$this->returnMode = $a['m'];
 	}
 
 
@@ -366,12 +366,12 @@ class String extends LampcmsObject implements \Serializable
 
 		$strAlphanum = 'abcdefghijklmnopqrstuvwqyz0123456789';
 		$len = (int)$len;
-		$aAlphanum = str_split($strAlphanum);
+		$aAlphanum = \str_split($strAlphanum);
 		$strRes = '';
 		for ($i = 0; $i < $len; $i += 1) {
-			$key = mt_rand(0, 35);
+			$key = \mt_rand(0, 35);
 			$char = $aAlphanum[$key];
-			$strRes .= (1 === \mt_rand(0, 1) && !is_numeric($char)) ? \strtoupper($char) : $char;
+			$strRes .= (1 === \mt_rand(0, 1) && !\is_numeric($char)) ? \strtoupper($char) : $char;
 		}
 
 		return $strRes;
@@ -399,7 +399,7 @@ class String extends LampcmsObject implements \Serializable
 	 */
 	public static function makeSid($len = 48){
 		$prefix = \microtime(true).'a';
-		$rs = self::makeRandomString($len - strlen($prefix));
+		$rs = self::makeRandomString($len - \strlen($prefix));
 
 		return $prefix.$rs;
 	}
@@ -460,7 +460,6 @@ class String extends LampcmsObject implements \Serializable
 			if(strlen($pwd) > $maxLen){
 				$pwd = \substr($pwd, 1);
 			}
-
 		}
 
 		return $pwd;
@@ -499,10 +498,7 @@ class String extends LampcmsObject implements \Serializable
 	protected function handleReturn($string){
 
 		if('StringBuilder' !== $this->returnMode){
-
-			//$class = get_class($this);
 			$o = new static($string, $this->returnMode);
-
 			return $o;
 		}
 
@@ -545,7 +541,7 @@ class String extends LampcmsObject implements \Serializable
 	 * @return object of this class
 	 */
 	public function truncate($max, $link = ''){
-		$words = \preg_split("/[\s]+/", $string);
+		$words = \preg_split("/[\s]+/", $this->string);
 			
 		$newstring = '';
 		$numwords = 0;
@@ -563,7 +559,7 @@ class String extends LampcmsObject implements \Serializable
 			$newstring .= '... '.$link;
 		}
 			
-		return $this->handleReturn($newstring);
+		return $this->handleReturn(\trim($newstring));
 	}
 
 
@@ -693,7 +689,7 @@ class String extends LampcmsObject implements \Serializable
 	 * @return string email address string complete with first name, last name and email address
 	 */
 	public static function prepareEmail($strAddress, $strFirstName = '', $strLastName = ''){
-		$fn_ln = \trim($strFirstName.' '.$strLastName);
+		$fn_ln = \trim(\trim($strFirstName).' '.\trim($strLastName));
 		$filtered = \htmlspecialchars($fn_ln);
 		$name = ('' !== $fn_ln) ? '"'.$filtered.'"' : '';
 		$recipient = ('' !== $name) ? $name.' <'.$strAddress.'>' : $strAddress;
