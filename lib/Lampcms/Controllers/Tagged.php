@@ -56,8 +56,8 @@ use \Lampcms\Relatedtags;
 /**
  * Controller for rendering page
  * with list of questions for specific tag or tags
- * 
- * 
+ *
+ *
  * @author Dmitri Snytkine
  *
  */
@@ -78,18 +78,18 @@ class Tagged extends Unanswered
 	 * Conditions can be == 'unanswered', 'hot', 'recent' (default)
 	 */
 	protected function getCursor(){
-		
+
 		/**
 		 * Must call getTags() before
 		 * using this->rawTags because
 		 * it is set inside the getTags() method
-		 * 
-		 * 
+		 *
+		 *
 		 */
 		$this->aTags = $this->getTags();
 		$this->pagerPath = '/tagged/'.$this->rawTags;
 
-		
+
 		d('aTags: '.print_r($this->aTags, 1));
 
 		$aFields = array();
@@ -105,14 +105,8 @@ class Tagged extends Unanswered
 		$sort = array('i_ts' => -1);
 
 		$where = array('a_tags' => array('$all' => $this->aTags) );
+		$where['i_del_ts'] = null;
 
-		/**
-		 * Exclude deleted items unless viewer
-		 * is a moderator
-		 */
-		if(!$this->oRegistry->Viewer->isModerator()){
-			$where['i_del_ts'] = null;
-		}
 
 		/**
 		 * @todo
@@ -131,8 +125,8 @@ class Tagged extends Unanswered
 		return $this;
 	}
 
-	
-	
+
+
 	protected function makeRecentTags(){
 
 		/**
@@ -174,7 +168,7 @@ class Tagged extends Unanswered
 		}
 
 		$this->makeFollowTagButton();
-		
+
 		return $this;
 	}
 

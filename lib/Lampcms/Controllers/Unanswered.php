@@ -90,7 +90,7 @@ class Unanswered extends Viewquestions
 	 * @var string
 	 */
 	protected $tags = '';
-	
+
 	/**
 	 * Tags
 	 */
@@ -141,7 +141,7 @@ class Unanswered extends Viewquestions
 			case 'tagged':
 				$where = array('i_sel_ans' => null, 'a_tags' => array('$all' => $this->getTags()) );
 				$this->pagerPath = '/unanswered/tagged/'.$this->rawTags;
-				 //'i_sel_ans' => null,
+				//'i_sel_ans' => null,
 				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQuntypes', 'newest');
 				/**
 				 * @todo
@@ -165,12 +165,10 @@ class Unanswered extends Viewquestions
 		}
 
 		/**
-		 * Exclude deleted items unless viewer
-		 * is a moderator
+		 * Exclude deleted items
 		 */
-		if(!$this->oRegistry->Viewer->isModerator()){
-			$where['i_del_ts'] = null;
-		}
+		$where['i_del_ts'] = null;
+
 		$this->oCursor = $this->oRegistry->Mongo->QUESTIONS->find($where);
 		$this->count = $this->oCursor->count(true);
 		d('$this->oCursor: '.gettype($this->oCursor).' $this->count: '.$this->count);
@@ -202,7 +200,7 @@ class Unanswered extends Viewquestions
 	 */
 	protected function getTags(){
 		if(empty($this->aTags)){
-				
+
 			/**
 			 * And now a workaround
 			 * for the genocidal RewriteRule bug
@@ -252,12 +250,12 @@ class Unanswered extends Viewquestions
 			$this->rawTags = $tags;
 			$this->title = $this->tags;
 			d('this->title: '.$this->title);
-			
+				
 			if(empty($this->tags)){
 				return array();
 			}
 
-			
+				
 			$this->aTags = explode(' ', $this->tags);
 			$this->aTags = \array_filter($this->aTags);
 			d('aTags: '.print_r($this->aTags, 1));
