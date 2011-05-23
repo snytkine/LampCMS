@@ -49,6 +49,58 @@
  *
  */
 
+
+/**
+ * Order of tests:
+ * LampcmsObject X
+ * LampcmsArray X
+ * ArrayDefaults X
+ * String X
+ * Utf8String
+ * Dom\Document
+ * String\HTMLString
+ * String\HTMLStringParser
+ * Ini X
+ * Mongo X
+ * Incrementor X
+ * MongoDoc X
+ * Resource X
+ * Request X
+ * Responder <- use @outputBuffering true
+ * Registry X
+ * Dispatcher
+ * HtmlSafe
+ * Template
+ * 
+ * User X
+ * Answer X
+ * UnansweredTags
+ * UserTags
+ * RelatedTags
+ * 
+ * Tokenizer
+ * TagsTokenizer
+ * TitleTokenizer
+ * Question X
+ *
+ * SubmittedAnswerWWW
+ * SubmittedQuestionWWW
+ * SubmittedCommentWWW
+ * AnswerParser
+ * QuestionParser
+ * 
+ * Validate
+ * Acl
+ * Base
+ * UserAuth
+ * WebPage
+ *
+ *
+ * Then
+ * loop over dirs but exclude Template, Dom and String from test suite
+ * since these has been tested already, and also
+ * exclude Interfaces
+ */
 /**
  * Define constants that
  * are normally defined in !inc.php
@@ -56,8 +108,8 @@
  *
  */
 define('LAMPCMS_DEBUG', false);
-define('MOCK_SALT', 'abcde');
-define('MOCK_COOKIE_SALT', 'abcde');
+define('LAMPCMS_SALT', 'abcde');
+define('COOKIE_SALT', 'abcde');
 
 define('DEFAULT_LANG', 'en');
 define('COOKIE_DOMAIN', '' );
@@ -66,7 +118,7 @@ define('IMAGE_SITE', 'http://img.lampcms.com');
 define('AVATAR_IMG_SITE', 'http://img.lampcms.com');
 /**
  * This is very important!
- * Use test database!
+ * Use test databases!
  * If this step if overlooked then
  * the actual database will be used during
  * test, and can override some actual data!
@@ -76,6 +128,7 @@ define('AVATAR_IMG_SITE', 'http://img.lampcms.com');
  * overriding actual data here and there
  */
 define('MONGO_DBNAME', 'LAMPCMS_TEST');
+define('LAMPCMS_MYSQL_DB', 'LAMPCMS_TEST');
 
 
 /**
@@ -85,12 +138,12 @@ define('MONGO_DBNAME', 'LAMPCMS_TEST');
  * point value to the root dir of your project
  * This is my value: C:\eclipse\workspace\QA
  * ..
- * 
- * To Run individual tests in Eclipse set 
- * External Tools Configuration > Working Directory 
+ *
+ * To Run individual tests in Eclipse set
+ * External Tools Configuration > Working Directory
  * to location of this dir (/tests), this is my config:
  * ${workspace_loc:/QA/tests}
- * 
+ *
  * To run test suite it's different, I setup second "External Tool"
  * called it TestSuite
  * and there I don't have Environment variable at all,
@@ -145,6 +198,17 @@ function d($message){}
 
 function e($message){}
 
+if(!function_exists('apache_request_headers')){
+	function apache_request_headers(){
+		$JSON_ENCODED_HEADERS = '{"Host":"127.0.0.5","User-Agent":"Mozilla\/5.0 (Windows; U; Windows NT 6.1; en-US; rv:1.9.2.9) Gecko\/20100824 Firefox\/3.6.9 GTB7.1","Accept":"text\/html,application\/xhtml+xml,application\/xml;q=0.9,*\/*;q=0.8","Accept-Language":"en-us,en;q=0.5","Accept-Encoding":"gzip,deflate","Accept-Charset":"ISO-8859-1,utf-8;q=0.7,*;q=0.7","Keep-Alive":"115","Connection":"keep-alive","Cookie":"sid=1297206315.3591az0q354fEdcp96s6ulBwtQcGf81sDo35G; PHPSESSID=roqvm4i871og6u3msurp4d5qh0","Cache-Control":"max-age=0"}';
+		$a = json_decode($JSON_ENCODED_HEADERS, true);
+
+		return $a;
+	}
+} else {
+	define('HAS_APACHE_REQUEST_HEADERS', true);
+}
+
 require LAMPCMS_PATH.DIRECTORY_SEPARATOR.'autoload.php';
 
-
+session_start();

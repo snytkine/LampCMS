@@ -175,7 +175,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		return ($short) ? $url : $url.$this->offsetGet('url');
 	}
 
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Lampcms\Interfaces.Post::getBody()
@@ -184,7 +184,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		return $this->offsetGet('b');
 	}
 
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Lampcms\Interfaces.Post::getTitle()
@@ -193,7 +193,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		return $this->offsetGet('title');
 	}
 
-	
+
 	/**
 	 * (non-PHPdoc)
 	 * @see Lampcms\Interfaces.Post::getSeoUrl()
@@ -201,17 +201,16 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	public function getSeoUrl(){
 		return $this->offsetGet('url');
 	}
-	
-	
+
+
 	/**
-	 * Should return false if NOT closed
-	 * otherwise either true or timestamp
-	 * of when it was closed
+	 * Test to see if question is closed. If it is closed
+	 * then returns array of data that contains
+	 * Username, reason and time of when question was
+	 * closed
 	 *
-	 * @todo change this to just return offsetGet('i_closed)
-	 * it will return 0 if i_closed is not present
-	 * because if the new way we going to handle non-existent
-	 * offsets that start with 'i_' or end with 'id')
+	 * @return mixed false if not closed | array of a_closed
+	 * if is closed
 	 */
 	public function isClosed(){
 		$a = $this->offsetGet('a_closed');
@@ -240,8 +239,8 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 */
 	public function setClosed(User $closer, $reason = null){
 
-		if(!$this->checkOffset('a_closed')){
-			$this->offsetSet('a_closed', array(
+		if(!$this->offsetExists('a_closed')){
+			parent::offsetSet('a_closed', array(
 				'username' => $closer->getDisplayName(),
 				'i_uid' => $closer->getUid(),
 				'av' => $closer->getAvatarSrc(),
@@ -270,8 +269,8 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 */
 	public function setDeleted(User $user, $reason = null){
 		if(0 === $this->getDeletedTime()){
-			$this->offsetSet('i_del_ts', time());
-			$this->offsetSet('a_deleted',
+			parent::offsetSet('i_del_ts', time());
+			parent::offsetSet('a_deleted',
 			array(
 			'username' => $user->getDisplayName(),
 			'i_uid' => $user->getUid(),
@@ -281,8 +280,6 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 			)
 			);
 		}
-
-		$this->touch();
 
 		return $this;
 	}
@@ -311,9 +308,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 			'reason' => $reason,
 			'hts' => date('F j, Y g:i a T'));
 
-		$this->offsetSet('a_edited', $aEdited);
-
-		$this->touch();
+		parent::offsetSet('a_edited', $aEdited);
 
 		return $this;
 	}
@@ -332,8 +327,8 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 */
 	public function retag(User $user, array $tags){
 
-		$this->offsetSet('a_tags', $tags);
-		$this->offsetSet('tags_html', \tplQtags::loop($tags, false));
+		parent::offsetSet('a_tags', $tags);
+		parent::offsetSet('tags_html', \tplQtags::loop($tags, false));
 
 		$b = $this->offsetGet('b');
 		d('b: '.$b);
@@ -343,7 +338,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		$this->offsetSet('b', $body);
 
-		$this->setEdited($user, 'Retagged');
+		$this->setEdited($user, 'Retagged')->touch();
 
 		return $this;
 	}
@@ -365,13 +360,13 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 */
 	public function setBestAnswer(Answer $oAnswer){
 		d('about to set status to accptd');
-		$this->offsetSet('i_sel_ans', $oAnswer->getResourceId());
-		$this->offsetSet('i_sel_uid', $oAnswer->getOwnerId());
+		parent::offsetSet('i_sel_ans', $oAnswer->getResourceId());
+		parent::offsetSet('i_sel_uid', $oAnswer->getOwnerId());
 
 		/**
 		 * Now set the Answer object's accepted status to true
 		 */
-		$oAnswer->setAccepted();
+		$oAnswer->setAccepted()->touch();
 
 		/**
 		 * If Question is still not 'answered', means
@@ -405,10 +400,12 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * @param int $inc
 	 */
 	public function updateAnswerCount($inc = 1){
+		if(!\is_int($inc)){
+			throw new \InvalidArgumentException('Param $inc must be an integer. was: '.gettype($inc));
+		}
+
 		$iAns = $this->offsetGet('i_ans');
 		d('$iAns '.$iAns );
-		$newCount = max(0, ($iAns + $inc));
-		d('$newCount: '.$newCount);
 
 		/**
 		 * Set new value of i_ans but make sure
@@ -418,7 +415,10 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		 * is possible when we need to decrease answer count,
 		 * that's why we need this guard here.
 		 */
-		$this->offsetSet('i_ans',  $newCount);
+		$newCount = max(0, ($iAns + $inc));
+		d('$newCount: '.$newCount);
+
+		parent::offsetSet('i_ans',  $newCount);
 
 		/**
 		 * Change the status to answrd
@@ -427,10 +427,10 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		 * of div to not be red, but it still does not
 		 * make the question 'answered'
 		 */
-		if($newCount > 0){
-			$this->offsetSet('status', 'answrd');
-		} else {
-			$this->offsetSet('status', 'unans');
+		if($newCount < 1){
+			parent::offsetSet('status', 'unans');
+		} elseif('unans' === $this->offsetGet('status')){
+			parent::offsetSet('status', 'answrd');
 		}
 
 		/**
@@ -438,12 +438,10 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		 * a_s (plural suffix) to 's'
 		 */
 		if(1 !== ($newCount)){
-			$this->offsetSet('ans_s', 's');
+			parent::offsetSet('ans_s', 's');
 		} else {
-			$this->offsetSet('ans_s', '');
+			parent::offsetSet('ans_s', '');
 		}
-
-		$this->touch();
 
 		return $this;
 	}
@@ -485,6 +483,10 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * @return object $this
 	 */
 	public function increaseViews(\Lampcms\User $Viewer, $inc = 1){
+		if(!\is_int($inc)){
+			throw new \InvalidArgumentException('Param $inc must be an integer. was: '.gettype($inc));
+		}
+
 		/**
 		 * @todo Don't count question owner view
 		 * For this we must be able to get Viewer from Registry
@@ -494,9 +496,9 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		$viewerId = $Viewer->getUid();
 
 		/**
-		 * If guest, then don't check for dups
-		 * @todo this will be a problem if we at least don't check
-		 * for same session_id or ip address
+		 * If guest, then there
+		 * will be a problem if we at least don't check
+		 * for same session_id
 		 */
 		$viewerId = (0 === $viewerId) ? session_id() : $viewerId;
 
@@ -515,7 +517,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		/**
 		 * If this is the first view, we will cheat a little
 		 * and set the views to 2
-		 * There will not be just 1 view, and this way we don't
+		 * There will never be just 1 view, and this way we don't
 		 * have to worry about the plural suffix
 		 */
 		if(0 === $iViews && (1 === $inc)) {
@@ -527,7 +529,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		$qid = (int)$this->offsetGet('_id');
 		try{
 			$collViews->insert(array('qid' => $qid, 'uid' => $viewerId, 'i_ts' => time()), array('safe' => true));
-			$this->offsetSet('i_views', ($iViews + (int)$inc) );
+			parent::offsetSet('i_views', ($iViews + (int)$inc) );
 
 			/**
 			 * If new value is NOT 1 then set
@@ -562,14 +564,14 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		$score = (int)$this->offsetGet('i_votes');
 		$total = ($score + $inc);
 
-		$this->offsetSet('i_up',  max(0, ($tmp + $inc)) );
-		$this->offsetSet('i_votes',  $total );
+		parent::offsetSet('i_up',  max(0, ($tmp + $inc)) );
+		parent::offsetSet('i_votes',  $total );
 
 		/**
 		 * Plural extension handling
 		 */
 		$v_s = (1 === abs($total) ) ? '' : 's';
-		$this->offsetSet('v_s', $v_s);
+		parent::offsetSet('v_s', $v_s);
 
 		return $this;
 	}
@@ -589,17 +591,17 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		$score = (int)$this->offsetGet('i_votes');
 		$total = ($score - $inc);
 
-		$this->offsetSet('i_down', max(0, ($tmp + $inc)) );
+		parent::offsetSet('i_down', max(0, ($tmp + $inc)) );
 		/**
 		 * Question can have negative score, so we allow it!
 		 */
-		$this->offsetSet('i_votes', $total );
+		parent::offsetSet('i_votes', $total );
 
 		/**
 		 * Plural extension handling
 		 */
 		$v_s = (1 === abs($total) ) ? '' : 's';
-		$this->offsetSet('v_s', $v_s);
+		parent::offsetSet('v_s', $v_s);
 
 		return $this;
 	}
@@ -665,7 +667,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		$aComments[] = $aComment;
 
-		$this->offsetSet('comments', $aComments);
+		$this->offsetSet('a_comments', $aComments);
 		$this->increaseCommentsCount();
 
 		/**
@@ -696,14 +698,17 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * Increase value of i_commets by 1
 	 * @return object $this
 	 */
-	public function increaseCommentsCount(){
+	public function increaseCommentsCount($count = 1){
+		if(!is_int($count)){
+			throw new \InvalidArgumentException('$count must be integer. was: '.gettype($count));
+		}
 		/**
 		 * Now increase comments count
 		 */
 		$commentsCount = $this->getCommentsCount();
 		d('$commentsCount '.$commentsCount);
 
-		$this->offsetSet('i_comments', ($commentsCount + 1) );
+		parent::offsetSet('i_comments', ($commentsCount + $count) );
 
 		return $this;
 	}
@@ -721,13 +726,13 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 */
 	public function deleteComment($id){
 
-		if(!$this->checkOffset('comments')){
-			e('This question does not have any comments');
+		if(0 === $this->getCommentsCount()){
+			d('This question does not have any comments');
 
 			return $this;
 		}
 
-		$aComments = $this->offsetGet('comments');
+		$aComments = $this->offsetGet('a_comments');
 
 		for($i = 0; $i<count($aComments); $i+=1){
 			if($aComments[$i]['_id'] == $id){
@@ -739,12 +744,12 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		$newCount = count($aComments);
 		if( 0 === $newCount){
-			$this->offsetUnset('comments');
+			$this->offsetUnset('a_comments');
 		} else {
-			$this->offsetSet('comments', $aComments);
+			$this->offsetSet('a_comments', $aComments);
 		}
 
-		$this->offsetSet('i_comments', $newCount );
+		parent::offsetSet('i_comments', $newCount );
 
 		return $this;
 	}
@@ -757,18 +762,25 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * has made an answer or a comment
 	 * to a question
 	 *
+	 * Contributors array is not unique,
+	 * it can have more than one entry for
+	 * the same user if user contributed multiple
+	 * times. This way we can remove just one record
+	 * and user is still considered a contributor
+	 * as long as the same user has contributed other items
+	 *
 	 * @param mixed int | object $oUser object of type User
 	 */
 	public function addContributor($User){
-		if(!is_int($User) && (!is_object($User) || !($User instanceof User))){
+		if(!\is_int($User) && (!\is_object($User) || !($User instanceof User))){
 			throw new \InvalidArgumentException('Value of $User can be only int or instance of User class. it was: '.var_export($User, true));
 		}
 
-		$uid = (is_int($User)) ? $User : $User->getUid();
-		$a = $this->getFallback('a_uids', array());
+		$uid = (\is_int($User)) ? $User : $User->getUid();
+		$a = $this->offsetGet('a_uids');
 		$a[] = $uid;
 
-		$this->offsetSet('a_uids', $a);
+		parent::offsetSet('a_uids', $a);
 
 		return $this;
 	}
@@ -793,12 +805,12 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		}
 
 		$changed = false;
-		$uid = (is_int($User)) ? $User : $User->getUid();
-		$a = $this->getFallback('a_uids', array());
+		$uid = (\is_int($User)) ? $User : $User->getUid();
+		$a = $this->offsetGet('a_uids');
 		for($i = 0; $i<count($a); $i+=1){
 			if($uid == $a[$i]){
 				d('unsetting contributor: '.$uid. ' at array key: ' .$i);
-				array_splice($a, $i, 1);
+				\array_splice($a, $i, 1);
 				$changed = true;
 				break;
 			}
@@ -872,7 +884,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	/**
 	 * Sets value of lp_u : a link to Last Poster profile
 	 * and lp_t a time of last post
-	 * 
+	 *
 	 * @todo should make the last answerer an array
 	 * and then just push the value there
 	 * This way if answer is deleted we can just delete
@@ -883,10 +895,81 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 *
 	 * @return object $this
 	 */
-	public function setLastAnswerer(User $oUser){
+	public function setLatestAnswer(User $oUser, Answer $oAnswer){
+		$aLatest = $this->offsetGet('a_latest');
+		$a = array(
+		'u' => '<a href="'.$oUser->getProfileUrl().'">'.$oUser->getDisplayName().'</a>',
+		't' => date('F j, Y g:i a T', $oAnswer->getLastModified()),
+		'id' => $oAnswer->getResourceId()
+		);
 
-		$this->offsetSet('lp_u', '<a href="'.$oUser->getProfileUrl().'">'.$oUser->getDisplayName().'</a>');
-		$this->offsetSet('lp_t', date('F j, Y g:i a T'));
+		/**
+		 * Latest answer data goes
+		 * to top of array
+		 */
+		\array_unshift($aLatest, $a);
+
+		$this->offsetSet('a_latest', $aLatest);
+
+		return $this;
+	}
+
+
+	/**
+	 * Removes one element from a_latest array
+	 * that represents answer passed in param.
+	 *
+	 * If that array had only one element
+	 * then also unset the whole 'a_latest' key
+	 * from this object
+	 *
+	 * @param object $oAnswer object of type Answer
+	 *
+	 * @return object $this
+	 */
+	public function removeAnswer(Answer $oAnswer){
+		$id = $oAnswer->getResourceId();
+		$aLatest = $this->offsetGet('a_latest');
+
+		for($i = 0; $i < count($aLatest); $i += 1){
+			if(!empty($aLatest[$i]) && ($id === $aLatest[$i]['id'])){
+				\array_splice($aLatest, $i, 1);
+				break;
+			}
+		}
+
+		if( 0 === count($aLatest)){
+			$this->offsetUnset('a_latest');
+		} else {
+			parent::offsetSet('a_latest', $aLatest);
+		}
+
+		/**
+		 * If removed Answer was also a "accepted" answer
+		 * then change status to just "answrd" here
+		 *
+		 * The updateAnswerCount(-1) method
+		 * may then change the status to "unans"
+		 * if it's determined that this was
+		 * the only answer
+		 *
+		 * Also need to add this question to
+		 * UNANSWERED_TAGS again because now
+		 * this question is technically unanswered again
+		 */
+		if((true === $oAnswer['accepted']) &&
+		($id === $this->offsetGet('i_sel_ans'))
+		){
+			parent::offsetSet('status', 'answrd');
+			$this->offsetUnset('i_sel_ans');
+			$this->offsetUnset('i_sel_uid');
+			UnansweredTags::factory($this->oRegistry)->set($this);
+		}
+
+		$this->updateAnswerCount(-1)
+		->removeContributor($oAnswer->getOwnerId());
+
+		$this->touch(false);
 
 		return $this;
 	}
@@ -899,7 +982,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 *
 	 */
 	public function getComments(){
-		return $this->getFallback('comments', array());
+		return $this->offsetGet('a_comments');
 	}
 
 
@@ -920,5 +1003,60 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 */
 	public function getUsername(){
 		return $this->offsetGet('username');
+	}
+
+	/**
+	 * This method prevents setting some
+	 * values directly
+	 *
+	 * (non-PHPdoc)
+	 * @see ArrayObject::offsetSet()
+	 */
+	public function offsetSet($index, $newval){
+		switch($index){
+
+			case 'i_comments':
+				throw new DevException('value of i_comments cannot be set directly. Use increaseCommentsCount() method');
+				break;
+
+			case 'i_down':
+			case 'i_up':
+			case 'i_votes':
+				throw new DevException('value of '.$index.' keys cannot be set directly. Use addDownVote or addUpVote to add votes');
+				break;
+
+			case 'a_deleted':
+			case 'i_del_ts':
+				throw new DevException('value of '.$index.' cannot be set directly. Must use setDeleted() method for that');
+				break;
+
+			case 'i_ans':
+				throw new DevException('value of i_ans cannot be set directly. Use updateAnswerCount() method');
+				break;
+
+			case 'i_views':
+				throw new DevException('value of i_ans cannot be set directly. Use increaseViews() method');
+				break;
+
+			case 'a_edited':
+				throw new DevException('value of a_edited cannot be set directly. Must use setEdited() method for that');
+				break;
+
+			case 'a_closed':
+				throw new DevException('value of a_closed cannot be set directly. Must use setClosed() method for that');
+				break;
+
+				/*case 'a_latest':
+				 throw new DevException('value of a_latest cannot be set directly. Must use setLatestAnswer() method for that');
+				 break;*/
+
+			case 'i_sel_uid':
+			case 'i_sel_ans':
+				throw new DevException('value of '.$index.' cannot be set directly. Must use setBestAnswer() method for that');
+				break;
+
+			default:
+				parent::offsetSet($index, $newval);
+		}
 	}
 }

@@ -50,93 +50,40 @@
  */
 
 
-namespace Lampcms\Controllers;
+namespace Lampcms;
+require_once 'bootstrap.php';
 
-use \Lampcms\WebPage;
-use \Lampcms\Template\Urhere;
-use \Lampcms\SearchFactory;
-
-class Search extends WebPage
+class LampcmsResourceTest extends LampcmsUnitTestCase
 {
 
-	protected $aRequired = array('q');
+	public function setUp(){
+		$this->oRegistry = new Registry();
+	}
+
+	public function testConstructor(){
+		$Resource = new Resource($this->oRegistry);
+		$this->assertInstanceOf('\Lampcms\Resource', $Resource);
+	}
 
 	/**
-	 * Search term
+	 * @depends testConstructor
 	 *
-	 * @var string
 	 */
-	protected $term;
+	public function testFactory(){
+		$Resource = Resource::factory($this->oRegistry);
+		$this->assertInstanceOf('\Lampcms\Resource', $Resource);
+	}
 
 	/**
-	 * Pagination links on the page
-	 * will not be handled by Ajax
+	 * @depends testFactory
 	 *
-	 * @var bool
 	 */
-	protected $notAjaxPaginatable = true;
-	
-	//protected $bRequirePost = true;
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Lampcms.WebPage::main()
-	 */
-	protected function main(){
-		/**
-		 * Do NOT run urldecode() on request string
-		 * as it's already decoded because it uses
-		 *  $_GET as underlying array, and php
-		 *  already decodes $_GET or $_POST vars
-		 */
-		$this->term = $this->oRegistry->Request->getUTF8('q')->stripTags();
-		$this->aPageVars['qheader'] = '<h1>Search results for: '.$this->term.'</h1>';
-
-		$this->aPageVars['title'] = 'Questions matching &#39;'.$this->term.'&#39;';
-		d('$this->term: '.$this->term);
-
-			
-		$this->oSearch = SearchFactory::factory($this->oRegistry);
-		$this->oSearch->search($this->term);
-
-		$this->makeTopTabs()
-		->makeInfo()
-		->makeBody();
+	public function testCreate(){
+		$id = Resource::factory($this->oRegistry)->create('MYTEST');
+		$this->assertTrue(is_int($id));
+		$a = $this->oRegistry->Mongo->RESOURCE->findOne(array('_id' => $id));
+		$this->assertEquals($id, $a['_id']);
+		$this->assertEquals('MYTEST', $a['res_type']);
 	}
-
-	protected function makeTopTabs(){
-
-		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', 'questions');
-		$this->aPageVars['topTabs'] = $tabs;
-
-		return $this;
-	}
-
-
-	protected function sendCacheHeaders(){
-
-
-		return $this;
-	}
-
-
-	protected function makeInfo(){
-
-		$this->aPageVars['side'] = \tplSearchInfo::parse(array($this->oSearch->count(), $this->term, 'questions matching'), false);
-
-
-		return $this;
-	}
-
-
-
-	protected function makeBody(){
-
-
-		$this->aPageVars['body'] = \tplQlist::parse(array('', $this->oSearch->getHtml(), $this->oSearch->getPagerLinks(), $this->notAjaxPaginatable), false);
-
-		return $this;
-	}
-
 
 }

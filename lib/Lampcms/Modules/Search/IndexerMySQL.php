@@ -116,10 +116,9 @@ class IndexerMySQL implements Indexer
 		$username  = $oQuestion['username'];
 		$ulink     = $oQuestion['ulink'];
 		$avatar    = $oQuestion['avtr'];
-		$tags_c    = $oQuestion['tags_c'];
 		$tags_html = $oQuestion['tags_html'];
 
-		d($qid.' title: '. $title. ' url: '. $url.' intro: '.$intro.' tags_c: '.$tags_c);
+		d($qid.' title: '. $title. ' url: '. $url.' intro: '.$intro);
 
 		$sql = 'INSERT INTO question_title
 		(
@@ -132,7 +131,6 @@ class IndexerMySQL implements Indexer
 		username,
 		userlink,
 		avtr,
-		tags_c,
 		tags_html)
 		VALUES (
 		:qid, 
@@ -144,7 +142,6 @@ class IndexerMySQL implements Indexer
 		:username,
 		:userlink,
 		:avatar,
-		:tags_c,
 		:tags_html)';
 
 
@@ -155,7 +152,6 @@ class IndexerMySQL implements Indexer
 			$sth->bindParam(':qbody', $body, \PDO::PARAM_STR);
 			$sth->bindParam(':qurl', $url, \PDO::PARAM_STR);
 			$sth->bindParam(':qintro', $intro, \PDO::PARAM_STR);
-			$sth->bindParam(':tags_c', $tags_c, \PDO::PARAM_STR);
 			$sth->bindParam(':tags_html', $tags_html, \PDO::PARAM_STR);
 			$sth->bindParam(':uid', $uid, \PDO::PARAM_INT);
 			$sth->bindParam(':username', $username, \PDO::PARAM_STR);
@@ -238,11 +234,10 @@ class IndexerMySQL implements Indexer
 		$username = $oQuestion['username'];
 		$ulink = $oQuestion['ulink'];
 		$avatar = $oQuestion['avtr'];
-		$tags_c = $oQuestion['tags_c'];
 		$tags_html = $oQuestion['tags_html'];
 		$body = $oQuestion['body'];
 
-		d($qid.' title: '. $title. ' url: '. $url.' intro: '.$intro.' tags_c: '.$tags_c);
+		d($qid.' title: '. $title. ' url: '. $url.' intro: '.$intro);
 
 		$sql = 'UPDATE question_title
 		SET 
@@ -253,7 +248,6 @@ class IndexerMySQL implements Indexer
 		username = :username,
 		userlink = :userlink,
 		avtr = :avatar,
-		tags_c = :tags_c,
 		tags_html = :tags_html
 		WHERE qid = :qid';
 
@@ -265,7 +259,6 @@ class IndexerMySQL implements Indexer
 			$sth->bindParam(':qbody', $body, \PDO::PARAM_STR);
 			$sth->bindParam(':qurl', $url, \PDO::PARAM_STR);
 			$sth->bindParam(':qintro', $intro, \PDO::PARAM_STR);
-			$sth->bindParam(':tags_c', $tags_c, \PDO::PARAM_STR);
 			$sth->bindParam(':tags_html', $tags_html, \PDO::PARAM_STR);
 			$sth->bindParam(':username', $username, \PDO::PARAM_STR);
 			$sth->bindParam(':userlink', $ulink, \PDO::PARAM_STR);

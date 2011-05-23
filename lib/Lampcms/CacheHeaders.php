@@ -122,7 +122,7 @@ class CacheHeaders
 		 * may be notified
 		 *
 		 */
-		if(headers_sent($file, $line)){
+		if(\headers_sent($file, $line)){
 			e('LampcmsError Headers have already been sent in file '.$file. ' on line '.$line);
 
 			return true;

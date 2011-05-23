@@ -112,7 +112,7 @@ class MySQL implements Search
 
 	public function search($term = null){
 
-		$this->term = (!empty($term)) ? $term : $this->oRegistry->Request['q'];
+		$this->term = (!empty($term)) ? $term : $this->oRegistry->Request->getUTF8('q')->stripTags();
 
 		$this->getCondition()
 		->getCount()
@@ -154,7 +154,7 @@ class MySQL implements Search
 			d('mysql error: '.$err);
 
 			if('42S02' === $e->getCode()){
-				if(true === \Lampcms\TitleTagsTable::create($this->oRegistry)){
+				if(true === TitleTagsTable::create($this->oRegistry)){
 
 					return $this;
 				} else {
@@ -211,7 +211,6 @@ class MySQL implements Search
 					DATE_FORMAT(ts, '%%M %%e, %%Y %%l:%%i %%p') as hts,
 					username,
 					avtr,
-					tags_c,
 					tags_html
 					FROM question_title
 					WHERE %s
@@ -360,7 +359,7 @@ class MySQL implements Search
 			d('mysql error: '.$err);
 
 			if('42S02' === $e->getCode()){
-				if(true === \Lampcms\TitleTagsTable::create($this->oRegistry)){
+				if(true === TitleTagsTable::create($this->oRegistry)){
 
 					return $this;
 				} else {

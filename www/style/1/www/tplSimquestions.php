@@ -54,6 +54,10 @@
 class tplSimquestions extends Lampcms\Template\Template
 {
 
+	protected static function func(&$a){
+		$a['intro'] = trim($a['intro']);
+	}
+	
 	protected static $vars = array(
 	'qid' => '',
 	'url' => '',

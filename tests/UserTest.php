@@ -53,7 +53,7 @@
 namespace Lampcms;
 require_once 'bootstrap.php';
 
-require 'Fixtures/MockUser.php';
+require_once 'Fixtures/MockUser.php';
 
 
 use Lampcms\User;

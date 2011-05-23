@@ -50,93 +50,53 @@
  */
 
 
-namespace Lampcms\Controllers;
 
-use \Lampcms\WebPage;
-use \Lampcms\Template\Urhere;
-use \Lampcms\SearchFactory;
+namespace Lampcms;
+require_once 'bootstrap.php';
 
-class Search extends WebPage
+
+/**
+ * Run after UserTest, AnswerTest, CommentTest
+ *
+ */
+class MongoIncrementorTest extends LampcmsUnitTestCase
 {
+	protected $oMongo;
 
-	protected $aRequired = array('q');
+	public function setUp(){
+		$oRegistry = new Registry();
+		$this->oMongo = new Mongo($oRegistry->Ini);
+	}
+
+	public function getInput(){
+		return array(
+		array('RESOURCE'),
+		array('QUESTIONS'),
+		array('ANSWERS'),
+		array('TEST')
+		);
+	}
 
 	/**
-	 * Search term
+	 * @dataProvider getInput
 	 *
-	 * @var string
 	 */
-	protected $term;
+	public function testGetNextValue($collName){
 
-	/**
-	 * Pagination links on the page
-	 * will not be handled by Ajax
-	 *
-	 * @var bool
-	 */
-	protected $notAjaxPaginatable = true;
+		$oIncrementor = new MongoIncrementor($this->oMongo);
+
+		$this->assertEquals(1, $oIncrementor->nextValue($collName));
+		$this->assertEquals(2, $oIncrementor->nextValue($collName));
+		$this->assertEquals(3, $oIncrementor->nextValue($collName));
+	}
+
+
+
 	
-	//protected $bRequirePost = true;
+	public function testGetNextValueStartAt100(){
+		$oIncrementor = new MongoIncrementor($this->oMongo);
 
-	/**
-	 * (non-PHPdoc)
-	 * @see Lampcms.WebPage::main()
-	 */
-	protected function main(){
-		/**
-		 * Do NOT run urldecode() on request string
-		 * as it's already decoded because it uses
-		 *  $_GET as underlying array, and php
-		 *  already decodes $_GET or $_POST vars
-		 */
-		$this->term = $this->oRegistry->Request->getUTF8('q')->stripTags();
-		$this->aPageVars['qheader'] = '<h1>Search results for: '.$this->term.'</h1>';
-
-		$this->aPageVars['title'] = 'Questions matching &#39;'.$this->term.'&#39;';
-		d('$this->term: '.$this->term);
-
-			
-		$this->oSearch = SearchFactory::factory($this->oRegistry);
-		$this->oSearch->search($this->term);
-
-		$this->makeTopTabs()
-		->makeInfo()
-		->makeBody();
+		$this->assertEquals(101, $oIncrementor->nextValue('COMMENTS', 100));
+		$this->assertEquals(102, $oIncrementor->nextValue('COMMENTS', 100));
 	}
-
-	protected function makeTopTabs(){
-
-		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', 'questions');
-		$this->aPageVars['topTabs'] = $tabs;
-
-		return $this;
-	}
-
-
-	protected function sendCacheHeaders(){
-
-
-		return $this;
-	}
-
-
-	protected function makeInfo(){
-
-		$this->aPageVars['side'] = \tplSearchInfo::parse(array($this->oSearch->count(), $this->term, 'questions matching'), false);
-
-
-		return $this;
-	}
-
-
-
-	protected function makeBody(){
-
-
-		$this->aPageVars['body'] = \tplQlist::parse(array('', $this->oSearch->getHtml(), $this->oSearch->getPagerLinks(), $this->notAjaxPaginatable), false);
-
-		return $this;
-	}
-
-
 }

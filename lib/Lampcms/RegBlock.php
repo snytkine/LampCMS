@@ -190,7 +190,7 @@ class RegBlock extends LampcmsObject
 		$this->aUsername = array('Username', $this->oViewer->username, 'Username will appear alongside your posts');
 		d('$this->aUsername: '.print_r($this->aUsername, 1));
 
-		$this->aVars['username'] = $this->oViewer->username;
+		$this->aVars['username'] = $this->oViewer['username'];
 		
 		return $this;
 	}

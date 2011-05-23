@@ -193,7 +193,7 @@ class Answerparser extends LampcmsObject
 		$uid = $this->oSubmittedAnswer->getUserObject()->getUid();
 		$qid = $this->oSubmittedAnswer->getQid();
 
-		$hash = hash('md5', strtolower($htmlBody.$qid));
+		$hash = hash('md5', \mb_strtolower($htmlBody.$qid));
 
 		/**
 		 * 
@@ -364,7 +364,8 @@ class Answerparser extends LampcmsObject
 
 		$this->oQuestion->updateAnswerCount()
 		->addContributor($oUser)
-		->setLastAnswerer($oUser);
+		->setLatestAnswer($oUser, $this->oAnswer)
+		->touch();
 
 		return $this;
 	}
@@ -377,8 +378,6 @@ class Answerparser extends LampcmsObject
 	 * @return object $this
 	 */
 	protected function followQuestion(){
-		d('cp');
-
 		$oFollowManager = new FollowManager($this->oRegistry);
 		$oFollowManager->followQuestion($this->oRegistry->Viewer, $this->oQuestion);
 

@@ -412,7 +412,7 @@ class String extends LampcmsObject implements \Serializable
 	 * @return string md5 hash of VERSION + $pwd
 	 */
 	public static function hashPassword($pwd){
-		$salt = (defined('MOCK_SALT')) ? MOCK_SALT : LAMPCMS_SALT;
+		$salt = LAMPCMS_SALT;
 		
 		return \hash('sha256', $salt.$pwd);
 	}

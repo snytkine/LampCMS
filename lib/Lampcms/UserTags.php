@@ -101,7 +101,7 @@ class UserTags extends LampcmsObject
 		 * Extra precaution to filter out
 		 * empty values
 		 */
-		$aTags = array_filter($aTags);
+		$aTags = \array_filter($aTags);
 		d('$aTags: '.var_export($aTags, true));
 
 		$coll = $this->oRegistry->Mongo->getCollection(self::USER_TAGS);

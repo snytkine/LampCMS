@@ -86,8 +86,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 	 * @return object $this
 	 */
 	public function setAccepted(){
-		$this->offsetSet('accepted', true);
-		$this->touch();
+		parent::offsetSet('accepted', true);
 
 		return $this;
 	}
@@ -99,8 +98,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 	 * @return object $this
 	 */
 	public function unsetAccepted(){
-		$this->offsetSet('accepted', false);
-		$this->touch();
+		parent::offsetSet('accepted', false);
 
 		return $this;
 	}
@@ -150,8 +148,8 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 	 */
 	public function setDeleted(User $user, $reason = null){
 		if(0 === $this->getDeletedTime()){
-			$this->offsetSet('i_del_ts', time());
-			$this->offsetSet('a_deleted',
+			parent::offsetSet('i_del_ts', time());
+			parent::offsetSet('a_deleted',
 			array(
 			'username' => $user->getDisplayName(),
 			'i_uid' => $user->getUid(),
@@ -160,8 +158,6 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 			'hts' => date('F j, Y g:i a T')
 			)
 			);
-
-			$this->touch();
 		}
 
 		return $this;
@@ -191,9 +187,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 			'reason' => $reason,
 			'hts' => date('F j, Y g:i a T'));
 
-		$this->offsetSet('a_edited', $aEdited);
-
-		$this->touch();
+		parent::offsetSet('a_edited', $aEdited);
 
 		return $this;
 	}
@@ -246,14 +240,14 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 		$score = (int)$this->offsetGet('i_votes');
 		$total = ($score + $inc);
 
-		$this->offsetSet('i_up',  max(0, ($tmp + $inc)) );
-		$this->offsetSet('i_votes',  $total );
+		parent::offsetSet('i_up',  max(0, ($tmp + $inc)) );
+		parent::offsetSet('i_votes',  $total );
 
 		/**
 		 * Plural extension handling
 		 */
 		$v_s = (1 === abs($total) ) ? '' : 's';
-		$this->offsetSet('v_s', $v_s);
+		parent::offsetSet('v_s', $v_s);
 
 		return $this;
 	}
@@ -273,14 +267,14 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 		$score = (int)$this->offsetGet('i_votes');
 		$total = ($score - $inc);
 
-		$this->offsetSet('i_down', max(0, ($tmp + $inc)) );
-		$this->offsetSet('i_votes',  $total);
+		parent::offsetSet('i_down', max(0, ($tmp + $inc)) );
+		parent::offsetSet('i_votes',  $total);
 
 		/**
 		 * Plural extension handling
 		 */
 		$v_s = (1 === abs($total) ) ? '' : 's';
-		$this->offsetSet('v_s', $v_s);
+		parent::offsetSet('v_s', $v_s);
 
 		return $this;
 	}
@@ -387,11 +381,11 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 		 * because we don't need them here
 		 */
 		$aComment = $oComment->getArrayCopy();
-		$aComment = array_intersect_key($aComment, array_flip($aKeys));
+		$aComment = \array_intersect_key($aComment, array_flip($aKeys));
 
 		$aComments[] = $aComment;
 
-		$this->offsetSet('comments', $aComments);
+		$this->offsetSet('a_comments', $aComments);
 		$this->increaseCommentsCount();
 
 		return $this;
@@ -412,16 +406,29 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 
 	/**
 	 *
-	 * Enter description here ...
+	 * Increase value of i_comments by 1
+	 * The i_comments is a counter
+	 *
+	 * @return object $this
 	 */
-	public function increaseCommentsCount(){
+	public function increaseCommentsCount($count = 1){
+		if(!is_int($count)){
+			throw new \InvalidArgumentException('$count must be integer. was: '.gettype($count));
+		}
+
 		/**
 		 * Now increase comments count
 		 */
 		$commentsCount = $this->getCommentsCount();
 		d('$commentsCount '.$commentsCount);
 
-		$this->offsetSet('i_comments', ($commentsCount + 1) );
+		/**
+		 * Must use parent::offsetSet because
+		 * $this->offsetSet will point back to this
+		 * method and enter infinite loop untill
+		 * we run out of memory
+		 */
+		parent::offsetSet('i_comments', ($commentsCount + $count) );
 
 		return $this;
 	}
@@ -439,30 +446,30 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 	 */
 	public function deleteComment($id){
 
-		if(!$this->checkOffset('comments')){
+		if(0 === $this->getCommentsCount()){
 			e('This question does not have any comments');
 
 			return $this;
 		}
 
-		$aComments = $this->offsetGet('comments');
+		$aComments = $this->offsetGet('a_comments');
 
 		for($i = 0; $i<count($aComments); $i+=1){
 			if($id == $aComments[$i]['_id']){
 				d('unsetting comment: '.$i);
-				array_splice($aComments, $i, 1);
+				\array_splice($aComments, $i, 1);
 				break;
 			}
 		}
 
 		$newCount = count($aComments);
 		if( 0 === $newCount){
-			$this->offsetUnset('comments');
+			$this->offsetUnset('a_comments');
 		} else {
-			$this->offsetSet('comments', $aComments);
+			$this->offsetSet('a_comments', $aComments);
 		}
 
-		$this->offsetSet('i_comments', $newCount );
+		$this->increaseCommentsCount(-1);
 
 		return $this;
 	}
@@ -475,7 +482,8 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 	 *
 	 */
 	public function getComments(){
-		return $this->getFallback('comments', array());
+
+		return $this->offsetGet('a_comments');
 	}
 
 
@@ -500,6 +508,44 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 	 */
 	public function getQuestionOwnerId(){
 		return (int)$this->offsetGet('i_quid');
+	}
+
+
+	/**
+	 * This method prevents setting some
+	 * values directly
+	 *
+	 * (non-PHPdoc)
+	 * @see ArrayObject::offsetSet()
+	 */
+	public function offsetSet($index, $newval){
+		switch($index){
+			case 'accepted':
+				throw new DevException('value of accepted cannot be set directly. Use setAccepted() or unsetAccepted() methods');
+				break;
+
+			case 'i_comments':
+				throw new DevException('value of i_comments cannot be set directly. Use increaseCommentsCount() method');
+				break;
+
+			case 'i_down':
+			case 'i_up':
+			case 'i_votes':
+				throw new DevException('value of '.$index.' keys cannot be set directly. Use addDownVote or addUpVote to add votes');
+				break;
+
+			case 'a_deleted':
+			case 'i_del_ts':
+				throw new DevException('value of '.$index.' cannot be set directly. Must use setDeleted() method for that');
+				break;
+
+			case 'a_edited':
+				throw new DevException('value of a_edited cannot be set directly. Must use setEdited() method for that');
+				break;
+
+			default:
+				parent::offsetSet($index, $newval);
+		}
 	}
 
 }

@@ -56,7 +56,7 @@ namespace Lampcms;
 /**
  * Wrapped class for working with
  * php's MongoDB classes
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
@@ -101,7 +101,7 @@ class Mongo extends LampcmsObject
 		if(!\extension_loaded('mongo')){
 			exit('PHP mongo extension not loaded. Exiting');
 		}
-		
+
 		$aOptions = array('connect' => true);
 		$aConfig = $oIni->getSection('MONGO');
 		d('$aConfig: '.print_r($aConfig, 1));
@@ -111,7 +111,7 @@ class Mongo extends LampcmsObject
 		 * For Unit testing we define
 		 * MONGO_DBNAME to be LAMPCMS_TEST
 		 * so that actual database not used during testing
-		 * 
+		 *
 		 */
 		$this->dbname = (defined('MONGO_DBNAME')) ? constant('MONGO_DBNAME') : $aConfig['db'];
 
@@ -150,7 +150,7 @@ class Mongo extends LampcmsObject
 		if(!is_string($name)){
 			throw new \InvalidArgumentException('$name must be a string. Was: '.gettype($name));
 		}
-		
+
 		$this->dbname = $name;
 
 		return $this;
@@ -295,7 +295,21 @@ class Mongo extends LampcmsObject
 	 * @return object of type MongoCollection
 	 */
 	public function getCollection($collName){
+		if(!is_string($collName)){
+			throw new \InvalidArgumentException('Param $collName must be a string. was: '.gettype($collName));
+		}
+		
 		return $this->conn->selectCollection($this->dbname, $collName);
+	}
+
+	/**
+	 * Alias of getCollection()
+	 * This is the same name as in php's MongoDB class
+	 *
+	 * @param string $collName
+	 */
+	public function selectCollection($collName){
+		return $this->getCollection($collName);
 	}
 
 

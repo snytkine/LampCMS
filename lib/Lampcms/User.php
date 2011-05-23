@@ -58,7 +58,6 @@ namespace Lampcms;
  * @author Dmitri Snytkine
  *
  */
-use Lampcms\Interfaces\Answer;
 
 class User extends MongoDoc implements Interfaces\RoleInterface,
 Interfaces\User,
@@ -86,19 +85,6 @@ Interfaces\BloggerUser
 	 * @var string
 	 */
 	protected $avtrSrc;
-
-
-	/**
-	 *
-	 * Array of resolved permission values
-	 * used for memoization of the hasPermission() method
-	 * values are boolean, keys are permission name
-	 * Not included in serialization, so it's lost
-	 * between page views.
-	 *
-	 * @var array
-	 */
-	protected $aPermissions = array();
 
 
 	/**
@@ -133,14 +119,14 @@ Interfaces\BloggerUser
 
 
 	/**
-	 * Getter for userID (value of USER.id)
+	 * Getter for userID (value of USERS._id)
 	 *
-	 * @return int value of userid (value of USER.id)
+	 * @return int value of userid (value of USERS._id)
 	 */
 	public function getUid(){
 		d('$this->keyColumn: '.$this->keyColumn);
 
-		if (true !== $this->checkOffset($this->keyColumn)) {
+		if (true !== $this->offsetExists($this->keyColumn)) {
 			d('cp no key column '.$this->keyColumn);
 
 			return 0;
@@ -186,7 +172,6 @@ Interfaces\BloggerUser
 	/**
 	 * Check if user is moderator, which
 	 * includes all types of moderator or admin
-	 * or root
 	 *
 	 * @return bool true if moderator, falst otherwise
 	 */
@@ -200,6 +185,7 @@ Interfaces\BloggerUser
 	/**
 	 * Get full name of user
 	 * by concatinating first name, middle name, last name
+	 * 
 	 * @return string full name
 	 */
 	public function getFullName(){
@@ -223,16 +209,7 @@ Interfaces\BloggerUser
 		 * is not considered empty.
 		 */
 		$ret = \trim($ret);
-		if(!empty($ret)){
-			d('returning full name: '.$ret);
-
-			return $ret;
-		}
-
-		$ret = $this->offsetGet('username');
-		d('returning full name: '.$ret);
-
-		return $ret;
+		return (!empty($ret)) ? $ret : $this->offsetGet('username');
 	}
 
 
@@ -251,7 +228,6 @@ Interfaces\BloggerUser
 	 * @return string the HTML code for image src
 	 */
 	public function getAvatarImgSrc($sSize = 'medium', $noCache = false){
-		d('cp');
 		$strAvatar = '<img src="' . $this->getAvatarSrc($noCache) . '" class="img_avatar" width="40" height="40" border="0" alt="avatar"/>';
 
 		return $strAvatar;
@@ -354,14 +330,10 @@ Interfaces\BloggerUser
 		if(!\is_string($role)){
 			throw new \InvalidArgumentException('$role must be a string. was: '.gettype($role));
 		}
-		d('cp');
 		$a = $this->getRegistry()->Acl->getRegisteredRoles();
-		d('cp');
 		if(!\array_key_exists($role, $a)){
-			d('cp');
 			throw new \Lampcms\DevException('The $role name: '.$role.' is not one of the roles in the acl.ini file');
 		}
-		d('cp');
 
 		/**
 		 * IMPORTANT: do not make a mistake
@@ -467,7 +439,7 @@ Interfaces\BloggerUser
 		 * Instead of offsetUnset we do
 		 * offsetSet and set to null
 		 * This is necessary in case user
-		 * does not have these keys yet,
+		 * does not have this key yet,
 		 * in which case offsetUnset will raise error
 		 */
 		$this->offsetSet('fb_token', null);

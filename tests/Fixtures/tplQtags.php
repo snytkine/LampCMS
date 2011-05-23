@@ -49,94 +49,24 @@
  *
  */
 
+ 
 
-namespace Lampcms\Controllers;
-
-use \Lampcms\WebPage;
-use \Lampcms\Template\Urhere;
-use \Lampcms\SearchFactory;
-
-class Search extends WebPage
+class tplQtags extends \Lampcms\Template\Template
 {
-
-	protected $aRequired = array('q');
-
 	/**
-	 * Search term
-	 *
-	 * @var string
+	 * This is important!
+	 * Since tags can be any combination of chars, even
+	 * brackets and + sign, we should always urlencode tag's value
+	 * for the link!
+	 * 
+	 * @param array $a
 	 */
-	protected $term;
-
-	/**
-	 * Pagination links on the page
-	 * will not be handled by Ajax
-	 *
-	 * @var bool
-	 */
-	protected $notAjaxPaginatable = true;
+	protected static function func(&$a){
+		$a[] = urlencode($a[0]);
+	}
 	
-	//protected $bRequirePost = true;
+	protected static $vars = array(0 => '');
 
-	/**
-	 * (non-PHPdoc)
-	 * @see Lampcms.WebPage::main()
-	 */
-	protected function main(){
-		/**
-		 * Do NOT run urldecode() on request string
-		 * as it's already decoded because it uses
-		 *  $_GET as underlying array, and php
-		 *  already decodes $_GET or $_POST vars
-		 */
-		$this->term = $this->oRegistry->Request->getUTF8('q')->stripTags();
-		$this->aPageVars['qheader'] = '<h1>Search results for: '.$this->term.'</h1>';
-
-		$this->aPageVars['title'] = 'Questions matching &#39;'.$this->term.'&#39;';
-		d('$this->term: '.$this->term);
-
-			
-		$this->oSearch = SearchFactory::factory($this->oRegistry);
-		$this->oSearch->search($this->term);
-
-		$this->makeTopTabs()
-		->makeInfo()
-		->makeBody();
-	}
-
-	protected function makeTopTabs(){
-
-		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', 'questions');
-		$this->aPageVars['topTabs'] = $tabs;
-
-		return $this;
-	}
-
-
-	protected function sendCacheHeaders(){
-
-
-		return $this;
-	}
-
-
-	protected function makeInfo(){
-
-		$this->aPageVars['side'] = \tplSearchInfo::parse(array($this->oSearch->count(), $this->term, 'questions matching'), false);
-
-
-		return $this;
-	}
-
-
-
-	protected function makeBody(){
-
-
-		$this->aPageVars['body'] = \tplQlist::parse(array('', $this->oSearch->getHtml(), $this->oSearch->getPagerLinks(), $this->notAjaxPaginatable), false);
-
-		return $this;
-	}
-
+	protected static $tpl = '<a href="/tagged/%2$s/" title="Questions tagged %1$s">%1$s</a> ';
 
 }

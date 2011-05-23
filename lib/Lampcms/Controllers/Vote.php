@@ -268,8 +268,12 @@ class Vote extends WebPage
 		 * Now need to calculate points
 		 *
 		 */
-		\Lampcms\User::factory($this->oRegistry)->by_id($uid)->setReputation($this->calculatePoints());
-
+		try{
+			\Lampcms\User::factory($this->oRegistry)->by_id($uid)->setReputation($this->calculatePoints());
+		} catch(\Exception $e){
+			e($e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
+		}
+		
 		return $this;
 	}
 
@@ -307,9 +311,9 @@ class Vote extends WebPage
 	 */
 	protected function increaseVoteCount(){
 		if('up' === $this->voteType){
-			$this->oResource->addUpVote($this->inc);
+			$this->oResource->addUpVote($this->inc)->touch(true);
 		} else {
-			$this->oResource->addDownVote($this->inc);
+			$this->oResource->addDownVote($this->inc)->touch(true);
 		}
 
 		return $this;

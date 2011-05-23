@@ -72,11 +72,11 @@ class LampcmsArrayTest extends LampcmsUnitTestCase
 
 		$good2 = isset($this->o['two']);
 		if(true !== $good || true !== $good2){
-			$this->fail('checkOffset failed to find good key');
+			$this->fail('offsetExists() failed to find good key');
 		}
 		$bad =  isset($this->o['stuff']);
 		if(false !== $bad){
-			$this->fail('checkOffset reported non-existant value as exists');
+			$this->fail('offsetExists() reported non-existant value as exists');
 		}
 	}
 

@@ -55,6 +55,7 @@ namespace Lampcms\Controllers;
 use \Lampcms\WebPage;
 use \Lampcms\Request;
 use \Lampcms\Responder;
+use \Lampcms\Answer;
 
 class Shred extends WebPage
 {
@@ -115,7 +116,7 @@ class Shred extends WebPage
 		return $this;
 	}
 
-	
+
 	/**
 	 * This is important as it will cause
 	 * the removal cached value of 'recent questions'
@@ -197,23 +198,23 @@ class Shred extends WebPage
 		if($cur && ($cur->count() > 0)){
 
 			foreach($cur as $a){
-
+				
 				$oQuestion = new \Lampcms\Question($this->oRegistry);
 				try{
-					$oQuestion->by_id((int)$a['i_qid']);
-					$oQuestion->updateAnswerCount(-1);
-
-					if((true === $a['accepted'])){
-						d('this was an accepted answer');
-						$oQuestion->offsetUnset('i_sel_ans');
-					}
-
+					$oQuestion->by_id((int)$oAnswer->getQuestionId());
+					$oAnswer = new Answer($this->oRegistry, $a);
+					$oQuestion->removeAnswer($oAnswer);
 					$oQuestion->save();
+					/**
+					 * setSaved() because we don't need auto-save feature 
+					 * to save each answer 
+					 * since all answers will be removed at end of this method
+					 */
+					$oAnswer->setSaved(); 
 				} catch(\MongoException $e){
 					d('Question not found by _id: '.$a['i_qid']);
 				}
-
-					
+	
 				if(!empty($a['cc'])){
 					$this->aCountries[] = $a['cc'];
 				}

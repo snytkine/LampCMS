@@ -131,7 +131,7 @@ interface Cookie
 	 * somewhere for debugging purposes.
 	 */
 	public function set($name, $val, $ttl = 63072000, $sDomain = null);
-	
+
 	/**
 	 * Function for setting or deleting login cookie
 	 * the value of the s cookie is an md5 hash of user password
@@ -258,8 +258,8 @@ interface RoleInterface
 	 * @return string
 	 */
 	public function getRoleId();
-	
-		
+
+
 	public function setRoleId($role);
 }
 
@@ -613,10 +613,10 @@ interface TumblrUser
 	 *
 	 * @return string value to be used as 'group' param
 	 * in WRITE API call
-	 * 
+	 *
 	 */
 	public function getTumblrBlogId();
-	
+
 	public function setTumblrBlogs(array $blogs);
 }
 
@@ -667,12 +667,12 @@ interface BloggerUser
 
 	/**
 	 * Get title of default blog
-	 * 
+	 *
 	 */
 	public function getBloggerBlogTitle();
 
 	/**
-	 * 
+	 *
 	 * Get url of default blog
 	 */
 	public function getBloggerBlogUrl();
@@ -681,14 +681,14 @@ interface BloggerUser
 	/**
 	 * @return string value to be used as '<blogid>' param
 	 * in WRITE API call
-	 * 
+	 *
 	 */
 	public function getBloggerBlogId();
-	
+
 	/**
 	 * Set value of 'blogs' under the 'blogger' element
-	 * 
-	 * 
+	 *
+	 *
 	 * @param array $blogs array of all blogs
 	 * user has on Blogger. Each element is an array
 	 * with 3 keys: id, url, title
@@ -733,10 +733,7 @@ interface Post extends LampcmsResource
 }
 
 /**
- * @todo 
- * add setLastAnswerer()
- * 
- * @author admin
+ * @author Dmitri Snytkine
  *
  */
 interface Question extends Post
@@ -807,7 +804,27 @@ interface Question extends Post
 
 	public function updateAnswerCount($int = 1);
 
+	/**
+	 *
+	 * Adds the small array with link to last poster
+	 * and time of last post and id of last answer
+	 * to the a_latest element of the Question
+	 *
+	 * @param \Lampcms\User $oUser
+	 * @param \Lampcms\Answer $oAnswer
+	 */
+	public function setLatestAnswer(\Lampcms\User $oUser, \Lampcms\Answer $oAnswer);
 
+	/**
+	 * Method to run when an answer is delete
+	 * Deleting an Answer affects several values
+	 * in Question like count of answers, status of question etc.
+	 * even more so if that answer
+	 * was also a "accepted" answer
+	 * 
+	 * @param \Lampcms\Answer $oAnswer
+	 */
+	public function removeAnswer(\Lampcms\Answer $oAnswer);
 }
 
 /**

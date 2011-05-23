@@ -63,5 +63,4 @@ class Stub extends \stdClass
 
 		return '';
 	}
-
 }

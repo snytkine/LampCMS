@@ -65,8 +65,7 @@ class UserTwitter extends UserExternal
 	 * @return string the HTML code for image src which actually
 	 * includes 2 images - an avatar and a tiny facebook icon.
 	 */
-	public function getAvatarImgSrc($sSize = 'medium', $boolNoCache = false)
-	{
+	public function getAvatarImgSrc($sSize = 'medium', $boolNoCache = false){
 	
 		$strAvatar = parent::getAvatarImgSrc($sSize, $boolNoCache);
 		$strAvatar .= '<img width="16" height="16" class="icontw" alt="Twitter User" src="/images/tw-user.png" />';

@@ -49,94 +49,44 @@
  *
  */
 
+namespace Lampcms\Modules\Search;
 
-namespace Lampcms\Controllers;
-
-use \Lampcms\WebPage;
-use \Lampcms\Template\Urhere;
-use \Lampcms\SearchFactory;
-
-class Search extends WebPage
+/**
+ * 
+ * This class is responsible for creating
+ * the "question_title" table in MySQL database
+ * 
+ * It is usually called the first time the insert
+ * is about to be made into that table
+ *
+ */
+class TitleTagsTable
 {
+	const SQL = '
+  CREATE TABLE `question_title` (
+  `qid` int(9) NOT NULL,
+  `title` varchar(200) NOT NULL,
+  `q_body` text COMMENT \'body of the question\',
+  `url` varchar(500) NOT NULL,
+  `intro` char(200) NOT NULL,
+  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `uid` int(9) NOT NULL DEFAULT \'0\' COMMENT \'user id\',
+  `username` varchar(50) NOT NULL,
+  `userlink` varchar(60) NOT NULL COMMENT \'path to user profile, usually looks like this: /users/123/someuser\',
+  `avtr` text NOT NULL COMMENT \'path to user avatar at time of posting\',
+  `tags_html` text NOT NULL,
+  UNIQUE KEY `qid` (`qid`),
+  KEY `uid` (`uid`),
+  FULLTEXT KEY `title_body` (`title`,`q_body`),
+  FULLTEXT KEY `title` (`title`)
+) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT=\'Table used for full text indexing of question title\';
+	';
 
-	protected $aRequired = array('q');
-
-	/**
-	 * Search term
-	 *
-	 * @var string
-	 */
-	protected $term;
-
-	/**
-	 * Pagination links on the page
-	 * will not be handled by Ajax
-	 *
-	 * @var bool
-	 */
-	protected $notAjaxPaginatable = true;
-	
-	//protected $bRequirePost = true;
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Lampcms.WebPage::main()
-	 */
-	protected function main(){
-		/**
-		 * Do NOT run urldecode() on request string
-		 * as it's already decoded because it uses
-		 *  $_GET as underlying array, and php
-		 *  already decodes $_GET or $_POST vars
-		 */
-		$this->term = $this->oRegistry->Request->getUTF8('q')->stripTags();
-		$this->aPageVars['qheader'] = '<h1>Search results for: '.$this->term.'</h1>';
-
-		$this->aPageVars['title'] = 'Questions matching &#39;'.$this->term.'&#39;';
-		d('$this->term: '.$this->term);
-
-			
-		$this->oSearch = SearchFactory::factory($this->oRegistry);
-		$this->oSearch->search($this->term);
-
-		$this->makeTopTabs()
-		->makeInfo()
-		->makeBody();
+	public static function create(\Lampcms\Registry $oRegistry){
+		d('Table "question_title" not found going to create it now');
+		$res = $oRegistry->Db->exec(self::SQL);
+		d('res: '.$res);
+		
+		return true;
 	}
-
-	protected function makeTopTabs(){
-
-		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', 'questions');
-		$this->aPageVars['topTabs'] = $tabs;
-
-		return $this;
-	}
-
-
-	protected function sendCacheHeaders(){
-
-
-		return $this;
-	}
-
-
-	protected function makeInfo(){
-
-		$this->aPageVars['side'] = \tplSearchInfo::parse(array($this->oSearch->count(), $this->term, 'questions matching'), false);
-
-
-		return $this;
-	}
-
-
-
-	protected function makeBody(){
-
-
-		$this->aPageVars['body'] = \tplQlist::parse(array('', $this->oSearch->getHtml(), $this->oSearch->getPagerLinks(), $this->notAjaxPaginatable), false);
-
-		return $this;
-	}
-
-
 }

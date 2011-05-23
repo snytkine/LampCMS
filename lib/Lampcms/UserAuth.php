@@ -59,6 +59,15 @@ namespace Lampcms;
  * as well as during authenticating
  * from external programs like from
  * the nntp server or email server, etc.
+ * 
+ * @todo remove preCheckLogin and move all
+ * to getUser() or at least to validateLogin()
+ * or just move some validators to preCheckLogin()
+ * 
+ * @todo make sure that record is added to EMAILS from join
+ * by Facebook as well as when doint step2 in Twitter/GFC connect
+ * 
+ * 
  */
 class UserAuth extends LampcmsObject
 {

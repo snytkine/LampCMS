@@ -329,6 +329,15 @@ class LampcmsObject implements Interfaces\LampcmsObject
 	public function __toString(){
 		return 'object of type: '.$this->getClass().' hashCode: '.$this->hashCode();
 	}
+	
+	/**
+	 * Getter for $this->oRegistry
+	 * 
+	 * @return object of type Registry
+	 */
+	public function getRegistry(){
+		return $this->oRegistry;
+	}
 
 }
 
@@ -543,11 +552,19 @@ class ArrayDefaults extends LampcmsArray
 	 * since we can no longer rely on the
 	 * offsetExists() in this object,
 	 * we are asking a parent object
+	 * 
+	 * It ONLY works properly
+	 * with this object and does not work
+	 * in sub-class because in sub-class parent
+	 * becomes THIS class and calling offsetExists
+	 * on THIS class always returns true!
+	 * 
+	 * Ideally this function should be eliminated
 	 *
 	 * @param string $name
 	 * @return bool
 	 */
-	public function checkOffset($name){
+	public final function checkOffset($name){
 		return parent::offsetExists($name);
 	}
 
@@ -608,41 +625,6 @@ class ArrayDefaults extends LampcmsArray
 		$this->defaultValue = self::DEFAULT_VAL;
 
 		return $this;
-	}
-
-	
-	/**
-	 * If the key $key does not actually exists in
-	 * the array, then return the value passed as
-	 * second argument , if second param is not given ,then returns
-	 * value of $key
-	 *
-	 * otherwise return the value of $key
-	 *
-	 * @param string $key
-	 * @param mixed $default
-	 * @return mixed
-	 */
-	public function getFallback($key, $default = null){
-		if (parent::offsetExists($key)) {
-
-			return parent::offsetGet($key);
-		}
-
-		return ( null !== $default) ? $default : $key;
-	}
-
-	
-	/**
-	 * 
-	 * Get value of $key previously converting
-	 * $key to lower case
-	 * 
-	 * @param string $key
-	 * @param string $default
-	 */
-	public function getFallbackLc($key, $default = null){
-		return $this->getFallback(\mb_strtolower($key), $default);
 	}
 
 	

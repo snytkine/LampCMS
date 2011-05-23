@@ -148,7 +148,7 @@ class Editor extends Edit
 		}
 
 		$this->oResource->setEdited($this->oRegistry->Viewer, \strip_tags($formVals['reason']));
-		$this->oResource->save();
+		$this->oResource->touch()->save();
 
 		$this->oRegistry->Dispatcher->post($this->oResource, 'onEdit');
 

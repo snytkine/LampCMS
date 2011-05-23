@@ -4,9 +4,24 @@
 	convertNoticesToExceptions="true" convertWarningsToExceptions="true"
 	processIsolation="false" stopOnFailure="false" syntaxCheck="false"
 	bootstrap="tests/bootstrap.php">
+	<!-- <directory>./tests/</directory>  -->
 	<testsuites>
 		<testsuite name="Lampcms Test Suite">
-			<directory>./tests/</directory>
+			<file>tests/StringTest.php</file>
+			<file>tests/Utf8StringTest.php</file>
+			<file>tests/LampcmsObjectTest.php</file>
+			<file>tests/LampcmsArrayTest.php</file>
+			<file>tests/ArrayDefaultsTest.php</file>
+			<file>tests/IniTest.php</file>
+			<file>tests/MongoTest.php</file>
+			<file>tests/MongoIncrementorTest.php</file>
+			<file>tests/MongoDocTest.php</file>
+			<file>tests/ResourceTest.php</file>
+			<file>tests/RequestTest.php</file>
+			<file>tests/RegistryTest.php</file>
+			<file>tests/UserTest.php</file>
+			<file>tests/QuestionTest.php</file>
+			<file>tests/AnswerTest.php</file>
 		</testsuite>
 	</testsuites>
 

@@ -78,6 +78,20 @@ class LampcmsUnitTestCase extends \PHPUnit_Framework_TestCase
 	 */
 	protected $aCollections = array();
 
+	/**
+	 * If this flag is set to true
+	 * from inside test method
+	 * then database now dropped
+	 * after a test method, allowing
+	 * the data created in one test method
+	 * to persist untill another test method
+	 * is called that does not have
+	 * this flag set.
+	 *
+	 * @var bool
+	 */
+	protected $persistDB = false;
+
 
 	/**
 	 * Collection name used in this test
@@ -89,28 +103,30 @@ class LampcmsUnitTestCase extends \PHPUnit_Framework_TestCase
 
 
 	public function __destruct(){
-		
-		$oRegistry = new Registry();
-		try{
-			$Ini = $oRegistry->Ini;
-			$aConfig = $Ini->getSection('MONGO');
-			$realDbname = $aConfig['db'];
-			$oMongo = new Mongo($Ini);
-		} catch(\Exception $e){
-			
-			return;
-		}
 
-		/**
-		 * Being Careful - if for some reason
-		 * the dbname used for this MongoInstance
-		 * is our actual database then don't do anything
-		 *
-		 */
-		if($realDbname !== $oMongo->getDbName()){	
-			$oMongo->getDb()->drop();
-		} else {
-			echo 'Not going to drop db. This is the actual DB!';
+		if(!$this->persistDB){
+			$oRegistry = new Registry();
+			try{
+				$Ini = $oRegistry->Ini;
+				$aConfig = $Ini->getSection('MONGO');
+				$realDbname = $aConfig['db'];
+				$oMongo = new Mongo($Ini);
+			} catch(\Exception $e){
+					
+				return;
+			}
+
+			/**
+			 * Being Careful - if for some reason
+			 * the dbname used for this MongoInstance
+			 * is our actual database then don't do anything
+			 *
+			 */
+			if($realDbname !== $oMongo->getDbName()){
+				$oMongo->getDb()->drop();
+			} else {
+				echo 'Not going to drop db. This is the actual DB!';
+			}
 		}
 	}
 

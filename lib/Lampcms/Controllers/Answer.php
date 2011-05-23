@@ -112,8 +112,8 @@ class Answer extends Viewquestion
 		$oAdapter = new AnswerParser($this->oRegistry);
 		try{
 			$oAnswer = $oAdapter->parse(new SubmittedAnswerWWW($this->oRegistry, $formVals));
-			d('cp created new question');
-			d('ans id: '.$oAnswer->_id);
+			d('cp created new question: '.print_r($oAnswer->getArrayCopy(), 1));
+			d('ans id: '.$oAnswer->getResourceId());
 
 			/**
 			 * In case of ajax we need to send out a

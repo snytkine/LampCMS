@@ -51,7 +51,6 @@
 
 
 namespace Lampcms;
-
 require_once 'bootstrap.php';
 
 /**

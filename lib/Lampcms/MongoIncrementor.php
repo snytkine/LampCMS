@@ -107,8 +107,7 @@ class MongoIncrementor
 	 *
 	 * @return int value of next id for the collection
 	 */
-	public function nextValue($collName, $initialId = 0, $try = 1)
-	{
+	public function nextValue($collName, $initialId = 0, $try = 1){
 
 		if(  $try > 100 ){
 			throw new \RuntimeException('Unable to get nextID for collection '.$collName.' after 100 tries');

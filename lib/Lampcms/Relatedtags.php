@@ -59,8 +59,6 @@ namespace Lampcms;
  * in the same question. For example: mysql, zend, PDO
  * are normally related to 'php'
  *
- * @todo get this from Registry, as singleton
- *
  * @author Dmitri Snytkine
  *
  */

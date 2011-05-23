@@ -153,7 +153,7 @@ class Utf8String extends String
 		 * If $charset is not supplied we will try to guess it
 		 *
 		 */
-		$charset = (empty($charset)) ? strtolower(self::guessCharset($string)) : strtolower($charset);
+		$charset = (empty($charset)) ? \strtolower(self::guessCharset($string)) : \strtolower($charset);
 
 		d('charset: '.$charset);
 		//d('$className: '.$className);
@@ -210,7 +210,7 @@ class Utf8String extends String
 
 			throw new \RuntimeException('Unable to detect charset encoding because mbstring extension is not available and a string is not in UTF-8');
 		}
-		
+
 		$cs = false;
 		$charsetHint = strtoupper($charsetHint);
 		if('US-ASCII' === $charsetHint){
@@ -267,6 +267,7 @@ class Utf8String extends String
 		d('cp $bIsAscii '.$bIsAscii);
 
 		if(true !== self::validateUtf8($utf8string)){
+			
 			d('cp');
 			/**
 			 * Now that we know that string is not a valid utf-8 what do we do?
@@ -279,8 +280,7 @@ class Utf8String extends String
 			 *
 			 */
 			try{
-				d('cp');
-				$charset = strtolower(self::guessCharset($utf8string));
+				$charset = \strtolower(self::guessCharset($utf8string));
 			} catch(\Exception $e){
 				d('unable to guess charset');
 				/**
@@ -294,11 +294,10 @@ class Utf8String extends String
 					d('cp');
 
 					if('utf8' !== $charset){
-						d('cp');
-
+						
 						$utf8string = self::convertToUtf8($utf8string, $charset);
 					} else {
-						d('cp');
+						
 						$utf8string = self::recodeUtf8($utf8string);
 					}
 				} catch (\Exception $e){
@@ -309,7 +308,6 @@ class Utf8String extends String
 		}
 
 		if($bIsAscii){
-
 			return self::sanitizeAscii($utf8string);
 		}
 
@@ -367,7 +365,7 @@ class Utf8String extends String
 	 * @return mixed array | false if the input string
 	 * isn't a valid UTF-8 octet sequence.
 	 */
-	public static function utf8ToUnicode(&$str)
+	public static function isUtf8(&$str)
 	{
 
 		d('cp');
@@ -379,47 +377,47 @@ class Utf8String extends String
 
 		//$out = array();
 
-		$len = strlen($str);
+		$len = \strlen($str);
 		d('$len: '.$len);
 		for($i = 0; $i < $len; $i++) {
-			//$oLogger->log('cp $i '.$i);
+				
 			$in = ord($str[$i]);
-			//$oLogger->log('cp');
+				
 			if (0 == $mState) {
-				// $oLogger->log('cp');
+
 				// When mState is zero we expect either a US-ASCII character or a
 				// multi-octet sequence.
 				if (0 == (0x80 & ($in))) {
-					//$oLogger->log('cp');
+						
 					// US-ASCII, pass straight through.
 					//$out[] = $in;
 					$mBytes = 1;
 				} else if (0xC0 == (0xE0 & ($in))) {
-					//$oLogger->log('cp');
+						
 					// First octet of 2 octet sequence
 					$mUcs4 = ($in);
 					$mUcs4 = ($mUcs4 & 0x1F) << 6;
 					$mState = 1;
 					$mBytes = 2;
-					//$oLogger->log('cp');
+						
 				} else if (0xE0 == (0xF0 & ($in))) {
-					//$oLogger->log('cp');
+						
 					// First octet of 3 octet sequence
 					$mUcs4 = ($in);
 					$mUcs4 = ($mUcs4 & 0x0F) << 12;
 					$mState = 2;
 					$mBytes = 3;
-					//$oLogger->log('cp');
+						
 				} else if (0xF0 == (0xF8 & ($in))) {
-					//$oLogger->log('cp');
+						
 					// First octet of 4 octet sequence
 					$mUcs4 = ($in);
 					$mUcs4 = ($mUcs4 & 0x07) << 18;
 					$mState = 3;
 					$mBytes = 4;
-					//$oLogger->log('cp');
+						
 				} else if (0xF8 == (0xFC & ($in))) {
-					//$oLogger->log('cp');
+						
 					/* First octet of 5 octet sequence.
 					 *
 					 * This is illegal because the encoded codepoint must be either
@@ -432,7 +430,7 @@ class Utf8String extends String
 					$mUcs4 = ($mUcs4 & 0x03) << 24;
 					$mState = 4;
 					$mBytes = 5;
-					//$oLogger->log('cp');
+						
 				} else if (0xFC == (0xFE & ($in))) {
 					d('cp');
 					// First octet of 6 octet sequence, see comments for 5 octet sequence.
@@ -440,7 +438,7 @@ class Utf8String extends String
 					$mUcs4 = ($mUcs4 & 1) << 30;
 					$mState = 5;
 					$mBytes = 6;
-					//$oLogger->log('cp');
+						
 				} else {
 					d('cp');
 					/* Current octet is neither in the US-ASCII range nor a legal first
@@ -449,7 +447,7 @@ class Utf8String extends String
 					return false;
 				}
 			} else {
-				//$oLogger->log('cp');
+
 				// When mState is non-zero, we expect a continuation of the multi-octet
 				// sequence
 				if (0x80 == (0xC0 & ($in))) {
@@ -501,6 +499,118 @@ class Utf8String extends String
 	}
 
 
+	public static function utf8ToUnicode(&$str)
+	{
+		$mState = 0;     // cached expected number of octets after the current octet
+		// until the beginning of the next UTF8 character sequence
+		$mUcs4  = 0;     // cached Unicode character
+		$mBytes = 1;     // cached expected number of octets in the current sequence
+
+		$out = array();
+
+		$len = strlen($str);
+		for($i = 0; $i < $len; $i++) {
+			$in = ord($str{$i});
+			if (0 == $mState) {
+				// When mState is zero we expect either a US-ASCII character or a
+				// multi-octet sequence.
+				if (0 == (0x80 & ($in))) {
+					// US-ASCII, pass straight through.
+					$out[] = $in;
+					$mBytes = 1;
+				} else if (0xC0 == (0xE0 & ($in))) {
+					// First octet of 2 octet sequence
+					$mUcs4 = ($in);
+					$mUcs4 = ($mUcs4 & 0x1F) << 6;
+					$mState = 1;
+					$mBytes = 2;
+				} else if (0xE0 == (0xF0 & ($in))) {
+					// First octet of 3 octet sequence
+					$mUcs4 = ($in);
+					$mUcs4 = ($mUcs4 & 0x0F) << 12;
+					$mState = 2;
+					$mBytes = 3;
+				} else if (0xF0 == (0xF8 & ($in))) {
+					// First octet of 4 octet sequence
+					$mUcs4 = ($in);
+					$mUcs4 = ($mUcs4 & 0x07) << 18;
+					$mState = 3;
+					$mBytes = 4;
+				} else if (0xF8 == (0xFC & ($in))) {
+					/* First octet of 5 octet sequence.
+					 *
+					 * This is illegal because the encoded codepoint must be either
+					 * (a) not the shortest form or
+					 * (b) outside the Unicode range of 0-0x10FFFF.
+					 * Rather than trying to resynchronize, we will carry on until the end
+					 * of the sequence and let the later error handling code catch it.
+					 */
+					$mUcs4 = ($in);
+					$mUcs4 = ($mUcs4 & 0x03) << 24;
+					$mState = 4;
+					$mBytes = 5;
+				} else if (0xFC == (0xFE & ($in))) {
+					// First octet of 6 octet sequence, see comments for 5 octet sequence.
+					$mUcs4 = ($in);
+					$mUcs4 = ($mUcs4 & 1) << 30;
+					$mState = 5;
+					$mBytes = 6;
+				} else {
+					/* Current octet is neither in the US-ASCII range nor a legal first
+					 * octet of a multi-octet sequence.
+					 */
+					return false;
+				}
+			} else {
+				// When mState is non-zero, we expect a continuation of the multi-octet
+				// sequence
+				if (0x80 == (0xC0 & ($in))) {
+					// Legal continuation.
+					$shift = ($mState - 1) * 6;
+					$tmp = $in;
+					$tmp = ($tmp & 0x0000003F) << $shift;
+					$mUcs4 |= $tmp;
+
+					if (0 == --$mState) {
+						/* End of the multi-octet sequence. mUcs4 now contains the final
+						 * Unicode codepoint to be output
+						 *
+						 * Check for illegal sequences and codepoints.
+						 */
+
+						// From Unicode 3.1, non-shortest form is illegal
+						if (((2 == $mBytes) && ($mUcs4 < 0x0080)) ||
+						((3 == $mBytes) && ($mUcs4 < 0x0800)) ||
+						((4 == $mBytes) && ($mUcs4 < 0x10000)) ||
+						(4 < $mBytes) ||
+						// From Unicode 3.2, surrogate characters are illegal
+						(($mUcs4 & 0xFFFFF800) == 0xD800) ||
+						// Codepoints outside the Unicode range are illegal
+						($mUcs4 > 0x10FFFF)) {
+							return false;
+						}
+						if (0xFEFF != $mUcs4) {
+							// BOM is legal but we don't want to output it
+							$out[] = $mUcs4;
+						}
+						//initialize UTF8 cache
+						$mState = 0;
+						$mUcs4  = 0;
+						$mBytes = 1;
+					}
+				} else {
+					/* ((0xC0 & (*in) != 0x80) && (mState != 0))
+					 *
+					 * Incomplete multi-octet sequence.
+					 */
+					return false;
+				}
+			}
+		}
+		return $out;
+	}
+
+
 	/**
 	 * Converts from utf8 to utf8 but with
 	 * an option to ignore errors.
@@ -515,18 +625,19 @@ class Utf8String extends String
 	 */
 	public static function recodeUtf8($utf8string){
 
-		if(!function_exists('iconv') && !function_exists('mb_convert_encoding')){
+		if(!\function_exists('iconv') && !\function_exists('mb_convert_encoding')){
 			throw new \RuntimeException('Cannot use this method because iconv OR mb_convert_encoding functions is not available');
 		}
 		/**
 		 * IMPORTANT
 		 * lower the error reporting here
-		 * in order to suppress warnings and stuff like that
+		 * in order to suppress warnings
 		 * because iconv will generate a warning if it detects
 		 * illegal char
 		 */
 
-		if(function_exists('iconv')){
+		if(\function_exists('iconv')){
+			
 			$ER = error_reporting(1);
 			/**
 			 * We are not going to do this: setlocale(LC_ALL, 'en_US.UTF8');
@@ -534,7 +645,7 @@ class Utf8String extends String
 			 * and by the way, //TRANSLIT//IGNORE does not really work,
 			 * its a myth that they work fine together
 			 */
-			$ret = iconv("UTF-8", "UTF-8//IGNORE", $utf8string);
+			$ret = \iconv("UTF-8", "UTF-8//IGNORE", $utf8string);
 			error_reporting($ER);
 
 			return $ret;
@@ -546,8 +657,8 @@ class Utf8String extends String
 		 * meaning when character is not available in target charset
 		 * the substitute will be used
 		 */
-		mb_substitute_character("none");
-		$ret = mb_convert_encoding($utf8string, "UTF-8", "UTF-8");
+		\mb_substitute_character("none");
+		$ret = \mb_convert_encoding($utf8string, "UTF-8", "UTF-8");
 
 		/**
 		 * Restore error_reporting back to what id was
@@ -559,7 +670,8 @@ class Utf8String extends String
 
 
 	/**
-	 * strips low bytes except for \r, tab and \n
+	 * strips low bytes except for return (\r), 
+	 * tab and newline (\n)
 	 *
 	 * @param string $string utf8 string
 	 * @return string string with low bytes removed
@@ -703,7 +815,7 @@ class Utf8String extends String
 	 */
 	public function getWordsCount(){
 
-		return preg_match_all(self::WORD_COUNT_MASK, $this->string, $matches);
+		return \preg_match_all(self::WORD_COUNT_MASK, $this->string, $matches);
 	}
 
 
@@ -728,7 +840,7 @@ class Utf8String extends String
 		$numwords = 0;
 
 		foreach ($words as $word) {
-			if ((mb_strlen($newstring) + 1 + \mb_strlen($word)) < $max) {
+			if ((\mb_strlen($newstring) + 1 + \mb_strlen($word)) < $max) {
 				$newstring .= ' '.$word;
 				++$numwords;
 			} else {
@@ -740,8 +852,7 @@ class Utf8String extends String
 			/**
 			 * Adds utf-8 Ellipses (3 dots)
 			 * This is better than manually adding 3 dots
-			 * because this adds just one char!
-			 *
+			 * because this adds just one char
 			 *
 			 */
 			$newstring .= "\xE2\x80\xA6".$link;
@@ -826,11 +937,11 @@ class Utf8String extends String
 	 * @return string a string with first letter upercased, the rest lowercase
 	 */
 	public static function utf8_ucfirst($utf8string){
-		$string = \mb_strtolower($utf8string);
+		$string = \mb_strtolower($utf8string, 'UTF-8');
 
-		$first = \mb_strtoupper(\mb_substr($string, 0, 1));
+		$first = \mb_strtoupper(\mb_substr($string, 0, 1, 'UTF-8'), 'UTF-8');
 
-		return $first.\mb_substr($string, 1, \mb_strlen($string));
+		return $first.\mb_substr($string, 1, \mb_strlen($string, 'UTF-8'), 'UTF-8');
 	}
 
 
@@ -852,10 +963,10 @@ class Utf8String extends String
 		$words = explode(' ', $this->string);
 		$ret = '';
 		foreach($words as $word){
-			$ret .= self::utf8_ucfirst($word);
+			$ret .= self::utf8_ucfirst($word).' ';
 		}
 
-		return $this->handleReturn($ret);
+		return $this->handleReturn(\trim($ret));
 	}
 
 

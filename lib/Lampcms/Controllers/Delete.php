@@ -215,17 +215,15 @@ class Delete extends WebPage
 
 			$oQuestion = new \Lampcms\Question($this->oRegistry);
 			$oQuestion->by_id($this->oResource['i_qid']);
-			$oQuestion->updateAnswerCount(-1);
+			$oQuestion->removeAnswer($this->oResource);
 
 			if((true === $this->oResource['accepted'])){
 				d('this was an accepted answer');
 
-				$this->oResource['accepted'] = false;
-				$oQuestion->offsetUnset('i_sel_ans');
+				$this->oResource->unsetAccepted();
 			}
 
-			$oQuestion->removeContributor($this->oResource['i_uid'])
-			->touch()->save();
+			$oQuestion->touch()->save();
 		}
 
 		return $this;
@@ -313,7 +311,8 @@ class Delete extends WebPage
 		 */
 		$this->updateTags();
 		$this->removeFromIndex();
-		$this->oResource->setDeleted($this->oRegistry->Viewer, $this->oRequest['note']);
+		$this->oResource->setDeleted($this->oRegistry->Viewer, $this->oRequest['note'])
+		->touch();
 
 		d('new resource data: '.print_r($this->oResource->getArrayCopy(), 1));
 
@@ -360,7 +359,7 @@ class Delete extends WebPage
 				}
 			} else {
 				$oQuestion = new \Lampcms\Question($this->oRegistry);
-				$oQuestion->by_id($this->oResource['i_qid']);
+				$oQuestion->by_id($this->oResource->getQuestionId());
 				d('tags: ' . print_r($oQuestion['a_tags'], 1));
 			}
 

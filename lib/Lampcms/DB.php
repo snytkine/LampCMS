@@ -208,11 +208,6 @@ class DB extends LampcmsObject
 	protected function makeDsn(){
 		$this->aDB = $this->oIni->getSection('DB');
 
-		if (null === $this->aDB) {
-				
-			throw new IniException('section "DB" does not exist in aIni');
-		}
-
 		if (!isset($this->aDB['Database_username']) || !isset($this->aDB['Database_password'])) {
 				
 			throw new IniException('Database_username OR Database_password not set');
@@ -235,25 +230,42 @@ class DB extends LampcmsObject
 		if ( empty($this->aDB['Database_name']) || empty($this->aDB['Database_host']) ||
 		empty ($this->aDB['Database_type'])) {
 				
-			throw new IniException('Cannot create dsn because some required dns params are missing: '.
-			print_r($this->aDB, true));
+			throw new IniException('Cannot create dsn because some required dns params are missing: '.print_r($this->aDB, true));
 		}
 
-		$dbhost = strtolower($this->aDB['Database_host']);
+		/**
+		 * LAMPCMS_TEST is the name we use in Unit Tests
+		 * If the actual name is also LAMPCMS_TEST then
+		 * Unit tests will destroy actual database during
+		 * tests. This should not be allowed!
+		 */
+		if('LAMPCMS_TEST' === \trim($this->aDB['Database_name']) ){
+			throw new DevException('Reserved name! You cannot name your database '.$this->aDB['Database_name'].' Please set different value of Database_name is !config.ini');
+		}
+		
+		$dbhost = \strtolower($this->aDB['Database_host']);
+		
+		/**
+		 * Always try to use defined LAMPCMS_MYSQL_DB
+		 * This is useful in Unit testing so we can
+		 * define value for test database and not 
+		 * use live database!
+		 * 
+		 * @var string
+		 */
+		$dbname = (defined('LAMPCMS_MYSQL_DB')) ? LAMPCMS_MYSQL_DB : $this->aDB['Database_name'];
 
-		$ret = strtolower($this->aDB['Database_type']).':host='.$dbhost;
+		$ret = \strtolower($this->aDB['Database_type']).':host='.$dbhost;
 		if ('localhost' !== $dbhost) {
-
 			if ( empty ($this->aDB['TCP_Port_number'])) {
 
 				throw new IniException('If Database_host is not "localhost" then "TCP_Port_number" MUST be defined');
 			}
 
 			$ret .= ';port='.$this->aDB['TCP_Port_number'];
-
 		}
 
-		$ret .= ';dbname='.$this->aDB['Database_name'];
+		$ret .= ';dbname='.$dbname;
 
 		return $ret;
 

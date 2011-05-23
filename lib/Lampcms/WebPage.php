@@ -282,9 +282,7 @@ abstract class WebPage extends Base
 			$this->checkLoginStatus()
 			->checkAccessPermission()
 			->main();
-
 		} catch(Exception $e) {
-
 			$this->handleException($e);
 		}
 	}
@@ -920,7 +918,7 @@ abstract class WebPage extends Base
 				$this->httpCode = 404;
 			}
 
-			if(!($le instanceof AuthException)){
+			if(!($le instanceof AuthException) && !($le instanceof MustLoginException)){
 				e('Exception caught in: '.$le->getFile().' on line: '.$le->getLine().' '.$le->getMessage());
 			}
 

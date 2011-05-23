@@ -49,94 +49,32 @@
  *
  */
 
+/**
+ * Run this script once from browser
+ * ONLY if you upgrading from previous version
+ * and your Q&A site already has some "comments"
+ * 
+ */ 
+include '../!inc.php';
+session_start();
 
-namespace Lampcms\Controllers;
+use Lampcms\Registry;
 
-use \Lampcms\WebPage;
-use \Lampcms\Template\Urhere;
-use \Lampcms\SearchFactory;
-
-class Search extends WebPage
-{
-
-	protected $aRequired = array('q');
-
-	/**
-	 * Search term
-	 *
-	 * @var string
-	 */
-	protected $term;
-
-	/**
-	 * Pagination links on the page
-	 * will not be handled by Ajax
-	 *
-	 * @var bool
-	 */
-	protected $notAjaxPaginatable = true;
-	
-	//protected $bRequirePost = true;
-
-	/**
-	 * (non-PHPdoc)
-	 * @see Lampcms.WebPage::main()
-	 */
-	protected function main(){
-		/**
-		 * Do NOT run urldecode() on request string
-		 * as it's already decoded because it uses
-		 *  $_GET as underlying array, and php
-		 *  already decodes $_GET or $_POST vars
-		 */
-		$this->term = $this->oRegistry->Request->getUTF8('q')->stripTags();
-		$this->aPageVars['qheader'] = '<h1>Search results for: '.$this->term.'</h1>';
-
-		$this->aPageVars['title'] = 'Questions matching &#39;'.$this->term.'&#39;';
-		d('$this->term: '.$this->term);
-
+function update($collection = 'QUESTIONS'){
+	global $oRegistry;
+	$coll = $oRegistry->Mongo->getCollection($collection);
+	$cur = $coll->find(array('comments' => array('$ne' => null)), array('_id', 'comments'));
+	echo 'Found: '.$cur->count();
+	if($cur->count() > 0){
+		foreach($cur as $row){
+			$row['a_comments'] = $row['comments'];
 			
-		$this->oSearch = SearchFactory::factory($this->oRegistry);
-		$this->oSearch->search($this->term);
-
-		$this->makeTopTabs()
-		->makeInfo()
-		->makeBody();
+			$coll->update(array('_id' => $row['_id']), array('$set' => array('a_comments' => $row['comments']), '$unset' => array('comments' => 1) ) ); //, '$unset' => array('comments' => 1)
+		}
 	}
-
-	protected function makeTopTabs(){
-
-		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', 'questions');
-		$this->aPageVars['topTabs'] = $tabs;
-
-		return $this;
-	}
-
-
-	protected function sendCacheHeaders(){
-
-
-		return $this;
-	}
-
-
-	protected function makeInfo(){
-
-		$this->aPageVars['side'] = \tplSearchInfo::parse(array($this->oSearch->count(), $this->term, 'questions matching'), false);
-
-
-		return $this;
-	}
-
-
-
-	protected function makeBody(){
-
-
-		$this->aPageVars['body'] = \tplQlist::parse(array('', $this->oSearch->getHtml(), $this->oSearch->getPagerLinks(), $this->notAjaxPaginatable), false);
-
-		return $this;
-	}
-
-
 }
+
+update();
+update('ANSWERS');
+
+

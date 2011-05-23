@@ -50,93 +50,36 @@
  */
 
 
-namespace Lampcms\Controllers;
+namespace Lampcms;
+require_once 'bootstrap.php';
 
-use \Lampcms\WebPage;
-use \Lampcms\Template\Urhere;
-use \Lampcms\SearchFactory;
-
-class Search extends WebPage
+class LampcmsObjectTest extends \PHPUnit_Framework_TestCase
 {
+	protected $o;
 
-	protected $aRequired = array('q');
-
-	/**
-	 * Search term
-	 *
-	 * @var string
-	 */
-	protected $term;
 
 	/**
-	 * Pagination links on the page
-	 * will not be handled by Ajax
-	 *
-	 * @var bool
-	 */
-	protected $notAjaxPaginatable = true;
-	
-	//protected $bRequirePost = true;
-
-	/**
+	 * We want to override parent setUp
+	 * because we want to use new instance of Registry
+	 * and not use getInstance() here
 	 * (non-PHPdoc)
-	 * @see Lampcms.WebPage::main()
+	 * @see Lampcms.LampcmsUnitTestCase::setUp()
 	 */
-	protected function main(){
-		/**
-		 * Do NOT run urldecode() on request string
-		 * as it's already decoded because it uses
-		 *  $_GET as underlying array, and php
-		 *  already decodes $_GET or $_POST vars
-		 */
-		$this->term = $this->oRegistry->Request->getUTF8('q')->stripTags();
-		$this->aPageVars['qheader'] = '<h1>Search results for: '.$this->term.'</h1>';
-
-		$this->aPageVars['title'] = 'Questions matching &#39;'.$this->term.'&#39;';
-		d('$this->term: '.$this->term);
-
-			
-		$this->oSearch = SearchFactory::factory($this->oRegistry);
-		$this->oSearch->search($this->term);
-
-		$this->makeTopTabs()
-		->makeInfo()
-		->makeBody();
+	public function setUp(){
+		$this->o = new LampcmsObject(new Registry());
 	}
-
-	protected function makeTopTabs(){
-
-		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', 'questions');
-		$this->aPageVars['topTabs'] = $tabs;
-
-		return $this;
+	
+	
+	public function testHashCode(){
+		$this->assertTrue(is_string($this->o->hashCode()));
 	}
-
-
-	protected function sendCacheHeaders(){
-
-
-		return $this;
+	
+	public function testGetClass(){
+		$this->assertEquals('Lampcms\LampcmsObject', $this->o->getClass());
 	}
-
-
-	protected function makeInfo(){
-
-		$this->aPageVars['side'] = \tplSearchInfo::parse(array($this->oSearch->count(), $this->term, 'questions matching'), false);
-
-
-		return $this;
+	
+	
+	public function testToString(){
+		$this->assertContains('object of type: Lampcms\LampcmsObject hashCode:', (string)$this->o);
 	}
-
-
-
-	protected function makeBody(){
-
-
-		$this->aPageVars['body'] = \tplQlist::parse(array('', $this->oSearch->getHtml(), $this->oSearch->getPagerLinks(), $this->notAjaxPaginatable), false);
-
-		return $this;
-	}
-
-
 }

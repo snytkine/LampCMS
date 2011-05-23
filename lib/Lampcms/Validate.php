@@ -67,8 +67,7 @@ class Validate
 	 *
 	 * @throws Lampcms\Exception on error
 	 */
-	public static function validateToken()
-	{
+	public static function validateToken(){
 		$token = $_REQUEST['token'];
 		if(empty($token)){
 			throw new Exception('Form token not found');
@@ -85,6 +84,7 @@ class Validate
 		return true;
 	}
 
+	
 	/**
 	 * Validates a string so that it can contain only
 	 * alphanumeric and hyphens '-' but hyphens
@@ -106,100 +106,16 @@ class Validate
 	 *
 	 * @param string $string
 	 */
-	public static function username($string)
-	{
+	public static function username($string){
 		d('$string: '.$string);
-
-
-		$ret = (0 !== preg_match('/([a-zA-Z0-9@])([a-zA-Z0-9\-]{1,18})([a-zA-Z0-9])$/A', $string, $m));
+		$ret = (0 !== \preg_match('/([a-zA-Z0-9@])([a-zA-Z0-9\-]{1,18})([a-zA-Z0-9])$/A', $string, $m));
 
 		d('ret '.$ret);
 
 		return $ret;
 	}
 
-
-	/**
-	 * Tests a value for a specific type
-	 *
-	 * @param mixed $val any type of value like object, string, boolean, resource, etc.
-	 * @param string $strType type of value that $var must be in order to satisfy the test
-	 * @param string $strFunction function or method name that called this validator
-	 * @return true
-	 * @throws LampcmsDevException is variable type does not match the test condition
-	 * also throws exception is test condition is not supported by the php is_ test
-	 * or if either $val or $strType are empty
-	 */
-	public final static function validateType($val = null, $strType = null, $strFunction = 'function not defined')
-	{
-
-		$arrTypes = array('array',
-                             'bool',
-                             'float',
-                             'int',
-                             'integer',
-                             'null',
-                             'numeric',
-                             'object',
-                             'resource',
-                             'string',
-                             'unicode',
-                             'buffer',
-                             'scalar');
-		if ( empty ($val)) {
-			throw new Exception('empty_param', array('"$val"', $strFunction, $strFunction));
-		}
-		if ( empty ($strType)) {
-			throw new DevException('empty_param', array('"$strType"', __METHOD__, $strFunction));
-		}
-
-		/**
-		 * Special case: for a resource we can validate
-		 * the resource type
-		 *
-		 * In this case the strType should be an array with
-		 * value being a string: name of resource type
-		 * and a key must just be 'resource'
-		 */
-
-		if(is_array($strType)){
-			d('$strType array: '.print_r($strType, true));
-
-			if(count($strType) !== 1){
-				throw new DevException('in $strType is array it MUST have just one element');
-			}
-
-			$aType = $strType;
-
-			foreach($aType as $name => $restype){
-				$strType = (string)$name;
-				$resourceType = (string)$restype;
-			}
-		}
-
-		$strType = strtolower($strType);
-		d('$strType: '.$strType);
-
-		if (!in_array($strType, $arrTypes)) {
-
-			throw new DevException($strType.' is not one of the allowed values');
-		}
-		$strFn = 'is_'.$strType;
-		if (true !== $strFn ($val)) {
-
-			throw new \InvalidArgumentException('wrong_type', array($strType, gettype($val), $strFunction));
-		}
-
-		if(isset($resourceType)){
-			if($resourceType !== $actualType = get_resource_type($val)){
-				d( 'looking for type: '.$resourceType.'$actualType: '.$actualType);
-				throw new DevException('Invalid resource type. Expected resource of type: '.$resourceType. ' got: '.$actualType);
-			}
-		}
-
-		return true;
-	}
-
+	
 	/**
 	 * Verifies that password contains
 	 * at least one letter and at least one number
@@ -209,8 +125,7 @@ class Validate
 	 *
 	 * @return bool true if validation passes, false otherwise
 	 */
-	public static function enforcePwd($pwd)
-	{
+	public static function enforcePwd($pwd){
 		$res = preg_match('/[a-zA-Z]+/', $pwd, $matches);
 		$res2 = preg_match('/\d+/', $pwd);
 
@@ -228,7 +143,7 @@ class Validate
 
 	public static function email($email){
 
-		if (false === filter_var($email, FILTER_VALIDATE_EMAIL)) {
+		if (false === \filter_var($email, FILTER_VALIDATE_EMAIL)) {
 
 			return false;
 		}
@@ -237,16 +152,15 @@ class Validate
 		$domain = $a[1];
 		d('domain: '.$domain);
 
-		return (true === checkdnsrr($domain, 'MX')  || true === checkdnsrr($domain, 'A'));
+		return (true === \checkdnsrr($domain, 'MX')  || true === \checkdnsrr($domain, 'A'));
 	}
 
 
 	/**
 	 * Validate string DOB (Date of Birth)
-	 * that supposed to follow this date format: YYYY/MM/DD
+	 * It supposed to follow this date format: YYYY/MM/DD
 	 *
-	 *
-	 * @param strubg $string
+	 * @param string $string
 	 *
 	 * @return bool true if string is in valid YYYY/MM/DD format
 	 * and the actual values of each part of string make sense
@@ -343,7 +257,7 @@ class Validate
 			}
 		}
 
-		$type = strtolower($type);
+		$type = \strtolower($type);
 		d('$type: '.$type);
 
 		if (!in_array($type, $arrTypes)) {

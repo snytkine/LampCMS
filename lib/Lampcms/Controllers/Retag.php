@@ -292,7 +292,8 @@ class Retag extends WebPage
 	 */
 	protected function updateQuestion(){
 
-		$this->oQuestion->retag($this->oRegistry->Viewer, $this->aSubmitted)->save();
+		$this->oQuestion->retag($this->oRegistry->Viewer, $this->aSubmitted)
+		->save();
 
 		return $this;
 	}

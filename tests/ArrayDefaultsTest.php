@@ -82,18 +82,6 @@ class ArrayDefaultsTest extends LampcmsUnitTestCase
 		$this->assertTrue( $this->default === $this->o['badkey']);
 	}
 
-	public function testGetFallback(){
-		$this->assertTrue( 'abcde' === $this->o->getFallback('badkey', 'abcde'));
-	}
-
-	public function testGetFallbackValueExists(){
-		$this->assertTrue( 2 === $this->o->getFallback('two', 'abcde'));
-	}
-
-	public function testGetFallbackLc(){
-		$this->assertTrue( 2 === $this->o->getFallbackLc('TWO', 'abcde'));
-	}
-
 	public function testSerialization(){
 		$this->o->setDefaultValue('abcde');
 		$s = \serialize($this->o);

@@ -234,5 +234,5 @@ class Responder
 
 		return $sUrl;
 	}
-
+	
 }

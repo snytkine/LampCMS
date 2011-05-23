@@ -621,9 +621,18 @@ site %5$s and navigating to Settings > Email preferences
 
 		if($qid){
 			$oQuestion = new \Lampcms\Question($this->oRegistry);
-			$oQuestion->by_id((int)$qid);
+			try{
+				$oQuestion->by_id((int)$qid);
+			} catch(\Exception $e){
+				e($e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
+				$oQuestion = null;
+			}
 		} else {
 			$oQuestion = $this->oQuestion;
+		}
+
+		if(null === $oQuestion){
+			return $this;
 		}
 
 		$updateType = ('onNewAnswer' === $this->eventName) ? 'answer' : 'comment';
@@ -670,7 +679,6 @@ site %5$s and navigating to Settings > Email preferences
 				 */
 				if(false !== $key = array_search($viewerID, $aFollowers)){
 					array_splice($aFollowers, $key, 1);
-
 				}
 
 				if(!empty($excludeUid)){

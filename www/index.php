@@ -84,21 +84,22 @@ try {
 } catch(\Exception $e) {
 	header("HTTP/1.0 500 Exception");
 	try {
-		$strHtml = \Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
-		$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';
+		$sHtml = \Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
+		$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no server';
+		$extra .= 'file: '.$e->getFile(). ' line: '.$e->getLine().' trace: '.$e->getTraceAsString();
 		if(strlen(trim(constant('DEVELOPER_EMAIL'))) > 1){
-			@mail(DEVELOPER_EMAIL, 'Error in index.php', $strHtml.$extra);
+			@mail(DEVELOPER_EMAIL, '500 Error in index.php', $sHtml.$extra);
 		}
-		echo $strHtml;
+		echo $sHtml;
 		fastcgi_finish_request();
 
 	}catch(\Exception $e2) {
-		$strHtml = \Lampcms\Responder::makeErrorPage('<strong>Exception:</strong> '.$e2->getMessage()."\nIn file:".$e2->getFile()."\nLine: ".$e2->getLine());
+		$sHtml = \Lampcms\Responder::makeErrorPage('<strong>Exception:</strong> '.$e2->getMessage()."\nIn file:".$e2->getFile()."\nLine: ".$e2->getLine());
 		$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';
 		if(strlen(trim(constant('DEVELOPER_EMAIL'))) > 1){
-			@mail(DEVELOPER_EMAIL, 'Error in index.php on line '.__LINE__, $strHtml.$extra);
+			@mail(DEVELOPER_EMAIL, 'Error in index.php on line '.__LINE__, $sHtml.$extra);
 		}
-		echo $strHtml;
+		echo $sHtml;
 		fastcgi_finish_request();
 	}
 }

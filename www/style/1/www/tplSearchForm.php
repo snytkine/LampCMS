@@ -49,27 +49,27 @@
  *
  */
 
- 
+
 class tplSearchForm extends \Lampcms\Template\Template
 {
-	
-	
+
+
 	protected static function func(&$a){
-		if(!empty($_REQUEST['q'])){
-			$a['q'] = strip_tags($_REQUEST['q']);
+		if(!empty($_GET['q'])){
+			$a['q'] = \filter_input(INPUT_GET, 'q', FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
 		}
 	}
-	
+
 	protected static $vars  = array(
 	'q' => ''
 	);
-	
+
 	protected static $tpl = '
-	<form name="search" id="id_search" action="/index.php" method="GET">
+	<form name="search" id="id_search" accept-charset="utf-8" action="/index.php" method="GET">
 		<div class="row">
 			<input type="hidden" name="a" value="search"> 
 			<input type="text" id="id_q" name="q" value="%1$s">
 			<input id="btnsearch" type="submit" size="24" value="search"></div>
 	</form>';
-	
+
 }

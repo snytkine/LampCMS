@@ -94,7 +94,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	/**
 	 * Array of UTF8 objects
 	 *
-	 * @var array
+	 * @var array of objects of type Utf8String
 	 */
 	protected $aUTF8 = array();
 
@@ -309,35 +309,35 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 		d('getting filtered for '.$name);
 
-		if(!array_key_exists($name, $this->aFiltered)){
+		if(!\array_key_exists($name, $this->aFiltered)){
 			d('cp not yet in $this->aFiltered');
 
 			$val = parent::offsetGet($name);
 
 			if('a' === $name && !empty($val)){
 				$expression = '/^[[:alpha:]\-]{1,20}$/';
-				if(!filter_var($val, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $expression)))){
+				if(!\filter_var($val, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $expression)))){
 					throw new \InvalidArgumentException('Invalid value of "a" it can only contain letters and a hyphen and be limited to 20 characters in total was: '.\htmlentities($val));
 				}
 
 				$ret = $val;
 
 			} elseif(
-			('i_' === substr(strtolower($name), 0, 2)) ||
-			('id' === substr(strtolower($name), -2, 2))){
+			('i_' === \substr(\strtolower($name), 0, 2)) ||
+			('id' === \substr(\strtolower($name), -2, 2))){
 
 				/**
 				 * FILTER_VALIDATE_INT
 				 * does not seem to accept 0 as a valid int!
 				 * this sucks, so instead going to use is_numeric
 				 */
-				if(!is_numeric($val) || ($val < 0) || ($val > 99999999999)){
+				if(!\is_numeric($val) || ($val < 0) || ($val > 99999999999)){
 					throw new \InvalidArgumentException('Invalid value of "'.$name.'". It can only be a number between 0 and 99999999999 was: '.\htmlentities($val));
 				}
 
 				$ret = (int)$val;
 
-			} elseif('_hex' === substr(strtolower($name), -4, 4)){
+			} elseif('_hex' === substr(\strtolower($name), -4, 4)){
 				$expression = '/^[0-9A-F]{6}$/';
 				if(!filter_var($val, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $expression)))){
 					throw new \InvalidArgumentException('Invalid value of '.$name.' it can only be a hex number. Was: '.\htmlentities($val));
@@ -345,7 +345,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 				$ret = $val;
 
-			} elseif('flag' === substr(strtolower($name), -4, 4)){
+			} elseif('flag' === \substr(\strtolower($name), -4, 4)){
 
 				/**
 				 * FILTER_VALIDATE_BOOLEAN will not work here
@@ -392,7 +392,6 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	public function getUTF8($name, $default = null){
 		if(empty($this->aUTF8[$name])){
 			$res = $this->get($name, 's', $default);
-
 			$ret = Utf8String::factory($res);
 			$this->aUTF8[$name] = $ret;
 		}
@@ -435,12 +434,12 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 * Get value of specific request header
 	 *
 	 * @param string $strHeader
-	 * @return mixed string value of header or false
+	 * @return mixed string value of header or null
 	 * if header not found
 	 */
 	public final static function getHttpHeader($strHeader){
 
-		$strKey = 'HTTP_'.strtoupper(str_replace('-', '_', $strHeader));
+		$strKey = 'HTTP_'.\strtoupper(\str_replace('-', '_', $strHeader));
 		if (!empty($_SERVER[$strKey])) {
 
 			return $_SERVER[$strKey];
@@ -452,15 +451,16 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		 *
 		 */
 		if (\function_exists('apache_request_headers')) {
-			$strHeader = (str_replace(" ", "-", (ucwords(str_replace("-", " ", strtolower($strHeader))))));
-			$arrHeaders = apache_request_headers();
+			$strHeader = (\str_replace(" ", "-", (\ucwords(\str_replace("-", " ", \strtolower($strHeader))))));
+			$arrHeaders = \apache_request_headers();
+
 			if (!empty($arrHeaders[$strHeader])) {
 
 				return $arrHeaders[$strHeader];
 			}
 		}
 
-		return false;
+		return null;
 	}
 
 
@@ -483,7 +483,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 			return true;
 		}
 
-		self::$ajax = (strtoupper((string)self::getHttpHeader('X-REQUESTED-WITH')) === 'XMLHTTPREQUEST');
+		self::$ajax = (\strtoupper((string)self::getHttpHeader('X-REQUESTED-WITH')) === 'XMLHTTPREQUEST');
 
 		return self::$ajax;
 	}

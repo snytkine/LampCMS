@@ -96,11 +96,9 @@ class CookieAuth extends UserAuth
 			$this->logLoginError($this->uid, $this->sid, true, null, 'cookie');
 
 			throw new CookieAuthException('wrong sid '.print_r($oUser, 1));
-
 		}
 
 		return $oUser;
-
 	}
 
 
@@ -160,7 +158,7 @@ class CookieAuth extends UserAuth
 	 * must be equal to 's' value
 	 * if any of these steps fails, throw Exception
 	 *
-	 * @throws LampcmsCookieAuthException if cookie string
+	 * @throws \Lampcms\CookieAuthException if cookie string
 	 * does not parse or does not validate
 	 *
 	 * @return object $this
@@ -191,7 +189,7 @@ class CookieAuth extends UserAuth
 		 */
 		$this->uid = (int)$this->uid;
 
-		$salt = (defined('MOCK_COOKIE_SALT')) ? constant('MOCK_COOKIE_SALT') : COOKIE_SALT;
+		$salt = COOKIE_SALT;
 		d('cookie salt: '.$salt);
 
 		if($a['s'] !== \hash('sha256', $this->uid.$salt)){

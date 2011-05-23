@@ -60,7 +60,7 @@ namespace Lampcms;
  * @author Dmitri Snytkine   implements \Serializable
  *
  */
-class MongoDoc extends ArrayDefaults implements \Serializable
+class MongoDoc extends LampcmsArray implements \Serializable
 {
 	/**
 	 * Object of type Registry
@@ -171,8 +171,8 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 *
 	 * @return object of this class OR class extending this class
 	 */
-	public static function factory(Registry $oRegistry, $collectionName = null, array $a = array(), $default = ''){
-		$o = new static($oRegistry, $collectionName, $a, $default);
+	public static function factory(Registry $oRegistry, $collectionName = null, array $a = array(), $default = null){
+		$o = new static($oRegistry, $collectionName, $a);
 
 		return $o;
 	}
@@ -189,8 +189,8 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 * set it to null or false, whatever you want to use for a default (fallback)
 	 * value of any array key
 	 */
-	public function __construct(Registry $oRegistry, $collectionName = null, array $a = array(), $default = ''){
-		parent::__construct($a, $default);
+	public function __construct(Registry $oRegistry, $collectionName = null, array $a = array()){
+		parent::__construct($a);
 		$this->oRegistry = $oRegistry;
 		$this->collectionName = $collectionName;
 		$this->md5 = \md5(\serialize($a));
@@ -230,9 +230,11 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 * @see ArrayDefaults::offsetGet()
 	 */
 	public function offsetGet($name){
-		$ret = parent::offsetGet($name);
-
-		$prefix = substr($name, 0, 2);
+		//$ret = parent::offsetGet($name); // old way, when this was ArrayDefaults object - not anymore!
+		$ret = !$this->offsetExists($name) ? null : parent::offsetGet($name);
+		
+		d(' looking for '.$name.' getting: '.var_export($ret, true));
+		$prefix = \substr($name, 0, 2);
 		switch($prefix){
 			case 'i_':
 				$ret = (int)$ret;
@@ -572,7 +574,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 	 */
 	public function insert(){
 
-		if(!$this->checkOffset($this->keyColumn) && $this->minAutoIncrement){
+		if(!$this->offsetExists($this->keyColumn) && $this->minAutoIncrement){
 			$_id = $this->getRegistry()->Incrementor->nextValue($this->collectionName, $this->minAutoIncrement);
 			d('setting value of _id to '.$_id);
 			$this->offsetSet('_id', $_id);
@@ -766,8 +768,7 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		            'collectionName' => $this->collectionName,
 					'md5' => $this->md5,
 					'bSaved' => $this->bSaved,
-					'keyColumn' => $this->keyColumn,
-					'defaultValue' => $this->defaultValue);
+					'keyColumn' => $this->keyColumn);
 
 		unset($this->oRegistry);
 
@@ -783,7 +784,6 @@ class MongoDoc extends ArrayDefaults implements \Serializable
 		$a = unserialize($serialized);
 		$this->exchangeArray($a['array']);
 		$this->collectionName = $a['collectionName'];
-		$this->defaultValue = $a['defaultValue'];
 		$this->bSaved = $a['bSaved'];
 		$this->keyColumn = $a['keyColumn'];
 		$this->md5 = $a['md5'];

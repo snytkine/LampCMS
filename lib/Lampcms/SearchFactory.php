@@ -84,7 +84,6 @@ class SearchFactory
 			throw new \Lampcms\DevException('Search provider class '.get_class($o).' does not implement Search interface');
 		}
 
-
 		return $o;
 	}
 }

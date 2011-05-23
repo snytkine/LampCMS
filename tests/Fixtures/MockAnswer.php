@@ -49,45 +49,27 @@
  *
  */
 
+
 namespace Lampcms;
 
-/**
- * 
- * This class is responsible for creating
- * the "question_title" table in MySQL database
- * 
- * It is usually called the first time the insert
- * is about to be made into that table
- *
- */
-class TitleTagsTable
+class MockAnswer extends Answer
 {
-	const SQL = '
-  CREATE TABLE `question_title` (
-  `qid` int(9) NOT NULL,
-  `title` varchar(200) NOT NULL,
-  `q_body` text COMMENT \'body of the question\',
-  `url` varchar(500) NOT NULL,
-  `intro` char(200) NOT NULL,
-  `ts` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `uid` int(9) NOT NULL DEFAULT \'0\' COMMENT \'user id\',
-  `username` varchar(50) NOT NULL,
-  `userlink` varchar(60) NOT NULL COMMENT \'path to user profile, usually looks like this: /users/123/someuser\',
-  `avtr` text NOT NULL COMMENT \'path to user avatar at time of posting\',
-  `tags_c` varchar(100) NOT NULL,
-  `tags_html` text NOT NULL,
-  UNIQUE KEY `qid` (`qid`),
-  KEY `uid` (`uid`),
-  FULLTEXT KEY `title_body` (`title`,`q_body`),
-  FULLTEXT KEY `title` (`title`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT=\'Table used for full text indexing of question title\';
-	';
+	protected $JSON_ENCODED = '{"_id":513,"i_qid":510,"i_uid":3,"i_quid":3,"title":"Mock Stub Post","hash":"327d4e34c496435248e6145dca59065d","username":"user1","ulink":"<a href=\"\/users\/3\/user1\">user1<\/a>","avtr":"http:\/\/127.0.0.5:88\/w\/img\/avatar\/sqr\/3.jpg","i_words":6,"i_up":1,"i_down":0,"i_votes":1,"b":"<span>Text of Mock Answer<br><strong>Mock test<\/strong><br><\/span>","i_ts":1305401334,"i_lm_ts":1305712931,"hts":"May 14, 2011 2:28 pm CDT","v_s":"s","accepted":false,"ip":"127.0.0.1","app":"web","cc":null,"cn":null,"reg":null,"city":null,"zip":null,"lat":null,"lon":null,"a_comments":[{"_id":516,"b":"comment one","username":"user1","i_uid":3,"i_prnt":0,"ts":"Tue, 17 May 2011 20:17:57 -0500","t":"May 17 \'11 at 20:17","avtr":"http:\/\/127.0.0.5:88\/w\/img\/avatar\/sqr\/3.jpg","b_owner":true},{"_id":517,"b":"comment two","username":"user1","i_uid":3,"i_prnt":0,"ts":"Tue, 17 May 2011 20:18:10 -0500","t":"May 17 \'11 at 20:18","avtr":"http:\/\/127.0.0.5:88\/w\/img\/avatar\/sqr\/3.jpg","b_owner":true}],"i_comments":2,"a_edited":[{"username":"user1","i_uid":3,"av":"http:\/\/127.0.0.5:88\/w\/img\/avatar\/sqr\/3.jpg","reason":"for mock test","hts":"May 18, 2011 5:02 am CDT"}]}';
 
-	public static function create(Registry $oRegistry){
-		d('Table "question_title" not found going to create it now');
-		$res = $oRegistry->Db->exec(self::SQL);
-		d('res: '.$res);
-		
-		return true;
+	public function __construct(Registry $oRegistry, array $a = null){
+		/**
+		 * 3 Lines below to change the database
+		 * that's going to be used to the test database
+		 *
+		 * This in theory is not necessary because boostrap.php
+		 * is used in all tests and it defines MONGO_DBNAME as LAMPCMS_TEST
+		 * but this is just an extra precaution
+		 */
+		$aMongo = $oRegistry->Ini->getSection('MONGO');
+		$aMongo['db'] = 'LAMPCMS_TEST';
+		$oRegistry->Ini->setSection('MONGO', $aMongo);
+
+		$a = \json_decode($this->JSON_ENCODED, true);
+		parent::__construct($oRegistry, $a);
 	}
 }

@@ -90,7 +90,7 @@ class MongoCache implements Interfaces\Cache
 	/**
 	 * Flag indicates to compress data
 	 * this will save storage space if
-	 * values are fairly longs strings
+	 * values are fairly long strings
 	 * and if value is close to 4MB (limit of mongo document size)
 	 * then you should use this option
 	 *
@@ -227,8 +227,7 @@ class MongoCache implements Interfaces\Cache
 	 * this equals to flushing cache completely
 	 * all keys/values are gone after this call
 	 */
-	public function flush()
-	{
+	public function flush(){
 		$dropped = $this->_collection->drop();
 		d('dropped: '.print_r($dropped, 1));
 
@@ -247,8 +246,7 @@ class MongoCache implements Interfaces\Cache
 	 * @return mixed null if not found
 	 * or array
 	 */
-	public function getRawData($key)
-	{
+	public function getRawData($key){
 		$ret = $this->_collection->findOne(array('_id' => $key));
 
 		return (empty($ret)) ? null : $ret;

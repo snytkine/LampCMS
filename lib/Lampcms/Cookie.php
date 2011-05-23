@@ -85,7 +85,7 @@ class Cookie
 		 * Google Friend Connect or Facebook connect
 		 */
 
-		$salt = (defined('MOCK_COOKIE_SALT')) ? constant('MOCK_COOKIE_SALT') : COOKIE_SALT;
+		$salt = COOKIE_SALT;
 		$cookieSid = \hash('sha256', $intUserId.$salt);
 		$cookie = \http_build_query(array('uid' => $intUserId, 's' => $cookieSid));
 

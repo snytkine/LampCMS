@@ -88,9 +88,9 @@ class Tokenizer
 		$a = explode(' ', $string);
 		$ret = array();
 		foreach($a as $token){
-			$keyword = strtolower(trim($token));
+			$keyword = \mb_strtolower(trim($token));
 
-			if(strlen($keyword) > 2 && !in_array($keyword, $this->aStopwords)){
+			if(\mb_strlen($keyword) > 2 && !in_array($keyword, $this->aStopwords)){
 				$ret[] = $keyword;
 			}
 		}
