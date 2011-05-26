@@ -216,6 +216,19 @@ DISABLE_AUTOCOMPLETE = false
 ; but totally unnecessary for non-programming sites,
 ; so it's disabled by default
 ENABLE_CODE_EDITOR = false;
+; Options of RTE Editor
+[EDITOR]
+;
+; Add "Code editor" tools to RTE Editor
+; This is very useful for programming - related Q&A Sites
+; but totally unnecessary for non-programming sites,
+; so it's disabled by default
+ENABLE_CODE_EDITOR = false;
+;
+; Add "YouTube" button to editor
+; to allow adding youtube videos
+; to Questions and Answers
+ENABLE_YOUTUBE = true;
 
 [CAPTCHA]
 ; to disable captcha for any reason

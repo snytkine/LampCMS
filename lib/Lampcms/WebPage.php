@@ -839,11 +839,16 @@ abstract class WebPage extends Base
 	 *
 	 * @return object $this
 	 */
-	protected function enableCodeEditor(){
-		if($this->oRegistry->Ini->ENABLE_CODE_EDITOR){
+	protected function configureEditor(){
+		$a = $this->oRegistry->Ini->getSection('EDITOR');
+		if($a['ENABLE_CODE_EDITOR']){
 			d('enabling code highlighter');
 			$this->lastJs = array('/js/min/shCoreMin.js', '/js/min/dsBrushes.js');
 			$this->extraCss = '/js/min/sh.css';	
+		}
+		
+		if($a['ENABLE_YOUTUBE']){
+			$this->addMetaTag('btn_yt', '1');
 		}
 
 		return $this;

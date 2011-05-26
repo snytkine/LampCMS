@@ -174,7 +174,7 @@ class Viewquestion extends WebPage
 		$this->getQuestion()
 		->addMetas()
 		->sendCacheHeaders()
-		->enableCodeEditor()
+		->configureEditor()
 		->setTitle()
 		->addMetaTags()
 		->setAnswersHeader()

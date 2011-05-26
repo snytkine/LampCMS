@@ -182,7 +182,8 @@ class Answerparser extends LampcmsObject
 		 * Must pass array('drop-proprietary-attributes' => false)
 		 * otherwise tidy removes rel="code"
 		 */
-		$tidyConfig = ($this->oRegistry->Ini->ENABLE_CODE_EDITOR) ? array('drop-proprietary-attributes' => false) : null;
+		$aEditorConfig = $this->oRegistry->Ini->getSection('EDITOR');
+		$tidyConfig = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
 		$oBody = $this->oSubmittedAnswer->getBody()->tidy($tidyConfig)->safeHtml()->asHtml();
 
 		$htmlBody = HTMLStringParser::factory($oBody)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->valueOf();

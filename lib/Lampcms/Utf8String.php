@@ -957,14 +957,15 @@ class Utf8String extends String
 
 	/**
 	 * UTF-8 safe ucwords
+	 * 
+	 * Uses mb_convert_case($s, MB_CASE_TITLE, 'UTF-8');
+	 * http://us.php.net/mb_convert_case
+	 * 
 	 * @return object of this class ($this or new object)
 	 */
 	public function ucwords(){
-		$words = explode(' ', $this->string);
-		$ret = '';
-		foreach($words as $word){
-			$ret .= self::utf8_ucfirst($word).' ';
-		}
+
+		$ret = \mb_convert_case($this->string, MB_CASE_TITLE, 'UTF-8');
 
 		return $this->handleReturn(\trim($ret));
 	}

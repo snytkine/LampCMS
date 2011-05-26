@@ -93,7 +93,7 @@ class Edit extends WebPage
 	protected function main(){
 
 		$this->getResource()
-		->enableCodeEditor()
+		->configureEditor()
 		->checkPermission()
 		->makeForm()
 		->setForm()

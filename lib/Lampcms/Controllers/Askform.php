@@ -100,7 +100,7 @@ class Askform extends WebPage
 		$this->aPageVars['title'] = $this->title = 'Ask a question';
 
 		$this->addMetas()
-		->enableCodeEditor()
+		->configureEditor()
 		->makeForm()
 		->setMustLogin()
 		->setForm()

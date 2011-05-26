@@ -105,9 +105,9 @@ class Ask extends Askform
 			d('cp created new question');
 			d('title: '.$oQuestion['title']);
 
-			/*if(LAMPCMS_DEBUG){
+			if(LAMPCMS_DEBUG){
 				Responder::sendJSON(array());
-			}*/
+			}
 			
 			Responder::redirectToPage($oQuestion->getUrl());
 			

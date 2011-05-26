@@ -959,7 +959,7 @@ oSL.Regform = (function() {
 YUI({
 	/*filter: 'raw',
 	gallery : 'gallery-2010.08.18-17-12'*/
-		}).use('node', 'dump', 'event', 'escape', 'gallery-storage-lite', 'gallery-overlay-extras', 'dd-plugin', 'transition', 'yui2-container', 'yui2-editor', 'yui2-resize', 'yui2-animation', 'io-form', 'json', 'jsonp', 'imageloader', 'autocomplete', 'autocomplete-filters','autocomplete-highlighters', 'gallery-node-tokeninput', 'cookie', function(Y, result) {
+		}).use('node', 'dump', 'event', 'escape', 'gallery-storage-lite', 'gallery-overlay-extras', 'dd-plugin', 'anim', 'transition', 'yui2-container', 'yui2-editor', 'yui2-resize', 'yui2-animation', 'io-form', 'json', 'jsonp', 'imageloader', 'autocomplete', 'autocomplete-filters','autocomplete-highlighters', 'gallery-node-tokeninput', 'cookie', function(Y, result) {
 	
 		
 	var YAHOO = Y.YUI2, //
@@ -1169,7 +1169,35 @@ YUI({
 		
 		return ret;
 	},//
+	/**
+     * When user clicked in X icon
+     * in enter youtube url widget
+     * If still have placeholder
+     * and it is empty then remove it.
+     */
+	_handleWindowClose = function() {
+   	 // this isEditor
+       var el = this.currentElement[0];
+       el = new Y.Node(el);
+       if(el && el.hasClass('yui-media')){
+       	el.remove();
+       }
+       this.nodeChange();
+   }, //
+   _handleMediaWindow = function() {
+       
+       var win = new YAHOO.widget.EditorWindow('insertmedia', {
+           width: '415px'
+       });
 
+       win.setHeader('Add YouTube Video');
+       this.openWindow(win);
+
+       this.on('afterOpenWindow', function() {
+           this.get('panel').syncIframe();
+       }, this, true);
+       
+   }, //
 	/**
 	 * Each question/answer is allowed up to 4 up and down votes, after that
 	 * user can click on votes buttons untill he's blue in the face, nothing
@@ -1237,6 +1265,7 @@ YUI({
 	},
 
 	hideLoading = function(node){
+		//return;
 		if(loader){
 			loader.hide();
 		}
@@ -1286,7 +1315,7 @@ YUI({
 	setReadLinks = function(){
 		var uid, eDivs, stored, oStorage = Y.StorageLite, eQlist = Y.one('.qlist');
 		if(!eQlist){
-			Y.log('not on this page', 'warn');
+			Y.log('1318 not on this page', 'warn');
 			return;
 		}
 		eDivs = eQlist.all('.qs');
@@ -1379,6 +1408,30 @@ YUI({
 		if (incrementVoteCounter(id)) {
 			request = Y.io(el.get('href'));
 		}
+	}, //
+	makeYoutubePlayer = function(el){
+		var myAnim, div, id, url, player;
+		div = el.ancestor("div");
+		id = el.get("rev");
+		player = '<iframe width="480" height="390" src="http://www.youtube.com/embed/' +id+ '?rel=0" frameborder="0" allowfullscreen></iframe>';
+		
+		div.addClass('bg_black');
+		myAnim = new Y.Anim({
+		    node: div,
+		    to: {
+		        width: 480,
+		        height: 390
+		    }
+		});
+		 
+		myAnim.set('duration', 0.6);
+		myAnim.set('easing', Y.Easing.easeOut);
+		myAnim.on('end', function() {
+		    myAnim.get('node').set('innerHTML', player);
+		});
+		
+		myAnim.run();	
+		
 	}, //
 	/**
 	 * Handles click on "like comment" icon
@@ -1506,7 +1559,8 @@ YUI({
             request = Y.io('/index.php', cfg);
 	},
 	/**
-	 * This function executes onClick on any link with class 'ajax'
+	 * This function executes onClick on any element
+	 * with class 'ajax'
 	 */
 	handleAjaxLinks = function(e) {
 		var ancestor, //
@@ -1552,6 +1606,12 @@ YUI({
 			if(ensureLogin()){
 				handleLikeComment(el);
 			}
+			break;
+			
+		case el.test('.ytlink'):
+		case el.test('.ytplay'):
+			e.halt();
+			makeYoutubePlayer(el);			
 			break;
 			
 		case el.test('.fbsignup'):
@@ -2323,6 +2383,21 @@ YUI({
 
 	};
 
+	
+	var getYTbutton = function(){
+		var ret = {type : 'separator'};
+		if('1' == getMeta('btn_yt')){
+		ret = {
+				type: 'push',
+			      label: 'Insert YouTube Video',
+			      value: 'insertmedia',
+			      id: 'btn_youtube'
+					};
+		} 
+		
+		return ret;
+	};
+	
 	var getCodeButton = function(){
 		var ret = {type : 'separator'};
 		if (typeof dp !== 'undefined') {
@@ -2387,7 +2462,8 @@ YUI({
 		
 		return ret;
 	};
-	
+
+
 	var makeEditor = function(){
 		var codeButtons,
 		btnSeparator  = {type : 'separator'};
@@ -2402,7 +2478,7 @@ YUI({
 				width : '660px',
 				height : '140px',
 				autoHeight : true,
-				extracss : 'pre { margin-left: 10px; margin-right: 10px; padding: 2px; background-color: #EEE; } ',
+				extracss: '.ytplay{position: absolute; display: block; height: 44px; width: 44px; top: 23px; left: 37px;} .ytvid2{position: absolute; display: block; background: url(/images/play.png); height: 44px; width: 44px; top: 23px; left: 37px;} .yui-media { height: 90px; width: 120px; border: 1px solid black; background-color: #f2f2f2; background-image: url( "/images/media.gif" ); background-position: 45% 45%; background-repeat: no-repeat; } .play_vid, a.ytvid {margin-left:37px; margin-top:23px; position:absolute; width:44px;} .ytvideo {cursor: pointer; border: 1px solid black;} .cb {clear: both;} .fl {position: relative; float: left;}',
 				animate : true,
 				toolbar : {
 					buttons : [ {
@@ -2483,7 +2559,8 @@ YUI({
 							label : 'Insert Image',
 							value : 'insertimage',
 							disabled : false
-						}
+						},
+						getYTbutton()
 
 						]
 					}, btnSeparator, {
@@ -2506,12 +2583,30 @@ YUI({
 				}
 			});
 
+			editor.on('windowinsertmediaClose', function() {
+		        _handleWindowClose.call(this);
+		    }, editor, true);
+			
+			editor.cmd_insertmedia = function() {
+		        this.execCommand('insertimage', ''); // 'none'
+		        var el = this._swapEl(this.currentElement[0], 'div', function(el) {
+		            el.className = 'yui-media';
+		            YAHOO.util.Dom.setStyle(el, 'fontSize', '100px'); 
+		        });
+		        this.currentElement = [el];
+		        _handleMediaWindow.call(this);
+		 
+		        return [false]
+		    };
+			
+		    
 			editor.on('toolbarLoaded', function() {
 				
 				Y.log('2507 this is ' + this, 'warn'); // Editor
 
 				this.on('afterNodeChange', function(o) {
-					var btn = this.toolbar.getButtonByValue('codestyle');
+					var ytbtn = this.toolbar.getButtonByValue('insertmedia'), 
+					btn = this.toolbar.getButtonByValue('codestyle');
 					if(btn){
 						if (this._hasSelection()) {
 							this.toolbar.enableButton(btn);
@@ -2519,11 +2614,38 @@ YUI({
 							this.toolbar.disableButton(btn);
 						}
 					}
+					
+					if(ytbtn){
+					  if (this._hasSelection()) {
+				            this.toolbar.disableButton('insertmedia');
+				        } else {
+				            this.toolbar.enableButton('insertmedia');
+				            var el = this._getSelectedElement();
+				            el = new Y.Node(el);
+				            if (el.hasClass('yui-media')) {
+				                this.toolbar.selectButton('insertmedia');
+				            } else {
+				                this.toolbar.deselectButton('insertmedia');
+				            }
+				        }
+					}
+					
 					preview();
 				}, this, true);
 
-				
+				 editor.toolbar.on('insertmediaClick', function() {
+					 Y.log('this is: ' + this);
+			            var el = editor._getSelectedElement();
+			            Y.log('2618 el: ' + el);
+			            if (YAHOO.util.Dom.hasClass(el, 'yui-media')) {
+			            	editor.currentElement = [el];
+			                _handleMediaWindow.call(editor);
+			                return false;
+			            }
+			        }, this, true);
+				 
 				  this.on('editorKeyUp', function() { preview(); });
+				  
 				  
 				  /**
 					 * Handler for codeselectClick event Desired result: If selected
@@ -2626,7 +2748,121 @@ YUI({
 				editor.toolbar.on('saveClick', saveToStorage);
 			});
 
+			editor.on('windowRender', function() {
+				Y.log('windowRender 2731', 'warn');
+		        var _button, body = document.createElement('div');
 
+		        body.innerHTML = '<div class="pad10"><p>Paste Link to YouTube Video here:</p></div>';
+		        body.innerHTML += '<p class="pad10">Click "Share" button on YouTube Video page<br>then copy the link from there and paste it into this form</p>'
+		        body.innerHTML += '<div id="media_control" class="pad10"><form>URL: <input id="embed_url" type="text" value="" size="30" style="font-size: 1.5em; padding: 2px;"></form></div>';
+		        body.innerHTML += '<br><div id="media_cont" class="fl cb" style="margin-left: 20px;"></div><br>';
+		        
+		        editor._windows.insertmedia = {
+		            body: body
+		        };
+		 
+		        _button = new YAHOO.widget.Button({
+		            id: Y.guid(),
+		            container: 'media_cont',
+		            label: 'Add YouTube Video',
+		            value: 'notta'
+		        });
+		 
+		        _button.on('click', function() {
+		        	Y.log('151 this: ' + this); // Editor
+		        	
+		            var url, apiURL = 'http://gdata.youtube.com/feeds/api/videos/{id}?v=2&alt=jsonc&callback=', //
+		            handleJSONP, tpl, pos, src, imgId, input;
+		            input = (Y.one("#embed_url")) ? Y.one("#embed_url").get('value') : null;
+		            Y.log('153 input: ' + input);
+		            
+		            handleJSONP = function(resp){
+		            	var el, imgId, title = '', desc = '', err = 'Error returned from Youtube API. ';
+		            	// this is Object (not Editor)
+		            	
+		            	if(resp.error){
+		            		if(resp['error']['message']){
+		            			err += resp['error']['message'];
+		            			alert(err);
+		            			return;
+		            		}
+		            	} else {
+		            	    /**
+		                     * Replace placeholder with "A"
+		                     * set src to el.value
+		                     */
+		            		imgId = resp['data']['id'];
+		            		if(resp['data'] && resp.data['title']){
+		            			title = resp.data['title'];
+		            		}
+		            		if(resp['data'] && resp.data['description']){
+		            			desc = resp.data['description'];
+		            		}
+		            		
+		            		 el = editor._swapEl(editor.currentElement[0], 'div', function(el) {
+		                     	var myEl, tpl, html, bg = 'url("http://i.ytimg.com/vi/' + imgId + '/default.jpg")';
+		                     	myEl = new Y.Node(el);
+		                     	Y.log('183 myEl: ' + myEl);
+		                     	
+		                     	/*tpl = '<a href="http://youtu.be/{id}" class="ajax ytvid" id="yt_{id}" alt="{t}" title="{d}" target="_blank"><img src="/images/play.png" class="btn_play"></a>';
+		                     	
+		                    	tpl = '<a href="http://youtu.be/{id}" class="ajax ytlink" id="yt_{id}" alt="{t}" title="{d}"><img src="http://i.ytimg.com/vi/{id}/default.jpg" width="120px" height="90px"></a>';
+		                        tpl += '<span class="ajax ytvid2">&nbsp</span>';
+		                     	
+		                        */
+		                        tpl = '<a href="http://youtu.be/{id}" class="ajax ytlink ttt" rev="{id}" alt="{d}" title="{t}" target="_blank"><img src="http://i.ytimg.com/vi/{id}/default.jpg" width="120px" height="90px"></a>';
+		                        tpl += '<a href="http://youtu.be/{id}" class="ajax ytplay ttt" rev="{id}" alt="{d}" title="{t}" target="_blank"><img src="/images/play.png" width="44px" height="44px"></a>';
+		                     	
+		                        html = Y.Lang.sub(tpl, {id: imgId, t: title, d: desc});
+		   
+		                     	myEl.addClass('cb')
+		                     	.addClass('fl')
+		                     	//.addClass('ajax')
+		                     	.addClass('ytvideo')
+		                     	//.addClass('ttt')		                     	
+		                     	.setStyle('width', '120px')
+		                     	.setStyle('height', '90px')
+		                     	//.set('title', title)
+		                     	.set('innerHTML', html);
+		                     	//.setStyle('background', bg)
+
+		                     });
+		            		 el = new Y.Node(el);
+		            		 //el.insert(new Y.Node('<br>'), 'before');
+		            		 el.insert(new Y.Node('<br>'), 'after');
+		            		 // close EditorWindow
+		                     editor.closeWindow();
+		            		 editor.get('panel').syncIframe();            		 
+		            	}
+		            };
+		            
+		            if (input && input != '') {
+		             // this is Editor
+		                src = input;
+		                Y.log('src: ' + src);
+		                pos = src.lastIndexOf("/");
+		                Y.log('pos: ' + Y.dump(pos));
+		                if(-1 === pos){
+		                	alert('URL of YouTube Video does not look correct');
+		                	return;
+		                }
+		                /**
+		                 * @todo need better regex based
+		                 * parser to extract video id from url!
+		                 */
+		                imgId = src.substring(pos + 1);
+		                Y.log('169 imgId: ' + imgId);
+		                
+		                url = Y.Lang.sub(apiURL, {id: imgId});
+		                url += '{callback}';
+		                
+		                Y.log('189 url: ' + url);
+		                Y.jsonp(url, handleJSONP);
+		         
+		            }
+		        }, this, true);
+		 
+		    });
 			if(!Y.one('#iedit')){
 			Y.later(5000, editor, function() {
 					if (editor.editorDirty) {
@@ -3485,6 +3721,7 @@ YUI({
 		ttB = new YAHOO.widget.Tooltip("ttB", { 
 			context:TTT._nodes,
 			autodismissdelay: 5500,
+			width: '300px',
 			hidedelay: 350,
 			xyoffset: [-10, -45],
 			effect:{effect:YAHOO.widget.ContainerEffect.FADE,duration:0.20}
