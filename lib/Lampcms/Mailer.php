@@ -145,11 +145,15 @@ class Mailer extends LampcmsObject
 		$aHeaders['Reply-To'] = $this->adminEmail;
 		$headers = \Lampcms\prepareHeaders($aHeaders);
 
+		d('$subject: '.$subject.' body: '.$body.' headers: '.$headers.' $aTo: '.print_r($aTo, 1));
+
 		$callable = function() use ($subject, $body, $headers, $aTo, $func){
 
 			$total = (is_array($aTo)) ? count($aTo) : $aTo->count();
-			d('total: '.$total);
-
+			if(function_exists('d')){
+				d('total: '.$total);
+			}
+				
 			/**
 			 * @todo deal with breaking up
 			 * the long array/cursor into
@@ -211,13 +215,13 @@ class Mailer extends LampcmsObject
 							
 						continue;
 					}
-
-					d('sending to: '.$to);
+					
+					
 					$ER = error_reporting(0);
 					if(true !== @\mail($to, $subject, $body, $headers)){
 						if(function_exists('d')){
 							d('Server was unable to send out email at this time');
-						}
+						} 
 					}
 					error_reporting($ER);
 				}
