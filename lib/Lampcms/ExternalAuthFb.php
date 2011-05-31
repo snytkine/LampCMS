@@ -344,7 +344,7 @@ class ExternalAuthFb extends Facebook
 			d('existing user $this->oUser: '.print_r($this->oUser->getArrayCopy(), 1));
 			$this->updateUser()->updateFbUserRecord();
 			d('cp');
-			
+				
 			return $this->oUser;
 		}
 
@@ -650,16 +650,18 @@ class ExternalAuthFb extends Facebook
 		}
 
 		$oGeoData = $this->oRegistry->Cache->{sprintf('geo_%s', Request::getIP())};
-		$aProfile = array(
-		'cc' => $oGeoData->countryCode,
-		'country' => $oGeoData->countryName,
-		'state' => $oGeoData->region,
-		'city' => $oGeoData->city,
-		'zip' => $oGeoData->postalCode);
-		d('aProfile: '.print_r($aProfile, 1));
+		if(\is_object($oGeoData)){
+			$aProfile = array(
+			'cc' => $oGeoData->countryCode,
+			'country' => $oGeoData->countryName,
+			'state' => $oGeoData->region,
+			'city' => $oGeoData->city,
+			'zip' => $oGeoData->postalCode);
+			d('aProfile: '.print_r($aProfile, 1));
 
-		$aUser = \array_merge($aUser, $aProfile);
-
+			$aUser = \array_merge($aUser, $aProfile);
+		}
+		
 		if(!empty($this->aFbUserData['locale'])){
 			$aUser['locale'] = $this->aFbUserData['locale'];
 		}

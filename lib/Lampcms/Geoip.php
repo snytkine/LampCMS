@@ -388,7 +388,7 @@ class Geoip
 		}
 
 		/**
-		 * Getter for $this->ip
+		 * Getter for $this->ipnum
 		 * @return string
 		 */
 		public function getIpnum(){
@@ -455,9 +455,13 @@ class Geoip
 				self::$instances[$filename] = new self($filename, $flags);
 			}
 
-			d('returning instance for $filename '.$filename);
+			d('returning instance for $filename: '.$filename);
+			$ret = self::$instances[$filename];
+			d('ret: '.gettype($ret));
+			$class = (is_object($ret)) ? get_class($ret) : 'No GeoIP object = NULL';
+			d('class: '.$class);
 
-			return self::$instances[$filename];
+			return $ret;
 		}
 
 
@@ -632,7 +636,7 @@ class Geoip
 		 *                         - if database type is incorrect
 		 */
 		protected function lookupCountryId($addr){
-			$ipnum = ip2long($addr);
+			$ipnum = \ip2long($addr);
 			if ($ipnum === false) {
 				throw new Exception("Invalid IP address: " . var_export($addr, true));
 			}
@@ -753,6 +757,8 @@ class Geoip
 		 */
 		public function lookupLocation($addr){
 			if ($this->databaseType !== self::CITY_EDITION_REV0 && $this->databaseType !== self::CITY_EDITION_REV1) {
+				d('cp Error Invalid database type!');
+				
 				throw new Net_GeoIP_DB_Exception("Invalid database type; lookupLocation() method expects City database.");
 			}
 
@@ -828,24 +834,29 @@ class Geoip
 		 * Seek and populate
 		 * Net_GeoIP_Location object for converted IP addr.
 		 *
-		 * @return mixed object of type Net_GeoIP_Location | null
+		 * @return object of type Net_GeoIP_Location
 		 */
 		protected function getRecord(){
+			$record = new GeoipLocation();
 			$seek_country = $this->seekCountry($this->ipnum);
 			if ($seek_country == $this->databaseSegments) {
-				return null;
+				
+				d('Country not found! for ip: '.$this->ipnum);
+				
+				return $record;
 			}
 
 			$record_pointer = $seek_country + (2 * $this->recordLength - 1) * $this->databaseSegments;
 
 			if ($this->flags & self::SHARED_MEMORY) {
+				
 				$record_buf = shmop_read($this->shmid, $record_pointer, self::FULL_RECORD_LENGTH);
 			} else {
+				
+				
 				fseek($this->filehandle, $record_pointer, SEEK_SET);
 				$record_buf = fread($this->filehandle, self::FULL_RECORD_LENGTH);
 			}
-
-			$record = new GeoipLocation();
 
 			$record_buf_pos = 0;
 			$char = ord(substr($record_buf, $record_buf_pos, 1));
@@ -863,7 +874,7 @@ class Geoip
 				$char = ord(substr($record_buf,$record_buf_pos+$str_length,1));
 			}
 			if ($str_length > 0){
-				$record->set('region', \substr($record_buf,$record_buf_pos,$str_length)) ;
+				$record->set('region', \substr($record_buf,$record_buf_pos, $str_length)) ;
 			}
 			$record_buf_pos += $str_length + 1;
 			$str_length = 0;
@@ -874,25 +885,31 @@ class Geoip
 				$str_length++;
 				$char = ord(substr($record_buf,$record_buf_pos+$str_length,1));
 			}
+			
 			if ($str_length > 0){
 				$record->set('city', \substr($record_buf,$record_buf_pos,$str_length) );
 			}
+			
 			$record_buf_pos += $str_length + 1;
 			$str_length = 0;
 
 			//get postal code
 			$char = ord(substr($record_buf,$record_buf_pos+$str_length,1));
+			
 			while ($char != 0){
 				$str_length++;
 				$char = ord(substr($record_buf,$record_buf_pos+$str_length,1));
 			}
+			
 			if ($str_length > 0){
 				$record->set('postalCode', \substr($record_buf,$record_buf_pos,$str_length));
 			}
+			
 			$record_buf_pos += $str_length + 1;
 			$str_length = 0;
 			$latitude = 0;
 			$longitude = 0;
+			
 			for ($j = 0;$j < 3; ++$j){
 				$char = ord(substr($record_buf, $record_buf_pos++, 1));
 				$latitude += ($char << ($j * 8));
@@ -939,7 +956,7 @@ class Geoip
 			}
 
 			$this->ip = $addr;
-			$this->ipnum = ip2long($addr);
+			$this->ipnum = \ip2long($addr);
 
 			return $this;
 		}
@@ -953,13 +970,14 @@ class Geoip
 		 * @return object $objGeoData geolocation information data
 		 */
 		public static function getGeoData($strIp){
-
+			
 			if(!defined('GEOIP_FILE')){
 				d('GEOIP_FILE not defined');
 				return new GeoipLocation();
 			}
 
 			$file = constant('GEOIP_FILE');
+			d('$file: '.$file);
 			if(empty($file)){
 				d('GeoIP lookup not enabled because name of GEOIP_FILE is left blank in !config.ini');
 
@@ -967,6 +985,7 @@ class Geoip
 			}
 
 			if (!is_string($strIp)) {
+				
 				throw new \Lampcms\DevException('$strIp MUST be a string. Supplied value was: '.gettype($strIp));
 					
 			}
@@ -998,6 +1017,7 @@ class Geoip
 			}
 
 			$strFileGeoipRegion = LAMPCMS_PATH.DS.$file;
+			d('$strFileGeoipRegion: '.$strFileGeoipRegion);
 
 			/**
 			 * This will set the empty object
@@ -1007,19 +1027,25 @@ class Geoip
 			 * @var object
 			 */
 			if(!is_readable($strFileGeoipRegion)){
+				d('unable to load geoIP file: '.$strFileGeoipRegion);
+
 				throw new DevException('Unable to read geoIP file: '.$strFileGeoipRegion.' make sure file exists and is readable');
 			}
-
-
+				
 			try {
 				$hdlGeoIp = self::getInstance($strFileGeoipRegion, self::SHARED_MEMORY);
 				$objGeoData = $hdlGeoIp->lookupLocation($strIp);
+
 			}catch(Net_GeoIP_Exception $e) {
 				$err = 'Location data not found for IP: '.$strIp.' message: '.$e->getMessage();
 				e($err);
 				$objGeoData = new GeoipLocation();
 			}
-
+			
+			$class = (is_object($objGeoData)) ? get_class($objGeoData) : 'No objGeoData class = NULL';
+			d('returning: '.gettype($objGeoData).' class: '.$class);
+			
 			return $objGeoData;
 		}
+		
 }

@@ -52,7 +52,7 @@
 
 namespace Lampcms\Forms;
 
-
+use \Lampcms\String\HTMLString;
 /**
  * Class responsible
  * for processing the "Ask" form
@@ -149,26 +149,23 @@ class Askform extends Form
 	 * @return object $this
 	 */
 	protected function validateBody(){
-		$body = $this->oRegistry->Request['qbody'];
+
 		$minChars = $this->oRegistry->Ini->MIN_QUESTION_CHARS;
 		$minWords = $this->oRegistry->Ini->MIN_QUESTION_WORDS;
-		/**
-		 * We really need to check the length of
-		 * the content not couning html tags
-		 * otherwise it's possible to submit
-		 * even an empty question as long as it
-		 * has some line breaks and empty tags
-		 */
-		$body = trim(strip_tags($body));
-		if(\mb_strlen($body) < $minChars){
+		$body = $this->oRegistry->Request->getUTF8('qbody');
+		$oHtmlString = HTMLString::factory($body);
+		$wordCount = $oHtmlString->getWordsCount();
+		$len = $oHtmlString->length();
+		
+		if($len < $minChars){
 			/**
 			 * @todo Translate string
 			 */
 			$this->setError('qbody', 'Question must contain at least '.$minChars.' letters');
 		}
 
-		$aWords = explode(' ', $body);
-		if(count($aWords) < $minWords){
+		
+		if($wordCount < $minWords){
 			/**
 			 * @todo Translate string
 			 */

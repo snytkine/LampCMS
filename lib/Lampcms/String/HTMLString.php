@@ -52,6 +52,7 @@
 
 namespace Lampcms\String;
 
+use \Lampcms\Utf8String;
 
 /**
  * Class for parsing html fragment
@@ -236,6 +237,57 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
 	public function length(){
 
 		return \mb_strlen($this->getText());
+	}
+
+	
+	/**
+	 * Get all text nodes of this HTML string
+	 * 
+	 * @return object of type DOMNodeList
+	 */
+	public function getTextNodes(){
+		return $this->xpath('//text()');
+	}
+
+
+	/**
+	 * Get count of words in this html document
+	 * This is the right way to get word count
+	 * from HTML doc. The simple way of strip_tags and
+	 * then explode by spaces will not work if
+	 * html string is just one long
+	 * string run together without white spaces
+	 * and using regex is usually not the best way
+	 * to deal with html string.
+	 *
+	 * Each Text Node element is then treated
+	 * as separate UTF8String object
+	 *
+	 * This way each text node is split by UTF-8 specific word
+	 * delimeters, making it return correct word count
+	 * for Any type of language (not only splitting by spaces but
+	 * by other accepted delimiters)
+	 *
+	 * The resulting word count will be accurate for arabic, chinese,
+	 * and probably all other languages
+	 *
+	 * @return int count of words in this html string
+	 */
+	public function getWordsCount(){
+		$count = 0;
+		$Nodes = $this->getTextNodes();
+		$len = $Nodes->length;
+		if(!$Nodes || 0 === $len){
+				
+			return 0;
+		}
+
+		for($i = 0; $i < $len; $i += 1){
+			$UTF8String = Utf8String::factory($Nodes->item($i)->data, 'utf-8', true);
+			$count += $UTF8String->getWordsCount();
+		}
+
+		return $count;
 	}
 
 

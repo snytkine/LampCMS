@@ -50,6 +50,7 @@
  */
 
 
+
 namespace Lampcms;
 
 
@@ -95,6 +96,20 @@ class Mongo extends LampcmsObject
 	 */
 	protected $aInsertOption = array('safe' => true);
 
+	/**
+	 * Prefix for collection names
+	 * If set to any non-empty string then
+	 * ALL collections will be prefixed
+	 * with this string. This option
+	 * allows to override default collection names
+	 * used in this program in case the existing
+	 * database already has collections with same names
+	 * as in the program.
+	 *
+	 * @var string
+	 */
+	protected $prefix = "";
+
 
 	public function __construct(Ini $oIni){
 
@@ -123,6 +138,10 @@ class Mongo extends LampcmsObject
 			$err = 'LampcmsError unable to connect to Mongo: '.$e->getMessage();
 			e($err);
 			throw new DevException($err);
+		}
+
+		if(!empty($aConfig['prefix'])){
+			$this->prefix = (string)$aConfig['prefix'];
 		}
 	}
 
@@ -295,12 +314,39 @@ class Mongo extends LampcmsObject
 	 * @return object of type MongoCollection
 	 */
 	public function getCollection($collName){
-		if(!is_string($collName)){
+		if(!\is_string($collName)){
 			throw new \InvalidArgumentException('Param $collName must be a string. was: '.gettype($collName));
 		}
+
+
+		$coll = defined('Lampcms\Mongo\\'.$collName) ? \constant('Lampcms\Mongo\\'.$collName) : \constant('Lampcms\My\\'.$collName);
+		d('$coll: '.$coll);
 		
-		return $this->conn->selectCollection($this->dbname, $collName);
+		return $this->conn->selectCollection($this->dbname, $this->prefix.$coll);
 	}
+
+
+	/**
+	 * Getter for prefix
+	 *
+	 * @return string by default prefix is an empty String
+	 * which is perfectly fine
+	 *
+	 */
+	public function getPrefix(){
+		return $this->prefix;
+	}
+
+
+	/**
+	 * Setter for $this->prefix
+	 *
+	 * @param string $prefix
+	 */
+	public function setPrefix($prefix){
+		$this->prefix = (string)$prefix;
+	}
+
 
 	/**
 	 * Alias of getCollection()
@@ -324,7 +370,7 @@ class Mongo extends LampcmsObject
 	 * @return object of type MongoCollection
 	 */
 	public function __get($name){
-		return $this->conn->selectCollection($this->dbname, $name);
+		return $this->getCollection($name);
 	}
 
 

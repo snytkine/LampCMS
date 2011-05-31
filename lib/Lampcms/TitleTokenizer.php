@@ -55,8 +55,6 @@ namespace Lampcms;
 
 /**
  * Parser of title of one question
- * title is tokenized and array is stored
- * in QUESTION_TITLE_TAGS
  *
  *
  * @author Dmitri Snytkine

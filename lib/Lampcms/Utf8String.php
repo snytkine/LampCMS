@@ -1164,13 +1164,6 @@ class Utf8String extends String
 	}
 
 
-	public function stripTags(array $aAllowed = null){
-		$ret = \strip_tags($this->string, $aAllowed);
-
-		return $this->handleReturn($ret);
-	}
-
-
 	public function htmlentities(){
 		$ret = \htmlentities($this->string, ENT_NOQUOTES, 'UTF-8', false);
 
@@ -1195,8 +1188,7 @@ class Utf8String extends String
 	 *
 	 * @return object of this class
 	 */
-	public function toHtmlEntities()
-	{
+	public function toHtmlEntities(){
 
 	}
 

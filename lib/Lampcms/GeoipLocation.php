@@ -174,7 +174,7 @@ class GeoipLocation extends LampcmsObject implements \Serializable
      * @return object $this object
      */
     public function set($name, $val){
-    	if(array_key_exists($name, $this->aData)){
+    	if(\array_key_exists($name, $this->aData)){
     		$this->aData[$name] = \utf8_encode($val);
     	}
 

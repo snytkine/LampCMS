@@ -133,8 +133,7 @@ class Cache extends Observer
 	/**
 	 * @param Registry $oRegistry
 	 */
-	public function __construct(Registry $oRegistry)
-	{
+	public function __construct(Registry $oRegistry){
 		d('starting Cache');
 		parent::__construct($oRegistry);
 		$this->oTtl = new ArrayDefaults(array(), 0);
@@ -156,14 +155,12 @@ class Cache extends Observer
 	 * @return void
 	 * @throws Cache_Proxy_User_Exception
 	 */
-	public function __clone()
-	{
+	public function __clone(){
 		throw new DevException('Cloning this object is not allowed.');
 	}
 
 
-	public function __toString()
-	{
+	public function __toString(){
 
 		return 'object of type CacheHandler';
 	}
@@ -182,17 +179,17 @@ class Cache extends Observer
 	 *
 	 * @throws Cache_Proxy_User_Exception is case the requested key is not a string or array
 	 */
-	public function get($key, array $arrExtra = array())
-	{
+	public function get($key, array $arrExtra = array()){
 
 		d('$key: '.$key.' $arrExtra: '.print_r(array_keys($arrExtra), 1) );
 		$this->arrExtra = $arrExtra;
 
-		if (is_string($key)) {
+		if (\is_string($key)) {
 			d('cp');
 			$res = $this->getFromCache($key);
 			if (false === $res) {
 				$res = $this->getKeyValue($key);
+
 				$this->setValues($key, $res);
 			}
 
@@ -245,15 +242,14 @@ class Cache extends Observer
 
 
 
-	public function setCacheEngine(Interfaces\Cache $oCache = null)
-	{
+	public function setCacheEngine(Interfaces\Cache $oCache = null){
 		$this->oCacheInterface = $oCache;
 
 		return $this;
 	}
 
-	protected function getMissingKeys()
-	{
+	
+	protected function getMissingKeys(){
 		d('Could not get all keys from memcache'.print_r($this->aMissingKeys, 1));
 		$arrFoundKey = array();
 
@@ -275,18 +271,19 @@ class Cache extends Observer
 	 * @param $key
 	 * @return mixed a data returned for the requested key or false
 	 */
-	protected function getKeyValue($key)
-	{
+	protected function getKeyValue($key){
 		$aRes = explode('_', $key, 2);
 		$arg = (array_key_exists(1, $aRes)) ? $aRes[1] : null;
 
+		d('aRes: '.print_r($aRes, 1));
+		
 		/**
 		 * Check that method exists
 		 */
 		if (method_exists($this, $aRes[0])) {
 			$method = $aRes[0];
 			d('Looking for key: '.$key.' Going to use method: '.$method);
-			$res = call_user_func(array($this, $method), $arg);
+			$res = \call_user_func(array($this, $method), $arg);
 			d('res: '.print_r($res, true));
 
 			return $res;
@@ -342,15 +339,13 @@ class Cache extends Observer
 	 * @return mixed a value of the requested memcache key
 	 * @throws Cache_Proxy_User_Exception if requested key is not a string.
 	 */
-	public function __get($key)
-	{
+	public function __get($key){
 		if (!is_string($key)) {
 			throw new DevException('Cache key must be a string');
 		}
 		d('looking for '.$key);
 
 		return $this->get($key);
-
 	}
 
 
@@ -369,8 +364,7 @@ class Cache extends Observer
 	 * $this->hdlCache->somekey = ''; is not allowed. setting value to null or
 	 * using an empty array as value will also cause this exception.
 	 */
-	public function __set($strKey, $val)
-	{
+	public function __set($strKey, $val){
 
 		if (!is_string($strKey)) {
 			throw new DevException('Cache key must be a string');
@@ -395,8 +389,7 @@ class Cache extends Observer
 	 * @param $key
 	 * @return mixed whatever is returned from $oCache object
 	 */
-	protected function getFromCache($key)
-	{
+	protected function getFromCache($key){
 
 		if(true === $this->skipCache || null === $this->oCacheInterface){
 			d('cp');
@@ -423,17 +416,16 @@ class Cache extends Observer
 	 * @param $val
 	 * @return bool
 	 */
-	public function setValues($key, $val = '')
-	{
+	public function setValues($key, $val = ''){
 		if (!$this->skipCache) {
-			if (is_string($key)) {
-				
+			if (\is_string($key)) {
+
 				/**
 				 * @todo must ensure $val is utf-8 by
 				 * running it through Utf8String::factory()!
 				 * or better yet make setValue() that requires
 				 * Utf8string as value!
-				 * 
+				 *
 				 */
 				/**
 				 * must have a way to
@@ -446,7 +438,8 @@ class Cache extends Observer
 				 * for the thread array.
 				 */
 				if (!empty($val) || (0 === $val)) {
-
+					d('going to set key '.$key.' val: '.var_export($val, 1));
+					
 					return $this->oCacheInterface->set($key, $val, $this->oTtl[$key], $this->aTags);
 				}
 			} elseif (!empty($key)) {
@@ -473,8 +466,7 @@ class Cache extends Observer
 	 *
 	 * @throws Cache_Proxy_User_Exception is $key is not a string
 	 */
-	public function __isset($key)
-	{
+	public function __isset($key){
 		if (!is_string($key)) {
 			throw new DevException('$key can only be a string. Supplied argument was of type: '.gettype($key));
 		}
@@ -499,8 +491,7 @@ class Cache extends Observer
 	 *
 	 * @throws Cache_Proxy_User_Exception is $key is not a string
 	 */
-	public function __unset($key)
-	{
+	public function __unset($key){
 		if (!is_string($key)) {
 
 			throw new DevException('$key can only be a string. Supplied argument was of type: '.gettype($key));
@@ -515,6 +506,7 @@ class Cache extends Observer
 			return $ret;
 		}
 	}
+
 
 	/**
 	 * Handle events
@@ -560,7 +552,7 @@ class Cache extends Observer
 
 		d('html recent tags: '.$html);
 		$this->aTags = array('tags');
-		
+
 		return '<div class="tags-list">'.$html.'</div>';
 
 	}
@@ -586,9 +578,9 @@ class Cache extends Observer
 		if($count > $limit){
 			$ret .= '<div class="moretags"><a href="/tags/unanswered/"><span rel="in">All unanswered tags</span></a>';
 		}
-		
+
 		$this->aTags = array('tags');
-		
+
 		return $ret;
 	}
 
@@ -599,9 +591,7 @@ class Cache extends Observer
 	 *
 	 * @return object of type GeoipLocation
 	 */
-	protected function geo($strIp)
-	{
-			
+	protected function geo($strIp){			
 		d('getting geodata for ip: '.$strIp);
 
 		$strKey = 'geo_'.$strIp;
@@ -616,20 +606,22 @@ class Cache extends Observer
 
 		$this->aTags = array('geo');
 
+		d('returning oGeoIP: '.gettype($oGeoIP));
+		
 		return $oGeoIP;
 	}
+
 
 	/**
 	 * Creates and returns Acl object
 	 *
 	 * @return object of type \Lampcms\Acl\Acl
 	 */
-	protected function Acl()
-	{
+	protected function Acl(){
 		d('cp');
 		$this->aTags = array('acl', 'settings');
-		return new \Lampcms\Acl\Acl();
 
+		return new \Lampcms\Acl\Acl();
 	}
 
 

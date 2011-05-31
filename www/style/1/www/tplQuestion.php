@@ -70,8 +70,8 @@ class tplQuestion extends Lampcms\Template\Template
 			$a['sticky'] = ' sticky';
 		}
 		
-		if(!empty($a['comments'])){
-			$a['comments_html'] = tplComment::loop($a['comments']);
+		if(!empty($a['a_comments'])){
+			$a['comments_html'] = tplComment::loop($a['a_comments']);
 		}
 	}
 	
@@ -137,7 +137,7 @@ class tplQuestion extends Lampcms\Template\Template
 
 		<td class="td_question">
 		<div class="question-body" id="qbody-%1$s">%2$s</div>
-		<div class="tgs">%5$s</div>
+		<div class="fl cb tgs">%5$s</div>
 		<div class="question%19$s controls%16$s uid-%10$s" id="res_%1$s">
 		     <span class="icoc stub fr">&nbsp;</span><span class="ico ttt flag ajax" title="Flag this question as inappropriate"> </span>
 		</div>

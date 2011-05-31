@@ -467,6 +467,7 @@ abstract class WebPage extends Base
 		$this->addMetaTag('fb', ('' !== (string)$Viewer->getFacebookToken()) );
 
 		$js = (true === LAMPCMS_DEBUG) ? '/qa.js' : '/min/qa_'.JS_MIN_ID.'.js';
+		//$js = (true === LAMPCMS_DEBUG) ? '/temp1.js' : '/min/qa_'.JS_MIN_ID.'.js';
 		$src = $oIni->JS_SITE.'/js'.$js;
 
 		$this->aPageVars['JS'] = $src;

@@ -104,7 +104,7 @@ IMPORTANT: You Must use the link below to activate your account
 		}
 
 		$this->oEmail = MongoDoc::factory($this->oRegistry, 'EMAILS')->byEmail($this->email);
-		if('' == $this->oEmail->email){
+		if('' == $this->oEmail['email']){
 			throw new \Lampcms\NoemailException('You have not selected any email address for your account yet');
 		}
 
@@ -144,7 +144,9 @@ IMPORTANT: You Must use the link below to activate your account
 	protected function sendActivationEmail()
 	{
 		$tpl = $this->oRegistry->Ini->SITE_URL.'/aa/%d/%s';
-		$link = sprintf($tpl, $this->oEmail->_id, $this->oEmail->code);
+		$link = sprintf($tpl, $this->oEmail['_id'], $this->oEmail['code']);
+		d('$link: '.$link);
+		
 		$siteName = $this->oRegistry->Ini->SITE_NAME;
 		$body = vsprintf(self::EMAIL_BODY, array($siteName, $link));
 		$subject = sprintf(self::SUBJECT, $siteName);

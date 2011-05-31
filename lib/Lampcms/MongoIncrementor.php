@@ -63,23 +63,18 @@ namespace Lampcms;
  */
 class MongoIncrementor
 {
-	protected $oMongoDB;
+	
+	/**
+	 * Object of type Lampcms\Mongo
+	 * Enter description here ...
+	 * @var object of type \Lampcms\Mongo
+	 */
+	protected $oMongo;
 
 	public function __construct(Mongo $oMongo){
-		$this->oMongoDB = $oMongo->getDb();
+		$this->oMongo = $oMongo;
 	}
 
-	/**
-	 * Name of collection where to
-	 * store the auto-increment values
-	 * You can change it but only before you
-	 * store your first value.
-	 * Once you begin storing values of you
-	 * auto-increments, it's best not to change this, ever!
-	 *
-	 * @var string name of collection
-	 */
-	const COLLECTION_NAME = 'Autoincrements';
 
 	/**
 	 * The pseudo auto increment handling is done
@@ -114,7 +109,7 @@ class MongoIncrementor
 		}
 
 		$prevRecordID = null;
-		$coll = $this->oMongoDB->selectCollection(self::COLLECTION_NAME);
+		$coll = $this->oMongo->Autoincrements;
 		$coll->ensureIndex(array('coll' => 1, 'id' => 1), array('unique' => true));
 
 		/**

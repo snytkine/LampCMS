@@ -82,6 +82,8 @@ $lampcmsClasses = $libDir.DIRECTORY_SEPARATOR.'Lampcms'.DIRECTORY_SEPARATOR;
 require $lampcmsClasses.'Interfaces'.DIRECTORY_SEPARATOR.'All.php';
 require $lampcmsClasses.'Exception.php';
 require $lampcmsClasses.'Object.php';
+require $lampcmsClasses.'Mongo'.DIRECTORY_SEPARATOR.'Collections.php';
+require LAMPCMS_PATH.DIRECTORY_SEPARATOR.'Mycollections.php';
 require $lampcmsClasses.'Ini.php';
 require $lampcmsClasses.'Log.php';
 require $lampcmsClasses.'Request.php';
@@ -91,6 +93,7 @@ require $lampcmsClasses.'User.php'; // User is always used
 require $lampcmsClasses.'SplClassLoader.php';
 require $lampcmsClasses.'Registry.php';
 require $lampcmsClasses.'Template'.DIRECTORY_SEPARATOR.'Template.php';
+
 /**
  * Points.php is in non-standard directory,
  * in fact this file is not even included in distro

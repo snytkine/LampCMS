@@ -10,6 +10,16 @@ Persistent = 0
 [MONGO]
 server = "mongodb://127.0.0.2:27017"
 db = "LAMPCMS"
+; If you already have existing
+; Mongo Database with existing collections
+; you may want to set the prefix
+; all collections used by this program will
+; be prefixed with this word. 
+; For example you may set prefix to "Lampcms"
+; then collection USERS will become LampcmsUSERS
+; This will take care of possible name collisions with
+; existing collections
+prefix = ""
 
 [CACHE_MONGO]
 ; good option to use the same db as in "MONGO" section

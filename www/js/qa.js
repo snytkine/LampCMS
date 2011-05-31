@@ -959,7 +959,7 @@ oSL.Regform = (function() {
 YUI({
 	/*filter: 'raw',
 	gallery : 'gallery-2010.08.18-17-12'*/
-		}).use('node', 'dump', 'event', 'escape', 'gallery-storage-lite', 'gallery-overlay-extras', 'dd-plugin', 'anim', 'transition', 'yui2-container', 'yui2-editor', 'yui2-resize', 'yui2-animation', 'io-form', 'json', 'jsonp', 'imageloader', 'autocomplete', 'autocomplete-filters','autocomplete-highlighters', 'gallery-node-tokeninput', 'cookie', function(Y, result) {
+		}).use('node', 'dump', 'event', 'escape', 'gallery-storage-lite', 'gallery-overlay-extras', 'dd-plugin', 'anim', 'transition', 'yui2-container', 'yui2-editor', 'yui2-resize', 'io-form', 'json', 'jsonp', 'imageloader', 'autocomplete', 'autocomplete-filters','autocomplete-highlighters', 'gallery-node-tokeninput', 'cookie', function(Y, result) {
 	
 		
 	var YAHOO = Y.YUI2, //
@@ -1151,7 +1151,206 @@ YUI({
 		
 		return ret;
 	},//
+	/**
+     * When user clicked in X icon
+     * in enter youtube url widget
+     * If still have placeholder
+     * and it is empty then remove it.
+     * 
+     * 
+     * OK
+     */
+    _handleWindowClose = function() {
+    	 // this isEditor
+        var el = this.currentElement[0];
+        el = new Y.Node(el);
+        if(el && el.hasClass('yui-media')){
+        	el.remove();        	
+        } 
+        /**
+         * Clear value of "yourube url" input text
+         */
+        Y.one("#embed_url").set('value', '');
+        //Y.detach('youtube|*');
+        Y.Event.purgeElement("#btn_addvideo");
+        this.nodeChange();
+    },
+    /**
+	 * parseUri JS v0.1, by Steven Levithan (http://badassery.blogspot.com)
+	 * Splits any well-formed URI into the following parts 
+	 * (all are optional)  
+	 * @return array of url parts
+	 */
+	parseUri = function(sourceUri){
+        var uriParts, i = 0, uri = {}, //
+        uriPartNames = ["source","protocol","authority","domain","port","path","directoryPath","fileName","query","anchor"];
+        
+        uriParts = new RegExp("^(?:([^:/?#.]+):)?(?://)?(([^:/?#]*)(?::(\\d*))?)?((/(?:[^?#](?![^?#/]*\\.[^?#/.]+(?:[\\?#]|$)))*/?)?([^?#/]*))?(?:\\?([^#]*))?(?:#(.*))?").exec(sourceUri);
+        
+        for(i = 0; i < 10; i++){
+            uri[uriPartNames[i]] = (uriParts[i] ? uriParts[i] : "");
+        }
+        
+        // Always end directoryPath with a trailing backslash if a path was present in the source URI
+        // Note that a trailing backslash is NOT automatically inserted within or appended to the "path" key
+        if(uri.directoryPath.length > 0){
+            uri.directoryPath = uri.directoryPath.replace(/\/?$/, "/");
+        }
+        
+        return uri;
+    },
+    /**
+     * Extract value of video ID from youtube url string
+     * url is from the Youtube "Share" button
+     * it may be in different formats - thanks Youtube
+     */
+    getYTVidId = function(url){
+    	var myID, getID, path, a = parseUri(url),//
+    	re = /(?:v=)([^&\?]*)(?:[&]*)/gi;
+    	path = a['path'];
+    	Y.log('1186 path: ' + path);
+    	if(path.length < 2 || (-1 === path.indexOf('/'))){
+    		return false;
+    	}
+    	
+    	path = path.substr(1);
+    	Y.log('1192 path: ' + path);
+    	/**
+    	 * Now path can be: 'watch' = old url, must extract
+    	 * from query string v=-Tb5w0rtRcA
+    	 * OR it will be actual video ID
+    	 * but ONLY if not contains ? or &
+    	 */
+    	
+    	if('watch' !== path){
+    		if(/(\?|&)/.test(path)){ 	  
+    			Y.log('path contains &?');
+    			return false;
+    		}
+    		
+    		return path;
+    	} else if (!a.hasOwnProperty('query') || !a['query'] || a['query'].length < 3){
+    		Y.log('no "query"');
+    		return false;
+    	} else {
+    	
+	    	myID = re.exec(a['query']);
+	    	if(!myID || myID.length < 2 || myID[1].length < 1){
+	    		Y.log('1212 unable to extract');
+	    		return false;
+	    	}
+	    	
+	    		Y.log('1219 got vidID: ' + myID[1]);
+	    		return myID[1];
+    	}
+    },
+	/**
+	 * This function is fired when user
+	 * enters url of youtube video
+	 * in the add video EditorWindow - a small
+	 * modal window that appears when user clicks
+	 * on "Youtube" button on Editor.
+	 * This function precesses entered url of video,
+	 * extracts youtube video ID,
+	 * calls Youtube api, gets json back from API
+	 * and JSONP callback is executed which
+	 * replaces the placeholder div with
+	 * the new div and sticks thumbnail of video
+	 * linked to youtube video url (it will be handled
+	 * by onClick listener later, so clicking on it will
+	 * not take user to youtube but instead will replace thumb
+	 * with youtube player)
+	 * 
+	 */
+    parseYTInput = function() {
+
+                var url, apiURL = 'http://gdata.youtube.com/feeds/api/videos/{id}?v=2&alt=jsonc&callback=', //
+                handleJSONP, imgId, //
+                myinput1 = (Y.one("#embed_url")) ? Y.one("#embed_url").get('value') : null;
+                
+                handleJSONP = function(resp){
+                	var _doc = editor._getDoc(), el, html, imgId, title = '', desc = '', //
+                	err = 'Error returned from Youtube API. ',//
+        			//tpl = '<a href="http://youtu.be/{id}" class="ajax ytplay ttt" rev="{id}" title="{t}"><img src="/images/play.png" alt="Youtube video" width="44px" height="44px"/></a>';
+                 tpl = '<a href="http://youtu.be/{id}" class="ajax ytlink ttt" rev="{id}" title="{t}"><img src="http://i.ytimg.com/vi/{id}/default.jpg" alt="YouTube video" width="120px" height="90px"/></a>';
+                 tpl += '<a href="http://youtu.be/{id}" class="ajax ytplay ttt" rev="{id}" title="{t}"><img src="/images/play.png" alt="Play" width="44px" height="44px"/></a>';
+              	
+                	if(resp.error){
+                		if(resp['error']['message']){
+                			err += resp['error']['message'];
+                			alert(err);
+                			return;
+                		}
+                	} else {
+
+                		imgId = resp['data']['id'];
+                		if(resp['data'] && resp.data['title']){
+                			title = resp.data['title'];
+                		}
+                		if(resp['data'] && resp.data['description']){
+                			desc = resp.data['description'];
+                		}
+
+            			el = editor._swapEl(editor.currentElement[0], 'div', function(el) {
+
+                			//el.removeAttribute('style');
+                			// 
+                			//var bg = 'url( "http://i.ytimg.com/vi/'+imgId+'/default.jpg" )';
+                			//YAHOO.util.Dom.setStyle(el, 'background', bg);
+                			
+                			YAHOO.util.Dom.addClass(el, 'ajax');                	
+	                       	YAHOO.util.Dom.addClass(el, 'ytvideo');  
+	                       	YAHOO.util.Dom.setStyle(el, 'width', '120px');                        	
+	                       	YAHOO.util.Dom.setStyle(el, 'height', '90px');
+	                       	YAHOO.util.Dom.setStyle(el, 'min-height', '90px');                          	
+	                      	YAHOO.util.Dom.setStyle(el, 'margin-bottom', '5px');
+                			
+            			});
+            			             			
+            			html = Y.Lang.sub(tpl, {id: imgId, t: title});
+            			el.innerHTML = html;              			
+            			el.parentNode.appendChild(_doc.createElement("br"));
+                		editor.focus();
+                		editor.closeWindow();
+                		editor.get('panel').syncIframe(); 
+                	}
+                };
+                
+                if (myinput1 && '' !== myinput1) {
+             	   imgId = getYTVidId(myinput1);                	  
+             	   if(false === imgId){
+             		   	alert('URL of YouTube Video does not look correct');
+
+               		 	return;  
+             	   }
+                    
+                    url = Y.Lang.sub(apiURL, {id: imgId});
+                    url += '{callback}';
+                    Y.jsonp(url, handleJSONP);
+                }
+          
+    },
+    /**
+     * This function created EditorWindow
+     * and subscribes the button in that window
+     * to the onClick to execute parseYTInput
+     */
+    _handleMediaWindow = function() {
+     
+	     var btn, win = new YAHOO.widget.EditorWindow('insertmedia', {
+	         width: '415px'
+	     });
 	
+	     // el is first HTMLBody // when double clicked then HTMLDivElement yui-media
+	     win.setHeader('Add YouTube Video');
+	     this.openWindow(win);	
+	    // Y.on("youtube|click", parseYTInput, "#btn_addvideo");    
+	     Y.on("click", parseYTInput, "#btn_addvideo"); 
+	     this.on('afterOpenWindow', function() {
+	         this.get('panel').syncIframe();
+	     }, this, true);
+     
+    },
 	/**
 	 * MiniMarkDown decode
 	 * Turn html back into mini markdown
@@ -1169,35 +1368,6 @@ YUI({
 		
 		return ret;
 	},//
-	/**
-     * When user clicked in X icon
-     * in enter youtube url widget
-     * If still have placeholder
-     * and it is empty then remove it.
-     */
-	_handleWindowClose = function() {
-   	 // this isEditor
-       var el = this.currentElement[0];
-       el = new Y.Node(el);
-       if(el && el.hasClass('yui-media')){
-       	el.remove();
-       }
-       this.nodeChange();
-   }, //
-   _handleMediaWindow = function() {
-       
-       var win = new YAHOO.widget.EditorWindow('insertmedia', {
-           width: '415px'
-       });
-
-       win.setHeader('Add YouTube Video');
-       this.openWindow(win);
-
-       this.on('afterOpenWindow', function() {
-           this.get('panel').syncIframe();
-       }, this, true);
-       
-   }, //
 	/**
 	 * Each question/answer is allowed up to 4 up and down votes, after that
 	 * user can click on votes buttons untill he's blue in the face, nothing
@@ -1223,7 +1393,6 @@ YUI({
 		
 		return ret;
 	}, //
-
 	/**
 	 * Get timezone offset based on user clock
 	 * 
@@ -1237,7 +1406,7 @@ YUI({
 	}, //
 	
 	showLoading = function(node, header){
-		var target, box, label = (header) ? header : 'Loading...', width, height;
+		var label = (header) ? header : 'Loading...';
 		if(!loader){			
 		loader = new Y.Overlay({
 			centered: true,
@@ -1283,7 +1452,7 @@ YUI({
 		google.friendconnect.requestSignIn();
 		
 		return;
-	},
+	},//
 	/**
 	 * Record value of timestamp
 	 * when user views the question
@@ -1410,7 +1579,7 @@ YUI({
 		}
 	}, //
 	makeYoutubePlayer = function(el){
-		var myAnim, div, id, url, player;
+		var myAnim, div, id, player;
 		div = el.ancestor("div");
 		id = el.get("rev");
 		player = '<iframe width="480" height="390" src="http://www.youtube.com/embed/' +id+ '?rel=0" frameborder="0" allowfullscreen></iframe>';
@@ -1565,15 +1734,13 @@ YUI({
 	handleAjaxLinks = function(e) {
 		var ancestor, //
 		id, //
-		res, //
 		rtype, //
 		restype, //
 		resID, //
 		fbappid, //
 		fbcookie, //
-		el = e.currentTarget,
-		target = e.target;
-		Y.log('el is ' + el + ' id is: ' + el.get('id') + ' target: ' + target + ' tagName: ' + el.get('tagName'));
+		el = e.currentTarget;
+		Y.log('el is ' + el + ' id is: ' + el.get('id') + ' tagName: ' + el.get('tagName'));
 		id = el.get('id');
 		//e.halt();
 		//e.preventDefault();
@@ -1904,7 +2071,7 @@ YUI({
 		}
 		//Y.log('el: ' + el);
 		el.removeClass('unfollow');
-		var viewerDiv, title, controls, id, resID, ftype = 'q', follow = 'on', form, //
+		var viewerDiv, title, controls, resID, ftype = 'q', follow = 'on', form, //
 		oLabels = {'q' : 'question', 'u' : 'user', 't' : 'tag'};
 		resID = el.getAttribute('lampcms:follow');
 		ftype = el.getAttribute('lampcms:ftype');
@@ -2469,17 +2636,15 @@ YUI({
 		btnSeparator  = {type : 'separator'};
 		if(Y.one("#id_qbody") && Y.all('.com_hand').isEmpty()){
 		codeButtons = getCodeButton();
-		
 			/**
 			 * Instantiate editor
 			 */
 			editor = new YAHOO.widget.Editor('id_qbody', {
 				dompath : false, // without dompath resize does not work
-				width : '660px',
-				height : '140px',
-				autoHeight : true,
-				extracss: '.ytplay{position: absolute; display: block; height: 44px; width: 44px; top: 23px; left: 37px;} .ytvid2{position: absolute; display: block; background: url(/images/play.png); height: 44px; width: 44px; top: 23px; left: 37px;} .yui-media { height: 90px; width: 120px; border: 1px solid black; background-color: #f2f2f2; background-image: url( "/images/media.gif" ); background-position: 45% 45%; background-repeat: no-repeat; } .play_vid, a.ytvid {margin-left:37px; margin-top:23px; position:absolute; width:44px;} .ytvideo {cursor: pointer; border: 1px solid black;} .cb {clear: both;} .fl {position: relative; float: left;}',
-				animate : true,
+				width : '650px',
+				height : '180px',
+				autoHeight : !(Y.UA.ie > 0), // autoHeight in IE is buggy, disable it
+				extracss: 'pre { margin-left: 10px; margin-right: 10px; padding: 2px; background-color: #EEE; } a.ytplay{position: absolute; display: block; height: 44px; width: 44px; top: 23px; left: 38px;} .yui-media { height: 90px; width: 120px; border: 1px solid black; background-color: #f2f2f2; background-image: url( "/images/media.gif" ); background-position: 45% 45%; background-repeat: no-repeat; }  .ytvideo {border: 1px solid black; cursor: pointer; position: relative; clear: both; margin-bottom: 5px;}',
 				toolbar : {
 					buttons : [ {
 						group : 'saveclear',
@@ -2582,7 +2747,33 @@ YUI({
 					} ]
 				}
 			});
+			/**
+			 * Original code from YUI2 Editor has genocidal behaviour in
+			 * Chrome. Replacing it now!
+			 */
+			editor.filter_safari = function(html) {
+	            if (this.browser.webkit) {
+	                //<span class="Apple-tab-span" style="white-space:pre">	</span>
+	                html = html.replace(/<span class="Apple-tab-span" style="white-space:pre">([^>])<\/span>/gi, '&nbsp;&nbsp;&nbsp;&nbsp;');
+	                html = html.replace(/Apple-style-span/gi, '');
+	                html = html.replace(/style="line-height: normal;"/gi, '');
+	                html = html.replace(/yui-wk-div/gi, '');
+	                html = html.replace(/yui-wk-p/gi, '');
 
+	                //Remove bogus LI's
+	                html = html.replace(/<li><\/li>/gi, '');
+	                html = html.replace(/<li> <\/li>/gi, '');
+	                html = html.replace(/<li>  <\/li>/gi, '');
+	                //Remove bogus DIV's - updated from just removing the div's to replacing /div with a break
+	                if (this.get('ptags')) {
+			            html = html.replace(/<div([^>]*)>/g, '<p$1>');
+					    html = html.replace(/<\/div>/gi, '</p>');
+	                }
+	            }
+	            return html;
+	        };
+	        
+	        
 			editor.on('windowinsertmediaClose', function() {
 		        _handleWindowClose.call(this);
 		    }, editor, true);
@@ -2596,7 +2787,7 @@ YUI({
 		        this.currentElement = [el];
 		        _handleMediaWindow.call(this);
 		 
-		        return [false]
+		        return [false];
 		    };
 			
 		    
@@ -2636,7 +2827,7 @@ YUI({
 				 editor.toolbar.on('insertmediaClick', function() {
 					 Y.log('this is: ' + this);
 			            var el = editor._getSelectedElement();
-			            Y.log('2618 el: ' + el);
+			            // Y.log('2618 el: ' + el);
 			            if (YAHOO.util.Dom.hasClass(el, 'yui-media')) {
 			            	editor.currentElement = [el];
 			                _handleMediaWindow.call(editor);
@@ -2644,7 +2835,7 @@ YUI({
 			            }
 			        }, this, true);
 				 
-				  this.on('editorKeyUp', function() { preview(); });
+				 this.on('editorKeyUp', function() { preview(); });
 				  
 				  
 				  /**
@@ -2749,120 +2940,18 @@ YUI({
 			});
 
 			editor.on('windowRender', function() {
-				Y.log('windowRender 2731', 'warn');
-		        var _button, body = document.createElement('div');
-
-		        body.innerHTML = '<div class="pad10"><p>Paste Link to YouTube Video here:</p></div>';
-		        body.innerHTML += '<p class="pad10">Click "Share" button on YouTube Video page<br>then copy the link from there and paste it into this form</p>'
-		        body.innerHTML += '<div id="media_control" class="pad10"><form>URL: <input id="embed_url" type="text" value="" size="30" style="font-size: 1.5em; padding: 2px;"></form></div>';
-		        body.innerHTML += '<br><div id="media_cont" class="fl cb" style="margin-left: 20px;"></div><br>';
-		        
-		        editor._windows.insertmedia = {
+		        var body = document.createElement('div');	        
+		        body.innerHTML = '<p>Paste Link to YouTube Video here:</p>';
+		        body.innerHTML += '<p>Click "Share" button on YouTube Video page<br>then copy the link from there and paste it into this form</p>';
+		        body.innerHTML += '<div id="media_control"><form>URL: <input id="embed_url" type="text" value="" size="30" style="font-size: 1.5em; padding: 2px;"></form></div>';
+		        body.innerHTML += '<br><div id="media_cont" class="fl cb" style="margin-left: 35px;"><button id="btn_addvideo" type="button" style="padding: 4px; font-size: 1em; cursor: pointer;">Add YouTube Video</button></div><br>';
+		        body.className = 'pad10';
+		       editor._windows.insertmedia = {
 		            body: body
 		        };
 		 
-		        _button = new YAHOO.widget.Button({
-		            id: Y.guid(),
-		            container: 'media_cont',
-		            label: 'Add YouTube Video',
-		            value: 'notta'
-		        });
-		 
-		        _button.on('click', function() {
-		        	Y.log('151 this: ' + this); // Editor
-		        	
-		            var url, apiURL = 'http://gdata.youtube.com/feeds/api/videos/{id}?v=2&alt=jsonc&callback=', //
-		            handleJSONP, tpl, pos, src, imgId, input;
-		            input = (Y.one("#embed_url")) ? Y.one("#embed_url").get('value') : null;
-		            Y.log('153 input: ' + input);
-		            
-		            handleJSONP = function(resp){
-		            	var el, imgId, title = '', desc = '', err = 'Error returned from Youtube API. ';
-		            	// this is Object (not Editor)
-		            	
-		            	if(resp.error){
-		            		if(resp['error']['message']){
-		            			err += resp['error']['message'];
-		            			alert(err);
-		            			return;
-		            		}
-		            	} else {
-		            	    /**
-		                     * Replace placeholder with "A"
-		                     * set src to el.value
-		                     */
-		            		imgId = resp['data']['id'];
-		            		if(resp['data'] && resp.data['title']){
-		            			title = resp.data['title'];
-		            		}
-		            		if(resp['data'] && resp.data['description']){
-		            			desc = resp.data['description'];
-		            		}
-		            		
-		            		 el = editor._swapEl(editor.currentElement[0], 'div', function(el) {
-		                     	var myEl, tpl, html, bg = 'url("http://i.ytimg.com/vi/' + imgId + '/default.jpg")';
-		                     	myEl = new Y.Node(el);
-		                     	Y.log('183 myEl: ' + myEl);
-		                     	
-		                     	/*tpl = '<a href="http://youtu.be/{id}" class="ajax ytvid" id="yt_{id}" alt="{t}" title="{d}" target="_blank"><img src="/images/play.png" class="btn_play"></a>';
-		                     	
-		                    	tpl = '<a href="http://youtu.be/{id}" class="ajax ytlink" id="yt_{id}" alt="{t}" title="{d}"><img src="http://i.ytimg.com/vi/{id}/default.jpg" width="120px" height="90px"></a>';
-		                        tpl += '<span class="ajax ytvid2">&nbsp</span>';
-		                     	
-		                        */
-		                        tpl = '<a href="http://youtu.be/{id}" class="ajax ytlink ttt" rev="{id}" alt="{d}" title="{t}" target="_blank"><img src="http://i.ytimg.com/vi/{id}/default.jpg" width="120px" height="90px"></a>';
-		                        tpl += '<a href="http://youtu.be/{id}" class="ajax ytplay ttt" rev="{id}" alt="{d}" title="{t}" target="_blank"><img src="/images/play.png" width="44px" height="44px"></a>';
-		                     	
-		                        html = Y.Lang.sub(tpl, {id: imgId, t: title, d: desc});
-		   
-		                     	myEl.addClass('cb')
-		                     	.addClass('fl')
-		                     	//.addClass('ajax')
-		                     	.addClass('ytvideo')
-		                     	//.addClass('ttt')		                     	
-		                     	.setStyle('width', '120px')
-		                     	.setStyle('height', '90px')
-		                     	//.set('title', title)
-		                     	.set('innerHTML', html);
-		                     	//.setStyle('background', bg)
-
-		                     });
-		            		 el = new Y.Node(el);
-		            		 //el.insert(new Y.Node('<br>'), 'before');
-		            		 el.insert(new Y.Node('<br>'), 'after');
-		            		 // close EditorWindow
-		                     editor.closeWindow();
-		            		 editor.get('panel').syncIframe();            		 
-		            	}
-		            };
-		            
-		            if (input && input != '') {
-		             // this is Editor
-		                src = input;
-		                Y.log('src: ' + src);
-		                pos = src.lastIndexOf("/");
-		                Y.log('pos: ' + Y.dump(pos));
-		                if(-1 === pos){
-		                	alert('URL of YouTube Video does not look correct');
-		                	return;
-		                }
-		                /**
-		                 * @todo need better regex based
-		                 * parser to extract video id from url!
-		                 */
-		                imgId = src.substring(pos + 1);
-		                Y.log('169 imgId: ' + imgId);
-		                
-		                url = Y.Lang.sub(apiURL, {id: imgId});
-		                url += '{callback}';
-		                
-		                Y.log('189 url: ' + url);
-		                Y.jsonp(url, handleJSONP);
-		         
-		            }
-		        }, this, true);
-		 
 		    });
+			
 			if(!Y.one('#iedit')){
 			Y.later(5000, editor, function() {
 					if (editor.editorDirty) {
@@ -2877,6 +2966,7 @@ YUI({
 				editorValue = Y.StorageLite.getItem(getStorageKey());
 				if (body && !Y.one('#iedit') && null !== editorValue && '' !== editorValue) {
 					body.set('value', editorValue);
+					Y.one('#tmp_preview').set('innerHTML', editorValue);
 					if(Y.one("#id_title")){
 						title = Y.StorageLite.getItem('title');
 						tags = Y.StorageLite.getItem('tags');
@@ -2891,7 +2981,9 @@ YUI({
 				} else {
 					write('Editor ready');
 				}
+				Y.log('2984 rendering editor ', 'error');
 				editor.render();
+				
 				});
 			
 
@@ -2901,8 +2993,9 @@ YUI({
 			 */
 			getEditedText = function() {
 				var i, pre, holder, html = editor.getEditorHTML();
-				html = editor.cleanHTML(html);
-				//Y.log(' got html from editor: ' + html);
+				Y.log('3059 raw editor html: ' + html, 'warn');
+				html = editor.cleanHTML(html);				
+				Y.log('3061 html after cleanHTML: ' + html);
 				
 				/**
 				 * Lines below are part of code editing
@@ -2925,6 +3018,8 @@ YUI({
 					for ( i = 0; i < pre.length; i++) {
 						pre[i].innerHTML = "\n" + pre[i].innerHTML.replace(/<br>/g, "\n") + "\n";
 						pre[i].innerHTML = "\n" + pre[i].innerHTML.replace(/&nbsp;/g, " ") + "\n";
+						//pre[i].innerHTML = pre[i].innerHTML.replace(/<br>/g, "&#10;");
+						//pre[i].innerHTML = pre[i].innerHTML.replace(/&nbsp;/g, " ");
 					}
 	
 					html = holder.innerHTML;
@@ -2934,16 +3029,17 @@ YUI({
 				return html;
 			};
 
-			previewDiv = Y.one('#tmp_preview');
-
 			preview = function() {
-				previewDiv = (previewDiv) ? previewDiv : null;
+				var h, sh, previewDiv,//
+				pd = Y.one('#tmp_preview');
+				previewDiv = (pd) ? pd : null;
+				h = previewDiv.getStyle('height');
+				//sh = previewDiv.getStyle('scroll-height');
 				if (previewDiv) {
 					previewDiv.set('innerHTML', getEditedText());
+					previewDiv.setStyle('height', (h+5));
 				}
-				
-				// activate hightlighter here
-				// dp.sh.ClipboardSwf = '/js/min/clipboard.swf';
+
 				if ((typeof dp !== 'undefined') && dp.SyntaxHighlighter){
 					dp.SyntaxHighlighter.HighlightAll('codepreview');
 				}
@@ -3826,12 +3922,7 @@ YUI({
 	
 	Y.on('submit', MysubmitForm, '.qa_form');
 	
-	/**
-	 * Listening the clicks on links inside #lastdiv
-	 * allows us to dynamically add modals and panels
-	 * to lastdiv and already subscriebed listeners will
-	 * just work
-	 */
+
 	Y.delegate("click", handleAjaxLinks, "body", '.ajax');
 	Y.one('body').delegate("hover", handleOver, handleOut, '.following');
 	

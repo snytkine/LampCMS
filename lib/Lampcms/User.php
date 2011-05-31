@@ -659,14 +659,30 @@ Interfaces\BloggerUser
 	}
 
 
+	/**
+	 * Get Location of user based on GeoIP data 
+	 * (or data
+	 * that user has entered in profile, which will
+	 * override the GeoIP data that we get during
+	 * the registration)
+	 * 
+	 * @return string
+	 */
 	public function getLocation(){
 		$country = $this->offsetGet('country');
 		$state = $this->offsetGet('state');
 		$city = $this->offsetGet('city');
+		$hasCity = false;
 
 		$ret = '';
-		if(!empty($city) && !empty($state)){
-			$ret .= $city.', '.$state;
+		
+		if(!empty($city)){
+			$hasCity = true;
+			$ret .= $city;
+		}
+		
+		if(!empty($state) && !\is_numeric($state)){
+			$ret = ($hasCity) ? ', '.$state : $state;
 		}
 
 		if(!empty($country)){

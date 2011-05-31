@@ -274,6 +274,7 @@ class HTMLStringParser extends HTMLString
 	}
 
 
+
 	/**
 	 *
 	 * Parse text nodes and replace text that looks like

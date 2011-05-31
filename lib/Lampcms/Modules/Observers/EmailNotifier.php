@@ -287,7 +287,7 @@ site %5$s and navigating to Settings > Email preferences
 
 	/**
 	 * @todo Finish this by adding handling
-	 * updates onNewComment, onEditedQuestion, onQuestionVote,
+	 * updates onEditedQuestion, onQuestionVote,
 	 * onAcceptAnswer, etc...
 	 * and later deal with comment replies
 	 *

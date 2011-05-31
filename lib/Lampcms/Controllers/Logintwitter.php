@@ -488,15 +488,17 @@ class Logintwitter extends WebPage
 		$aUser['i_rep'] = 1;
 
 		$oGeoData = $this->oRegistry->Cache->{sprintf('geo_%s', Request::getIP())};
-		$aProfile = array(
-		'cc' => $oGeoData->countryCode,
-		'country' => $oGeoData->countryName,
-		'state' => $oGeoData->region,
-		'city' => $oGeoData->city,
-		'zip' => $oGeoData->postalCode);
-		d('aProfile: '.print_r($aProfile, 1));
+		if(\is_object($oGeoData)){
+			$aProfile = array(
+			'cc' => $oGeoData->countryCode,
+			'country' => $oGeoData->countryName,
+			'state' => $oGeoData->region,
+			'city' => $oGeoData->city,
+			'zip' => $oGeoData->postalCode);
+			d('aProfile: '.print_r($aProfile, 1));
 
-		$aUser = array_merge($aUser, $aProfile);
+			$aUser = array_merge($aUser, $aProfile);
+		}
 
 		if(!empty($this->aUserData['url'])){
 			$aUser['url'] = $this->aUserData['url'];
@@ -601,9 +603,8 @@ class Logintwitter extends WebPage
 	}
 
 
-
 	/**
-	 * Create a new record in USERS_GFC table
+	 * Create a new record in USERS_TWITTER table
 	 * or update an existing record
 	 *
 	 * @param unknown_type $isUpdate

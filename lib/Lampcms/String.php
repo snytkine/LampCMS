@@ -351,6 +351,15 @@ class String extends LampcmsObject implements \Serializable
 
 		return $this->handleReturn(\trim($text));
 	}
+	
+	
+
+
+	public function stripTags(array $aAllowed = null){
+		$ret = \strip_tags($this->string, $aAllowed);
+
+		return $this->handleReturn($ret);
+	}
 
 
 	/**

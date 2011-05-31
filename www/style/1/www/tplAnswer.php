@@ -74,8 +74,8 @@ class tplAnswer extends Lampcms\Template\Template
 			$a['deletedby'] = \tplDeletedby::parse($a['a_deleted'], false);
 		}
 
-		if(!empty($a['comments'])){
-			$a['comments_html'] = tplComment::loop($a['comments']);
+		if(!empty($a['a_comments'])){
+			$a['comments_html'] = tplComment::loop($a['a_comments']);
 		}
 	}
 

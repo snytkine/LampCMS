@@ -253,6 +253,7 @@ You can change your password after you log in.
 		$aData['i_rep'] = 1;
 		$oGeoData = $this->oRegistry->Cache->{sprintf('geo_%s', Request::getIP())};
 		$aProfile = array();
+		
 		if($oGeoData){
 			$aProfile = array(
 			'cc' => $oGeoData->countryCode,
@@ -260,10 +261,10 @@ You can change your password after you log in.
 			'state' => $oGeoData->region,
 			'city' => $oGeoData->city,
 			'zip' => $oGeoData->postalCode);
-			d('aProfile: '.print_r($aProfile, 1));
+			d('aProfile: '.print_r($aProfile, 1));			
 		}
-
-		$aUser = array_merge($aData, $aProfile);
+		
+		$aUser = \array_merge($aData, $aProfile);
 
 		d('aUser: '.print_r($aUser, 1));
 
@@ -310,11 +311,13 @@ You can change your password after you log in.
 			'has_gravatar' => \Lampcms\Gravatar::factory($this->email)->hasGravatar(),
 			'ehash' => hash('md5', $this->email),
 			'i_code_ts' => time(),
-			'code' => substr(hash('md5', uniqid(mt_rand())), 0, 12));
-
+			'code' => \substr(hash('md5', \uniqid(\mt_rand())), 0, 12));
+		
 		$this->oEmail = \Lampcms\MongoDoc::factory($this->oRegistry, 'EMAILS', $a);
-		$this->oEmail->save();
-
+		
+		$res = $this->oEmail->save();
+		d('$res: '.$res);
+		
 		return $this;
 	}
 
@@ -324,18 +327,16 @@ You can change your password after you log in.
 	 *
 	 * @return string url of account activation link
 	 */
-	protected function makeActivationLink()
-	{
+	protected function makeActivationLink(){
 		$tpl = $this->oRegistry->Ini->SITE_URL.'/aa/%d/%s';
-		$link = sprintf($tpl, $this->oEmail->_id, $this->oEmail->code);
+		$link = \sprintf($tpl, $this->oEmail['_id'], $this->oEmail['code']);
 		d('activation link: '.$link);
 
 		return $link;
 	}
 
 
-	protected function sendActivationEmail()
-	{
+	protected function sendActivationEmail(){
 		$sActivationLink = $this->makeActivationLink();
 		$siteName = $this->oRegistry->Ini->SITE_NAME;
 		$body = vsprintf(self::EMAIL_BODY, array($siteName, $this->username, $this->pwd, $sActivationLink));

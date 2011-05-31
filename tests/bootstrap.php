@@ -56,7 +56,7 @@
  * LampcmsArray X
  * ArrayDefaults X
  * String X
- * Utf8String
+ * Utf8String X
  * Dom\Document
  * String\HTMLString
  * String\HTMLStringParser
@@ -71,6 +71,7 @@
  * Dispatcher
  * HtmlSafe
  * Template
+ * Validate
  * 
  * User X
  * Answer X
@@ -89,7 +90,7 @@
  * AnswerParser
  * QuestionParser
  * 
- * Validate
+ * 
  * Acl
  * Base
  * UserAuth
@@ -193,6 +194,7 @@ require $lampcmsClasses.'Exception.php';
 require $lampcmsClasses.'Object.php';
 require $lampcmsClasses.'SplClassLoader.php';
 require LAMPCMS_PATH.DIRECTORY_SEPARATOR.'Points.php';
+require LAMPCMS_PATH.DIRECTORY_SEPARATOR.'Mycollections.php';
 
 function d($message){}
 
