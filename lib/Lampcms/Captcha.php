@@ -753,8 +753,8 @@ class Captcha extends LampcmsObject
 		}
 
 		$gd_info = gd_info();
-
-		if(empty($gd['JPEG Support']) && empty($gd['JPEG Support'])){
+		
+		if(empty($gd_info['JPG Support']) && empty($gd_info['JPEG Support'])){
 			throw new DevException('Your php GD version does not have support for JPG image. Captcha cannot be used without JPG support in GD');
 		}
 
@@ -763,13 +763,15 @@ class Captcha extends LampcmsObject
 		}
 
 		$gdv = $gd_info['GD Version'];
-		$Version = preg_replace('/[[:alpha:][:space:]()]+/', '', $gd['GD Version']);
-		
+		d('$gdv: '.$gdv);
+		$Version = preg_replace('/[[:alpha:][:space:]()]+/', '', $gdv);
+		d('Version: '.$Version);
+
 		if(version_compare($Version, 2.0) < 0){
 			throw new DevException('GD version must be newer than 2.0. Your installed version is: '.$Version.' Captcha will not be used');
 		}
 
-		throw new DevException('Your php does not have the GD Library. The Captcha Class cannot be used without it');
+		return $Version;
 	}
 
 
