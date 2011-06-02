@@ -460,3 +460,8 @@ ip2 = "127.0.0.2"
 ;
 OAUTH_KEY =
 OAUTH_SECRET =
+
+
+[API]
+; Maximum results an API can return
+MAX_RESULTS = 100

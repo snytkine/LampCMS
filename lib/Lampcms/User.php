@@ -682,7 +682,7 @@ Interfaces\BloggerUser
 		}
 		
 		if(!empty($state) && !\is_numeric($state)){
-			$ret = ($hasCity) ? ', '.$state : $state;
+			$ret .= ($hasCity) ? ', '.$state : $state;
 		}
 
 		if(!empty($country)){

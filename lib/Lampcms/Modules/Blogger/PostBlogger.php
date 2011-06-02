@@ -177,13 +177,12 @@ class PostBlogger extends \Lampcms\Observer
 			try{
 				$result = $oBlogger->add($oAdapter->makeEntry($oResource));
 			} catch(\Exception $e){
-				d('Caught exception during blogger API post '.$e->getMessage().' in '.$e->getFile().' on line '.$e->getLine());
-
+				
 				return;
 			}
 
 			if(!empty($result) && is_numeric($result) ){
-				d('Got resoult from blogger: '.$result);
+				
 				$User->setReputation($reward);
 
 				/**
@@ -199,8 +198,7 @@ class PostBlogger extends \Lampcms\Observer
 				 */
 				$oResource['blogger_id'] = $result;
 				$oResource->save();
-				d('Updated Resource with blogger resource id');
-
+				
 			}
 		};
 		//$func();

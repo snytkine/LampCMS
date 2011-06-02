@@ -268,7 +268,13 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * @return object $this
 	 */
 	public function setDeleted(User $user, $reason = null){
+
 		if(0 === $this->getDeletedTime()){
+				
+			if($reason){
+				$reason = \strip_tags((string)$reason);
+			}
+				
 			parent::offsetSet('i_del_ts', time());
 			parent::offsetSet('a_deleted',
 			array(
@@ -296,6 +302,10 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 */
 	public function setEdited(User $user, $reason = ''){
 
+		if(!empty($reason)){
+			$reason = \strip_tags((string)$reason);
+		}
+		
 		$aEdited = $this->offsetGet('a_edited');
 		if(empty($aEdited) || !is_array($aEdited)){
 			$aEdited = array();
@@ -380,7 +390,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 			UnansweredTags::factory($this->oRegistry)->remove($this);
 		}
 
-		$this->offsetSet('status', 'accptd');
+		parent::offsetSet('status', 'accptd');
 		d('setting status to accptd');
 
 		$this->touch(false);

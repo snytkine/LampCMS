@@ -130,13 +130,14 @@ class Relatedtags extends LampcmsObject
 		 *
 		 */
 		if(count($aTags) < 2){
+			
 			return $this;
 		}
 
 		foreach($aTags as $tag){
 			$aTemp = $aTags;
 			unset($aTemp[array_search($tag, $aTemp)]);
-			d('aTemp: '.print_r($aTemp, 1));
+			// d('aTemp: '.print_r($aTemp, 1));
 			$this->addRelated($tag, $aTemp, $inc);
 		}
 

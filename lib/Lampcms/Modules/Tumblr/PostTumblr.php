@@ -164,6 +164,7 @@ class PostTumblr extends \Lampcms\Observer
 
 		} catch (\Exception $e){
 			d('Unable to post to Tumblr because of this exception: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
+			
 			return;
 		}
 
@@ -174,13 +175,12 @@ class PostTumblr extends \Lampcms\Observer
 			try{
 				$result = $oTumblr->add($oAdapter->get($oResource));
 			} catch(\Exception $e){
-				d('Caught exception during Tumblr API post '.$e->getMessage().' in '.$e->getFile().' on line '.$e->getLine());
-
+				
 				return;
 			}
 
 			if(!empty($result) && is_numeric($result) ){
-				d('Got resoult from Tumblr: '.$result);
+				
 				$User->setReputation($reward);
 				
 				/**
@@ -196,8 +196,7 @@ class PostTumblr extends \Lampcms\Observer
 				 */
 				$oResource['i_tumblr'] = (int)$result;
 				$oResource->save();
-				d('Updated Resource with Tumblr resource id');
-
+				
 			}
 		};
 

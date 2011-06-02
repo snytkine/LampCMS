@@ -115,7 +115,7 @@ class Qtagscounter extends LampcmsObject
 			$set = array('i_ts' => $time, 'hts' => date("F j, Y g:i a"));
 			if(!empty($aExtra)){
 				$set = $set + $aExtra;
-				d('new $set: '.print_r($set, 1));
+				// d('new $set: '.print_r($set, 1));
 			}
 
 			$this->coll->ensureIndex(array('tag' => 1), array('unique' => true));
@@ -132,7 +132,7 @@ class Qtagscounter extends LampcmsObject
 					try{
 						$this->coll->update(array("tag" => $tag), array('$inc' => array("i_count" => 1), '$set' => $set), array("upsert" => true));
 					} catch (\MongoException $e){
-						e('unable to upsert into QUESTION_TAGS : '.$e->getMessage());
+						//e('unable to upsert into QUESTION_TAGS : '.$e->getMessage());
 					}
 				}
 			}

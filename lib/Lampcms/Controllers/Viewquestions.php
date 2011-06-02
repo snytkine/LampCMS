@@ -106,6 +106,20 @@ class Viewquestions extends WebPage
 	protected $PER_PAGE = 20;
 
 	protected $counterTaggedText = '';
+	
+	/**
+	 * Exclude these fields from
+	 * select for effeciency
+	 * 
+	 * @var array
+	 */
+	protected $aFields = array(
+		'a_title' => 0,
+		'a_flwrs' => 0,
+		'sim_q' => 0,
+		'a_comments' => 0,
+		'a_latest' => 0
+		);
 
 	/**
 	 * Pagination links on the page
@@ -142,7 +156,8 @@ class Viewquestions extends WebPage
 	protected function getCursor(){
 		$this->PER_PAGE = $this->oRegistry->Ini->PER_PAGE_QUESTIONS;
 
-		$aFields = array();
+		//$aFields = array();
+		
 
 		$cond = $this->oRequest->get('cond', 's', 'recent');
 		d('cond: '.$cond);
@@ -224,7 +239,7 @@ class Viewquestions extends WebPage
 		 * a_edited and a_title
 		 *
 		 */
-		$this->oCursor = $this->oRegistry->Mongo->QUESTIONS->find($where);
+		$this->oCursor = $this->oRegistry->Mongo->QUESTIONS->find($where, $this->aFields);
 		d('$this->oCursor: '.gettype($this->oCursor));
 		$this->oCursor->sort($sort);
 

@@ -185,11 +185,11 @@ class PostFacebook extends \Lampcms\Observer
 			} catch(\Exception $e){
 				// does not matter
 			}
-			
+				
 			if(!empty($result) && (false !== $decoded = json_decode($result, true)) ){
-				d('Got result from Facebook API: '.print_r($decoded, 1));
+
 				/**
-				 * If status is OK 
+				 * If status is OK
 				 * then reward the user with points!
 				 */
 				if(!empty($decoded['id'])){
@@ -199,9 +199,9 @@ class PostFacebook extends \Lampcms\Observer
 					 * Now need to also record Facebook id
 					 * to FB_STATUSES collection
 					 */
-					try {	
+					try {
 						/**
-						 * 
+						 *
 						 * Later can query Facebook to find
 						 * replies to this post and add them
 						 * as "comments" to this Question or Answer
@@ -209,34 +209,34 @@ class PostFacebook extends \Lampcms\Observer
 						 * HINT: if i_rid !== i_qid then it's an ANSWER
 						 * if these are the same then it's a Question
 						 * @var array
-						 */				
+						 */
 						/*$coll = $Mongo->FB_STATUSES;
-						$coll->ensureIndex(array('i_uid' => 1));
-						$coll->ensureIndex(array('status_id' => 1));
+						 $coll->ensureIndex(array('i_uid' => 1));
+						 $coll->ensureIndex(array('status_id' => 1));
 
-						$status_id = $decoded['id'];
-						$uid = $User->getUid();
-						$rid = $oResource->getResourceId();
-						$qid = $oResource->getQuestionId();
+						 $status_id = $decoded['id'];
+						 $uid = $User->getUid();
+						 $rid = $oResource->getResourceId();
+						 $qid = $oResource->getQuestionId();
 
-						
-						$aData = array(
-						'status_id' => $status_id, 
-						'i_uid' => $uid, 
-						'i_rid' => $rid,
-						'i_qid' => $qid,
-						'i_ts' => time(),
-						'h_ts' => date('r')
-						);
 
-						$coll->save($aData);
-						*/
+						 $aData = array(
+						 'status_id' => $status_id,
+						 'i_uid' => $uid,
+						 'i_rid' => $rid,
+						 'i_qid' => $qid,
+						 'i_ts' => time(),
+						 'h_ts' => date('r')
+						 );
+
+						 $coll->save($aData);
+						 */
 						/**
 						 * Also save fb_status to QUESTIONS or ANSWERS
 						 * collection.
 						 * This way later on (maybe way later...)
-						 * We can add a function so that if user edits 
-						 * Post on the site we can also edit it 
+						 * We can add a function so that if user edits
+						 * Post on the site we can also edit it
 						 * on Tumblr via API
 						 *
 						 */
@@ -244,7 +244,9 @@ class PostFacebook extends \Lampcms\Observer
 						$oResource->save();
 
 					} catch (\Exception $e){
-						e('Unable to save data to FB_STATUSES collection because of '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
+						if(function_exists('e')){
+							e('Unable to save data to FB_STATUSES collection because of '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
+						}
 					}
 				}
 			}

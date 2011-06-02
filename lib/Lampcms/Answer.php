@@ -148,6 +148,10 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 	 */
 	public function setDeleted(User $user, $reason = null){
 		if(0 === $this->getDeletedTime()){
+			if($reason){
+				$reason = \strip_tags((string)$reason);
+			}
+
 			parent::offsetSet('i_del_ts', time());
 			parent::offsetSet('a_deleted',
 			array(
@@ -174,6 +178,9 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 	 * @return object $this
 	 */
 	public function setEdited(User $user, $reason = ''){
+		if(!empty($reason)){
+			$reason = \strip_tags((string)$reason);
+		}
 
 		$aEdited = $this->offsetGet('a_edited');
 		if(empty($aEdited) || !is_array($aEdited)){

@@ -89,20 +89,19 @@ class UnansweredTags extends LampcmsObject
 	 */
 	public function set(Question $oQuestion){
 		$aTags = $oQuestion->offsetGet('a_tags');
-		d('$aTags: '.print_r($aTags, 1));
+		
 
 		if(!is_array($aTags) || empty($aTags)){
-			d('No tags in this question: '.print_r($oQuestion->getArrayCopy(), 1));
-
+			
 			return $this;
 		}
 
 		foreach($aTags as $tag){
 			try{
-				d('adding to UNANSWERED tag: '.$tag);
+				
 				$this->coll->update(array("tag" => $tag), array('$inc' => array("i_count" => 1), '$set' => array('i_ts' => time(), 'hts' => date('F j, Y, g:i a T'))), array("upsert" => true));
 			} catch (\MongoException $e){
-				e('unable to upsert UNANSWERED_TAGS: '.$e->getMessage());
+				//e('unable to upsert UNANSWERED_TAGS: '.$e->getMessage());
 			}
 		}
 	}
@@ -130,7 +129,7 @@ class UnansweredTags extends LampcmsObject
 
 
 		if(empty($aTags) || !is_array($aTags)){
-			d('something is wrong, no tags in question');
+			
 			return;
 		}
 
@@ -142,20 +141,20 @@ class UnansweredTags extends LampcmsObject
 		foreach($aTags as $tag){
 			$aItem = $this->coll->findOne(array('tag' => $tag));
 			if(null === $aItem){
-				d('No record for tag: '.$tag.' in UNANSWERED_TAGS');
+				//d('No record for tag: '.$tag.' in UNANSWERED_TAGS');
 				continue;
 			}
 
 			if(1 === $aItem['i_count']){
-				d('removing tag: '.$tag.' from UNANSWERED_TAGS');
+				//d('removing tag: '.$tag.' from UNANSWERED_TAGS');
 				$this->coll->remove(array('tag' => $tag));
 
 			} else {
-				d('decreasing count for tag: '.$tag.' in UNANSWERED_TAGS');
+				//d('decreasing count for tag: '.$tag.' in UNANSWERED_TAGS');
 				try{
 					$this->coll->update(array("tag" => $tag), array('$inc' => array("i_count" => -1)) );
 				} catch (\MongoException $e){
-					e('unable to update UNANSWERED_TAGS collection: '.$e->getMessage());
+					//e('unable to update UNANSWERED_TAGS collection: '.$e->getMessage());
 				}
 			}
 		}

@@ -102,7 +102,7 @@ class Unanswered extends Viewquestions
 	 * Conditions can be == 'unanswered', 'hot', 'recent' (default)
 	 */
 	protected function getCursor(){
-		$aFields = array();
+
 
 		$cond = $this->oRequest->get('cond', 's', 'recent');
 		d('cond: '.$cond);
@@ -169,7 +169,7 @@ class Unanswered extends Viewquestions
 		 */
 		$where['i_del_ts'] = null;
 
-		$this->oCursor = $this->oRegistry->Mongo->QUESTIONS->find($where);
+		$this->oCursor = $this->oRegistry->Mongo->QUESTIONS->find($where, $this->aFields);
 		$this->count = $this->oCursor->count(true);
 		d('$this->oCursor: '.gettype($this->oCursor).' $this->count: '.$this->count);
 		$this->oCursor->sort($sort);
@@ -204,7 +204,7 @@ class Unanswered extends Viewquestions
 			/**
 			 * And now a workaround
 			 * for the genocidal RewriteRule bug
-			 * that obliterages the urlencoded chars
+			 * that obliterates the urlencoded chars
 			 * during the rewrite
 			 * so instead we must work directly
 			 * with $_SERVER['REQUEST_URI']
@@ -254,11 +254,10 @@ class Unanswered extends Viewquestions
 			if(empty($this->tags)){
 				return array();
 			}
-
 				
-			$this->aTags = explode(' ', $this->tags);
+			$this->aTags = \explode(' ', $this->tags);
 			$this->aTags = \array_filter($this->aTags);
-			d('aTags: '.print_r($this->aTags, 1));
+			d('aTags: '.\print_r($this->aTags, 1));
 		}
 
 		return $this->aTags;
@@ -353,8 +352,6 @@ class Unanswered extends Viewquestions
 			$this->addTagFollowers();
 
 		}
-
-
 
 		return $this;
 	}

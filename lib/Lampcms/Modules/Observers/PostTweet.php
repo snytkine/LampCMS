@@ -168,19 +168,19 @@ class PostTweet extends \Lampcms\Observer
 		$func = function() use ($oTweet, $oBitly, $oTwitter, $oResource, $User, $reward, $Mongo){
 			$result = $oTweet->post($oTwitter, $oBitly, $oResource);
 			if(!empty($result) && is_array($result)){
-				d('Got result from Twitter: '.print_r($result, 1));
+				
 				/**
 				 * If status is OK (Tweet was posted)
 				 * then reward the user with points!
 				 */
 				if(!empty($result['id_str']) && ('200' == $result['http_code'])){
 					$User->setReputation($reward);
-						
+
 					/**
 					 * Now need to also record Tweet Status data
 					 * to TWEETS collection
 					 */
-						
+
 					try {
 						$coll = $Mongo->TWEETS;
 						$coll->ensureIndex(array('i_uid' => 1));
@@ -192,7 +192,7 @@ class PostTweet extends \Lampcms\Observer
 						 * Later can query Twitter to find
 						 * replies to these Tweets and add them
 						 * as "comments" to this Question or Answer
-						 * 
+						 *
 						 * HINT: if i_rid !== i_qid then it's an ANSWER
 						 * if these are the same then it's a Question
 						 * @var array
@@ -207,11 +207,13 @@ class PostTweet extends \Lampcms\Observer
 						'i_ts' => time(),
 						'h_ts' => date('r')
 						);
-						
+
 						$coll->save($aData);
-						
+
 					} catch (\Exception $e){
-						e('Unable to save data to TWEETS collection because of '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
+						if(function_exists('e')){
+							e('Unable to save data to TWEETS collection because of '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
+						}
 					}
 				}
 			}

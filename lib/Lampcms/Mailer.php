@@ -150,9 +150,6 @@ class Mailer extends LampcmsObject
 		$callable = function() use ($subject, $body, $headers, $aTo, $func){
 
 			$total = (is_array($aTo)) ? count($aTo) : $aTo->count();
-			if(function_exists('d')){
-				d('total: '.$total);
-			}
 				
 			/**
 			 * @todo deal with breaking up
@@ -219,9 +216,7 @@ class Mailer extends LampcmsObject
 					
 					$ER = error_reporting(0);
 					if(true !== @\mail($to, $subject, $body, $headers)){
-						if(function_exists('d')){
-							d('Server was unable to send out email at this time');
-						} 
+
 					}
 					error_reporting($ER);
 				}
@@ -301,9 +296,6 @@ class Mailer extends LampcmsObject
 				$aEmails[] = $a['email'];
 			}
 
-			if(function_exists('d')){
-				d('eEmails: '.print_r($aEmails, 1));
-			}
 		}
 
 		$aEmails = \array_unique($aEmails);

@@ -350,7 +350,7 @@ abstract class WebPage extends Base
 	 * @return
 	 */
 	public function __toString(){
-		d('cp');
+
 		return $this->getResult();
 	}
 
@@ -788,7 +788,7 @@ abstract class WebPage extends Base
 		$tpl = \tplMain::parse($this->aPageVars);
 		$scriptTime = ($this->oRegistry->Ini->SHOW_TIMER) ? 'Page generated in '.abs((microtime() - INIT_TIMESTAMP)).' seconds' : '';
 
-		return str_replace('{timer}', $scriptTime, $tpl);
+		return \str_replace('{timer}', $scriptTime, $tpl);
 	}
 
 
@@ -902,7 +902,7 @@ abstract class WebPage extends Base
 			 * In case of LampcmsAuthException
 			 * the value of 'c' attribute in exception
 			 * element will be set to "login"
-			 * indicating to xslt template that this
+			 * indicating to template that this
 			 * is a 'must login' type of exception
 			 * and to render the login form
 			 *
@@ -924,7 +924,7 @@ abstract class WebPage extends Base
 				$this->httpCode = 404;
 			}
 
-			if(!($le instanceof AuthException) && !($le instanceof MustLoginException)){
+			if(!($le instanceof AuthException) && !($le instanceof MustLoginException) && !($le instanceof LoginException)){
 				e('Exception caught in: '.$le->getFile().' on line: '.$le->getLine().' '.$le->getMessage());
 			}
 
@@ -946,8 +946,9 @@ abstract class WebPage extends Base
 		} catch(\Exception $e) {
 			e('Exception object '.$e->getMessage());
 			$err = Responder::makeErrorPage($le->getMessage().' in '.$e->getFile());
+			echo $err;
 			fastcgi_finish_request();
-			exit ($err);
+			exit;
 		}
 	}
 

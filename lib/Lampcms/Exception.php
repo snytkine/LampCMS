@@ -502,6 +502,9 @@ class HttpResponseCodeException extends HttpResponseErrorException
 	 * @var int
 	 */
 	protected $httpResponseCode;
+	
+	
+	protected $innerException = null;
 
 	/**
 	 * Constructor
@@ -524,6 +527,7 @@ class HttpResponseCodeException extends HttpResponseErrorException
 		parent::__construct($message,null, $code);
 
 		$this->httpResponseCode = $httpCode;
+		$this->innerException = $prevException;
 	}
 
 	/**
@@ -533,6 +537,10 @@ class HttpResponseCodeException extends HttpResponseErrorException
 	 */
 	public function getHttpCode(){
 		return $this->httpResponseCode;
+	}
+	
+	public function getInnerException(){
+		return $this->innerException;
 	}
 }
 

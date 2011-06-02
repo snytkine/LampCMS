@@ -558,7 +558,6 @@ site %5$s and navigating to Settings > Email preferences
 			$count = 0;
 			$cur = $coll->find(array('a_f_u' => $uid, 'ne_fu' => array('$ne' => true) ), array('email')  );
 			$count = $cur->count();
-			d('count: '.$count);
 			if($count > 0){
 
 				/**

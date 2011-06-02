@@ -89,7 +89,7 @@ class UserTags extends LampcmsObject
 		 * insert user tags, just return
 		 */
 		if(empty($uid)){
-			d('no uid, returning');
+			
 			return;
 		}
 
@@ -102,7 +102,7 @@ class UserTags extends LampcmsObject
 		 * empty values
 		 */
 		$aTags = \array_filter($aTags);
-		d('$aTags: '.var_export($aTags, true));
+		
 
 		$coll = $this->oRegistry->Mongo->getCollection(self::USER_TAGS);
 		$a = $coll->findOne(array('_id' => $uid));
@@ -118,7 +118,7 @@ class UserTags extends LampcmsObject
 		 */
 		if(empty($a)){
 			$aTemp = array_count_values($aTags);
-			d('aTemp: '.print_r($aTemp, 1));
+			
 
 		} else {
 			$aTemp = $a['tags'];
@@ -130,7 +130,8 @@ class UserTags extends LampcmsObject
 				 * in index may cause very bad times in Mongo.
 				 */
 				if(empty($t)){
-					e('Strangly enough there is an empty value of the tag in array: '.print_r($aTags, 1));
+					//e('Strangly enough there is an empty value of the tag in array: '.print_r($aTags, 1));
+					
 					continue;
 				}
 
@@ -166,10 +167,10 @@ class UserTags extends LampcmsObject
 		 *
 		 */
 		$uid = ($uid) ? (int)$uid : $oQuestion->getOwnerId();
-		d('uid '.$uid);
+		
 
 		$aTags = $oQuestion['a_tags'];
-		d('$aTags: '.var_export($aTags, true));
+		
 
 		/**
 		 * Extra precaution to filter out
@@ -181,7 +182,7 @@ class UserTags extends LampcmsObject
 		$a = $coll->findOne(array('_id' => $uid));
 
 		if(empty($a) || empty($a['tags'])){
-			d('strange, but there are no user tags');
+			
 
 			return $this;
 		}

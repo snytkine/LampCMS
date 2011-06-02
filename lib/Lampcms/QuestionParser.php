@@ -468,10 +468,9 @@ class QuestionParser extends LampcmsObject
 			$callable = function() use ($oUserTags, $uid, $oQuestion){
 				$oUserTags->addTags($uid, $oQuestion);
 			};
-			d('cp');
+			
 			runLater($callable);
 		}
-		d('cp');
 
 		return $this;
 	}
