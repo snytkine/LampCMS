@@ -266,11 +266,10 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 			} elseif('pageID' === $offset){
 				return 1;
 			}
-
-			throw new DevException('Request param '.$offset.' does not exist');
-
+			
+			throw new \Lampcms\DevException('Request param '.$offset.' does not exist');
 		}
-
+		
 		return $this->getFiltered($offset);
 	}
 

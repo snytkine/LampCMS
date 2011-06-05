@@ -171,28 +171,6 @@ abstract class WebPage extends Base
 
 
 	/**
-	 * Special type of permission check where we don't
-	 * need to check the specific permission but only
-	 * require the user to be logged in. This is faster
-	 * than a full Access Control check.
-	 *
-	 * @var bool
-	 */
-	protected $membersOnly = false;
-
-
-	/**
-	 * Special type of permission check where we don't
-	 * need to check the specific permission but only
-	 * require the user to be NOT logged in. This is faster
-	 * than a full Access Control check.
-	 *
-	 * @var bool
-	 */
-	protected $guestsOnly = false;
-
-
-	/**
 	 * Flag indicates that
 	 * we require to validate a form token
 	 *
@@ -287,33 +265,6 @@ abstract class WebPage extends Base
 		}
 	}
 
-
-	/**
-	 * Checks the access permissions for current page
-	 * based on values of $this->bMembersOnly,
-	 * $this->bGuestsOnly and logged in status
-	 * For example, if page is available only
-	 * to logged in users, the exception will be
-	 * throws in guest tries to access it
-	 *
-	 * @return object $this
-	 *
-	 * @throws LampcmsException if access level
-	 * error is detected
-	 */
-	protected function checkLoginStatus(){
-		if ($this->membersOnly && !$this->isLoggedIn()) {
-			d('cp must login');
-			throw new MustLoginException('You must login to access this page');
-		}
-
-		if($this->guestsOnly && $this->isLoggedIn()){
-			d('not a guest!');
-			throw new MustLoginException('This page cannot be accessed by a logged in user');
-		}
-
-		return $this;
-	}
 
 
 	/**

@@ -238,6 +238,25 @@ const VOTES = 'VOTES';
 const VOTE_HACKS = 'VOTE_HACKS';
 
 /**
+ * Log for API Requests
+ * Will hold data like api path,
+ * ip, useragent, client_id, userid
+ * 
+ */
+const API_ACCESS = 'API_ACCESS';
+
+/**
+ * This collection records per-day
+ * count of API calls per user or per-ip
+ * 
+ * This data is then used to enforce the API
+ * daily access limit based on userID or on IP address
+ * 
+ */
+const API_ACCESS_COUNTER = 'API_ACCESS_COUNTER';
+
+
+/**
  * This is a collection used during
  * tests. This is a temporary collection which
  * is created only during run of test suite and

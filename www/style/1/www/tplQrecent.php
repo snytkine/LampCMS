@@ -40,15 +40,10 @@ class tplQrecent extends Lampcms\Template\Template
 {
 
 	protected static function func(&$a){
+			
 		if(!empty($a['a_closed'])){
 			$a['closed'] = ' closed';
 		}
-
-		/*if(!empty($a['lp_u'])){
-			$reltime = \Lampcms\TimeAgo::format(new \DateTime($a['lp_t']));
-			$a['last_poster'] = '<div class="lastposter fl cb">Latest answer by: '.$a['lp_u'].'<br>
-			<span title="'.$a['lp_t'].'" class="ts">'.$reltime.'</span></div>';
-			}*/
 
 		if(!empty($a['a_latest'])){
 			$reltime = \Lampcms\TimeAgo::format(new \DateTime($a['a_latest'][0]['t']));

@@ -462,6 +462,13 @@ OAUTH_KEY =
 OAUTH_SECRET =
 
 
+
 [API]
-; Maximum results an API can return
+; Maximum results an API can return per page
 MAX_RESULTS = 100
+; Dalily access limit for not logged in users
+DAILY_LIMIT_ANON = 150
+; Daily access limit for logged in users
+DAILY_LIMIT_APP = 3000
+; Daily limit for authenticated user
+DAILY_LIMIT_USER = 10000

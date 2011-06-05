@@ -70,7 +70,35 @@ use Lampcms\Interfaces\RoleInterface;
 class Base extends LampcmsObject
 {
 
+	/**
+	 * Premission required to access this script
+	 * 
+	 * @var string
+	 */
 	protected $permission;
+	
+	
+
+	/**
+	 * Special type of permission check where we don't
+	 * need to check the specific permission but only
+	 * require the user to be logged in. This is faster
+	 * than a full Access Control check.
+	 *
+	 * @var bool
+	 */
+	protected $membersOnly = false;
+
+
+	/**
+	 * Special type of permission check where we don't
+	 * need to check the specific permission but only
+	 * require the user to be NOT logged in. This is faster
+	 * than a full Access Control check.
+	 *
+	 * @var bool
+	 */
+	protected $guestsOnly = false;
 
 
 	/**
@@ -87,7 +115,7 @@ class Base extends LampcmsObject
 		$this->oRegistry = $oRegistry;
 	}
 
-	
+
 	/**
 	 * Updates the value of last_login in LOGIN_LOG table
 	 * along with Geo data and useragent
@@ -368,6 +396,35 @@ class Base extends LampcmsObject
 		return $this;
 	}
 
+
+
+
+	/**
+	 * Checks the access permissions for current page
+	 * based on values of $this->bMembersOnly,
+	 * $this->bGuestsOnly and logged in status
+	 * For example, if page is available only
+	 * to logged in users, the exception will be
+	 * throws in guest tries to access it
+	 *
+	 * @return object $this
+	 *
+	 * @throws LampcmsException if access level
+	 * error is detected
+	 */
+	protected function checkLoginStatus(){
+		if ($this->membersOnly && !$this->isLoggedIn()) {
+			d('cp must login');
+			throw new MustLoginException('You must login to access this page');
+		}
+
+		if($this->guestsOnly && $this->isLoggedIn()){
+			d('not a guest!');
+			throw new MustLoginException('This page cannot be accessed by a logged in user');
+		}
+
+		return $this;
+	}
 
 	/**
 	 *

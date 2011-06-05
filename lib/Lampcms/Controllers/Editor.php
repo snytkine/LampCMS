@@ -145,6 +145,13 @@ class Editor extends Edit
 			$this->oResource['title'] = $title;
 			$this->oResource['url'] = $oTitle->toASCII()->makeLinkTitle()->valueOf();
 			$this->oResource['a_title'] = \Lampcms\TitleTokenizer::factory($oTitle)->getArrayCopy();
+		
+			/**
+			 * @todo
+			 * Need to update 'title' of all answers to this question
+			 * But first check to see if title has actually changed
+			 */
+		
 		}
 
 		$this->oResource->setEdited($this->oRegistry->Viewer, \strip_tags($formVals['reason']));

@@ -147,6 +147,7 @@ class Exception extends \Exception
 			$sMessage = ( (defined('LAMPCMS_DEBUG')) && true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occured';//$oTr->get('generic_error', 'exceptions');
 		}
 
+		$sMessage = strip_tags($sMessage);
 		//$sMessage = $oTr->get($sMessage, 'exceptions');
 
 		$aArgs = ($e instanceof \Lampcms\Exception) ? $e->getArgs() : null;

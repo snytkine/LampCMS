@@ -117,8 +117,7 @@ class Viewquestions extends WebPage
 		'a_title' => 0,
 		'a_flwrs' => 0,
 		'sim_q' => 0,
-		'a_comments' => 0,
-		'a_latest' => 0
+		'a_comments' => 0
 		);
 
 	/**
