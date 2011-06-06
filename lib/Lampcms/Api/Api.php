@@ -228,8 +228,27 @@ abstract class Api extends \Lampcms\Base
 	 * @var int
 	 */
 	protected $pageID = 1;
-	
-	
+
+
+	/**
+	 * Sort order
+	 * if sort=asc then this is set to 1
+	 * if sort=desc then this is set to -1
+	 *
+	 * @var int
+	 */
+	protected $sortOrder = -1;
+
+	/**
+	 * Field on which the sorting (ordering)
+	 * of questions will be performed
+	 * default is _id key
+	 *
+	 * @var string
+	 */
+	protected $sortBy = '_id';
+
+
 	public function __construct(Registry $oRegistry, Request $oRequest = null){
 		parent::__construct($oRegistry);
 		$this->oRequest = (null !== $oRequest) ? $oRequest : $oRegistry->Request;
@@ -433,8 +452,8 @@ abstract class Api extends \Lampcms\Base
 		$this->oResponse->addHeader('X-RateLimit-Remaining', ($this->rateLimit - $this->accessCounter) );
 		/**
 		 * Currently the reset of rate limit is
-		 * on the start of new day. In the fugure we may
-		 * implement horuly rate limit like Twitter, but
+		 * on the start of next day. In the future we may
+		 * implement hourly rate limit like Twitter, but
 		 * probably not going to do this any time soon...
 		 * So for now the reset time is the unix timestamp
 		 * of start of day tomorrow
@@ -516,6 +535,55 @@ abstract class Api extends \Lampcms\Base
 
 			$this->limit = $limit;
 		}
+
+		return $this;
+	}
+
+
+	/**
+	 *
+	 * Set the value of $this->sortBy
+	 * can be one of
+	 * _id (default)
+	 * i_lm_ts (last modified timestamp)
+	 * i_ans (count of answers)
+	 * i_votes (number of votes)
+	 *
+	 * @throws \Lampcms\HttpResponseCodeException if value of sort
+	 * is not one of allowed values
+	 *
+	 * @return object $this
+	 */
+	protected function setSortBy(){
+		$sortBy = $this->oRequest->get('sort', 's', '_id');
+		if(!\in_array($sortBy, $this->allowedSortBy)){
+			throw new \Lampcms\HttpResponseCodeException('Invalid value of "sort" param in request. Allowed values are: '.implode(', ', $this->allowedSortBy).' Value was" '.$sortBy, 406);
+		}
+
+		$this->sortBy = $sortBy;
+
+		return $this;
+	}
+
+
+	/**
+	 * Set sort order based on value
+	 * of "dir" param: asc means sort in ascending order
+	 * desc means sort in descending order
+	 *
+	 * @throws \Lampcms\HttpResponseCodeException if value
+	 * of "dir" is not asc or desc
+	 *
+	 * @return object $this
+	 */
+	protected function setSortOrder(){
+		$allowed = array('asc', 'desc');
+		$order = $this->oRequest->get('dir', 's', 'desc');
+		if(!\in_array($order, $allowed)){
+			throw new \Lampcms\HttpResponseCodeException('Invalid value of "dir" param in request. Allowed values are: '.implode(', ', $allowed).' Value was" '.$dir, 406);
+		}
+
+		$this->sortOrder = ('desc' === $order) ? -1 : 1;
 
 		return $this;
 	}

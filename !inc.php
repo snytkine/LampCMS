@@ -82,6 +82,7 @@ $lampcmsClasses = $libDir.DIRECTORY_SEPARATOR.'Lampcms'.DIRECTORY_SEPARATOR;
 require $lampcmsClasses.'Interfaces'.DIRECTORY_SEPARATOR.'All.php';
 require $lampcmsClasses.'Exception.php';
 require $lampcmsClasses.'Object.php';
+require $lampcmsClasses.'Responder.php';
 require $lampcmsClasses.'Mongo'.DIRECTORY_SEPARATOR.'Collections.php';
 require LAMPCMS_PATH.DIRECTORY_SEPARATOR.'Mycollections.php';
 require $lampcmsClasses.'Ini.php';

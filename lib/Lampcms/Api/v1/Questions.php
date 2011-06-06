@@ -85,24 +85,6 @@ class Questions extends Api
 {
 
 	/**
-	 * Sort order
-	 * if sort=asc then this is set to 1
-	 * if sort=desc then this is set to -1
-	 *
-	 * @var int
-	 */
-	protected $sortOrder = -1;
-
-	/**
-	 * Field on which the sorting (ordering)
-	 * of questions will be performed
-	 * default is _id key
-	 *
-	 * @var string
-	 */
-	protected $sortBy = '_id';
-
-	/**
 	 * Min value of _id from which
 	 * to include results
 	 *
@@ -460,54 +442,6 @@ class Questions extends Api
 		return $this;
 	}
 
-
-	/**
-	 *
-	 * Set the value of $this->sortBy
-	 * can be one of
-	 * _id (default)
-	 * i_lm_ts (last modified timestamp)
-	 * i_ans (count of answers)
-	 * i_votes (number of votes)
-	 *
-	 * @throws \Lampcms\HttpResponseCodeException if value of sort
-	 * is not one of allowed values
-	 *
-	 * @return object $this
-	 */
-	protected function setSortBy(){
-		$sortBy = $this->oRequest->get('sort', 's', '_id');
-		if(!\in_array($sortBy, $this->allowedSortBy)){
-			throw new \Lampcms\HttpResponseCodeException('Invalid value of "sort" param in request. Allowed values are: '.implode(', ', $this->allowedSortBy).' Value was" '.$sortBy, 406);
-		}
-
-		$this->sortBy = $sortBy;
-
-		return $this;
-	}
-
-
-	/**
-	 * Set sort order based on value
-	 * of "dir" param: asc means sort in ascending order
-	 * desc means sort in descending order
-	 *
-	 * @throws \Lampcms\HttpResponseCodeException if value
-	 * of "dir" is not asc or desc
-	 *
-	 * @return object $this
-	 */
-	protected function setSortOrder(){
-		$allowed = array('asc', 'desc');
-		$order = $this->oRequest->get('dir', 's', 'desc');
-		if(!\in_array($order, $allowed)){
-			throw new \Lampcms\HttpResponseCodeException('Invalid value of "dir" param in request. Allowed values are: '.implode(', ', $allowed).' Value was" '.$dir, 406);
-		}
-
-		$this->sortOrder = ('desc' === $order) ? -1 : 1;
-
-		return $this;
-	}
 
 
 	/**
