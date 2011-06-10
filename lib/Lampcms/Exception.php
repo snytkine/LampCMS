@@ -161,6 +161,9 @@ class Exception extends \Exception
 
 		$strLogMessage = 'LampcmsError exception caught: '.$sMessage."\n".'error code: '.$intCode."\n".'file: '.$strFile."\n".'line: '.$intLine."\n".'stack: '.$sTrace."\n";
 		d('vars: '.print_r($_REQUEST, true)."\n".$strLogMessage);
+		if(!empty($_SESSION)){
+			d('$_SESSION: '.print_r($_SESSION, 1));
+		}
 
 		$sError .= $sMessage."\n";
 
@@ -383,10 +386,10 @@ class RedirectException extends Exception
 	/**
 	 * Constructor
 	 *
-	 * @param string $strMessage
-	 * @param int $intHttpCode HTTP response code
 	 * @param str $strNewLocation must be a full url where
 	 * the page can be found
+	 * 
+	 * @param int $intHttpCode HTTP response code
 	 */
 	public function __construct($strNewLocation, $intHttpCode = 301, $boolHTML = true){
 		parent::__construct($strNewLocation, null, $intHttpCode, $boolHTML);

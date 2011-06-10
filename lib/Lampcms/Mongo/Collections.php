@@ -75,7 +75,24 @@ namespace Lampcms\Mongo;
  *
  */
 
+/**
+ * Collection holds data necessary for 
+ * creating sitemaps
+ */
+const SITEMAP_LATEST = 'SITEMAP_LATEST';
 
+/**
+ * Collection holds records of API CLIENTS
+ * CLIENTS are created by users using the apiclient
+ * controller
+ * Admin can suspend a Client for any reason
+ * by setting the suspender flag and entering reason
+ * for suspension
+ * the suspension data is stored as nested array of objects
+ * holding hts, reason, resolved_hts
+ * the flag is either true or false
+ */
+const API_CLIENTS = 'API_CLIENTS';
 
 /**
  * This collection is very important

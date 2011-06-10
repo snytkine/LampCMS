@@ -358,6 +358,7 @@ class Base extends LampcmsObject
 		 * select is fast!
 		 *
 		 */
+
 		$role = (null !== $role) ? $role : $this->oRegistry->Viewer->reload();
 
 		d('role: '.$role);

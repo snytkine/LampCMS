@@ -163,6 +163,19 @@ abstract class Api extends \Lampcms\Base
 	 */
 	protected $cursor;
 
+
+	/**
+	 * Timestamp of the Questions's
+	 * latest activity (in unix timestamp)
+	 *
+	 * @var int
+	 */
+	protected $startTime = 0;
+
+
+	protected $endTime = 0;
+
+
 	/**
 	 * Per-page limit
 	 * a maximum of this many items
@@ -174,6 +187,7 @@ abstract class Api extends \Lampcms\Base
 	 * @var int
 	 */
 	protected $limit = 20;
+
 
 	/**
 	 * Id of client APP making request
@@ -296,10 +310,24 @@ abstract class Api extends \Lampcms\Base
 		if(empty($this->accessId)){
 			$this->clientAppId = $this->oRequest->get('apikey', 's', null);
 			/**
-			 * @todo check here if the API idenditied by this API key
-			 * isValid or has been suspended of banned
+			 * Check here if the API idenditied by this API key
+			 * isValid or has been suspended of deleted
 			 */
+			if(!empty($this->clientAppId)){
 
+				$a = $this->oRegistry->Mongo->API_CLIENTS->findOne(array('api_key' => $this->clientAppId), array('_id' => 1, 'i_suspended' => 1, 'i_deleted' => 1));
+				if(empty($a)){
+					throw new \Lampcms\HttpResponseCodeException('Invalid api key: '.$this->clientAppId, 401);
+				}
+
+				if(!empty($a['i_suspended'])){
+					throw new \Lampcms\HttpResponseCodeException('Suspended api key: '.$this->clientAppId, 401);
+				}
+
+				if(!empty($a['i_deleted'])){
+					throw new \Lampcms\HttpResponseCodeException('This app was deleted on '.date('r', $a['i_deleted']), 401);
+				}
+			}
 		}
 
 		return $this;
@@ -308,14 +336,14 @@ abstract class Api extends \Lampcms\Base
 
 	/**
 	 * Create User object representing
-	 * not-logged-in User
+	 * not-logged-in ApiUser
 	 * Later when OAuth based login is added the User object
 	 * will be created based on OAuth token
 	 *
 	 * @return object $this
 	 */
 	protected function initClientUser(){
-		$this->oRegistry->Viewer = User::factory($this->oRegistry);
+		$this->oRegistry->Viewer = ApiUser::factory($this->oRegistry);
 		/**
 		 * @todo in case of OAuth2 we would extract the
 		 * userid and appid from oauth token
@@ -514,6 +542,45 @@ abstract class Api extends \Lampcms\Base
 	}
 
 
+
+	/**
+	 *
+	 * Sets $this->startTime which is the
+	 * unix timestamp
+	 * The search will be performed to return
+	 * items created after and not including
+	 * this unix timestamp
+	 *
+	 * @return object $this
+	 */
+	protected function setStartTime(){
+		$id = $this->oRequest->get('starttime', 'i', null);
+		if(!empty($id)){
+			$this->startTime = abs($id);
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Sets the unix timestamp value
+	 * of the $this->endTime
+	 * Items will be returned that were
+	 * created before this unix timestamp
+	 *
+	 * @return object $this
+	 */
+	protected function setEndTime(){
+		$id = $this->oRequest->get('endtime', 'i', null);
+		if(!empty($id)){
+			$this->endTime = abs($id);
+		}
+
+		return $this;
+	}
+
+
 	/**
 	 * Set limit of results to return based
 	 * on value of "limit" param
@@ -555,7 +622,8 @@ abstract class Api extends \Lampcms\Base
 	 * @return object $this
 	 */
 	protected function setSortBy(){
-		$sortBy = $this->oRequest->get('sort', 's', '_id');
+		$sortBy = $this->oRequest->get('sort', 's', null);
+		if(empty($sortBy)) $sortBy = $this->sortBy;
 		if(!\in_array($sortBy, $this->allowedSortBy)){
 			throw new \Lampcms\HttpResponseCodeException('Invalid value of "sort" param in request. Allowed values are: '.implode(', ', $this->allowedSortBy).' Value was" '.$sortBy, 406);
 		}

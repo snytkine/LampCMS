@@ -85,13 +85,25 @@ Interfaces\BloggerUser
 	 * @var string
 	 */
 	protected $avtrSrc;
+	
+	/**
+	 * This is important to define
+	 * because in some rare cases 
+	 * the value
+	 * of $this->collectionName is lost
+	 * during serialization/unserialization
+	 * 
+	 * 
+	 * @var string
+	 */
+	protected $collectionName = 'USERS';
 
 
 	/**
 	 * Factory method
-	 *
-	 * @todo MUST pass Registry here!
-	 *
+	 * 
+	 * @param object $oRegistry Registry object
+	 * 
 	 * @param array $a
 	 *
 	 * @return object of this class

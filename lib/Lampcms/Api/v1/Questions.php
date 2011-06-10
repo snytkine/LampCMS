@@ -93,12 +93,12 @@ class Questions extends Api
 	protected $startId;
 
 	protected $maxId;
-	
+
 	/**
 	 * If this value is set,
-	 * only questions by this user 
+	 * only questions by this user
 	 * will be returned
-	 * 
+	 *
 	 * @var int
 	 */
 	protected $userId;
@@ -138,15 +138,6 @@ class Questions extends Api
 	 */
 	protected $tagsMatch = '$in';
 
-	/**
-	 * Timestamp of the Questions's
-	 * latest activity (in unix timestamp)
-	 *
-	 * @var int
-	 */
-	protected $startTime = 0;
-
-	protected $endTime = 0;
 
 	/**
 	 * Number of found results in cursor
@@ -181,10 +172,10 @@ class Questions extends Api
 		'a_latest' => 0,
 		'i_del_ts' => 0,
 		'a_deleted' => 0);
-	
+
 	/**
 	 * Allowed values of the 'sort' param
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $allowedSortBy = array('i_lm_ts', '_id', 'i_ans', 'i_votes');
@@ -221,7 +212,7 @@ class Questions extends Api
 		}
 
 		$where = array('i_del_ts' => null);
-		
+
 		if($this->type){
 			$where['status'] = $type;
 		}
@@ -247,12 +238,12 @@ class Questions extends Api
 		if($this->maxId){
 			$where['_id'] = array('$lt' => (int)$this->maxId);
 		}
-		
+
 		if(isset($this->userId)){
-			
+				
 			$where['i_uid'] = $this->userId;
 		}
-		
+
 		d('$where: '.print_r($where, 1));
 
 
@@ -285,7 +276,7 @@ class Questions extends Api
 	 * Output object will format this data to
 	 * appropriate format (json or jsonc or xml),
 	 * depending on type of Output object
-	 * 
+	 *
 	 * @return object $this
 	 */
 	protected function setOutput(){
@@ -296,7 +287,7 @@ class Questions extends Api
 		'questions' => \iterator_to_array($this->cursor, false));
 
 		$this->oOutput->setData($data);
-		
+
 		return $this;
 	}
 
@@ -304,7 +295,7 @@ class Questions extends Api
 	/**
 	 * Set value of $this->userId based
 	 * of uid request param
-	 * 
+	 *
 	 * @return object $this
 	 */
 	protected function setUserId(){
@@ -316,63 +307,17 @@ class Questions extends Api
 
 		return $this;
 	}
-	
-	
+
+
 	/**
-	 * Extract value of tags from
-	 * query string and turn into array
-	 * runs value of Request through urldecode because
-	 * unicode tags would be percent-encoded in the url
-	 *
-	 * @return array of tags passed in query string
+	 * If tags passed in request
+	 * then create array of $this->aTags
+	 * 
+	 * @return object $this
 	 */
 	protected function setTags(){
-
-
-		/**
-		 * And now a workaround
-		 * for the genocidal RewriteRule bug
-		 * that obliterates the urlencoded chars
-		 * during the rewrite
-		 * so instead we must work directly
-		 * with $_SERVER['REQUEST_URI']
-		 * $_SERVER['REQUEST_URI'] is consistently
-		 * the same on Apache and on Lighttpd when
-		 * php is run as fastcgi
-		 * The rewrite on Lighttpd does not have
-		 * this genocidal bug, but for consistency
-		 * we still working with $_SERVER['REQUEST_URI']
-		 * regardless of the server
-		 */
-		if(!empty($_SERVER) && !empty($_SERVER['REQUEST_URI'])){
-			/**
-			 * Must use regex because REQUEST_URI
-			 * may contain other params after
-			 *
-			 * $r is something like this: /tags=mytag&pageID=3
-			 */
-			$r = $_SERVER['REQUEST_URI'];
-			//$m = \preg_match('/tags=([^\/]+)([\/]{0,1})/i', $r, $matches);
-			$m = \preg_match('/tags=([^&]+)([&]{0,1})/i', $r, $matches);
-			d('matches: '.print_r($matches, 1));
-			if($matches && !empty($matches[1])){
-				$tags = $matches[1];
-				d('tags: '.$tags);
-				$tags = \urldecode($tags);
-			}
-
-		} else {
-			/**
-			 * That's hopefully is OK
-			 * because Apache always has REQUEST_URI
-			 * and if it's not available here
-			 * then hopefully this is not an Apache server
-			 * and it's possible the rewrite worked without this bug
-			 */
-			d('no REQUEST_URI available');
-			$tags = $this->oRequest['tags'];
-			$tags = \urldecode($tags);
-		}
+		$tags = $this->oRequest->get('tags', 's', '');
+		//$tags = \urldecode($tags); // server already urldecodes stuff
 
 		if(empty($tags)){
 			d('no tags in url');
@@ -383,7 +328,6 @@ class Questions extends Api
 		$this->aTags = \explode(' ', $tags);
 		$this->aTags = \array_filter($this->aTags);
 		d('aTags: '.\print_r($this->aTags, 1));
-
 
 		return $this;
 	}
@@ -468,34 +412,6 @@ class Questions extends Api
 		$id = $this->oRequest->get('max_id', 'i', null);
 		if(!empty($id)){
 			$this->maxId = $id;
-		}
-
-		return $this;
-	}
-
-
-	/**
-	 *
-	 * Enter description here ...
-	 */
-	protected function setStartTime(){
-		$id = $this->oRequest->get('starttime', 'i', null);
-		if(!empty($id)){
-			$this->startTime = abs($id);
-		}
-
-		return $this;
-	}
-
-
-	/**
-	 * Currently not used
-	 * 
-	 */
-	protected function setEndTime(){
-		$id = $this->oRequest->get('endtime', 'i', null);
-		if(!empty($id)){
-			$this->endTime = abs($id);
 		}
 
 		return $this;

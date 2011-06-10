@@ -49,125 +49,60 @@
  *
  */
 
-
-
-namespace Lampcms\Api\v1;
-
-use Lampcms\Api\Api;
-
 /**
- * API Controller to get
- * data about specific tags
- * It returns details about tags:
- * hts - human readable date/time of last activity
- * i_ts timestamp of most recent activity in tag,
- * i_count = number of questions with this tag.
- * and sometimes
- * i_flwrs : number of followers of the tag
- * 
- * Example call: 
- * /api/api.php?a=tags&tags=test%20video&starttime=1306587925&sort=i_ts&dir=asc
- * will return data about 2 tags: test and video
- * that are posted after 1306587925
- * results will be sorted by timestamp in ascending order
+ * Template for generating view
+ * of one app in the Viewapps page
+ * This block will include icon,
+ * name of app linked to viewapp page
+ * and "Edit app" link linked to 
+ * /index.php?a=editapp&app_id=%d
  *
  * @author Dmitri Snytkine
  *
  */
-class Tags extends Questions
+class tplApps extends Lampcms\Template\Template
 {
-
 	/**
-	 * Allowed values of the 'sort' param
-	 *
-	 * @var array
+	 * If App does not have 'icon' 
+	 * then fall back to default generic
+	 * app icon image
+	 * 
+	 * @param array $a
 	 */
-	protected $allowedSortBy = array('tag', 'i_count', 'i_ts');
+	protected static function func(&$a){
+		if(empty($a['icon'])){
+			$a['icon'] = '/images/app2.png';
+		} else {
+			$a['icon'] = AVATAR_IMG_SITE.\Lampcms\PATH_WWW_IMG_AVATAR_SQUARE.$a['icon'];
+		}
+
+		if(array_key_exists("app_name", $a)){
+			$a['app_name'] = \trim($a['app_name']);
+		}
+	}
+
+
+	protected static $vars = array(
+	'_id' => '0', //1
+	'app_name' => '', //2
+	'about' => '', //3
+	'icon' => '' //4
+	);
+
 	
-	protected $sortBy = 'tag';
-
-
-	protected function main(){
-		$this->pageID = $this->oRequest['pageID'];
-
-		$this->setStartTime()
-		->setEndTime()
-		->setTags()
-		->setSortBy()
-		->setSortOrder()
-		->setLimit()
-		->getCursor()
-		->setOutput();
-	}
-
-
-	/**
-	 *
-	 * Get Mongo Cursor based on Sort order, Sort direction,
-	 * per page limit and pageID
-	 *
-	 * @throws \Lampcms\HttpResponseCodeException
-	 *
-	 * @return object $this
-	 */
-	protected function getCursor(){
-		$aFields = array('_id' => 0);
-		$sort[$this->sortBy] = $this->sortOrder;
-		$offset = (($this->pageID - 1) * $this->limit);
-		d('offset: '.$offset);
-
-		$where = array('i_count' => array('$gt' => 0));
-
-		if(!empty($this->aTags)){
-			$match[$this->tagsMatch] = $this->aTags;
-			$where['tag'] = $match;
-		}
-
-		if($this->endTime){
-			$where['i_ts'] = array('$lt' => (int)$this->endTime);
-		}
-
-		if($this->startTime){
-			$where['i_ts'] = array('$gt' => (int)$this->startTime);
-		}
-
-		d('$where: '.print_r($where, 1));
-		
-		$this->cursor = $this->oRegistry->Mongo->QUESTION_TAGS->find($where, $aFields)
-		->sort($sort)
-		->limit($this->limit)
-		->skip($offset);
-
-		$this->count = $this->cursor->count();
-		d('count: '.$this->count);
-
-		if(0 === $this->count){
-			d('No results found for this query: '.print_r($where, 1));
-
-			throw new \Lampcms\HttpResponseCodeException('No matches for your request', 404);
-		}
-
-		return $this;
-	}
-
-
-	/**
-	 *
-	 * Set to $this->oOutput object with
-	 * data from cursor
-	 *
-	 * @return object $this
-	 */
-	protected function setOutput(){
-
-		$data = array('total' => $this->count,
-		'page' => $this->pageID,
-		'perpage' => $this->limit,
-		'tags' => \iterator_to_array($this->cursor, false));
-
-		$this->oOutput->setData($data);
-
-		return $this;
-	}
-
+	protected static $tpl = '
+	<div class="cb fl mb10 mt10">
+		<div class="fl">
+			<a href="/index.php?a=viewapp&app_id=%1$s">
+				<img src="%4$s" width="72px" height="72px" class="appicon"></img>
+			</a>
+		</div>
+		<div class="fl ml10">
+			<a href="/index.php?a=viewapp&app_id=%1$s" class="bold">%2$s</a>
+			<br>
+			<span class="fl mb5 pre">%3$s</span><br>
+			<a href="/index.php?a=editapp&app_id=%1$s">Edit Details &gt;&gt;</a>
+		</div>
+	</div>
+	';
 }

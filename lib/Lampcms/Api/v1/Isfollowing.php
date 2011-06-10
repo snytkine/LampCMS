@@ -50,149 +50,99 @@
  */
 
 
+/**
+ * API controller to check if user identified
+ * by uid
+ * IS FOLLOWING resource identified by 'type' ('q', 't', 'u')
+ * and having value of "val"
+ * For example /api/api.php?a=isfollowing&uid=3&t=u&val=23
+ * Will return is_following = true IF user with id 3 IS FOLLOWING
+ * user with id 23 (false if not following)
+ *
+ * /api/api.php?a=isfollowing&uid=3&t=q&val=125
+ * Will return is_following = true if user with id 3
+ * is following question with id 125
+ *
+ * /api/api.php?a=isfollowing&uid=3&t=t&val=eskimo
+ * will return is_following = true if user with id 3
+ * is following tag 'eskimo'
+ *
+ */
+
+
+
 namespace Lampcms\Api\v1;
 
 use Lampcms\Api\Api;
 
-class Users extends Api
+class Isfollowing extends Api
 {
 	/**
-	 * Array of user IDs
-	 *
-	 * The list of user IDs can be passed in uids
-	 * param in a form of semicolon separated values
-	 * of up to 100 user IDs
+	 * Required params are uid and val
 	 *
 	 * @var array
 	 */
-	protected $aUids;
+	protected $aRequired = array('uid', 'val');
 
 	/**
-	 * Allowed values of the 'sort' param
+	 * Type of resource to check if
+	 * the user is following
 	 *
-	 * @var array
-	 */
-	protected $allowedSortBy = array('_id', 'i_rep', 'i_lm_ts');
-
-	/**
-	 * Select ONLY these fields from USERS collection
+	 * one of 3 possible types are
+	 * 'u'  - user (default)
+	 * 't' - tag
+	 * 'q' - question
 	 *
-	 * @var array
+	 * @var string
 	 */
-	protected $aFields = array(
-			'_id' => 1, 
-			'i_rep' => 1, 
-			'username' => 1, 
-			'fn' => 1, 
-			'mn' => 1, 
-			'ln' => 1,
-			'avatar' => 1, 
-			'avatar_external' => 1, 
-			'i_reg_ts' => 1, 
-			'i_lm_ts' => 1,
-			'country' => 1,
-			'state' => 1,
-			'city' => 1,
-			'url' => 1,
-			'description' => 1
-	);
+	protected $type = 'u';
 
+	protected $uid;
+
+	protected $val;
+
+	protected $isFollowing = false;
 
 	protected function main(){
-		$this->pageID = $this->oRequest['pageID'];
-
-		$this->setSortBy()
-		->setStartTime()
-		->setEndTime()
-		->setUids()
-		->setSortOrder()
-		->setLimit()
-		->getCursor()
+		$this->uid = $this->oRequest['uid'];
+		$this->val = $this->oRequest['val'];
+		$this->setType()
+		->getData()
 		->setOutput();
 	}
 
-
-	/**
-	 * If there is a "uids" param in request
-	 * then use its value to extract 
-	 * array of uids using the semicolon as separator
-	 * 
-	 * Use a maximum of this many ids.
-	 * 
-	 * @return object $this
-	 */
-	protected function setUids(){
-		$uids = $this->oRequest->get('uids', 's');
-		
-		if(!empty($uids)){
-			$this->aUids = explode(';', $uids);
-			$total = count($this->aUids);
-			if($total > 100){
-				throw new \Lampcms\HttpResponseCodeException('Too many user ids passed in "uids" param. Must be under 100. Was: '.$total, 406);
-			}
-			
-			/**
-			 * IMPORTANT
-			 * Must cast array elements to 
-			 * integers, otherwise Mongo will 
-			 * not be able to find any records because
-			 * match is type-sensitive!
-			 */
-			array_walk($this->aUids, function(&$item, $key){
-				$item = (int)$item;
-			});
-
-		}
-		
-		return $this;
-	}
-
-	
-	protected function getCursor(){
-		$sort[$this->sortBy] = $this->sortOrder;
-		$offset = (($this->pageID - 1) * $this->limit);
-		d('offset: '.$offset);
-
-		$where = array('role' => array('$ne' => 'deleted'));
-		
-		if(isset($this->aUids)){
-			$match = array('$in' => $this->aUids);
-			$where['_id'] = $match;
-		}
-
-		d('$where: '.print_r($where, 1));
-		
-		$this->cursor = $this->oRegistry->Mongo->USERS->find($where, $this->aFields)
-		->sort($sort)
-		->limit($this->limit)
-		->skip($offset);
-
-		$this->count = $this->cursor->count();
-		d('count: '.$this->count);
-
-		if(0 === $this->count){
-			d('No results found for this query: '.print_r($where, 1));
-
-			throw new \Lampcms\HttpResponseCodeException('No matches for your request', 404);
-		}
+	protected function setType(){
+		$this->type = $this->oRequest->get('type', 's', 'u');
 
 		return $this;
 	}
 
-	
-	/**
-	 *
-	 * Set to $this->oOutput object with
-	 * data from cursor
-	 *
-	 * @return object $this
-	 */
+	protected function getData(){
+		switch($this->type){
+			case 'u':
+				$data = $this->oRegistry->Mongo->USERS->findOne(array('_id' => $this->uid, 'a_f_u' => array('$in' => array((int)$this->val))), array('_id' => 1));
+				break;
+
+			case 't':
+				$data = $this->oRegistry->Mongo->USERS->findOne(array('_id' => $this->uid, 'a_f_t' => array('$in' => array($this->val))), array('_id' => 1));
+				break;
+
+			case 'q':
+				$data = $this->oRegistry->Mongo->QUESTIONS->findOne(array('_id' => (int)$this->val, 'a_flwrs' => array('$in' => array($this->uid))), array('_id' => 1));
+				break;
+		}
+
+
+		d('data: '.print_r($data, 1));
+		$this->isFollowing = !empty($data);
+
+		return $this;
+	}
+
+
 	protected function setOutput(){
 
-		$data = array('total' => $this->count,
-		'page' => $this->pageID,
-		'perpage' => $this->limit,
-		'users' => \iterator_to_array($this->cursor, false));
+		$data = array('isfollowing' => $this->isFollowing);
 
 		$this->oOutput->setData($data);
 

@@ -78,44 +78,51 @@ class tplRegform extends Lampcms\Template\Template
 	<tr>
 	<td>
 		<form id="regform" method="post" action="/index.php">	
-		<input type="hidden" name="a" value="%13$s"/>
-		<input type="hidden" name="tzo" value=""/>
-		<input type="hidden" name="token" value="%4$s"/>
+		<input type="hidden" name="a" value="%13$s">
+		<input type="hidden" name="tzo" value="">
+		<input type="hidden" name="token" value="%4$s">
 		<table id="tblreg" align="left" cellpadding="0" cellspacing="0">
 		<!-- tr1 optional avatar, twitter/fb username -->
 		%5$s
 		<!-- username -->
-		<td>
-	<div class="tr">
-	<span class="red"> * </span><span class="label2">%18$s</span><br/>
-	<input type="text" id="username" maxlength="16" name="username" value="%6$s"/>
-	<br><span class="f_err">%19$s</span>
-	<div class="note2">%20$s</div>
-	</div>
-	</td>
-	</tr>
-		<!-- email -->
 		<tr>
 		<td>
-		<div class="tr">
-		<span class="red"> * </span><span class="label2">%7$s</span><br/>
-		<input type="text" id="email" name="email" value="%8$s"/>
-		<br><span class="f_err">%17$s</span>
-		<div class="note2">%9$s</div>
-		</div>
+			<div class="tr">
+				<span class="red"> * </span><span class="label2">%18$s</span><br>
+				<input type="text" id="username" maxlength="16" name="username" value="%6$s">
+				<br><span class="f_err">%19$s</span>
+				<div class="note2">%20$s</div>
+			</div>
 		</td>
 		</tr>
-		<!-- optional TR for Captcha image and form -->
-		%10$s
-		<!-- checkbox email offers -->
-		%11$s
+		<!-- email -->
 		<tr>
-		<td><span class="red"> * </span><span class="label2">Denotes required fields</span><br/></td>
-		</tr>
-		<!-- submit button -->
-		<tr><td>
-		%12$s
-		</td></tr>
+			<td>
+				<div class="tr">
+					<span class="red"> * </span><span class="label2">%7$s</span><br>
+					<input type="text" id="email" name="email" value="%8$s">
+					<br><span class="f_err">%17$s</span>
+					<div class="note2">%9$s</div>
+				</div>
+			</td>
+	</tr>
+	<!-- optional TR for Captcha image and form -->
+	<tr>
+	  <td>
+		%10$s
+	  </td>
+	</tr>
+	<!-- checkbox email offers -->
+		%11$s
+	<tr>
+		<td><span class="red"> * </span><span class="label2">Denotes required fields</span><br></td>
+	</tr>
+	<!-- submit button -->
+	<tr>
+		<td>
+			%12$s
+		</td>
+	</tr>
 		</table>
 		</form>
 	</td>

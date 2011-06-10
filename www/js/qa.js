@@ -1115,7 +1115,21 @@ YUI({
 		var input = (el) ? el : Y.one("#id_tags");
 		if(input){
 			Y.log('got id_tags');
-			Y.one(input).plug(Y.Plugin.TokenInput, {delimiter:' '});
+			/**
+			 * Here is a quick fix to the TokenInput Autocomplete bug
+			 * as per this instruction:
+			 * http://yuilibrary.com/forum/viewtopic.php?f=101&t=7572
+			 */
+			Y.Plugin.TokenInput.prototype._afterBlur = function(e) {
+			    var that = this;
+			    if (this.get('tokenizeOnBlur')) {
+			        setTimeout(function () {
+			            that._tokenizeValue(null, null, {all: true});
+			        }, 100);
+			    }
+			};
+			
+			Y.one(input).plug(Y.Plugin.TokenInput, {delimiter:' '})
 			
 			/**
 			 * AutoComplete plug is buggy when
@@ -1125,13 +1139,13 @@ YUI({
 			 * Will wait on this one untill YUI3 fixes this
 			 * bug.
 			 */
-			/*.plug(Y.Plugin.AutoComplete, {
+			.plug(Y.Plugin.AutoComplete, {
 				resultListLocator : 'ac',
 				resultTextLocator : 'tag',
 				resultFilters: 'charMatch',
 		        resultHighlighter: 'charMatch',
 		        source: '/index.php?a=taghint&q={query}&ajaxid=1&callback={callback}'
-		    })*/
+		    });
 		}
 	},
 	/**
@@ -2981,7 +2995,7 @@ YUI({
 				} else {
 					write('Editor ready');
 				}
-				Y.log('2984 rendering editor ', 'error');
+				Y.log('2984 rendering editor ', 'warn');
 				editor.render();
 				
 				});

@@ -305,13 +305,13 @@ class Form extends LampcmsObject
 	public function getSubmittedValues(){
 		$aFields = $this->getFields();
 		$a = $this->oRegistry->Request->getArray();
-		//d('$aFields: '.print_r($aFields, 1).' Request->getArray(): '.print_r($a, 1).' POST: '.print_r($_POST, 1));
+		d('$aFields: '.print_r($aFields, 1).' Request->getArray(): '.print_r($a, 1).' POST: '.print_r($_POST, 1));
 
 		/**
 		 * Order of array_intersect_key is very important!
 		 */
 		$ret = array_intersect_key($a, array_flip($aFields));
-		//d('submitted values: '.print_r($ret, 1));
+		d('submitted values: '.print_r($ret, 1));
 
 		return $ret;
 	}
@@ -563,11 +563,12 @@ class Form extends LampcmsObject
 	 * also if aErrors not empty, merge it with aVars
 	 * 
 	 * @param bool $useSubmittedVars if set to false then
-	 * will not update $this-aVars to the values of submitted
+	 * will not update $this->aVars to the values of submitted
 	 * values and will reuse the vars that were set initially.
 	 * This is useful when form was submitted but then some error
-	 * occured in a script that was parsing the form. In that case
-	 * we ofter need to setFormError and then use values in form
+	 * occured in a script that was parsing the form. 
+	 * In that case
+	 * we often need to setFormError and then use values in form
 	 * than were there initially, no using any of the submitted values.
 	 *
 	 * @return string html parsed form template

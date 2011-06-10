@@ -95,8 +95,8 @@ class MongoDoc extends LampcmsArray implements \Serializable
 
 
 	/**
-	 * Name of table which holds
-	 * this row.
+	 * Name of MongoCollection which holds
+	 * this document.
 	 *
 	 * If this is undefined then data will not be saved
 	 * on update during the save() method call

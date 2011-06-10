@@ -143,6 +143,8 @@ class Mongo extends LampcmsObject
 		if(!empty($aConfig['prefix'])){
 			$this->prefix = (string)$aConfig['prefix'];
 		}
+
+		d('cp');
 	}
 
 
@@ -269,7 +271,6 @@ class Mongo extends LampcmsObject
 
 		$ret = false;
 
-
 		$coll = $this->getDb()->selectCollection($collName);
 		try{
 			$ret = $coll->update(array($whereCol => $whereVal), $arrValues, array('fsync' => true));
@@ -318,10 +319,11 @@ class Mongo extends LampcmsObject
 			throw new \InvalidArgumentException('Param $collName must be a string. was: '.gettype($collName));
 		}
 
+		d('$collName: '.$collName);
 
 		$coll = defined('Lampcms\Mongo\\'.$collName) ? \constant('Lampcms\Mongo\\'.$collName) : \constant('Lampcms\My\\'.$collName);
 		d('$coll: '.$coll);
-		
+
 		return $this->conn->selectCollection($this->dbname, $this->prefix.$coll);
 	}
 

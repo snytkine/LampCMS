@@ -50,124 +50,83 @@
  */
 
 
+namespace Lampcms\Controllers;
 
-namespace Lampcms\Api\v1;
-
-use Lampcms\Api\Api;
+use Lampcms\WebPage;
 
 /**
- * API Controller to get
- * data about specific tags
- * It returns details about tags:
- * hts - human readable date/time of last activity
- * i_ts timestamp of most recent activity in tag,
- * i_count = number of questions with this tag.
- * and sometimes
- * i_flwrs : number of followers of the tag
- * 
- * Example call: 
- * /api/api.php?a=tags&tags=test%20video&starttime=1306587925&sort=i_ts&dir=asc
- * will return data about 2 tags: test and video
- * that are posted after 1306587925
- * results will be sorted by timestamp in ascending order
+ * Controller for displaying
+ * a page with details about
+ * one API client app that belongs
+ * to Viewer.
+ * The data on this page is non-editable
+ * but there is a link to "Edit"
+ * page at the bottom
+ *
  *
  * @author Dmitri Snytkine
  *
  */
-class Tags extends Questions
+class Viewapp extends Editapp
 {
 
 	/**
-	 * Allowed values of the 'sort' param
+	 * app_id is a required Request param
 	 *
 	 * @var array
 	 */
-	protected $allowedSortBy = array('tag', 'i_count', 'i_ts');
-	
-	protected $sortBy = 'tag';
+	protected $aRequired = array('app_id');
 
 
 	protected function main(){
-		$this->pageID = $this->oRequest['pageID'];
 
-		$this->setStartTime()
-		->setEndTime()
-		->setTags()
-		->setSortBy()
-		->setSortOrder()
-		->setLimit()
-		->getCursor()
-		->setOutput();
+		$this->setApi()
+		->setTitle()
+		->setBody();
 	}
 
 
-	/**
-	 *
-	 * Get Mongo Cursor based on Sort order, Sort direction,
-	 * per page limit and pageID
-	 *
-	 * @throws \Lampcms\HttpResponseCodeException
-	 *
-	 * @return object $this
-	 */
-	protected function getCursor(){
-		$aFields = array('_id' => 0);
-		$sort[$this->sortBy] = $this->sortOrder;
-		$offset = (($this->pageID - 1) * $this->limit);
-		d('offset: '.$offset);
-
-		$where = array('i_count' => array('$gt' => 0));
-
-		if(!empty($this->aTags)){
-			$match[$this->tagsMatch] = $this->aTags;
-			$where['tag'] = $match;
-		}
-
-		if($this->endTime){
-			$where['i_ts'] = array('$lt' => (int)$this->endTime);
-		}
-
-		if($this->startTime){
-			$where['i_ts'] = array('$gt' => (int)$this->startTime);
-		}
-
-		d('$where: '.print_r($where, 1));
-		
-		$this->cursor = $this->oRegistry->Mongo->QUESTION_TAGS->find($where, $aFields)
-		->sort($sort)
-		->limit($this->limit)
-		->skip($offset);
-
-		$this->count = $this->cursor->count();
-		d('count: '.$this->count);
-
-		if(0 === $this->count){
-			d('No results found for this query: '.print_r($where, 1));
-
-			throw new \Lampcms\HttpResponseCodeException('No matches for your request', 404);
-		}
+	protected function setTitle(){
+		$this->title = $this->aPageVars['title'] = 'Application details';
 
 		return $this;
 	}
 
 
 	/**
+	 * Setup the 'body' of $this->aPageVars
 	 *
-	 * Set to $this->oOutput object with
-	 * data from cursor
 	 *
-	 * @return object $this
 	 */
-	protected function setOutput(){
+	protected function setBody(){
 
-		$data = array('total' => $this->count,
-		'page' => $this->pageID,
-		'perpage' => $this->limit,
-		'tags' => \iterator_to_array($this->cursor, false));
-
-		$this->oOutput->setData($data);
+		$this->aPageVars['body'] = \tplViewapp::parse(array($this->title, $this->getAppDetails(), $this->oApi['_id']), false);
 
 		return $this;
+	}
+
+
+	/**
+	 * Get basic details about the app
+	 * and prepare the html block with this info
+	 * This block is shown on a page after the APP
+	 * is added or edited
+	 * It contains the data returned by the Clientdata class
+	 * In case of OAuth2 - the Clientdata class returns more data,
+	 * like urls for Authorization end-points, as well as the
+	 * secret token(s)
+	 *
+	 * @return string html string
+	 */
+	protected function getAppDetails(){
+		$tpl = '<h2 class="definition rounded5">%s</h2><p>%s</p>';
+		$ret = '';
+		$a = $this->oApi->getData();
+		foreach($a as $key => $val){
+			$ret .= sprintf($tpl, $key, $val);
+		}
+
+		return $ret;
 	}
 
 }

@@ -49,125 +49,79 @@
  *
  */
 
+ 
+namespace Lampcms\Api;
 
-
-namespace Lampcms\Api\v1;
-
-use Lampcms\Api\Api;
+use Lampcms\FS\Path;
 
 /**
- * API Controller to get
- * data about specific tags
- * It returns details about tags:
- * hts - human readable date/time of last activity
- * i_ts timestamp of most recent activity in tag,
- * i_count = number of questions with this tag.
- * and sometimes
- * i_flwrs : number of followers of the tag
+ * Class for parsing uploaded image
+ * to be used as APP icon.
+ * This image is uploaded from the
+ * "Add/Edit your Application" url
  * 
- * Example call: 
- * /api/api.php?a=tags&tags=test%20video&starttime=1306587925&sort=i_ts&dir=asc
- * will return data about 2 tags: test and video
- * that are posted after 1306587925
- * results will be sorted by timestamp in ascending order
- *
  * @author Dmitri Snytkine
  *
  */
-class Tags extends Questions
+class IconParser
 {
-
-	/**
-	 * Allowed values of the 'sort' param
-	 *
-	 * @var array
-	 */
-	protected $allowedSortBy = array('tag', 'i_count', 'i_ts');
 	
-	protected $sortBy = 'tag';
-
-
-	protected function main(){
-		$this->pageID = $this->oRequest['pageID'];
-
-		$this->setStartTime()
-		->setEndTime()
-		->setTags()
-		->setSortBy()
-		->setSortOrder()
-		->setLimit()
-		->getCursor()
-		->setOutput();
-	}
-
-
 	/**
+	 * Parse the avatar file in $tempPath,
+	 * by creating small square image from it,
+	 * save into file system and then add path to new avatar
+	 * in User object as 'avatar' element
 	 *
-	 * Get Mongo Cursor based on Sort order, Sort direction,
-	 * per page limit and pageID
 	 *
-	 * @throws \Lampcms\HttpResponseCodeException
+	 * @param User $oUser
+	 * @param unknown_type $tempPath
+	 * @throws \Lampcms\Exception
 	 *
-	 * @return object $this
+	 * @return bool false if unable to parse image | true if added image 
 	 */
-	protected function getCursor(){
-		$aFields = array('_id' => 0);
-		$sort[$this->sortBy] = $this->sortOrder;
-		$offset = (($this->pageID - 1) * $this->limit);
-		d('offset: '.$offset);
+	public static function addIcon(Clientdata $o, $tempPath){
 
-		$where = array('i_count' => array('$gt' => 0));
+		d('$tempPath: '.$tempPath);
 
-		if(!empty($this->aTags)){
-			$match[$this->tagsMatch] = $this->aTags;
-			$where['tag'] = $match;
-		}
+		$size = 72;
 
-		if($this->endTime){
-			$where['i_ts'] = array('$lt' => (int)$this->endTime);
-		}
+		$avatarDir = LAMPCMS_DATA_DIR.'img'.DIRECTORY_SEPARATOR.'avatar'.DIRECTORY_SEPARATOR.'sqr'.DIRECTORY_SEPARATOR;
+		d('$avatarDir: '.$avatarDir);
 
-		if($this->startTime){
-			$where['i_ts'] = array('$gt' => (int)$this->startTime);
-		}
-
-		d('$where: '.print_r($where, 1));
+		$savePath = Path::prepare($o['_id'], $avatarDir);
+		d('$savePath: '.$savePath);
 		
-		$this->cursor = $this->oRegistry->Mongo->QUESTION_TAGS->find($where, $aFields)
-		->sort($sort)
-		->limit($this->limit)
-		->skip($offset);
-
-		$this->count = $this->cursor->count();
-		d('count: '.$this->count);
-
-		if(0 === $this->count){
-			d('No results found for this query: '.print_r($where, 1));
-
-			throw new \Lampcms\HttpResponseCodeException('No matches for your request', 404);
+		/**
+		 * Create avatar and save it
+		 * with compression level of 80% (small compression)
+		 */
+		try{
+			$ImgParser = \Lampcms\Image\Editor::factory($o->getRegistry())
+			->loadImage($tempPath)
+			->makeSquare($size);
+			$savePath .= $ImgParser->getExtension();
+			$ImgParser->save($avatarDir.$savePath, null, 80);
+			d('avatar saved to '.$savePath);
+		} catch(\Lampcms\ImageException $e){
+			e('ImageException caught in: '.$e->getFile().' on line: '.$e->getLine().' error: '.$e->getMessage());
+			
+			return false;
 		}
 
-		return $this;
+		/**
+		 * Now remove tempPath file
+		 */
+		@\unlink($tempPath);
+
+		/**
+		 * Now add the path to avatar
+		 * to Clientdata object
+		 * save() is not invoked on Clientdata object here!
+		 * Either rely on auto-save  or call save()
+		 * from a function that invoked this method
+		 */
+		$o['icon'] = $savePath;
+
+		return true;
 	}
-
-
-	/**
-	 *
-	 * Set to $this->oOutput object with
-	 * data from cursor
-	 *
-	 * @return object $this
-	 */
-	protected function setOutput(){
-
-		$data = array('total' => $this->count,
-		'page' => $this->pageID,
-		'perpage' => $this->limit,
-		'tags' => \iterator_to_array($this->cursor, false));
-
-		$this->oOutput->setData($data);
-
-		return $this;
-	}
-
 }

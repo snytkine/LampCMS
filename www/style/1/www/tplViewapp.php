@@ -49,125 +49,31 @@
  *
  */
 
-
-
-namespace Lampcms\Api\v1;
-
-use Lampcms\Api\Api;
-
 /**
- * API Controller to get
- * data about specific tags
- * It returns details about tags:
- * hts - human readable date/time of last activity
- * i_ts timestamp of most recent activity in tag,
- * i_count = number of questions with this tag.
- * and sometimes
- * i_flwrs : number of followers of the tag
+ * Template for rendering the 'main'
+ * area of the ?a=viewapp&app_id=%d
+ * page.
  * 
- * Example call: 
- * /api/api.php?a=tags&tags=test%20video&starttime=1306587925&sort=i_ts&dir=asc
- * will return data about 2 tags: test and video
- * that are posted after 1306587925
- * results will be sorted by timestamp in ascending order
- *
+ * Called from the Viewapp controller
+ * 
+ * 
  * @author Dmitri Snytkine
  *
- */
-class Tags extends Questions
+ */ 
+class tplViewapp extends Lampcms\Template\Template
 {
-
-	/**
-	 * Allowed values of the 'sort' param
-	 *
-	 * @var array
-	 */
-	protected $allowedSortBy = array('tag', 'i_count', 'i_ts');
 	
-	protected $sortBy = 'tag';
-
-
-	protected function main(){
-		$this->pageID = $this->oRequest['pageID'];
-
-		$this->setStartTime()
-		->setEndTime()
-		->setTags()
-		->setSortBy()
-		->setSortOrder()
-		->setLimit()
-		->getCursor()
-		->setOutput();
-	}
-
-
-	/**
-	 *
-	 * Get Mongo Cursor based on Sort order, Sort direction,
-	 * per page limit and pageID
-	 *
-	 * @throws \Lampcms\HttpResponseCodeException
-	 *
-	 * @return object $this
-	 */
-	protected function getCursor(){
-		$aFields = array('_id' => 0);
-		$sort[$this->sortBy] = $this->sortOrder;
-		$offset = (($this->pageID - 1) * $this->limit);
-		d('offset: '.$offset);
-
-		$where = array('i_count' => array('$gt' => 0));
-
-		if(!empty($this->aTags)){
-			$match[$this->tagsMatch] = $this->aTags;
-			$where['tag'] = $match;
-		}
-
-		if($this->endTime){
-			$where['i_ts'] = array('$lt' => (int)$this->endTime);
-		}
-
-		if($this->startTime){
-			$where['i_ts'] = array('$gt' => (int)$this->startTime);
-		}
-
-		d('$where: '.print_r($where, 1));
-		
-		$this->cursor = $this->oRegistry->Mongo->QUESTION_TAGS->find($where, $aFields)
-		->sort($sort)
-		->limit($this->limit)
-		->skip($offset);
-
-		$this->count = $this->cursor->count();
-		d('count: '.$this->count);
-
-		if(0 === $this->count){
-			d('No results found for this query: '.print_r($where, 1));
-
-			throw new \Lampcms\HttpResponseCodeException('No matches for your request', 404);
-		}
-
-		return $this;
-	}
-
-
-	/**
-	 *
-	 * Set to $this->oOutput object with
-	 * data from cursor
-	 *
-	 * @return object $this
-	 */
-	protected function setOutput(){
-
-		$data = array('total' => $this->count,
-		'page' => $this->pageID,
-		'perpage' => $this->limit,
-		'tags' => \iterator_to_array($this->cursor, false));
-
-		$this->oOutput->setData($data);
-
-		return $this;
-	}
-
+	protected static $vars = array(
+	'title' => '',
+	'appdata' => ''
+	);
+	
+	protected static $tpl = '
+		<div id="tools">
+			<div class="clearfix w90">
+				<h1>%1$s</h1>
+				%2$s
+				<div class="fl cb"><a href="/index.php?a=editapp&app_id=%3$s" class="bold">Edit Application settings</a></div>
+			</div>
+		</div>';
 }

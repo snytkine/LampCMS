@@ -59,6 +59,7 @@ use \Lampcms\Request;
 class Regform extends Form
 {
 	const CAPTCHA_ERROR = 'Incorrect image verification text<br/>Please try again';
+	
 	/**
 	 * Name of form template file
 	 * The name of actual template should be

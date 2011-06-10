@@ -50,124 +50,84 @@
  */
 
 
+namespace Lampcms\Api;
 
-namespace Lampcms\Api\v1;
-
-use Lampcms\Api\Api;
+use Lampcms\MongoDoc;
 
 /**
- * API Controller to get
- * data about specific tags
- * It returns details about tags:
- * hts - human readable date/time of last activity
- * i_ts timestamp of most recent activity in tag,
- * i_count = number of questions with this tag.
- * and sometimes
- * i_flwrs : number of followers of the tag
- * 
- * Example call: 
- * /api/api.php?a=tags&tags=test%20video&starttime=1306587925&sort=i_ts&dir=asc
- * will return data about 2 tags: test and video
- * that are posted after 1306587925
- * results will be sorted by timestamp in ascending order
+ * Class represents a registered API client
+ * API client has unique client ID and is allowed to access
+ * OUR API
  *
  * @author Dmitri Snytkine
  *
  */
-class Tags extends Questions
+class Clientdata extends MongoDoc
 {
 
+	protected $aReturn = array('app', 'api_key');
+
+	public function __construct(\Lampcms\Registry $oRegistry){
+
+		parent::__construct($oRegistry,  'API_CLIENTS');
+	}
+
 	/**
-	 * Allowed values of the 'sort' param
+	 * Factory method
+	 * @todo when support for OAuth2 is added
+	 * then we will check if OAuth2 is enable - return
+	 * OAuth2 sub-class.
+	 * It will have extra methods
+	 * to return and save extra data
 	 *
-	 * @var array
+	 * @param Registry $oRegistry
 	 */
-	protected $allowedSortBy = array('tag', 'i_count', 'i_ts');
-	
-	protected $sortBy = 'tag';
-
-
-	protected function main(){
-		$this->pageID = $this->oRequest['pageID'];
-
-		$this->setStartTime()
-		->setEndTime()
-		->setTags()
-		->setSortBy()
-		->setSortOrder()
-		->setLimit()
-		->getCursor()
-		->setOutput();
+	public static function factory(\Lampcms\Registry $oRegistry){
+		return new static($oRegistry);
 	}
 
 
 	/**
+	 * Get SRC if the icon image
+	 * Will return default path
+	 * to a generic app icon
+	 * if this client has not uploaded
+	 * own icon.
 	 *
-	 * Get Mongo Cursor based on Sort order, Sort direction,
-	 * per page limit and pageID
-	 *
-	 * @throws \Lampcms\HttpResponseCodeException
-	 *
-	 * @return object $this
+	 * @return string value of the $src of the image
 	 */
-	protected function getCursor(){
-		$aFields = array('_id' => 0);
-		$sort[$this->sortBy] = $this->sortOrder;
-		$offset = (($this->pageID - 1) * $this->limit);
-		d('offset: '.$offset);
+	public function getIcon($asHtml = true){
+		$s = $this->offsetGet('icon');
 
-		$where = array('i_count' => array('$gt' => 0));
+		$s = (empty($s)) ? '/images/app2.png' : AVATAR_IMG_SITE.\Lampcms\PATH_WWW_IMG_AVATAR_SQUARE.$s;
 
-		if(!empty($this->aTags)){
-			$match[$this->tagsMatch] = $this->aTags;
-			$where['tag'] = $match;
+		if(!$asHtml){
+			return $s;
 		}
-
-		if($this->endTime){
-			$where['i_ts'] = array('$lt' => (int)$this->endTime);
-		}
-
-		if($this->startTime){
-			$where['i_ts'] = array('$gt' => (int)$this->startTime);
-		}
-
-		d('$where: '.print_r($where, 1));
 		
-		$this->cursor = $this->oRegistry->Mongo->QUESTION_TAGS->find($where, $aFields)
-		->sort($sort)
-		->limit($this->limit)
-		->skip($offset);
-
-		$this->count = $this->cursor->count();
-		d('count: '.$this->count);
-
-		if(0 === $this->count){
-			d('No results found for this query: '.print_r($where, 1));
-
-			throw new \Lampcms\HttpResponseCodeException('No matches for your request', 404);
-		}
-
-		return $this;
+		return '<img src="'.$s.'" width="72px" height="72px" alt="App Logo">';
 	}
 
 
 	/**
+	 * Return array of key->value
+	 * only return certain keys that should
+	 * be displayed on the Cliend info page
+	 * This includes api_key, name
+	 * In case of OAuth2 sub-class show
+	 * app token as well as urls for end-points
+	 * related to OAuth2 authorization and
+	 * other important urls
 	 *
-	 * Set to $this->oOutput object with
-	 * data from cursor
-	 *
-	 * @return object $this
+	 * @return array
 	 */
-	protected function setOutput(){
+	public function getData(){
+		$ret = array(
+		'Application' => $this->offsetGet('app_name'),
+		'About' => '<span class="pre">'.$this->offsetGet('about').'</span>',
+		'Icon' => $this->getIcon(true),
+		'API Key' => $this->offsetGet('api_key'));
 
-		$data = array('total' => $this->count,
-		'page' => $this->pageID,
-		'perpage' => $this->limit,
-		'tags' => \iterator_to_array($this->cursor, false));
-
-		$this->oOutput->setData($data);
-
-		return $this;
+		return $ret;
 	}
-
 }

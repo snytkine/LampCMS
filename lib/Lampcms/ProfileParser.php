@@ -178,7 +178,7 @@ class ProfileParser extends LampcmsObject
 	 */
 	protected function getClean($string){
 		if(empty($string)){
-			Utf8String::factory('', 'ascii', true );
+			return Utf8String::factory('', 'ascii', true );
 		}
 
 		return Utf8String::factory($string)->trim()->stripTags();

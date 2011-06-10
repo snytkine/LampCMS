@@ -50,153 +50,62 @@
  */
 
 
+/**
+ * Returns Related tags data
+ * for one specific tag
+ * Related tags are the tags that appear
+ * in questions that also include this tag
+ * a tag param is required and should include
+ * just one tag for which related tags will
+ * be returned. A maximum of 100 related tags
+ * will be returned along with the count
+ * of questions in which these 2 tags appear together.
+ *
+ */
+
 namespace Lampcms\Api\v1;
 
 use Lampcms\Api\Api;
 
-class Users extends Api
+class Relatedtags extends Api
 {
-	/**
-	 * Array of user IDs
-	 *
-	 * The list of user IDs can be passed in uids
-	 * param in a form of semicolon separated values
-	 * of up to 100 user IDs
-	 *
-	 * @var array
-	 */
-	protected $aUids;
+	protected $aRequired = array('tag');
 
-	/**
-	 * Allowed values of the 'sort' param
-	 *
-	 * @var array
-	 */
-	protected $allowedSortBy = array('_id', 'i_rep', 'i_lm_ts');
 
-	/**
-	 * Select ONLY these fields from USERS collection
-	 *
-	 * @var array
-	 */
-	protected $aFields = array(
-			'_id' => 1, 
-			'i_rep' => 1, 
-			'username' => 1, 
-			'fn' => 1, 
-			'mn' => 1, 
-			'ln' => 1,
-			'avatar' => 1, 
-			'avatar_external' => 1, 
-			'i_reg_ts' => 1, 
-			'i_lm_ts' => 1,
-			'country' => 1,
-			'state' => 1,
-			'city' => 1,
-			'url' => 1,
-			'description' => 1
-	);
-
+	protected $aData = array();
 
 	protected function main(){
-		$this->pageID = $this->oRequest['pageID'];
-
-		$this->setSortBy()
-		->setStartTime()
-		->setEndTime()
-		->setUids()
-		->setSortOrder()
-		->setLimit()
-		->getCursor()
+		$this->getData()
 		->setOutput();
 	}
 
 
-	/**
-	 * If there is a "uids" param in request
-	 * then use its value to extract 
-	 * array of uids using the semicolon as separator
-	 * 
-	 * Use a maximum of this many ids.
-	 * 
-	 * @return object $this
-	 */
-	protected function setUids(){
-		$uids = $this->oRequest->get('uids', 's');
-		
-		if(!empty($uids)){
-			$this->aUids = explode(';', $uids);
-			$total = count($this->aUids);
-			if($total > 100){
-				throw new \Lampcms\HttpResponseCodeException('Too many user ids passed in "uids" param. Must be under 100. Was: '.$total, 406);
-			}
-			
-			/**
-			 * IMPORTANT
-			 * Must cast array elements to 
-			 * integers, otherwise Mongo will 
-			 * not be able to find any records because
-			 * match is type-sensitive!
-			 */
-			array_walk($this->aUids, function(&$item, $key){
-				$item = (int)$item;
-			});
-
-		}
-		
-		return $this;
-	}
-
-	
-	protected function getCursor(){
-		$sort[$this->sortBy] = $this->sortOrder;
-		$offset = (($this->pageID - 1) * $this->limit);
-		d('offset: '.$offset);
-
-		$where = array('role' => array('$ne' => 'deleted'));
-		
-		if(isset($this->aUids)){
-			$match = array('$in' => $this->aUids);
-			$where['_id'] = $match;
+	protected function getData(){
+		$tag = $this->oRequest->get('tag', 's', '');
+		if(empty($tag)){
+			throw new \Lampcms\HttpResponseCodeException('Invalid value of "tag" param in request. It cannot be empty! Must be a name of the tag', 406);
 		}
 
-		d('$where: '.print_r($where, 1));
-		
-		$this->cursor = $this->oRegistry->Mongo->USERS->find($where, $this->aFields)
-		->sort($sort)
-		->limit($this->limit)
-		->skip($offset);
+		$this->aData = $this->oRegistry->Mongo->RELATED_TAGS
+		->findOne(array('_id' => $tag), array('_id' => 1, 'tags' => 1));
 
-		$this->count = $this->cursor->count();
-		d('count: '.$this->count);
-
-		if(0 === $this->count){
-			d('No results found for this query: '.print_r($where, 1));
-
-			throw new \Lampcms\HttpResponseCodeException('No matches for your request', 404);
+		if(empty($this->aData)){
+			throw new \Lampcms\HttpResponseCodeException('No Data for tag '.$tag, 404);
 		}
 
 		return $this;
 	}
 
-	
 	/**
 	 *
 	 * Set to $this->oOutput object with
-	 * data from cursor
+	 * data from $this->aData
 	 *
 	 * @return object $this
 	 */
 	protected function setOutput(){
-
-		$data = array('total' => $this->count,
-		'page' => $this->pageID,
-		'perpage' => $this->limit,
-		'users' => \iterator_to_array($this->cursor, false));
-
-		$this->oOutput->setData($data);
+		$this->oOutput->setData($this->aData);
 
 		return $this;
 	}
-
 }

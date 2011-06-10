@@ -330,7 +330,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 				 * does not seem to accept 0 as a valid int!
 				 * this sucks, so instead going to use is_numeric
 				 */
-				if(!\is_numeric($val) || ($val < 0) || ($val > 99999999999)){
+				if('' !== $val && !\is_numeric($val) || ($val < 0) || ($val > 99999999999)){
 					throw new \InvalidArgumentException('Invalid value of "'.$name.'". It can only be a number between 0 and 99999999999 was: '.\htmlentities($val));
 				}
 

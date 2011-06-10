@@ -50,153 +50,94 @@
  */
 
 
-namespace Lampcms\Api\v1;
+namespace Lampcms\Controllers;
 
-use Lampcms\Api\Api;
+use Lampcms\WebPage;
 
-class Users extends Api
+/**
+ * Controller to view Users' registered
+ * Apps.
+ * If User does not have any apps
+ * then redirect to the /apiclient/ page
+ * so that user may start creating new app
+ *
+ *
+ * @author Dmitri Snytkine
+ *
+ */
+class Viewapps extends WebPage
 {
 	/**
-	 * Array of user IDs
+	 * Pre-check to deny non-logged in user
+	 * access to this page
 	 *
-	 * The list of user IDs can be passed in uids
-	 * param in a form of semicolon separated values
-	 * of up to 100 user IDs
-	 *
-	 * @var array
+	 * @var bool
 	 */
-	protected $aUids;
+	protected $membersOnly = true;
+
 
 	/**
-	 * Allowed values of the 'sort' param
 	 *
-	 * @var array
+	 * MongoCursor with all registered apps
+	 * that belong to Viewer
+	 * @var object of type MongoCursor
 	 */
-	protected $allowedSortBy = array('_id', 'i_rep', 'i_lm_ts');
+	protected $cursor;
+
 
 	/**
-	 * Select ONLY these fields from USERS collection
+	 * $layoutID 1 means no side-column on page
 	 *
-	 * @var array
+	 * @var int
 	 */
-	protected $aFields = array(
-			'_id' => 1, 
-			'i_rep' => 1, 
-			'username' => 1, 
-			'fn' => 1, 
-			'mn' => 1, 
-			'ln' => 1,
-			'avatar' => 1, 
-			'avatar_external' => 1, 
-			'i_reg_ts' => 1, 
-			'i_lm_ts' => 1,
-			'country' => 1,
-			'state' => 1,
-			'city' => 1,
-			'url' => 1,
-			'description' => 1
-	);
+	protected $layoutID = 1;
+
 
 
 	protected function main(){
-		$this->pageID = $this->oRequest['pageID'];
-
-		$this->setSortBy()
-		->setStartTime()
-		->setEndTime()
-		->setUids()
-		->setSortOrder()
-		->setLimit()
-		->getCursor()
-		->setOutput();
+		$this->getApps()
+		->setTitle()
+		->setApps();
 	}
 
 
 	/**
-	 * If there is a "uids" param in request
-	 * then use its value to extract 
-	 * array of uids using the semicolon as separator
+	 * Find all apps that belong the the
+	 * Viewer
+	 * If none are found then redirect
+	 * to the page to create a new app
 	 * 
-	 * Use a maximum of this many ids.
-	 * 
-	 * @return object $this
+	 * @throws \Lampcms\RedirectException
 	 */
-	protected function setUids(){
-		$uids = $this->oRequest->get('uids', 's');
-		
-		if(!empty($uids)){
-			$this->aUids = explode(';', $uids);
-			$total = count($this->aUids);
-			if($total > 100){
-				throw new \Lampcms\HttpResponseCodeException('Too many user ids passed in "uids" param. Must be under 100. Was: '.$total, 406);
-			}
-			
-			/**
-			 * IMPORTANT
-			 * Must cast array elements to 
-			 * integers, otherwise Mongo will 
-			 * not be able to find any records because
-			 * match is type-sensitive!
-			 */
-			array_walk($this->aUids, function(&$item, $key){
-				$item = (int)$item;
-			});
-
-		}
-		
-		return $this;
-	}
-
-	
-	protected function getCursor(){
-		$sort[$this->sortBy] = $this->sortOrder;
-		$offset = (($this->pageID - 1) * $this->limit);
-		d('offset: '.$offset);
-
-		$where = array('role' => array('$ne' => 'deleted'));
-		
-		if(isset($this->aUids)){
-			$match = array('$in' => $this->aUids);
-			$where['_id'] = $match;
-		}
-
-		d('$where: '.print_r($where, 1));
-		
-		$this->cursor = $this->oRegistry->Mongo->USERS->find($where, $this->aFields)
-		->sort($sort)
-		->limit($this->limit)
-		->skip($offset);
-
-		$this->count = $this->cursor->count();
-		d('count: '.$this->count);
-
-		if(0 === $this->count){
-			d('No results found for this query: '.print_r($where, 1));
-
-			throw new \Lampcms\HttpResponseCodeException('No matches for your request', 404);
+	protected function getApps(){
+		$this->cursor = $this->oRegistry->Mongo->API_CLIENTS->find(array('i_uid' => $this->oRegistry->Viewer->getUid()));
+		if(0 === $this->cursor->count()){
+			throw new \Lampcms\RedirectException('/index.php?a=editapp');
 		}
 
 		return $this;
 	}
 
-	
+
+	protected function setTitle(){
+		$this->title = $this->aPageVars['title'] = 'Manage your applications';
+
+		return $this;
+	}
+
+
 	/**
-	 *
-	 * Set to $this->oOutput object with
-	 * data from cursor
+	 * Set the 'body' of the page
+	 * with the content of list of user's apps
 	 *
 	 * @return object $this
 	 */
-	protected function setOutput(){
+	protected function setApps(){
 
-		$data = array('total' => $this->count,
-		'page' => $this->pageID,
-		'perpage' => $this->limit,
-		'users' => \iterator_to_array($this->cursor, false));
+		$sApps = \tplApps::loop($this->cursor);
 
-		$this->oOutput->setData($data);
+		$this->aPageVars['body'] = \tplViewapps::parse(array('apps' =>  $sApps) );
 
 		return $this;
 	}
-
 }

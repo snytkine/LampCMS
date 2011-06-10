@@ -123,12 +123,12 @@
 	 </td>
 	 <td>
 	 <div class="fl%40$s"> 
-	        <!-- <div class="follow ajax slvrbtn change_image rounded4 ">%36$s</div> --> 
-	        <!-- <a href="#" id="adel_%39$s" class="ajax delete_image smaller ml10">%38$s</a> -->
+	        <!-- <div class="follow ajax slvrbtn change_image rounded4 ">%36$s</div> -->
+	        <a href="#" id="adel_%39$s" class="ajax delete_image smaller ml10">%38$s</a>
 	  	<span id="avatar_upload" class="fl _pic_upload"> 
 	  	<span class="fl">You may upload your avatar image</span>
-	  	  <input type="hidden" name="MAX_FILE_SIZE" value="%41$s" />
-	      <input id="id_profile_image" name="profile_image" size="20" type="file" /> 
+	  	  <input type="hidden" name="MAX_FILE_SIZE" value="%41$s">
+	      <input id="id_profile_image" name="profile_image" size="20" type="file"> 
 	      <span class="f_err">%42$s</span>
 	      <br><div class="smaller">%37$s</div> 
 	    </span>

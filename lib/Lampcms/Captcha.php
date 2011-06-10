@@ -493,7 +493,7 @@ class Captcha extends LampcmsObject
 			// random characters in background with random position, angle, color
 			d("Captcha-Debug: Fill background with noise: (".$this->nb_noise.")");
 			for($i=0; $i < $this->nb_noise; $i++){
-				d('Captcha-Debug');
+				//d('Captcha-Debug');
 				srand((double)microtime()*1000000);
 				$size	= intval(rand((int)($this->minsize / 2.3), (int)($this->maxsize / 1.7)));
 				srand((double)microtime()*1000000);
@@ -503,9 +503,9 @@ class Captcha extends LampcmsObject
 				srand((double)microtime()*1000000);
 				$y		= intval(rand(0, (int)($this->ly - ($size / 5))));
 				$this->random_color(160, 224);
-				d('Captcha-Debug');
+				//d('Captcha-Debug');
 				$color	= $func2($image, $this->r, $this->g, $this->b);
-				d('Captcha-Debug');
+				//d('Captcha-Debug');
 				srand((double)microtime()*1000000);
 				$text	= chr(intval(rand(45,250)));
 				//d('Captcha-Debug: $text:  '.$text);
@@ -513,7 +513,7 @@ class Captcha extends LampcmsObject
 					throw new DevException('Your php does not support imagettftext operation. You should disable captcha support in !config.ini');
 				}
 
-				d('Captcha-Debug');
+				//d('Captcha-Debug');
 			}
 		} else {
 			// generate grid
@@ -534,9 +534,9 @@ class Captcha extends LampcmsObject
 		// generate Text
 		d("Captcha-Debug: Fill forground with chars and shadows: (".$this->chars.")");
 		for($i=0, $x = intval(rand($this->minsize,$this->maxsize)); $i < $this->chars; $i++){
-			d('Captcha-Debug');
+			//d('Captcha-Debug');
 			$text	= strtoupper(substr($private_key, $i, 1));
-			d('Captcha-Debug: $text:  '.$text);
+			//d('Captcha-Debug: $text:  '.$text);
 			srand((double)microtime()*1000000);
 			$angle	= intval(rand(($this->maxrotation * -1), $this->maxrotation));
 			srand((double)microtime()*1000000);
@@ -544,16 +544,16 @@ class Captcha extends LampcmsObject
 			srand((double)microtime()*1000000);
 			$y		= intval(rand((int)($size * 1.5), (int)($this->ly - ($size / 7))));
 			$this->random_color(0, 127);
-			d('Captcha-Debug');
+			//d('Captcha-Debug');
 			$color	=  $func2($image, $this->r, $this->g, $this->b);
-			d('Captcha-Debug');
+			//d('Captcha-Debug');
 			$this->random_color(0, 127);
 			$shadow = $func2($image, $this->r + 127, $this->g + 127, $this->b + 127);
-			d('Captcha-Debug');
+			//d('Captcha-Debug');
 			@ImageTTFText($image, $size, $angle, $x + (int)($size / 15), $y, $shadow, $this->change_TTF(), $text);
 			@ImageTTFText($image, $size, $angle, $x, $y - (int)($size / 15), $color, $this->TTF_file, $text);
 			$x += (int)($size + ($this->minsize / 5));
-			d('Captcha-Debug');
+			//d('Captcha-Debug');
 		}
 
 		d('$image: '.gettype($image). ' image file: '.$this->get_filename().' $this->jpegquality: '.$this->jpegquality);
@@ -567,11 +567,11 @@ class Captcha extends LampcmsObject
 			throw new DevException('Unable to save captcha-image to '.$this->get_filename());
 		}
 
-		d('Captcha-Debug');
+		//d('Captcha-Debug');
 		if(true !== imagedestroy($image)){
 			e("Captcha-Debug: Destroy Imagestream fails.");
 		}
-		d('Captcha-Debug');
+		//d('Captcha-Debug');
 	}
 
 

@@ -472,3 +472,6 @@ DAILY_LIMIT_ANON = 150
 DAILY_LIMIT_APP = 3000
 ; Daily limit for authenticated user
 DAILY_LIMIT_USER = 10000
+; Max file size for the app icon upload
+; defaults to 700Kb (my be in bytes)
+MAX_ICON_UPLOAD_SIZE = 700000;
