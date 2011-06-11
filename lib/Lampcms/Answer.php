@@ -390,9 +390,21 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 		$aComment = $oComment->getArrayCopy();
 		$aComment = \array_intersect_key($aComment, array_flip($aKeys));
 
+		/**
+		 * If this new comment is a reply
+		 * then get username from the parent comment
+		 * and use create a span with username
+		 *
+		 */
+		if(!empty($aComment['i_prnt']) && ($aParent = $this->getComment((int)$aComment['i_prnt']))){
+			$reply = sprintf('<span id="replyto_%s" class="inreply">@%s</span>', $aComment['i_prnt'], $aParent['username']);
+			d('$reply: '.$reply);
+			$aComment['b'] = $reply.$aComment['b'];
+		}
+
 		$aComments[] = $aComment;
 
-		$this->offsetSet('a_comments', $aComments);
+		$this->setComments($aComments);
 		$this->increaseCommentsCount();
 
 		return $this;
@@ -473,7 +485,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 		if( 0 === $newCount){
 			$this->offsetUnset('a_comments');
 		} else {
-			$this->offsetSet('a_comments', $aComments);
+			$this->setComments($aComments);
 		}
 
 		$this->increaseCommentsCount(-1);
@@ -491,6 +503,50 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 	public function getComments(){
 
 		return $this->offsetGet('a_comments');
+	}
+
+
+	/**
+	 * Get one comment from
+	 * a_comments array
+	 *
+	 * @param int $id comment id
+	 * @throws DevException if param $id is not an integer
+	 *
+	 * @return mixed array of one comment | false if comment not found by $id
+	 *
+	 */
+	public function getComment($id){
+		if(!\is_int($id)){
+			throw new DevException('param $id must be integer. Was: '.$id);
+		}
+
+		$aComments = $this->getComments();
+
+		for($i = 0; $i<count($aComments); $i+=1){
+			if($aComments[$i]['_id'] == $id){
+				return $aComments[$i];
+			}
+		}
+
+		return false;
+	}
+
+
+	/**
+	 * Sets the 'a_comments' key via parent::offsetSet
+	 * Using parent because offsetSet of this class
+	 * will disallow setting a_comments key directly!
+	 *
+	 *
+	 * @param array $aComments comments array
+	 *
+	 * @return object $this
+	 */
+	public function setComments(array $aComments){
+		parent::offsetSet('a_comments', $aComments);
+
+		return $this;
 	}
 
 
@@ -533,6 +589,11 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 
 			case 'i_comments':
 				throw new DevException('value of i_comments cannot be set directly. Use increaseCommentsCount() method');
+				break;
+
+			case 'comments':
+			case 'a_comments':
+				throw new DevException('value of a_comments cannot be set directly. Must use setComments() method for that');
 				break;
 
 			case 'i_down':

@@ -70,7 +70,9 @@ class tplComment extends \Lampcms\Template\Template
 	'b_owner' => '', //8
 	'edit_delete' => '', //9
 	'i_likes' => '', // 10
-	'e' => '' //11
+	'e' => '', //11
+	'owner_id' => '0', //12
+	'resource_id' => '0' //13
 	);
 
 
@@ -94,8 +96,9 @@ class tplComment extends \Lampcms\Template\Template
 				<div class="com_auth usr usr_%5$s fl"><a href="/users/%5$s/" class="iu usr-%5$s commentor%8$s">%4$s</a></div>	
 				<div title="%3$s" class="com_ts ts fl">%6$s</div>
 				%11$s
-				%9$s
+				%9$s		
 			</div>	
+			<div class="fr mt10 com_reply"><span class="ico comment fl">&nbsp;</span><a href="#" title="Reply to this comment" class="ttt com_reply_link ajax uid-%12$s" id="comrepl_%1$s">Reply</a></div>
 		</div>
 	</div>';
 }

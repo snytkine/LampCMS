@@ -71,7 +71,29 @@ class tplQuestion extends Lampcms\Template\Template
 		}
 		
 		if(!empty($a['a_comments'])){
-			$a['comments_html'] = tplComment::loop($a['a_comments']);
+			/**
+			 * Closure function
+			 * to pass resource_id 
+			 * and author id of this
+			 * Question to the tplComments
+			 * This way we don't have to store
+			 * duplicate data in each comment
+			 * element and still be able to
+			 * have access to these 2 important
+			 * fields in the tplComments template
+			 * We going to need id or resource owner
+			 * in order to add it to the "reply" link
+			 * in the form of class uid-$uid
+			 * 
+			 */
+			$rid = $a['_id'];
+			$uid = $a['i_uid'];
+			$f = function(&$data) use ($rid, $uid){
+				$data['resource_id'] = $rid;
+				$data['owner_id'] = $uid;
+			};
+			
+			$a['comments_html'] = tplComment::loop($a['a_comments'], true, $f); //
 		}
 	}
 	
@@ -85,7 +107,7 @@ class tplQuestion extends Lampcms\Template\Template
 	'hts' => '', // 7
 	'i_votes' => '', // 8
 	'i_favs' => '', // 9
-	'i_uid' => '0', // 10
+	'i_uid' => '0', // 10 Question author id
 	'i_views' => '0', // 11
 	'vw_s' => 's',  // 12
 	'vote_up' => "\xE2\x87\xA7", // 13 \xE2\x87\xA7

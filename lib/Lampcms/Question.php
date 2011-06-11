@@ -681,7 +681,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 		$aComments[] = $aComment;
 
-		$this->offsetSet('a_comments', $aComments);
+		$this->setComments($aComments);
 		$this->increaseCommentsCount();
 
 		/**
@@ -746,7 +746,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 			return $this;
 		}
 
-		$aComments = $this->offsetGet('a_comments');
+		$aComments = $this->getComments();
 
 		for($i = 0; $i<count($aComments); $i+=1){
 			if($aComments[$i]['_id'] == $id){
@@ -760,7 +760,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		if( 0 === $newCount){
 			$this->offsetUnset('a_comments');
 		} else {
-			$this->offsetSet('a_comments', $aComments);
+			$this->setComments($aComments);
 		}
 
 		parent::offsetSet('i_comments', $newCount );
@@ -1001,6 +1001,50 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 
 	/**
+	 * Get one comment from
+	 * a_comments array
+	 * 
+	 * @param int $id comment id
+	 * @throws DevException if param $id is not an integer
+	 * 
+	 * @return mixed array of one comment | false if comment not found by $id
+	 * 
+	 */
+	public function getComment($id){
+		if(!\is_int($id)){
+			throw new DevException('param $id must be integer. Was: '.$id);
+		}
+
+		$aComments = $this->getComments();
+
+		for($i = 0; $i<count($aComments); $i+=1){
+			if($aComments[$i]['_id'] == $id){
+				return $aComments[$d];
+			}
+		}
+		
+		return false;
+	}
+
+
+	/**
+	 * Sets the 'a_comments' key via parent::offsetSet
+	 * Using parent because offsetSet of this class
+	 * will disallow setting a_comments key directly!
+	 *
+	 *
+	 * @param array $aComments comments array
+	 *
+	 * @return object $this
+	 */
+	public function setComments(array $aComments){
+		parent::offsetSet('a_comments', $aComments);
+
+		return $this;
+	}
+
+
+	/**
 	 * Get id of question asker
 	 *
 	 * @return int id of user who asked (owner) of the question
@@ -1058,6 +1102,11 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 			case 'a_closed':
 				throw new DevException('value of a_closed cannot be set directly. Must use setClosed() method for that');
+				break;
+
+			case 'comments':
+			case 'a_comments':
+				throw new DevException('value of a_comments cannot be set directly. Must use setComments() method for that');
 				break;
 
 				/*case 'a_latest':

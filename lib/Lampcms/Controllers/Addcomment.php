@@ -143,6 +143,7 @@ class Addcomment extends WebPage
 		if(!empty($a['res_type']) && ('ANSWER' === $a['res_type'] )){
 			$collection = 'ANSWERS';
 		}
+		
 		$rid = (int)$this->oRequest['rid'];
 		d('$collection: '.$collection. ' $rid: '.$rid);
 
@@ -239,6 +240,7 @@ class Addcomment extends WebPage
 		$aRet = array(
 			'comment' => array('id' => $aComment['_id'],
 			'res' =>  $aComment['i_res'],
+			'parent' => $aComment['i_prnt'],
 			'html' => \tplComment::parse($aComment))
 		);
 

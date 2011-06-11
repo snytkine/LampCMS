@@ -172,7 +172,7 @@ class CommentParser extends LampcmsObject
 		$res_id = $this->oResource->getResourceId();
 		$oBody = $this->oComment->getBody();
 		$this->validateBody($oBody);
-		
+
 		$body = $oBody->valueOf();
 		$uid = $this->oComment->getOwnerId();
 
@@ -238,7 +238,6 @@ class CommentParser extends LampcmsObject
 		$this->touchQuestion();
 
 		$this->oRegistry->Dispatcher->post($this->oComment, 'onNewComment', $this->aComment);
-
 
 		return $this;
 	}
@@ -389,7 +388,7 @@ class CommentParser extends LampcmsObject
 			$this->oRegistry->Mongo->COMMENTS->update(array('_id' => $id),
 			array('$set' => array('i_lm_ts' => time(), 'i_editor' => $viewerID)));
 
-			$this->oResource['comments'] = $aComments;
+			$this->oResource->setComments($aComments);
 			$this->touchQuestion();
 			$this->oResource->save();
 			d('changes saved to resource');
@@ -513,7 +512,8 @@ class CommentParser extends LampcmsObject
 
 
 	/**
-	 * Instantiate resource object from the $this->aResource array
+	 * Instantiate resource object
+	 * from the $this->aResource array
 	 *
 	 * @return object $this
 	 */
@@ -535,6 +535,8 @@ class CommentParser extends LampcmsObject
 		if(empty($this->aResource)){
 			throw new \Lampcms\Exception('Unable to delete comment because commented item not found');
 		}
+
+		d('cp');
 
 		return $this;
 	}
@@ -578,6 +580,8 @@ class CommentParser extends LampcmsObject
 			throw new \Lampcms\Exception('Unable to delete comment because comment not found');
 		}
 
+		d('cp');
+
 		return $this;
 	}
 
@@ -601,6 +605,7 @@ class CommentParser extends LampcmsObject
 	public function addLike(\Lampcms\Interfaces\SubmittedComment $oComment){
 		$this->oComment = $oComment;
 		$id = $oComment->getResourceId();
+		d('id: '.$id);
 		$this->oRegistry->Dispatcher->post($oComment, 'onBeforeCommentLike');
 
 		/**
@@ -623,13 +628,17 @@ class CommentParser extends LampcmsObject
 
 		$bEdited = false;
 		$aComments = $this->oResource->getComments();
-
+		d('$aComments: '.print_r($aComments, 1));
+		
 		if(!empty($aComments)){
+			d('Resource has comments array');
 			for($i = 0; $i<count($aComments); $i+=1){
-				if($aComments[$i]['_id'] == $id){
+				if($id == $aComments[$i]['_id']){
 					d('comment found: '.$i);
 					if(empty($aComments[$i]['i_likes'])){
 						$aComments[$i]['i_likes'] = 1;
+						d('$aComments[$i][i_likes]: '.$aComments[$i]['i_likes']);
+						
 					} else {
 						$aComments[$i]['i_likes'] += 1;
 					}
@@ -641,7 +650,7 @@ class CommentParser extends LampcmsObject
 		}
 
 		if($bEdited){
-			$this->oResource['comments'] = $aComments;
+			$this->oResource->setComments($aComments);
 			$this->touchQuestion();
 			$this->oResource->save();
 			d('changes saved to resource');

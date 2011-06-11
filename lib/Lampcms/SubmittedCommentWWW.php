@@ -169,6 +169,7 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 		return $this;
 	}
 
+	
 	/**
 	 * Create object of type Question or Answer
 	 *
@@ -291,7 +292,7 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 	 */
 	public function getParentId(){
 
-		return $this->oRegistry->Request->get('parent_id', 'i', 0);
+		return $this->oRegistry->Request->get('parentid', 'i', 0);
 	}
 
 
@@ -409,7 +410,7 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 	/**
 	 * In case of edit, the comment id is passed
 	 * in the form as the 'rid' value
-	 * otherwise we don't have the id yes if this is a new
+	 * otherwise we don't have the id yet if this is a new
 	 * comment being submitted and we
 	 * generate one right now.
 	 *
