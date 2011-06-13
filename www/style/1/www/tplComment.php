@@ -72,7 +72,8 @@ class tplComment extends \Lampcms\Template\Template
 	'i_likes' => '', // 10
 	'e' => '', //11
 	'owner_id' => '0', //12
-	'resource_id' => '0' //13
+	'resource_id' => '0', //13
+	's_inreply' => '' //14
 	);
 
 
@@ -86,10 +87,13 @@ class tplComment extends \Lampcms\Template\Template
 				</div>
 				<div class="c_likes fr">%10$s</div>
 			</div>
-			<div class="fl com_b">%2$s</div>
+			<div class="fl">
+			%14$s
+			<div class="fl cb com_b">%2$s</div>
+			</div>
 		</div>
 		<div class="com_i fl cb1">
-			<div class="fl com_flag">
+			<div class="fl mt10 com_flag">
 				<span class="ico ttt flag ajax" id="cflag_%1$s" title="Flag this comment as inappropriate">flag</span>
 			</div>
 			<div class="com_tools controls uid-%5$s" id="res_%1$s">

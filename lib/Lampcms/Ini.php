@@ -109,14 +109,14 @@ class Ini extends LampcmsArray
 		if ('TEMP_DIR' === $name) {
 			if (!empty($aConstants['TEMP_DIR'])) {
 
-				$tmpDir = rtrim($aConstants['TEMP_DIR'], '/');
+				$tmpDir = \rtrim($aConstants['TEMP_DIR'], '/');
 				$tmpDir .= DIRECTORY_SEPARATOR;
 
 				return $tmpDir;
 			}
 
 			return \sys_get_temp_dir();
-			//return LAMPCMS_DATA_DIR.'tmp'.DIRECTORY_SEPARATOR;
+			
 		}
 
 

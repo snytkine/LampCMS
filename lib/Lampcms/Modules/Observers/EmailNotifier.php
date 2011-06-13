@@ -228,6 +228,29 @@ site %5$s and navigating to Settings > Email preferences
 ';
 
 
+	protected static $COMMENT_REPLY_BODY = '
+%1$s has posted a reply to your comment
+You comment was:
+============================
+%2$s
+============================
+
+This is the reply:
+============================	
+%3$s
+============================
+
+Visit this url to see the answer with the new comment:
+
+%4$s
+
+----
+You can change your email preferences by signing in to 
+site %5$s and navigating to Settings > Email preferences
+
+';
+
+
 	protected static $ANS_COMMENT_SUBJ = '%s commented on your answer';
 
 	protected static $QUESTION_BY_USER_SUBJ = 'New %s by %s';
@@ -236,6 +259,7 @@ site %5$s and navigating to Settings > Email preferences
 
 	protected static $QUESTION_FOLLOW_SUBJ = 'New %s to a question you following';
 
+	protected static $COMMENT_REPLY_SUBJ = '%s replied to your comment';
 
 	/**
 	 * UserID of author
@@ -369,15 +393,20 @@ site %5$s and navigating to Settings > Email preferences
 		 * @var
 		 */
 		$oResource = $this->obj->getResource();
-		if($oResource instanceof \Lampcms\Question){
-			d('cp');
-			$this->oQuestion = $oResource;
-			$this->notifyQuestionFollowers();
-		} elseif($oResource instanceof \Lampcms\Answer){
-			d('cp');
-			$this->notifyAnswerAuthor($oResource);
+		if(!empty($this->aInfo['inreply_uid'])){
+			d('this is a reply');
+			$this->notifyCommentAuthor($oResource);
 		} else {
-			throw new \Lampcms\DevException('Something is wrong here. The object is not Question and not Answer. it is: '.get_class($oResource));
+			if($oResource instanceof \Lampcms\Question){
+				d('cp');
+				$this->oQuestion = $oResource;
+				$this->notifyQuestionFollowers();
+			} elseif($oResource instanceof \Lampcms\Answer){
+				d('cp');
+				$this->notifyAnswerAuthor($oResource);
+			} else {
+				throw new \Lampcms\DevException('Something is wrong here. The object is not Question and not Answer. it is: '.get_class($oResource));
+			}
 		}
 	}
 
@@ -430,6 +459,68 @@ site %5$s and navigating to Settings > Email preferences
 		}
 
 		return $this;
+	}
+
+
+	/**
+	 * Notify just one user - the author of comment
+	 * that a reply has been posted to his comment
+	 *
+	 * Should NOT send out this notification
+	 * if author of parent comment
+	 * is also the author of the Answer AND optin to receive
+	 * comments on answer in case this in an answer
+	 *
+	 * In case of question IF parent comment author
+	 * is also following QUESTION OR QUESTION AUTHOR
+	 * then also exclde that user.
+	 *
+	 * OR MAYBE _ DON TREAT REPLY AS COMMENT _ SO DON'T
+	 * SEND OUT THE REGULAR onNewComment emails in case
+	 * of a reply and ONLY send out a onCommentReply email!
+	 *
+	 * This actually makes sense because reply to comment
+	 * often very specific to that parent comment and NOT
+	 * interesting to Question followers...
+	 *
+	 * @param object $oResource Answer OR Question object
+	 *
+	 */
+	protected function notifyCommentAuthor(\Lampcms\Interfaces\Post $oResource){
+		$commentorID = (int)$this->aInfo['i_uid'];
+		$parentCommentOwner = (int)$this->aInfo['inreply_uid'];
+		
+		$siteUrl = $this->oRegistry->Ini->SITE_URL;
+		d('$siteUrl: '.$siteUrl);
+		$commUrl = $siteUrl.'/q'.$oResource->getQuestionId().'/#c'.$this->aInfo['_id'];
+		d('commUrl: '.$commUrl);
+		
+		/**
+		 * If replied to own comment don't notify self
+		 */
+		if($parentCommentOwner == $commentorID){
+			return $this;
+		}
+
+		$coll = $this->collUsers;
+		$subj = sprintf(static::$COMMENT_REPLY_SUBJ, $this->aInfo['username']);
+
+
+		$body = vsprintf(static::$COMMENT_REPLY_BODY, array($this->aInfo['username'], $this->aInfo['parent_body'], $this->aInfo['b'], $commUrl, $siteUrl));
+		d('subj: '.$subj);
+		d('body: '.$body);
+		$oMailer = new Mailer($this->oRegistry);
+
+		$callable = function() use ($parentCommentOwner, $coll, $subj, $body, $oMailer){
+
+			$aUser = $coll->findOne(array('_id' => $parentCommentOwner, 'ne_fc' => array('$ne' => true)), array('email'));
+
+			if(!empty($aUser) && !empty($aUser['email']) ){
+				$oMailer->mail($aUser['email'], $subj, $body, null, false);
+			}
+		};
+
+		\Lampcms\runLater($callable);
 	}
 
 

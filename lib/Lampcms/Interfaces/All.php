@@ -51,7 +51,7 @@
 
 
 /**
- * All interfaces conbined into this one file
+ * All interfaces combined into this one file
  *
  * @important Allways include this file! Don't rely
  * of autoloader to include it!

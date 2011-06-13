@@ -59,6 +59,7 @@ require($lampcmsClasses.'Forms'.DIRECTORY_SEPARATOR.'Form.php');
 require($lampcmsClasses.'Cookie.php');
 require($lampcmsClasses.'LoginForm.php');
 
+
 try {
 
 	ini_set('session.use_only_cookies', true);

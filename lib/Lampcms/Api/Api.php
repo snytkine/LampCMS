@@ -451,10 +451,12 @@ abstract class Api extends \Lampcms\Base
 		}
 
 		/**
-		 * @todo Here can also log a defailed
-		 * access data into API_ACCESS collection
-		 * or into some type of log file
+		 * Posting onApiAccess event
+		 * enables to later write Observer class
+		 * to log API calls.
 		 */
+		$this->oRegistry->Dispatcher->post($this->oRequest, 'onApiAccess');
+
 		return $this;
 	}
 
@@ -540,7 +542,6 @@ abstract class Api extends \Lampcms\Base
 
 		return $this;
 	}
-
 
 
 	/**

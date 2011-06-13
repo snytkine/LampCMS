@@ -128,6 +128,7 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
 	public function loadUTF8String(\Lampcms\Utf8String $oHtml){
 		$s = $oHtml->valueOf();
 
+		echo __LINE__.' '.$s;
 		return $this->loadHTMLString($s);
 	}
 

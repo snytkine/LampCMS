@@ -195,6 +195,7 @@ class Addcomment extends WebPage
 			try{
 				$this->checkAccessPermission('comment');
 			} catch(\Exception $e){
+				
 				/**
 				 * If this is an AuthException then it means
 				 * user does not have 'comment' permission in the ACL
@@ -227,6 +228,7 @@ class Addcomment extends WebPage
 	 */
 	protected function returnResult(){
 		$aComment = $this->oCommentParser->getArrayCopy();
+		
 		/**
 		 * Add edit and delete tools because
 		 * Viewer already owns this comment and is
@@ -237,6 +239,20 @@ class Addcomment extends WebPage
 		 *
 		 */
 		$aComment['edit_delete'] = '  <span class="ico del ajax" title="Delete">delete</span> <span class="ico edit ajax" title="Edit">edit</span>';
+		
+		/**
+		 * Important to add owner_id key
+		 * because it's not in the comment array
+		 * It is used when creating the 'reply' link
+		 * in the tplComment
+		 * That ID is then used when figuring out if
+		 * viewer has permission to add comment.
+		 * Users with low reputation still always have
+		 * premission to add comments to own resources.
+		 * 
+		 */
+		$aComment['owner_id'] = $this->oResource->getOwnerId();
+		
 		$aRet = array(
 			'comment' => array('id' => $aComment['_id'],
 			'res' =>  $aComment['i_res'],

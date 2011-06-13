@@ -177,7 +177,12 @@ class Cookie
 
 		if (!isset($_COOKIE['ref']) && isset($_SERVER['HTTP_REFERER'])) {
 			$strReferrer = $_SERVER['HTTP_REFERER'];
-			preg_match('@^(?:http(?:s*)://)?([^/]+)@i', $strReferrer, $matches);
+			$res = preg_match('@^(?:http(?:s*)://)?([^/]+)@i', $strReferrer, $matches);
+			if(empty($res) || !is_array($matches) || empty($matches[1])){
+				d('cannot extract HTTP_REFERRER: '.$_SERVER['HTTP_REFERER'].' $res: '.$res);
+				return;
+			}
+			
 			$host = $matches[1];
 
 			/**

@@ -49,7 +49,7 @@
  *
  */
 
- 
+
 namespace Lampcms;
 
 
@@ -94,11 +94,101 @@ class Curl extends LampcmsObject
 	protected $httpResponseCode;
 
 	/**
+	 *
 	 * Curl handle object
 	 * @var object curl handle
 	 */
 	protected $request;
 
+	/**
+	 * Full path to file which will
+	 * be used to store cookies that curl
+	 * gets back from request url
+	 * curl can then reuse these cookies in subsequent requests
+	 *
+	 *
+	 * @var string must be a full path to writable file
+	 */
+	protected $cookieFile;
+
+	/**
+	 * Referrer url
+	 * will be used in Request
+	 *
+	 * @var string
+	 */
+	protected $referrer = '';
+
+
+	/**
+	 * Set the file that will be used
+	 * for cookies storage
+	 *
+	 * @param string $file must be a full path
+	 * if file does not exist php will attempt to create it
+	 * and if that fails that DevException is thrown
+	 *
+	 * @throws DevException
+	 */
+	public function setCookieFile($file){
+		if(is_writable($file)){
+			$this->cookieFile = $file;
+		} else {
+			if(false === $r = @fopen($file,'w')){
+				throw new DevException('Unable to create cookie file: '.$file);
+			}
+
+			$this->cookieFile = $file;
+			\fclose($r);
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Sets the value for the referrer
+	 *
+	 * @param string $url should be a valid url,
+	 * ideall it will be the url from which the request
+	 * would come in real life. For example when posting
+	 * to a login form it's best to set referret to
+	 * the page from where user would normally login
+	 *
+	 * When posting to a "send message" form it's best to
+	 * set the referrer to the page from which user normally
+	 * sends a message
+	 *
+	 * @return object $this
+	 */
+	public function setReferrer($url){
+		$this->referrer = $url;
+
+		return $this;
+	}
+
+
+	/**
+	 * Set value of useragent
+	 * This should be called BEFORE the call to
+	 * getDocument()
+	 *
+	 *
+	 * @param unknown_type $agent
+	 * @throws DevException if $agent is not a string
+	 *
+	 * @return object $this
+	 *
+	 */
+	public function setUseragent($agent){
+		if(!is_string($agent)){
+			throw new DevException('Param $agent must be a string. Was: '.gettype($agent));
+		}
+
+		$this->aOptions['useragent'] = $agent;
+
+		return $this;
+	}
 
 
 	/**
@@ -115,6 +205,38 @@ class Curl extends LampcmsObject
 	 */
 	protected $aOptions = array('timeout' => 8,
 		'useragent' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.4) Gecko/20091016 Firefox/3.5.4 GTB5');
+
+
+
+	/**
+	 * Init the curl handler
+	 * if it has not yet been
+	 * created
+	 *
+	 * @return object $this
+	 */
+	public function initCurl(){
+
+		if(!isset($this->request)){
+			$this->request = curl_init();
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Check if this version of curl has support
+	 * for SSL
+	 *
+	 * @return bool true if has SSL support | false if does not
+	 */
+	protected function checkSSL(){
+		$version = \curl_version();
+		$supported= ($version['features'] & CURL_VERSION_SSL);
+
+		return (bool)$supported;
+	}
 
 
 	/**
@@ -150,14 +272,37 @@ class Curl extends LampcmsObject
 	 */
 	public function getDocument($url, $since = null, $etag = null, array $aOptions = array()){
 
+		if(!is_string($url)){
+			throw new DevException('value of param $url must be a string. was: '.gettype($url));
+		}
+
+		if(null !== $since && !is_string($since)){
+			throw new DevException('value of param $since must be a string. was: '.gettype($since));
+		}
+
+		if(null !== $etag && !is_string($etag)){
+			throw new DevException('value of param $etag must be a string. was: '.gettype($etag));
+		}
+
+
+		if('https' === \substr($url, 0, 5) && !$this->checkSSL()){
+			throw new \LogicException('Unable to make request to url: '.$url.' because your curl does not have support for  SSL protocol');
+		}
+		
 		$aHeaders = array();
-		$this->request = curl_init();
+		$this->initCurl();
+
+
+		/**
+		 * Quick and dirty fix to enable
+		 * SSL by just not verifying ssl certificates
+		 * Withot this like curl just would not work
+		 */
+		\curl_setopt($this->request, CURLOPT_SSL_VERIFYPEER, false);
 
 		if(false === curl_setopt($this->request, CURLOPT_URL, $url)){
 			throw new \Exception('Unable to set url: '.$url);
 		}
-
-		//curl_setopt($this->request, CURLOPT_ENCODING, 'gzip');
 
 		$this->setOptions($aOptions);
 
@@ -212,7 +357,7 @@ class Curl extends LampcmsObject
 			case 303:
 			case 307:
 				if('' !== $newLocation = $this->getHeader('Location')){
-					// echo __LINE__.' redirect contains location: '.$newLocation. ' $intCode: '.$intCode."\n";
+					d(' redirect contains location: '.$newLocation. ' $intCode: '.$intCode);
 
 					$ex = new HttpRedirectException($newLocation, $intCode);
 				} else {
@@ -249,9 +394,33 @@ class Curl extends LampcmsObject
 		throw $ex;
 	}
 
-	
+
 	/**
 	 * Set request headers
+	 * Be very careful about the format
+	 * Keys are header name values are value!
+	 *
+	 * This is a good example of input:
+	 * $aHeaders = array(
+	 * 'Accept' => 'text/html,application/xhtml+xml,application/xml;',
+	 * 'Accept-Charset' => 'ISO-8859-1,utf-8;q=0.7,*;q=0.3',
+	 * 'Accept-Language' => 'en-US,en;q=0.8',
+	 * 'Cache-Control' => 'no-cache'
+	 * );
+	 *
+	 * Setting Content-Length header is a VERY BAD idea, will
+	 * cause errors!
+	 * Curl will set the correct Content-Length header for you!
+	 * NEVER SET Content-Length manually!
+	 *
+	 * Setting Content-Type to application/x-www-form-urlencoded
+	 * in case of FORM POST is also a bad idea - curl
+	 * will do what has to be done for you in case of POST request
+	 * CURL USUALLY sets Content-Type to something like this:
+	 * multipart/form-data; boundary=----------------------------cdbe1229f9b4
+	 * SETTING It Manually is a BAD IDEA and oftern is source of errors
+	 *
+	 *
 	 * @param array $aHeaders
 	 */
 	public function setHeaders(array $aHeaders){
@@ -259,12 +428,14 @@ class Curl extends LampcmsObject
 			$headers[] = $key.': '.$value;
 		}
 
-		curl_setopt($this->request, CURLOPT_HTTPHEADER, $headers);
+		$this->initCurl();
+
+		\curl_setopt($this->request, CURLOPT_HTTPHEADER, $headers);
 
 		return $this;
 	}
 
-	
+
 	/**
 	 * Set curl options
 	 * This MUST be run before sending out a request,
@@ -272,14 +443,21 @@ class Curl extends LampcmsObject
 	 * @param array $aOptions
 	 */
 	protected function setOptions(array $aOptions = array()){
-		d('starting to set curl options');
-		
+
 		if(!empty($aOptions)){
 			$this->aOptions = array_merge($this->aOptions, $aOptions);
+
 		}
 
 		curl_setopt($this->request, CURLOPT_HEADER, true);
 		curl_setopt($this->request, CURLOPT_RETURNTRANSFER, true);
+
+		if($this->cookieFile){
+			curl_setopt($this->request, CURLOPT_COOKIEFILE, $this->cookieFile);
+			curl_setopt($this->request, CURLOPT_COOKIEJAR, $this->cookieFile);
+		}
+
+		curl_setopt($this->request, CURLOPT_REFERER, $this->referrer);
 
 		if(!empty($this->aOptions['useragent'])){
 			curl_setopt($this->request, CURLOPT_USERAGENT, $this->aOptions['useragent']);
@@ -290,7 +468,7 @@ class Curl extends LampcmsObject
 		}
 
 		if(!empty($this->aOptions['redirect']) && $this->aOptions['redirect']){
-			curl_setopt($this->request, CURLOPT_FOLLOWLOCATION, 1);
+			curl_setopt($this->request, CURLOPT_FOLLOWLOCATION, 5);
 		}
 
 		if(!empty($this->aOptions['login']) && !empty($this->aOptions['password'])){
@@ -302,11 +480,9 @@ class Curl extends LampcmsObject
 		}
 
 		if(!empty($this->aOptions['formVars'])){
-			d('setting method to POST');
 			$r1 = \curl_setopt($this->request, CURLOPT_POST, true);
-			d('set CURLOPT_POST '.$r1);
 			$r2 = \curl_setopt($this->request, CURLOPT_POSTFIELDS, $this->aOptions['formVars']);
-			d('set CURLOPT_POSTFIELDS: '.print_R($this->aOptions['formVars'], 1). ' ret: '.$r2);
+			d('set CURLOPT_POSTFIELDS: '.print_r($this->aOptions['formVars'], 1). ' ret: '.$r2);
 		}
 
 		if(!empty($this->aOptions['gzip'])){
@@ -320,10 +496,10 @@ class Curl extends LampcmsObject
 		return $this;
 	}
 
-	
+
 	/**
 	 * Set single curl option
-	 * 
+	 *
 	 * @param string $name
 	 * @param string $val
 	 */
@@ -331,7 +507,7 @@ class Curl extends LampcmsObject
 		curl_setopt($this->request, constant($name), $val);
 	}
 
-	
+
 	/**
 	 * Destructor method to close open curl connection
 	 * and free up resource
@@ -342,7 +518,7 @@ class Curl extends LampcmsObject
 		}
 	}
 
-	
+
 	/**
 	 * Get value of charset
 	 * as extracted from the
@@ -361,46 +537,53 @@ class Curl extends LampcmsObject
 		$contentType = $this->info['content_type'];
 		if(!empty($contentType) && preg_match('/charset=([\S]+)/', $contentType, $matches)){
 
-			return trim($matches[1]);
+			if(!empty($matches[1])){
+				return \trim($matches[1]);
+			}
+
+			return null;
 		}
 
 		return null;
 	}
 
-	
+
 	/**
 	 * Getter for $this->info array
 	 *
 	 * @return array
 	 */
 	public function getCurlInfo(){
+
 		return $this->info;
 	}
 
-	
+
 	/**
 	 * Getter for $this->body
 	 * @return string body of http response
 	 */
 	public function getResponseBody(){
+
 		return $this->body;
 	}
 
-	
+
 	/**
 	 * Getter for $this->httpResponseCode
-	 * 
+	 *
 	 * @return int http response code
 	 */
 	public function getHttpResponseCode(){
+
 		return (int)$this->httpResponseCode;
 	}
 
-	
+
 	/**
 	 * Get value of specific header
 	 * if this header does not exists, will return empty string
-	 * 
+	 *
 	 * @param string $sHeader
 	 */
 	public function getHeader($sHeader){
@@ -436,11 +619,13 @@ class Curl extends LampcmsObject
 	 * if Etag is not present
 	 */
 	public function getEtag(){
+
 		return $this->getHeader('Etag');
 	}
 
 
 	public function getResponseHeaders(){
+
 		return $this->aResponseHeaders;
 	}
 

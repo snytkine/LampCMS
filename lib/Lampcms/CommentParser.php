@@ -191,6 +191,7 @@ class CommentParser extends LampcmsObject
 		$this->aComment['t'] = date('M j \'y \a\\t G:i'); // must escape t with 2 backslashes because \t means tab
 		$this->aComment['avtr'] = $oCommentor->getAvatarSrc();
 
+
 		/**
 		 * If comment is made by the same user as Question owner
 		 * we must add special flag so that
@@ -201,6 +202,48 @@ class CommentParser extends LampcmsObject
 			$this->aComment['b_owner'] = true;
 		}
 
+		$aParent = null;
+		
+		/**
+		 * In case this is a reply to a comment
+		 * get array of parent comment
+		 * and create s_inreply span element
+		 * and also add 'inreplyto' key to this comment array
+		 * inreplyto is the username of parent comment
+		 */
+		if(!empty($this->aComment['i_prnt']) && (false !== $aParent = $this->oResource->getComment((int)$this->aComment['i_prnt']))){
+			$reply = sprintf('<span id="replyto_%s" class="inreply mo ajax">@%s</span>', $this->aComment['i_prnt'], $aParent['username']);
+			
+			/**
+			 * inreply_uid is userID of parent comment author
+			 * it is needed by observer(s)
+			 * in order to notify the parent comment
+			 * owner about a reply!
+			 * 
+			 */
+			$this->aComment['inreply_uid']  = $aParent['i_uid'];
+			$this->aComment['inreplyto'] 	= $aParent['username'];
+			/**
+			 * 's_inreply' is an html fragment
+			 * used on web page so that
+			 * it's not necessary to do any parsing
+			 * in template
+			 */
+			$this->aComment['s_inreply']    = $reply;
+			
+			/**
+			 * parent_body is the body of the parent comment
+			 * for which this is a reply
+			 * This is needed by the EmailNotifier
+			 * in order to include the original
+			 * body in the email notifications
+			 * so that a user will have a good idea
+			 * for which comment the new reply was added
+			 * 
+			 */
+			
+			$this->aComment['parent_body'] = $aParent['b'];
+		}
 
 		/**
 		 * Submitted comment object may provide
@@ -629,7 +672,7 @@ class CommentParser extends LampcmsObject
 		$bEdited = false;
 		$aComments = $this->oResource->getComments();
 		d('$aComments: '.print_r($aComments, 1));
-		
+
 		if(!empty($aComments)){
 			d('Resource has comments array');
 			for($i = 0; $i<count($aComments); $i+=1){
@@ -638,7 +681,7 @@ class CommentParser extends LampcmsObject
 					if(empty($aComments[$i]['i_likes'])){
 						$aComments[$i]['i_likes'] = 1;
 						d('$aComments[$i][i_likes]: '.$aComments[$i]['i_likes']);
-						
+
 					} else {
 						$aComments[$i]['i_likes'] += 1;
 					}

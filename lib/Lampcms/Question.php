@@ -657,6 +657,8 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		'username', 
 		'avtr', 
 		'b_owner', 
+		'inreplyto',
+		's_inreply',
 		'b', 
 		't', 
 		'ts',
@@ -1003,12 +1005,12 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	/**
 	 * Get one comment from
 	 * a_comments array
-	 * 
+	 *
 	 * @param int $id comment id
 	 * @throws DevException if param $id is not an integer
-	 * 
+	 *
 	 * @return mixed array of one comment | false if comment not found by $id
-	 * 
+	 *
 	 */
 	public function getComment($id){
 		if(!\is_int($id)){
@@ -1018,11 +1020,11 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		$aComments = $this->getComments();
 
 		for($i = 0; $i<count($aComments); $i+=1){
-			if($aComments[$i]['_id'] == $id){
-				return $aComments[$d];
+			if($id == $aComments[$i]['_id']){
+				return $aComments[$i];
 			}
 		}
-		
+
 		return false;
 	}
 

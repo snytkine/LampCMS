@@ -52,6 +52,14 @@
 
 namespace Lampcms\Modules\Observers;
 
+/**
+ * Posting flood check filter
+ * This filter is implemented as
+ * the Observer
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class FloodCheck extends \Lampcms\Observer
 {
 	/**
@@ -97,6 +105,12 @@ class FloodCheck extends \Lampcms\Observer
 	}
 
 
+	/**
+	 * Perfomes flood check for comments
+	 *
+	 * @throws \Lampcms\Exception is comment is
+	 * posted too soon after posting another comment
+	 */
 	protected function checkComment(){
 		d('cp');
 		if(!$this->oRegistry->Viewer->isModerator()){
@@ -106,11 +120,8 @@ class FloodCheck extends \Lampcms\Observer
 			d('timeout: '.$timeout);
 			$since = time() - $timeout;
 			$where = array('i_uid' => $uid, 'i_ts' => array('$gt' => $since));
-			d('where: '.print_r($where, 1));
 				
 			$a = $this->oRegistry->Mongo->COMMENTS->findOne($where);
-
-			d('existing: '.print_r($a, 1));
 
 			if(!empty($a)){
 				throw new \Lampcms\Exception('You are posting too fast.<br>You must wait '.$timeout.' seconds between comments');
@@ -133,7 +144,6 @@ class FloodCheck extends \Lampcms\Observer
 			->getCollection($collName)
 			->findOne(array('ip' => $this->obj['ip'], 'i_ts' => array('$gt' => $since)), array('i_ts', 'hts'));
 
-			d('a: '.print_r($byIP, 1));
 
 			if(!empty($byIP)){
 				throw new \Lampcms\FilterException('You are posting too fast. Please wait '.$this->minutesToWait.' minutes between posting');
@@ -143,14 +153,13 @@ class FloodCheck extends \Lampcms\Observer
 		return $this;
 	}
 
+	
 	protected function byUser($collName){
 		if(!$this->oRegistry->Viewer->isModerator()){
 			$since = time() - ($this->minutesToWait * 60);
 			$byUid = $this->oRegistry->Mongo
 			->getCollection($collName)
 			->findOne(array('i_uid' => $this->obj['i_uid'], 'i_ts' => array('$gt' => $since)), array('i_ts', 'hts'));
-
-			d('a: '.print_r($byUid, 1));
 
 			if(!empty($byUid)){
 				throw new \Lampcms\FilterException('You are posting too fast. Please wait '.$this->minutesToWait.' minutes between posting');

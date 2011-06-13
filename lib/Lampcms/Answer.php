@@ -55,7 +55,7 @@ namespace Lampcms;
 
 /**
  *
- * Class represents on item
+ * Class represents one item
  * from the ANSWERS collection
  *
  * @author Dmitri Snytkine
@@ -369,6 +369,8 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 		'username', 
 		'avtr', 
 		'b_owner', 
+		'inreplyto',
+		's_inreply',
 		'b', 
 		't', 
 		'ts', 
@@ -382,6 +384,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 
 		$aComments = $this->getComments();
 		d('aComments: '.print_r($aComments, 1));
+		
 		/**
 		 * Only keep the keys that we need
 		 * get rid of keys like hash, i_res
@@ -389,18 +392,6 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 		 */
 		$aComment = $oComment->getArrayCopy();
 		$aComment = \array_intersect_key($aComment, array_flip($aKeys));
-
-		/**
-		 * If this new comment is a reply
-		 * then get username from the parent comment
-		 * and use create a span with username
-		 *
-		 */
-		if(!empty($aComment['i_prnt']) && ($aParent = $this->getComment((int)$aComment['i_prnt']))){
-			$reply = sprintf('<span id="replyto_%s" class="inreply">@%s</span>', $aComment['i_prnt'], $aParent['username']);
-			d('$reply: '.$reply);
-			$aComment['b'] = $reply.$aComment['b'];
-		}
 
 		$aComments[] = $aComment;
 
@@ -518,13 +509,13 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 	 */
 	public function getComment($id){
 		if(!\is_int($id)){
-			throw new DevException('param $id must be integer. Was: '.$id);
+			throw new DevException('Param $id must be integer. Was: '.$id);
 		}
 
 		$aComments = $this->getComments();
 
 		for($i = 0; $i<count($aComments); $i+=1){
-			if($aComments[$i]['_id'] == $id){
+			if($id == $aComments[$i]['_id']){
 				return $aComments[$i];
 			}
 		}
