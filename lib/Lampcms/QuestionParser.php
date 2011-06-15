@@ -230,7 +230,9 @@ class QuestionParser extends LampcmsObject
 		'v_s' => 's',
 		'f_s' => 's',
 		'ip' => $this->oSubmitted->getIP(),
-		'app' => 'web',
+		'app' => $this->oSubmitted->getApp(),
+		'app_id' => $this->oSubmitted->getAppId(),
+		'app_link' => $this->oSubmitted->getAppLink(),
 		'i_flwrs' => 1 // initially question has 1 follower - its author
 		);
 

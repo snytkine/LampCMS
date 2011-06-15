@@ -94,24 +94,11 @@ class SubmittedQuestionWWW extends SubmittedQuestion
 		return $this->oTitle;
 	}
 
-/*	public function getRawTags(){
 
-		//$aTags = explode(' ', trim($this->aData['tags']));
-		
-		$sTags = $this->getTags()->valueOf();
-		if(!empty($sTags)){
-			return explode(' ', $sTags);
-		}
-
-		return array();
-
-	}*/
-	
-	
 	/**
-	 * Returns Tags which is 
+	 * Returns Tags which is
 	 * object of type Utf8String
-	 * 
+	 *
 	 * (non-PHPdoc)
 	 * @see Lampcms.SubmittedQuestion::getTags()
 	 */
@@ -119,7 +106,7 @@ class SubmittedQuestionWWW extends SubmittedQuestion
 		if(!isset($this->oTags)){
 			$this->oTags = Utf8String::factory($this->aData['tags']);
 		}
-		
+
 		return $this->oTags;
 	}
 
@@ -135,7 +122,17 @@ class SubmittedQuestionWWW extends SubmittedQuestion
 
 			return $aRet;
 		}
-		
+
 		return array();
+	}
+
+
+	/**
+	 * Get name of app used for submitting
+	 * this question
+	 * @return string
+	 */
+	public function getApp(){
+		return 'www';
 	}
 }

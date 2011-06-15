@@ -403,7 +403,7 @@ class Gravatar
 
 		try{
 
-			$this->oResponse = $oHTTP->getDocument($this->url, $since, $etag);
+			$this->oResponse = $oHTTP->getDocument($this->url, $since, $etag)->checkResponse();
 			$this->gravatar = $this->oResponse->getResponseBody();
 			$this->gravatarExists = 'Y';
 			d('has gravatar = Y');

@@ -455,7 +455,7 @@ class ExternalAuthFb extends Facebook
 
 		try{
 			d('cp');
-			$this->oResponse = $oHTTP->getDocument($url);
+			$this->oResponse = $oHTTP->getDocument($url)->checkResponse();
 			$json = $this->oResponse->getResponseBody();
 
 			/**

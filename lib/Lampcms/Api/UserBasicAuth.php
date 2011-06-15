@@ -50,55 +50,14 @@
  */
 
 
+namespace Lampcms\Api;
 
 /**
- * Autoloader for vtemplates
+ * Object of this class represents
+ * User logged in via API using BasicAuth 
+ * This also is a User object
+ * 
+ * @author Dmitri Snytkine
  *
- * @param string $classname
  */
-function templateLoader($className){
-
-	
-	/**
-	 * This is important
-	 * This autoloader will be the first
-	 * one in the __autoload stack (we pass true as 3rd arg
-	 * to spl_autoload_register())
-	 *
-	 * Since this autoload can only
-	 * handle template files, any file
-	 * not starting with 'tpl' is not
-	 * the responsibility of this loader
-	 * and we must return false to save further
-	 * pointless processing.
-	 */
-	if(0 !== strpos($className, 'tpl') ){
-
-		return false;
-	}
-
-	$styleId = (defined('STYLE_ID')) ? STYLE_ID : '1';
-	$dir = (defined('VTEMPLATES_DIR')) ? VTEMPLATES_DIR : 'www';
-	
-	$file = LAMPCMS_WWW_DIR.'style'.DIRECTORY_SEPARATOR.$styleId.DIRECTORY_SEPARATOR.$dir.DIRECTORY_SEPARATOR.$className.'.php';
-
-	
-	/**
-	 * Smart fallback to www dir
-	 * if template does not exist in mobile version
-	 * But if template file also does not exist in www
-	 * and in mobile dir, then it will raise an error
-	 * beause we using require this time instead in include  && ('www' !== $dir)
-	 */
-	if( ( false === include($file)) && ('www' !== $dir) ){
-		
-		require LAMPCMS_WWW_DIR.'style'.DIRECTORY_SEPARATOR.$styleId.DIRECTORY_SEPARATOR.'www'.DIRECTORY_SEPARATOR.$className.'.php';
-	}
-
-	return true;
-}
-
-
-$oLoader = new Lampcms\SplClassLoader(null, $libDir);
-$oLoader->register();
-spl_autoload_register('templateLoader', false, true);
+class UserBasicAuth extends ApiUser{}

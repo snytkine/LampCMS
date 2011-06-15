@@ -132,7 +132,7 @@ class ExternalAuthGfc extends ExternalAuth
 
 		try{
 			d('cp');
-			$this->oResponse = $oHTTP->getDocument($url);
+			$this->oResponse = $oHTTP->getDocument($url)->checkResponse();
 			$gfcJson = $this->oResponse->getResponseBody();
 
 			d('gfcJson '.$gfcJson);

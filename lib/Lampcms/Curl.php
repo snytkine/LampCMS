@@ -119,6 +119,12 @@ class Curl extends LampcmsObject
 	 */
 	protected $referrer = '';
 
+	/**
+	 * Url of request
+	 *
+	 * @var string
+	 */
+	protected $url;
 
 	/**
 	 * Set the file that will be used
@@ -186,6 +192,14 @@ class Curl extends LampcmsObject
 		}
 
 		$this->aOptions['useragent'] = $agent;
+
+		return $this;
+	}
+
+
+
+	public function setBasicAuth($user, $pwd){
+		$this->aOptions['basicAuth'] = $user.':'.$pwd;
 
 		return $this;
 	}
@@ -288,7 +302,9 @@ class Curl extends LampcmsObject
 		if('https' === \substr($url, 0, 5) && !$this->checkSSL()){
 			throw new \LogicException('Unable to make request to url: '.$url.' because your curl does not have support for  SSL protocol');
 		}
-		
+
+		$this->url = $url;
+
 		$aHeaders = array();
 		$this->initCurl();
 
@@ -327,21 +343,49 @@ class Curl extends LampcmsObject
 			throw new HttpTimeoutException($error);
 		}
 
-		$this->httpResponseCode = $intCode = curl_getinfo($this->request, CURLINFO_HTTP_CODE);
-		$this->body = substr($response, $header_size);
-		$header = substr($response, 0, $header_size);
-		$headers = explode("\r\n", str_replace("\r\n\r\n", '', $header));
+		$this->httpResponseCode = \curl_getinfo($this->request, CURLINFO_HTTP_CODE);
+		$this->body = \substr($response, $header_size);
+		$header = \substr($response, 0, $header_size);
+		$headers = \explode("\r\n", \str_replace("\r\n\r\n", '', $header));
 
 		foreach ($headers as $h) {
-			if(preg_match('#(.*?)\:\s(.*)#', $h, $matches)){
+			if(\preg_match('#(.*?)\:\s(.*)#', $h, $matches)){
 				$this->aResponseHeaders[strtolower($matches[1])] = trim($matches[2]);
 			}
 		}
 
+		$this->__destruct();
+
+		return $this;
+	}
+
+
+	/**
+	 * Run this method after the getDocument()
+	 * It will examine the http response code and in case
+	 * it's not 200 or 201 it will throw
+	 * corresponding LampcmsException
+	 *
+	 * Calling this method after the getDocument() may be
+	 * convenient in case of parsing external XML or RSS feed
+	 * of some sort, or even parsing response from some API
+	 * as it takes case of all situations where we did not
+	 * get the "OK" response and even of situation where
+	 * the body of an otherwise "OK" respose was empty
+	 *
+	 * @throws sub-class of Lampcms\Exception, depending on
+	 * the Http response code. In case the response
+	 * code is 200 or 201 which is OK but there is no
+	 * content in the body, it throws \Lampcms\HttpEmptyBodyException
+	 *
+	 * @return object $this
+	 */
+	public function checkResponse(){
+
 		switch($this->httpResponseCode){
 
 			case 200:
-
+			case 201:
 				if(!empty($this->body)){
 
 					$this->__destruct();
@@ -357,11 +401,11 @@ class Curl extends LampcmsObject
 			case 303:
 			case 307:
 				if('' !== $newLocation = $this->getHeader('Location')){
-					d(' redirect contains location: '.$newLocation. ' $intCode: '.$intCode);
+					d(' redirect contains location: '.$newLocation. ' $this->httpResponseCode: '.$this->httpResponseCode);
 
-					$ex = new HttpRedirectException($newLocation, $intCode);
+					$ex = new HttpRedirectException($newLocation, $this->httpResponseCode);
 				} else {
-					$ex = new HttpResponseErrorException('Error '.$intCode.' message: '.$this->getResponseStatus());
+					$ex = new HttpResponseErrorException('Error '.$this->httpResponseCode.' message: '.$this->getResponseStatus());
 				}
 				break;
 
@@ -379,19 +423,18 @@ class Curl extends LampcmsObject
 
 			default:
 
-				if($intCode >= 400 && $intCode < 500){
-					$ex = new Http400Exception('Error '.$intCode, $intCode);
-				} elseif ($intCode >= 500 && $intCode < 600){
-					$ex = new Http500Exception('Error '.$intCode, $intCode);
+				if($this->httpResponseCode >= 400 && $this->httpResponseCode < 500){
+					$ex = new Http400Exception('Error '.$this->httpResponseCode, $this->httpResponseCode);
+				} elseif ($this->httpResponseCode >= 500 && $this->httpResponseCode < 600){
+					$ex = new Http500Exception('Error '.$this->httpResponseCode, $this->httpResponseCode);
 				} else {
-					$ex = new HttpResponseErrorException('Error '.$intCode.' message: '.$this->httpResponseCode);
+					$ex = new HttpResponseErrorException('Error '.$this->httpResponseCode.' message: '.$this->httpResponseCode);
 				}
-
+				
+				throw $ex;
 		}
 
-		$this->__destruct();
-
-		throw $ex;
+		return $this;
 	}
 
 
@@ -489,6 +532,9 @@ class Curl extends LampcmsObject
 			curl_setopt($this->request, CURLOPT_ENCODING, 'gzip');
 		}
 
+		if(!empty($this->aOptions['basicAuth'])){
+			curl_setopt($this->request, CURLOPT_USERPWD, $this->aOptions['basicAuth']);
+		}
 		if(!empty($this->aOptions['ip'])){
 			curl_setopt($this->request, CURLOPT_INTERFACE, $this->aOptions['ip']);
 		}

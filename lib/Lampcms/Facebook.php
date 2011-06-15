@@ -234,7 +234,7 @@ class Facebook extends ExternalAuth
 		$url = \sprintf($this->wallUpdateUrl, $facebookUid);
 		d('cp url: '.$url);;
 		try{
-			$this->oHTTP->getDocument($url, null, null, array('formVars' => $aData));
+			$this->oHTTP->getDocument($url, null, null, array('formVars' => $aData))->checkResponse();
 			$retCode = $this->oHTTP->getHttpResponseCode();
 			$body = $this->oHTTP->getResponseBody();
 			d('retCode: '.$retCode.' resp: '.$body);

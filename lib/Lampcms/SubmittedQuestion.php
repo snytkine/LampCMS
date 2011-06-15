@@ -79,7 +79,7 @@ abstract class SubmittedQuestion extends LampcmsObject
 	/**
 	 *
 	 * Object representing Title of question
-	 * 
+	 *
 	 * @var object of type Utf8String
 	 */
 	protected $oTitle;
@@ -143,12 +143,12 @@ abstract class SubmittedQuestion extends LampcmsObject
 
 		return $this->aTags;
 	}
-	
-	
+
+
 	/**
 	 * Get object of type Utf8String
 	 * representing submitted tags
-	 * 
+	 *
 	 * Enter description here ...
 	 */
 	abstract public function getUtf8Tags();
@@ -163,5 +163,36 @@ abstract class SubmittedQuestion extends LampcmsObject
 	 */
 	public function getExtraData(){
 		return array();
+	}
+
+
+	/**
+	 * Get name of app used for submitting
+	 * this question
+	 * @return string
+	 */
+	public function getApp(){
+		return '';
+	}
+
+
+	/**
+	 * Get id of app used for submitting
+	 * this question
+	 * @return null
+	 */
+	public function getAppId(){
+		return null;
+	}
+
+	
+	/**
+	 * Get id of link to app used for submitting
+	 * this question
+	 * 
+	 * @return null
+	 */
+	public function getAppLink(){
+		return null;
 	}
 }

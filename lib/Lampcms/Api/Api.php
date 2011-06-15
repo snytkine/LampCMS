@@ -57,6 +57,7 @@ use \Lampcms\User;
 use \Lampcms\Request;
 use \Lampcms\Response;
 use \Lampcms\Output;
+use \Lampcms\UserAuth;
 
 /**
  * Base class for all API calls
@@ -190,19 +191,6 @@ abstract class Api extends \Lampcms\Base
 
 
 	/**
-	 * Id of client APP making request
-	 * This is NOT THE SAME as User on whose
-	 * behalf the request is made.
-	 * Client APP would be something like
-	 * "Cool iPhone app" for Lampcms - it would
-	 * have its' unique APP id
-	 *
-	 * @var string
-	 */
-	protected $clientAppId;
-
-
-	/**
 	 * User ID of Viewer
 	 * This will be populated with
 	 * actual user id only in the OAuth2 based
@@ -211,17 +199,6 @@ abstract class Api extends \Lampcms\Base
 	 * @var int
 	 */
 	protected $viewerId = 0;
-
-
-	/**
-	 * Name of the API
-	 * This is mostly useful for write API
-	 * write API will be available only in OAuth2 based
-	 * version
-	 *
-	 * @var string
-	 */
-	protected $appName;
 
 
 	/**
@@ -308,20 +285,27 @@ abstract class Api extends \Lampcms\Base
 		 * then skip this step
 		 */
 		if(empty($this->accessId)){
-			$this->clientAppId = $this->oRequest->get('apikey', 's', null);
+			
+			/**
+			 * @todo This is WRONG
+			 * this is apikey, NOT the same as app_id which we
+			 * will get from the database based on apikey!
+			 * 
+			 */
+			$this->oRegistry->clientAppId = $this->oRequest->get('apikey', 's', null);
 			/**
 			 * Check here if the API idenditied by this API key
 			 * isValid or has been suspended of deleted
 			 */
-			if(!empty($this->clientAppId)){
+			if(!empty($this->oRegistry->clientAppId)){
 
-				$a = $this->oRegistry->Mongo->API_CLIENTS->findOne(array('api_key' => $this->clientAppId), array('_id' => 1, 'i_suspended' => 1, 'i_deleted' => 1));
+				$a = $this->oRegistry->Mongo->API_CLIENTS->findOne(array('api_key' => $this->oRegistry->clientAppId), array('_id' => 1, 'i_suspended' => 1, 'i_deleted' => 1));
 				if(empty($a)){
-					throw new \Lampcms\HttpResponseCodeException('Invalid api key: '.$this->clientAppId, 401);
+					throw new \Lampcms\HttpResponseCodeException('Invalid api key: '.$this->oRegistry->clientAppId, 401);
 				}
 
 				if(!empty($a['i_suspended'])){
-					throw new \Lampcms\HttpResponseCodeException('Suspended api key: '.$this->clientAppId, 401);
+					throw new \Lampcms\HttpResponseCodeException('Suspended api key: '.$this->oRegistry->clientAppId, 401);
 				}
 
 				if(!empty($a['i_deleted'])){
@@ -343,16 +327,60 @@ abstract class Api extends \Lampcms\Base
 	 * @return object $this
 	 */
 	protected function initClientUser(){
-		$this->oRegistry->Viewer = ApiUser::factory($this->oRegistry);
+
+
 		/**
-		 * @todo in case of OAuth2 we would extract the
-		 * userid and appid from oauth token
-		 * and set the value of $this->accessId here
-		 * to be equal to date_userid
+		 * @todo when OAuth2 is supported then route to
+		 * initOAuth2User if OAuth2 token is present in request
 		 *
-		 * as well as $this->clientAppId
+		 * @todo check if Basic Auth is enabled in Settings API section
+		 * admin may disable basic auth in case OAuth2 is available
+		 * If Basic auth is disabled then throw appropriate exception
+		 *
 		 */
+		if(isset($_SERVER['PHP_AUTH_USER']) && isset($_SERVER['PHP_AUTH_PW'])){
+			$this->initBasicAuthUser($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
+		} else {
+			d('No user credentials in request. Using basic quest user');
+			$this->oRegistry->Viewer = ApiUser::factory($this->oRegistry);
+		}
+
+		d('Viewer id: '.$this->oRegistry->Viewer->getUid());
+
 		return $this;
+	}
+
+
+	/**
+	 * Use Credentials from Basic Auth headers
+	 * to instantiate our BasicAuthUser
+	 *
+	 * @throws \Lampcms\HttpResponseCodeException
+	 */
+	protected function initBasicAuthUser($username, $pwd){
+
+
+		try {
+			$oUserAuth = new UserAuth($this->oRegistry);
+			$oUser = $oUserAuth->validateLogin($username, $pwd, '\Lampcms\\Api\\UserBasicAuth');
+
+			/**
+			 * If user logged in that means he got the email
+			 * with password,
+			 * thus we confirmed email address
+			 * and can activate user
+			 */
+			$oUser->activate();
+			$this->oRegistry->Viewer = $oUser;
+			
+		} catch(\Lampcms\LoginException $e) {
+			e('Login error: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
+			/**
+			 * Re-throw exception here with
+			 * proper HTTP Code (as HttpResponseCodeException)
+			 */
+			throw new \Lampcms\HttpResponseCodeException('Wrong login credentials: '.$e->getMessage(), 401);
+		}
 	}
 
 
@@ -366,8 +394,8 @@ abstract class Api extends \Lampcms\Base
 	 */
 	protected function makeAccessId(){
 		if(!isset($this->accessId)){
-			d('making acceddId. $this->clientAppId is: '.$this->clientAppId);
-			$clientId = (empty($this->clientAppId)) ? Request::getIP() : $this->clientAppId;
+			d('making acceddId. $this->oRegistry->clientAppId is: '.$this->oRegistry->clientAppId);
+			$clientId = (empty($this->oRegistry->clientAppId)) ? Request::getIP() : $this->oRegistry->clientAppId;
 			d('clientId: '.$clientId);
 			$this->accessId =  date('Ymd').'_'.$clientId.'_'.$this->oRegistry->Viewer->getUid();
 		}
@@ -412,7 +440,7 @@ abstract class Api extends \Lampcms\Base
 				$this->rateLimit = $this->aConfig['DAILY_LIMIT_USER'];
 				break;
 
-			case (isset($this->clientAppId)):
+			case (isset($this->oRegistry->clientAppId)):
 				$this->rateLimit = $this->aConfig['DAILY_LIMIT_APP'];
 				break;
 
@@ -518,10 +546,16 @@ abstract class Api extends \Lampcms\Base
 		}
 
 		$err = \strip_tags($e->getMessage());
-		e('API Exception caught in: '.$e->getFile().' on line: '.$e->getLine().' error: '.$err);
+		$err2 = ('API Exception caught in: '.$e->getFile().' on line: '.$e->getLine().' error: '.$err);
+
+		d($err2);
+		//exit($err);
 
 		$this->oOutput->setData(array('error' => $err));
+
+
 		$this->oResponse->setBody($this->oOutput);
+
 	}
 
 
@@ -537,8 +571,13 @@ abstract class Api extends \Lampcms\Base
 			throw new \Lampcms\HttpResponseCodeException('HTTP POST request method required', 405);
 		}
 			
-		$this->oRequest->setRequired($this->aRequired)->checkRequired();
+		$this->oRequest->setRequired($this->aRequired);
 
+		try{
+			$this->oRequest->checkRequired();
+		} catch(\Exception $e){
+			throw new \Lampcms\HttpResponseCodeException($e->getMessage(), 400);
+		}
 
 		return $this;
 	}

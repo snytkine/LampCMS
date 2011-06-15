@@ -55,12 +55,12 @@ namespace Lampcms;
 /**
  * Class for storing a data
  * ready for the HTTP Response
- * 
+ *
  * Loosely modeled after the Response class
  * from the Symfony2 Framework but there are some
  * important differences - namely the use of Output class
  * and simpler handling of headers
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
@@ -272,10 +272,10 @@ class Response
 	 *
 	 */
 	public function sendHeaders(){
-
+		
 		header(sprintf('HTTP/%s %s %s', $this->httpVersion, $this->httpCode, $this->httpMessage));
 		header('Content-Type: '.$this->contentType.'; charset='.strtolower($this->charset));
-		
+
 		foreach ($this->aHeaders as $name => $value) {
 			header($name.': '.$value);
 		}

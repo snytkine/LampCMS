@@ -347,12 +347,12 @@ class SiteMap extends LampcmsObject
 				d('going to ping '.$key.' url: '.$pingUrl);
 
 				$oHttp->getDocument($url);
-				$code = $oHttp->getHttpResponseCode();
+				$code = $oHttp->getHttpResponseCode()->checkResponse();
 				d('pinged '.$key.' response code: '.$code);
 					
 			} catch (\Exception $e){
 				$err = 'Unable to ping '.$key.' got error: '.$e->getMessage();
-				d('Error: '.$err);
+				e('Error: '.$err);
 			}
 		}
 

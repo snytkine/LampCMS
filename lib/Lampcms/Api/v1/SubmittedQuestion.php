@@ -50,55 +50,90 @@
  */
 
 
+namespace Lampcms\Api\v1;
+
+
+use \Lampcms\SubmittedQuestionWWW;
+use \Lampcms\Utf8String;
 
 /**
- * Autoloader for vtemplates
+ * Object of this class represents data
+ * of a question submitted via an API
+ * This is not a Question object, only a submitted
+ * data. The program may reject this question
+ * if it does not validate for any reason and this data
+ * may never become an actual question.
  *
- * @param string $classname
+ * @author Dmitri Snytkine
+ *
  */
-function templateLoader($className){
+class SubmittedQuestion extends SubmittedQuestionWWW
+{
 
-	
+	protected $appName;
+
+	protected $appId;
+
+	public function __construct(\Lampcms\Registry $oRegistry){
+		$this->oRegistry = $oRegistry;
+		$this->aData = $oRegistry->Request->getArray();
+		d('$this->aData: '.print_r($this->aData, 1));
+		$this->oUser = $oRegistry->Viewer;
+	}
+
+
+
 	/**
-	 * This is important
-	 * This autoloader will be the first
-	 * one in the __autoload stack (we pass true as 3rd arg
-	 * to spl_autoload_register())
+	 * Get name of app used for submitting
+	 * this question
+	 * @return string
+	 */
+	public function getApp(){
+		return $this->oRegistry->appName;
+	}
+
+
+	/**
+	 * Get id of app used for submitting
+	 * this question
+	 * @return null
+	 */
+	public function getAppId(){
+		return $this->oRegistry->clientAppId;
+	}
+
+
+	/**
+	 * Get id of link to app used for submitting
+	 * this question
 	 *
-	 * Since this autoload can only
-	 * handle template files, any file
-	 * not starting with 'tpl' is not
-	 * the responsibility of this loader
-	 * and we must return false to save further
-	 * pointless processing.
+	 * @return null
 	 */
-	if(0 !== strpos($className, 'tpl') ){
+	public function getAppLink(){
+		$name = $this->oRegistry->appName;
+		$id = $this->oRegistry->clientAppId;
 
-		return false;
+		return (!empty($id) && !empty($name)) ? \sprintf('<a href="/app/%s" rel="nofollow" target="_blank">%s</a>', $id, $name) : null;
+
 	}
-
-	$styleId = (defined('STYLE_ID')) ? STYLE_ID : '1';
-	$dir = (defined('VTEMPLATES_DIR')) ? VTEMPLATES_DIR : 'www';
-	
-	$file = LAMPCMS_WWW_DIR.'style'.DIRECTORY_SEPARATOR.$styleId.DIRECTORY_SEPARATOR.$dir.DIRECTORY_SEPARATOR.$className.'.php';
 
 	
 	/**
-	 * Smart fallback to www dir
-	 * if template does not exist in mobile version
-	 * But if template file also does not exist in www
-	 * and in mobile dir, then it will raise an error
-	 * beause we using require this time instead in include  && ('www' !== $dir)
+	 * Unlike normal WWW request, 
+	 * In API call we may not have 'tags' in Request,
+	 * so we need to fallback to default empty string here
+	 *
+	 * (non-PHPdoc)
+	 * @see Lampcms.SubmittedQuestionWWW::getUtf8Tags()
 	 */
-	if( ( false === include($file)) && ('www' !== $dir) ){
-		
-		require LAMPCMS_WWW_DIR.'style'.DIRECTORY_SEPARATOR.$styleId.DIRECTORY_SEPARATOR.'www'.DIRECTORY_SEPARATOR.$className.'.php';
+	public function getUtf8Tags(){
+		if(!isset($this->oTags)){
+				
+			$tags = $this->oRegistry->Request->get('tags', 's', '');
+			$this->oTags = Utf8String::factory($tags);
+		}
+
+		return $this->oTags;
 	}
 
-	return true;
 }
-
-
-$oLoader = new Lampcms\SplClassLoader(null, $libDir);
-$oLoader->register();
-spl_autoload_register('templateLoader', false, true);

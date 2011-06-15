@@ -89,9 +89,13 @@ class UserAuth extends LampcmsObject
 	 * email address entered in login form
 	 *
 	 * @param string $sPassword password entered in login form
+	 * 
+	 * @param string $className a full name of user class. Will return
+	 * user of this class (this class should extend User class)
+	 * Include namespace!
 	 */
-	public function preCheckLogin($sUsername, $sPassword){
-		
+	public function validateLogin($sUsername, $sPassword, $className = '\Lampcms\\User'){
+		d('$className: '.$className);
 		$this->checkMultipleLoginErrors($sUsername);
 		$this->checkForBannedIP();
 		if (false === Validate::enforcePwd($sPassword)) {
@@ -129,7 +133,7 @@ class UserAuth extends LampcmsObject
 				throw new WrongUserException('User not found');
 			}
 
-			$oUser = User::factory($this->oRegistry, $aResult);
+			$oUser = $className::factory($this->oRegistry, $aResult);
 		} else {
 
 			if (false === Validate::username($sUsername)) {
@@ -142,7 +146,7 @@ class UserAuth extends LampcmsObject
 				throw new WrongUserException('Wrong user');
 			}
 
-			$oUser = $this->getUser($sUsername, $sPassword);
+			$oUser = $this->getUser($sUsername, $sPassword, $className);
 		}
 
 
@@ -174,9 +178,9 @@ class UserAuth extends LampcmsObject
 	 * @throws LampcmsLoginException
 	 * in case user does not exist
 	 */
-	protected function getUser($sUsername, $sPassword){
+	protected function getUser($sUsername, $sPassword, $className){
 		
-		d('$sUsername: '.$sUsername);
+		d('$sUsername: '.$sUsername. ' $className: '.$className);
 		/**
 		 * @todo
 		 * Not sure how to handle case sensitivity of username
@@ -202,7 +206,7 @@ class UserAuth extends LampcmsObject
 
 		}
 
-		return User::factory($this->oRegistry, $arrResult);
+		return $className::factory($this->oRegistry, $arrResult);
 	}
 
 
@@ -220,9 +224,9 @@ class UserAuth extends LampcmsObject
 	 * some other object cancells the 'onBeforeLogin'
 	 * notification
 	 */
-	public function validateLogin($sUsername, $sPassword){
+	public function __validateLogin($sUsername, $sPassword){
 
-		return $this->preCheckLogin($sUsername, $sPassword);
+		// return $this->preCheckLogin($sUsername, $sPassword);
 	}
 
 

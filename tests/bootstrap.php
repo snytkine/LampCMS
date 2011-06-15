@@ -53,6 +53,7 @@
 /**
  * Order of tests:
  * LampcmsObject X
+ * Validate
  * LampcmsArray X
  * ArrayDefaults X
  * String X
@@ -71,7 +72,7 @@
  * Dispatcher
  * HtmlSafe
  * Template
- * Validate
+ * 
  * 
  * User X
  * Answer X
@@ -194,6 +195,7 @@ require $lampcmsClasses.'Exception.php';
 require $lampcmsClasses.'Object.php';
 require $lampcmsClasses.'SplClassLoader.php';
 require LAMPCMS_PATH.DIRECTORY_SEPARATOR.'Points.php';
+require $lampcmsClasses.'Mongo'.DIRECTORY_SEPARATOR.'Collections.php';
 require LAMPCMS_PATH.DIRECTORY_SEPARATOR.'Mycollections.php';
 
 function d($message){}

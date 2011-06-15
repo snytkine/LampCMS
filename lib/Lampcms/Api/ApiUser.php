@@ -70,4 +70,5 @@ use Lampcms\User;
 class ApiUser extends User
 {
 	
+	
 }

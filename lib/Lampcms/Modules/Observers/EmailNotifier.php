@@ -432,7 +432,7 @@ site %5$s and navigating to Settings > Email preferences
 
 		$coll = $this->collUsers;
 		$subj = sprintf(static::$ANS_COMMENT_SUBJ, $this->aInfo['username']);
-		$body = vsprintf(static::$ANS_COMMENT_BODY, array($this->aInfo['username'], $oAnswer['title'], $this->aInfo['b'], $commUrl, $siteUrl));
+		$body = vsprintf(static::$ANS_COMMENT_BODY, array($this->aInfo['username'], $oAnswer['title'], \strip_tags($this->aInfo['b']), $commUrl, $siteUrl));
 		d('subj: '.$subj);
 		d('body: '.$body);
 		$oMailer = new Mailer($this->oRegistry);
@@ -488,8 +488,7 @@ site %5$s and navigating to Settings > Email preferences
 	 */
 	protected function notifyCommentAuthor(\Lampcms\Interfaces\Post $oResource){
 		$commentorID = (int)$this->aInfo['i_uid'];
-		$parentCommentOwner = (int)$this->aInfo['inreply_uid'];
-		
+		$parentCommentOwner = (int)$this->aInfo['inreply_uid'];	
 		$siteUrl = $this->oRegistry->Ini->SITE_URL;
 		d('$siteUrl: '.$siteUrl);
 		$commUrl = $siteUrl.'/q'.$oResource->getQuestionId().'/#c'.$this->aInfo['_id'];
@@ -505,10 +504,9 @@ site %5$s and navigating to Settings > Email preferences
 		$coll = $this->collUsers;
 		$subj = sprintf(static::$COMMENT_REPLY_SUBJ, $this->aInfo['username']);
 
+		$body = vsprintf(static::$COMMENT_REPLY_BODY, array($this->aInfo['username'], \strip_tags($this->aInfo['parent_body']), \strip_tags($this->aInfo['b']), $commUrl, $siteUrl));
+		d('subj: '.$subj.' body: '.$body);
 
-		$body = vsprintf(static::$COMMENT_REPLY_BODY, array($this->aInfo['username'], $this->aInfo['parent_body'], $this->aInfo['b'], $commUrl, $siteUrl));
-		d('subj: '.$subj);
-		d('body: '.$body);
 		$oMailer = new Mailer($this->oRegistry);
 
 		$callable = function() use ($parentCommentOwner, $coll, $subj, $body, $oMailer){
@@ -706,9 +704,6 @@ site %5$s and navigating to Settings > Email preferences
 		 * OR in can be extracted from $this->oQuestion
 		 *
 		 */
-		//$qid = ($qid) ? (int)$qid : $this->oQuestion->getResourceId();
-		//d('qid: '.$qid);
-
 		if($qid){
 			$oQuestion = new \Lampcms\Question($this->oRegistry);
 			try{
@@ -735,7 +730,7 @@ site %5$s and navigating to Settings > Email preferences
 		$url = ('answer' === $updateType) ? $this->obj->getUrl() : $siteUrl.'/q'.$this->aInfo['i_qid'].'/#c'.$this->aInfo['_id'];;
 		d('url: '.$url);
 
-		$content = ('comment' === $updateType) ? "\n____\n".$this->aInfo['b']."\n" : '';
+		$content = ('comment' === $updateType) ? "\n____\n".\strip_tags($this->aInfo['b'])."\n" : '';
 		$body = vsprintf(static::$QUESTION_FOLLOW_BODY, array($username, $updateType, $this->oQuestion['title'], $url, $siteUrl, $content));
 		d('$body: '.$body);
 
