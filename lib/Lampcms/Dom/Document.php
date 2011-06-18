@@ -67,7 +67,7 @@ class Document extends \DOMDocument implements \Lampcms\Interfaces\LampcmsObject
 		$this->registerNodeClass('DOMElement', '\Lampcms\Dom\Element');
 		//$this->registerNodeClass('DOMNode', '\Lampcms\Dom\Node');
 		//$this->registerNodeClass('DOMText', '\Lampcms\Dom\Text');
-		
+
 	}
 
 
@@ -139,6 +139,13 @@ class Document extends \DOMDocument implements \Lampcms\Interfaces\LampcmsObject
 		$oXpath = new \DOMXPath($this);
 
 		return $oXpath->query($query);
+	}
+
+
+	public function evaluate($query){
+		$oXpath = new \DOMXPath($this);
+
+		return $oXpath->evaluate($query);
 	}
 
 }

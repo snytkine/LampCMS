@@ -50,98 +50,120 @@
  */
 
 
+
 namespace Lampcms\Api\v1;
 
 use \Lampcms\Api\Api;
-use \Lampcms\QuestionParser;
+use \Lampcms\AnswerParser;
 use \Lampcms\String\HTMLString;
+use \Lampcms\Question;
 
 /**
- * Controller for adding new Quetion via
+ * Controller for adding new Answer via
  * API POST
- *
  *
  * @author Dmitri Snytkine
  *
  */
-class Addquestion extends Api
+class Addanswer extends Api
 {
+	protected $permission = 'answer';
+
 	protected $bRequirePost = true;
 
 	protected $membersOnly = true;
 
-	protected $permission = 'ask';
-	
 	/**
-	 * Object of newly created Question
+	 * Submitted Answer object
+	 *
+	 * @var object of type SubmittedAnswer
+	 */
+	protected $oSubmitted;
+
+
+	protected $aRequired = array('qbody', 'qid');
+
+	/**
+	 * Object of newly created Answer
+	 *
+	 * @var object of type \Lampcms\Answer
+	 */
+	protected $oAnswer;
+
+	/**
+	 * Question object represents the
+	 * question for which this answer is being parsed
+	 *
 	 *
 	 * @var object of type \Lampcms\Question
 	 */
 	protected $oQuestion;
 
-	protected $aRequired = array('qbody', 'title');
-
-	/**
-	 * Object representing data of the submitted
-	 * question.
-	 *
-	 * @var Object of type SubmittedQuestionApi
-	 * extends SubmittedQuestionWWW
-	 *
-	 */
-	protected $oSubmitted;
-
 
 	protected function main(){
+		$this->oSubmitted = new SubmittedAnswer($this->oRegistry);
 
-		$this->oSubmitted = new SubmittedQuestion($this->oRegistry);
-
-		$this->validateTitle()
+		$this->getQuestion()
 		->validateBody()
-		->validateTags()
 		->process()
 		->setOutput();
 	}
 
 
 	/**
-	 * Validate title length
+	 * Get data for Question based on qid Request param
+	 *
+	 * @throws \Lampcms\HttpResponseCodeException in case
+	 * Question with passed "qid" is not found OR if it is
+	 * marked as deleted
 	 *
 	 * @return object $this
 	 */
-	protected function validateTitle(){
-		$t = $this->oSubmitted->getTitle();
-		$min = $this->oRegistry->Ini->MIN_TITLE_CHARS;
-		d('min title: '.$min);
-		if($this->oSubmitted->getTitle()->htmlentities()->trim()->length() < $min){
-			throw new \Lampcms\HttpResponseCodeException('Title must contain at least '.$min.' letters', 400);
+	protected function getQuestion(){
+
+		$aQuestion = $this->oRegistry->Mongo->QUESTIONS->findOne(array('_id' => (int)$this->oRequest['qid']));
+
+		/**
+		 * @todo Translate string
+		 */
+		if(empty($aQuestion)){
+			throw new \Lampcms\HttpResponseCodeException('Question not found', 404);
 		}
+
+		if(!empty($aQuestion['i_del_ts'])){
+
+			throw new \Lampcms\HttpResponseCodeException('This question was deleted on '.date('r', $aQuestion['i_del_ts']), 404);
+		}
+
+		$this->oQuestion = new Question($this->oRegistry, $aQuestion);
+
 
 		return $this;
 	}
 
 
 	/**
-	 * Validate min number of words in question
-	 * and min number of chars in question
+	 * Validate minimum length and min required
+	 * word count of body
+	 *
+	 * @throws \Lampcms\HttpResponseCodeException
 	 *
 	 * @return object $this
 	 */
 	protected function validateBody(){
-
-		$minChars = $this->oRegistry->Ini->MIN_QUESTION_CHARS;
-		$minWords = $this->oRegistry->Ini->MIN_QUESTION_WORDS;
+		$minChars = $this->oRegistry->Ini->MIN_ANSWER_CHARS;
+		$minWords = $this->oRegistry->Ini->MIN_ANSWER_WORDS;
 		$body = $this->oSubmitted->getBody();
 		$oHtmlString = HTMLString::factory($body);
 		$wordCount = $oHtmlString->getWordsCount();
 		$len = $oHtmlString->length();
 
 		if($len < $minChars){
-			throw new \Lampcms\HttpResponseCodeException('Question must contain at least '.$minChars.' letters', 400);
+			throw new \Lampcms\HttpResponseCodeException('Answer must contain at least '.$minChars.' letters', 400);
 		}
 
 		if($wordCount < $minWords){
-			throw new \Lampcms\HttpResponseCodeException('Question must contain at least '.$minWords.' words', 400);
+			throw new \Lampcms\HttpResponseCodeException('Answer must contain at least '.$minWords.' words', 400);
 		}
 
 		return $this;
@@ -149,47 +171,21 @@ class Addquestion extends Api
 
 
 	/**
-	 * Validate to enforce at least one tag
-	 * and not more that value MAX_QUESTION_TAGS in settings
+	 * Process submitted Answer using AnswerParser class
 	 *
-	 * @return object $this
-	 */
-	protected function validateTags(){
-		$min = $this->oRegistry->Ini->MIN_QUESTION_TAGS;
-		$max = $this->oRegistry->Ini->MAX_QUESTION_TAGS;
-		
-		$aTags = $this->oSubmitted->getTagsArray();
-		$count = count($aTags);
-
-		if($count > $max){
-			throw new \Lampcms\HttpResponseCodeException('Question cannot have more than '.$max.' tags. Please remove some tags', 400);
-		}
-
-		if($count < $min){
-			throw new \Lampcms\HttpResponseCodeException('Question must have at least '.$min.' tag(s)', 400);
-		}
-
-		return $this;
-	}
-
-
-	/**
-	 *
-	 * Process submitted form values
-	 * and create the $this->oQuestion object
+	 * @throws \Lampcms\HttpResponseCodeException
 	 */
 	protected function process(){
-
-		$oAdapter = new QuestionParser($this->oRegistry);
+		$oAdapter = new AnswerParser($this->oRegistry);
 		try{
-			$this->oQuestion = $oAdapter->parse($this->oSubmitted);
-			d('cp created new question');
-			d('title: '.$this->oQuestion['title']);
+			$this->oAnswer = $oAdapter->parse($this->oSubmitted);
+			d('cp created new answer '.$this->oAnswer->getResourceId());
+
 		} catch (\Lampcms\QuestionParserException $e){
 			$err = $e->getMessage();
 			d('$err: '.$err);
 
-			throw new \Lampcms\HttpResponseCodeException($err, 400);
+			throw new \Lampcms\HttpResponseCodeException('Unable to add this answer: '.$err, 400);
 		}
 
 		return $this;
@@ -197,14 +193,27 @@ class Addquestion extends Api
 
 
 	/**
-	 * Entire Question data will be returned
+	 * Entire Answer data will be returned
 	 * in request
 	 *
 	 * @return object $this
 	 */
 	protected function setOutput(){
 
-		$this->oOutput->setData($this->oQuestion->getArrayCopy());
+		/*$d = __METHOD__.' '.__LINE__;
+		exit($d);*/
+		
+		$a = $this->oAnswer->getArrayCopy();
+		/**
+		 * @todo maybe use special template
+		 * for 'app' instead of default template?
+		 *
+		 */
+		$a['edit_delete'] = ' <span class="ico del ajax" title="Delete">delete</span>  <span class="ico edit ajax" title="Edit">edit</span>';
+		$a ['html'] = \tplAnswer::parse($a);
+		d('before sending out $a: '.print_r($a, 1));
+
+		$this->oOutput->setData($a);
 
 		return $this;
 	}

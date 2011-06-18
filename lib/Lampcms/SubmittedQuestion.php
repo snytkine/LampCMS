@@ -189,10 +189,13 @@ abstract class SubmittedQuestion extends LampcmsObject
 	/**
 	 * Get id of link to app used for submitting
 	 * this question
-	 * 
+	 *
 	 * @return null
 	 */
 	public function getAppLink(){
-		return null;
+		$name = $this->getApp();
+		$id = $this->getAppId();
+
+		return (!empty($id) && !empty($name)) ? \sprintf('<a href="/app/%s" rel="nofollow" target="_blank">%s</a>', $id, $name) : null;
 	}
 }

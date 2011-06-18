@@ -70,9 +70,6 @@ use \Lampcms\Utf8String;
 class SubmittedQuestion extends SubmittedQuestionWWW
 {
 
-	protected $appName;
-
-	protected $appId;
 
 	public function __construct(\Lampcms\Registry $oRegistry){
 		$this->oRegistry = $oRegistry;
@@ -80,7 +77,6 @@ class SubmittedQuestion extends SubmittedQuestionWWW
 		d('$this->aData: '.print_r($this->aData, 1));
 		$this->oUser = $oRegistry->Viewer;
 	}
-
 
 
 	/**
@@ -100,21 +96,6 @@ class SubmittedQuestion extends SubmittedQuestionWWW
 	 */
 	public function getAppId(){
 		return $this->oRegistry->clientAppId;
-	}
-
-
-	/**
-	 * Get id of link to app used for submitting
-	 * this question
-	 *
-	 * @return null
-	 */
-	public function getAppLink(){
-		$name = $this->oRegistry->appName;
-		$id = $this->oRegistry->clientAppId;
-
-		return (!empty($id) && !empty($name)) ? \sprintf('<a href="/app/%s" rel="nofollow" target="_blank">%s</a>', $id, $name) : null;
-
 	}
 
 	

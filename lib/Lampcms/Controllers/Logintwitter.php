@@ -407,7 +407,6 @@ class Logintwitter extends WebPage
 
 		$this->updateLastLogin();
 
-
 		if($this->isNewAccount){
 			$this->postTweetStatus();
 		}

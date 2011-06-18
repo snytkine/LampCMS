@@ -64,7 +64,7 @@ use \Lampcms\Responder;
 /**
  * Controller for Adding
  * or Editing the API Client App
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
@@ -121,10 +121,10 @@ class Editapp extends WebPage
 		$this->oForm = new \Lampcms\Forms\Apiclient($this->oRegistry);
 
 		if($this->oForm->isSubmitted() && $this->oForm->validate()){
-
+			d('$this->oApi: '.print_r($this->oApi->getArrayCopy(), 1));
 			$this->save();
 			$this->oRegistry->Dispatcher->post($this->oForm, 'onApiClientSave');
-			$url = '/index.php?a=viewapp&app_id='.$this->oApi['_id'];			
+			$url = '/index.php?a=viewapp&app_id='.$this->oApi['_id'];
 			Responder::redirectToPage($url);
 		} else {
 			$this->setForm();
@@ -217,6 +217,7 @@ class Editapp extends WebPage
 			$appid = $this->oRegistry->Incrementor->nextValue('USERS');
 		}
 
+		d('$appid: '.$appid);
 		$this->oApi['_id'] 		 = $appid;
 		$this->oApi['i_uid']     = $this->oRegistry->Viewer->getUid();
 		$this->oApi['app_name']  = (string)$this->oRequest->getUTF8('app_name')->trim()->stripTags();
@@ -233,18 +234,24 @@ class Editapp extends WebPage
 		 * app is the name of application
 		 */
 		$coll = $this->oRegistry->Mongo->API_CLIENTS;
-		$coll->ensureIndex(array('app' => 1), array('unique' => true));
-		$coll->ensureIndex(array('api_key' => 1));
+		$coll->ensureIndex(array('app_name' => 1), array('unique' => true));
+		$coll->ensureIndex(array('api_key' => 1), array('unique' => true));
 		$coll->ensureIndex(array('i_uid' => 1));
 
-		if($isUpdate){
-			$this->oApi['edited_time'] = date('F j, Y g:i a T');
-			$this->oApi['edit_ip'] = Request::getIP();
-			$res = $this->oApi->save();
-		} else {
-			$this->oApi['created_time'] = date('F j, Y g:i a T');
-			$this->oApi['ip'] = Request::getIP();
-			$res = $this->oApi->insert();
+		try{
+			if($isUpdate){
+				d('cp');
+				$this->oApi['edited_time'] = date('F j, Y g:i a T');
+				$this->oApi['edit_ip'] = Request::getIP();
+				$res = $this->oApi->save();
+			} else {
+				d('cp');
+				$this->oApi['created_time'] = date('F j, Y g:i a T');
+				$this->oApi['ip'] = Request::getIP();
+				$res = $this->oApi->insert();
+			}
+		} catch (\Exception $e){
+			exit($e->getMessage());
 		}
 
 		d('$res: '.$res);
@@ -278,14 +285,14 @@ class Editapp extends WebPage
 	 */
 	protected function parseIcon(){
 		d('cp');
-		
-		if(!$this->oForm->hasUploads()){
+
+		if(!$this->oForm->hasUploads() || (null === $tempPath = $this->oForm->getUploadedFile('icon'))){
 			d('Icon not uploaded');
 
 			return $this;
 		}
 
-		$tempPath = $this->oForm->getUploadedFile('icon');
+		
 		d('$tempPath: '.$tempPath);
 
 		IconParser::addIcon($this->oApi, $tempPath);

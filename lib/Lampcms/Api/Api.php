@@ -372,6 +372,14 @@ abstract class Api extends \Lampcms\Base
 			 */
 			$oUser->activate();
 			$this->oRegistry->Viewer = $oUser;
+			/**
+			 * Set $this->viewerId
+			 * it will result in increasing
+			 * access rate limit
+			 * 
+			 * 
+			 */
+			$this->viewerId = $oUser->getUid();
 			
 		} catch(\Lampcms\LoginException $e) {
 			e('Login error: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
@@ -394,7 +402,7 @@ abstract class Api extends \Lampcms\Base
 	 */
 	protected function makeAccessId(){
 		if(!isset($this->accessId)){
-			d('making acceddId. $this->oRegistry->clientAppId is: '.$this->oRegistry->clientAppId);
+			d('making accessId. $this->oRegistry->clientAppId is: '.$this->oRegistry->clientAppId);
 			$clientId = (empty($this->oRegistry->clientAppId)) ? Request::getIP() : $this->oRegistry->clientAppId;
 			d('clientId: '.$clientId);
 			$this->accessId =  date('Ymd').'_'.$clientId.'_'.$this->oRegistry->Viewer->getUid();

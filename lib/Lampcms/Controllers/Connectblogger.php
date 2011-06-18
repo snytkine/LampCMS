@@ -476,9 +476,8 @@ class Connectblogger extends WebPage
 
 
 	/**
-	 * Fetch xml from Tumblr, parse it
+	 * Fetch xml from Blogger, parse it
 	 * and generate array of $this->aBlogs
-	 *
 	 *
 	 * @throws \Exception if something does not work
 	 * as expected

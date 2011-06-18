@@ -1004,5 +1004,28 @@ interface SubmittedComment extends LampcmsResource
 	public function getExtraData();
 
 	public function getCollectionName();
+	
+	/**
+	 * Get name of the app that was used
+	 * for submitting this Comment
+	 * May also return an empty string in case
+	 * of API used with Basic Auth where user
+	 * credentials are passed to API but
+	 * there is not any app id
+	 * 
+	 * @return string 
+	 */
+	public function getApp();
+	
+	/**
+	 * Get ip of app that was used for submitting
+	 * this comment
+	 * 
+	 * @return mixed null if 'web' or
+	 * unregistere app (just like in case of Basic Auth) | int in case
+	 * of the actual registered app.
+	 * 
+	 */
+	public function getAppId();
 
 }

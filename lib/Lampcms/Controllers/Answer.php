@@ -72,7 +72,7 @@ class Answer extends Viewquestion
 
 	protected $membersOnly = true;
 
-	protected $aAllowedVars = array('qbody');
+	//protected $aAllowedVars = array('qbody');
 
 
 	protected function main(){
@@ -106,13 +106,18 @@ class Answer extends Viewquestion
 	}
 
 
+	/**
+	 * Process submitted Answer
+	 * 
+	 * @return void
+	 */
 	protected function process(){
 		$formVals = $this->oForm->getSubmittedValues();
 		d('formVals: '.print_r($formVals, 1));
 		$oAdapter = new AnswerParser($this->oRegistry);
 		try{
 			$oAnswer = $oAdapter->parse(new SubmittedAnswerWWW($this->oRegistry, $formVals));
-			d('cp created new question: '.print_r($oAnswer->getArrayCopy(), 1));
+			d('cp created new answer: '.print_r($oAnswer->getArrayCopy(), 1));
 			d('ans id: '.$oAnswer->getResourceId());
 
 			/**

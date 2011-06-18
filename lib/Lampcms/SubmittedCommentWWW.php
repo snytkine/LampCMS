@@ -169,7 +169,7 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 		return $this;
 	}
 
-	
+
 	/**
 	 * Create object of type Question or Answer
 	 *
@@ -443,5 +443,40 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 	public function getCollectionName(){
 
 		return $this->getResourceCollection();
+	}
+
+
+
+	/**
+	 * Get name of app used for submitting
+	 * this question
+	 * @return string
+	 */
+	public function getApp(){
+		return 'web';
+	}
+
+
+	/**
+	 * Get id of app used for submitting
+	 * this question
+	 * @return null
+	 */
+	public function getAppId(){
+		return null;
+	}
+
+
+	/**
+	 * Get id of link to app used for submitting
+	 * this question
+	 *
+	 * @return null
+	 */
+	public function getAppLink(){
+		$name = $this->getApp();
+		$id = $this->getAppId();
+
+		return (!empty($id) && !empty($name)) ? \sprintf('<a href="/app/%s" rel="nofollow" target="_blank">%s</a>', $id, $name) : null;
 	}
 }

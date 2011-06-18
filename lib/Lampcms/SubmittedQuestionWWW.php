@@ -133,6 +133,6 @@ class SubmittedQuestionWWW extends SubmittedQuestion
 	 * @return string
 	 */
 	public function getApp(){
-		return 'www';
+		return 'web';
 	}
 }
