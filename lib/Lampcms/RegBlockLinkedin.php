@@ -49,19 +49,19 @@
  *
  */
 
- 
+
 namespace Lampcms;
 
 /**
  * Class for generating html
- * for the block that is shown to 
+ * for the block that is shown to
  * newly registered user after
  * user joins with LinkedIn signin
- * 
+ *
  * The purpose of this html block
  * is to ask user to provide
  * an email address
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
@@ -78,13 +78,12 @@ class RegBlockLinkedin extends RegBlockTwitter
 		d('oViewer: '.print_r($this->oViewer, 1));
 
 		$aVals = array(
-		'LinkedIn',
-		$this->oViewer->getAvatarImgSrc(),
-		$this->oViewer['fn'].' '.$this->oViewer['ln']
+			'LinkedIn',
+			$this->oViewer->getAvatarImgSrc(),
+			$this->oViewer['fn'].' '.$this->oViewer['ln']
 		);
-		
+
 		$s = \tplAvatarblock::parse($aVals, false);
-		
 
 		return $s;
 	}

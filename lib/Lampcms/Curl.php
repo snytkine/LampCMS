@@ -414,11 +414,11 @@ class Curl extends LampcmsObject
 				break;
 
 			case 401:
-				$ex = new Http401Exception('Unauthorized login: '.$url);
+				$ex = new Http401Exception('Unauthorized login: '.$this->url);
 				break;
 
 			case 404:
-				$ex = new Http404Exception('page not found at this url: '.$url);
+				$ex = new Http404Exception('page not found at this url: '.$this->url);
 				break;
 
 			default:

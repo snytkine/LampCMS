@@ -72,13 +72,12 @@ class RegBlockQuickReg extends RegBlock
 	'usernameNote' => 'Username will appear alongside your posts');
 
 
-	protected function setUsernameVars()
-	{
+	protected function setUsernameVars(){
 		return $this;
 	}
 
-	protected function prepareVars()
-	{
+	
+	protected function prepareVars(){
 
 		$this->aVars = array(
 		'titleBar' => 'Welcome to '.$this->oRegistry->Ini->SITE_NAME,
@@ -131,14 +130,16 @@ class RegBlockQuickReg extends RegBlock
 		return $s;
 	}
 
+	
 	/**
 	 * Make html block for the external
 	 * auth providers icons with links
+	 * 
+	 * @todo add LinkedIn button!
 	 *
 	 * @return string html
 	 */
-	public function makeSocialAuthBlock($or = '<h2>-OR-</h2>')
-	{
+	public function makeSocialAuthBlock($or = '<h2>-OR-</h2>'){
 		$s = '';
 		$oIni = $this->oRegistry->Ini;
 		$GfcSiteID = $oIni->GFC_ID;

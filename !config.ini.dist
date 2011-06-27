@@ -412,6 +412,15 @@ questionSimilar = "\\Lampcms\\Modules\\Observers\\Similars"
 ; the Blogger API
 ;
 ;blogger = "\\Lampcms\\Modules\\Blogger\\PostBlogger"
+;
+; If linkedin filter is enabled (not commented out here)
+; then a checkbox to "Post to linkedin" will be
+; added to "Ask" and "Answer" forms
+; Make sure you actually enabled linkedin API integration
+; before enabling this filter otherwise it will not work
+; Check the [LINKEDIN] section of this file for enabling 
+; the LinkedIn API
+;linkedin = "\\Lampcms\\Modules\\Linkedin\\Share"
 
 ; EmailNotifier can take long to run
 ; it's best to put this filter as the last filter
