@@ -291,7 +291,7 @@ class ApiClient extends LampcmsObject
 	 *
 	 * Extract response from Oauth, examine
 	 * the http response code
-	 * In case of 401 code - revoe user's Tumblr Oauth credentials
+	 * In case of 401 code - revoke user's Tumblr Oauth credentials
 	 * @throws \Lampcms\DevException
 	 */
 	protected function getResponse(){

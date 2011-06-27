@@ -59,12 +59,15 @@ namespace Lampcms;
  *
  */
 
+use Lampcms\Interfaces\Answer;
+
 class User extends MongoDoc implements Interfaces\RoleInterface,
 Interfaces\User,
 Interfaces\TwitterUser,
 Interfaces\FacebookUser,
 Interfaces\TumblrUser,
-Interfaces\BloggerUser
+Interfaces\BloggerUser,
+Interfaces\LinkedinUser
 {
 
 	/**
@@ -85,15 +88,15 @@ Interfaces\BloggerUser
 	 * @var string
 	 */
 	protected $avtrSrc;
-	
+
 	/**
 	 * This is important to define
-	 * because in some rare cases 
+	 * because in some rare cases
 	 * the value
 	 * of $this->collectionName is lost
 	 * during serialization/unserialization
-	 * 
-	 * 
+	 *
+	 *
 	 * @var string
 	 */
 	protected $collectionName = 'USERS';
@@ -101,9 +104,9 @@ Interfaces\BloggerUser
 
 	/**
 	 * Factory method
-	 * 
+	 *
 	 * @param object $oRegistry Registry object
-	 * 
+	 *
 	 * @param array $a
 	 *
 	 * @return object of this class
@@ -197,7 +200,7 @@ Interfaces\BloggerUser
 	/**
 	 * Get full name of user
 	 * by concatinating first name, middle name, last name
-	 * 
+	 *
 	 * @return string full name
 	 */
 	public function getFullName(){
@@ -672,33 +675,36 @@ Interfaces\BloggerUser
 
 
 	/**
-	 * Get Location of user based on GeoIP data 
+	 * Get Location of user based on GeoIP data
 	 * (or data
 	 * that user has entered in profile, which will
 	 * override the GeoIP data that we get during
 	 * the registration)
-	 * 
+	 *
 	 * @return string
 	 */
 	public function getLocation(){
-		$country = $this->offsetGet('country');
+		$cc = $this->offsetGet('cc');
 		$state = $this->offsetGet('state');
 		$city = $this->offsetGet('city');
 		$hasCity = false;
 
 		$ret = '';
-		
+
 		if(!empty($city)){
 			$hasCity = true;
 			$ret .= $city;
 		}
-		
+
 		if(!empty($state) && !\is_numeric($state)){
 			$ret .= ($hasCity) ? ', '.$state : $state;
 		}
 
-		if(!empty($country)){
-			$ret .= ' '.$country;
+		if(!empty($cc)){
+			$aCountries = \array_combine(\Lampcms\Geoip::$COUNTRY_CODES, \Lampcms\Geoip::$COUNTRY_NAMES);
+			if (!empty($aCountries[$cc])){
+				$ret .= ' '.$aCountries[$cc];
+			}
 		}
 
 		return $ret;
@@ -1090,5 +1096,94 @@ Interfaces\BloggerUser
 			default:
 				parent::offsetSet($index, $newval);
 		}
+	}
+
+
+	/**
+	 * Get LinkedIn oAuth token
+	 *
+	 * @return mixed string | null if not found
+	 */
+	public function getLinkedinToken(){
+		$a = $this->offsetGet('linkedin');
+		if(empty($a) || empty($a['tokens'])){
+			return null;
+		}
+
+		return $a['tokens']['oauth_token'];
+	}
+
+
+	/**
+	 * Get LinkedIn oAuth sercret
+	 *
+	 * @return mixed string | null if not found
+	 */
+	public function getLinkedinSecret(){
+		$a = $this->offsetGet('linkedin');
+		if(empty($a) || empty($a['tokens'])){
+			return null;
+		}
+
+		return $a['tokens']['oauth_token_secret'];
+	}
+
+
+	/**
+	 * Revoke token and secret - remove
+	 * these values from User object
+	 *
+	 * @return object $this
+	 */
+	public function revokeLinkedinToken(){
+		$a = $this->offsetGet('linkedin');
+		if(!empty($a) && !empty($a['tokens'])){
+			$a['tokens'] = null;
+			$this->offsetSet('linkedin', $a);
+		}
+
+		return $this;
+	}
+
+
+	/**
+	 * Get html for the link to tumblr blog
+	 * @return string html of link
+	 */
+	public function getLinkedinUrl(){
+		$a = $this->offsetGet('linkedin');
+
+		return (empty($a) || empty($a['url'])) ? '' : $a['url'];
+	}
+
+	/**
+	 * Get html for the link to LinedIn Profile
+	 * @return string html of link
+	 */
+	public function getLinkedinLink(){
+		$url = $this->getLinkedinUrl();
+		d('url: '.$url);
+
+		$tpl = '<a href="%s" class="linkedin" rel="nofollow" target="_blank">%s</a>';
+
+		return (empty($url)) ? '' : \sprintf($tpl, $url, 'LinkedIn Profile');
+	}
+
+
+	/**
+	 * Get value of 'group' or 'private-id'
+	 * This is used for indicating which blog
+	 * the post will go to. It is needed
+	 * in case when user has more than one blog
+	 * on Linkedin.
+	 * If user has only one blog we still use this param
+	 * for consistancy
+	 *
+	 * @return string value to be used as 'group' param
+	 * in WRITE API call
+	 *
+	 */
+	public function getLinkedinId(){
+		return (string)$this->offsetGet('linkedin_id');
 	}
 }

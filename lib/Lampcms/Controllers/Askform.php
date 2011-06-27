@@ -120,6 +120,7 @@ class Askform extends WebPage
 	protected function addMetas(){
 		$this->addMetaTag('tm', (null !== $this->oRegistry->Viewer->getTumblrToken()));
 		$this->addMetaTag('blgr', (null !== $this->oRegistry->Viewer->getBloggerToken()));
+		$this->addMetaTag('linkedin', (null !== $this->oRegistry->Viewer->getLinkedInToken()));
 
 		return $this;
 	}
@@ -132,7 +133,7 @@ class Askform extends WebPage
 	 * @return object $this
 	 */
 	protected function makeForm(){
-		
+
 		$this->oForm = new \Lampcms\Forms\Askform($this->oRegistry);
 		if(!$this->oForm->isSubmitted()){
 			$this->oForm->socials = SocialCheckboxes::get($this->oRegistry);
@@ -149,7 +150,7 @@ class Askform extends WebPage
 	 * @return object $this
 	 */
 	protected function setForm(){
-		
+
 		/**
 		 * In case of Ajax can just return the form now
 		 */
@@ -208,7 +209,7 @@ class Askform extends WebPage
 	 * @return object $this
 	 */
 	protected function setMustLogin(){
-		
+
 		if(!$this->isLoggedIn()){
 			$this->oForm->qbody = 'Please login to post your question';
 			$this->oForm->com_hand = ' com_hand';
@@ -225,7 +226,7 @@ class Askform extends WebPage
 				$this->oForm->connectBlock = '<div class="com_connect"><h3>Join with account you already have</h3>'.$socialButtons.'</div>';
 			}
 		}
-		
+
 		return $this;
 	}
 

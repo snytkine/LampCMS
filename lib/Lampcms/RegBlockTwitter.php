@@ -65,16 +65,15 @@ class RegBlockTwitter extends RegBlock
 {
 
 
-	protected function prepareVars()
-	{
-		d('cp');
+	protected function prepareVars(){
+
 		$this->aVars = array(
 		'externalAccount' => $this->makeBlockExternal(),
 		/*'token' => $_SESSION['token'],*/
 		'title' => 'Welcome to '.$this->oRegistry->Ini->SITE_NAME,
 		'header2' => '<div class="step2">Step 2: Provide Email Address</div>'
 		);
-		d('cp');
+
 		$this->addUsernameBlock();
 		d('cp');
 		return $this;
@@ -86,8 +85,7 @@ class RegBlockTwitter extends RegBlock
 	 *
 	 * @return string html block
 	 */
-	protected function makeBlockExternal()
-	{
+	protected function makeBlockExternal(){
 		d('oViewer: '.print_r($this->oViewer, 1));
 
 		$aVals = array(

@@ -143,6 +143,19 @@ class SocialCheckboxes
 			$ret .= \tplSocialPost::parse($vars, false);
 		}
 
+
+		/**
+		 * Is has LinkedIn observer module
+		 */
+		if(true || array_key_exists('linkedin', $aFilters)){
+			$isLConnected = (null !== $oViewer->getLinkedInToken());
+			$checked = ($isLConnected && true === $oViewer['b_li']) ? ' checked' : '';
+			$label = sprintf($tpl, 'LinkedIn', \Lampcms\Points::SHARED_CONTENT);
+			$vars = array('linkedin', $label, $checked);
+			$ret .= \tplSocialPost::parse($vars, false);
+		}
+
+
 		d('ret: '.$ret);
 
 		return $ret;

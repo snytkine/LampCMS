@@ -115,8 +115,7 @@ class Ini extends LampcmsArray
 				return $tmpDir;
 			}
 
-			return \sys_get_temp_dir();
-			
+			return \sys_get_temp_dir();			
 		}
 
 

@@ -48,7 +48,7 @@ class tplAvatarblock extends Lampcms\Template\Template
 	<table class="tblext" cellpadding="0" cellspacing="0">
 	<tr>
 	<td class="avatar" width="64px">%2$s</td>
-	<td class="extname" valign="top">Your %1$s account:<br/><br/>%3$s</td>
+	<td class="extname" valign="top">Your %1$s account:<br><br>%3$s</td>
 	</tr>
 	</table>
 	</div>

@@ -1846,6 +1846,11 @@ YUI({
 			Twitter.startDance('/index.php?a=logintumblr', 680, 540);
 			break;
 			
+		case el.test('.add_linkedin'):
+			Y.log('clicked on .add_linkedin');
+			Twitter.startDance('/index.php?a=loginlinkedin', 640, 480);
+			break;
+			
 		case el.test('.add_blogger'):
 			Y.log('clicked on .add_blogger');
 			Twitter.startDance('/index.php?a=connectblogger', 680, 540);
@@ -3869,6 +3874,11 @@ YUI({
 				Y.log('3222 api_tumblr');
 				Twitter.startDance('/index.php?a=logintumblr', 800, 540);
 				break;
+				
+			case ((el.get('id') === 'api_linkedin') && ('1'  !== getMeta('linkedin'))):
+				Y.log('3879 api_linkedin');
+				Twitter.startDance('/index.php?a=loginlinkedin', 640, 480);
+				break;	
 				
 			case ((el.get('id') === 'api_blogger') && ('1'  !== getMeta('blgr'))):
 				Y.log('3227 api_blogger');

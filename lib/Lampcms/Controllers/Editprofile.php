@@ -167,7 +167,7 @@ class Editprofile extends WebPage
 		$this->oForm->ln = $this->oUser['ln'];
 		$this->oForm->gender = $this->getGenderOptions();
 		$this->oForm->dob = $this->oUser['dob'];
-		$this->oForm->country = $this->getCountryOptions();
+		$this->oForm->cc = $this->getCountryOptions();
 		$this->oForm->state = $this->oUser['state'];
 		$this->oForm->city = $this->oUser['city'];
 		$this->oForm->url = $this->oUser['url'];
@@ -221,18 +221,26 @@ class Editprofile extends WebPage
 	 * Generates string with <option></option> html elements
 	 * that will be used as html of the <select> dropdown
 	 * menu for Country selection
+	 * 
+	 * @todo use 'cc' key from USER as value
+	 * and country name only as label! Don NOT
+	 * set 'country' key at all!
+	 * For this we need an array that translates
+	 * 2-letter country code 'cc' to the full country name
 	 *
 	 * @return string html string
 	 */
 	protected function getCountryOptions(){
 		$s = '';
-		$current = $this->oRegistry->Viewer['country'];
+		$current = \strtoupper($this->oRegistry->Viewer['cc']);
 		$tpl = '<option value="%1$s"%2$s>%3$s</option>';
-		foreach(\Lampcms\Geoip::$COUNTRY_NAMES as $val){
-			$selected = (strtolower($current) == strtolower($val)) ? ' selected' : '';
+		$aCountries = \array_combine(\Lampcms\Geoip::$COUNTRY_CODES, \Lampcms\Geoip::$COUNTRY_NAMES);
+		
+		foreach($aCountries as $key => $val){
+			$selected = ($current == $key) ? ' selected' : '';
 			$name = (empty($val)) ? 'Select country' : $val;
 
-			$s .= vsprintf($tpl, array($val, $selected, $name));
+			$s .= \vsprintf($tpl, array($key, $selected, $name));
 		}
 
 		return $s;

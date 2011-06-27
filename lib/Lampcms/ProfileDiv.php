@@ -135,9 +135,10 @@ class ProfileDiv extends LampcmsObject
 			'age' => $this->oUser->getAge(),
 			'facebook' => '<div id="my_fb">'.$this->getFacebookAccount($isSameUser).'</div>',
 			'tumblr' => '<div id="my_tm">'.$this->getTumblrAccount($isSameUser).'</div>',
-			'blogger' => '<div id="my_tm">'.$this->getBloggerAccount($isSameUser).'</div>',
+			'blogger' => '<div id="my_bg">'.$this->getBloggerAccount($isSameUser).'</div>',
+			'linkedin' => '<div id="my_li">'.$this->getLinkedInAccount($isSameUser).'</div>',
 			'location' => $this->oUser->getLocation(),
-			'description' => \wordwrap($desc, 50),
+			'description' => \wordwrap($desc, 50), // @todo this is not unicode-safe! Must update it!
 			'editRole' => Usertools::getHtml($this->oRegistry, $this->oUser),
 			'followButton' => $this->makeFollowButton(),
 			'followers' => ShowFollowers::factory($this->oRegistry)->getUserFollowers($this->oUser),
@@ -238,6 +239,40 @@ class ProfileDiv extends LampcmsObject
 			$a = $this->oRegistry->Ini->getSection('BLOGGER');
 			if(!empty($a) && !empty($a['OAUTH_KEY']) && !empty($a['OAUTH_SECRET'])){
 				return '<div id="connect_blogger" class="add_blogger ajax ttt btn_connect rounded4" title="Connect Blogger.com Blog"><img src="/images/blogger_16.png" width="16" height="16"><span class="_bg_tw">Connect Blogger Blog</span></div>';
+			}
+		}
+
+		return '';
+	}
+	
+	
+	
+/**
+	 * Get either the link to Tumblr blog
+	 * if user has one
+	 * OR html for the button to connect Tumblr account
+	 * to Existing Account
+	 *
+	 *
+	 * @param object $oRegistry
+	 * @param object $oUser
+	 *
+	 * @return string html of Connect button
+	 * or link to user's Tumblr blog
+	 *
+	 */
+	public function getLinkedInAccount($isSameUser){
+
+		$t = $this->oUser->getLinkedinLink();
+		d('linkedIn url: '.$t);
+		if(!empty($t)){
+			return $t;
+		}
+
+		if($this->hasOauth && $isSameUser){
+			$a = $this->oRegistry->Ini->getSection('LINKEDIN');
+			if(!empty($a) && !empty($a['OAUTH_KEY']) && !empty($a['OAUTH_SECRET'])){
+				return '<div id="connect_linkedin" class="add_linkedin ajax ttt btn_connect rounded4" title="Connect LinkedIn Account"><img src="/images/linkedin_16.png" width="16" height="16"><span class="_bg_tw">Connect LinkedIn</span></div>';
 			}
 		}
 

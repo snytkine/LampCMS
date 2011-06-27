@@ -68,8 +68,8 @@
  	'dob' => '', //9
  	'dob_l' => 'Date of Birth', //10
  	'dob_d' => 'YYYY/MM/DD, only used for displaying age', //11
- 	'country' => '', // 12
- 	'country_l' => 'Country', //13
+ 	'cc' => '', // 12
+ 	'cc_l' => 'Country', //13
  	'state' => '', //14
  	'state_l' => 'State or Region', // 15
  	'city' => '', //16
@@ -142,7 +142,7 @@
 <tr><td>%29$s</td><td><select tabindex="13" name="gender" id="id_gender">%28$s</select></td></tr>
 <tr><td>%10$s</td><td><input tabindex="14" type="text" size="10" id="id_dob" name="dob" value="%9$s">
 <br><span class="f_err">%30$s</span><div id="dob_d" class="fl cb caption">%11$s</div></td></tr>
-<tr><td>%13$s</td><td><select  tabindex="15" name="country">%12$s</select></td></tr>
+<tr><td>%13$s</td><td><select  tabindex="15" name="cc">%12$s</select></td></tr>
 <tr><td>%15$s</td><td><input tabindex="16" type="text" size="35" id="id_state" name="state" value="%14$s"></td></tr>
 <tr><td>%17$s</td><td><input tabindex="17" type="text" size="35" id="id_city" name="city" value="%16$s"></td></tr>
 <tr><td>%19$s</td><td><input tabindex="18" type="text" size="7" id="id_zip" name="zip" value="%18$s"></td></tr>

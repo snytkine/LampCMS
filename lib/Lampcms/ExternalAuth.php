@@ -132,7 +132,7 @@ class ExternalAuth extends LampcmsObject
 	 * be used as our own username
 	 *
 	 */
-	protected function makeUsername($displayName){
+	public function makeUsername($displayName){
 		d('going to auto_create username based on displayName: '.$displayName);
 
 		/**

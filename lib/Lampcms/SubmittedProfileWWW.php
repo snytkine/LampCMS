@@ -73,7 +73,7 @@ class SubmittedProfileWWW extends SubmittedProfile
 	}
 
 	public function getCountry(){
-		return $this->oForm->getSubmittedValue('country');
+		return $this->oForm->getSubmittedValue('cc');
 	}
 
 	public function getState(){

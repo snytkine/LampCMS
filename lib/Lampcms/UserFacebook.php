@@ -82,10 +82,9 @@ class UserFacebook extends UserExternal
 	 * @return string the HTML code for image src which actually
 	 * includes 2 images - an avatar and a tiny facebook icon.
 	 */
-	public function getAvatarImgSrc($sSize = 'medium', $boolNoCache = false)
-	{
+	public function getAvatarImgSrc($sSize = 'medium', $boolNoCache = false){
 		$strAvatar = parent::getAvatarImgSrc($sSize, $boolNoCache);
-		$strAvatar .= '<img width="14" height="14" class="iconfb" alt="Facebook Connect User" src="/images/fb-user.gif" />';
+		$strAvatar .= '<img width="14" height="14" class="iconfb" alt="Facebook Connect User" src="/images/fb-user.gif">';
 
 		return $strAvatar;
 

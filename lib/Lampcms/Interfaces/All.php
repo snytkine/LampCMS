@@ -698,6 +698,61 @@ interface BloggerUser
 
 
 
+
+/**
+ * Linkedin user
+ * user who has connected
+ * Linkedin  account
+ *
+ * @author Dmitri Snytkine
+ *
+ */
+interface LinkedinUser
+{
+	/**
+	 * Get oAuth token
+	 * that we got from Twitter for this user
+	 * @return string
+	 */
+	public function getLinkedinToken();
+
+	/**
+	 * Get oAuth sercret that we got for this user
+	 * @return string
+	 */
+	public function getLinkedinSecret();
+
+	/**
+	 * Revoke token and secret - remove
+	 * these values from User object
+	 *
+	 */
+	public function revokeLinkedinToken();
+
+	/**
+	 * Get html for the link to tumblr blog
+	 * @return string html of link
+	 */
+	public function getLinkedinUrl();
+
+
+	/**
+	 * Get value of 'group' or 'private-id'
+	 * This is used for indicating which blog
+	 * the post will go to. It is needed
+	 * in case when user has more than one blog
+	 * on Linkedin.
+	 * If user has only one blog we still use this param
+	 * for consistancy
+	 *
+	 * @return string value to be used as 'group' param
+	 * in WRITE API call
+	 *
+	 */
+	public function getLinkedinId();
+
+}
+
 /**
  *
  * Enter description here ...

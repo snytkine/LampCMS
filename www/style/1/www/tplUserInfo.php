@@ -85,6 +85,8 @@ class tplUserInfo extends Lampcms\Template\Template
 	'tumblrLabel' => 'Tumblr', //31
 	'blogger' => '', //32
 	'bloggerLabel' => 'Blogger', //33
+	'linkedin' => '', //34
+	'linkedinLabel' => 'LinkedIn', //35
 	);
 	
 	
@@ -127,6 +129,10 @@ class tplUserInfo extends Lampcms\Template\Template
 	<tr>
 		<td class="ar">%16$s</td>
 		<td>%15$s</td>
+	</tr>
+	<tr>
+		<td class="ar">%35$s</td>
+		<td>%34$s</td>
 	</tr>
 	<tr>
 		<td class="ar">%31$s</td>

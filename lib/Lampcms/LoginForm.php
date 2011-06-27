@@ -212,6 +212,9 @@ class LoginForm
 			$socialBtns = '';
 			$gfcButton = $twitterButton = $fbButton = '';
 
+			/**
+			 * Facebook
+			 */
 			if(extension_loaded('curl') && isset($oIni->FACEBOOK)){
 				$aFB = $oIni['FACEBOOK'];
 
@@ -223,15 +226,32 @@ class LoginForm
 				}
 			}
 
+			/**
+			 * Twitter
+			 */
 			if(extension_loaded('oauth') && isset($oIni->TWITTER)){
-				//id="twsignin"
 				$aTW = $oIni['TWITTER'];
 				if(!empty($aTW['TWITTER_OAUTH_KEY']) && !empty($aTW['TWITTER_OAUTH_SECRET'])){
 					d('$aTW: '.print_r($aTW, 1));
-					$socialBtns .= '<img class="ajax twsignin hand ttt" src='.IMAGE_SITE.'"/images/t_32.png" width="32" height="32" alt="T" title="Sign in with Twitter account">';
+					$socialBtns .= '<img class="ajax twsignin hand ttt" src='.IMAGE_SITE.'"/images/t_32.png" width="32" height="32" alt="T" title="Sign in with Twitter Account">';
 				}
 			}
 
+
+			/**
+			 * LinkedIn
+			 */
+			if(extension_loaded('oauth') && isset($oIni->LINKEDIN)){
+				$aLI = $oIni['LINKEDIN'];
+				if(!empty($aLI['OAUTH_KEY']) && !empty($aLI['OAUTH_SECRET'])){
+					d('$aLI: '.print_r($aLI, 1));
+					$socialBtns .= '<img class="ajax add_linkedin hand ttt" src='.IMAGE_SITE.'"/images/linkedin_32.png" width="32" height="32" alt="T" title="Sign in with LinkedIn Account">';
+				}
+			}
+
+			/**
+			 * Google Friend Connect
+			 */
 			$GfcSiteID = $oIni->GFC_ID;
 			if(extension_loaded('curl') && !empty($GfcSiteID)){
 				d('cp '.strlen($gfcButton));

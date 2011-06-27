@@ -123,8 +123,7 @@ class RegBlock extends LampcmsObject
 	 *
 	 * @return object of this class or subclass
 	 */
-	public static function factory(Registry $oRegistry)
-	{
+	public static function factory(Registry $oRegistry){
 		$oViewer = $oRegistry->Viewer;
 		switch(true){
 			case ($oViewer instanceof UserTwitter):
@@ -133,6 +132,10 @@ class RegBlock extends LampcmsObject
 
 			case ($oViewer instanceof UserGfc):
 				$o = new RegBlockGfc($oRegistry);
+				break;
+
+			case ($oViewer instanceof UserLinkedin):
+				$o = new RegBlockLinkedin($oRegistry);
 				break;
 					
 			default:
@@ -148,8 +151,7 @@ class RegBlock extends LampcmsObject
 	 *
 	 * @return string HTML of registration block
 	 */
-	public function getBlock()
-	{
+	public function getBlock(){
 		$this->prepareVars()
 		->setUsernameVars()
 		->addUsernameBlock();
@@ -168,8 +170,7 @@ class RegBlock extends LampcmsObject
 	 *
 	 * @return object $this;
 	 */
-	protected function addUsernameBlock()
-	{
+	protected function addUsernameBlock(){
 		/*d('cp $this->aUsername: '.print_r($this->aUsername, 1));
 		 $this->aVars['usernameBlock'] = \tplUsernameblock::parse($this->aUsername, false);//vsprintf($this->tplUsername, $this->aUsername);
 		 d('$this->aVars[usernameBlock]: '.print_r($this->aVars['usernameBlock'], 1) );
@@ -184,14 +185,13 @@ class RegBlock extends LampcmsObject
 	 * values of 'username'
 	 * Enter description here ...
 	 */
-	protected function setUsernameVars()
-	{
+	protected function setUsernameVars(){
 		d('cp');
 		$this->aUsername = array('Username', $this->oViewer->username, 'Username will appear alongside your posts');
 		d('$this->aUsername: '.print_r($this->aUsername, 1));
 
 		$this->aVars['username'] = $this->oViewer['username'];
-		
+
 		return $this;
 	}
 
@@ -206,8 +206,7 @@ class RegBlock extends LampcmsObject
 	 * need to add Captcha image and hidden field
 	 * and extra input text field
 	 */
-	protected function prepareVars()
-	{
+	protected function prepareVars(){
 
 		return $this;
 	}

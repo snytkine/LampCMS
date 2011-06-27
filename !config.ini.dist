@@ -475,3 +475,14 @@ DAILY_LIMIT_USER = 10000
 ; Max file size for the app icon upload
 ; defaults to 700Kb (my be in bytes)
 MAX_ICON_UPLOAD_SIZE = 700000;
+
+
+;
+; Oauth token and secret
+; for Linkedin API
+; Get them here (register your app there)
+; https://www.linkedin.com/secure/developer
+;
+[LINKEDIN]
+;OAUTH_KEY = 
+;OAUTH_SECRET = 

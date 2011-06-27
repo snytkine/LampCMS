@@ -102,8 +102,7 @@ class Join extends Register
 	 * On validation errors send back 'error' messages
 	 * in ajax response
 	 */
-	public function main()
-	{
+	public function main(){
 		$this->checkUsername()
 		->validateEmail()
 		->createEmailRecord()
@@ -114,6 +113,7 @@ class Join extends Register
 		$this->setReturn();
 	}
 
+	
 	/**
 	 * Update the viewer object
 	 * with the new values
@@ -121,8 +121,8 @@ class Join extends Register
 	 *
 	 * @return object $this
 	 */
-	protected function updateViewer()
-	{
+	protected function updateViewer(){
+		
 		$currentRole = $this->oRegistry->Viewer->getRoleId();
 		d('$currentRole: '.$currentRole);
 
@@ -213,8 +213,7 @@ class Join extends Register
 	 * and send html for that form!
 	 *
 	 */
-	protected function setReturn()
-	{
+	protected function setReturn(){
 		$tpl = '
 	<h1>Welcome to %s!</h1>
 	<p class="larger">We have just emailed you 
@@ -248,8 +247,7 @@ class Join extends Register
 	 *
 	 * @return object $this
 	 */
-	protected function checkUsername()
-	{
+	protected function checkUsername(){
 		if(empty($this->oRequest['username'])){
 
 			return $this;
@@ -296,8 +294,7 @@ class Join extends Register
 	 *
 	 * @return object $this
 	 */
-	protected function validateEmail()
-	{
+	protected function validateEmail(){
 
 		$email = strtolower($this->oRequest['email']);
 		if(false === Validate::email( $email )){

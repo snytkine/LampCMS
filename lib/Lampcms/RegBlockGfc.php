@@ -52,7 +52,19 @@
  
 namespace Lampcms;
 
-
+/**
+ * Class for generating html
+ * for the block that is shown to 
+ * newly registered user after
+ * user joins with Google Friend Connect
+ * 
+ * The purpose of this html block
+ * is to ask user to provide
+ * an email address
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class RegBlockGfc extends RegBlockTwitter
 {
 
@@ -62,16 +74,15 @@ class RegBlockGfc extends RegBlockTwitter
 	 *
 	 * @return string html block
 	 */
-	protected function makeBlockExternal()
-	{
+	protected function makeBlockExternal(){
 		d('oViewer: '.print_r($this->oViewer, 1));
 
 		$aVals = array(
 		'Friend Connect',
 		$this->oViewer->getAvatarImgSrc(),
-		$this->oViewer->fn
+		$this->oViewer['fn']
 		);
-		d('cp');
+
 		$s = \tplAvatarblock::parse($aVals, false);
 		d('$s: '.$s);
 

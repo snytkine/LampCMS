@@ -99,15 +99,15 @@ class ProfileParser extends LampcmsObject
 		$this->oUser = $oUser;
 		$this->oSubmitted = $o;
 
-		$oUser['fn'] = $this->getClean($o->getFirstName())->substr(0, 60)->valueOf();
-		$oUser['mn'] = $this->getClean($o->getMiddleName())->substr(0, 60)->valueOf();
-		$oUser['ln'] = $this->getClean($o->getLastName())->substr(0, 80)->valueOf();
-		$oUser['country'] = $this->getClean($o->getCountry())->substr(0, 60)->valueOf();
+		$oUser['fn'] 	= $this->getClean($o->getFirstName())->substr(0, 60)->valueOf();
+		$oUser['mn'] 	= $this->getClean($o->getMiddleName())->substr(0, 60)->valueOf();
+		$oUser['ln'] 	= $this->getClean($o->getLastName())->substr(0, 80)->valueOf();
+		$oUser['cc'] 	= $this->getClean($o->getCountry())->valueOf();
 		$oUser['state'] = $this->getClean($o->getState())->substr(0, 50)->valueOf();
-		$oUser['city'] = $this->getClean($o->getCity())->substr(0, 80)->valueOf();
-		$oUser['url'] = $this->getUrl($this->getClean($o->getUrl()));
-		$oUser['zip'] = $this->getClean($o->getZip())->substr(0, 8)->valueOf();
-		$oUser['dob'] = $this->getDob($o->getDob());
+		$oUser['city'] 	= $this->getClean($o->getCity())->substr(0, 80)->valueOf();
+		$oUser['url'] 	= $this->getUrl($this->getClean($o->getUrl()));
+		$oUser['zip'] 	= $this->getClean($o->getZip())->substr(0, 8)->valueOf();
+		$oUser['dob'] 	= $this->getDob($o->getDob());
 		$oUser['gender'] = $this->getGender($o->getGender());
 		$oUser['description'] = \wordwrap($this->getClean($o->getDescription())->substr(0, 2000)->valueOf(), 50);
 		

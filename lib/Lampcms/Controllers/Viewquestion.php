@@ -193,7 +193,7 @@ class Viewquestion extends WebPage
 		$this->oRegistry->Dispatcher->post($this->oQuestion, 'onQuestionView');
 	}
 
-	
+
 	/**
 	 * Add extra meta tags to indicate
 	 * that user has or does not have
@@ -204,7 +204,8 @@ class Viewquestion extends WebPage
 	protected function addMetas(){
 		$this->addMetaTag('tm', (null !== $this->oRegistry->Viewer->getTumblrToken()));
 		$this->addMetaTag('blgr', (null !== $this->oRegistry->Viewer->getBloggerToken()));
-
+		$this->addMetaTag('linkedin', (null !== $this->oRegistry->Viewer->getLinkedInToken()));
+		
 		return $this;
 	}
 
