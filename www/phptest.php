@@ -135,14 +135,15 @@ $aOptional = array(
 'pdo_mysql' => 'Will not be able to use "Similar Questions" feature.', 
 'tidy' => 'Will NOT be able to fix bad html strings if user submits bad html', 
 'curl' => 'Will not be able to connect to external APIs like Facebook and Twitter or any other', 
-'oauth' => 'Will not be able to use Twitter API',
-'apc' => 'Will not be able to take advantage of script caching to gain up to 500% improvement in script loading time'
+'oauth' => 'Will not be able to use Twitter, LinkedIn, Blogger and Tumblr API features',
+'apc' => 'Will not be able to take advantage of script caching to gain up to 300% improvement in script loading time'
 );
 
+function myfilter(&$val, $key){
+	$val = strtolower($val);
+}
 $aInstalled = get_loaded_extensions();
-array_walk($aInstalled, function(&$i){
-	$i = strtolower($i);
-});
+array_walk($aInstalled, 'myfilter');
 
 
 foreach($aRequired as $ext => $err){

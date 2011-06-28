@@ -163,11 +163,12 @@ class Gravatar
 	 *
 	 * @param string $email
 	 */
-	protected function __construct($email)
-	{
+	protected function __construct($email){
+		
 		$this->setEmail($email);
 	}
 
+	
 	/**
 	 * Factory method.
 	 * Only this method can be used
@@ -179,8 +180,7 @@ class Gravatar
 	 * @param string $rating
 	 * @return object object of this class
 	 */
-	public static function factory($email, $size = '75', $fallback = 'wavatar', $rating = 'g')
-	{
+	public static function factory($email, $size = '75', $fallback = 'wavatar', $rating = 'g'){
 		if (false === filter_var($email, FILTER_VALIDATE_EMAIL)) {
 			throw new \InvalidArgumentException('Invalid value of $email: '.$email);
 		}
@@ -197,9 +197,9 @@ class Gravatar
 		->setFallback($fallback);
 
 		return $o;
-
 	}
 
+	
 	/**
 	 * Sets $this->email, and $this->emailHash
 	 * and unsets $this->url, $this->gravatar
@@ -210,8 +210,7 @@ class Gravatar
 	 * fails validation by php's built in
 	 * email validation filter FILTER_VALIDATE_EMAIL
 	 */
-	public function setEmail($email)
-	{
+	public function setEmail($email){
 		if (false === filter_var($email, FILTER_VALIDATE_EMAIL)) {
 			throw new \InvalidArgumentException('Invalid value of $email: '.$email);
 		}
@@ -224,6 +223,7 @@ class Gravatar
 		return $this;
 	}
 
+	
 	/**
 	 * Setter for $this->protocol
 	 * one of http or https
@@ -233,8 +233,7 @@ class Gravatar
 	 * @throws InvalidArgumentExceptions in case
 	 * passed name of protocol is not http and not https
 	 */
-	public function setProtocol($protocol = 'http')
-	{
+	public function setProtocol($protocol = 'http'){
 		$aAllowed = array('http', 'https');
 		if(!in_array($protocol, $aAllowed)){
 			throw new \InvalidArgumentException('Invalid value of $ext: '.$protocol.' can only be one of these: '.implode(' , ', $aAllowed));
@@ -245,6 +244,7 @@ class Gravatar
 		return $this;
 	}
 
+	
 	/**
 	 * Setter for $this->ext image extension
 	 * of of jpg, png or gif
@@ -256,8 +256,7 @@ class Gravatar
 	 * passed is not one of 3 supported image
 	 * extensions
 	 */
-	public function setExt($ext)
-	{
+	public function setExt($ext){
 		$aAllowed = array('jpg', 'png', 'gif');
 		if(!in_array($ext, $aAllowed)){
 			throw new \InvalidArgumentException('Invalid value of $ext: '.$ext.' can only be one of these: '.implode(' , ', $aAllowed));
@@ -277,8 +276,7 @@ class Gravatar
 	 * @throws InvalidArgumentException in case value
 	 * passed in not one of supported ratings
 	 */
-	public function setRating($rating)
-	{
+	public function setRating($rating){
 		$aRatings = array('g', 'pg', 'r', 'x');
 		$rating = strtolower($rating);
 
@@ -300,8 +298,7 @@ class Gravatar
 	 *
 	 * @return object $this
 	 */
-	public function setSize($size)
-	{
+	public function setSize($size){
 		if(!is_numeric($size)){
 			throw new UnexpectedValueException('value of $size must be numeric, was: '.$size);
 		}
@@ -328,8 +325,7 @@ class Gravatar
 	 * 
 	 * @return object $this
 	 */
-	public function setFallback($fallback)
-	{
+	public function setFallback($fallback){
 		$aAllowed = array('identicon', 'monsterid', 'wavatar', '404');
 		if(('http' !== substr($fallback, 0, 4))   && !in_array($fallback, $aAllowed)){
 			throw new \InvalidArgumentException('Invalid value of $fallback: '.$fallback.' can only be one of these: '.implode(' , ', $aAllowed).' or must be a url that starts with http');
@@ -346,8 +342,7 @@ class Gravatar
 	 *
 	 * @return object $this
 	 */
-	public function setAvatarUrl()
-	{
+	public function setAvatarUrl(){
 		$this->url = vsprintf(self::BASE_URL, array($this->protocol, $this->emailHash, $this->size, $this->fallback, $this->rating ));
 
 		return $this;
@@ -358,8 +353,7 @@ class Gravatar
 	 * Getter for $this->url
 	 * @return string value of $this->url
 	 */
-	protected function getUrl()
-	{
+	protected function getUrl(){
 		return $this->url;
 	}
 
@@ -375,8 +369,7 @@ class Gravatar
 	 * @return string value of $this->gravatarExists
 	 * which is either 'Y' or 'N' or 'U'
 	 */
-	public function hasGravatar()
-	{
+	public function hasGravatar(){
 		return $this->setFallback('404')
 		->setSize(25)
 		->setAvatarUrl()
@@ -392,8 +385,7 @@ class Gravatar
 	 * @param $etag
 	 * @return unknown_type
 	 */
-	public function fetchGravatar($since = null, $etag = null)
-	{
+	public function fetchGravatar($since = null, $etag = null){
 		
 		$oHTTP = new Curl();
 
@@ -429,8 +421,7 @@ class Gravatar
 	 * or string (binary string) of the
 	 * avatar image.
 	 */
-	public function getGravatar()
-	{
+	public function getGravatar(){
 
 		if(!isset($this->gravatarExists)){
 			$this->fetchGravatar();
