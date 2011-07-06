@@ -48,18 +48,19 @@
  * @author Dmitri Snytkine
  *
  */
-class tplQtypesdiv extends Lampcms\Template\Template
+class tplQtypesdiv extends \Lampcms\Template\Template
 {
 	protected static $vars = array(
-	'newest_c' => '',
-	'voted_c' => '',
-	'active_c' => '',
-	'newest' => 'Newest',
-	'newest_t' => 'Most recent questions',
-	'voted' => 'Most Voted',
-	'voted_t' => 'Questions with most votes',
-	'active' => 'Most Active',
-	'active_t' => 'Questions with most activity');
+	'newest_c' => '', //1
+	'voted_c' => '', //2
+	'active_c' => '', //3
+	'newest' => 'Newest', //4
+	'newest_t' => 'Most recent questions', //5
+	'voted' => 'Most Voted', //6
+	'voted_t' => 'Questions with most votes', //7
+	'active' => 'Most Active', //8
+	'active_t' => 'Questions with most activity' //9
+	);
 
 	protected static $tpl = '
 	<div id="qtypes">
@@ -67,4 +68,5 @@ class tplQtypesdiv extends Lampcms\Template\Template
 	<a href="/voted/" rel="nofollow" class="ttt2 qtype%2$s" title="%7$s"><span rel="in">%6$s</span></a>
 	<a href="/active/" rel="nofollow" class="ttt2 qtype%3$s" title="%9$s"><span rel="in">%8$s</span></a>
 	</div>';
+	
 }

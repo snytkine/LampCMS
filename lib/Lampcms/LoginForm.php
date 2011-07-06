@@ -221,7 +221,7 @@ class LoginForm
 				if(!empty($aFB['APP_ID'])){
 					//id="fbsignup"
 					d('$aFB: '.print_r($aFB, 1));
-					$socialBtns .= '<img class="ajax fbsignup hand ttt" src='.IMAGE_SITE.'"/images/f_32.png" width="32" height="32" alt="F" title="Sign in with your Facebook account">';
+					$socialBtns .= '<img class="ajax fbsignup hand ttt" src='.LAMPCMS_IMAGE_SITE.'"/images/f_32.png" width="32" height="32" alt="F" title="Sign in with your Facebook account">';
 
 				}
 			}
@@ -233,7 +233,7 @@ class LoginForm
 				$aTW = $oIni['TWITTER'];
 				if(!empty($aTW['TWITTER_OAUTH_KEY']) && !empty($aTW['TWITTER_OAUTH_SECRET'])){
 					d('$aTW: '.print_r($aTW, 1));
-					$socialBtns .= '<img class="ajax twsignin hand ttt" src='.IMAGE_SITE.'"/images/t_32.png" width="32" height="32" alt="T" title="Sign in with Twitter Account">';
+					$socialBtns .= '<img class="ajax twsignin hand ttt" src='.LAMPCMS_IMAGE_SITE.'"/images/t_32.png" width="32" height="32" alt="T" title="Sign in with Twitter Account">';
 				}
 			}
 
@@ -245,7 +245,7 @@ class LoginForm
 				$aLI = $oIni['LINKEDIN'];
 				if(!empty($aLI['OAUTH_KEY']) && !empty($aLI['OAUTH_SECRET'])){
 					d('$aLI: '.print_r($aLI, 1));
-					$socialBtns .= '<img class="ajax add_linkedin hand ttt" src='.IMAGE_SITE.'"/images/linkedin_32.png" width="32" height="32" alt="T" title="Sign in with LinkedIn Account">';
+					$socialBtns .= '<img class="ajax add_linkedin hand ttt" src='.LAMPCMS_IMAGE_SITE.'"/images/linkedin_32.png" width="32" height="32" alt="T" title="Sign in with LinkedIn Account">';
 				}
 			}
 
@@ -256,7 +256,7 @@ class LoginForm
 			if(extension_loaded('curl') && !empty($GfcSiteID)){
 				d('cp '.strlen($gfcButton));
 
-				$socialBtns .= '<img class="ajax gfcsignin hand ttt" src='.IMAGE_SITE.'"/images/google_32.png" width="32" height="32" alt="Google" title="Sign in with Google"><img class="ajax gfcsignin hand ttt" src='.IMAGE_SITE.'"/images/openid_32.png" width="32" height="32" alt="Open ID" title="Sign in with OpenID"><img class="ajax gfcsignin hand ttt" src='.IMAGE_SITE.'"/images/aim_32.png" width="32" height="32" alt="AIM" title="Sign in with AOL"><img class="ajax gfcsignin hand ttt" src='.IMAGE_SITE.'"/images/yahoo_32.png" width="32" height="32" alt="Yahoo" title="Sign in with Yahoo">';
+				$socialBtns .= '<img class="ajax gfcsignin hand ttt" src='.LAMPCMS_IMAGE_SITE.'"/images/google_32.png" width="32" height="32" alt="Google" title="Sign in with Google"><img class="ajax gfcsignin hand ttt" src='.LAMPCMS_IMAGE_SITE.'"/images/openid_32.png" width="32" height="32" alt="Open ID" title="Sign in with OpenID"><img class="ajax gfcsignin hand ttt" src='.LAMPCMS_IMAGE_SITE.'"/images/aim_32.png" width="32" height="32" alt="AIM" title="Sign in with AOL"><img class="ajax gfcsignin hand ttt" src='.LAMPCMS_IMAGE_SITE.'"/images/yahoo_32.png" width="32" height="32" alt="Yahoo" title="Sign in with Yahoo">';
 			}
 
 			$_SESSION['social_buttons'] = $socialBtns;

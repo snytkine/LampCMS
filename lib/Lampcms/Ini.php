@@ -163,7 +163,7 @@ class Ini extends LampcmsArray
 			case 'THUMB_IMG_SITE':
 			case 'ALBUM_THUMB_SITE':
 			case 'ORIG_IMG_SITE':
-			case 'AVATAR_IMG_SITE':
+			case 'LAMPCMS_AVATAR_IMG_SITE':
 			case 'IMG_SITE':
 			case 'JS_SITE':
 			case 'CSS_SITE':
@@ -293,8 +293,8 @@ class Ini extends LampcmsArray
 			$a['ORIG_IMG_SITE']= $origSite;
 		}
 
-		if('' !== $avatarSite = $this->AVATAR_IMG_SITE){
-			$a['AVATAR_IMG_SITE']= $avatarSite;
+		if('' !== $avatarSite = $this->LAMPCMS_AVATAR_IMG_SITE){
+			$a['LAMPCMS_AVATAR_IMG_SITE']= $avatarSite;
 		}
 
 		if('' !== $cssSite = $this->CSS_SITE){

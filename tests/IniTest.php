@@ -173,13 +173,13 @@ class IniTest extends LampcmsUnitTestCase
 	 */
 	public function testCookieSalt(){
 		try{
-			$v = $this->oIni->COOKIE_SALT;
+			$v = $this->oIni->LAMPCMS_COOKIE_SALT;
 		} catch(IniException $e){
 			$this->fail($e->getMessage());
 		}
 
 		if(empty($v)){
-			$this->fail('Value of COOKIE_SALT in !config.inc cannot be empty');
+			$this->fail('Value of LAMPCMS_COOKIE_SALT in !config.inc cannot be empty');
 		}
 	}
 

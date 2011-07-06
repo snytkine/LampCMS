@@ -54,8 +54,8 @@ function exception_handler($e){
 	try {
 		$err =  Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
 		$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';
-		if(strlen(trim(constant('DEVELOPER_EMAIL'))) > 1){
-			@mail(DEVELOPER_EMAIL, 'ErrorHandle in inc.php', $err.$extra);
+		if(defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 1){
+			@mail(LAMPCMS_DEVELOPER_EMAIL, 'ErrorHandle in inc.php', $err.$extra);
 		}
 		exit ($err);
 	}catch(\Exception $e) {
@@ -161,7 +161,7 @@ function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
 		 * error reporting mask, then throw an ErrorException
 		 */
 		if ($errLevel & $errno) {
-			//d('cp');
+			
 			throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
 		}
 	}
@@ -182,18 +182,20 @@ try{
 	$dataDir = rtrim($dataDir, '/');
 
 	define('LAMPCMS_WWW_DIR', LAMPCMS_PATH.DIRECTORY_SEPARATOR.\Lampcms\WWW_DIR.DIRECTORY_SEPARATOR);
-	define('DEVELOPER_EMAIL', $oINI->EMAIL_DEVELOPER);
+	define('LAMPCMS_DEVELOPER_EMAIL', $oINI->EMAIL_DEVELOPER);
 	define('LAMPCMS_SALT', $oINI->SALT);
-	define('COOKIE_SALT', $oINI->COOKIE_SALT);
-	define('DEFAULT_LANG', $oINI->DEFAULT_LANG);
-	define('COOKIE_DOMAIN', $oINI->COOKIE_DOMAIN );
-	define('IMAGE_SITE', $oINI->IMAGE_SITE);
+	define('LAMPCMS_COOKIE_SALT', $oINI->COOKIE_SALT);
+	define('LAMPCMS_DEFAULT_LANG', $oINI->DEFAULT_LANG);
+	define('LAMPCMS_DEFAULT_LOCALE', $oINI->DEFAULT_LOCALE);
+	define('LAMPCMS_TR_DIR', $oINI->TRANSLATIONS_DIR);
+	define('LAMPCMS_COOKIE_DOMAIN', $oINI->COOKIE_DOMAIN );
+	define('LAMPCMS_IMAGE_SITE', $oINI->IMAGE_SITE);
 	$geofile = trim($oINI->GEOIP_FILE);
 	if(!empty($geofile)){
-		define('GEOIP_FILE', $geofile);
+		define('LAMPCMS_GEOIP_FILE', $geofile);
 	}
 	
-	define('AVATAR_IMG_SITE', $oINI->AVATAR_IMG_SITE);
+	define('LAMPCMS_AVATAR_IMG_SITE', $oINI->AVATAR_IMG_SITE);
 
 	if (!empty($dataDir)) {
 		define('LAMPCMS_DATA_DIR', $dataDir.DIRECTORY_SEPARATOR);
@@ -260,7 +262,7 @@ if((true === LAMPCMS_DEBUG) && ('' !== LOG_FILE_PATH) && (true === (bool)$oINI->
  * has been defined
  */
 function d($message){
-	if(true === LAMPCMS_DEBUG){
+	if(defined('LAMPCMS_DEBUG') && true === LAMPCMS_DEBUG){
 		\Lampcms\Log::d($message, 2);
 	}
 }

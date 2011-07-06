@@ -76,7 +76,7 @@ class SplClassLoader
 	private $_includePath;
 	private $_namespaceSeparator = '\\';
 
-	
+
 	/**
 	 * Creates a new <tt>SplClassLoader</tt> that loads classes of the
 	 * specified namespace.
@@ -88,7 +88,7 @@ class SplClassLoader
 		$this->_includePath = $includePath;
 	}
 
-	
+
 	/**
 	 * Sets the namespace separator used by classes in the namespace of this class loader.
 	 *
@@ -98,7 +98,7 @@ class SplClassLoader
 		$this->_namespaceSeparator = $sep;
 	}
 
-	
+
 	/**
 	 * Gets the namespace seperator used by classes in the namespace of this class loader.
 	 *
@@ -108,7 +108,7 @@ class SplClassLoader
 		return $this->_namespaceSeparator;
 	}
 
-	
+
 	/**
 	 * Sets the base include path for all class files in the namespace of this class loader.
 	 *
@@ -118,7 +118,7 @@ class SplClassLoader
 		$this->_includePath = $includePath;
 	}
 
-	
+
 	/**
 	 * Gets the base include path for all class files in the namespace of this class loader.
 	 *
@@ -128,7 +128,7 @@ class SplClassLoader
 		return $this->_includePath;
 	}
 
-	
+
 	/**
 	 * Sets the file extension of class files in the namespace of this class loader.
 	 *
@@ -138,7 +138,7 @@ class SplClassLoader
 		$this->_fileExtension = $fileExtension;
 	}
 
-	
+
 	/**
 	 * Gets the file extension of class files in the namespace of this class loader.
 	 *
@@ -148,7 +148,7 @@ class SplClassLoader
 		return $this->_fileExtension;
 	}
 
-	
+
 	/**
 	 * Installs this class loader on the SPL autoload stack.
 	 */
@@ -156,7 +156,7 @@ class SplClassLoader
 		\spl_autoload_register(array($this, 'loadClass'));
 	}
 
-	
+
 	/**
 	 * Uninstalls this class loader from the SPL autoloader stack.
 	 */
@@ -164,7 +164,7 @@ class SplClassLoader
 		\spl_autoload_unregister(array($this, 'loadClass'));
 	}
 
-	
+
 	/**
 	 * Loads the given class or interface.
 	 *
@@ -180,12 +180,22 @@ class SplClassLoader
 				$className = \substr($className, $lastNsPos + 1);
 				$fileName = \str_replace($this->_namespaceSeparator, DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
 			}
-			
+
 			$fileName .= \str_replace('_', DIRECTORY_SEPARATOR, $className) . $this->_fileExtension;
 
 			d('looking for class: '.$className);
-			
-			require($this->_includePath !== null ? $this->_includePath . DIRECTORY_SEPARATOR : '') . $fileName;
+
+			$reqfile = ($this->_includePath !== null ? $this->_includePath . DIRECTORY_SEPARATOR : '') . $fileName;
+
+			if(defined('LAMPCMS_DEBUG') &&  true === constant('LAMPCMS_DEBUG')){
+				if(false === @include($reqfile)){
+					$arrBacktrace = debug_backtrace(false);
+					$err = '<strong>File not found</strong>: '.$reqfile."\nBacktrace: ".print_r($arrBacktrace, 1);
+					exit($err);
+				}
+			} else {
+				require $reqfile;
+			}
 		}
 	}
 }

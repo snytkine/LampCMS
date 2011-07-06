@@ -344,7 +344,7 @@ class ExternalAuthFb extends Facebook
 			d('existing user $this->oUser: '.print_r($this->oUser->getArrayCopy(), 1));
 			$this->updateUser()->updateFbUserRecord();
 			d('cp');
-				
+
 			return $this->oUser;
 		}
 
@@ -608,6 +608,11 @@ class ExternalAuthFb extends Facebook
 		 */
 		$lang = (!empty($this->aFbUserData['locale'])) ? \strtolower(\substr($this->aFbUserData['locale'], 0, 2)) : $this->oRegistry->getCurrentLang();
 
+		/**
+		 * User locale
+		 * @var string
+		 */
+		$locale = (!empty($this->aFbUserData['locale'])) ? $this->aFbUserData['locale'] : $this->oRegistry->getLocale();
 
 		$this->tempPassword = String::makePasswd();
 
@@ -661,7 +666,7 @@ class ExternalAuthFb extends Facebook
 
 			$aUser = \array_merge($aUser, $aProfile);
 		}
-		
+
 		if(!empty($this->aFbUserData['locale'])){
 			$aUser['locale'] = $this->aFbUserData['locale'];
 		}

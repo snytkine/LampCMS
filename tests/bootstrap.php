@@ -111,13 +111,13 @@
  */
 define('LAMPCMS_DEBUG', false);
 define('LAMPCMS_SALT', 'abcde');
-define('COOKIE_SALT', 'abcde');
+define('LAMPCMS_COOKIE_SALT', 'abcde');
 
 define('DEFAULT_LANG', 'en');
-define('COOKIE_DOMAIN', '' );
+define('LAMPCMS_COOKIE_DOMAIN', '' );
 define('SITE_URL', '' );
-define('IMAGE_SITE', 'http://img.lampcms.com');
-define('AVATAR_IMG_SITE', 'http://img.lampcms.com');
+define('LAMPCMS_IMAGE_SITE', 'http://img.lampcms.com');
+define('LAMPCMS_AVATAR_IMG_SITE', 'http://img.lampcms.com');
 /**
  * This is very important!
  * Use test databases!

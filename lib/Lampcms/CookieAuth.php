@@ -154,7 +154,7 @@ class CookieAuth extends UserAuth
 	 * Parse the value of uid cookie and
 	 * it must become an array of uid=>intUserId
 	 * and 's'=>saltedUid
-	 * then compare the uid+COOKIE_SALT hashed
+	 * then compare the uid+LAMPCMS_COOKIE_SALT hashed
 	 * must be equal to 's' value
 	 * if any of these steps fails, throw Exception
 	 *
@@ -189,7 +189,7 @@ class CookieAuth extends UserAuth
 		 */
 		$this->uid = (int)$this->uid;
 
-		$salt = COOKIE_SALT;
+		$salt = LAMPCMS_COOKIE_SALT;
 		d('cookie salt: '.$salt);
 
 		if($a['s'] !== \hash('sha256', $this->uid.$salt)){

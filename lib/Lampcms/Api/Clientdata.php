@@ -99,7 +99,7 @@ class Clientdata extends MongoDoc
 	public function getIcon($asHtml = true){
 		$s = $this->offsetGet('icon');
 
-		$s = (empty($s)) ? '/images/app2.png' : AVATAR_IMG_SITE.\Lampcms\PATH_WWW_IMG_AVATAR_SQUARE.$s;
+		$s = (empty($s)) ? '/images/app2.png' : LAMPCMS_AVATAR_IMG_SITE.\Lampcms\PATH_WWW_IMG_AVATAR_SQUARE.$s;
 
 		if(!$asHtml){
 			return $s;

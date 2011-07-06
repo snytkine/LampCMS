@@ -282,7 +282,7 @@ Interfaces\LinkedinUser
 				}
 				d('cp');
 
-				return IMAGE_SITE.'/images/avatar.png';
+				return LAMPCMS_IMAGE_SITE.'/images/avatar.png';
 			}
 
 			/**
@@ -292,7 +292,7 @@ Interfaces\LinkedinUser
 			 * like avatar from Twitter or FC or GFC
 			 *
 			 */
-			$this->avtrSrc = (0 === \strncmp($srcAvatar, 'http', 4)) ? $srcAvatar : AVATAR_IMG_SITE.PATH_WWW_IMG_AVATAR_SQUARE.$srcAvatar;
+			$this->avtrSrc = (0 === \strncmp($srcAvatar, 'http', 4)) ? $srcAvatar : LAMPCMS_AVATAR_IMG_SITE.PATH_WWW_IMG_AVATAR_SQUARE.$srcAvatar;
 
 			if (true === $noCache) {
 				$this->avtrSrc .= '?id=' . microtime(true); // helps browser to NOT cache this image
@@ -584,7 +584,7 @@ Interfaces\LinkedinUser
 	 * it will first check to make
 	 * sure the $tz is a valid timezone name
 	 *
-	 * @param unknown_type $tz
+	 * @param string $tz
 	 */
 	public function setTimezone($tz){
 		if(!\is_string($tz)){
@@ -594,9 +594,9 @@ Interfaces\LinkedinUser
 		$currentTz = \date_default_timezone_get();
 		if (false !== @\date_default_timezone_set( $tz )) {
 			parent::offsetSet('tz', $tz);
+		} else {
+			@\date_default_timezone_set($currentTz);
 		}
-
-		@\date_default_timezone_set($currentTz);
 
 		return $this;
 	}
@@ -610,6 +610,28 @@ Interfaces\LinkedinUser
 	 */
 	public function getTimezone(){
 		return $this->offsetGet('tz');
+	}
+
+
+	public function setLocale($locale){
+		if(!\is_string($locale)){
+			throw new \InvalidArgumentException('Param $locale must be a string');
+		}
+
+		if(2 !== strlen($locale) && (!preg_match('/[a-z]{2}_[A-Z]{2}/', $locale))){
+			throw new \InvalidArgumentException('Param $locale is invalid. Must be in a form on "en_US" format (2 letter lang followed by underscore followed by 2-letter country');
+		}
+		
+		parent::offsetSet('locale', $locale);
+		
+		return $this;
+	}
+	
+	
+	public function getLocale(){
+		$locale = $this->offsetGet('locale');
+		
+		return (!empty($locale)) ? $locale : LAMPCMS_DEFAULT_LOCALE;
 	}
 
 

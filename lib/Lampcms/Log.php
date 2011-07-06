@@ -74,7 +74,7 @@ class Log
 	const LOG_FILE_PATH = '';
 
 
-	const DEVELOPER_EMAIL = '';
+	const LAMPCMS_DEVELOPER_EMAIL = '';
 
 
 	/**
@@ -321,15 +321,15 @@ class Log
 
 	/**
 	 * Get email address of developer
-	 * if global constant DEVELOPER_EMAIL exists
+	 * if global constant LAMPCMS_DEVELOPER_EMAIL exists
 	 * then return it, otherwise return this class's
-	 * self::DEVELOPER_EMAIL
+	 * self::LAMPCMS_DEVELOPER_EMAIL
 	 *
 	 *
 	 * @return string email address of developer
 	 */
 	protected static function getDevEmail(){
-		return defined('DEVELOPER_EMAIL') ? DEVELOPER_EMAIL : self::DEVELOPER_EMAIL;
+		return defined('LAMPCMS_DEVELOPER_EMAIL') ? LAMPCMS_DEVELOPER_EMAIL : self::LAMPCMS_DEVELOPER_EMAIL;
 	}
 
 }

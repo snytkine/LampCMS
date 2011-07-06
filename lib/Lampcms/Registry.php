@@ -211,7 +211,7 @@ class Registry implements Interfaces\LampcmsObject
 
 	/**
 	 * Singleton pattern method
-	 * 
+	 *
 	 * Singleton is bad practice
 	 * We never rely on this method to get
 	 * this object -this object is always passed around
@@ -220,21 +220,21 @@ class Registry implements Interfaces\LampcmsObject
 	 * object that needs a registry is stored
 	 * in cache - it is serialized and when it
 	 * is unserialized we need to get instance of
-	 * Registry that is currently used by other 
+	 * Registry that is currently used by other
 	 * objects - it MUST be the same instance
-	 * 
-	 * That's why we must initially instantiate 
+	 *
+	 * That's why we must initially instantiate
 	 * this object using this method so later
-	 * any object can call Registry::getInstance() 
+	 * any object can call Registry::getInstance()
 	 * from unserialize() method and get the same object
-	 * 
+	 *
 	 * There is just no other way around it - no other
 	 * way to "wake up" serialized object and just give it
 	 * the same Registry object as already used by the rest
 	 * of the program.
-	 * 
+	 *
 	 * @return object instance of this class
-	 * 
+	 *
 	 */
 	public static function getInstance(){
 		if(!isset(self::$instance)){
@@ -300,15 +300,15 @@ class Registry implements Interfaces\LampcmsObject
 	 * then that object is alive as long as some
 	 * references point to it. Only the method
 	 * for instantiating it is destroyed!
-	 * 
+	 *
 	 * But any subsequent call to $Registry->someobject
 	 * will return null!
-	 * 
+	 *
 	 * Example:
 	 * $obj = $Registry->Ini;
 	 * unset($Registry->Ini);
 	 * The $obj is still alive!
-	 * 
+	 *
 	 * But $obj2 = $Registry->Ini; will return null
 	 *
 	 * @param string $var
@@ -325,7 +325,7 @@ class Registry implements Interfaces\LampcmsObject
 	 * $var => $val pair to this object
 	 *
 	 * @param string $var
-	 * 
+	 *
 	 * @param mixed $value
 	 */
 	public function __set($var, $value) {
@@ -335,11 +335,11 @@ class Registry implements Interfaces\LampcmsObject
 
 	/**
 	 * Magic getter
-	 * 
+	 *
 	 * @param string $service
-	 * 
+	 *
 	 * @return mixed null | object requested object
-	 * 
+	 *
 	 */
 	public function __get($service) {
 
@@ -371,7 +371,7 @@ class Registry implements Interfaces\LampcmsObject
 	 * Function can make use of one param $c
 	 * which will be replaced with instance of this object
 	 * when it's called
-	 * 
+	 *
 	 * @param function $callable
 	 */
 	public function asShared($callable) {
@@ -392,7 +392,7 @@ class Registry implements Interfaces\LampcmsObject
 	 * the value is computed in this order:
 	 * try $_SESSION['lang'],
 	 * try $_COOKIE['lang']
-	 * if still not found, use DEFAULT_LANG
+	 * if still not found, use LAMPCMS_DEFAULT_LANG
 	 * from config.ini
 	 *
 	 *
@@ -431,7 +431,7 @@ class Registry implements Interfaces\LampcmsObject
 			return $_COOKIE['lang'];
 		}
 
-		$defaultLang = DEFAULT_LANG;
+		$defaultLang = LAMPCMS_DEFAULT_LANG;
 
 		if (isset($_COOKIE)) {
 			$_COOKIE['lang'] = $defaultLang;
@@ -442,6 +442,68 @@ class Registry implements Interfaces\LampcmsObject
 		}
 
 		return $defaultLang;
+	}
+
+
+	public function getLocale(){
+		$oViewer = $this->__get('Viewer');
+
+		/**
+		 * If Viewer is not a guest then
+		 * get value of locale from Viewer object
+		 */
+		if(is_object($oViewer) && !$oViewer->isGuest()){
+
+			return $oViewer->offsetGet('locale');
+		}
+
+		/*if (isset($_SESSION) && !empty($_SESSION['locale'])) {
+			return $_SESSION['locale'];
+			}*/
+
+		if (isset($_COOKIE) && !empty($_COOKIE['locale'])) {
+			//$_SESSION['locale'] = $_COOKIE['locale'];
+
+			return $_COOKIE['locale'];
+		}
+
+		$default = LAMPCMS_DEFAULT_LOCALE;
+
+		if (isset($_SESSION)) {
+			$_SESSION['locale'] = $default;
+		}
+
+		return $default;
+	}
+
+
+	/**
+	 * If there is a Cookie 'locale' then
+	 * set it to Viewer's locale only if
+	 * Viewer is not guest and Viewer's locale is different
+	 *
+	 * @return string value of $locale from Cookie OR
+	 * default locale set in !config.ini
+	 */
+	public function setLocale(){
+		if(false !== $locale = Cookie::get('locale')){
+			$oViewer = $this->__get('Viewer');
+			if(is_object($oViewer) && !$oViewer->isGuest()){
+
+				if($locale !== $oViewer->offsetGet('locale')){
+					try{
+						$oViewer->setLocale($locale);
+						$oViewer->save();
+					} catch (\InvalidArgumentException $e){
+						e('Failed to set Viewer locale to: '.$locale);
+					}
+				}
+			}
+
+			return $locale;
+		}
+
+		return LAMPCMS_DEFAULT_LOCALE;
 	}
 
 

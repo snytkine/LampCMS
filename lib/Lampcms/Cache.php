@@ -148,7 +148,6 @@ class Cache extends Observer
 	}
 
 
-
 	/**
 	 * Since this is a singleton object
 	 * we should disallow cloning
@@ -177,18 +176,22 @@ class Cache extends Observer
 	 * @return mixed usually a date for a requested key but could be null
 	 * in case of some problems
 	 *
-	 * @throws Cache_Proxy_User_Exception is case the requested key is not a string or array
+	 * @throws DevException is case the requested key is not a string or array
 	 */
-	public function get($key, array $arrExtra = array()){
+	public function get($key, CacheCallback $callback = null, array $arrExtra = array()){
 
-		d('$key: '.$key.' $arrExtra: '.print_r(array_keys($arrExtra), 1) );
-		$this->arrExtra = $arrExtra;
+		d('$key: '.$key);
+		if(!empty($arrExtra)){
+			d(' $arrExtra: '.print_r(array_keys($arrExtra), 1) );
+
+			$this->arrExtra = $arrExtra;
+		}
 
 		if (\is_string($key)) {
 			d('cp');
 			$res = $this->getFromCache($key);
 			if (false === $res) {
-				$res = $this->getKeyValue($key);
+				$res = $this->getKeyValue($key, $callback);
 
 				$this->setValues($key, $res);
 			}
@@ -199,10 +202,6 @@ class Cache extends Observer
 
 			$arrRequestKeys = $key;
 
-			/**
-			 * Will be used in case we don't
-			 * have memcache extension.
-			 */
 			$this->aReturnVals = array();
 			$this->aMissingKeys = array();
 
@@ -214,8 +213,6 @@ class Cache extends Observer
 			 */
 			$this->aReturnVals = $this->getFromCache($arrRequestKeys);
 
-			//d(('$this->aReturnVals: '.print_r($this->aReturnVals, 1));
-
 			$this->aReturnVals = (false === $this->aReturnVals) ? array() : $this->aReturnVals;
 
 			$arrRequestKeys = array_flip($arrRequestKeys);
@@ -226,7 +223,7 @@ class Cache extends Observer
 			d('$this->aMissingKeys: '.print_r($this->aMissingKeys, 1));
 
 			/**
-			 * if we did not get any of the requested keys from memcache,
+			 * If we did not get any of the requested keys from cache
 			 * we need to get it one by one and then add it to $arrValues
 			 */
 			if (!empty($this->aMissingKeys)) {
@@ -236,9 +233,8 @@ class Cache extends Observer
 			return $this->aReturnVals;
 		}
 
-		throw new DevException('requested key can only be a string or array. Supplied value was of type: '.gettype($key));
-
-	} // end get
+		throw new DevException('Requested key can only be a string or array. Supplied value was of type: '.gettype($key));
+	}
 
 
 
@@ -248,9 +244,9 @@ class Cache extends Observer
 		return $this;
 	}
 
-	
+
 	protected function getMissingKeys(){
-		d('Could not get all keys from memcache'.print_r($this->aMissingKeys, 1));
+		d('Could not get all keys from cache'.print_r($this->aMissingKeys, 1));
 		$arrFoundKey = array();
 
 		foreach ($this->aMissingKeys as $key=>$val) {
@@ -263,49 +259,70 @@ class Cache extends Observer
 	}
 
 
-
 	/**
 	 * Finds the method that is responsible
 	 * for retreiving data for a requested key
 	 * and calls on that method
+	 *
 	 * @param $key
+	 * @param object $callback object of type CacheCallback
+	 * if this object is passed it contains method
+	 * for getting the value of requested key - it will be
+	 * used if the $key is not present in cache.
+	 * The run() method of $callback object will be called with
+	 * 2 parameters: Registry and $key
+	 *
+	 * If this param is
+	 * not passed that this object will use the method defined in this class
+	 * for computing value for the $key if such method has been defined.
+	 *
 	 * @return mixed a data returned for the requested key or false
 	 */
-	protected function getKeyValue($key){
-		$aRes = explode('_', $key, 2);
-		$arg = (array_key_exists(1, $aRes)) ? $aRes[1] : null;
+	protected function getKeyValue($key, CacheCallback $callback = null){
 
-		d('aRes: '.print_r($aRes, 1));
-		
-		/**
-		 * Check that method exists
-		 */
-		if (method_exists($this, $aRes[0])) {
-			$method = $aRes[0];
-			d('Looking for key: '.$key.' Going to use method: '.$method);
-			$res = \call_user_func(array($this, $method), $arg);
-			d('res: '.print_r($res, true));
+		if($callback){
+			d('$callback object is passed');
+			$res = $callback->run($this->oRegistry, $key);
+			d('$res: '.var_export($res, true));
 
 			return $res;
+
+		} else {
+			$aRes = explode('_', $key, 2);
+			$arg = (array_key_exists(1, $aRes)) ? $aRes[1] : null;
+
+			d('aRes: '.print_r($aRes, 1));
+
+			/**
+			 * Check that method exists
+			 */
+			if (method_exists($this, $aRes[0])) {
+				$method = $aRes[0];
+				d('Looking for key: '.$key.' Going to use method: '.$method);
+				$res = \call_user_func(array($this, $method), $arg);
+				d('res: '.print_r($res, true));
+
+				return $res;
+			}
+
+			d('method '.$aRes[0].' does not exist in this object');
 		}
-			
-		d('method '.$aRes[0].' does not exist in this object');
 
 		return false;
-
-	} // end getKeyValue
+	}
 
 
 	/**
 	 * Generate value of key and set it in cache
 	 *
 	 * @param $key
+	 *
 	 * @param $ttl optional number of seconds to keep this
 	 * key in cache. Default null will result in no expiration for value
+	 *
 	 * @return object $this
 	 */
-	protected function resetKey($key, $ttl = null)
-	{
+	protected function resetKey($key, $ttl = null){
 		$ttl = (is_numeric($ttl)) ? $ttl : $this->oTtl[$key];
 
 		$this->setValues($this->getKeyValue($key), $ttl);
@@ -323,21 +340,21 @@ class Cache extends Observer
 	 * @return mixed value for $key if it exists in cache
 	 * or false or null
 	 */
-	public function tryKey($key)
-	{
+	public function tryKey($key){
 
 		return $this->getFromCache($key);
-
 	}
 
 
 	/**
-	 * getter method enables to request a single key from memcache
+	 * Getter method enables to request a single key from cache
 	 * like this: $hdlCache->keyName;
 	 *
 	 * @param string $key
-	 * @return mixed a value of the requested memcache key
-	 * @throws Cache_Proxy_User_Exception if requested key is not a string.
+	 *
+	 * @return mixed a value of the requested cache key
+	 *
+	 * @throws DevException if requested key is not a string.
 	 */
 	public function __get($key){
 		if (!is_string($key)) {
@@ -350,17 +367,19 @@ class Cache extends Observer
 
 
 	/**
-	 * Magic method to set a single memcache key by
+	 * Magic method to set a single cache key by
 	 * using a string like this:
 	 * $this->hdlCache->mykey = 'some val';
-	 * this will set the memcache key 'mykey' with
+	 * this will set the cache key 'mykey' with
 	 * the value 'my val'
 	 * Value can be anything - a string, array or object (just not a resource
 	 * and NOT a database connection object)
 	 *
 	 * @param string $strKey
+	 *
 	 * @param mixed $val
-	 * @throws Cache_Proxy_User_Exception if value is empty, so basically a string like this:
+	 *
+	 * @throws DevException if value is empty, so basically a string like this:
 	 * $this->hdlCache->somekey = ''; is not allowed. setting value to null or
 	 * using an empty array as value will also cause this exception.
 	 */
@@ -376,8 +395,7 @@ class Cache extends Observer
 
 		$this->setValues($strKey, $val);
 
-	} // end __set
-
+	}
 
 
 	/**
@@ -387,6 +405,7 @@ class Cache extends Observer
 	 * so we are sure that if $key is not a string then its an array
 	 *
 	 * @param $key
+	 *
 	 * @return mixed whatever is returned from $oCache object
 	 */
 	protected function getFromCache($key){
@@ -402,9 +421,7 @@ class Cache extends Observer
 		}
 
 		return $this->oCacheInterface->getMulti($key);
-
-
-	} // end getFromCache
+	}
 
 
 	/**
@@ -412,13 +429,21 @@ class Cache extends Observer
 	 * if yes, then adds value to Cache object under the $key
 	 * or if $key is array, sets multiple items into cache
 	 * if $key is array, it must be an associative array of $key => $val
+	 *
 	 * @param mixed $key string or associative array
-	 * @param $val
+	 *
+	 * @param $val value to be set into cache
+	 *
+	 * @param array $aTags optionally assign these tags to this
+	 * key
+	 *
 	 * @return bool
 	 */
-	public function setValues($key, $val = ''){
+	public function setValues($key, $val = '', array $aTags = null){
 		if (!$this->skipCache) {
 			if (\is_string($key)) {
+
+				$tags = (!empty($aTags)) ? $aTags : $this->aTags;
 
 				/**
 				 * @todo must ensure $val is utf-8 by
@@ -437,10 +462,11 @@ class Cache extends Observer
 				 * we will keep doing the same select looking
 				 * for the thread array.
 				 */
+
 				if (!empty($val) || (0 === $val)) {
 					d('going to set key '.$key.' val: '.var_export($val, 1));
-					
-					return $this->oCacheInterface->set($key, $val, $this->oTtl[$key], $this->aTags);
+
+					return $this->oCacheInterface->set($key, $val, $this->oTtl[$key], $tags);
 				}
 			} elseif (!empty($key)) {
 
@@ -449,9 +475,7 @@ class Cache extends Observer
 		}
 
 		return false;
-
-	} // end setValues
-
+	}
 
 
 	/**
@@ -462,9 +486,10 @@ class Cache extends Observer
 	 * This is memoization
 	 *
 	 * @param string $key
+	 *
 	 * @return boolean
 	 *
-	 * @throws Cache_Proxy_User_Exception is $key is not a string
+	 * @throws DevException is $key is not a string
 	 */
 	public function __isset($key){
 		if (!is_string($key)) {
@@ -478,18 +503,17 @@ class Cache extends Observer
 		}
 
 		return false;
-
 	}
 
 
 	/**
-	 * Magic method to delete memcache key
+	 * Magic method to delete cache key
 	 * using the unset($this->key)
 	 * @param $key
 	 * @return mixed whatever is returned by cache object
 	 * which is usually true on success or false on failure
 	 *
-	 * @throws Cache_Proxy_User_Exception is $key is not a string
+	 * @throws DevException is $key is not a string
 	 */
 	public function __unset($key){
 		if (!is_string($key)) {
@@ -591,7 +615,7 @@ class Cache extends Observer
 	 *
 	 * @return object of type GeoipLocation
 	 */
-	protected function geo($strIp){			
+	protected function geo($strIp){
 		d('getting geodata for ip: '.$strIp);
 
 		$strKey = 'geo_'.$strIp;
@@ -607,7 +631,7 @@ class Cache extends Observer
 		$this->aTags = array('geo');
 
 		d('returning oGeoIP: '.gettype($oGeoIP));
-		
+
 		return $oGeoIP;
 	}
 
@@ -624,6 +648,35 @@ class Cache extends Observer
 		return new \Lampcms\Acl\Acl();
 	}
 
+	
+	/**
+	 * @param string $locale name of locate for this object
+	 * (for example 'en_CA' for Canada)
+	 */
+	protected function xliff($key){
+		d('$key: '.$key);
+
+		$file = LAMPCMS_PATH.DIRECTORY_SEPARATOR.LAMPCMS_TR_DIR.DIRECTORY_SEPARATOR.'messages.'.$key.'.xlf';
+		d('$file: '.$file);
+
+		$this->aTags = array('tr');
+
+		return new \Lampcms\I18n\XliffCatalog($file, $key);
+	}
+	
+
+	/**
+	 *
+	 * Method for creating Translation object
+	 * @param string $locale name of locate for this object
+	 * (for example 'en_CA' for Canada)
+	 */
+	protected function tr($locale){
+		d('$locale: '.$locale);
+		$this->aTags = array('tr');
+
+		return \Lampcms\I18n\Translator::factory($this->oRegistry, $locale);
+	}
 
 }
 

@@ -246,6 +246,7 @@ You can change your password after you log in.
 		$aData['date_reg'] = date('r');
 		$aData['i_fv'] = (false !== $intFv = \Lampcms\Cookie::getSidCookie(true)) ? $intFv : time();
 		$aData['lang'] = $this->oRegistry->getCurrentLang();
+		$aData['locale'] = $this->oRegistry->getLocale();
 		/**
 		 * Initial reputation is always 1
 		 * @var int

@@ -73,7 +73,7 @@ class tplApps extends Lampcms\Template\Template
 		if(empty($a['icon'])){
 			$a['icon'] = '/images/app2.png';
 		} else {
-			$a['icon'] = AVATAR_IMG_SITE.\Lampcms\PATH_WWW_IMG_AVATAR_SQUARE.$a['icon'];
+			$a['icon'] = LAMPCMS_AVATAR_IMG_SITE.\Lampcms\PATH_WWW_IMG_AVATAR_SQUARE.$a['icon'];
 		}
 
 		if(array_key_exists("app_name", $a)){

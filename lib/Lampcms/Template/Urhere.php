@@ -121,10 +121,16 @@ class Urhere extends LampcmsObject
 		if(array_key_exists($current.'_c', $aVars)){
 			$aVars[$current.'_c'] = '_current';
 		}
+
 		if(null !== $vars){
 			$aVars = array_merge($aVars, $vars);
 		}
+		d('template: '.$template.' $aVars: '.print_r($aVars, 1));
+		if(null !== $func){
+			d('$func is not null');
+		}
 
 		return $template::parse($aVars, $func);
+		
 	}
 }

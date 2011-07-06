@@ -279,16 +279,26 @@ const API_ACCESS_COUNTER = 'API_ACCESS_COUNTER';
  * is created only during run of test suite and
  * then dropped at end of test
  * Enter description here ...
- * @var unknown_type
  */
 const MY_MONGO_TEST_COLLECTION = 'MY_MONGO_TEST_COLLECTION';
 
 /**
  * Another test collection, only used during run of tests
  * and then dropped at end of test
- * Enter description here ...
- * @var unknown_type
  */
 const MY_TEST_COLLECTION = 'MY_TEST_COLLECTION';
+
+/**
+ * Collection for storing I18N Translation strings
+ * _id is language code like 'en' or 'fr'
+ * also has 'label' to full name of 
+ * Language - this could be in that native
+ * language or in English
+ * 
+ * It also holds actual collection of translation
+ * strings as nested array of objects
+ * 
+ */
+const TRANSLATION = 'TRANSLATION';
 
 

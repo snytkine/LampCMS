@@ -1,3 +1,13 @@
+;
+; IMPORTANT: 
+; If a value in the ini file contains any non-alphanumeric characters 
+; it needs to be enclosed in double-quotes (")
+;
+; Only simple values like a number 
+; or one-word can be entered with no quotes
+; but it's best to use double-quotes
+; around all values to avoid potential errors
+;
 [DB]
 Database_name=LAMPCMS
 Database_host=localhost
@@ -30,6 +40,17 @@ collection = "C_Cache"
 ; set to true when debugging to enable
 ; debug log and raize error reporting level
 DEBUG = true
+;
+; Directory where translations files
+; are going to be stored
+; You can rename the directory
+; and change the value here
+; if you want to prevent the upgrade
+; process overriding you custom
+; translation files
+; Directory still has to be a sub-directory of the root directory
+; of the project (where this file is located)
+TRANSLATIONS_DIR = "translations"
 ;
 ; Minimum number of tags question must have
 ; set to 0 to make tags optional

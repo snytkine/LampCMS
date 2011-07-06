@@ -57,13 +57,13 @@ class tplU3 extends Lampcms\Template\Template
 
 	protected static function func(&$a){
 		if(!empty($a['avatar'])){
-			$a['avatar'] = AVATAR_IMG_SITE.'/w/img/avatar/sqr/'.$a['avatar'];
+			$a['avatar'] = LAMPCMS_AVATAR_IMG_SITE.'/w/img/avatar/sqr/'.$a['avatar'];
 		} elseif (!empty($a['avatar_external'])){
 			$a['avatar'] = $a['avatar_external'];
 		} elseif (!empty($a['gravatar']) && !empty($a['email'])){
 			$a['avatar'] = $a['gravatar']['url'].hash('md5', $a['email']).'?s=36'.'&d='.$a['gravatar']['fallback'].'&r='.$a['gravatar']['rating'];
 		} else {
-			$a['avatar'] = IMAGE_SITE.'/images/avatar.png';
+			$a['avatar'] = LAMPCMS_IMAGE_SITE.'/images/avatar.png';
 		}
 
 		$fn = (!empty($a['fn'])) ? $a['fn'] : '';

@@ -74,6 +74,27 @@ namespace Lampcms\Template;
  */
 class Template
 {
+	/**
+	 * Can override this static method in concrete template
+	 * In accepts array of $vars by reference
+	 * This method can modify actual values
+	 * or template variables
+	 * before the variables are actually used
+	 * in template
+	 *
+	 * @param array $vars
+	 */
+	protected static function func(&$vars){}
+	
+	/**
+	 * Flag indicates that 
+	 * template should skip
+	 * calling the $func function
+	 *
+	 * 
+	 * @var bool
+	 */
+	protected static $skip = false;
 
 	/**
 	 * Parse template, using input $aVars array of replacement
@@ -94,8 +115,7 @@ class Template
 	 * accept input array by reference and perform some
 	 * operations on the actual array.
 	 */
-	public static function parse(array $aVars, $merge = true, \Closure $func = null){
-
+	public static function parse(array $aVars, $merge = true, $func = null){
 
 		/**
 		 * ORDER IS IMPORTANT:
@@ -117,10 +137,8 @@ class Template
 		 * are not present in the database
 		 */
 		if(null !== $func){
-			d('have Closure func');
+			
 			$func($aVars);
-
-			//d('new aVars: '.print_r($aVars, 1));
 		}
 
 		/**
@@ -132,18 +150,17 @@ class Template
 		 * and modify actual array value
 		 *
 		 */
-		if( (empty(static::$skip)) && is_callable(array('static', 'func')) ){
+		if( false === static::$skip ){
+			
 			static::func($aVars);
-			//d('new aVars: '.print_r($aVars, 1));
-		} else {
-			//echo ' <b>Callback cancelled</b> ';
 		}
 
 		if($merge){
-			$aVars = array_merge(static::$vars, $aVars);
+
+			$aVars = \array_merge(static::$vars, $aVars);
 		}
 
-		return vsprintf(static::$tpl, $aVars);
+		return \vsprintf(static::$tpl, $aVars);
 	}
 
 	/**
@@ -156,17 +173,17 @@ class Template
 	 * @param Closure $func if passed, this callback function
 	 * will be passed to each element's parse() function
 	 *
-	 * @throws InvalidArgumentException
+	 * @throws InvalidArgumentException if $a is not array and not Iterator
 	 */
-	public static function loop($a, $merge = true, \Closure $func = null){
-		
+	public static function loop($a, $merge = true, $func = null){
+
 		/**
 		 * Throw exception if Iterator is not
 		 * an array and not instance of iterator
 		 */
 		if(!is_array($a) && (!is_object($a) || !($a instanceof \Iterator)) ){
-			$err = '$a must be array of object instance of Iterator was: '.gettype($a);
-			
+			$err = 'Param $a (first param passed to loop() must be array of object instance of Iterator was: '.gettype($a);
+
 			throw new \InvalidArgumentException($err);
 		}
 

@@ -49,43 +49,53 @@
  *
  */
 
+namespace Lampcms;
 
-include '../../!inc.php';
+/**
+ * Class for encapsulating
+ * the callback function that will be used
+ * by the Cache object when value of $key
+ * not found in cache
+ *
+ * @author Dmitri Snytkine
+ *
+ */
+class CacheCallback{
 
-require($lampcmsClasses.'Base.php');
-require($lampcmsClasses.'Api'.DIRECTORY_SEPARATOR.'Api.php');
+	protected $func;
 
-try{
+	/**
+	 * 
+	 * Constructor
+	 * 
+	 * @param function $func function. Could be Closure
+	 * Must accept 2 params: Registry as first argument and optional $key
+	 * as second
+	 * 
+	 * @throws \InvalidArgumentException if not a callable function
+	 * 
+	 */
+	public function __construct($func){
+		if(!\is_callable($func)){
+			throw new \InvalidArgumentException('param $func must be a callable function. Was: '.gettype($func));
+		}
 
-	$oRequest = $oRegistry->Request;
-	$a  = $oRequest['a'];
-	$v  = $oRequest->get('v', 'i', 1);
+		$this->func = $func;
+	}
 
-	d('a: '.$a.' $oRequest: '.print_r($oRequest->getArray(), 1));
-	$controller = ucfirst($a);
-	include($lampcmsClasses.'Api'.DIRECTORY_SEPARATOR.'v'.$v.DIRECTORY_SEPARATOR.$controller.'.php');
-	$class = '\Lampcms\\Api\\v'.$v.'\\'.$controller;
-	d('class: '.$class);
-
-	$o = new $class($oRegistry);
-	$Response = $o->getResponse();
-	$Response->send();
-	fastcgi_finish_request();
-
-} catch (\Exception $e){
-
-	header("HTTP/1.0 500 Exception");
-	header("Content-Type:text/html; charset=utf-8");
-	$err = strip_tags($e->getMessage());
-	echo $err;
-	fastcgi_finish_request();
-
-	$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no $_SERVER';
-	$extra .= ' file: '.$e->getFile(). ' line: '.$e->getLine().' trace: '.$e->getTraceAsString();
-
-	if(strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 1){
-		@mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $err.$extra);
+	
+	/**
+	 * This method is invoked from the Cache object
+	 *
+	 *
+	 * @param Registry $oRegistry
+	 * @param string $key
+	 */
+	public function run(\Lampcms\Registry $oRegistry, $key = null){
+		if(!empty($key) && !is_string($key)){
+			throw new \InvalidArgumentException('Param $key must be a key. Was: '.gettype($key));
+		}
+		
+		return $this->func($oRegistry, $key);
 	}
 }
-
-

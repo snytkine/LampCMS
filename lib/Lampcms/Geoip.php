@@ -971,15 +971,15 @@ class Geoip
 		 */
 		public static function getGeoData($strIp){
 			
-			if(!defined('GEOIP_FILE')){
-				d('GEOIP_FILE not defined');
+			if(!defined('LAMPCMS_GEOIP_FILE')){
+				d('LAMPCMS_GEOIP_FILE not defined');
 				return new GeoipLocation();
 			}
 
-			$file = constant('GEOIP_FILE');
+			$file = constant('LAMPCMS_GEOIP_FILE');
 			d('$file: '.$file);
 			if(empty($file)){
-				d('GeoIP lookup not enabled because name of GEOIP_FILE is left blank in !config.ini');
+				d('GeoIP lookup not enabled because name of LAMPCMS_GEOIP_FILE is left blank in !config.ini');
 
 				return new GeoipLocation();
 			}

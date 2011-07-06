@@ -86,7 +86,7 @@ const WWW_DIR = 'www';
  *
  * The things that can possibly change are in
  * the !config.ini file, for example
- * AVATAR_IMG_SITE and IMG_SITE
+ * LAMPCMS_AVATAR_IMG_SITE and IMG_SITE
  * can changed because they can be hosted on a
  * remote server somewhere, but these relative paths
  * shoud be the same even if avatars and images

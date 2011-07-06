@@ -85,7 +85,7 @@ class Cookie
 		 * Google Friend Connect or Facebook connect
 		 */
 
-		$salt = COOKIE_SALT;
+		$salt = LAMPCMS_COOKIE_SALT;
 		$cookieSid = \hash('sha256', $intUserId.$salt);
 		$cookie = \http_build_query(array('uid' => $intUserId, 's' => $cookieSid));
 
@@ -106,7 +106,7 @@ class Cookie
 	 * default is 63072000 means 2 years
 	 *
 	 * @param string $sDomain optional if set the setcookie will use
-	 * this value instead of COOKIE_DOMAIN constant
+	 * this value instead of LAMPCMS_COOKIE_DOMAIN constant
 	 *
 	 * @throws LampcmsDevException in case cookie
 	 * was not send to browser. Usually this happends when
@@ -121,7 +121,7 @@ class Cookie
 			return;
 		}
 
-		$sDomain = (!empty($sDomain)) ? $sDomain : \trim(constant('COOKIE_DOMAIN'));
+		$sDomain = (!empty($sDomain)) ? $sDomain : \trim(constant('LAMPCMS_COOKIE_DOMAIN'));
 		$sDomain= (empty($sDomain) || 'null' === $sDomain) ? null : $sDomain;
 
 		$t = time() + $ttl;

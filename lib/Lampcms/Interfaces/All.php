@@ -71,6 +71,10 @@ interface AuthProvider
 	public function getUser();
 }
 
+interface Runnable{
+	public function run();
+}
+
 interface Tokenizer
 {
 	public function countTokens();
@@ -81,6 +85,69 @@ interface Tokenizer
 
 	public function parse();
 }
+
+/**
+ * Both XliffCatalog and Translator
+ * implement this interface
+ * The only difference is that Translator
+ * has messages that include strings
+ * from default languate + general language
+ * + locale-specific merged together
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
+interface Translator extends \Serializable{
+	
+	/**
+	 * Get name of locale (lang + country or just lang)
+	 * for which this object has
+	 * messages
+	 * 
+	 * @return string name of locale. For example: en_US or en
+	 */
+	public function getLocale();
+	
+	/**
+	 * Get translated message
+	 * 
+	 * @param string $string message to be translated
+	 * 
+	 * @param array $vars array of replacement vars
+	 * 
+	 * @param string $default fallback value to use
+	 * if message $string does not exist in the catalog
+	 * By default the object uses the value of $string itself
+	 * if translated message does not exist but it's also possible
+	 * to pass the value of $default string to be used
+	 * as a fallback value
+	 * 
+	 * @return string translated string (or fallback value)
+	 */
+	public function get($string, array $vars = null, $default = null);
+	
+	/**
+	 * Get array of messages for this catalog
+	 * 
+	 * @return array in 'string' => 'translated string' format
+	 */
+	public function getMessages();
+	
+	/**
+	 * 
+	 * A test to see if the object
+	 * has the string in its array of messages
+	 * 
+	 * @param string $string
+	 * 
+	 * @return bool true if object has this $string
+	 * in the messages catalog, false otherwise
+	 */
+	public function has($string);
+}
+
+
+
 
 interface Cookie
 {
@@ -122,7 +189,7 @@ interface Cookie
 	 * default is 63072000 means 2 years
 	 *
 	 * @param string $sDomain optional if set the setcookie will use
-	 * this value instead of COOKIE_DOMAIN constant
+	 * this value instead of LAMPCMS_COOKIE_DOMAIN constant
 	 *
 	 * @throws LampcmsDevException in case cookie
 	 * was not send to browser. Usually this happends when

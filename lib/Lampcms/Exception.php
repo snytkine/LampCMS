@@ -53,7 +53,7 @@
 /**
  * All Exceptions defined here
  * @important Allways include this file!
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
@@ -135,20 +135,16 @@ class Exception extends \Exception
 	 *
 	 * from data in Exception object
 	 */
-	public static function formatException(\Exception $e, $sMessage = ''){
+	public static function _formatException(\Exception $e, $sMessage = ''){
 		$sMessage = (!empty($sMessage)) ? $sMessage : $e->getMessage();
-		$sMessage = $e->getMessage();
-		$bHtml = ($e instanceof \Lampcms\Exception) ? $e->getHtmlFlag() : false;
+		//$sMessage = $e->getMessage();
+		//$bHtml = ($e instanceof \Lampcms\Exception) ? $e->getHtmlFlag() : false;
 
-		//$oTr = clsTr::getInstance(null, 'exceptions');
-		//$lang = (isset($_SESSION) && !empty($_SESSION['lang'])) ? $_SESSION['lang'] : 'en';
-		//$oTr->setLang($lang);
 		if ($e instanceof Lampcms\DevException) {
 			$sMessage = ( (defined('LAMPCMS_DEBUG')) && true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occured';//$oTr->get('generic_error', 'exceptions');
 		}
 
 		$sMessage = strip_tags($sMessage);
-		//$sMessage = $oTr->get($sMessage, 'exceptions');
 
 		$aArgs = ($e instanceof \Lampcms\Exception) ? $e->getArgs() : null;
 		$sMessage = (!empty($aArgs)) ? vsprintf($sMessage, $aArgs) : $sMessage;
@@ -189,9 +185,7 @@ class Exception extends \Exception
 		 */
 		if ( (E_USER_NOTICE === $e->getCode()) || Request::isAjax()) {
 
-			d('will be sending out exception as ajax');
-			
-			
+
 			/**
 			 * if this exception was thrown when uploading
 			 * file to iframe, then we need to add 'true' as
@@ -215,13 +209,152 @@ class Exception extends \Exception
 		return $sError;
 	}
 
+
+
+	public static function formatException(\Exception $e, $sMessage = ''){
+		$sMessage = (!empty($sMessage)) ? $sMessage : $e->getMessage();
+		//$sMessage = $e->getMessage();
+		//$bHtml = ($e instanceof \Lampcms\Exception) ? $e->getHtmlFlag() : false;
+
+		if ($e instanceof Lampcms\DevException) {
+			$sMessage = ( (defined('LAMPCMS_DEBUG')) && true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occured';//$oTr->get('generic_error', 'exceptions');
+		}
+
+		$sMessage = strip_tags($sMessage);
+
+		$aArgs = ($e instanceof \Lampcms\Exception) ? $e->getArgs() : null;
+		$sMessage = (!empty($aArgs)) ? vsprintf($sMessage, $aArgs) : $sMessage;
+
+		$sError = '';
+		$sTrace = nl2br(self::getExceptionTraceAsString($e)).'<hr>';
+
+		$strFile = $e->getFile();
+		$intLine = $e->getLine();
+		$intCode = ($e instanceof \ErrorException) ? $e->getSeverity() : $e->getCode();
+
+		$sLogMessage = 'LampcmsError exception caught: '.$sMessage."\n".'error code: '.$intCode."\n".'file: '.$strFile."\n".'line: '.$intLine."\n".'stack: '.$sTrace."\n";
+		d($sLogMessage."\n".'$_REQUEST: '.print_r($_REQUEST, true));
+		if(!empty($_SESSION)){
+			d('$_SESSION: '.print_r($_SESSION, 1));
+		}
+
+		$sError .= $sMessage."\n";
+
+		if ( (defined('LAMPCMS_DEBUG')) && true === LAMPCMS_DEBUG) {
+			$sError .= 'error code: '.$intCode."\n";
+			$sError .= 'file: '.$strFile."\n";
+			$sError .= 'line: '.$intLine."\n";
+
+			if (!empty($sTrace)) {
+				$sError .= "\n<br><strong>Trace</strong>: \n<br>$sTrace\n<br>";
+			}
+		}
+
+		d('cp');
+
+		/**
+		 * If this exception has E_USER_WARNING error code
+		 * then it was thrown when parsing some ajax-based
+		 * request.
+		 *
+		 * We then need to only send json array with
+		 * only one key 'exception'
+		 */
+		if ( (E_USER_NOTICE === $e->getCode()) || Request::isAjax()) {
+
+
+			/**
+			 * if this exception was thrown when uploading
+			 * file to iframe, then we need to add 'true' as
+			 * the last (2nd arg) to fnSendJson
+			 */
+			$a = array(
+			'exception'=>$sError, 
+			'errHeader' => 'Error',/*$oTr->get('errHeader', 'qf'),*/
+			'type' => get_class($e));
+
+			if($e instanceof Lampcms\FormException){
+				$a['fields'] = $e->getFormFields();
+			}
+			d('json array of exception: '.print_r($a, 1));
+
+			Responder::sendJSON($a);
+		}
+
+		d('$sError: '.$sError);
+
+		return $sError;
+	}
+
+
+	/**
+	 * A workaround for a buggy behaviour in php
+	 * that truncates the strings in arguments to 15 chars-long
+	 * 
+	 * Thanks to Steve for posting this fix here:
+	 * http://stackoverflow.com/questions/1949345/
+	 * 
+	 * @param object $exception instance of php Exception or any
+	 * sub-class 
+	 */
+	public static function getExceptionTraceAsString(\Exception $exception) {
+		$rtn = "";
+		$count = 0;
+		foreach ($exception->getTrace() as $frame) {
+			$args = "";
+			if (isset($frame['args'])) {
+				$args = array();
+				foreach ($frame['args'] as $arg) {
+					if (is_string($arg)) {
+						$args[] = "'" . $arg . "'";
+					} elseif (is_array($arg)) {
+						$args[] = "Array";
+					} elseif (is_null($arg)) {
+						$args[] = 'NULL';
+					} elseif (is_bool($arg)) {
+						$args[] = ($arg) ? "true" : "false";
+					} elseif (is_object($arg)) {
+						$args[] = get_class($arg);
+					} elseif (is_resource($arg)) {
+						$args[] = get_resource_type($arg);
+					} else {
+						$args[] = $arg;
+					}
+				}
+				$args = join(", ", $args);
+			}
+			$rtn .= sprintf( "#%s %s(%s): %s(%s)\n",
+			$count,
+			self::getOffset($frame, 'file'),
+			self::getOffset($frame, 'line'),
+			self::getOffset($frame, 'function'),
+			$args );
+			$count++;
+		}
+		
+		return $rtn;
+	}
+	
+	/**
+	 * Helper function to get value of array offset (key)
+	 * if offset exists, else get empty string
+	 * 
+	 * @param array $a
+	 * @param string $key array key 
+	 * 
+	 * @return string
+	 */
+	protected static function getOffset(array $a, $key){
+		return (array_key_exists($key, $a) ? $a[$key] : '');
+	}
+
 } // end Lampcms\Exceptions class
 
 /**
  * this exception is thrown when it is determined
  * that user has not yet added an email address
  * to the account.
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
@@ -347,7 +480,7 @@ class AclRoleRegistryException extends AclException{}
 class AccessException extends Exception{}
 
 /**
- * 
+ *
  * Exception indicates that user is
  * not logged in but the action is only
  * available to logged in users
@@ -367,7 +500,7 @@ class MustLoginException extends Exception{}
 class AuthException extends Exception{}
 
 /**
- * 
+ *
  * This means user has not confirmed
  * email address
  *
@@ -388,7 +521,7 @@ class RedirectException extends Exception
 	 *
 	 * @param str $strNewLocation must be a full url where
 	 * the page can be found
-	 * 
+	 *
 	 * @param int $intHttpCode HTTP response code
 	 */
 	public function __construct($strNewLocation, $intHttpCode = 301, $boolHTML = true){
@@ -431,7 +564,7 @@ class FormException extends DevException{
 		$this->aFields = $formFields;
 	}
 
-	
+
 	public function getFormFields(){
 		return $this->aFields;
 	}
@@ -506,8 +639,8 @@ class HttpResponseCodeException extends HttpResponseErrorException
 	 * @var int
 	 */
 	protected $httpResponseCode;
-	
-	
+
+
 	protected $innerException = null;
 
 	/**
@@ -542,7 +675,7 @@ class HttpResponseCodeException extends HttpResponseErrorException
 	public function getHttpCode(){
 		return $this->httpResponseCode;
 	}
-	
+
 	public function getInnerException(){
 		return $this->innerException;
 	}
@@ -598,7 +731,7 @@ class HttpRedirectException extends HttpResponseCodeException
 		$this->newURI = $newLocation;
 	}
 
-	
+
 	/**
 	 * Getter for $newURI member variable
 	 *
@@ -607,7 +740,7 @@ class HttpRedirectException extends HttpResponseCodeException
 	 * result of redirect http message
 	 */
 	public function getNewURI(){
-		
+
 		return $this->newURI;
 	}
 }
