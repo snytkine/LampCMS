@@ -155,6 +155,11 @@ class Registry implements Interfaces\LampcmsObject
 		});
 
 
+		$this->values['Locale'] = $this->asShared(function ($c) {
+			return \Lampcms\Locale\Locale::factory($c);
+		});
+
+
 		$this->values['Db'] = $this->asShared(function ($c) {
 			return new DB($c);
 		});
@@ -445,7 +450,25 @@ class Registry implements Interfaces\LampcmsObject
 	}
 
 
+	/**
+	 * Get value of locale
+	 * This method will also
+	 * set the value in $_SESSION['locale']
+	 * if $_SESSION is present and
+	 * locale is not already set in session
+	 * If $_SESSION['locale'] is set then
+	 * it will be returned immediately
+	 *
+	 * @return string value of locale
+	 *
+	 */
 	public function getLocale(){
+
+		if(!empty($_SESSION) && !empty($_SESSION['locale'])){
+
+			return $_SESSION['locale'];
+		}
+
 		$oViewer = $this->__get('Viewer');
 
 		/**
@@ -453,57 +476,18 @@ class Registry implements Interfaces\LampcmsObject
 		 * get value of locale from Viewer object
 		 */
 		if(is_object($oViewer) && !$oViewer->isGuest()){
-
-			return $oViewer->offsetGet('locale');
+			$locale = $oViewer->offsetGet('locale');
+		} elseif (isset($_COOKIE) && !empty($_COOKIE['locale'])) {
+			$locale = $_COOKIE['locale'];
+		}else {
+			$locale = LAMPCMS_DEFAULT_LOCALE;
 		}
-
-		/*if (isset($_SESSION) && !empty($_SESSION['locale'])) {
-			return $_SESSION['locale'];
-			}*/
-
-		if (isset($_COOKIE) && !empty($_COOKIE['locale'])) {
-			//$_SESSION['locale'] = $_COOKIE['locale'];
-
-			return $_COOKIE['locale'];
-		}
-
-		$default = LAMPCMS_DEFAULT_LOCALE;
 
 		if (isset($_SESSION)) {
-			$_SESSION['locale'] = $default;
+			$_SESSION['locale'] = $locale;
 		}
 
-		return $default;
-	}
-
-
-	/**
-	 * If there is a Cookie 'locale' then
-	 * set it to Viewer's locale only if
-	 * Viewer is not guest and Viewer's locale is different
-	 *
-	 * @return string value of $locale from Cookie OR
-	 * default locale set in !config.ini
-	 */
-	public function setLocale(){
-		if(false !== $locale = Cookie::get('locale')){
-			$oViewer = $this->__get('Viewer');
-			if(is_object($oViewer) && !$oViewer->isGuest()){
-
-				if($locale !== $oViewer->offsetGet('locale')){
-					try{
-						$oViewer->setLocale($locale);
-						$oViewer->save();
-					} catch (\InvalidArgumentException $e){
-						e('Failed to set Viewer locale to: '.$locale);
-					}
-				}
-			}
-
-			return $locale;
-		}
-
-		return LAMPCMS_DEFAULT_LOCALE;
+		return $locale;
 	}
 
 

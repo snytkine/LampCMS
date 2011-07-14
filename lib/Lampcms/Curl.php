@@ -430,7 +430,7 @@ class Curl extends LampcmsObject
 				} else {
 					$ex = new HttpResponseErrorException('Error '.$this->httpResponseCode.' message: '.$this->httpResponseCode);
 				}
-				
+
 				throw $ex;
 		}
 
@@ -483,7 +483,10 @@ class Curl extends LampcmsObject
 	 * Set curl options
 	 * This MUST be run before sending out a request,
 	 * usually it's run automatically from getDocument()
+	 *
 	 * @param array $aOptions
+	 *
+	 * @return object $this
 	 */
 	protected function setOptions(array $aOptions = array()){
 
@@ -495,12 +498,14 @@ class Curl extends LampcmsObject
 		curl_setopt($this->request, CURLOPT_HEADER, true);
 		curl_setopt($this->request, CURLOPT_RETURNTRANSFER, true);
 
-		if($this->cookieFile){
+		if(!empty($this->cookieFile)){
 			curl_setopt($this->request, CURLOPT_COOKIEFILE, $this->cookieFile);
 			curl_setopt($this->request, CURLOPT_COOKIEJAR, $this->cookieFile);
 		}
 
-		curl_setopt($this->request, CURLOPT_REFERER, $this->referrer);
+		if(!empty($this->referrer)){
+			curl_setopt($this->request, CURLOPT_REFERER, $this->referrer);
+		}
 
 		if(!empty($this->aOptions['useragent'])){
 			curl_setopt($this->request, CURLOPT_USERAGENT, $this->aOptions['useragent']);

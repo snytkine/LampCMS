@@ -58,9 +58,6 @@ namespace Lampcms;
  * tokens then appying stopwords filter
  * to result
  *
- * @todo store stopwords in MONGO.SETTINGS table
- * This way we don't have to have overhead of
- * reading/exploding text file
  *
  * @author Dmitri Snytkine
  *
@@ -72,7 +69,6 @@ class Tokenizer
 	public function __construct(){
 		$stopwords = LAMPCMS_PATH.DIRECTORY_SEPARATOR.'stopwords.txt';
 		$this->aStopwords = explode(PHP_EOL, file_get_contents($stopwords));
-
 	}
 
 	/**

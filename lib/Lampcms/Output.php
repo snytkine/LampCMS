@@ -118,11 +118,12 @@ abstract class Output{
 	 * Set data to be formatted
 	 *
 	 * @param mixed array | MongoCursor
-	 * @throws HttpResponseCodeException is input not array and not MongoCursor
+	 * @throws DevException if input not array and not Traversable interface
+	 * (MongoCursor is an Iterator which is Traversable)
 	 *
 	 */
 	public function setData($data){
-		if(!\is_array($data) && (!is_object($data) || !($data instanceof \MongoCursor)) ){
+		if(!\is_array($data) && (!is_object($data) || !($data instanceof \Traversable)) ){
 			throw new DevException('Invalid data type of $data');
 		}
 
@@ -140,7 +141,8 @@ abstract class Output{
 	 * Format the data and return the result string
 	 *
 	 * @return string
-	 * @throws HttpResponseCodeException if unable to format data
+	 * @throws DevException if $this->aData is not array or traversable
+	 * (Traversable object can be used with "foreach" like an array)
 	 */
 	public function getFormatted(){
 
@@ -148,7 +150,7 @@ abstract class Output{
 			throw new DevException('Data has not been set yet. ')	;
 		}
 
-		if(!\is_array($this->aData)){
+		if(!\is_array($this->aData) && !($this->aData instanceof \Traversable)){
 			throw new DevException('invalid data type of $data');
 		}
 
