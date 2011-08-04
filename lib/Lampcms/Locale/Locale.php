@@ -238,7 +238,8 @@ class Locale extends \Lampcms\LampcmsObject
 	 * This method sets system-wide locale
 	 * It should be called after the Viewer object
 	 * has been instantiated
-	 *
+	 * System locale affects how numbers
+	 * and time are formatted
 	 *
 	 */
 	public function setLocale(){

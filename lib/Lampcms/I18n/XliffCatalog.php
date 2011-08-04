@@ -60,7 +60,7 @@ namespace Lampcms\I18n;
  * @author Dmitri Snytkine
  *
  */
-class XliffCatalog implements \Lampcms\Interfaces\Translator
+class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
 {
 	/**
 	 * Name of locate for which
