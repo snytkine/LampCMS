@@ -92,9 +92,14 @@ class tplAnswer extends Lampcms\Template\Template
 			 */
 			$rid = $a['_id'];
 			$uid = $a['i_uid'];
-			$f = function(&$data) use ($rid, $uid){
+			$reply   = $a['reply'];
+			$reply_t = $a['reply_t'];
+			
+			$f = function(&$data) use ($rid, $uid, $reply, $reply_t){
 				$data['resource_id'] = $rid;
 				$data['owner_id'] = $uid;
+				$data['reply']       = $reply;
+				$data['reply_t']     = $reply_t;
 			};
 			
 			$a['comments_html'] = tplComment::loop($a['a_comments'], true, $f);
@@ -123,7 +128,8 @@ class tplAnswer extends Lampcms\Template\Template
 	'edit_delete' => '', // 19
 	'i_comments' => '0', // 20
 	'nocomments' => '', //21
-	'i_lm_ts' => '0' // 22
+	'i_lm_ts' => '0', // 22
+	'add_comment' => 'add comment' //23
 	);
 
 
@@ -179,7 +185,7 @@ class tplAnswer extends Lampcms\Template\Template
 		<div class="comments%21$s i_comments_%20$s" id="comments-%1$s">
 		%18$s
 			<div class="add_com cb fl">
-				<span class="ico comment fl"> </span><a href="#" class="ajax com_link uid-%7$s" id="comlink_%1$s">add comment</a>
+				<span class="ico comment fl"> </span><a href="#" class="ajax com_link uid-%7$s" id="comlink_%1$s">%23$s</a>
 			</div>
 		</div>
 	</td>

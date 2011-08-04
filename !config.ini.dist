@@ -112,6 +112,16 @@ SITE_TITLE = "LampCms Q and A site"
 SITE_NAME ="LampCMS project"
 ;Default language
 DEFAULT_LANG = en
+; Default locale
+; Must be a valid locale string!
+; Also a translation file for this locale
+; must exist in translations directory and contain
+; complete catalog of all messages used on this site
+; For example, if you set DEFAULT_LOCALE to 'en_US'
+; then a file messages.en_US.xliff should already
+; exist in /translations/ directory
+; 
+DEFAULT_LOCALE = en_US
 ;set timezone of the server.
 ;Must be correct name,
 ;see names here: http://us2.php.net/manual/en/timezones.php
@@ -516,3 +526,11 @@ MAX_ICON_UPLOAD_SIZE = 700000;
 [LINKEDIN]
 ;OAUTH_KEY = 
 ;OAUTH_SECRET = 
+
+; List supported Language/Locales
+; You should have translation .xlt files
+; made for these languages in
+; translations directory
+[LOCALES]
+en_US = "English (United States)"
+ru_RU = "Russian"

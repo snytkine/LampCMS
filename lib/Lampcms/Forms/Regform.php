@@ -74,6 +74,12 @@ class Regform extends Form
 		->validateEmail()
 		->validateUsername();
 	}
+	
+	protected function init(){
+		$Tr = $this->oRegistry->Tr;
+		$this->aVars['username_d'] = $Tr['Username will appear alongside your posts'];
+		$this->aVars['username_l'] = $Tr['Username'];
+	}
 
 
 	/**

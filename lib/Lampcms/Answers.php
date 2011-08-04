@@ -101,6 +101,7 @@ class Answers extends LampcmsObject
 	 * @return string html block
 	 */
 	public function getAnswers(Question $oQuestion, $result = 'html'){
+		$Tr = $this->oRegistry->Tr;
 		$qid = $oQuestion['_id'];
 		$url = $oQuestion['url'];
 		d('url: '.$url);
@@ -158,11 +159,15 @@ class Answers extends LampcmsObject
 		/**
 		 * @todo Translate strings
 		 */
-		$accept = 'Accept';
-		$alt = 'Click to accept this as best answer';
+		$accept = $Tr['Accept'];
+		$alt = $Tr['Click to accept this as best answer'];
+		$alt2 = $Tr['Owner of the question accepted this as best answer'];
 		$noComments = ($noComments) ? ' nocomments' : '';
+		$addcomment = $Tr['add comment'];
+		$reply = $Tr['Reply'];
+		$reply_t = $Tr['Reply to this comment'];
 		
-		$func = function(&$a) use ($accept, $alt, $showLink, $noComments){
+		$func = function(&$a) use ($accept, $alt, $alt2, $addcomment, $reply, $reply_t, $showLink, $noComments){
 			/**
 			 * Don't show Accept link for
 			 * already accepted answer
@@ -172,10 +177,13 @@ class Answers extends LampcmsObject
 					$a['accept_link'] = '<a class="accept ttt" title="'.$alt.'" href="/accept/'.$a['_id'].'">'.$accept.'</a>';
 				}
 			} else {
-				$a['accepted'] = '<img src="/images/accepted.png" alt="Best answer" class="ttt" title="Owner of the question accepted this as best answer">';
+				$a['accepted'] = '<img src="/images/accepted.png" alt="Best answer" class="ttt" title="'.$alt2.'">';
 			}
 			
+			$a['add_comment'] = $addcomment;
 			$a['nocomments'] = $noComments;
+			$a['reply'] = $reply;
+			$a['reply_t'] = $reply_t;
 		};
 		
 		/**

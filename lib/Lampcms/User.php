@@ -618,19 +618,25 @@ Interfaces\LinkedinUser
 			throw new \InvalidArgumentException('Param $locale must be a string');
 		}
 
+		$locale = str_replace('-', '_', $locale);
+
 		if(2 !== strlen($locale) && (!preg_match('/[a-z]{2}_[A-Z]{2}/', $locale))){
 			throw new \InvalidArgumentException('Param $locale is invalid. Must be in a form on "en_US" format (2 letter lang followed by underscore followed by 2-letter country');
 		}
-		
-		parent::offsetSet('locale', $locale);
-		
+
+		if(!$this->isGuest()){
+			parent::offsetSet('my_locale', $locale);
+
+			$this->save();
+		}
+
 		return $this;
 	}
-	
-	
+
+
 	public function getLocale(){
 		$locale = $this->offsetGet('locale');
-		
+
 		return (!empty($locale)) ? $locale : LAMPCMS_DEFAULT_LOCALE;
 	}
 

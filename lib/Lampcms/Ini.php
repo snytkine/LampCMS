@@ -68,13 +68,26 @@ namespace Lampcms;
 class Ini extends LampcmsArray
 {
 
+	protected $iniFile;
+	
+	/**
+	 * Constructor
+	 *
+	 * @param string $iniFile
+	 * @throws IniException if unable to parse ini file
+	 * 
+	 */
 	public function __construct($iniFile = null){
-		$iniFile = (!empty($iniFile)) ? $iniFile : LAMPCMS_PATH.DIRECTORY_SEPARATOR.'!config.ini';
+		if(null === $iniFile && defined('CONFIG_FILE_PATH')){
+			$iniFile = CONFIG_FILE_PATH;
+		}
+		
+		$this->iniFile = (!empty($iniFile)) ? $iniFile : LAMPCMS_PATH.DIRECTORY_SEPARATOR.'!config.ini';
 
-		$aIni = \parse_ini_file($iniFile, true);
+		$aIni = \parse_ini_file($this->iniFile, true);
 
 		if ( empty($aIni)) {
-			throw new IniException('Unable to parse ini file: '.$iniFile.' probably a syntax error in file');
+			throw new IniException('Unable to parse ini file: '.$this->iniFile.' probably a syntax error in file');
 		}
 
 		parent::__construct($aIni);
@@ -122,7 +135,7 @@ class Ini extends LampcmsArray
 
 		if (!array_key_exists($name, $aConstants)) {
 
-			throw new IniException('Error: configuration param: '.$name.' does not exist');
+			throw new IniException('Error: configuration param: '.$name.' does not exist in config file '.$this->iniFile);
 		}
 
 		if ('MAGIC_MIME_FILE' === $name) {
@@ -134,7 +147,7 @@ class Ini extends LampcmsArray
 		switch($name){
 			case 'SITE_URL':
 				if(empty($aConstants['SITE_URL'])){
-					throw new IniException('Value of SITE_URL in !config.inc file SHOULD NOT be empty!');
+					throw new IniException('Value of SITE_URL in '.$this->iniFile.' file SHOULD NOT be empty!');
 				}
 
 				$ret = \rtrim($aConstants['SITE_URL'], '/');
@@ -173,7 +186,7 @@ class Ini extends LampcmsArray
 			case 'WWW_DIR':
 			case 'EMAIL_ADMIN':
 				if(empty($aConstants[$name])){
-					throw new IniException($name.' param in !config.inc file has not been set! Please make sure it is set');
+					throw new IniException($name.' param in '.$this->iniFile.' file has not been set! Please make sure it is set');
 				}
 
 				$ret = \trim($aConstants[$name], "\"'");
@@ -233,7 +246,7 @@ class Ini extends LampcmsArray
 		if(!$this->offsetExists($name)){
 			d('no section '.$name.' in config file');
 
-			throw new IniException('Section '.$name.' does not exist in config');
+			throw new IniException('Section '.$name.' does not exist in config file '.$this->iniFile);
 		}
 
 		return $this->offsetGet($name);

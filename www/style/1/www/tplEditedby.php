@@ -59,13 +59,14 @@ class tplEditedby extends \Lampcms\Template\Template
 			'i_uid' => '', //2
 			'av' => '', //3
 			'reason' => '', //4
-			'hts' => '' // 5
+			'hts' => '', // 5
+			'edited' => 'Edited' // 6
 	        );
 
 
 	protected static $tpl = '
 	<div class="usr_info3">
-            <div class="qtime">Edited <span title="%5$s" class="ts">%5$s</span></div>
+            <div class="qtime">%6$s <span title="%5$s" class="ts">%5$s</span></div>
             <div class="avtr32">
             	 <img src="%3$s" height="32" width="32" alt="">
             </div>

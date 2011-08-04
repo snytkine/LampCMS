@@ -74,7 +74,7 @@ class Response
 
 	protected $charset = 'UTF-8';
 
-	protected $body;
+	protected $body = '';
 
 	protected $httpVersion = '1.1';
 
@@ -138,6 +138,26 @@ class Response
 		$this->body = (string)$body;
 
 		return $this;
+	}
+
+	
+	/**
+	 * Getter for body
+	 *
+	 * @return string
+	 */
+	public function getBody(){
+		return $this->body;
+	}
+
+
+	/**
+	 * Getter for headers array
+	 *
+	 * @return array
+	 */
+	public function getHeaders(){
+		return $this->aHeaders;
 	}
 
 
@@ -272,7 +292,7 @@ class Response
 	 *
 	 */
 	public function sendHeaders(){
-		
+
 		header(sprintf('HTTP/%s %s %s', $this->httpVersion, $this->httpCode, $this->httpMessage));
 		header('Content-Type: '.$this->contentType.'; charset='.strtolower($this->charset));
 

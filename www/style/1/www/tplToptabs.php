@@ -40,22 +40,23 @@ class tplToptabs extends Lampcms\Template\Template
 {
 	
 	protected static function func(&$a){
-		$a['search'] = \tplSearchForm::parse(array());
+		$a['search'] = \tplSearchForm::parse(array('q' => '', 'search_label' => $a['search_label']));
 	}
 	
 	protected static $vars = array(
-	'questions_c' => '',
-	'unanswered_c' => '',
-	'tags_c' => '',
-	'ask_c' => '',
-	'questions' => 'Questions',
-	'unanswered' => 'Unanswered',
-	'tags' => 'Tags',
-	'ask' => 'Ask Question',
-	'search' => '', //9
-	'users_c' => '', //10
-	'users' => 'Members' //11
+		'questions_c' => '',
+		'unanswered_c' => '',
+		'tags_c' => '',
+		'ask_c' => '',
+		'questions' => 'Questions',
+		'unanswered' => 'Unanswered',
+		'tags' => 'Tags',
+		'ask' => 'Ask Question',
+		'search' => '', //9
+		'users_c' => '', //10
+		'users' => 'Members' //11
 	);
+
 	
 	
 	protected static $tpl = '<div id="navtabs" class="doc3">

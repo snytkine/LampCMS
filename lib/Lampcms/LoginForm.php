@@ -65,25 +65,20 @@ class LoginForm
 
 	protected static function forMember(Registry $oRegistry){
 		if(empty($_SESSION['welcome'])){
+			$Translator = $oRegistry->Tr;
+			
 			$oViewer = $oRegistry->Viewer;
-			d('cp $oViewer: '.get_class($oViewer));
-
 			$invite = self::makeInviteLink($oViewer);
-			d('invite: '.$invite);
 			$url = $oViewer->getProfileUrl();
-			d('url: '.$url);
-
 			$avatar = $oViewer->getAvatarImgSrc();
-			d('avatar: '.$avatar);
-
 			$displayName = $oViewer->getDisplayName();
 
 			$a = array(
 			$avatar,
 			$displayName,
-			'Logout',
+			$Translator['Logout'],
 			$invite,
-			'settings' => 'Settings',
+			'settings' => $Translator['Settings'],
 			'url' => $url
 			);
 
@@ -108,7 +103,7 @@ class LoginForm
 	 * that will be shown on top of page (in header)
 	 */
 	public static function makeWelcomeMenu(Registry $oRegistry){
-		//d('makeWelcomeMenu')
+
 		if($oRegistry->Viewer->isGuest()){
 			d('going to make login form');
 
@@ -180,14 +175,15 @@ class LoginForm
 	protected static function makeWelcomeGuest(Registry $oRegistry){
 
 		if(empty($_SESSION['welcome_guest'])){
+			$Translator = $oRegistry->Tr;
 
 			$socialBtns = self::makeSocialButtons($oRegistry);
 
 			if(!empty($socialBtns)){
-				$socialBtns = '<div class="fl" id="socialbtns"><span>Or Join with </span>'.$socialBtns.'</div>';
+				$socialBtns = '<div class="fl" id="socialbtns"><span>'.$Translator['Or Join with'].' </span>'.$socialBtns.'</div>';
 			}
 
-			$html = \tplWelcomeGuest::parse(array('Welcome!', 'Sign up', $socialBtns), false);
+			$html = \tplWelcomeGuest::parse(array($Translator['Welcome!'], $Translator['Sign up'], $socialBtns), false);
 
 			$_SESSION['welcome_guest'] = $html;
 		}
@@ -275,24 +271,22 @@ class LoginForm
 	 * @return string html
 	 */
 	protected static function makeLoginBlock(Registry $oRegistry){
+		$Translator = $oRegistry->Tr;
+		
 		$error = (!empty($_SESSION['login_error'])) ? $_SESSION['login_error'] : '';
 		d('$error: '.$error);
 			
 		$aVals = array(
-			'Username',
-			'Password',
-			'Remember me',
-		    'Username required',
-			'Forgot password?',
-			'Log in',
-		$error
+			$Translator['Username'],
+			$Translator['Password'],
+			$Translator['Remember me'],
+		    $Translator['Username required'],
+			$Translator['Forgot password?'],
+			$Translator['Log in'],
+			$error
 		);
 
-		d('cp');
-		$html = \tplLoginform::parse($aVals, false);
-
-		return $html;
-
+		return \tplLoginform::parse($aVals, false);
 	}
 
 
@@ -304,9 +298,7 @@ class LoginForm
 	 *
 	 * @return string HTML string for links
 	 */
-	protected static function makeInviteLink(User $oUser)
-	{
-		d('cp');
+	protected static function makeInviteLink(User $oUser){
 		switch(true){
 			case ($oUser instanceof UserGfc):
 				d('cp');

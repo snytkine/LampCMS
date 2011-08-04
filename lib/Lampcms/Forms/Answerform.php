@@ -89,6 +89,8 @@ class Answerform extends Form
 
 		d('cp');
 
+		$Tr = $this->oRegistry->Tr;
+		
 		/**
 		 * A custom observer may cancel the onBeforeAnswerform event
 		 * in order to NOT display the form
@@ -119,10 +121,11 @@ class Answerform extends Form
 		d('cp');
 
 
-		$formTitle = (0 === $oQuestion['i_ans']) ? 'Be the first to answer this question' : 'Your answer' ;
+		$formTitle = (0 === $oQuestion['i_ans']) ? $Tr['Be the first to answer this question'] : $Tr['Your answer'] ;
 
 		$this->setVar('title', $formTitle);
 		$this->setVar('qid', $oQuestion['_id']);
+		$this->setVar('submit', $Tr['Submit answer']);
 
 		if($this->oRegistry->Viewer->isGuest()){
 			d('cp');

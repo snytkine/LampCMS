@@ -9299,11 +9299,12 @@ div.vote {
 
 #ccwiki-copyright {
 	float: left;
-	clear: both;
-	margin-top: 15px;
+	/*clear: both;
+	*/
+	margin-top: 5px;
 	margin-bottom: 10px;
-	border-top: 1px solid #333;
-	width: 100%;
+	/*border-top: 1px solid #333;
+	*/width: 50%;
 	padding-top: 10px;
 }
 

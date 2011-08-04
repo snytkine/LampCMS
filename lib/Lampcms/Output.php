@@ -138,6 +138,16 @@ abstract class Output{
 
 
 	/**
+	 * Getter for aData
+	 * 
+	 * @return array
+	 */
+	public function getData(){
+		return $this->aData;
+	}
+
+
+	/**
 	 * Format the data and return the result string
 	 *
 	 * @return string

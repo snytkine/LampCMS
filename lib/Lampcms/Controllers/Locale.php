@@ -50,27 +50,64 @@
  */
 
 
-class tplSearchForm extends \Lampcms\Template\Template
+namespace Lampcms\Controllers;
+
+use Lampcms\WebPage;
+use Lampcms\Responder;
+use Lampcms\Cookie;
+use Lampcms\I18n\Translator;
+
+/**
+ * This controller processes "select locale"
+ * drop-down form
+ * When user selects new value of "language"
+ * via the drop-down form at the bottom of pages
+ * the request is sent to this controller.
+ * It sets the system-wide locale and
+ * changes the value of locale in Viewer object
+ * and also sends out the locale cookie
+ * Then it redirects the user back to the
+ * page where they came from
+ *
+ *
+ * @author Dmitri Snytkine
+ *
+ */
+class Locale extends WebPage
 {
+	protected $aRequired = array('locale', 'redirect');
 
+	protected function main(){
+		$locale = $this->oRequest->get('locale');
+		/*echo __METHOD__.' '.__LINE__.'$locale: '.$locale;
+		 exit;*/
 
-	protected static function func(&$a){
-		if(!empty($_GET['q'])){
-			$a['q'] = \filter_input(INPUT_GET, 'q', FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
+		if(isset($_SESSION['guest_block'])){
+			unset($_SESSION['guest_block']);
 		}
+
+		if(isset($_SESSION['langs'])){
+			unset($_SESSION['langs']);
+		}
+
+		if(isset($_SESSION['welcome'])){
+			unset($_SESSION['welcome']);
+		}
+
+		if(isset($_SESSION['welcome_guest'])){
+			unset($_SESSION['welcome_guest']);
+		}
+
+		$_SESSION['locale'] = $locale;
+		$this->oRegistry->Locale->set($locale);
+		Cookie::set('locale', $locale);
+		if(!empty($_SESSION['langs'])){
+			unset($_SESSION['langs']);
+		}
+		//echo __METHOD__.' '.__LINE__.' getting Tr object for locale: '.$locale;
+		//$this->Tr = Translator::factory($this->oRegistry, $locale);
+		//echo __METHOD__.' '.__LINE__.' '.print_r($this->Tr->getMessages(), 1);//$this->Tr->get('Questions');
+
+		Responder::redirectToPage($this->oRequest->get('redirect'));
 	}
-
-	protected static $vars  = array(
-	'q' => '',
-	'search_label' => 'Search'
-	);
-
-	protected static $tpl = '
-	<form name="search" id="id_search" accept-charset="utf-8" action="/index.php" method="GET">
-		<div class="row">
-			<input type="hidden" name="a" value="search"> 
-			<input type="text" id="id_q" name="q" value="%1$s">
-			<input id="btnsearch" type="submit" size="24" value="%2$s"></div>
-	</form>';
-
 }

@@ -108,6 +108,10 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 
 	public function __construct(array $a = null){
+
+		/*print_r($a);
+		 exit;*/
+
 		$a = (null === $a) ? array() : $a;
 		parent::__construct($a);
 	}
@@ -126,7 +130,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 * case param $name is not found
 	 */
 	public function get($name, $type = 's', $default = null){
-
+		
 		$val = (!$this->offsetExists($name)) ? $default : $this->offsetGet($name);
 
 		switch(true){
@@ -248,6 +252,10 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 */
 	public function offsetGet($offset){
 
+		//echo "\n".__METHOD__.' looking for '.$offset.' exists: '.$this->offsetExists($offset);
+		$arrBacktrace = debug_backtrace(false);
+		//echo "\nbacktrace: ".print_r($arrBacktrace, 1);
+
 		/**
 		 * Offset (param in url or in post)
 		 * can only be ASCII char
@@ -266,10 +274,11 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 			} elseif('pageID' === $offset){
 				return 1;
 			}
-			
+
 			throw new \Lampcms\DevException('Request param '.$offset.' does not exist');
 		}
-		
+
+		//echo ' value of '.$offset.' '.parent::offsetGet($offset);
 		return $this->getFiltered($offset);
 	}
 

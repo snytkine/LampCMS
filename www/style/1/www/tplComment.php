@@ -73,7 +73,9 @@ class tplComment extends \Lampcms\Template\Template
 	'e' => '', //11
 	'owner_id' => '0', //12
 	'resource_id' => '0', //13
-	's_inreply' => '' //14
+	's_inreply' => '', //14
+	'reply' => 'Reply', //15
+	'reply_t' => 'Reply to this comment' //16
 	);
 
 
@@ -102,7 +104,7 @@ class tplComment extends \Lampcms\Template\Template
 				%11$s
 				%9$s		
 			</div>	
-			<div class="fr mt10 com_reply"><span class="ico comment fl">&nbsp;</span><a href="#" title="Reply to this comment" class="ttt com_reply_link ajax uid-%12$s" id="comrepl_%1$s">Reply</a></div>
+			<div class="fr mt10 com_reply"><span class="ico comment fl">&nbsp;</span><a href="#" title="%16$s" class="ttt com_reply_link ajax uid-%12$s" id="comrepl_%1$s">%15$s</a></div>
 		</div>
 	</div>';
 }

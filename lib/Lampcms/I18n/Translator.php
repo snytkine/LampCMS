@@ -69,7 +69,7 @@ use \Lampcms\CacheCallback;
  * @author Dmitri Snytkine
  *
  */
-class Translator implements \Lampcms\Interfaces\Translator
+class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Translator
 {
 
 	/**
@@ -112,7 +112,7 @@ class Translator implements \Lampcms\Interfaces\Translator
 		
 		$oCache = $oRegistry->Cache;
 		$fallback = null;
-		$locale = ('' !== $locale) ? $locale : $oRegistry->getLocale();
+		$locale = ('' !== $locale) ? $locale : $oRegistry->Locale->getLocale();
 		
 		if (strlen($locale) > 3) {
 			d('going to also use lang fallback for $locale: '.$locale);
@@ -124,7 +124,8 @@ class Translator implements \Lampcms\Interfaces\Translator
 		d('$default: '.$default.' $locale: '.$locale.' $fallback: '.$fallback);
 
 		$o = new static();
-
+		$o->setLocale($locale);
+		
 		/**
 		 * Get the XLIFF object for this locale,
 		 * one for fallback if different from this locale
@@ -150,17 +151,17 @@ class Translator implements \Lampcms\Interfaces\Translator
 	 * Enter description here ...
 	 * @param unknown_type $locale
 	 */
-	public function setLocate($locale){
+	public function setLocale($locale){
 		if(!\is_string($locale)){
-			throw new \InvalidArgumentException('Param $locale must be a string');
+			throw new \Lampcms\DevException('Param $locale must be a string Was: '.gettype($locale));
 		}
 
 
-		if(2 !== strlen($locale) && (!preg_match('/[a-z]{2}_[A-Z]{2}/', $locale))){
+		/*if(2 !== strlen($locale) && (!preg_match('/[a-z]{2}_[A-Z]{2}/', $locale))){
 			throw new \InvalidArgumentException('Param $locale is invalid. Must be in a form on "en_US" format (2 letter lang followed by underscore followed by 2-letter country');
-		}
+		}*/
 
-		$this->locate = $locale;
+		$this->locale = $locale;
 
 		return $this;
 	}
@@ -209,7 +210,9 @@ class Translator implements \Lampcms\Interfaces\Translator
 	 * @param \Lampcms\Interfaces\TranslatorCatalog $o
 	 */
 	public function addCatalog(\Lampcms\Interfaces\Translator $o){
-		$this->addArray($o->getMessages());
+		$a = $o->getMessages();
+		
+		$this->addArray($a);
 		
 		return $this;
 	}
@@ -253,6 +256,24 @@ class Translator implements \Lampcms\Interfaces\Translator
 	 */
 	public function has($string){
 		return array_key_exists($string, $this->aMessages);
+	}
+	
+	public function offsetExists($offset){
+		return $this->has($offset);
+	}
+	
+	
+	public function offsetGet($offset){
+		return $this->get($offset, null, $offset);
+	}
+	
+	
+	public function offsetUnset($offset){
+		
+	}
+	
+	public function offsetSet($offset, $value){
+		$this->aMessages[$offset] = $value;
 	}
 
 }

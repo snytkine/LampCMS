@@ -211,7 +211,7 @@ class Exception extends \Exception
 
 
 
-	public static function formatException(\Exception $e, $sMessage = ''){
+	public static function formatException(\Exception $e, $sMessage = '', \Lampcms\I18n\Translator $Tr = null){
 		$sMessage = (!empty($sMessage)) ? $sMessage : $e->getMessage();
 		//$sMessage = $e->getMessage();
 		//$bHtml = ($e instanceof \Lampcms\Exception) ? $e->getHtmlFlag() : false;
@@ -224,6 +224,11 @@ class Exception extends \Exception
 
 		$aArgs = ($e instanceof \Lampcms\Exception) ? $e->getArgs() : null;
 		$sMessage = (!empty($aArgs)) ? vsprintf($sMessage, $aArgs) : $sMessage;
+
+		if($Tr){
+			
+			$sMessage = $Tr[$sMessage];
+		}
 
 		$sError = '';
 		$sTrace = nl2br(self::getExceptionTraceAsString($e)).'<hr>';
@@ -290,12 +295,12 @@ class Exception extends \Exception
 	/**
 	 * A workaround for a buggy behaviour in php
 	 * that truncates the strings in arguments to 15 chars-long
-	 * 
+	 *
 	 * Thanks to Steve for posting this fix here:
 	 * http://stackoverflow.com/questions/1949345/
-	 * 
+	 *
 	 * @param object $exception instance of php Exception or any
-	 * sub-class 
+	 * sub-class
 	 */
 	public static function getExceptionTraceAsString(\Exception $exception) {
 		$rtn = "";
@@ -331,17 +336,17 @@ class Exception extends \Exception
 			$args );
 			$count++;
 		}
-		
+
 		return $rtn;
 	}
-	
+
 	/**
 	 * Helper function to get value of array offset (key)
 	 * if offset exists, else get empty string
-	 * 
+	 *
 	 * @param array $a
-	 * @param string $key array key 
-	 * 
+	 * @param string $key array key
+	 *
 	 * @return string
 	 */
 	protected static function getOffset(array $a, $key){

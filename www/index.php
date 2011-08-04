@@ -73,7 +73,7 @@ try {
 	$oRequest = $oRegistry->Request;
 	$a = $oRequest['a'];
 
-	d('a: '.$a.' $oRequest: '.print_r($oRequest->getArray(), 1));
+	//d('a: '.$a.' $oRequest: '.print_r($oRequest->getArray(), 1));
 	$controller = ucfirst($a);
 	include($lampcmsClasses.'Controllers'.DIRECTORY_SEPARATOR.$controller.'.php');
 	$class = '\Lampcms\\Controllers\\'.$controller;

@@ -156,7 +156,15 @@ class Registry implements Interfaces\LampcmsObject
 
 
 		$this->values['Locale'] = $this->asShared(function ($c) {
-			return \Lampcms\Locale\Locale::factory($c);
+			
+			return new \Lampcms\Locale\Locale($c);
+		});
+		
+		
+		$this->values['Tr'] = $this->asShared(function ($c) {
+			$l = $c->Locale->getLocale();
+			return $c->Cache->{'tr_'.$l};
+			//return new \Lampcms\Locale\Locale($c);
 		});
 
 
@@ -448,47 +456,7 @@ class Registry implements Interfaces\LampcmsObject
 
 		return $defaultLang;
 	}
-
-
-	/**
-	 * Get value of locale
-	 * This method will also
-	 * set the value in $_SESSION['locale']
-	 * if $_SESSION is present and
-	 * locale is not already set in session
-	 * If $_SESSION['locale'] is set then
-	 * it will be returned immediately
-	 *
-	 * @return string value of locale
-	 *
-	 */
-	public function getLocale(){
-
-		if(!empty($_SESSION) && !empty($_SESSION['locale'])){
-
-			return $_SESSION['locale'];
-		}
-
-		$oViewer = $this->__get('Viewer');
-
-		/**
-		 * If Viewer is not a guest then
-		 * get value of locale from Viewer object
-		 */
-		if(is_object($oViewer) && !$oViewer->isGuest()){
-			$locale = $oViewer->offsetGet('locale');
-		} elseif (isset($_COOKIE) && !empty($_COOKIE['locale'])) {
-			$locale = $_COOKIE['locale'];
-		}else {
-			$locale = LAMPCMS_DEFAULT_LOCALE;
-		}
-
-		if (isset($_SESSION)) {
-			$_SESSION['locale'] = $locale;
-		}
-
-		return $locale;
-	}
+	
 
 
 	/**

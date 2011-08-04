@@ -179,11 +179,12 @@ class RegBlock extends LampcmsObject
 		return $this;
 	}
 
+	
 	/**
 	 * @todo change to NOT use usernameBLock
 	 * and instead just directly set vars in tplRegform
 	 * values of 'username'
-	 * Enter description here ...
+	 * 
 	 */
 	protected function setUsernameVars(){
 		d('cp');
@@ -195,6 +196,7 @@ class RegBlock extends LampcmsObject
 		return $this;
 	}
 
+	
 	/**
 	 * Set values of replacement vars for the template
 	 * depending on the type of oViewer object

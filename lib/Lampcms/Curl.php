@@ -68,6 +68,16 @@ class Curl extends LampcmsObject
 	protected $aHeaders = array();
 
 	/**
+	 * Array of headers to send with request
+	 * Not to be confused with aHeaders which
+	 * is array of headers the server sends us
+	 * back in response
+	 *
+	 * @var array
+	 */
+	protected $aRequestHeaders = array();
+
+	/**
 	 * Body of response (usually some html or xml)
 	 * as returned from the http server
 	 * @var srting
@@ -227,12 +237,15 @@ class Curl extends LampcmsObject
 	 * if it has not yet been
 	 * created
 	 *
+	 * @reset bool if true then will reinitialize $this->request
+	 * even if it's already set.
+	 * 
 	 * @return object $this
 	 */
-	public function initCurl(){
+	public function initCurl($reset = false){
 
-		if(!isset($this->request)){
-			$this->request = curl_init();
+		if($reset || !isset($this->request) || !is_resource($this->request)){
+			$this->request = \curl_init();
 		}
 
 		return $this;
@@ -316,7 +329,7 @@ class Curl extends LampcmsObject
 		 */
 		\curl_setopt($this->request, CURLOPT_SSL_VERIFYPEER, false);
 
-		if(false === curl_setopt($this->request, CURLOPT_URL, $url)){
+		if(false === \curl_setopt($this->request, CURLOPT_URL, $url)){
 			throw new \Exception('Unable to set url: '.$url);
 		}
 
@@ -334,11 +347,11 @@ class Curl extends LampcmsObject
 			$this->setHeaders($aHeaders);
 		}
 
-		$response = curl_exec($this->request);
-		$this->info = curl_getinfo($this->request);
-		$error = curl_error($this->request);
-		$error_code = curl_errno($this->request);
-		$header_size = curl_getinfo($this->request, CURLINFO_HEADER_SIZE);
+		$response = \curl_exec($this->request);
+		$this->info = \curl_getinfo($this->request);
+		$error = \curl_error($this->request);
+		$error_code = \curl_errno($this->request);
+		$header_size = \curl_getinfo($this->request, CURLINFO_HEADER_SIZE);
 		if(28 === (int)$error_code){
 			throw new HttpTimeoutException($error);
 		}
@@ -350,7 +363,7 @@ class Curl extends LampcmsObject
 
 		foreach ($headers as $h) {
 			if(\preg_match('#(.*?)\:\s(.*)#', $h, $matches)){
-				$this->aResponseHeaders[strtolower($matches[1])] = trim($matches[2]);
+				$this->aResponseHeaders[strtolower($matches[1])] = \trim($matches[2]);
 			}
 		}
 
@@ -467,13 +480,11 @@ class Curl extends LampcmsObject
 	 * @param array $aHeaders
 	 */
 	public function setHeaders(array $aHeaders){
-		foreach ($aHeaders as $key => $value) {
-			$headers[] = $key.': '.$value;
+		if(count($aHeaders) > 0){
+			foreach ($aHeaders as $key => $value) {
+				$this->aRequestHeaders[] = $key.': '.$value;
+			}
 		}
-
-		$this->initCurl();
-
-		\curl_setopt($this->request, CURLOPT_HTTPHEADER, $headers);
 
 		return $this;
 	}
@@ -495,32 +506,36 @@ class Curl extends LampcmsObject
 
 		}
 
-		curl_setopt($this->request, CURLOPT_HEADER, true);
-		curl_setopt($this->request, CURLOPT_RETURNTRANSFER, true);
+		\curl_setopt($this->request, CURLOPT_HEADER, true);
+		\curl_setopt($this->request, CURLOPT_RETURNTRANSFER, true);
 
 		if(!empty($this->cookieFile)){
-			curl_setopt($this->request, CURLOPT_COOKIEFILE, $this->cookieFile);
-			curl_setopt($this->request, CURLOPT_COOKIEJAR, $this->cookieFile);
+			\curl_setopt($this->request, CURLOPT_COOKIEFILE, $this->cookieFile);
+			\curl_setopt($this->request, CURLOPT_COOKIEJAR, $this->cookieFile);
+		}
+
+		if(!empty($this->aRequestHeaders)){
+			\curl_setopt($this->request, CURLOPT_HTTPHEADER, $this->aRequestHeaders);
 		}
 
 		if(!empty($this->referrer)){
-			curl_setopt($this->request, CURLOPT_REFERER, $this->referrer);
+			\curl_setopt($this->request, CURLOPT_REFERER, $this->referrer);
 		}
 
 		if(!empty($this->aOptions['useragent'])){
-			curl_setopt($this->request, CURLOPT_USERAGENT, $this->aOptions['useragent']);
+			\curl_setopt($this->request, CURLOPT_USERAGENT, $this->aOptions['useragent']);
 		}
 
 		if(!empty($this->aOptions['timeout'])){
-			curl_setopt($this->request, CURLOPT_TIMEOUT, $this->aOptions['timeout']);
+			\curl_setopt($this->request, CURLOPT_TIMEOUT, $this->aOptions['timeout']);
 		}
 
 		if(!empty($this->aOptions['redirect']) && $this->aOptions['redirect']){
-			curl_setopt($this->request, CURLOPT_FOLLOWLOCATION, 5);
+			\curl_setopt($this->request, CURLOPT_FOLLOWLOCATION, 5);
 		}
 
 		if(!empty($this->aOptions['login']) && !empty($this->aOptions['password'])){
-			curl_setopt($this->request,  CURLOPT_USERPWD, $this->aOptions['login'].':'.$this->aOptions['password']);
+			\curl_setopt($this->request,  CURLOPT_USERPWD, $this->aOptions['login'].':'.$this->aOptions['password']);
 		}
 
 		if(!empty($this->aOptions['method']) && 'POST' === strtoupper($this->aOptions['method'])){
@@ -534,14 +549,14 @@ class Curl extends LampcmsObject
 		}
 
 		if(!empty($this->aOptions['gzip'])){
-			curl_setopt($this->request, CURLOPT_ENCODING, 'gzip');
+			\curl_setopt($this->request, CURLOPT_ENCODING, 'gzip');
 		}
 
 		if(!empty($this->aOptions['basicAuth'])){
-			curl_setopt($this->request, CURLOPT_USERPWD, $this->aOptions['basicAuth']);
+			\curl_setopt($this->request, CURLOPT_USERPWD, $this->aOptions['basicAuth']);
 		}
 		if(!empty($this->aOptions['ip'])){
-			curl_setopt($this->request, CURLOPT_INTERFACE, $this->aOptions['ip']);
+			\curl_setopt($this->request, CURLOPT_INTERFACE, $this->aOptions['ip']);
 		}
 
 		return $this;
@@ -555,7 +570,7 @@ class Curl extends LampcmsObject
 	 * @param string $val
 	 */
 	public function setOption($name, $val){
-		curl_setopt($this->request, constant($name), $val);
+		\curl_setopt($this->request, constant($name), $val);
 	}
 
 

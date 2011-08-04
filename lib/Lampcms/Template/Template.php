@@ -85,16 +85,25 @@ class Template
 	 * @param array $vars
 	 */
 	protected static function func(&$vars){}
-	
+
 	/**
-	 * Flag indicates that 
+	 * Flag indicates that
 	 * template should skip
 	 * calling the $func function
 	 *
-	 * 
+	 *
 	 * @var bool
 	 */
 	protected static $skip = false;
+
+
+	protected static function translate($s, array $vars = null){
+		if(isset($_SESSION) && !empty($_SESSION['Translator'])){
+			return $_SESSION['Translator']->get($s, $vars, $s);
+		}
+
+		return $s;
+	}
 
 	/**
 	 * Parse template, using input $aVars array of replacement
@@ -137,7 +146,7 @@ class Template
 		 * are not present in the database
 		 */
 		if(null !== $func){
-			
+				
 			$func($aVars);
 		}
 
@@ -151,7 +160,7 @@ class Template
 		 *
 		 */
 		if( false === static::$skip ){
-			
+				
 			static::func($aVars);
 		}
 
@@ -243,6 +252,25 @@ class Template
 	 */
 	public static function getTemplate(){
 		return static::$tpl;
+	}
+
+	
+	/**
+	 * Get array of unparsed template
+	 * and default vars
+	 *
+	 * It may be very helpful in case of Ajax to load
+	 * the template into browser and do the
+	 * vsprinf(tpl, vars) in javascript
+	 * using the sprintf for javascript package
+	 *
+	 * @see http://www.diveintojavascript.com/projects/javascript-sprintf
+	 *
+	 * @return array with keys 'tpl' and 'vars' representing
+	 * the template on which this was called
+	 */
+	public static function get(){
+		return array('tpl' => static::$tpl, 'vars' => static::$vars);
 	}
 
 }

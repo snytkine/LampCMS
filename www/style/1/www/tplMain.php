@@ -88,7 +88,9 @@ class tplMain extends Lampcms\Template\Template
 	'comments_timeout' => '5',//37
 	'max_comments' => '0', // 38
 	'JS_MIN_ID' => '', // 39
-	'DISABLE_AUTOCOMPLETE' => '' // 40
+	'DISABLE_AUTOCOMPLETE' => '', // 40
+	'langsForm' => '', //41
+	'home' => 'Home' // 42
 	);
 
 	protected static $tpl = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -122,7 +124,7 @@ class tplMain extends Lampcms\Template\Template
 	 <div id="loginHead" class="doc3">
 	 	<div class="fl w40">
 	 	<div class="icn home"></div>
-	 		<a href="/">Home</a>
+	 		<a href="/">%42$s</a>
 	 	</div>
 	 	%16$s
 	 </div>
@@ -134,23 +136,26 @@ class tplMain extends Lampcms\Template\Template
  	<div class="qheader">%30$s</div>
     <div id="qview-body">%17$s</div>
 </div>
-<div class="yui3-u-1-4" id="nav">
-<!-- right side -->
-  <div id="qview-side">
-	%25$s
- 	%18$s
- 	%26$s
- 	%27$s
- 	%28$s
- 	%29$s
- 	%31$s
-   </div>
+	<div class="yui3-u-1-4" id="nav">
+	<!-- right side -->
+	  <div id="qview-side">
+		%25$s
+	 	%18$s
+	 	%26$s
+	 	%27$s
+	 	%28$s
+	 	%29$s
+	 	%31$s
+	   </div>
+	</div>
 </div>
-    </div>
+<hr class="line1">
 	<div id="ft" class="footer">%19$s
-	<div id="ccwiki-copyright">Powered by <a href="http://www.lampcms.com">LampCMS</a> Source code available at <a href="https://github.com/snytkine/LampCMS">github</a>
-	<br>Questions and Answers are licensed under <a href="http://creativecommons.org/licenses/by-sa/2.5/" rel="nofollow" target="_blank">cc-wiki</a> license.<br></div>
-	<div class="timer ajax fbsignup">{timer}</div>
+		<div id="ccwiki-copyright">Powered by <a href="http://www.lampcms.com">LampCMS</a> Source code available at <a href="https://github.com/snytkine/LampCMS">github</a>
+			<br>Questions and Answers are licensed under <a href="http://creativecommons.org/licenses/by-sa/2.5/" rel="nofollow" target="_blank">cc-wiki</a> license.<br>
+		</div>
+		<div class="fr langs">%41$s</div>
+		<div class="cb fl timer ajax fbsignup">{timer}</div>
 	</div> 
 </div>
 

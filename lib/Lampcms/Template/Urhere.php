@@ -116,6 +116,7 @@ class Urhere extends LampcmsObject
 	 * this method is $obj->get('tmpSomeTemplate', 'someparam', null, $func)
 	 */
 	public function get($tpl, $current = '', array $vars = null, $func = null){
+		$Tr = $this->oRegistry->Tr;
 		$template = $tpl;
 		$aVars = $template::getVars();
 		if(array_key_exists($current.'_c', $aVars)){
@@ -125,12 +126,36 @@ class Urhere extends LampcmsObject
 		if(null !== $vars){
 			$aVars = array_merge($aVars, $vars);
 		}
+		
 		d('template: '.$template.' $aVars: '.print_r($aVars, 1));
+		$this->translate($template, $aVars);
 		if(null !== $func){
 			d('$func is not null');
 		}
 
-		return $template::parse($aVars, $func);
-		
+		return $template::parse($aVars, false, $func);
+	}
+	
+	
+	/**
+	 * Apply Translation to some template strings
+	 * 
+	 * @param string $template
+	 * @param array $vars passed by reference
+	 */
+	protected function translate($template, array &$vars){
+		$Translator = $this->oRegistry->Tr;
+		switch($template){
+			case 'tplToptabs':
+				$vars['questions']    = $Translator['Questions'];
+				$vars['unanswered']   = $Translator['Unanswered'];
+				$vars['tags']         = $Translator['Tags'];
+				$vars['ask']          = $Translator['Ask Question'];
+				$vars['users']        = $Translator['Members'];
+				$vars['search_label'] = $Translator['Search'];
+				break;
+				
+			
+		}
 	}
 }

@@ -240,13 +240,33 @@ abstract class Api extends \Lampcms\Base
 	protected $sortBy = '_id';
 
 
-	public function __construct(Registry $oRegistry, Request $oRequest = null){
+	/**
+	 * Flag indicates this class is used
+	 * as RESTful API
+	 * Alternatively it can be used as
+	 * worker for SOAP server, in which case
+	 * we should skip certain things like
+	 * formatting output
+	 * and should also NOT handle any exceptions and let
+	 * the exceptions be caught by the class or
+	 * by the php file that handles SOAP requests
+	 * It will then convert Exception's messages to SOAP Fault exception
+	 * This is the correct way to do things in SOAP
+	 *
+	 *
+	 * @var bool
+	 */
+	protected $restful = true;
+
+
+	public function __construct(Registry $oRegistry, Request $oRequest = null, $restful = true){
 		parent::__construct($oRegistry);
 		$this->oRequest = (null !== $oRequest) ? $oRequest : $oRegistry->Request;
+		$this->restful = $restful;
 		$format = $this->oRequest->get('alt', 's', 'json');
 		$callback = $this->oRequest->get('callback', 's', null);
 		$this->oOutput = \Lampcms\Output::factory($format, $callback);
-		$this->oResponse = Response::factory();
+		$this->oRegistry->Response = Response::factory();
 		$this->aConfig = $oRegistry->Ini->getSection('API');
 
 		$this->pageID = $this->oRequest['pageID'];
@@ -285,12 +305,12 @@ abstract class Api extends \Lampcms\Base
 		 * then skip this step
 		 */
 		if(empty($this->accessId)){
-			
+				
 			/**
 			 * @todo This is WRONG
 			 * this is apikey, NOT the same as app_id which we
 			 * will get from the database based on apikey!
-			 * 
+			 *
 			 */
 			$this->oRegistry->clientAppId = $this->oRequest->get('apikey', 's', null);
 			/**
@@ -376,11 +396,11 @@ abstract class Api extends \Lampcms\Base
 			 * Set $this->viewerId
 			 * it will result in increasing
 			 * access rate limit
-			 * 
-			 * 
+			 *
+			 *
 			 */
 			$this->viewerId = $oUser->getUid();
-			
+				
 		} catch(\Lampcms\LoginException $e) {
 			e('Login error: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
 			/**
@@ -502,7 +522,7 @@ abstract class Api extends \Lampcms\Base
 	 * is to populate
 	 * the $this->oOutput object
 	 * Now we can use $this->oOutput to populate
-	 * $this->oResponse with value for the body
+	 * $this->oRegistry->Response with value for the body
 	 * and headers of response
 	 * The Response object will then
 	 * be ready for sending out output
@@ -513,9 +533,9 @@ abstract class Api extends \Lampcms\Base
 	protected function prepareResponse(){
 		d('this->rateLimit: '.$this->rateLimit.' $this->accessCounter: '.$this->accessCounter);
 
-		$this->oResponse->setOutput($this->oOutput);
-		$this->oResponse->addHeader('X-RateLimit-Limit', $this->rateLimit);
-		$this->oResponse->addHeader('X-RateLimit-Remaining', ($this->rateLimit - $this->accessCounter) );
+
+		$this->oRegistry->Response->addHeader('X-RateLimit-Limit', $this->rateLimit);
+		$this->oRegistry->Response->addHeader('X-RateLimit-Remaining', ($this->rateLimit - $this->accessCounter) );
 		/**
 		 * Currently the reset of rate limit is
 		 * on the start of next day. In the future we may
@@ -526,9 +546,12 @@ abstract class Api extends \Lampcms\Base
 		 *
 		 */
 		$resetTimestamp = mktime(0, 0, 0, date('n'), date('j') + 1);
-		$this->oResponse->addHeader('X-RateLimit-Reset', $resetTimestamp );
+		$this->oRegistry->Response->addHeader('X-RateLimit-Reset', $resetTimestamp );
 
-
+		if($this->restful){
+			$this->oRegistry->Response->setOutput($this->oOutput);
+		}
+		
 		return $this;
 	}
 
@@ -541,28 +564,30 @@ abstract class Api extends \Lampcms\Base
 	 * @param \Exception $e
 	 */
 	protected function handleException(\Exception $e){
+
+		if(!$this->restful){
+			throw $e;
+		}
+
 		if($e instanceof \Lampcms\HttpResponseCodeException){
 			$code = $e->getHttpCode();
-			$this->oResponse->setHttpCode($code);
+			$this->oRegistry->Response->setHttpCode($code);
 			/**
 			 * @todo if $code = 405 and bRequirePost then
 			 * set extra header Allow: POST
 			 * This is to comply with RFC
 			 */
 		} else {
-			$this->oResponse->setHttpCode(500);
+			$this->oRegistry->Response->setHttpCode(500);
 		}
 
 		$err = \strip_tags($e->getMessage());
 		$err2 = ('API Exception caught in: '.$e->getFile().' on line: '.$e->getLine().' error: '.$err);
 
 		d($err2);
-		//exit($err);
 
 		$this->oOutput->setData(array('error' => $err));
-
-
-		$this->oResponse->setBody($this->oOutput);
+		$this->oRegistry->Response->setBody($this->oOutput);
 
 	}
 
@@ -725,7 +750,7 @@ abstract class Api extends \Lampcms\Base
 	 *
 	 */
 	public function getResponse(){
-		return $this->oResponse;
+		return $this->oRegistry->Response;
 	}
 
 }

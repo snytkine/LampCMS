@@ -132,7 +132,7 @@ class Unanswered extends Viewquestions
 			 * uncache onQuestionVote, onQuestionComment
 			 */
 			case 'noanswer':
-				$this->title = 'Questions with no answers';
+				$this->title = $this->_('Questions with no answers');
 				$this->pagerPath = '/unanswered/noanswers';
 				$where = array('i_ans' => 0);
 				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQuntypes', 'noanswer');
@@ -141,18 +141,10 @@ class Unanswered extends Viewquestions
 			case 'tagged':
 				$where = array('i_sel_ans' => null, 'a_tags' => array('$all' => $this->getTags()) );
 				$this->pagerPath = '/unanswered/tagged/'.$this->rawTags;
-				//'i_sel_ans' => null,
 				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQuntypes', 'newest');
-				/**
-				 * @todo
-				 * translate 'Tagged'
-				 *
-				 * @var unknown_type
-				 */
-
 				$this->makeFollowTagButton();
 				$replaced = \str_replace(' ', ' + ', $this->tags);
-				$this->counterTaggedText = \tplCounterblocksub::parse(array($replaced, 'Tagged'), false);
+				$this->counterTaggedText = \tplCounterblocksub::parse(array($replaced, $this->_('Tagged')), false);
 				break;
 
 				/**
@@ -160,6 +152,7 @@ class Unanswered extends Viewquestions
 				 * with no selected answer!
 				 */
 			default:
+				$this->title = $this->_('Questions with no accepted answer');
 				$where = array('i_sel_ans' => null);
 				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQuntypes', 'newest');
 		}
@@ -180,8 +173,6 @@ class Unanswered extends Viewquestions
 
 
 	protected function addTagFollowers(){
-
-		d('adding tag followers');
 		$s = \Lampcms\ShowFollowers::factory($this->oRegistry)->getTagFollowers($this->aTags[0]);
 		d('tag followers: '.$s);
 		$this->aPageVars['side'] .= '<div class="fr cb w90 lg rounded3 pl10 mb10">'.$s.'</div>';
@@ -289,7 +280,7 @@ class Unanswered extends Viewquestions
 			$s = $this->oRegistry->Cache->qunanswered;
 		}
 
-		$tags = \tplBoxrecent::parse(array('tags' => $s, 'title' => 'Unanswered tags'));
+		$tags = \tplBoxrecent::parse(array('tags' => $s, 'title' => $this->_('Unanswered tags')));
 		$this->aPageVars['tags'] = $tags;
 
 		return $this;
@@ -334,17 +325,17 @@ class Unanswered extends Viewquestions
 			$aVars = array(
 			'id' => $tag,
 			'icon' => 'cplus',
-			'label' => 'Follow this tag',
+			'label' => $this->_('Follow this tag'),
 			'class' => 'follow',
 			'type' => 't',
-			'title' => 'Follow this tag to be notified when new questions are added'
+			'title' => $this->_('Follow this tag to be notified when new questions are added')
 			);
 
 			if(in_array($tag, $aFollowed)){
-				$aVars['label'] = 'Following';
+				$aVars['label'] = $this->_('Following');
 				$aVars['class'] = 'following';
 				$aVars['icon'] = 'check';
-				$aVars['title'] = 'You are following this tag';
+				$aVars['title'] = $this->_('You are following this tag');
 			}
 
 			$this->aPageVars['side'] = '<div class="fr cb w90 lg rounded3 pl10 mb10"><div class="follow_wrap">'.\tplFollowButton::parse($aVars, false).'</div></div>';

@@ -63,7 +63,9 @@ class tplQuestion extends Lampcms\Template\Template
 	
 	protected static function func(&$a){
 		if(array_key_exists('a_edited', $a)){
-			$a['edits'] = \tplEditedby::parse(end($a['a_edited']), false);
+			$aEdited = $a['a_edited'];
+			$aEdited['edited'] = $a['edited'];
+			$a['edits'] = \tplEditedby::parse(end($aEdited), false);
 		}
 		
 		if(!empty($a['i_sticky'])){
@@ -86,11 +88,16 @@ class tplQuestion extends Lampcms\Template\Template
 			 * in the form of class uid-$uid
 			 * 
 			 */
-			$rid = $a['_id'];
-			$uid = $a['i_uid'];
-			$f = function(&$data) use ($rid, $uid){
+			$rid     = $a['_id'];
+			$uid     = $a['i_uid'];
+			$reply   = $a['reply'];
+			$reply_t = $a['reply_t'];
+			
+			$f = function(&$data) use ($rid, $uid, $reply, $reply_t){
 				$data['resource_id'] = $rid;
-				$data['owner_id'] = $uid;
+				$data['owner_id']    = $uid;
+				$data['reply']       = $reply;
+				$data['reply_t']     = $reply_t;
 			};
 			
 			$a['comments_html'] = tplComment::loop($a['a_comments'], true, $f); //

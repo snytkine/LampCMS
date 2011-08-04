@@ -675,7 +675,11 @@ class Cache extends Observer
 		d('$locale: '.$locale);
 		$this->aTags = array('tr');
 
-		return \Lampcms\I18n\Translator::factory($this->oRegistry, $locale);
+		$o = \Lampcms\I18n\Translator::factory($this->oRegistry, $locale);
+		
+		d('returning o: '.get_class($o));
+		
+		return $o;
 	}
 
 }

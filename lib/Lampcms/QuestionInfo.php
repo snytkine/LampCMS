@@ -65,32 +65,32 @@ class QuestionInfo extends LampcmsObject
 
 	/**
 	 * Generates html block with question info.
-	 * 
+	 *
 	 * @todo also get count and N first
 	 * followers
 	 * Followers to be selected from USERS collection
-	 * using find() by a_f_q and using limit 5 
+	 * using find() by a_f_q and using limit 5
 	 * and then link to 'show more' if i_flwrs in oQuestion is > 5
-	 * 
-	 * 
+	 *
+	 *
 	 * @param Question $oQuestion
 	 */
 	public function getHtml(Question $oQuestion){
 		$this->oQuestion = $oQuestion;
-
+		$Tr = $this->oRegistry->Tr;
 		/**
 		 * @todo translate Title string
 		 */
 		$tagsBlock = \tplBoxrecent::parse(array(
-		'title' => 'Question tags',
+		'title' => $Tr['Question tags'],
 		'id' => 'question_tags',
 		$this->getTags()), false);
-		
-		
+
+
 		/**
 		 * @todo translate labels used
 		 * in tplQuestionsInfo template
-		 * 
+		 *
 		 */
 		$ret = \tplQuestionInfo::parse(
 		array(
@@ -98,12 +98,16 @@ class QuestionInfo extends LampcmsObject
 				'asked' => TimeAgo::format(new \DateTime($oQuestion['hts'])).' ago',
 				'updated' => TimeAgo::format(new \DateTime(date('r', $oQuestion['i_lm_ts']))).' ago',
 				'views' => $this->oQuestion['i_views'],
-		        'ans_count' => $this->oQuestion->getAnswerCount() 
-				)
+		        'ans_count' => $this->oQuestion->getAnswerCount(),
+				'asked_label' => $Tr['Asked'],
+				'updated_label' => $Tr['Last updated'],
+				'ans_count_label'  => $Tr['Number of Answers'],
+				'views_label'  => $Tr['Number of Views']
+		)
 		);
-		
+
 		d('$ret: '.$ret);
-		
+
 		return $ret;
 	}
 
@@ -115,12 +119,12 @@ class QuestionInfo extends LampcmsObject
 			d('empty tags detected');
 			return '';
 		}
-		
+
 		$res = '';
 		$cur = $this->oRegistry->Mongo->QUESTION_TAGS->find(array('tag' => array('$in' => $aTags), 'i_count' => array('$gt' => 0)));
 		$count = $cur->count();
 		d('count: '.$count);
-		
+
 		if($cur && ($count > 0)){
 			d('found '.$count.' tags in QUESTION_TAGS collection');
 			$res = \tplLinktag::loop($cur);

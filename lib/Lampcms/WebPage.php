@@ -229,6 +229,16 @@ abstract class WebPage extends Base
 	 * @var bool
 	 */
 	protected $bInitPageVars = true;
+	
+	/**
+	 * Translator object
+	 * 
+	 * @var object of type \I18n\Translator
+	 */
+	protected $Tr;
+	
+	
+	protected $action;
 
 
 	/**
@@ -242,18 +252,19 @@ abstract class WebPage extends Base
 		parent::__construct($oRegistry);
 
 		$this->oRequest = (null !== $oRequest) ? $oRequest : $oRegistry->Request;
-		d('cp');
+		$this->action = $this->oRequest['a'];
 
 		$this->initParams()
 		->setTemplateDir()
 		->initViewerObject()
+		->setLocale()
 		->loginByFacebookCookie()
 		->loginByGfcCookie()
 		->loginBySid()
-		//->initLangs()
 		->initPageVars()
-		->addJoinForm();
-
+		->addJoinForm()
+		->addLangForm();
+		
 		Cookie::sendFirstVisitCookie();
 
 		try {
@@ -292,6 +303,28 @@ abstract class WebPage extends Base
 		$this->oRegistry->Viewer = $_SESSION['oViewer'];
 
 		return $this;
+	}
+
+
+	protected function setLocale(){
+		$this->oRegistry->Locale->setLocale();
+		$this->Tr = $this->oRegistry->Tr;
+
+		return $this;
+	}
+	
+	
+	/**
+	 * Translator method
+	 * It's customary in many projects to 
+	 * use the single underscore
+	 * symbol for translation function.
+	 * 
+	 * @param unknown_type $string
+	 * @param array $vars
+	 */
+	protected function _($string, array $vars = null){
+		return $this->Tr->get($string, $vars);
 	}
 
 
@@ -358,9 +391,9 @@ abstract class WebPage extends Base
 	protected function initPageVars(){
 		if (!$this->bInitPageVars
 		||  Request::isAjax()
-		|| 'logout' === $this->oRequest['a']
-		|| 'login' === $this->oRequest['a']) {
-			d('special case: '.$this->oRequest['a']);
+		|| 'logout' === $this->action
+		|| 'login' === $this->action) {
+			d('special case: '.$this->action);
 
 			return $this;
 		}
@@ -378,6 +411,8 @@ abstract class WebPage extends Base
 		$this->aPageVars['layoutID'] = $this->layoutID;
 		$this->aPageVars['DISABLE_AUTOCOMPLETE'] = $oIni->DISABLE_AUTOCOMPLETE;
 		$this->aPageVars['JS_MIN_ID'] = JS_MIN_ID;
+		$this->aPageVars['home'] = $this->_('Home');
+		
 		/**
 		 * @todo later can change to something like
 		 * $this->oRegistrty->Viewer->getStyleID()
@@ -499,7 +534,7 @@ abstract class WebPage extends Base
 	 * after the redirect
 	 */
 	protected function loginBySid(){
-		if ($this->isLoggedIn() || 'logout' === $this->oRequest['a'] || 'login' === $this->oRequest['a']) {
+		if ($this->isLoggedIn() || 'logout' === $this->action || 'login' === $this->action) {
 			d('cp');
 			return $this;
 		}
@@ -541,8 +576,8 @@ abstract class WebPage extends Base
 	 */
 	protected function loginByGfcCookie(){
 		if ($this->isLoggedIn()
-		|| 'logout' === $this->oRequest['a']
-		|| 'login' === $this->oRequest['a']) {
+		|| 'logout' === $this->action
+		|| 'login' === $this->action) {
 			d('cp');
 			return $this;
 		}
@@ -578,12 +613,9 @@ abstract class WebPage extends Base
 	 * @return object $this
 	 */
 	protected function loginByFacebookCookie(){
-		//$logout = $this->oRequest->get('logout', 's', '');
-		//d('$logout: '.$logout);
-		$action = $this->oRequest['a'];
 
-		/*('1' === $logout)
-		 || */
+		$action = $this->action;
+
 		if ($this->isLoggedIn()
 		|| 'logout' === $action
 		|| 'connectfb' === $action
@@ -592,7 +624,6 @@ abstract class WebPage extends Base
 			return $this;
 		}
 
-		d('cp');
 		try{
 			$oViewer = ExternalAuthFb::getUserObject($this->oRegistry);
 			d('got $oViewer: '.print_r($oViewer->getArrayCopy(), 1));
@@ -796,9 +827,9 @@ abstract class WebPage extends Base
 		if($a['ENABLE_CODE_EDITOR']){
 			d('enabling code highlighter');
 			$this->lastJs = array('/js/min/shCoreMin.js', '/js/min/dsBrushes.js');
-			$this->extraCss = '/js/min/sh.css';	
+			$this->extraCss = '/js/min/sh.css';
 		}
-		
+
 		if($a['ENABLE_YOUTUBE']){
 			$this->addMetaTag('btn_yt', '1');
 		}
@@ -813,9 +844,8 @@ abstract class WebPage extends Base
 	 * @return object $this
 	 */
 	protected function addLoginBlock(){
-		if('logout' !== $this->oRequest['a']){
+		if('logout' !== $this->action){
 			$this->aPageVars['header'] = LoginForm::makeWelcomeMenu($this->oRegistry);
-			d('cp');
 		}
 
 		return $this;
@@ -886,13 +916,13 @@ abstract class WebPage extends Base
 			 * if the request isAjax
 			 *
 			 */
-			$err = Exception::formatException($le);
+			$err = Exception::formatException($le, null, $this->oRegistry->Tr);
 			/**
 			 * @todo if Login exception then present a login form!
 			 *
 			 */
 			$this->aPageVars['layoutID'] = 1;
-			$this->aPageVars['body'] = \tplException::parse(array('message' => $err, 'class' => $class, 'title' => 'Alert'));
+			$this->aPageVars['body'] = \tplException::parse(array('message' => $err, 'class' => $class, 'title' => $this->_('Alert')));
 
 		} catch(\Exception $e) {
 			e('Exception object '.$e->getMessage());
@@ -977,7 +1007,7 @@ abstract class WebPage extends Base
 	 * @return object $this
 	 */
 	protected function addJoinForm(){
-		if(!$this->bInitPageVars || !Request::isAjax() && ('remindpwd' !== $this->oRequest['a']) && ('logout' !== $this->oRequest['a'])){
+		if(!$this->bInitPageVars || !Request::isAjax() && ('remindpwd' !== $this->action) && ('logout' !== $this->action)){
 			/**
 			 * If user opted out of continuing
 			 * registration, the special 'dnd' or "Do not disturb"
@@ -1033,6 +1063,11 @@ abstract class WebPage extends Base
 		define('VTEMPLATES_DIR', $this->tplDir);
 
 		return $this;
+	}
+
+
+	protected function addLangForm(){
+		$this->aPageVars['langsForm'] = $this->oRegistry->Locale->getOptions();
 	}
 
 }

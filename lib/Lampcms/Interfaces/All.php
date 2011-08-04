@@ -97,7 +97,7 @@ interface Tokenizer
  * @author Dmitri Snytkine
  *
  */
-interface Translator extends \Serializable{
+interface Translator {
 	
 	/**
 	 * Get name of locale (lang + country or just lang)

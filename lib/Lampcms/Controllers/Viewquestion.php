@@ -336,6 +336,11 @@ class Viewquestion extends WebPage
 		if($this->noComments){
 			$this->aQuestion['nocomments'] = ' nocomments';
 		}
+		
+		$this->aQuestion['add_comment'] = $this->_('add comment');
+		$this->aQuestion['reply']       = $this->_('Reply');
+		$this->aQuestion['reply_t']     = $this->_('Reply to this comment');
+		$this->aQuestion['edited']      = $this->_('Edited');
 
 		$this->aPageVars['body'] = \tplQuestion::parse($this->aQuestion);
 
@@ -509,7 +514,7 @@ class Viewquestion extends WebPage
 	protected function setSimilar(){
 
 		if(!empty($this->aQuestion['sim_q'])){
-			$sim = \tplBoxrecent::parse(array('Similar questions', 'recent-tags', $this->aQuestion['sim_q']), false);
+			$sim = \tplBoxrecent::parse(array($this->_('Similar questions'), 'recent-tags', $this->aQuestion['sim_q']), false);
 			$this->aPageVars['tags'] = $sim;
 		}
 
@@ -611,18 +616,18 @@ class Viewquestion extends WebPage
 		$aVars = array(
 		'id' => $qid,
 		'icon' => 'cplus',
-		'label' => 'Follow this question',
+		'label' => $this->_('Follow this question'),
 		'class' => 'follow',
 		'type' => 'q',
-		'title' => 'Follow this question to be notified of new answers, comments and edits'
+		'title' => $this->_('Follow this question to be notified of new answers, comments and edits')
 		);
 
 
 		if(in_array($this->oRegistry->Viewer->getUid(), $this->oQuestion['a_flwrs'])){
-			$aVars['label'] = 'Following';
+			$aVars['label'] = $this->_('Following');
 			$aVars['class'] = 'following';
 			$aVars['icon'] = 'check';
-			$aVars['title'] = 'You are following this question';
+			$aVars['title'] = $this->_('You are following this question');
 		}
 
 		$this->aPageVars['side'] = '<div class="fr cb w90 lg rounded3 pl10 mb10"><div class="follow_wrap">'.\tplFollowButton::parse($aVars, false).'</div></div>';

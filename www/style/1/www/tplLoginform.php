@@ -36,18 +36,14 @@
  *
  */
 
+/**
+ * Template of the login form
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class tplLoginform extends Lampcms\Template\Template
 {
-	// <a href="%7$s" class="signup">%8$s</a>
-
-	/*
-	 <td></td>
-	 <td colspan="3" align="left">
-	 <div class="extauth">%11$s</div>
-	 <div class="extauth">%12$s</div>
-	 </td>
-	 </tr>
-	 %10$s*/
 
 	protected static $vars = array(
 	'username' => 'Username', //1

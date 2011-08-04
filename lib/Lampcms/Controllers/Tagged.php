@@ -88,15 +88,12 @@ class Tagged extends Unanswered
 		 */
 		$this->aTags = $this->getTags();
 		$this->pagerPath = '/tagged/'.$this->rawTags;
-
-
 		d('aTags: '.print_r($this->aTags, 1));
 
 		$aFields = array();
 
 		$cond = $this->oRequest->get('cond', 's', 'recent');
-		d('cond: '.$cond);
-
+		
 		/**
 		 * Default sort is by timestamp Descending
 		 * meaning most recent should be on top
@@ -107,19 +104,10 @@ class Tagged extends Unanswered
 		$where = array('a_tags' => array('$all' => $this->aTags) );
 		$where['i_del_ts'] = null;
 
-
-		/**
-		 * @todo
-		 * translate 'Tagged'
-		 *
-		 * @var unknown_type
-		 */
-		$this->counterTaggedText = \tplCounterblocksub::parse(array(str_replace(' ', ' + ', $this->tags), 'Tagged'), false);
-
+		$this->counterTaggedText = \tplCounterblocksub::parse(array(str_replace(' ', ' + ', $this->tags), $this->_('Tagged')), false);
 
 		$this->oCursor = $this->oRegistry->Mongo->QUESTIONS->find($where, $this->aFields);
 		$this->count = $this->oCursor->count(true);
-		d('$this->oCursor: '.gettype($this->oCursor).' $this->count: '.$this->count);
 		$this->oCursor->sort($sort);
 
 		return $this;
@@ -158,12 +146,9 @@ class Tagged extends Unanswered
 		d('tag: '.$tag);
 
 		$s = Relatedtags::factory($this->oRegistry)->getHtml($tag);
-		/**
-		 * @todo translate 'Related Tags'
-		 *
-		 */
+
 		if(!empty($s)){
-			$tags = \tplBoxrecent::parse(array('tags' => $s, 'title' => 'Related Tags'));
+			$tags = \tplBoxrecent::parse(array('tags' => $s, 'title' => $this->_('Related Tags')));
 			$this->aPageVars['tags'] = $tags;
 		}
 

@@ -87,8 +87,9 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator
 	 * @param string $locale
 	 */
 	public function __construct($file, $locale){
-		d('cp');
+		//echo "\n".__METHOD__.' xliff file: '.$file;
 		$this->locale = $locale;
+		d('$this->locale: '.$this->locale);
 
 		/**
 		 * If File $file does not exist or not
@@ -98,8 +99,10 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator
 		 * array of $this->aMessages;
 		 */
 		if(is_readable($file)){
+			//echo ' '.__METHOD__.' file is readable ';
 			$this->parseFile($file);
 		} else {
+			//echo ' '.__METHOD__.' file '.$file.' is not readable ';
 			d('XLIFF file '.$file.' does not exist or not readable');
 		}
 	}
@@ -114,7 +117,7 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator
 	 * @throws \Exception
 	 */
 	protected function parseFile($file){
-		d('$file: '.$file);
+		d('parsing $file: '.$file);
 		$oDom = new \DOMDocument();
 		$current = libxml_use_internal_errors(true);
 		if (!@$oDom->load($file, LIBXML_COMPACT)) {
@@ -196,8 +199,8 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator
 			);
 		}
 
-		libxml_clear_errors();
-		libxml_use_internal_errors(false);
+		\libxml_clear_errors();
+		\libxml_use_internal_errors(false);
 
 		return $errors;
 	}

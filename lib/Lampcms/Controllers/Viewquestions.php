@@ -167,11 +167,8 @@ class Viewquestions extends WebPage
 		 *
 		 */
 		$sort = array('i_sticky' => -1, 'i_lm_ts' => -1);
-		/**
-		 * @todo translate string title
-		 *
-		 */
-		$this->title = 'All questions';
+
+		$this->title;
 
 		switch($cond){
 			/**
@@ -221,6 +218,7 @@ class Viewquestions extends WebPage
 				 * uncache qrecent onNewQuestion only!
 				 */
 			default:
+				$this->title = $this->_('All questions');
 				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQtypesdiv', 'newest');
 		}
 
@@ -290,7 +288,8 @@ class Viewquestions extends WebPage
 		} else {
 			$s = $this->oRegistry->Cache->get('qrecent');
 		}
-		$tags = \tplBoxrecent::parse(array('tags' => $s));
+		
+		$tags = \tplBoxrecent::parse(array('tags' => $s, 'title' => $this->_('Recent Tags')));
 		d('cp');
 		$this->aPageVars['tags'] = $tags;
 
@@ -314,7 +313,7 @@ class Viewquestions extends WebPage
 
 
 	protected function makeTopTabs(){
-		d('cp');
+		
 		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', $this->qtab);
 		$this->aPageVars['topTabs'] = $tabs;
 
@@ -323,7 +322,7 @@ class Viewquestions extends WebPage
 
 
 	protected function makeQlistHeader(){
-		d('cp');
+		
 		$this->aPageVars['qheader'] = '<h1>'.$this->title.'</h1>';
 
 		return $this;
@@ -331,7 +330,7 @@ class Viewquestions extends WebPage
 
 
 	protected function makeQlistBody(){
-		d('cp');
+		
 		$uid = $this->oRegistry->Viewer->getUid();
 		d(' uid of viewer: '.$uid);
 		$func = null;

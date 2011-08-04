@@ -43,7 +43,7 @@ class tplFormpwd extends Lampcms\Template\Template
 	'token' => '', //1
 	'required' => 'Required field', //2
 	'title' => 'Forgotten password', //3
-	'login_l' => 'Username OR email address', // 4
+	'login_l' => 'Username OR Email Address', // 4
 	'login_d' => 'If you have forgotten your
 		username or password, you can request to have your username emailed to
 		you and to reset your password. When you fill in your registered email
@@ -51,7 +51,7 @@ class tplFormpwd extends Lampcms\Template\Template
 	'login_e' => '', // 6
 	'login_c' => 'login_title', // 7
 	'formError' => '', // 8
-	'submit' => 'Submit', //9
+	'submit' => 'Get Password', //9
 	'reset' => 'Reset', // 10
 	'login' => '' // 11
 	);
@@ -79,7 +79,7 @@ class tplFormpwd extends Lampcms\Template\Template
 		<span style="color: #FF0000;">* </span>%4$s
 		</td>
 		<td><input size="20" maxlength="255" id="id_login" name="login"
-			type="text" value="%11$s">
+			type="text" value="%11$s" required="required">
 			<br>
 			<div style="color: #FF0000;">%6$s</div></td>
 	</tr>
@@ -90,8 +90,8 @@ class tplFormpwd extends Lampcms\Template\Template
 			<tr>
 				<td width="50%%"><input class="btn btn-m" type="submit"
 					name="dostuff" value="%9$s"></td>
-				<td><input class="btn btn-m" type="reset"
-					name="reset" value="%10$s"></td>
+				<td><!-- <input class="btn btn-m" type="reset"
+					name="reset" value="%10$s"> --></td>
 			</tr>
 		</table>
 		</td>

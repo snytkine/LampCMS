@@ -4121,7 +4121,20 @@ YUI({
 		aComHand.on('focus', getQuickRegForm);
 	}
 	
+	var changeLang = function(e){
+		
+			var url, redirect = window.location.href;
+			url = '/index.php?a=locale&locale=' +e.currentTarget.get('value')+'&redirect=' + redirect;
+			//alert('url: ' + url);
+			//return;
+			window.location.assign(url);
+			//alert('changed ' + e.target + ' curr: ' + e.currentTarget + ' val ' + e.currentTarget.get('value'));
+		
+	}
+	
 	Y.on('submit', MysubmitForm, '.qa_form');
+	
+	Y.on('change', changeLang, '#id_locale');
 	
 	/**
 	 * Listening the clicks on links inside #lastdiv

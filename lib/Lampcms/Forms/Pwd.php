@@ -66,6 +66,7 @@ class Pwd extends Form
 	protected $template = 'tplFormpwd';
 
 	protected function init(){
+		$Tr = $this->oRegistry->Tr;
 		$this->addValidator('login', function($val){
 
 			if(strlen($val) < 3){
@@ -76,5 +77,11 @@ class Pwd extends Form
 
 			return true;
 		});
+		
+		$this->aVars['title'] = $Tr['Forgotten password'];
+		$this->aVars['login_l'] = $Tr['Username OR Email Address'];
+		$this->aVars['login_d'] = $Tr['forgot_help'];
+		$this->aVars['submit'] = $Tr['Get Password'];
+		$this->aVars['required'] = $Tr['Required field'];
 	}
 }

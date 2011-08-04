@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="1">
+                <source>Questions</source>
+                <target>Вопросы</target>
+            </trans-unit>
+            <trans-unit id="2">
+                <source>Unanswered</source>
+                <target>Пока без ответов</target>
+            </trans-unit>
+            <trans-unit id="3">
+                <source>Tags</source>
+                <target>Таги</target>
+            </trans-unit>
+            <trans-unit id="4">
+                <source>Members</source>
+                <target>Люди</target>
+            </trans-unit>
+            <trans-unit id="5">
+                <source>Ask Question</source>
+                <target>Задать вопрос</target>
+            </trans-unit>
+            <trans-unit id="6">
+                <source>Search</source>
+                <target>Поиск</target>
+            </trans-unit>
+            <trans-unit id="7">
+                <source>All questions</source>
+                <target>Все вопросы</target>
+            </trans-unit>
+            <trans-unit id="8">
+                <source>Recent Tags</source>
+                <target>Последние таги</target>
+            </trans-unit>
+            <trans-unit id="9">
+                <source>Similar questions</source>
+                <target>Похожие вопросы</target>
+            </trans-unit>
+            <trans-unit id="10">
+                <source>Home</source>
+                <target>Вначало</target>
+            </trans-unit>
+            <trans-unit id="11">
+                <source>Log in</source>
+                <target>Войти</target>
+            </trans-unit>
+            <trans-unit id="12">
+                <source>Remember me</source>
+                <target>Запомнить</target>
+            </trans-unit>
+            <trans-unit id="13">
+                <source>Username</source>
+                <target>Логин</target>
+            </trans-unit>
+            <trans-unit id="14">
+                <source>Password</source>
+                <target>Пароль</target>
+            </trans-unit>
+            <trans-unit id="15">
+                <source>Forgot password?</source>
+                <target>Забыли пароль?</target>
+            </trans-unit>
+            <trans-unit id="16">
+                <source>Welcome!</source>
+                <target>Добро пожаловать</target>
+            </trans-unit>
+            <trans-unit id="17">
+                <source>Sign up</source>
+                <target>Регистрация</target>
+            </trans-unit>
+            <trans-unit id="18">
+                <source>Logout</source>
+                <target>Выход</target>
+            </trans-unit>
+            <trans-unit id="19">
+                <source>Settings</source>
+                <target>Настройки</target>
+            </trans-unit>
+             <trans-unit id="20">
+                <source>Forgotten password</source>
+                <target>Восстановление пароля</target>
+            </trans-unit>
+             <trans-unit id="21">
+                <source>forgot_help</source>
+                <target>Пожалуйста, укажите Логин или e-mail, который Вы использовали для входа на сайт. </target>
+            </trans-unit>
+             <trans-unit id="22">
+                <source>Username OR Email Address</source>
+                <target>Логин или e-mail</target>
+            </trans-unit>
+            <trans-unit id="23">
+                <source>Username OR Email Address</source>
+                <target>Логин или e-mail</target>
+            </trans-unit>
+            <trans-unit id="24">
+                <source>Get Password</source>
+                <target>Далее</target>
+            </trans-unit>
+            <trans-unit id="25">
+                <source>Required field</source>
+                <target>Обязательно заполнить</target>
+            </trans-unit>
+            <trans-unit id="26">
+                <source>Username will appear alongside your posts</source>
+                <target>Это будет ваш ник</target>
+            </trans-unit>
+            <trans-unit id="27">
+                <source>Question tags</source>
+                <target>Таги этого вопроса</target>
+            </trans-unit>
+            <trans-unit id="28">
+                <source>Asked</source>
+                <target>Вопрос был задан</target>
+            </trans-unit>
+            <trans-unit id="29">
+                <source>Last updated</source>
+                <target>Последнее сообщение</target>
+            </trans-unit>
+             <trans-unit id="30">
+                <source>Number of Answers</source>
+                <target>Всего ответов</target>
+            </trans-unit>
+            <trans-unit id="31">
+                <source>Number of Views</source>
+                <target>Количество просмотров</target>
+            </trans-unit>
+            <trans-unit id="32">
+                <source>Reply</source>
+                <target>Ответить</target>
+            </trans-unit>
+            <trans-unit id="33">
+                <source>Your answer</source>
+                <target>Можете ответить?</target>
+            </trans-unit>
+            <trans-unit id="34">
+                <source>Be the first to answer this question</source>
+                <target>Знаете ответ? Так чего-ж не отвечаете?</target>
+            </trans-unit>
+             <trans-unit id="35">
+                <source>Alert</source>
+                <target>Внимание</target>
+            </trans-unit>
+             <trans-unit id="36">
+                <source>Please Register or Login to perform this action</source>
+                <target>Для этого надо сначала зарегистрироваться на сайте или залогиниться</target>
+            </trans-unit>
+             <trans-unit id="37">
+                <source>Be the first to answer this question</source>
+                <target>Знаете ответ? Так чего-ж не отвечаете?</target>
+            </trans-unit>
+            <trans-unit id="38">
+                <source>add comment</source>
+                <target>Добавить комментарий</target>
+            </trans-unit>
+            <trans-unit id="39">
+                <source>Reply</source>
+                <target>Ответить</target>
+            </trans-unit>
+            <trans-unit id="40">
+                <source>Reply to this comment</source>
+                <target>Ответить на этот комментарий</target>
+            </trans-unit>
+            <trans-unit id="41">
+                <source>Submit answer</source>
+                <target>Ответить</target>
+            </trans-unit>
+            <trans-unit id="42">
+                <source>Follow this question</source>
+                <target>Следить за этим вопросом</target>
+            </trans-unit>
+            <trans-unit id="43">
+                <source>Follow this question to be notified of new answers, comments and edits</source>
+                <target>Получать уведомлемия когда будут новые ответы и комментарии к этому вопросу</target>
+            </trans-unit>
+            <trans-unit id="44">
+                <source>Follow this question to be notified of new answers, comments and edits</source>
+                <target>Получать уведомлемия когда будут новые ответы и комментарии к этому вопросу</target>
+            </trans-unit>
+            <trans-unit id="45">
+                <source>Questions with no accepted answer</source>
+                <target>Без принятых ответов</target>
+            </trans-unit>
+            <trans-unit id="46">
+                <source>Questions with no answers</source>
+                <target>Вопросы без единого ответа</target>
+            </trans-unit>
+            <trans-unit id="47">
+                <source>Unanswered tags</source>
+                <target>Таги неотвеченных вопросов</target>
+            </trans-unit>
+            <trans-unit id="48">
+                <source>Follow this tag</source>
+                <target>Следить за этим тагом</target>
+            </trans-unit>
+            <trans-unit id="49">
+                <source>Follow this tag to be notified when new questions are added</source>
+                <target>Получать уведомлемия когда будут новые вопросы с этим тагом</target>
+            </trans-unit>
+            <trans-unit id="50">
+                <source>Unanswered tags</source>
+                <target>Таги неотвеченных вопросов</target>
+            </trans-unit>
+            <trans-unit id="51">
+                <source>Related Tags</source>
+                <target>Спаренные таги</target>
+            </trans-unit>
+            <trans-unit id="52">
+                <source>Tagged</source>
+                <target>Таг</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>
