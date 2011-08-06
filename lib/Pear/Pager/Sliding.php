@@ -83,6 +83,7 @@ class Pager_Sliding extends Pager_Common
 		if ($err !== self::PAGER_OK) {
 			throw new \Exception($err);
 		}
+		
 		$this->build();
 	}
 

@@ -63,7 +63,10 @@ class tplAnswer extends Lampcms\Template\Template
 
 	protected static function func(&$a){
 		if(array_key_exists('a_edited', $a)){
-			$a['edits'] = \tplEditedby::parse(end($a['a_edited']), false);
+			$aEdited = end($a['a_edited']);
+			$aEdited['edited'] = $a['edited'];
+			
+			$a['edits'] = \tplEditedby::parse($aEdited, false);
 		}
 
 		if(!empty($a['i_del_ts'])){

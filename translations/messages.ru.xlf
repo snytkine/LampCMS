@@ -210,6 +210,10 @@
                 <source>Tagged</source>
                 <target>Таг</target>
             </trans-unit>
+            <trans-unit id="53">
+                <source>Edited</source>
+                <target>Редактированно</target>
+            </trans-unit>
         </body>
     </file>
 </xliff>

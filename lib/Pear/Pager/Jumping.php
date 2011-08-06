@@ -73,6 +73,7 @@ class Pager_Jumping extends Pager_Common
 		if ($err !== self::PAGER_OK) {
 			throw new \Exception($err);
 		}
+		
 		$this->build();
 	}
 

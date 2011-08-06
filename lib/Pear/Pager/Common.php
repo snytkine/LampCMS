@@ -1437,7 +1437,7 @@ abstract class Pager_Common
 	{
 		foreach ($options as $key=>$value) {
 			if (in_array($key, $this->_allowed_options) && (!is_null($value))) {
-				$this-> {'_'.$key} = $value;
+				$this->{'_'.$key} = $value;
 			}
 		}
 

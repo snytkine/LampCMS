@@ -164,10 +164,11 @@ class Answers extends LampcmsObject
 		$alt2 = $Tr['Owner of the question accepted this as best answer'];
 		$noComments = ($noComments) ? ' nocomments' : '';
 		$addcomment = $Tr['add comment'];
+		$edited = $Tr['Edited'];
 		$reply = $Tr['Reply'];
 		$reply_t = $Tr['Reply to this comment'];
 		
-		$func = function(&$a) use ($accept, $alt, $alt2, $addcomment, $reply, $reply_t, $showLink, $noComments){
+		$func = function(&$a) use ($accept, $alt, $alt2, $addcomment, $reply, $reply_t, $edited, $showLink, $noComments){
 			/**
 			 * Don't show Accept link for
 			 * already accepted answer
@@ -181,9 +182,10 @@ class Answers extends LampcmsObject
 			}
 			
 			$a['add_comment'] = $addcomment;
-			$a['nocomments'] = $noComments;
-			$a['reply'] = $reply;
-			$a['reply_t'] = $reply_t;
+			$a['nocomments']  = $noComments;
+			$a['reply'] 	  = $reply;
+			$a['reply_t'] 	  = $reply_t;
+			$a['edited']  	  = $edited;
 		};
 		
 		/**

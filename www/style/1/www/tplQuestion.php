@@ -63,9 +63,15 @@ class tplQuestion extends Lampcms\Template\Template
 	
 	protected static function func(&$a){
 		if(array_key_exists('a_edited', $a)){
-			$aEdited = $a['a_edited'];
+			/**
+			 * A way to pass "translated"
+			 * version of "Edited" word
+			 * to the tplEditedby template
+			 */
+			$aEdited = end($a['a_edited']);
 			$aEdited['edited'] = $a['edited'];
-			$a['edits'] = \tplEditedby::parse(end($aEdited), false);
+			
+			$a['edits'] = \tplEditedby::parse($aEdited, false);
 		}
 		
 		if(!empty($a['i_sticky'])){
