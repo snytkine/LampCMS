@@ -51,8 +51,8 @@ class tplQuntypes extends Lampcms\Template\Template
 	'noanswer_c' => '',
 	'newest' => 'Unanswered',
 	'newest_t' => 'Questions with no accepted answer',
-	'noanswer' => 'No answers',
-	'noanswer_t' => 'Questions without any answers');
+	'noanswer' => 'No Answers',
+	'noanswer_t' => 'Questions with no answers');
 
 	protected static $tpl = '
 	<div id="qtypes">

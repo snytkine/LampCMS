@@ -58,7 +58,8 @@ class tplFormanswer extends Lampcms\Template\Template
  	'formError' => '', // 10
 	'title' => 'Your answer', //11
 	'qid' => '', //12
-	'socials' => '' //13
+	'socials' => '', //13
+	'preview' => 'Preview' //14
 	);
 
 	protected static $tpl = '
@@ -74,7 +75,7 @@ class tplFormanswer extends Lampcms\Template\Template
                 <textarea id="id_qbody" rows="10" cols="40" class="com_body%6$s" name="qbody" %7$s>%3$s</textarea><br>
                 <span class="f_err">%4$s</span>
                 <div id="body_preview"></div>
-                <span class="label">Preview</span>
+                <span class="label">%14$s</span>
                 <div id="tmp_preview"></div>
             </div>
             <!-- // el body -->

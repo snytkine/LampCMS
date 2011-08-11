@@ -155,6 +155,21 @@ class Urhere extends LampcmsObject
 				$vars['search_label'] = $Translator['Search'];
 				break;
 				
+			case 'tplQtypesdiv':
+				$vars['newest']    	= $Translator['Newest'];
+				$vars['newest_t']   = $Translator['Most recent questions'];
+				$vars['voted']		= $Translator['Most Voted'];
+				$vars['voted_t']	= $Translator['Questions with most votes'];
+				$vars['active']		= $Translator['Most Active'];
+				$vars['active_t']	= $Translator['Questions with most activity'];
+				break;
+				
+				case 'tplQuntypes':
+				$vars['newest']    	= $Translator['Unanswered'];
+				$vars['newest_t']   = $Translator['Questions with no accepted answer'];
+				$vars['noanswer']	= $Translator['No Answers'];
+				$vars['noanswer_t']	= $Translator['Questions with no answers'];
+				break;
 			
 		}
 	}

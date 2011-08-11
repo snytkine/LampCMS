@@ -105,14 +105,12 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
 	 * 
 	 * @param \Lampcms\Registry $oRegistry
 	 */
-	public static function factory(\Lampcms\Registry $oRegistry, $locale = ''){
+	public static function factory(\Lampcms\Cache $Cache, $locale){
 		if(!\is_string($locale)){
 			throw new \Lampcms\DevException('Param $locale must be a string. Was: '.gettype($locale));
 		}
-		
-		$oCache = $oRegistry->Cache;
+
 		$fallback = null;
-		$locale = ('' !== $locale) ? $locale : $oRegistry->Locale->getLocale();
 		
 		if (strlen($locale) > 3) {
 			d('going to also use lang fallback for $locale: '.$locale);
@@ -132,14 +130,14 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
 		 * one for default if different
 		 * from $locale and from $fallback
 		 */
-		$o->addCatalog($oCache->get('xliff_'.$locale));
+		$o->addCatalog($Cache->get('xliff_'.$locale));
 		
 		if(!empty($fallback) && ($fallback !== $locale) ){
-			$o->addCatalog($oCache->get('xliff_'.$fallback));
+			$o->addCatalog($Cache->get('xliff_'.$fallback));
 		}
 
 		if(!empty($default) && ($default !== $fallback) && ($default !== $locale) ){
-			$o->addCatalog($oCache->get('xliff_'.$default));
+			$o->addCatalog($Cache->get('xliff_'.$default));
 		}
 
 		return $o;
@@ -183,7 +181,7 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
 	public function get($string, array $vars = null, $default = null){
 		$str = (!empty($this->aMessages[$string])) ? $this->aMessages[$string] : (is_string($default) ? $default : $string);
 
-		return (null === $vars) ? $str : strtr($str, $vars);
+		return (!$vars) ? $str : strtr($str, $vars);
 	}
 
 

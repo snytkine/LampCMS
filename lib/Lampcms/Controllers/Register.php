@@ -146,7 +146,7 @@ You can change your password after you log in.
 	protected $oEmail;
 
 	protected function main(){
-		$this->aPageVars['title'] = 'Create new account';
+		$this->aPageVars['title'] = $this->_('Create New Account');
 		/**
 		 * Don't bother with token
 		 * for this form.
@@ -170,10 +170,10 @@ You can change your password after you log in.
 		 */
 		$this->oForm->setVar('divID', 'registration');
 		$this->oForm->setVar('className', 'registration');
-		$this->oForm->setVar('header2', 'Join us!');
-		$this->oForm->setVar('button', '<input name="submit" value="Register!" type="submit" class="btn btn-m">');
+		$this->oForm->setVar('header2', $this->_('Create New Account'));
+		$this->oForm->setVar('button', '<input name="submit" value="'.$this->_('Register').'" type="submit" class="btn btn-m">');
 		$this->oForm->setVar('captcha', Captcha::factory($this->oRegistry)->getCaptchaBlock());
-		$this->oForm->setVar('title', 'Create an Account');
+		$this->oForm->setVar('title', $this->_('Create an Account'));
 		$this->oForm->setVar('titleBar', '');
 
 		if($this->oForm->isSubmitted() && $this->oForm->validate()){
@@ -234,19 +234,18 @@ You can change your password after you log in.
 
 		$sid = \Lampcms\Cookie::getSidCookie();
 
-		$aData['username'] = $this->username;
-		$aData['username_lc'] = strtolower($this->username);
-		$aData['email'] = $this->email;
-		$aData['rs'] = (false !== $sid) ? $sid : \Lampcms\String::makeSid();
-		$aData['role'] = $this->getRole();
-		$aData['tz'] = \Lampcms\TimeZone::getTZbyoffset($this->oRequest->get('tzo'));
-
+		$aData['username'] 		= $this->username;
+		$aData['username_lc'] 	= strtolower($this->username);
+		$aData['email'] 		= $this->email;
+		$aData['rs'] 			= (false !== $sid) ? $sid : \Lampcms\String::makeSid();
+		$aData['role'] 			= $this->getRole();
+		$aData['tz'] 			= \Lampcms\TimeZone::getTZbyoffset($this->oRequest->get('tzo'));
 		$aData['pwd'] = String::hashPassword($this->pwd);
-		$aData['i_reg_ts'] = time();
-		$aData['date_reg'] = date('r');
-		$aData['i_fv'] = (false !== $intFv = \Lampcms\Cookie::getSidCookie(true)) ? $intFv : time();
-		$aData['lang'] = $this->oRegistry->getCurrentLang();
-		$aData['locale'] = $this->oRegistry->getLocale();
+		$aData['i_reg_ts'] 		= time();
+		$aData['date_reg']		= date('r');
+		$aData['i_fv'] 			= (false !== $intFv = \Lampcms\Cookie::getSidCookie(true)) ? $intFv : time();
+		$aData['lang'] 			= $this->oRegistry->getCurrentLang();
+		$aData['locale'] 		= $this->oRegistry->Locale->getLocale();
 		/**
 		 * Initial reputation is always 1
 		 * @var int

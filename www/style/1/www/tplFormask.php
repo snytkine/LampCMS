@@ -51,7 +51,7 @@ class tplFormask extends Lampcms\Template\Template
 	'required' => 'required', //2
 	'title' => '', //3
 	'title_l' => 'Title', // 4
-	'title_d' => 'Please enter a descriptive title at least 10 characters long',
+	'title_d' => 'Enter a descriptive title',
 	'title_e' => '', // 6
 	'title_c' => 'ask_title', // 7
 	'qbody' => '', //8
@@ -67,7 +67,8 @@ class tplFormask extends Lampcms\Template\Template
 	'connectBlock' => '', //18
 	'formError' => '', //19
 	'tags_required' => '', //20
-	'socials' => '' //21
+	'socials' => '', //21
+	'Preview' => 'Preview' // 22
 	); 
 
 	protected static $tpl = '
@@ -88,7 +89,7 @@ class tplFormask extends Lampcms\Template\Template
                 <textarea id="id_qbody" rows="6" cols="40" class="com_body%15$s" name="qbody" %16$s>%8$s</textarea>
                 <span class="f_err fl cb" id="qbody_e">%9$s</span>
                 <div id="body_preview"></div>
-                <span class="label">Preview</span>
+                <span class="label">%22$s</span>
                 <div id="tmp_preview"></div>
             </div>
             <!-- // el body -->

@@ -67,6 +67,9 @@ class Profile extends Form
 	protected $template = 'tplFormprofile';
 
 
+	protected function init(){
+		$this->setVar('submit', $this->_('Save'));
+	}
 	/**
 	 * Concrete form validator for this form
 	 * (non-PHPdoc)

@@ -106,11 +106,11 @@ class Viewquestions extends WebPage
 	protected $PER_PAGE = 20;
 
 	protected $counterTaggedText = '';
-	
+
 	/**
 	 * Exclude these fields from
 	 * select for effeciency
-	 * 
+	 *
 	 * @var array
 	 */
 	protected $aFields = array(
@@ -118,7 +118,7 @@ class Viewquestions extends WebPage
 		'a_flwrs' => 0,
 		'sim_q' => 0,
 		'a_comments' => 0
-		);
+	);
 
 	/**
 	 * Pagination links on the page
@@ -156,7 +156,7 @@ class Viewquestions extends WebPage
 		$this->PER_PAGE = $this->oRegistry->Ini->PER_PAGE_QUESTIONS;
 
 		//$aFields = array();
-		
+
 
 		$cond = $this->oRequest->get('cond', 's', 'recent');
 		d('cond: '.$cond);
@@ -189,7 +189,7 @@ class Viewquestions extends WebPage
 				 * uncache onQuestionVote, onQuestionComment
 				 */
 			case 'active':
-				$this->title = 'Active Questions';
+				$this->title = $this->_('Active Questions');
 				$this->pagerPath = '/active';
 				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQtypesdiv', 'active');
 				$where = array('i_ts' => array('$gt' => (time() - 604800)));
@@ -206,7 +206,7 @@ class Viewquestions extends WebPage
 			case 'voted':
 				$this->pagerPath = '/voted';
 				d('cp');
-				$this->title = 'Questions with highest votes in past 7 days';
+				$this->title = $this->_('Questions with highest votes in past 7 days');
 				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQtypesdiv', 'voted');
 				$where = array('i_ts' => array('$gt' => (time() - 604800)));
 				$sort = array('i_votes' => -1);
@@ -288,7 +288,7 @@ class Viewquestions extends WebPage
 		} else {
 			$s = $this->oRegistry->Cache->get('qrecent');
 		}
-		
+
 		$tags = \tplBoxrecent::parse(array('tags' => $s, 'title' => $this->_('Recent Tags')));
 		d('cp');
 		$this->aPageVars['tags'] = $tags;
@@ -313,7 +313,7 @@ class Viewquestions extends WebPage
 
 
 	protected function makeTopTabs(){
-		
+
 		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', $this->qtab);
 		$this->aPageVars['topTabs'] = $tabs;
 
@@ -322,7 +322,7 @@ class Viewquestions extends WebPage
 
 
 	protected function makeQlistHeader(){
-		
+
 		$this->aPageVars['qheader'] = '<h1>'.$this->title.'</h1>';
 
 		return $this;
@@ -330,40 +330,40 @@ class Viewquestions extends WebPage
 
 
 	protected function makeQlistBody(){
-		
+
 		$uid = $this->oRegistry->Viewer->getUid();
-		d(' uid of viewer: '.$uid);
-		$func = null;
 
-		if($uid > 0){
-			$aUserTags = $this->oRegistry->Viewer['a_f_t'];
-			$showDeleted = $this->oRegistry->Viewer->isModerator();
+		$aUserTags 		= $this->oRegistry->Viewer['a_f_t'];
+		$showDeleted 	= $this->oRegistry->Viewer->isModerator();
+		$contributed	= $this->_('You have contributed to this question');
+		$following		= $this->_('You are following this question');
+		$asked			= $this->_('Asked');
+		$latestBy		= $this->_('Latest answer by');
+		$toggle			= $this->_('Toggle Unread/Read Status');
+			
+		$func = function(&$a) use($uid, $aUserTags, $showDeleted, $following, $contributed, $asked, $latestBy, $toggle){
 
-			$func = function(&$a) use($uid, $aUserTags, $showDeleted){
+			if($uid == $a['i_uid'] || (!empty($a['a_uids']) && in_array($uid, $a['a_uids'])) ){
+				$a['dot'] = '<div class="fr pad2"><span class="ico person ttt" title="'.$contributed.'">&nbsp;</span></div>';
+			}
 
-				/**
-				 * @todo translate string
-				 */
-				if($uid == $a['i_uid'] || (!empty($a['a_uids']) && in_array($uid, $a['a_uids'])) ){
-					$a['dot'] = '<div class="fr pad2"><span class="ico person ttt" title="You have contributed to this question">&nbsp;</span></div>';
-				}
+			if(!empty($a['a_flwrs']) && in_array($uid, $a['a_flwrs']) ){
+				$a['following_q'] = '<div class="fr pad2"><span class="icoc check ttt" title="'.$following.'">&nbsp;</span></div>';
+			}
 
-				/**
-				 * @todo translate string
-				 */
-				if(!empty($a['a_flwrs']) && in_array($uid, $a['a_flwrs']) ){
-					$a['following_q'] = '<div class="fr pad2"><span class="icoc check ttt" title="You are following this question">&nbsp;</span></div>';
-				}
+			/**
+			 * Add special flag if user following
+			 * at least one of the tag of this question.
+			 */
+			if(count(array_intersect($a['a_tags'], $aUserTags)) > 0){
+				$a['following_tag'] = '  followed_tag';
+			}
 
-				/**
-				 * Add special flag if user following
-				 * at least one of the tag of this question.
-				 */
-				if(count(array_intersect($a['a_tags'], $aUserTags)) > 0){
-					$a['following_tag'] = '  followed_tag';
-				}
-			};
-		}
+			$a['asked'] = $asked;
+			$a['toggle'] = $toggle;
+			$a['latest_by'] = $latestBy;
+		};
+
 
 		$sQdivs = \tplQrecent::loop($this->oCursor, true, $func);
 
@@ -378,12 +378,11 @@ class Viewquestions extends WebPage
 
 
 	/**
-	 * @todo
-	 * Translate string
+	 *
 	 *
 	 */
 	protected function makeCounterBlock(){
-		$this->aPageVars['topRight'] = \tplCounterblock::parse(array($this->oCursor->count(), 'Questions and counting', ''), false);
+		$this->aPageVars['topRight'] = \tplCounterblock::parse(array($this->oCursor->count(), $this->_('Number of Questions'), ''), false);
 
 		return $this;
 	}
@@ -398,8 +397,6 @@ class Viewquestions extends WebPage
 	 * This block is only added if user follows
 	 * at least one tag
 	 *
-	 * @todo Translate string Tags you follow
-	 *
 	 * @return object $this
 	 */
 	protected function makeFollowedTags(){
@@ -408,7 +405,9 @@ class Viewquestions extends WebPage
 		d('$aFollowed: '.print_r($aFollowed, 1));
 		if(!empty($aFollowed)){
 
-			$this->aPageVars['side'] = '<div id="usrtags" class="fl cb w90 pl10 mb10"><div class="pad8 lg cb fr rounded3 w90"><h4>Tags you follow</h4>'.\tplFollowedTags::loop($aFollowed, false).'</div></div>';
+			$this->aPageVars['side'] = '<div id="usrtags" class="fl cb w90 pl10 mb10"><div class="pad8 lg cb fr rounded3 w90"><h4>'.
+			$this->_('Tags you follow').'</h4>'.
+			\tplFollowedTags::loop($aFollowed, false).'</div></div>';
 
 		}
 

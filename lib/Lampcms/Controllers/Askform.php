@@ -97,7 +97,7 @@ class Askform extends WebPage
 	 * @see WebPage::main()
 	 */
 	protected function main(){
-		$this->aPageVars['title'] = $this->title = 'Ask a question';
+		$this->aPageVars['title'] = $this->title = $this->_('Ask a question');
 
 		$this->addMetas()
 		->configureEditor()
@@ -176,7 +176,7 @@ class Askform extends WebPage
 	 * @return object $this
 	 */
 	protected function makeMemo(){
-		$memo = '<strong>Ask question relevant to this community</strong>
+		$memo = '<strong>'.$this->_('Ask question relevant to this community').'</strong>
 		<ul>
 		<li>Provide enough details</li>
 		<li>Be clear and concise</li>
@@ -201,17 +201,12 @@ class Askform extends WebPage
 	 * which in turn will trigger popup on click
 	 * on the form element
 	 *
-	 * @todo move this into Form? Yes, but allow passing
-	 * custom message for qbody
-	 *
-	 * @todo translate qbody
-	 *
 	 * @return object $this
 	 */
 	protected function setMustLogin(){
 
 		if(!$this->isLoggedIn()){
-			$this->oForm->qbody = 'Please login to post your question';
+			$this->oForm->qbody = $this->_('Please login to post your question');
 			$this->oForm->com_hand = ' com_hand';
 			$this->oForm->readonly = 'readonly="readonly"';
 			$this->oForm->disabled = ' disabled="disabled"';
@@ -223,7 +218,7 @@ class Askform extends WebPage
 			 * @todo Translate string
 			 */
 			if(!empty($socialButtons)){
-				$this->oForm->connectBlock = '<div class="com_connect"><h3>Join with account you already have</h3>'.$socialButtons.'</div>';
+				$this->oForm->connectBlock = '<div class="com_connect"><h3>'.$this->_('Join with account you already have').'</h3>'.$socialButtons.'</div>';
 			}
 		}
 

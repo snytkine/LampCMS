@@ -123,7 +123,7 @@ class MongoCache implements Interfaces\Cache
 	 * @param string $collection name of collection
 	 */
 	public function __construct(\Mongo $oMongo, $db, $collection, $nameSpace = null, $compress = false){
-		d('cp');
+
 		if (!extension_loaded('mongo')) {
 			throw new \LogicException('The MongoDB extension must be loaded for using this backend !');
 		}
@@ -138,12 +138,9 @@ class MongoCache implements Interfaces\Cache
 			$this->bCompress = (bool)$compress;
 		}
 
-
-		$this->oMongo       = $oMongo;
-		d('cp');
+		$this->oMongo      = $oMongo;
 		$this->_collection = $oMongo->selectCollection($db, $collection);//$this->_db->selectCollection($collection);
 		$this->_collection->ensureIndex(array('tags' => 1));
-		d('cp');
 	}
 
 

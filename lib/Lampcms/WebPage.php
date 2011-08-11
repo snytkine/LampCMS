@@ -320,10 +320,15 @@ abstract class WebPage extends Base
 	 * use the single underscore
 	 * symbol for translation function.
 	 * 
-	 * @param unknown_type $string
-	 * @param array $vars
+	 * @param string $string string to translate
+	 * 
+	 * @param array $vars optional array of replacement vars for
+	 * translation
+	 * 
+	 * @return string translated string
 	 */
 	protected function _($string, array $vars = null){
+		
 		return $this->Tr->get($string, $vars);
 	}
 
@@ -487,6 +492,7 @@ abstract class WebPage extends Base
 	/**
 	 *
 	 * Add JavaScript for Facebook UI to the page
+	 * 
 	 * @param string $appId value from !config.ini 'FACEBOOK' -> 'APP_ID'
 	 */
 	protected function addFacebookJs($appId){
@@ -573,6 +579,8 @@ abstract class WebPage extends Base
 	/**
 	 * Login with Google Friend Connect cookie
 	 * fcauth
+	 * 
+	 * @return $this
 	 */
 	protected function loginByGfcCookie(){
 		if ($this->isLoggedIn()
@@ -1066,8 +1074,16 @@ abstract class WebPage extends Base
 	}
 
 
+	/**
+	 * Add the drop-down menu for Language selection
+	 * to the page vars
+	 * 
+	 * @return $this
+	 */
 	protected function addLangForm(){
 		$this->aPageVars['langsForm'] = $this->oRegistry->Locale->getOptions();
+		
+		return $this;
 	}
 
 }

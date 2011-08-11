@@ -195,6 +195,17 @@ Interfaces\LinkedinUser
 
 		return  (('administrator' === $role) || false !== (\strstr($role, 'moderator')) );
 	}
+	
+	/**
+	 * Check if user is administrator
+	 * 
+	 * @return bool
+	 * 
+	 */
+	public function isAdmin(){
+		
+		return  ('administrator' === $this->getRoleId());
+	}
 
 
 	/**

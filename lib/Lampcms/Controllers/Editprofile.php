@@ -104,7 +104,7 @@ class Editprofile extends WebPage
 	protected function main(){
 		$this->getUser();
 		$this->oForm = new \Lampcms\Forms\Profile($this->oRegistry);
-		$this->oForm->formTitle = $this->aPageVars['title'] = 'Edit profile';
+		$this->oForm->formTitle = $this->aPageVars['title'] = $this->_('Edit Profile');
 
 		if($this->oForm->isSubmitted() && $this->oForm->validate()){
 			$this->oRegistry->Dispatcher->post($this->oForm, 'onBeforeProfileUpdate');

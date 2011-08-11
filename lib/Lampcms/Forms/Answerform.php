@@ -89,7 +89,6 @@ class Answerform extends Form
 
 		d('cp');
 
-		$Tr = $this->oRegistry->Tr;
 		
 		/**
 		 * A custom observer may cancel the onBeforeAnswerform event
@@ -121,15 +120,16 @@ class Answerform extends Form
 		d('cp');
 
 
-		$formTitle = (0 === $oQuestion['i_ans']) ? $Tr['Be the first to answer this question'] : $Tr['Your answer'] ;
+		$formTitle = (0 === $oQuestion['i_ans']) ? $this->Tr['Be the first to answer this question'] : $this->Tr['Your answer'] ;
 
 		$this->setVar('title', $formTitle);
 		$this->setVar('qid', $oQuestion['_id']);
-		$this->setVar('submit', $Tr['Submit answer']);
+		$this->setVar('submit', $this->Tr['Submit answer']);
+		$this->setVar('preview', $this->Tr['Preview']);
 
 		if($this->oRegistry->Viewer->isGuest()){
 			d('cp');
-			$this->qbody = 'Please login to post your answer';
+			$this->qbody = $this->_('Please login to post your answer');
 			$this->com_hand = ' com_hand';
 			$this->readonly = 'readonly="readonly"';
 			$this->disabled = ' disabled="disabled"';

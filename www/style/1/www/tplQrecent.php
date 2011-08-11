@@ -47,7 +47,7 @@ class tplQrecent extends Lampcms\Template\Template
 
 		if(!empty($a['a_latest'])){
 			$reltime = \Lampcms\TimeAgo::format(new \DateTime($a['a_latest'][0]['t']));
-			$a['last_poster'] = '<div class="lastposter fl cb">Latest answer by: '.$a['a_latest'][0]['u'].'<br>
+			$a['last_poster'] = '<div class="lastposter fl cb">'.$a['latest_by'].': '.$a['a_latest'][0]['u'].'<br>
 			<span title="'.$a['a_latest'][0]['t'].'" class="ts">'.$reltime.'</span></div>';
 		}
 	}
@@ -78,7 +78,8 @@ class tplQrecent extends Lampcms\Template\Template
 	'last_poster' => '', //23
 	'i_etag' => '0', //24
 	'following_tag' => '', //25
-	'following_q' => '' //26
+	'following_q' => '', //26
+	'toggle' => '' // 27
 	);
 
 	protected static $tpl = '
@@ -96,7 +97,7 @@ class tplQrecent extends Lampcms\Template\Template
         </div>
         <div class="vws" title="%4$s view%15$s">%4$s <span rel="in">view%15$s</span></div>
     	<div class="fl pad2 lpad5">
-    	 <span class="icoc unread ttt ru ajax" title="Click to toggle Unread/Read status">&nbsp;</span>
+    	 <span class="icoc unread ttt ru ajax" title="%27$s">&nbsp;</span>
     	</div>
         %22$s
         %26$s

@@ -62,7 +62,7 @@ use \Lampcms\Validate;
  */
 class Changepwd extends Form
 {
-	
+
 	/**
 	 * Name of form template file
 	 * The name of actual template should be
@@ -79,6 +79,19 @@ class Changepwd extends Form
 	}
 
 
+	protected function init(){
+
+		$this->setVar('submit', $this->Tr['Save']);
+		$this->setVar('forgot', $this->Tr['Forgot password?']);
+
+		$this->setVar('current_l', $this->Tr['Current Password']);
+		$this->setVar('pwd1_l', $this->Tr['Enter new password']);
+		$this->setVar('pwd2_l', $this->Tr['Confirm new password']);
+		$this->setVar('current_d', $this->Tr['Enter your current password']);
+
+	}
+
+
 	/**
 	 * validate current password
 	 *
@@ -91,18 +104,22 @@ class Changepwd extends Form
 			$oCheckLogin = new UserAuth($this->oRegistry);
 			$oUser = $oCheckLogin->validateLogin($this->oRegistry->Viewer->username, $current);
 		} catch (\Lampcms\LoginException $e) {
-			$this->setError('current', 'This is not the correct password');
+			$this->setError('current', $this->_('This is not the correct password'));
 		}
 
 		return $this;
 	}
 
-
+	/**
+	 * Validate that password is valid
+	 * according to rules set in Validate::enforcePwd
+	 * 
+	 * @return $this
+	 */
 	protected function validateNewPassword(){
 		$pwd1 = $this->getSubmittedValue('pwd1');
 		if (false === Validate::enforcePwd($pwd1)) {
-			$this->setError('pwd1', 'Invalid. Password must be at least 6 characters long and contain letters and at least one number');
-
+			$this->setError('pwd1', $this->_('Password must be at least 6 characters long and contain at least one number'));
 		}
 
 		return $this;
@@ -120,7 +137,7 @@ class Changepwd extends Form
 		$pwd2 = $this->getSubmittedValue('pwd2');
 
 		if($pwd1 !== $pwd2){
-			$this->setFormError('"New password" and "Confirm new password" do not match');
+			$this->setFormError($this->_('"New password" and "Confirm new password" do not match'));
 		}
 
 		return $this;

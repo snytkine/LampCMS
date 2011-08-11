@@ -43,8 +43,8 @@ class tplFormchangepwd extends \Lampcms\Template\Template
 	'token' => '', //1
 	'required' => 'required', //2
 	'current' => '', //3
-	'current_l' => 'Current password', // 4
-	'current_d' => 'Enter your current password<br><a href="/remindpwd/">Forgot password?</a>',
+	'current_l' => 'Current Password', // 4
+	'current_d' => 'Enter your current password',
 	'current_e' => '', // 6
 	'pwd1' => '', //7
 	'pwd1_e' => '', //8
@@ -52,9 +52,11 @@ class tplFormchangepwd extends \Lampcms\Template\Template
 	'pwd2' => '', //10
 	'pwd2_l' => 'Confirm new password', //11
 	'pwd2_e' => '', //12
-	'submit' => 'Submit', //13
+	'submit' => 'Save', //13
 	'formTitle' => '', // 14
-    'formError' => ''); // 15
+    'formError' => '', //15
+	'forgot' => 'Forgot password?' //16
+	); 
 	
 	
 	protected static $tpl = '
@@ -67,7 +69,7 @@ class tplFormchangepwd extends \Lampcms\Template\Template
 		<div class="form_el1"> 
                 <label for="id_current">%4$s</label>: <span class="f_err">%6$s</span><br> 
                 <input autocomplete="off" id="id_current" class="current_c" type="text" name="current" size="20" value="%3$s"> 
-       		  	<div id="current_d" class="caption">%5$s</div>       		  	<hr>
+       		  	<div id="current_d" class="caption">%5$s<br><a href="/remindpwd/">%16$s</a></div><hr>
         </div>
        <!-- // el current -->
             

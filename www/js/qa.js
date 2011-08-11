@@ -959,7 +959,7 @@ oSL.Regform = (function() {
 YUI({
 	/*filter: 'raw',
 	gallery : 'gallery-2010.08.18-17-12'*/
-		}).use('node', 'dump', 'event', 'escape', 'gallery-storage-lite', 'gallery-overlay-extras', 'dd-plugin', 'anim', 'transition', 'yui2-container', 'yui2-editor', 'yui2-resize', 'yui2-animation', 'io-form', 'json', 'jsonp', 'imageloader', 'autocomplete', 'autocomplete-filters','autocomplete-highlighters', 'gallery-node-tokeninput', 'cookie', function(Y, result) {
+		}).use('node', 'dump', 'event', 'escape', 'gallery-storage-lite', 'gallery-overlay-extras', 'dd-plugin', 'anim', 'transition', 'yui2-container', 'yui2-editor', 'yui2-element', 'yui2-button', 'yui2-resize', 'yui2-animation', 'io-form', 'json', 'jsonp', 'imageloader', 'autocomplete', 'autocomplete-filters','autocomplete-highlighters', 'gallery-node-tokeninput', 'cookie', function(Y, result) {
 	
 		
 	var YAHOO = Y.YUI2, //
@@ -4132,8 +4132,24 @@ YUI({
 		
 	}
 	
-	Y.on('submit', MysubmitForm, '.qa_form');
+	/*if(Y.one('#id_locale')){
+		var oMenuButtonLang = new YAHOO.widget.Button({ 
+			id: 'mylangs',
+			label: "<em class=\"yui-button-label\">Option 1</em>", 
+			type: "menu",  
+			menu: "id_locale",
+			container: "id_langs"
+		});
+		
+		oMenuButtonLang.on("selectedMenuItemChange", function(e){
+			var url, redirect = window.location.href;
+			url = '/index.php?a=locale&locale=' + e.newValue.value +'&redirect=' + redirect;
+			window.location.assign(url);
+		}); 
+
+	}*/
 	
+	Y.on('submit', MysubmitForm, '.qa_form');
 	Y.on('change', changeLang, '#id_locale');
 	
 	/**

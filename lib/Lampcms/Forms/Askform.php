@@ -77,6 +77,7 @@ class Askform extends Form
 
 
 	protected function init(){
+		
 		/**
 		 * This is just an example how a custom validation
 		 * callback could be added to form
@@ -98,8 +99,15 @@ class Askform extends Form
 		$minTags = $this->oRegistry->Ini->MIN_QUESTION_TAGS;
 		$maxTags = $this->oRegistry->Ini->MAX_QUESTION_TAGS;
 
-		$d = 'Please enter between %s and %s tags, separated by spaces';
-		$this->setVar('tags_d', sprintf($d, $minTags, $maxTags));
+		$d = $this->Tr->get('Please enter between {min_tags} and {max_tags} tags, separated by spaces', array('{min_tags}' => $minTags, '{max_tags}' => $maxTags));
+		$this->setVar('tags_d',  $d);
+		$this->setVar('tags_l',  $this->Tr['Tags']);
+		$this->setVar('Preview', $this->Tr['Preview']);
+		$this->setVar('Preview', $this->Tr['Preview']);
+		$this->setVar('title_d', $this->Tr['Enter a descriptive title']);
+		$this->setVar('title_l', $this->Tr['Title']);
+		$this->setVar('submit',  $this->Tr['Ask Question']);
+		
 		if($minTags > 0){
 			$tagsRequired = '(* %s)';
 			$this->setVar('tags_required', sprintf($tagsRequired, 'required'));
@@ -121,7 +129,6 @@ class Askform extends Form
 	protected function doValidate(){
 
 		$this->validateBody()->validateTitle()->validateTags();
-
 	}
 
 
@@ -187,9 +194,9 @@ class Askform extends Form
 		$max = $this->oRegistry->Ini->MAX_QUESTION_TAGS;
 		$tags = $this->oRegistry->Request->get('tags', 's', '');
 		$tags = \trim($tags);
-		if(($min > 0) && empty($tags)){
+		/*if(($min > 0) && empty($tags)){
 			$this->setError('tags', 'You must include at least one tag');
-		}
+		}*/
 
 		\mb_regex_encoding('UTF-8');
 		$aTags = \mb_split('([\s,;]+)', $tags);

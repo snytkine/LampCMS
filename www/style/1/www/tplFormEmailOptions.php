@@ -74,7 +74,7 @@ class tplFormEmailOptions extends \Lampcms\Template\Template
 	
 	'your_email' => '', //15
 	'your_email_t' => 'Your Email Address', //16
-	'your_email_d' => 'The address at which you\'ve chosen to receive messages is:', //17
+	'your_email_d' => "The address at which you've chosen to receive messages is:", //17
 
 	'save_l' => 'Save', //18
 	

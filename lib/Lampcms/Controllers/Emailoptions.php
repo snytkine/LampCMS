@@ -92,7 +92,7 @@ class Emailoptions extends WebPage
 
 		$email = $this->oRegistry->Viewer->email;
 		$this->oForm = new \Lampcms\Forms\EmailOptions($this->oRegistry);
-		$this->oForm->formTitle = $this->aPageVars['title'] = 'Your Email Subscription Preferences';
+		$this->oForm->formTitle = $this->aPageVars['title'] = $this->_('Your Email Subscription Preferences');
 		$this->oForm->your_email = $email;
 
 		if($this->oForm->isSubmitted()){

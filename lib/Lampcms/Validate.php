@@ -118,20 +118,23 @@ class Validate
 	
 	/**
 	 * Verifies that password contains
-	 * at least one letter and at least one number
+	 * least one number
 	 * and is at least 6 chars long
+	 * At this time its difficult to validate
+	 * that password contains letter because not sure
+	 * how to validate a letter in utf-8 string.
 	 *
 	 * @param string $pwd password to validate
 	 *
 	 * @return bool true if validation passes, false otherwise
 	 */
 	public static function enforcePwd($pwd){
-		$res = preg_match('/[a-zA-Z]+/', $pwd, $matches);
+		//$res = preg_match('/[a-zA-Z]+/', $pwd, $matches);
 		$res2 = preg_match('/\d+/', $pwd);
 
-		d('$res: '.$res.' $res2 '.$res2);
+		//d('$res: '.$res.' $res2 '.$res2);
 
-		if ( (strlen($pwd) < 6) || (0 === $res) || (0 === $res2)) {
+		if ( (strlen($pwd) < 6) || (0 === $res2)) {
 			d('failed to validate password');
 
 			return false;

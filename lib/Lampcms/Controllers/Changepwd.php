@@ -81,7 +81,7 @@ class Changepwd extends Resetpwd
 	protected function main(){
 
 		$this->oForm = new \Lampcms\Forms\Changepwd($this->oRegistry);
-		$this->oForm->formTitle = $this->aPageVars['title'] = 'Change password';
+		$this->oForm->formTitle = $this->aPageVars['title'] = $this->_('Change Password');
 
 		if($this->oForm->isSubmitted() && $this->oForm->validate()){
 			$this->saveNewPassword();
@@ -89,7 +89,7 @@ class Changepwd extends Resetpwd
 				$this->emailPwd();
 			}
 
-			$this->aPageVars['body'] = '<div id="tools">'.self::TPL_SUCCESS.'</div>';
+			$this->aPageVars['body'] = '<div id="tools">'.$this->_('Password updated successfully').'</div>';
 
 		} else {
 			$this->aPageVars['body'] = $this->oForm->getForm();

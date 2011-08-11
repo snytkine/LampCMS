@@ -63,7 +63,7 @@ class Settings extends WebPage
 {
 
 	protected $membersOnly = true;
-	
+
 	protected $layoutID = 1;
 
 	protected function main(){
@@ -74,17 +74,33 @@ class Settings extends WebPage
 		 * different browser
 		 */
 		$this->oRegistry->Viewer->reload();
+
+		$this->aPageVars['title'] = $this->_('Edit settings');
 		
-		$this->aPageVars['title'] = 'Edit settings';
 		$vals = array(
+		
 		'confirmation' => $this->makeConfirmBlock(),
-		'change_password' => 'Change Password',
-		'profile' => 'Edit Profile',
+		'change_password' => $this->_('Change Password'),
+		'profile' => $this->_('Edit Profile'),
 		'profileUrl' => '/editprofile/',
-		'emailPrefs' => 'Email Preferences'
+		'emailPrefs' => $this->_('Email Preferences'),
+		'clearCache' => ''
 		);
+
+		if($this->oRegistry->Viewer->isAdmin()){
+			$vals['clearCache'] = $this->makeClearCache();
+		}
+		
 		$this->aPageVars['body'] = \tplSettings::parse($vals);
 
+	}
+	
+	
+	protected function makeClearCache(){
+		return '<div class="tool"> 
+			<div class="icn sweep">&nbsp;</div> 
+			<div class="tool_link"><a href="/clearcache/" class="ajax clearcache">'.$this->_('Clear Cache').'</a></div> 
+		</div>';
 	}
 
 

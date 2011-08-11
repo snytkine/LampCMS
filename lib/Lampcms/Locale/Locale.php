@@ -104,7 +104,7 @@ class Locale extends \Lampcms\LampcmsObject
 			if(empty($locale)) {
 				$this->locale = LAMPCMS_DEFAULT_LOCALE;
 			}
-			
+				
 			if (isset($_SESSION)) {
 				$_SESSION['locale'] = $this->locale;
 			}
@@ -142,7 +142,9 @@ class Locale extends \Lampcms\LampcmsObject
 	 */
 	public function makeOptions(){
 		$a = $this->Registry->Ini['LOCALES'];
-		$tpl = '<option value="%s"%s>%s</option>';
+		$tplWrapper = '<div class="fr langs" id="id_langs"><div class="fl icn globe"></div>
+		%s</div>';
+		$tpl = '<option class="fl" value="%s"%s>%s</option>';
 		$ret = '';
 
 		/**
@@ -154,21 +156,16 @@ class Locale extends \Lampcms\LampcmsObject
 		 */
 		if(!empty($a) && is_array($a) && count($a) > 1){
 			foreach($a as $locale => $name){
-				$selected = ($locale === $this->locale) ? ' selected="selected"' : '';
+				$selected = ($locale === $this->locale) ? ' selected' : '';
 				$ret .= sprintf($tpl, $locale, $selected, $name);
 			}
 
 			$tpl = '<select name="locale" class="locales" id="id_locale">%s</select>';
 
-			/*$tpl = '<form action="/index.php" id="form_locale">
-			 <select name="locale" class="locales" id="id_locale">%s</select>
-			 <input type="submit" value="submit">
-			 </form>';*/
-
 			$ret = sprintf($tpl, $ret);
 		}
 
-		return $ret;
+		return sprintf($tplWrapper, $ret);
 	}
 
 
@@ -186,7 +183,7 @@ class Locale extends \Lampcms\LampcmsObject
 	public function getOptions(){
 		/*if(isset($_SESSION) && !empty($_SESSION['langs'])){
 			return $_SESSION['langs'];
-			}*/
+		}*/
 
 		$langs = $this->makeOptions();
 

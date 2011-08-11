@@ -245,6 +245,20 @@ class Cache extends Observer
 	}
 
 
+	/**
+	 * Remove all data from cache
+	 *
+	 * @return object $this
+	 */
+	public function flush(){
+		if(!$this->skipCache){
+			$this->oCacheInterface->flush();
+		}
+
+		return $this;
+	}
+
+
 	protected function getMissingKeys(){
 		d('Could not get all keys from cache'.print_r($this->aMissingKeys, 1));
 		$arrFoundKey = array();
@@ -648,7 +662,7 @@ class Cache extends Observer
 		return new \Lampcms\Acl\Acl();
 	}
 
-	
+
 	/**
 	 * @param string $locale name of locate for this object
 	 * (for example 'en_CA' for Canada)
@@ -663,7 +677,7 @@ class Cache extends Observer
 
 		return new \Lampcms\I18n\XliffCatalog($file, $key);
 	}
-	
+
 
 	/**
 	 *
@@ -675,10 +689,10 @@ class Cache extends Observer
 		d('$locale: '.$locale);
 		$this->aTags = array('tr');
 
-		$o = \Lampcms\I18n\Translator::factory($this->oRegistry, $locale);
-		
+		$o = \Lampcms\I18n\Translator::factory($this, $locale);
+
 		d('returning o: '.get_class($o));
-		
+
 		return $o;
 	}
 

@@ -156,15 +156,16 @@ class Registry implements Interfaces\LampcmsObject
 
 
 		$this->values['Locale'] = $this->asShared(function ($c) {
-			
+
 			return new \Lampcms\Locale\Locale($c);
 		});
-		
-		
+
+
 		$this->values['Tr'] = $this->asShared(function ($c) {
+
 			$l = $c->Locale->getLocale();
+
 			return $c->Cache->{'tr_'.$l};
-			//return new \Lampcms\Locale\Locale($c);
 		});
 
 
@@ -182,11 +183,7 @@ class Registry implements Interfaces\LampcmsObject
 
 
 		$this->values['Acl'] = $this->asShared(function ($c) {
-			/*if($c->Ini->CACHE_ACL){
-				return $c->Cache->Acl;
-				}*/
-
-			return new \Lampcms\Acl\Acl();
+			return $c->Cache->Acl;
 		});
 
 		/**
@@ -456,7 +453,7 @@ class Registry implements Interfaces\LampcmsObject
 
 		return $defaultLang;
 	}
-	
+
 
 
 	/**

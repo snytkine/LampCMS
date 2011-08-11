@@ -44,8 +44,8 @@ class tplSettings extends \Lampcms\Template\Template
 	'change_password' => 'Change password', // 2
 	'profile' => 'Profile', //3
 	'profileUrl' => '/editprofile/', //4
-	'profileUrl' => '', //5
-	'emailPrefs' => 'Email stuff' // 6
+	'emailPrefs' => 'Email stuff', // 5
+	'clearCache' => '' //6
 	);
 
 
@@ -64,6 +64,6 @@ class tplSettings extends \Lampcms\Template\Template
 			<div class="icn changepass">&nbsp;</div> 
 			<div class="tool_link"><a href="/changepwd/">%2$s</a></div> 
 		</div> 
-		
+		%6$s
 	</div>';
 }

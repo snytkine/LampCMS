@@ -61,4 +61,8 @@
 	 * @var string
 	 */
 	protected $template = 'tplFormEmailOptions';
+	
+	protected function init(){
+		$this->setVar('save_l', $this->_('Save'));
+	}
  }

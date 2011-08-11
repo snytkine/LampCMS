@@ -154,7 +154,7 @@ class tplMain extends Lampcms\Template\Template
 		<div id="ccwiki-copyright">Powered by <a href="http://www.lampcms.com">LampCMS</a> Source code available at <a href="https://github.com/snytkine/LampCMS">github</a>
 			<br>Questions and Answers are licensed under <a href="http://creativecommons.org/licenses/by-sa/2.5/" rel="nofollow" target="_blank">cc-wiki</a> license.<br>
 		</div>
-		<div class="fr langs">%41$s</div>
+		%41$s
 		<div class="cb fl timer ajax fbsignup">{timer}</div>
 	</div> 
 </div>
