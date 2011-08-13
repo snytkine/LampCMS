@@ -612,7 +612,7 @@ class ExternalAuthFb extends Facebook
 		 * User locale
 		 * @var string
 		 */
-		$locale = (!empty($this->aFbUserData['locale'])) ? $this->aFbUserData['locale'] : $this->oRegistry->getLocale();
+		$locale = (!empty($this->aFbUserData['locale'])) ? $this->aFbUserData['locale'] : $this->oRegistry->Locale->getLocale();
 
 		$this->tempPassword = String::makePasswd();
 

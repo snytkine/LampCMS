@@ -371,7 +371,7 @@ class Loginlinkedin extends WebPage
 		$this->aData['rs'] =  (false !== $sid) ? $sid : \Lampcms\String::makeSid();
 		$this->aData['i_rep'] = 1;
 		$this->aData['lang'] = $this->oRegistry->getCurrentLang();
-		$this->aData['locale'] = $this->oRegistry->getLocale();
+		$this->aData['locale'] = $this->oRegistry->Locale->getLocale();
 
 		if(empty($this->aData['cc']) && empty($this->aData['city'])){
 			$oGeoData = $this->oRegistry->Cache->{sprintf('geo_%s', Request::getIP())};

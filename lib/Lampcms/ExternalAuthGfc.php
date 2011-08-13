@@ -362,7 +362,7 @@ class ExternalAuthGfc extends ExternalAuth
 		'username_lc' => \mb_strtolower($username),
 		'role' => 'external_auth',
 		'lang' => $this->oRegistry->getCurrentLang(),
-		'locale' => $this->oRegistry->getLocale(),
+		'locale' => $this->oRegistry->Locale->getLocale(),
 		'fcauth' => $this->fcauth,
 		'tz' => TimeZone::getTZbyoffset($tzo),
 		'i_rep' => 1,
