@@ -240,7 +240,7 @@ You can change your password after you log in.
 		$aData['rs'] 			= (false !== $sid) ? $sid : \Lampcms\String::makeSid();
 		$aData['role'] 			= $this->getRole();
 		$aData['tz'] 			= \Lampcms\TimeZone::getTZbyoffset($this->oRequest->get('tzo'));
-		$aData['pwd'] = String::hashPassword($this->pwd);
+		$aData['pwd'] 			= String::hashPassword($this->pwd);
 		$aData['i_reg_ts'] 		= time();
 		$aData['date_reg']		= date('r');
 		$aData['i_fv'] 			= (false !== $intFv = \Lampcms\Cookie::getSidCookie(true)) ? $intFv : time();
@@ -256,11 +256,11 @@ You can change your password after you log in.
 		
 		if($oGeoData){
 			$aProfile = array(
-			'cc' => $oGeoData->countryCode,
-			'country' => $oGeoData->countryName,
-			'state' => $oGeoData->region,
-			'city' => $oGeoData->city,
-			'zip' => $oGeoData->postalCode);
+			'cc' 		=> $oGeoData->countryCode,
+			'country' 	=> $oGeoData->countryName,
+			'state' 	=> $oGeoData->region,
+			'city' 		=> $oGeoData->city,
+			'zip' 		=> $oGeoData->postalCode);
 			d('aProfile: '.print_r($aProfile, 1));			
 		}
 		

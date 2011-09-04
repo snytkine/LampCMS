@@ -1098,6 +1098,13 @@ class Utf8String extends String
 
 
 	/**
+	 * 
+	 * @todo There is a problem with setlocale because
+	 * we really need to set locale back
+	 * to what it was before after we are done with
+	 * this function. So we have to getlocale, remember it
+	 * then set it back at end of function (restore the old one)
+	 * 
 	 * Converts the utf-8 string
 	 * to ASCII charset using translitiration if
 	 * iconv is available
@@ -1433,7 +1440,7 @@ class Utf8String extends String
 	public function mmd2Html(){
 
 		$parsed = preg_replace('/([*]{2})(.*)([*]{2})/Ui', '<strong>\\2</strong>', $this->string);
-		$parsed = preg_replace('/(_)(.*)(_)/Ui', '<em>\\2</em>', $parsed);
+		$parsed = preg_replace('/\s+(_)(.*)(_)\s+/Ui', '<em>\\2</em>', $parsed);
 
 		return $this->handleReturn($parsed);
 	}

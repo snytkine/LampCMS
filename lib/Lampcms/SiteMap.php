@@ -105,9 +105,10 @@ class SiteMap extends LampcmsObject
 	 * that holds list of daily sitemaps
 	 * New maps will be appended to this file as needed!
 	 *
-	 * it should already exist and be in xml format
+	 * This file should already exist and be in xml format
 	 * this is relative to the writable directory 'w'
-	 * whis is this constant: LAMPCMS_DATA_DIR
+	 * which is define as: LAMPCMS_DATA_DIR
+	 * in the !config.ini file
 	 *
 	 * @var string
 	 */
@@ -153,6 +154,10 @@ class SiteMap extends LampcmsObject
 	'yahoo' => 'http://search.yahooapis.com/SiteExplorerService/V1/updateNotification?appid=YahooDemo&url=%s');
 
 
+	public function __construct(Registry $o){
+		$this->oRegistry = $o;
+	}
+	
 	public function run($fileName = null){
 
 		$this->siteMapName = $fileName;
