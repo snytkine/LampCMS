@@ -1440,7 +1440,7 @@ class Utf8String extends String
 	public function mmd2Html(){
 
 		$parsed = preg_replace('/([*]{2})(.*)([*]{2})/Ui', '<strong>\\2</strong>', $this->string);
-		$parsed = preg_replace('/\s+(_)(.*)(_)\s+/Ui', '<em>\\2</em>', $parsed);
+		$parsed = preg_replace('/(^|\s)(_)([^-]+)(_)($|\s)/Ui', '\\1<em>\\3</em>\\5', $parsed); 
 
 		return $this->handleReturn($parsed);
 	}
