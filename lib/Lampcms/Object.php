@@ -363,43 +363,6 @@ class LampcmsArray extends \ArrayObject implements \Serializable, Interfaces\Lam
 
 	
 	/**
-	 * Some functions must just return
-	 * result of calling a functions
-	 * for example array_key_exists() should return the result
-	 * of calling this function on our array
-	 *
-	 * Some functions should return array
-	 *
-	 * Some functions should modify our array (exchangeArray())
-	 * and return $this
-	 *
-	 * Some functions should return array as returned by a function
-	 * for example array_keys should return array of keys from our array
-	 *
-	 * @param $name
-	 * @param $arguments
-	 * @return unknown_type
-	 */
-	public function __call($name, $arguments){
-		/**
-		 * These functions don't return anything
-		 * they modify current array
-		 * @var unknown_type
-		 */
-		$aPhpFunctions = array('sort', 'merge', 'array_change_key_case', 'shuffle');
-
-		/**
-		 * These function return result of
-		 * function call and don't require
-		 * any params
-		 */
-		$aReturnFunctions = array('array_keys', 'array_flip', 'array_rand', 'array_values', 'end', 'in_array', 'array_unique');
-
-
-	}
-
-	
-	/**
 	 * (non-PHPdoc)
 	 * @see ArrayObject::serialize()
 	 */

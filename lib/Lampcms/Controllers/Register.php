@@ -251,25 +251,14 @@ You can change your password after you log in.
 		 * @var int
 		 */
 		$aData['i_rep'] = 1;
-		$oGeoData = $this->oRegistry->Cache->{sprintf('geo_%s', Request::getIP())};
-		$aProfile = array();
-		
-		if($oGeoData){
-			$aProfile = array(
-			'cc' 		=> $oGeoData->countryCode,
-			'country' 	=> $oGeoData->countryName,
-			'state' 	=> $oGeoData->region,
-			'city' 		=> $oGeoData->city,
-			'zip' 		=> $oGeoData->postalCode);
-			d('aProfile: '.print_r($aProfile, 1));			
-		}
-		
-		$aUser = \array_merge($aData, $aProfile);
+		$aUser = array_merge($this->oRegistry->Geo->Location->data, $aData);
 
 		d('aUser: '.print_r($aUser, 1));
 
 		$oUser = \Lampcms\User::factory($this->oRegistry, $aUser);
 		$oUser->save();
+		d('id: '.$oUser['_id']);
+		
 		$this->processLogin($oUser);
 
 		\Lampcms\PostRegistration::createReferrerRecord($this->oRegistry, $oUser);

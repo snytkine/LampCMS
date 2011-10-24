@@ -397,7 +397,7 @@ class Logintwitter extends WebPage
 		} catch(\Lampcms\LoginException $e){
 			/**
 			 * re-throw as regular exception
-			 * so that it can be caught and show in popup window
+			 * so that it can be caught and shown in popup window
 			 */
 			e('Unable to process login: '.$e->getMessage());
 			throw new \Exception($e->getMessage());
@@ -405,7 +405,7 @@ class Logintwitter extends WebPage
 
 		d('SESSION oViewer: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1).  'isNew: '.$this->oRegistry->Viewer->isNewUser());
 
-		$this->updateLastLogin();
+		$this->oRegistry->Dispatcher->post( $this, 'onTwitterLogin' );
 
 		if($this->isNewAccount){
 			$this->postTweetStatus();
@@ -486,18 +486,7 @@ class Logintwitter extends WebPage
 		$aUser['twitter_uid'] = $this->aUserData['_id'];
 		$aUser['i_rep'] = 1;
 
-		$oGeoData = $this->oRegistry->Cache->{sprintf('geo_%s', Request::getIP())};
-		if(\is_object($oGeoData)){
-			$aProfile = array(
-			'cc' => $oGeoData->countryCode,
-			'country' => $oGeoData->countryName,
-			'state' => $oGeoData->region,
-			'city' => $oGeoData->city,
-			'zip' => $oGeoData->postalCode);
-			d('aProfile: '.print_r($aProfile, 1));
-
-			$aUser = array_merge($aUser, $aProfile);
-		}
+		$aUser = array_merge($this->oRegistry->Geo->Location->data, $aUser);
 
 		if(!empty($this->aUserData['url'])){
 			$aUser['url'] = $this->aUserData['url'];

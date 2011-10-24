@@ -185,6 +185,11 @@ class Registry implements Interfaces\LampcmsObject
 		$this->values['Acl'] = $this->asShared(function ($c) {
 			return $c->Cache->Acl;
 		});
+		
+		$this->values['Geo'] = $this->asShared(function ($c) {
+			return new \Lampcms\Geo\Ip($c->Mongo->getDb());
+		});
+
 
 		/**
 		 * Our main default EventDispatcher

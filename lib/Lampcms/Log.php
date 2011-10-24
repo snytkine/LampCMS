@@ -63,6 +63,15 @@ namespace Lampcms;
  */
 class Log
 {
+	
+	protected static $aLog = array();
+	
+	
+	public static function dump(){
+		$s = implode("\n<br>", self::$aLog);
+		echo $s;
+	}
+	
 	/**
 	 * Location of log file
 	 * it must point to actual file
@@ -182,6 +191,8 @@ class Log
 
 		$sMessage = PHP_EOL.self::getTimeStamp().$string;
 
+		self::$aLog[] = $sMessage;
+		
 		$ret = \file_put_contents($logPath, $sMessage, FILE_APPEND | LOCK_EX);
 		
 		return $sMessage;

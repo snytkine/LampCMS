@@ -334,7 +334,7 @@ class Loginlinkedin extends WebPage
 
 		d('SESSION oViewer: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1).  'isNew: '.$this->oRegistry->Viewer->isNewUser());
 
-		$this->updateLastLogin();
+		$this->oRegistry->Dispatcher->post( $this, 'onLinkedinLogin' );
 
 		return $this;
 	}
@@ -374,20 +374,7 @@ class Loginlinkedin extends WebPage
 		$this->aData['locale'] = $this->oRegistry->Locale->getLocale();
 
 		if(empty($this->aData['cc']) && empty($this->aData['city'])){
-			$oGeoData = $this->oRegistry->Cache->{sprintf('geo_%s', Request::getIP())};
-			if(\is_object($oGeoData)){
-				$a = array(
-					'cc' => $oGeoData->countryCode,
-					'country' => $oGeoData->countryName,
-					'state' => $oGeoData->region,
-					'city' => $oGeoData->city,
-					'zip' => $oGeoData->postalCode
-				);
-
-				d('aGeo: '.print_r($a, 1));
-
-				$this->aData = array_merge($this->aData, $a);
-			}
+			$this->aData = array_merge($this->oRegistry->Geo->Location->data, $this->aData);
 		}
 
 		$this->oUser = \Lampcms\UserLinkedin::factory($this->oRegistry, $this->aData);

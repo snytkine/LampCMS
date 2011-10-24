@@ -183,7 +183,7 @@ class Answerparser extends LampcmsObject
 		 * otherwise tidy removes rel="code"
 		 */
 		$aEditorConfig = $this->oRegistry->Ini->getSection('EDITOR');
-		$tidyConfig = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
+		$tidyConfig = ($aEditorConfig['k']) ? array('drop-proprietary-attributes' => false) : null;
 		$oBody = $this->oSubmittedAnswer->getBody()->tidy($tidyConfig)->safeHtml()->asHtml();
 
 		$htmlBody = HTMLStringParser::factory($oBody)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->valueOf();

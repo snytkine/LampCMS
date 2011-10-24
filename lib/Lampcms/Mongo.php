@@ -132,7 +132,6 @@ class Mongo extends LampcmsObject
 
 		try{
 			$this->conn = new \Mongo($server, $aOptions);
-			d('$this->conn: '.get_class($this->conn)); // Mongo
 
 		} catch (\MongoException $e){
 			$err = 'LampcmsError unable to connect to Mongo: '.$e->getMessage();
@@ -143,8 +142,6 @@ class Mongo extends LampcmsObject
 		if(!empty($aConfig['prefix'])){
 			$this->prefix = (string)$aConfig['prefix'];
 		}
-
-		d('cp');
 	}
 
 
@@ -203,35 +200,25 @@ class Mongo extends LampcmsObject
 	 * @param mixed $option option to pass to mongoCollection->insert()
 	 * this could be bool true for 'safe' but can also be an array
 	 *
-	 * @param string $strErr2 extra param can be passed here
-	 * so it can be added to log
-	 *
 	 * @return mixed false on failure or value of _id of inserted doc
 	 * which can be MongoId Object or string or int, depending if
 	 * you included value of _id in $aValues or let Mongo generate one
 	 * By default mongo generates the unique value and it's an object
 	 * of type MongoId
 	 */
-	public function insertData($collName, array $aValues, $option = true, $strErr2 = ''){
-		d('cp $option: '.var_export($option, true));
+	public function insertData($collName, array $aValues, $option = true){
+		d('$option: '.var_export($option, true));
 
-		$collName = \filter_var($collName, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
-		$collName = \str_replace(';', '', $collName);
-		$collName = \addslashes($collName);
-		/**
-		 * @todo for mongo we need to filter better
-		 * like only allow alphanumerical values for collection
-		 *
-		 */
-		d('$collName '.$collName);
+		if(!preg_match('/^[A-Za-z0-9_]+$/', $collName)){
+			throw new \InvalidArgumentException('Invalid collection name: '.$collName. ' Colletion name can only contain alphanumeric chars and underscores');
+		}
 
 		try{
-			$coll = $this->getDb()->selectCollection($collName);
-			d('object $coll: '.get_class($coll));
+			$coll = $this->getCollection($collName);
 
 			$ret = $coll->insert($aValues, $option);
 		} catch (\MongoException $e){
-			e('LampcmsError insert() failed: '.$e->getMessage().' values: '.print_r($aValues, 1). ' $strErr2: '.$strErr2);
+			e('LampcmsError insert() failed: '.$e->getMessage().' values: '.print_r($aValues, 1). ' backtrace: '.$e->getTraceAsString());
 
 			return false;
 		}
@@ -322,7 +309,6 @@ class Mongo extends LampcmsObject
 		d('$collName: '.$collName);
 
 		$coll = defined('Lampcms\Mongo\\'.$collName) ? \constant('Lampcms\Mongo\\'.$collName) : \constant('Lampcms\My\\'.$collName);
-		d('$coll: '.$coll);
 
 		return $this->conn->selectCollection($this->dbname, $this->prefix.$coll);
 	}

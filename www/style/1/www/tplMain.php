@@ -90,7 +90,9 @@ class tplMain extends Lampcms\Template\Template
 	'JS_MIN_ID' => '', // 39
 	'DISABLE_AUTOCOMPLETE' => '', // 40
 	'langsForm' => '', //41
-	'home' => 'Home' // 42
+	'home' => 'Home', // 42
+	'category' => '', //43
+	'keywords' => '' //44
 	);
 
 	protected static $tpl = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -104,6 +106,8 @@ class tplMain extends Lampcms\Template\Template
 <meta name="version_id" content="%5$s">
 <meta name="session_uid" content="%6$s">
 <meta name="description" content="%7$s">
+<meta name="keywords" content="%44$s">
+<meta name="category" content="%43$s">
 <meta name="role" content="%33$s">
 <meta name="rep" content="%34$s">
 <meta name="show_comments" content="%36$s">

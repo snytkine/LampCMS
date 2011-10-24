@@ -129,14 +129,6 @@ class SubmittedAnswerWWW extends SubmittedAnswer
 
 	
 	public function getExtraData(){
-		$oGeo = $this->oRegistry->Cache->{sprintf('geo_%s', Request::getIP())};
-		if(is_object($oGeo)){
-			$aRet = $oGeo->getData2();
-			d('aRet: '.print_r($aRet, 1));
-				
-			return $aRet;
-		}
-		
-		return array();
+		return $this->oRegistry->Geo->Location->data;
 	}
 }

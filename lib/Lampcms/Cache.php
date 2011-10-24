@@ -630,23 +630,8 @@ class Cache extends Observer
 	 * @return object of type GeoipLocation
 	 */
 	protected function geo($strIp){
-		d('getting geodata for ip: '.$strIp);
-
-		$strKey = 'geo_'.$strIp;
-		try{
-			$oGeoIP = Geoip::getGeoData($strIp);
-			$this->oTtl->offsetSet($strKey, 1800);
-		} catch (DevException $e){
-			e('Unable to get geo record for ip: '.$strIp.' error: ' .$e->getMessage());
-
-			throw $e;
-		}
-
-		$this->aTags = array('geo');
-
-		d('returning oGeoIP: '.gettype($oGeoIP));
-
-		return $oGeoIP;
+		e('Using Cache to store geo data is deprecated. Use Geo\Ip class now');
+		throw new DevException('Deprecated method');
 	}
 
 

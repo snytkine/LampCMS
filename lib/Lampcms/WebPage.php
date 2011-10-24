@@ -229,15 +229,15 @@ abstract class WebPage extends Base
 	 * @var bool
 	 */
 	protected $bInitPageVars = true;
-	
+
 	/**
 	 * Translator object
-	 * 
+	 *
 	 * @var object of type \I18n\Translator
 	 */
 	protected $Tr;
-	
-	
+
+
 	protected $action;
 
 
@@ -264,7 +264,7 @@ abstract class WebPage extends Base
 		->initPageVars()
 		->addJoinForm()
 		->addLangForm();
-		
+
 		Cookie::sendFirstVisitCookie();
 
 		try {
@@ -274,6 +274,18 @@ abstract class WebPage extends Base
 		} catch(Exception $e) {
 			$this->handleException($e);
 		}
+
+		
+		/**
+		 * Observer will be able to
+		 * record access of current Viewer to
+		 * the current page for the purpose of
+		 * recording of who's online and at what url
+		 */
+
+		$this->oRegistry->Dispatcher->post($this, 'onPageView', $this->aPageVars);
+		
+		//\Lampcms\Log::dump();
 	}
 
 
@@ -291,9 +303,10 @@ abstract class WebPage extends Base
 	protected function initViewerObject(){
 
 		if(empty($_SESSION['oViewer'])){
+			d('cp no Viewer in session');
 			$_SESSION['oViewer'] = User::factory($this->oRegistry);
 			$_SESSION['oViewer']->setTime();
-			d('oViewer new: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1));
+			d('oViewer new: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1) );
 			/**
 			 * Send referrer cookie if necessary
 			 */
@@ -301,6 +314,8 @@ abstract class WebPage extends Base
 		}
 
 		$this->oRegistry->Viewer = $_SESSION['oViewer'];
+
+		d(' session viewer: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1));
 
 		return $this;
 	}
@@ -312,23 +327,23 @@ abstract class WebPage extends Base
 
 		return $this;
 	}
-	
-	
+
+
 	/**
 	 * Translator method
-	 * It's customary in many projects to 
+	 * It's customary in many projects to
 	 * use the single underscore
 	 * symbol for translation function.
-	 * 
+	 *
 	 * @param string $string string to translate
-	 * 
+	 *
 	 * @param array $vars optional array of replacement vars for
 	 * translation
-	 * 
+	 *
 	 * @return string translated string
 	 */
 	protected function _($string, array $vars = null){
-		
+
 		return $this->Tr->get($string, $vars);
 	}
 
@@ -417,7 +432,7 @@ abstract class WebPage extends Base
 		$this->aPageVars['DISABLE_AUTOCOMPLETE'] = $oIni->DISABLE_AUTOCOMPLETE;
 		$this->aPageVars['JS_MIN_ID'] = JS_MIN_ID;
 		$this->aPageVars['home'] = $this->_('Home');
-		
+
 		/**
 		 * @todo later can change to something like
 		 * $this->oRegistrty->Viewer->getStyleID()
@@ -492,7 +507,7 @@ abstract class WebPage extends Base
 	/**
 	 *
 	 * Add JavaScript for Facebook UI to the page
-	 * 
+	 *
 	 * @param string $appId value from !config.ini 'FACEBOOK' -> 'APP_ID'
 	 */
 	protected function addFacebookJs($appId){
@@ -540,6 +555,7 @@ abstract class WebPage extends Base
 	 * after the redirect
 	 */
 	protected function loginBySid(){
+		
 		if ($this->isLoggedIn() || 'logout' === $this->action || 'login' === $this->action) {
 			d('cp');
 			return $this;
@@ -570,7 +586,8 @@ abstract class WebPage extends Base
 		 * but its not necessary because user
 		 *  will be redirected anyway
 		 */
-		$this->processLogin($oUser)->updateLastLogin(null, null, 'cookie');
+		$this->processLogin($oUser);
+		$this->oRegistry->Dispatcher->post( $this, 'onCookieLogin' );
 
 		return $this;
 	}
@@ -579,7 +596,7 @@ abstract class WebPage extends Base
 	/**
 	 * Login with Google Friend Connect cookie
 	 * fcauth
-	 * 
+	 *
 	 * @return $this
 	 */
 	protected function loginByGfcCookie(){
@@ -606,7 +623,8 @@ abstract class WebPage extends Base
 			return $this;
 		}
 
-		$this->processLogin($oViewer)->updateLastLogin(null, null, 'fcauth');
+		$this->processLogin($oViewer);
+		$this->oRegistry->Dispatcher->post( $this, 'onGfcLogin' );
 
 		return $this;
 
@@ -635,9 +653,9 @@ abstract class WebPage extends Base
 		try{
 			$oViewer = ExternalAuthFb::getUserObject($this->oRegistry);
 			d('got $oViewer: '.print_r($oViewer->getArrayCopy(), 1));
-			$this->processLogin($oViewer)->updateLastLogin(null, null, 'facebook');
-
+			$this->processLogin($oViewer);
 			d('logged in facebook user: '.$this->oRegistry->Viewer->getUid());
+			$this->oRegistry->Dispatcher->post( $this, 'onFacebookLogin' );
 
 		} catch (FacebookAuthException $e){
 			d('Facebook login failed. '.$e->getMessage().' '.$e->getFile().' '.$e->getLine());
@@ -661,7 +679,7 @@ abstract class WebPage extends Base
 	 */
 	protected function processLogin(User $oUser, $bResetSession = false){
 
-		d('protessing user hashCode: '.$oUser->hashCode().' userHash: '.$oUser->hashCode());
+		d('processing user hashCode: '.$oUser->hashCode().' userHash: '.$oUser->hashCode());
 
 		/**
 		 * This little thing is not
@@ -682,7 +700,7 @@ abstract class WebPage extends Base
 		 *
 		 */
 		if (false === $this->oRegistry->Dispatcher->post($oUser, 'onBeforeUserLogin')) {
-			d('cp');
+			d('onBeforeUserLogin returned false');
 			throw new LoginException('Access denied');
 		}
 
@@ -709,21 +727,18 @@ abstract class WebPage extends Base
 		 */
 		d('old SESSION oViewer hash code was: '.$_SESSION['oViewer']->hashCode().' old userHash: '.$_SESSION['oViewer']->hashCode());
 
-		/**
-		 * Update i_ts_login which
-		 * is the last time user was online
-		 */
-		$oUser->offsetSet('i_ts_login', time());
-
 		$this->oRegistry->Viewer = $_SESSION['oViewer'] = $oUser;
+		d('Viewer in session now: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1));
 		/**
 		 * This is important otherwise
 		 * the old stale value is used
 		 * when checking isLoggedIn()
 		 */
-		unset($this->bLoggedIn);
+		if(isset($this->bLoggedIn)){
+			unset($this->bLoggedIn);
+		}
 
-		d('SESSION oViewer is now of type '.$_SESSION['oViewer']->getClass().' hash: '.$_SESSION['oViewer']->hashCode().' new userHash: '.$_SESSION['oViewer']->hashCode());
+		d('SESSION oViewer is now of type '.$_SESSION['oViewer']->getClass().' hash: '.$_SESSION['oViewer']->hashCode());
 
 
 		$_SESSION['oViewer']->setTime();
@@ -739,18 +754,7 @@ abstract class WebPage extends Base
 			$_SESSION['navlinks'] = array();
 			$_SESSION['login_form'] = null;
 			$_SESSION['login_error'] = null;
-			//$_SESSION[$this->currentLang] = null;
 		}
-
-		/**
-		 * Post event notification
-		 * so that interested parties may be
-		 * notified when user loggs in
-		 * No need to pass userData because the
-		 * current $this->oViewer object may be examined
-		 * (it's available via $this->getObjectViewer()
-		 */
-		$this->oRegistry->Dispatcher->post( $this, 'onUserLogin' );
 
 		return $this;
 	}
@@ -776,6 +780,9 @@ abstract class WebPage extends Base
 		$this->addLoginBlock()->addLastJs()->addExtraCss();
 
 		$tpl = \tplMain::parse($this->aPageVars);
+		/**
+		 * @todo Translate string
+		 */
 		$scriptTime = ($this->oRegistry->Ini->SHOW_TIMER) ? 'Page generated in '.abs((microtime() - INIT_TIMESTAMP)).' seconds' : '';
 
 		return \str_replace('{timer}', $scriptTime, $tpl);
@@ -1077,12 +1084,12 @@ abstract class WebPage extends Base
 	/**
 	 * Add the drop-down menu for Language selection
 	 * to the page vars
-	 * 
+	 *
 	 * @return $this
 	 */
 	protected function addLangForm(){
 		$this->aPageVars['langsForm'] = $this->oRegistry->Locale->getOptions();
-		
+
 		return $this;
 	}
 

@@ -113,7 +113,6 @@ Interfaces\LinkedinUser
 	 */
 	public static function factory(Registry $oRegistry, array $a = array()){
 		$o = new static($oRegistry, 'USERS', $a);
-		$o->applyDefaults();
 
 		return $o;
 	}
@@ -195,15 +194,15 @@ Interfaces\LinkedinUser
 
 		return  (('administrator' === $role) || false !== (\strstr($role, 'moderator')) );
 	}
-	
+
 	/**
 	 * Check if user is administrator
-	 * 
+	 *
 	 * @return bool
-	 * 
+	 *
 	 */
 	public function isAdmin(){
-		
+
 		return  ('administrator' === $this->getRoleId());
 	}
 
@@ -241,7 +240,8 @@ Interfaces\LinkedinUser
 
 	public function __set($name, $val){
 
-		$this->offsetSet($name, $val);
+		throw new DevException('Should not set property of User as object property');
+		//$this->offsetSet($name, $val);
 	}
 
 
@@ -254,7 +254,7 @@ Interfaces\LinkedinUser
 	 * @return string the HTML code for image src
 	 */
 	public function getAvatarImgSrc($sSize = 'medium', $noCache = false){
-		$strAvatar = '<img src="' . $this->getAvatarSrc($noCache) . '" class="img_avatar" width="40" height="40" border="0" alt="avatar"/>';
+		$strAvatar = '<img src="' . $this->getAvatarSrc($noCache) . '" class="img_avatar" width="40" height="40" border="0" alt="avatar">';
 
 		return $strAvatar;
 
@@ -632,11 +632,13 @@ Interfaces\LinkedinUser
 		$locale = str_replace('-', '_', $locale);
 
 		if(2 !== strlen($locale) && (!preg_match('/[a-z]{2}_[A-Z]{2}/', $locale))){
-			throw new \InvalidArgumentException('Param $locale is invalid. Must be in a form on "en_US" format (2 letter lang followed by underscore followed by 2-letter country');
+			$err = 'Param $locale is invalid. Must be in a form on "en_US" format (2 letter lang followed by underscore followed by 2-letter country';
+			e($err);
+			throw new \InvalidArgumentException($err);
 		}
 
 		if(!$this->isGuest()){
-			parent::offsetSet('my_locale', $locale);
+			$this->offsetSet('locale', $locale);
 
 			$this->save();
 		}
@@ -695,7 +697,14 @@ Interfaces\LinkedinUser
 		$iRep = $this->offsetGet('i_rep');
 		$iNew = max(1, ($iRep + (int)$iPoints));
 
+		/**
+		 * @todo investigate where reputation is set directly
+		 * using assignment operator $User['i_rep'] = $x
+		 * and change it to use proper setReputation method
+		 * then stop using parent::offsetSet()
+		 */
 		parent::offsetSet('i_rep', $iNew);
+		//$this->offsetSet('i_rep', $iNew);
 
 		return $this;
 	}
@@ -724,26 +733,22 @@ Interfaces\LinkedinUser
 	 */
 	public function getLocation(){
 		$cc = $this->offsetGet('cc');
+		$cn = $this->offsetGet('cn');
 		$state = $this->offsetGet('state');
 		$city = $this->offsetGet('city');
-		$hasCity = false;
 
 		$ret = '';
 
 		if(!empty($city)){
-			$hasCity = true;
 			$ret .= $city;
 		}
 
-		if(!empty($state) && !\is_numeric($state)){
-			$ret .= ($hasCity) ? ', '.$state : $state;
+		if(!empty($state) && ('US' === $cc || 'CA' === $cc)){
+			$ret .= (!empty($city) ) ? ', '.$state : $state;
 		}
 
-		if(!empty($cc)){
-			$aCountries = \array_combine(\Lampcms\Geoip::$COUNTRY_CODES, \Lampcms\Geoip::$COUNTRY_NAMES);
-			if (!empty($aCountries[$cc])){
-				$ret .= ' '.$aCountries[$cc];
-			}
+		if(!empty($cn)){
+			$ret .= ' '.$cn;
 		}
 
 		return $ret;
@@ -1120,7 +1125,8 @@ Interfaces\LinkedinUser
 	public function offsetSet($index, $newval){
 		switch($index){
 			case 'role':
-				$this->setRoleId($newval);
+				throw new DevException('User Role cannot be set directly, must be set using setRoleId() method');
+				//$this->setRoleId($newval);
 				break;
 
 			case 'i_rep':
@@ -1129,7 +1135,8 @@ Interfaces\LinkedinUser
 
 			case 'tz':
 			case 'timezone':
-				$this->setTimezone($newval);
+				//$this->setTimezone($newval);
+				throw new DevException('Value of timezone should be set using setTimezone() method');
 				break;
 
 			default:
@@ -1224,5 +1231,35 @@ Interfaces\LinkedinUser
 	 */
 	public function getLinkedinId(){
 		return (string)$this->offsetGet('linkedin_id');
+	}
+
+	//public function __destruct(){}
+
+	public function serialize(){
+		$a = array('array' => $this->getArrayCopy(),
+					'md5' => $this->md5,
+					'bSaved' => $this->bSaved
+		);
+
+		/**
+		 * Unsetting $this->oRegistry may not be necessary
+		 */
+		//unset($this->oRegistry);
+
+		return serialize($a);
+	}
+
+
+	/**
+	 * (non-PHPdoc)
+	 * @see Lampcms.ArrayDefaults::unserialize()
+	 */
+	public function unserialize($serialized){
+		$a = unserialize($serialized);
+		$this->exchangeArray($a['array']);
+		$this->collectionName = 'USERS';
+		$this->bSaved = $a['bSaved'];
+		$this->keyColumn = '_id';
+		$this->md5 = $a['md5'];
 	}
 }

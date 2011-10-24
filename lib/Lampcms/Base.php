@@ -117,119 +117,37 @@ class Base extends LampcmsObject
 
 
 	/**
-	 * Updates the value of last_login in LOGIN_LOG table
-	 * along with Geo data and useragent
-	 *
-	 * @param integer $intUserId user id
-	 *
-	 * @param string $username_date in
-	 * unix timestamp format
-	 *
-	 * @param string $login_type
-	 * indicated how user connected:
-	 * www, nntp, cookie, ftp, webdav
-	 *
-	 * @return object $this
-	 */
-	protected function updateLastLogin($intUserId = null, $username_date = '', $login_type = 'www'){
-		$userId = (null !== $intUserId) ? (int)$intUserId : $this->oRegistry->Viewer->getUid();
-		$i_ts = ( empty($username_date)) ? time() : (int)$username_date;
-		$strIp = Request::getIP();
-		$useragent = Request::getUserAgent();
-		$aData = compact( 'i_ts', 'useragent', 'login_type' );
-
-		$this->saveResourceLocation( $userId, $strIp, $aData, 'LOGIN_LOG', 'i_uid', true, true );
-
-		return $this;
-
-	}
-
-	/**
-	 * Given the $intResourceId and $ip this functon
-	 * creates a record in RESOURCE_LOCATION table (or any other table name specified in arguments)
-	 * It also checks that IP address is valid and public. Local, private, reserved or non-valid addresses will
-	 * be ignored.
+	 * Given the $resourceId and $ip this functon
+	 * creates a record in RESOURCE_LOCATION collection (or any other collection name specified in arguments)
 	 *
 	 * @param string $ip ip address or host name from where resource was submitted
 	 *
 	 * @param array $arrExtra associative array of key=>value can be passed here with extra data
 	 * this data will be added to geoIP array so that any additional data can then be inserted into
-	 * database table together with GeoIP data.
+	 * collection together with GeoIP data.
 	 *
 	 * @param string $collection a name of mongo collection where the GeoIP data will be inserted
-	 * this table must have specific column names and they must be of type NULL because none of the
-	 * GeoIP data is guaranteed to be present in array.
 	 *
 	 * @param string $columnName a name of database table column that can be used instead of the default 'resouce_id'
 	 * the value of $resourceId will be recorded in that column.
-	 *
-	 * @param boolean $bRecreate a false means to re-use previosly created GeoIP object if such object exists
-	 * this can save some time if you need to do 2 or more consecutive ip to location lookups on the same ip address
 	 *
 	 * @return bool true or false
 	 */
 	public function saveResourceLocation($resourceId = '', $ip = '', array $arrExtra = array(),
 	$collection = 'RESOURCE_LOCATION', $columnName = 'i_res_id',
-	$bAddIp = false, $bRecreate = true)
+	$addIp = true)
 	{
-		/**
-		 * Special case:
-		 * the first argument can be instance of Message object
-		 * or instance of File
-		 * in such case all required arguments are in that object
-		 */
-		if (is_object( $resourceId )) {
-			if ($resourceId instanceof MessageObject) {
-				$ip = $resourceId->ip_address;
-				$collection = $resourceId->geoTable;
-				$columnName = 'messages_id';
-				$arrExtra = array('useragent'=>$resourceId->useragent,
-                                     'upload_method'=>$resourceId->upload_method);
-				$resourceId = $resourceId->messages_id;
-				$bAddIp = true;
 
-			} elseif ($resourceId instanceof File) {
-				$ip = $resourceId->ip;
-				$resourceId = $resourceId->resource_id;
-			}
-		}
-
-		if (empty($ip)) {
-			e('Error: strIp is empty in object File');
-
+		if (empty($ip) || empty($resourceId)) {
 			return false;
 		}
 
-		if (empty($resourceId)) {
-			e('Error: intResourceId is empty in objectFile ');
+		$aLocation = $this->oRegistry->Geo->getLocation($ip)->data;
 
-			return false;
-		}
-
-
-		if (false === $ip = Ip::parseIpString( $ip )) {
-
-			return true;
-		}
-
-		/**
-		 * check to make sure the ip address
-		 * is good and also a public IP
-		 */
-		$oCheckIp = new Ip();
-		if (!$oCheckIp->isPublic( $ip )) {
-
-			return true;
-		}
-
-		$boolSave = false;
-
-		$oGeoLocation = Geoip::getGeoData($ip);
-
-		if ( 0 === strlen($oGeoLocation->countryCode) && $collection == 'RESOURCE_LOCATION') {
+		if ( empty($aLocation) && 'RESOURCE_LOCATION' === $collection) {
 			d( 'Did not find location for this ip: '.$ip );
 
-			return true;
+			return false;
 		}
 
 
@@ -237,17 +155,12 @@ class Base extends LampcmsObject
 			$arrExtra[$columnName] = $resourceId;
 		}
 
-		if ($bAddIp) {
+		if ($addIp) {
 			$arrExtra['ip'] = $ip;
 		}
 
-		if(!is_object($oGeoLocation)){
-			e('LampcmsError $this->oGeoLocation is not an object, its: '.gettype($this->oGeoLocation));
 
-			return false;
-		}
-
-		$arrData = $arrExtra + $oGeoLocation->getData();
+		$arrData = $arrExtra + $aLocation;
 		d( '$arrData: '.print_r( $arrData, true ) );
 
 		d('collName: '.$columnName);
@@ -256,12 +169,12 @@ class Base extends LampcmsObject
 		 * Ensure index on column $columnName
 		 *
 		 */
-		$indexed = $this->oRegistry->Mongo->getCollection($collection)->ensureIndex(array($columnName => 1));
-		d('$indexed: '.$indexed);
-		$boolSave = $this->oRegistry->Mongo->insertData($collection, $arrData, null, __METHOD__);
-		d( '$boolSave: '.$boolSave );
+		$this->oRegistry->Mongo->getCollection($collection)->ensureIndex(array($columnName => 1));
 
-		return (bool)$boolSave;
+		$saved = $this->oRegistry->Mongo->insertData($collection, $arrData, null);
+		d( '$saved: '.$saved );
+
+		return (bool)$saved;
 
 	}
 

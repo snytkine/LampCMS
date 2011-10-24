@@ -234,7 +234,7 @@ class Editprofile extends WebPage
 		$s = '';
 		$current = \strtoupper($this->oRegistry->Viewer['cc']);
 		$tpl = '<option value="%1$s"%2$s>%3$s</option>';
-		$aCountries = \array_combine(\Lampcms\Geoip::$COUNTRY_CODES, \Lampcms\Geoip::$COUNTRY_NAMES);
+		$aCountries = \array_combine(\Lampcms\Geo\Location::getCodes(), \Lampcms\Geo\Location::getNames());
 		
 		foreach($aCountries as $key => $val){
 			$selected = ($current == $key) ? ' selected' : '';

@@ -146,7 +146,7 @@ class Template
 		 * are not present in the database
 		 */
 		if(null !== $func){
-				
+
 			$func($aVars);
 		}
 
@@ -160,7 +160,7 @@ class Template
 		 *
 		 */
 		if( false === static::$skip ){
-				
+
 			static::func($aVars);
 		}
 
@@ -169,7 +169,18 @@ class Template
 			$aVars = \array_merge(static::$vars, $aVars);
 		}
 
-		return \vsprintf(static::$tpl, $aVars);
+		$begin = $end = $t = '';
+
+		if (true === LAMPCMS_DEBUG) {
+			$t = '  ';
+			$templateName = get_called_class();
+			$begin = sprintf("\n$t<!-- Template %s -->\n", $templateName);
+			$end = sprintf("\n$t<!-- // Template %s -->\n", $templateName);
+		}
+
+		$ret = \vsprintf(static::$tpl, $aVars);
+
+		return $begin.$t.$ret.$end;
 	}
 
 	/**
@@ -185,7 +196,7 @@ class Template
 	 * @throws InvalidArgumentException if $a is not array and not Iterator
 	 */
 	public static function loop($a, $merge = true, $func = null){
-
+		$begin = $end = '';
 		/**
 		 * Throw exception if Iterator is not
 		 * an array and not instance of iterator
@@ -216,7 +227,13 @@ class Template
 			$s .= static::parse($vars, $merge, $func);
 		}
 
-		return $s;
+		if (true === LAMPCMS_DEBUG) {
+			$templateName = get_called_class();
+			$begin = sprintf("\n<!-- BEGIN LOOP in template: %s -->\n", $templateName);
+			$end = sprintf("\n<!-- // END  LOOP in template: %s -->\n", $templateName);
+		}
+
+		return $begin.$s.$end;
 	}
 
 
@@ -254,7 +271,7 @@ class Template
 		return static::$tpl;
 	}
 
-	
+
 	/**
 	 * Get array of unparsed template
 	 * and default vars

@@ -65,7 +65,7 @@ class MockUser extends User
 
 	public static function factory(Registry $oRegistry, array $a = array()){
 		$o = new static($oRegistry);
-		$o->applyDefaults();
+		//$o->applyDefaults();
 
 		return $o;
 	}

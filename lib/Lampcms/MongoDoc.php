@@ -309,49 +309,6 @@ class MongoDoc extends LampcmsArray implements \Serializable
 
 	/**
 	 * Use case:
-	 * class MongoComments {}
-	 * $article = MongoComments::byUid(123123);
-	 *
-	 * The class extending this class has to exist in order
-	 * for this method to even be used.
-	 *
-	 * A much better way is to get object of this class
-	 * dymanically via Registry. Registry will know what to do:
-	 * it will create an object of this class, set the collectionName
-	 * extracted from requested class and return the object.
-	 * Then use by$fieldname($value) method to load the
-	 * array.
-	 *
-	 * @todo this should not be static, should be regular __call()
-	 *
-	 * @param unknown_type $method
-	 * @param unknown_type $arguments
-	 *
-	 * @return object of this class representing MongoCollection
-	 * extracted from class name.
-	 */
-	public static function __callStatic($method, $arguments) {
-		if('by' !== substr(strtolower($method), 0, 2) ){
-			throw new \InvalidArgimentException('Unknown method: '.$method);
-		}
-
-		$calledClass = get_called_class();
-		if('Mongo' !== substr($calledClass, 0, 5)){
-			throw new \InvalidArgumentException('Class that extends MongoDoc must begin with "Mongo" prefix followed by name of Mongo Collection. It was: '.$calledClass);
-		}
-
-		$collectionName = ucfirst(substr(strtolower($calledClass), 8 ));
-
-		$value = $arguments[0];
-
-		d('$collectionName: '.$collectionName. ' method: '.$method. ' $value: '.$value);
-
-		return Registry::getInstance()->{'Mongo'.$collectionName}->$method($value);
-	}
-
-
-	/**
-	 * Use case:
 	 * $o->byEmail('something@blank.com')->user_id;
 	 * This will case the call to __call(), which will
 	 * find the record in mongo collection of this object
@@ -687,7 +644,6 @@ class MongoDoc extends LampcmsArray implements \Serializable
 		}
 
 		return $this;
-
 	}
 
 
@@ -770,7 +726,10 @@ class MongoDoc extends LampcmsArray implements \Serializable
 					'bSaved' => $this->bSaved,
 					'keyColumn' => $this->keyColumn);
 
-		unset($this->oRegistry);
+		/**
+		 * Unsetting $this->oRegistry may not be necessary
+		 */
+		//unset($this->oRegistry);
 
 		return serialize($a);
 	}

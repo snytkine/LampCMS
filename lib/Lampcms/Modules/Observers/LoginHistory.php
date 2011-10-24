@@ -50,93 +50,100 @@
  */
 
 
-namespace Lampcms\Controllers;
 
+namespace Lampcms\Modules\Observers;
 
-use \Lampcms\WebPage;
-use \Lampcms\Request;
-use \Lampcms\Responder;
-use \Lampcms\FollowManager;
+use Lampcms\Request;
 
 /**
- * This controller is responsible
- * for processing the Follow request
- * 
- * Follow request can be for Tag, User or Question
- * 
+ * Class for recording 
+ * time and place and type of authentication
+ * of each new login action.
+ * For example a login by username/password is a "password" login,
+ * login with facebook is a "facebook" login
+ * This will build a history of when, how and from where
+ * user logged in to the site.
+ *
  * @author Dmitri Snytkine
  *
  */
-class Follow extends WebPage
+class LoginHistory extends \Lampcms\Observer
 {
-	protected $requireToken = true;
 
-	protected $bRequirePost = true;
+	protected $loginMethod;
 
-	protected $aRequired = array('f', 'ftype', 'follow');
+	public function main(){
 
-	protected $oFollowManager;
+		d('get event: '.$this->eventName);
 
-	protected function main(){
-
-		$this->oFollowManager = new FollowManager($this->oRegistry);
-
-		$this->processFollow()
-		->returnResult();
-	}
-
-
-	protected function processFollow(){
-		$type = $this->oRequest['ftype'];
-		$follow = $this->oRequest['follow'];
-		$f = $this->oRequest['f'];
-
-		switch(true){
-
-			case ('q' === $type):
-				if('off' === $follow){
-					$this->oFollowManager->unfollowQuestion($this->oRegistry->Viewer, (int)$f);
-				} else {
-					$this->oFollowManager->followQuestion($this->oRegistry->Viewer, (int)$f);
-				}
-
+		switch($this->eventName){
+			case 'onUserLogin':
+				$this->loginMethod = 'password';
 				break;
 
-			case ('t' === $type):
-				if('off' === $follow){
-					$this->oFollowManager->unfollowTag($this->oRegistry->Viewer, $f);
-				} else {
-					$this->oFollowManager->followTag($this->oRegistry->Viewer, $f);
-				}
-
+			case 'onFacebookLogin':
+				$this->loginMethod = 'facebook';
 				break;
 
-			case ('u' === $type):
-				if('off' === $follow){
-					$this->oFollowManager->unfollowUser($this->oRegistry->Viewer, (int)$f);
-				} else {
-					d('following user '.$f);
-					$this->oFollowManager->followUser($this->oRegistry->Viewer, (int)$f);
-				}
+			case 'onLinkedinLogin':
+				$this->loginMethod = 'linkedin';
+				break;
 
+			case 'onCookieLogin':
+				$this->loginMethod = 'cookie';
+				break;
+
+			case 'onGfcLogin':
+				$this->loginMethod = 'gfc';
+
+			case 'onTwitterLogin':
+				$this->loginMethod = 'twitter';
 				break;
 		}
 
-		return $this;
+		if(isset($this->loginMethod)){
+			$this->run();
+		}
 	}
 
 
 	/**
-	 * Return empty array via Ajax
-	 * this way UI will not have to do anything
-	 *
+	 * Update LOGIN_LOG collection
 	 *
 	 */
-	protected function returnResult(){
-		if(Request::isAjax()){
-			Responder::sendJSON(array());
+	protected function run(){
+		$Viewer = $this->oRegistry->Viewer;
+		$ip 	= Request::getIP();
+		$uid 	= $Viewer->getUid();
+		d('uid: '.$uid);
+		if($uid > 0){
+				
+			$aData = array(
+				'ip' => $ip,
+				'i_uid' => $uid,
+				'i_ts' => time(),
+				'ua' => Request::getUserAgent(),
+				'login_method' => $this->loginMethod
+			);
+
+			$Mongo 	= $this->oRegistry->Mongo->getDb();
+			//$Geo 	= $this->oRegistry->Geo;
+
+			$func = function() use ($aData, $Mongo){
+
+				//$aGeo = $Geo->getLocation($aData['ip'])->toArray();
+				//$aData = $aData + $aGeo;
+
+				$coll = $Mongo->LOGIN_LOG;
+				$coll->ensureIndex(array('i_uid' => 1));
+				$coll->ensureIndex(array('ip' => 1));
+				$coll->insert($aData);
+			};
+
+			\Lampcms\runLater($func);
+
 		}
 
-		Responder::redirectToPage();
 	}
+
 }

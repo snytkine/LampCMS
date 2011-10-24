@@ -76,7 +76,7 @@ namespace Lampcms\Mongo;
  */
 
 /**
- * Collection holds data necessary for 
+ * Collection holds data necessary for
  * creating sitemaps
  */
 const SITEMAP_LATEST = 'SITEMAP_LATEST';
@@ -93,6 +93,25 @@ const SITEMAP_LATEST = 'SITEMAP_LATEST';
  * the flag is either true or false
  */
 const API_CLIENTS = 'API_CLIENTS';
+
+/**
+ * Collection stores data
+ * about uses who are currently online
+ * and what they are doing on the site
+ *
+ */
+const ONLINE = 'ONLINE';
+
+/**
+ * Collection to store
+ * Guests online data
+ * useful to store geolocations
+ * of guests and keep count
+ * of guests online
+ * 
+ * @var unknown_type
+ */
+const GUESTS = 'GUESTS';
 
 /**
  * This collection is very important
@@ -258,17 +277,17 @@ const VOTE_HACKS = 'VOTE_HACKS';
  * Log for API Requests
  * Will hold data like api path,
  * ip, useragent, client_id, userid
- * 
+ *
  */
 const API_ACCESS = 'API_ACCESS';
 
 /**
  * This collection records per-day
  * count of API calls per user or per-ip
- * 
+ *
  * This data is then used to enforce the API
  * daily access limit based on userID or on IP address
- * 
+ *
  */
 const API_ACCESS_COUNTER = 'API_ACCESS_COUNTER';
 
@@ -291,14 +310,18 @@ const MY_TEST_COLLECTION = 'MY_TEST_COLLECTION';
 /**
  * Collection for storing I18N Translation strings
  * _id is language code like 'en' or 'fr'
- * also has 'label' to full name of 
+ * also has 'label' to full name of
  * Language - this could be in that native
  * language or in English
- * 
+ *
  * It also holds actual collection of translation
  * strings as nested array of objects
- * 
+ *
  */
 const TRANSLATION = 'TRANSLATION';
+
+const GEO_BLOCKS = 'GEO_BLOCKS';
+
+const GEO_LOCATION = 'GEO_LOCATION';
 
 

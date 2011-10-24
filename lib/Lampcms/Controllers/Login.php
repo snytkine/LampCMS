@@ -100,7 +100,7 @@ class Login extends WebPage
 		 * nothing to gain by tricking someonw to login
 		 */
 		$bRemember = (isset($this->oRequest['chkRemember']) ? (bool)$this->oRequest['chkRemember'] : false);
-		d('$bRemember '.$bRemember.' $this->oRequest '.print_r($this->oRequest->toArray(), 1));
+		d('$bRemember '.$bRemember.' $this->oRequest '.print_r($this->oRequest->getArrayCopy(), 1));
 
 		try {
 			$oCheckLogin = new UserAuth($this->oRegistry);
@@ -126,7 +126,8 @@ class Login extends WebPage
 
 		d('oUser: '.gettype($oUser));
 
-		$this->processLogin($oUser)->updateLastLogin();
+		$this->processLogin($oUser);
+		$this->oRegistry->Dispatcher->post( $this, 'onUserLogin' );
 
 		if($bRemember){
 			\Lampcms\Cookie::sendLoginCookie($oUser->getUid(), $oUser['rs']);

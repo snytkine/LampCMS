@@ -82,7 +82,7 @@ namespace Lampcms;
  * @see Net_GeoIP::lookupLocation()
  */
 
-class GeoipLocation extends LampcmsObject implements \Serializable
+class _GeoipLocation extends LampcmsObject implements \Serializable
 {
 	protected $aData = array(
     'countryCode' => null,

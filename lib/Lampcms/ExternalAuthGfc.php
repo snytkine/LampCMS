@@ -274,7 +274,7 @@ class ExternalAuthGfc extends ExternalAuth
 	 * @return object $this
 	 */
 	protected function getGfcCookieVal(){
-		
+
 		$cookieName = null;
 		$fcauthSession = 'fcauth'.$this->gfcSiteId.'-s';
 		$fcauthRegular = 'fcauth'.$this->gfcSiteId;
@@ -368,20 +368,7 @@ class ExternalAuthGfc extends ExternalAuth
 		'i_rep' => 1,
 		'i_fv' => (false !== $intFv = Cookie::getSidCookie(true)) ? $intFv : time());
 
-
-		$oGeoData = $this->oRegistry->Cache->{sprintf('geo_%s', Request::getIP())};
-		if(\is_object($oGeoData)){
-			$aProfile = array(
-			'cc' => $oGeoData->countryCode,
-			'country' => $oGeoData->countryName,
-			'state' => $oGeoData->region,
-			'city' => $oGeoData->city,
-			'zip' => $oGeoData->postalCode);
-			d('aProfile: '.print_r($aProfile, 1));
-
-			$aUser = array_merge($aUser, $aProfile);
-		}
-		
+		$aUser = array_merge($this->oRegistry->Geo->Location->data, $aUser);
 		d('aUser: '.print_r($aUser, 1));
 
 		$this->oUser = UserGfc::factory($this->oRegistry, $aUser);

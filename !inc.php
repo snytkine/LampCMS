@@ -37,8 +37,32 @@
  */
 
 error_reporting(E_ALL | E_DEPRECATED);
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
+//ini_set('display_errors', 1);
+//ini_set('display_startup_errors', 1);
+
+/**
+ * For those unfortunate souls
+ * who has magic_quotes enabled on their
+ * server despite having php 5.3
+ * this code will remove those
+ * genocidal quotes added by magic_quotes
+ */
+if (get_magic_quotes_gpc()) {
+	$process = array(&$_GET, &$_POST, &$_COOKIE, &$_REQUEST);
+	while (list($key, $val) = each($process)) {
+		foreach ($val as $k => $v) {
+			unset($process[$key][$k]);
+			if (is_array($v)) {
+				$process[$key][stripslashes($k)] = $v;
+				$process[] = &$process[$key][stripslashes($k)];
+			} else {
+				$process[$key][stripslashes($k)] = stripslashes($v);
+			}
+		}
+	}
+	unset($process);
+}
+
 
 /**
  * Set all the multibyte
@@ -99,7 +123,7 @@ require $lampcmsClasses.'Template'.DIRECTORY_SEPARATOR.'Template.php';
  * Points.php is in non-standard directory,
  * in fact this file is not even included in distro
  * User must rename Points.php.dist to Points.php
- * That's why we should manually included it 
+ * That's why we should manually included it
  * because autoloader will not be able to find it.
  * This file only contains a few constants - it's cheap
  * to include it every time, and with APC cache it will
@@ -161,7 +185,7 @@ function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
 		 * error reporting mask, then throw an ErrorException
 		 */
 		if ($errLevel & $errno) {
-			
+				
 			throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
 		}
 	}
@@ -194,7 +218,7 @@ try{
 	if(!empty($geofile)){
 		define('LAMPCMS_GEOIP_FILE', $geofile);
 	}
-	
+
 	define('LAMPCMS_AVATAR_IMG_SITE', $oINI->AVATAR_IMG_SITE);
 
 	if (!empty($dataDir)) {

@@ -50,93 +50,76 @@
  */
 
 
-namespace Lampcms\Controllers;
+ignore_user_abort(true);
+set_time_limit(1200);
 
 
-use \Lampcms\WebPage;
-use \Lampcms\Request;
-use \Lampcms\Responder;
-use \Lampcms\FollowManager;
+
+require '../!inc.php';
+
+if(!defined('BR')){
+	define('BR', "\n<BR>");
+}
 
 /**
- * This controller is responsible
- * for processing the Follow request
+ * Set names of blocks and location
+ * file that you going to import
  * 
- * Follow request can be for Tag, User or Question
+ * Get these files from MaxMind website:
+ * http://www.maxmind.com/app/geolitecity
  * 
- * @author Dmitri Snytkine
- *
+ * Choose to download GeoLite City in csv format
+ * then unzip the downloade zip file
+ * and copy the 2 .csv files in this directory
+ * (2 files will approximately 150MB total)
+ * 
+ * Make sure to upload them in ASCII mode
+ * (your ftp client/server must be set to transfer the .csv files
+ * in ASCII mode)
+ * 
+ * If you want, you may also buy the non-free versions from MixMind, 
+ * in which case
+ * you would change the names of the 2 files below
+ * to the names of files that came with your full version of 
+ * GeoCity .cvs files.
+ * 
+ * Then just run this geo_import.php file via web browser.
+ * It may take 5-10 minutes to complete the import,
+ * the importer script imports over 4 million records one by one
+ * then creating 2 indexes in the database
+ * 
+ * After the importing is done you should delete these .csv files
+ * If you don't delete them then anyone can lauhch this file with a browser
+ * and it will start the import all over again.
+ * 
+ * If you want to later upgrade to latest files from MaxMind site
+ * just upload the new .csv files and run this script again - it will
+ * drop the previously impored DB collections and import new files.
+ * 
+ * 
+ * 
  */
-class Follow extends WebPage
-{
-	protected $requireToken = true;
+$start = microtime(true);
+$blocksFile = 'GeoLiteCity-Blocks.csv';
 
-	protected $bRequirePost = true;
+$locationFile = 'GeoLiteCity-Location.csv';
 
-	protected $aRequired = array('f', 'ftype', 'follow');
+// DO NOT EDIT ANYTHING BELOW
 
-	protected $oFollowManager;
-
-	protected function main(){
-
-		$this->oFollowManager = new FollowManager($this->oRegistry);
-
-		$this->processFollow()
-		->returnResult();
-	}
-
-
-	protected function processFollow(){
-		$type = $this->oRequest['ftype'];
-		$follow = $this->oRequest['follow'];
-		$f = $this->oRequest['f'];
-
-		switch(true){
-
-			case ('q' === $type):
-				if('off' === $follow){
-					$this->oFollowManager->unfollowQuestion($this->oRegistry->Viewer, (int)$f);
-				} else {
-					$this->oFollowManager->followQuestion($this->oRegistry->Viewer, (int)$f);
-				}
-
-				break;
-
-			case ('t' === $type):
-				if('off' === $follow){
-					$this->oFollowManager->unfollowTag($this->oRegistry->Viewer, $f);
-				} else {
-					$this->oFollowManager->followTag($this->oRegistry->Viewer, $f);
-				}
-
-				break;
-
-			case ('u' === $type):
-				if('off' === $follow){
-					$this->oFollowManager->unfollowUser($this->oRegistry->Viewer, (int)$f);
-				} else {
-					d('following user '.$f);
-					$this->oFollowManager->followUser($this->oRegistry->Viewer, (int)$f);
-				}
-
-				break;
-		}
-
-		return $this;
-	}
-
-
-	/**
-	 * Return empty array via Ajax
-	 * this way UI will not have to do anything
-	 *
-	 *
-	 */
-	protected function returnResult(){
-		if(Request::isAjax()){
-			Responder::sendJSON(array());
-		}
-
-		Responder::redirectToPage();
-	}
+$dir = dirname(__FILE__);
+//
+$b = $dir.DIRECTORY_SEPARATOR.$blocksFile;
+$l = $dir.DIRECTORY_SEPARATOR.$locationFile;
+if(!is_readable($l)){
+	throw new \Exception('File '.$locationFile.' is not found in this directory '.$dir.' or is not readable to php');
 }
+
+if(!is_readable($b)){
+	throw new \Exception('File '.$blocksFile.' is not found in this directory '.$dir.' or is not readable to php');
+}
+
+
+$Importer = new \Lampcms\Geo\Import($oRegistry->Mongo->getDb(), $b, $l);
+$Importer->run();
+$end = microtime(true);
+echo BR.'Importing done in '.($end - $start).' seconds';

@@ -48,11 +48,18 @@
  *
  *
  */
-
+ini_set('session.use_trans_sid', false);
+ini_set('session.use_only_cookies', true);
 
 define('INIT_TIMESTAMP', microtime());
 
+
 include '../!inc.php';
+
+if (true !== session_start()) {
+	throw new Lampcms\Exception('session start error');
+}
+
 require($lampcmsClasses.'Base.php');
 require($lampcmsClasses.'WebPage.php');
 require($lampcmsClasses.'Forms'.DIRECTORY_SEPARATOR.'Form.php');
@@ -61,19 +68,16 @@ require($lampcmsClasses.'LoginForm.php');
 
 
 try {
-
-	ini_set('session.use_only_cookies', true);
-	ini_set('session.use_trans_sid', false);
-	if (true !== session_start()) {
-		throw new Lampcms\Exception('session start error');
+	
+	if(!empty($_SESSION['oViewer'])){
+		d('SESSION: '.print_r($_SESSION, 1).' oViewer in session: '. print_r($_SESSION['oViewer']->getArrayCopy(), 1) );
+	} else {
+		d('No Viewer is $_SESSION');
 	}
-
-	//d('session: '.print_r($_SESSION, 1));
 
 	$oRequest = $oRegistry->Request;
 	$a = $oRequest['a'];
 
-	//d('a: '.$a.' $oRequest: '.print_r($oRequest->getArray(), 1));
 	$controller = ucfirst($a);
 	include($lampcmsClasses.'Controllers'.DIRECTORY_SEPARATOR.$controller.'.php');
 	$class = '\Lampcms\\Controllers\\'.$controller;
@@ -81,6 +85,10 @@ try {
 	header('Content-Type: text/html; charset=utf-8');
 	echo new $class($oRegistry);
 	fastcgi_finish_request();
+
+	//$_SESSION['oViewer']->save();
+	//$oRegistry->Viewer = null;
+	//session_write_close();
 
 } catch(\Exception $e) {
 	header("HTTP/1.0 500 Exception");

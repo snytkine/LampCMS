@@ -75,6 +75,7 @@ class Observer implements \SplObserver
 	protected $eventName;
 
 	public function __construct(Registry $oRegistry){
+		d('observer: '.get_class($this));
 		$this->oRegistry = $oRegistry;
 	}
 	
@@ -116,4 +117,3 @@ class Observer implements \SplObserver
 	protected function main(){}
 }
 
-?>

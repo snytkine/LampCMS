@@ -98,19 +98,8 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 */
 	protected $aUTF8 = array();
 
-	/**
-	 * GeoData object
-	 *
-	 * @var object of type GeoipLocation representing
-	 * geolocation for the ip address of request
-	 */
-	protected $oGeo;
-
 
 	public function __construct(array $a = null){
-
-		/*print_r($a);
-		 exit;*/
 
 		$a = (null === $a) ? array() : $a;
 		parent::__construct($a);
@@ -405,25 +394,6 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 		}
 
 		return $this->aUTF8[$name];
-	}
-
-
-	/**
-	 * Get object of type GeoipLocation
-	 * for requesting ip address
-	 * This may return stub-like object with
-	 * empty values if ip could be resolved to
-	 * a location but it will always return the object
-	 * GeoipLocation
-	 *
-	 * @return object of type GeoipLocation
-	 */
-	public function getGeoData(){
-		if(!isset($this->oGeo)){
-			$this->oGeo = Geoip::getGeoData(self::getIP);
-		}
-
-		return $this->oGeo;
 	}
 
 

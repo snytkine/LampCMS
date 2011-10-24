@@ -252,11 +252,6 @@ GFC_ID =
 ;
 DISABLE_AUTOCOMPLETE = false
 ;
-; Add "Code editor" tools to RTE Editor
-; This is very useful for programming - related Q&A Sites
-; but totally unnecessary for non-programming sites,
-; so it's disabled by default
-ENABLE_CODE_EDITOR = false;
 ; Options of RTE Editor
 [EDITOR]
 ;
@@ -392,7 +387,11 @@ SITE_LOGO =
 ; registered as observers
 ; see clsFloodCheck for an example on how to use it
 [OBSERVERS]
-;questionView = "Viewobserver"
+; To keep track of all login actions
+logins = "\\Lampcms\\Modules\\Observers\\LoginHistory"
+; To activate "whos online" feature
+online = "\\Lampcms\\Modules\\Observers\\Online"
+
 ;
 ; Order is important
 ; since each observer can halt the processing

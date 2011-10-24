@@ -73,8 +73,7 @@ class TimeZone extends \DateTimeZone
 	 * This array is sorted by keys
 	 * (by timezone names)
 	 */
-	public static function getSelectArray()
-	{
+	public static function getSelectArray(){
 		$arrResult = array ();
 		$arr = self::listAbbreviations();
 
@@ -106,8 +105,7 @@ class TimeZone extends \DateTimeZone
 	 * @param array $arrTimezones array of timezones
 	 * @return integer number of seconds, can be a negative number
 	 */
-	public static function getTimezoneOffset($strTimezone, $arrTimezones)
-	{
+	public static function getTimezoneOffset($strTimezone, $arrTimezones){
 		$res = '0';
 		preg_match('/\(GMT(([\-+]{1})([0-9]{2}):([0-9]{2}))\)/', $arrTimezones[$strTimezone], $matches);
 
@@ -130,8 +128,7 @@ class TimeZone extends \DateTimeZone
 	 *
 	 * @return first matching timezone name
 	 */
-	public static function getTZbyoffset($intOffset)
-	{
+	public static function getTZbyoffset($intOffset){
 		$tza = \DateTimeZone::listAbbreviations();
 		foreach ($tza as $abbr) {
 			foreach ($abbr as $zone) {

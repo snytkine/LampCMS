@@ -177,7 +177,7 @@ class Net_GeoIP_DB_Exception extends Net_GeoIP_Exception{}
 
 class Net_GeoIP_Memory_Exception extends Net_GeoIP_Exception{}
 
-class Geoip
+class _Geoip
 {
 
 	public static $COUNTRY_CODES = array(
@@ -1038,12 +1038,9 @@ class Geoip
 
 			}catch(Net_GeoIP_Exception $e) {
 				$err = 'Location data not found for IP: '.$strIp.' message: '.$e->getMessage();
-				e($err);
 				$objGeoData = new GeoipLocation();
 			}
 			
-			$class = (is_object($objGeoData)) ? get_class($objGeoData) : 'No objGeoData class = NULL';
-			d('returning: '.gettype($objGeoData).' class: '.$class);
 			
 			return $objGeoData;
 		}
