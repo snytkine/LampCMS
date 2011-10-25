@@ -169,16 +169,6 @@ AVATAR_SQUARE_SIZE= 40
 MAX_AVATAR_UPLOAD_SIZE = 1024000
 ;
 ;
-;Name of GeoIP file - must be in the LAMPCMS_DIR (root dir of program)
-;Download it from maxmind.com and save as GeoLiteCity.dat 
-;
-; http://www.maxmind.com/app/geolitecity
-; 
-; Or leave value of GEOIP_FILE blank to disable GeoIP lookup
-;
-GEOIP_FILE = GeoLiteCity.dat
-;
-;
 ; Set the LOG_PER_SCRIPT to true (default)
 ; to always reset log fine for
 ; each new script

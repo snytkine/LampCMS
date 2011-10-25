@@ -214,10 +214,6 @@ try{
 	define('LAMPCMS_TR_DIR', $oINI->TRANSLATIONS_DIR);
 	define('LAMPCMS_COOKIE_DOMAIN', $oINI->COOKIE_DOMAIN );
 	define('LAMPCMS_IMAGE_SITE', $oINI->IMAGE_SITE);
-	$geofile = trim($oINI->GEOIP_FILE);
-	if(!empty($geofile)){
-		define('LAMPCMS_GEOIP_FILE', $geofile);
-	}
 
 	define('LAMPCMS_AVATAR_IMG_SITE', $oINI->AVATAR_IMG_SITE);
 
