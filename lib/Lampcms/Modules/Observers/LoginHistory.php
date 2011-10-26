@@ -115,6 +115,7 @@ class LoginHistory extends \Lampcms\Observer
 		$Viewer = $this->oRegistry->Viewer;
 		$ip 	= Request::getIP();
 		$uid 	= $Viewer->getUid();
+		
 		d('uid: '.$uid);
 		if($uid > 0){
 				

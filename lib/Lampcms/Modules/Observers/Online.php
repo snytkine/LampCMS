@@ -170,8 +170,13 @@ class Online extends \Lampcms\Observer
 				$coll->ensureIndex(array('i_ts' => 1));
 				$coll->update(array('i_uid' => $aData['i_uid']), $aData, array('upsert' => true));
 			} else {
+				/**
+				 * For guests the value of ip2long (int)
+				 * will be used as uid
+				 */
+				$aData['i_uid'] = ip2long($aData['ip']);
 				$coll = $Mongo->GUESTS;
-				$coll->ensureIndex(array('ip' => 1), array('unique' => true));
+				$coll->ensureIndex(array('i_uid' => 1), array('unique' => true));
 				$coll->ensureIndex(array('i_ts' => 1));
 				$coll->update(array('ip' => $aData['ip']), $aData, array('upsert' => true));
 			}
