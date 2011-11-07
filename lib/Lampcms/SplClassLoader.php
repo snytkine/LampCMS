@@ -188,7 +188,7 @@ class SplClassLoader
 			$reqfile = ($this->_includePath !== null ? $this->_includePath . DIRECTORY_SEPARATOR : '') . $fileName;
 
 			if(defined('LAMPCMS_DEBUG') &&  true === constant('LAMPCMS_DEBUG')){
-				if(false === @include($reqfile)){
+				if(false === @include($reqfile) ) {
 					$arrBacktrace = debug_backtrace(false);
 					$err = '<strong>File not found</strong>: '.$reqfile."\nBacktrace: ".print_r($arrBacktrace, 1);
 					exit($err);

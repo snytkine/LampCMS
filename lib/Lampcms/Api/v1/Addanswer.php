@@ -78,7 +78,7 @@ class Addanswer extends Api
 	 *
 	 * @var object of type SubmittedAnswer
 	 */
-	protected $oSubmitted;
+	protected $Submitted;
 
 
 	protected $aRequired = array('qbody', 'qid');
@@ -88,7 +88,7 @@ class Addanswer extends Api
 	 *
 	 * @var object of type \Lampcms\Answer
 	 */
-	protected $oAnswer;
+	protected $Answer;
 
 	/**
 	 * Question object represents the
@@ -97,11 +97,11 @@ class Addanswer extends Api
 	 *
 	 * @var object of type \Lampcms\Question
 	 */
-	protected $oQuestion;
+	protected $Question;
 
 
 	protected function main(){
-		$this->oSubmitted = new SubmittedAnswer($this->oRegistry);
+		$this->Submitted = new SubmittedAnswer($this->Registry);
 
 		$this->getQuestion()
 		->validateBody()
@@ -121,7 +121,7 @@ class Addanswer extends Api
 	 */
 	protected function getQuestion(){
 
-		$aQuestion = $this->oRegistry->Mongo->QUESTIONS->findOne(array('_id' => (int)$this->oRequest['qid']));
+		$aQuestion = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => (int)$this->Request['qid']));
 
 		/**
 		 * @todo Translate string
@@ -135,7 +135,7 @@ class Addanswer extends Api
 			throw new \Lampcms\HttpResponseCodeException('This question was deleted on '.date('r', $aQuestion['i_del_ts']), 404);
 		}
 
-		$this->oQuestion = new Question($this->oRegistry, $aQuestion);
+		$this->Question = new Question($this->Registry, $aQuestion);
 
 
 		return $this;
@@ -151,9 +151,9 @@ class Addanswer extends Api
 	 * @return object $this
 	 */
 	protected function validateBody(){
-		$minChars = $this->oRegistry->Ini->MIN_ANSWER_CHARS;
-		$minWords = $this->oRegistry->Ini->MIN_ANSWER_WORDS;
-		$body = $this->oSubmitted->getBody();
+		$minChars = $this->Registry->Ini->MIN_ANSWER_CHARS;
+		$minWords = $this->Registry->Ini->MIN_ANSWER_WORDS;
+		$body = $this->Submitted->getBody();
 		$oHtmlString = HTMLString::factory($body);
 		$wordCount = $oHtmlString->getWordsCount();
 		$len = $oHtmlString->length();
@@ -176,10 +176,10 @@ class Addanswer extends Api
 	 * @throws \Lampcms\HttpResponseCodeException
 	 */
 	protected function process(){
-		$oAdapter = new AnswerParser($this->oRegistry);
+		$oAdapter = new AnswerParser($this->Registry);
 		try{
-			$this->oAnswer = $oAdapter->parse($this->oSubmitted);
-			d('cp created new answer '.$this->oAnswer->getResourceId());
+			$this->Answer = $oAdapter->parse($this->Submitted);
+			d('cp created new answer '.$this->Answer->getResourceId());
 
 		} catch (\Lampcms\QuestionParserException $e){
 			$err = $e->getMessage();
@@ -203,7 +203,7 @@ class Addanswer extends Api
 		/*$d = __METHOD__.' '.__LINE__;
 		exit($d);*/
 		
-		$a = $this->oAnswer->getArrayCopy();
+		$a = $this->Answer->getArrayCopy();
 		/**
 		 * @todo maybe use special template
 		 * for 'app' instead of default template?
@@ -213,7 +213,7 @@ class Addanswer extends Api
 		$a ['html'] = \tplAnswer::parse($a);
 		d('before sending out $a: '.print_r($a, 1));
 
-		$this->oOutput->setData($a);
+		$this->Output->setData($a);
 
 		return $this;
 	}

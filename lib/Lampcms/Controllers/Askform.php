@@ -75,7 +75,7 @@ class Askform extends WebPage
 	 *
 	 * @var object of type \Lampcms\Forms\Askform
 	 */
-	protected $oForm;
+	protected $Form;
 
 	protected $qtab = 'ask';
 
@@ -118,25 +118,25 @@ class Askform extends WebPage
 	 * @return object $this
 	 */
 	protected function addMetas(){
-		$this->addMetaTag('tm', (null !== $this->oRegistry->Viewer->getTumblrToken()));
-		$this->addMetaTag('blgr', (null !== $this->oRegistry->Viewer->getBloggerToken()));
-		$this->addMetaTag('linkedin', (null !== $this->oRegistry->Viewer->getLinkedInToken()));
+		$this->addMetaTag('tm', (null !== $this->Registry->Viewer->getTumblrToken()));
+		$this->addMetaTag('blgr', (null !== $this->Registry->Viewer->getBloggerToken()));
+		$this->addMetaTag('linkedin', (null !== $this->Registry->Viewer->getLinkedInToken()));
 
 		return $this;
 	}
 
 
 	/**
-	 * Instantiate the $this->oForm object
+	 * Instantiate the $this->Form object
 	 * and sets the value of 'social' var
 	 *
 	 * @return object $this
 	 */
 	protected function makeForm(){
 
-		$this->oForm = new \Lampcms\Forms\Askform($this->oRegistry);
-		if(!$this->oForm->isSubmitted()){
-			$this->oForm->socials = SocialCheckboxes::get($this->oRegistry);
+		$this->Form = new \Lampcms\Forms\Askform($this->Registry);
+		if(!$this->Form->isSubmitted()){
+			$this->Form->setVar('socials', SocialCheckboxes::get($this->Registry));
 		}
 
 		return $this;
@@ -154,7 +154,7 @@ class Askform extends WebPage
 		/**
 		 * In case of Ajax can just return the form now
 		 */
-		$this->aPageVars['body'] = $this->oForm->getForm();
+		$this->aPageVars['body'] = $this->Form->getForm();
 
 		return $this;
 	}
@@ -162,7 +162,7 @@ class Askform extends WebPage
 
 	protected function makeTopTabs(){
 
-		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', $this->qtab);
+		$tabs = Urhere::factory($this->Registry)->get('tplToptabs', $this->qtab);
 		$this->aPageVars['topTabs'] = $tabs;
 
 		return $this;
@@ -206,19 +206,19 @@ class Askform extends WebPage
 	protected function setMustLogin(){
 
 		if(!$this->isLoggedIn()){
-			$this->oForm->qbody = $this->_('Please login to post your question');
-			$this->oForm->com_hand = ' com_hand';
-			$this->oForm->readonly = 'readonly="readonly"';
-			$this->oForm->disabled = ' disabled="disabled"';
+			$this->Form->qbody = $this->_('Please login to post your question');
+			$this->Form->com_hand = ' com_hand';
+			$this->Form->readonly = 'readonly="readonly"';
+			$this->Form->disabled = ' disabled="disabled"';
 
-			$oQuickReg = new RegBlockQuickReg($this->oRegistry);
+			$oQuickReg = new RegBlockQuickReg($this->Registry);
 
-			$socialButtons = LoginForm::makeSocialButtons($this->oRegistry);
+			$socialButtons = LoginForm::makeSocialButtons($this->Registry);
 			/**
 			 * @todo Translate string
 			 */
 			if(!empty($socialButtons)){
-				$this->oForm->connectBlock = '<div class="com_connect"><h3>'.$this->_('Join with account you already have').'</h3>'.$socialButtons.'</div>';
+				$this->Form->connectBlock = '<div class="com_connect"><h3>'.$this->_('Join with account you already have').'</h3>'.$socialButtons.'</div>';
 			}
 		}
 

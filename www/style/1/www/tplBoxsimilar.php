@@ -37,7 +37,7 @@
  */
  
 
-class tplBoxsimilar extends Lampcms\Template\Template
+class tplBoxsimilar extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'title' => 'Recent Tags', 

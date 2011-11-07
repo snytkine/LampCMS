@@ -77,7 +77,7 @@ class Userinfo extends WebPage
 
 	protected $aAllowedVars = array('username', 'mode', 'sort');
 
-	protected $oUser;
+	protected $User;
 
 	protected $vars = array(
 	'profile' => '',
@@ -99,7 +99,7 @@ class Userinfo extends WebPage
 
 
 	/**
-	 * Create $this->oUser object
+	 * Create $this->User object
 	 * that represents User whose profile
 	 * is being viewed currently
 	 *
@@ -109,14 +109,14 @@ class Userinfo extends WebPage
 	 * @return object $this
 	 */
 	protected function getUser(){
-		$a = $this->oRegistry->Mongo->USERS->findOne(array('_id' => $this->oRequest['uid']));
+		$a = $this->Registry->Mongo->USERS->findOne(array('_id' => $this->Request['uid']));
 
 		if(empty($a)){
 			throw new \Lampcms\Exception('User not found');
 		}
 
-		$this->oUser = User::factory($this->oRegistry, $a);
-		$this->aPageVars['title'] = $this->oUser->getDisplayName();
+		$this->User = User::factory($this->Registry, $a);
+		$this->aPageVars['title'] = $this->User->getDisplayName();
 
 		return $this;
 	}
@@ -135,14 +135,14 @@ class Userinfo extends WebPage
 	 * @return object $this
 	 */
 	protected function checkUsername(){
-		$supplied = $this->oRequest->get('username', 's', '');
+		$supplied = $this->Request->get('username', 's', '');
 
 		if(!empty($supplied)){
-			$username = $this->oUser->username;
+			$username = $this->User->username;
 			if(!empty($username) && (strtolower($username) !== strtolower($supplied) )){
 				d('supplied username '.$supplied.' is not the same as actual username: '.$username);
 
-				throw new \Lampcms\RedirectException('/users/'.$this->oRequest['uid'].'/'.$username);
+				throw new \Lampcms\RedirectException('/users/'.$this->Request['uid'].'/'.$username);
 			}
 		}
 
@@ -156,7 +156,7 @@ class Userinfo extends WebPage
 	 * @return object $this
 	 */
 	protected function addProfile(){
-		$profile = ProfileDiv::factory($this->oRegistry)->setUser($this->oUser)->getHtml();
+		$profile = ProfileDiv::factory($this->Registry)->setUser($this->User)->getHtml();
 		$this->aPageVars['body'] = $profile;
 		
 		return $this;
@@ -179,7 +179,7 @@ class Userinfo extends WebPage
 		 * at the bottom all wrapped inside <div class="user_tags">
 		 * @var $userQuestions
 		 */
-		$userQuestions = UserQuestions::get($this->oRegistry, $this->oUser);
+		$userQuestions = UserQuestions::get($this->Registry, $this->User);
 
 		/**
 		 * UserQuestions::get() may return an empty string
@@ -191,8 +191,8 @@ class Userinfo extends WebPage
 			return $this;
 		}
 
-		$cond = $this->oRegistry->Request->get('sort', 's', 'recent');
-		$tabs = Urhere::factory($this->oRegistry)->get('tplSortuq', $cond, array('uid' => $this->oUser->getUid()));
+		$cond = $this->Registry->Request->get('sort', 's', 'recent');
+		$tabs = Urhere::factory($this->Registry)->get('tplSortuq', $cond, array('uid' => $this->User->getUid()));
 
 		$questiondBlock = '<div id="uquestions" class="sortable paginated">'.$userQuestions.'</div>';
 
@@ -218,7 +218,7 @@ class Userinfo extends WebPage
 		 * at the bottom all wrapped inside <div class="user_answers">
 		 * @var $userQuestions
 		 */
-		$userQuestions = UserAnswers::get($this->oRegistry, $this->oUser);
+		$userQuestions = UserAnswers::get($this->Registry, $this->User);
 
 		/**
 		 * UserQuestions::get() may return an empty string
@@ -230,8 +230,8 @@ class Userinfo extends WebPage
 			return $this;
 		}
 
-		$cond = $this->oRegistry->Request->get('sort', 's', 'recent');
-		$tabs = Urhere::factory($this->oRegistry)->get('tplSortuans', $cond, array('uid' => $this->oUser->getUid()));
+		$cond = $this->Registry->Request->get('sort', 's', 'recent');
+		$tabs = Urhere::factory($this->Registry)->get('tplSortuans', $cond, array('uid' => $this->User->getUid()));
 
 		$ansBlock = '<div id="useranswers" class="cp fl sortable paginated">'.$userQuestions.'</div>';
 
@@ -247,7 +247,7 @@ class Userinfo extends WebPage
 	 * @return object $this
 	 */
 	protected function addVotes(){
-		$this->aPageVars['body'] .= UserVotesBlock::get($this->oRegistry, $this->oUser);
+		$this->aPageVars['body'] .= UserVotesBlock::get($this->Registry, $this->User);
 
 		return $this;
 	}
@@ -260,7 +260,7 @@ class Userinfo extends WebPage
 	 */
 	protected function addTags(){
 
-		$this->aPageVars['body'] .= UserTagsBlock::get($this->oRegistry, $this->oUser);
+		$this->aPageVars['body'] .= UserTagsBlock::get($this->Registry, $this->User);
 
 		return $this;
 	}
@@ -275,7 +275,7 @@ class Userinfo extends WebPage
 	 */
 	protected function addFollowedTags(){
 
-		$this->aPageVars['body'] .= UserFollowedTags::get($this->oRegistry, $this->oUser);
+		$this->aPageVars['body'] .= UserFollowedTags::get($this->Registry, $this->User);
 
 
 		return $this;

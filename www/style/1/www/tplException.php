@@ -36,7 +36,7 @@
  *
  */
 
-class tplException extends Lampcms\Template\Template
+class tplException extends Lampcms\Template\Fast
 {
 
 	protected static $vars = array('message' => '', 'class' => 'excsl', 'title' => 'Error occured');

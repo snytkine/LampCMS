@@ -56,7 +56,7 @@
  *
  *
  */
-class tplTagLink extends Lampcms\Template\Template
+class tplTagLink extends Lampcms\Template\Fast
 {
 
 	/**

@@ -67,7 +67,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplBoxrecent extends Lampcms\Template\Template
+class tplBoxrecent extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'title' => 'Recent Tags', 

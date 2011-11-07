@@ -62,7 +62,7 @@ namespace Lampcms\Modules\Observers;
  * @author admin
  *
  */
-class IpFilter extends \Lampcms\Observer
+class IpFilter extends \Lampcms\Event\Observer
 {
 
 	public function main(){
@@ -82,7 +82,7 @@ class IpFilter extends \Lampcms\Observer
 	protected function checkIP(){
 		$ip = \Lampcms\Request::getIP();
 		d('checking IP: '.$ip);
-		$res = $this->oRegistry->Mongo->BANNED_IP->findOne(array('_id' => $ip));
+		$res = $this->Registry->Mongo->BANNED_IP->findOne(array('_id' => $ip));
 		if(!empty($res)){
 			throw new \Lampcms\FilterException('Unable to add new content at this time');
 		}

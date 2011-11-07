@@ -55,8 +55,8 @@ namespace Lampcms;
 class FollowManager extends LampcmsObject
 {
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
 	}
 
 
@@ -91,12 +91,12 @@ class FollowManager extends LampcmsObject
 	 * ONLY if addToSet succeeds in USERS (put inside the else{})
 	 *
 	 *
-	 * @param User $oUser
+	 * @param User $User
 	 *
 	 *
 	 * @param mixed $Question int | Question object
 	 *
-	 * @param $addUserToQuestion bool if false then will Not append
+	 * @param $addUserTQuestion bool if false then will Not append
 	 * array of user data to QUESTION collection's a_flwrs array
 	 * This option is here because in QuestionParser we already
 	 * adding this array when we creating the brand new question - we
@@ -104,9 +104,9 @@ class FollowManager extends LampcmsObject
 	 *
 	 * @throws DevException if Question is not int and not Question object
 	 */
-	public function followQuestion(User $oUser, $Question){
+	public function followQuestion(User $User, $Question){
 		d('cp');
-		$coll = $this->oRegistry->Mongo->QUESTIONS;
+		$coll = $this->Registry->Mongo->QUESTIONS;
 		$coll->ensureIndex(array('a_flwrs' => 1), array('safe' => true));
 
 		if(!is_int($Question) && (!is_object($Question) || !($Question instanceof Question)) ){
@@ -118,9 +118,9 @@ class FollowManager extends LampcmsObject
 			$this->checkQuestionExists($qid);
 		}
 
-		$uid = $oUser->getUid();
+		$uid = $User->getUid();
 		d('qid: '.$qid.' $uid: '.$uid);
-		$this->oRegistry->Dispatcher->post($oUser, 'onBeforeQuestionFollow', array('qid' => $qid));
+		$this->Registry->Dispatcher->post($User, 'onBeforeQuestionFollow', array('qid' => $qid));
 
 
 		if(is_object($Question)){
@@ -137,7 +137,7 @@ class FollowManager extends LampcmsObject
 			$coll->update(array('_id' => $qid), array('$addToSet' => array('a_flwrs' => $uid)));
 		}
 
-		$this->oRegistry->Dispatcher->post($oUser, 'onQuestionFollow', array('qid' => $qid));
+		$this->Registry->Dispatcher->post($User, 'onQuestionFollow', array('qid' => $qid));
 
 		return $this;
 	}
@@ -152,14 +152,14 @@ class FollowManager extends LampcmsObject
 	 * @todo also update a_flwrs and i_flwrs count in Question? Maybe not
 	 * maybe ONLY i_flwrs
 	 *
-	 * @param User $oUser
+	 * @param User $User
 	 *
 	 * @param mixed $Question int | Question object
 	 *
 	 * @throws DevException if Question is not int and not Question object
 	 */
-	public function unfollowQuestion(User $oUser, $Question){
-		$coll = $this->oRegistry->Mongo->QUESTIONS;
+	public function unfollowQuestion(User $User, $Question){
+		$coll = $this->Registry->Mongo->QUESTIONS;
 		$coll->ensureIndex(array('a_flwrs' => 1));
 			
 		if(!is_int($Question) && (!is_object($Question) || !($Question instanceof Question)) ){
@@ -172,10 +172,10 @@ class FollowManager extends LampcmsObject
 			$this->checkQuestionExists($qid);
 		}
 
-		$uid = $oUser->getUid();
+		$uid = $User->getUid();
 
 		if(is_object($Question)){
-			$oQuestion->removeFollower($uid);
+			$Question->removeFollower($uid);
 		} else {
 			/**
 			 * If we don't have Question object
@@ -187,7 +187,7 @@ class FollowManager extends LampcmsObject
 			$coll->update(array('_id' => $qid), array('$pull' => array('a_flwrs' => $uid)));
 		}
 
-		$this->oRegistry->Dispatcher->post($oUser, 'onQuestionUnfollow', array('qid' => $qid));
+		$this->Registry->Dispatcher->post($User, 'onQuestionUnfollow', array('qid' => $qid));
 
 		return $this;
 	}
@@ -206,7 +206,7 @@ class FollowManager extends LampcmsObject
 	 */
 	protected function checkQuestionExists($qid){
 
-		$a = $this->oRegistry->Mongo->QUESTIONS->findOne(array('_id' => (int)$qid), array('_id'));
+		$a = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => (int)$qid), array('_id'));
 		if(empty($a)){
 			throw new Exception('Question with id '.$qid.' not found');
 		}
@@ -224,11 +224,11 @@ class FollowManager extends LampcmsObject
 	 * by one for this tag
 	 *
 	 *
-	 * @param User $oUser
+	 * @param User $User
 	 * @param string $tag
 	 * @throws \InvalidArgumentException if $tag is not a string
 	 */
-	public function followTag(User $oUser, $tag){
+	public function followTag(User $User, $tag){
 
 		if(!is_string($tag)){
 			throw new \InvalidArgumentException('$tag must be a string');
@@ -236,23 +236,23 @@ class FollowManager extends LampcmsObject
 
 		$tag = Utf8String::factory($tag)->toLowerCase()->stripTags()->trim()->valueOf();
 
-		$aFollowed = $oUser['a_f_t'];
+		$aFollowed = $User['a_f_t'];
 		d('$aFollowed: '.print_r($aFollowed, 1));
 		if(in_array($tag, $aFollowed)){
-			e( 'User '.$oUser->getUid().' is already following question tag '.$tag);
+			e( 'User '.$User->getUid().' is already following question tag '.$tag);
 
 			return $this;
 		}
 
-		$this->oRegistry->Dispatcher->post($oUser, 'onBeforeTagFollow', array('tag' => $tag));
+		$this->Registry->Dispatcher->post($User, 'onBeforeTagFollow', array('tag' => $tag));
 
 		$aFollowed[] = $tag;
-		$oUser['a_f_t'] = $aFollowed;
-		$oUser['i_f_t'] = count($aFollowed);
-		$oUser->save();
-		$this->oRegistry->Dispatcher->post($oUser, 'onTagFollow', array('tag' => $tag));
+		$User['a_f_t'] = $aFollowed;
+		$User['i_f_t'] = count($aFollowed);
+		$User->save();
+		$this->Registry->Dispatcher->post($User, 'onTagFollow', array('tag' => $tag));
 
-		$this->oRegistry->Mongo->QUESTION_TAGS->update(array('tag' => $tag), array('$inc' => array('i_flwrs' => 1)));
+		$this->Registry->Mongo->QUESTION_TAGS->update(array('tag' => $tag), array('$inc' => array('i_flwrs' => 1)));
 
 		return $this;
 	}
@@ -267,11 +267,11 @@ class FollowManager extends LampcmsObject
 	 * by one for this tag
 	 *
 	 *
-	 * @param User $oUser
+	 * @param User $User
 	 * @param string $tag
 	 * @throws \InvalidArgumentException if $tag is not a string
 	 */
-	public function unfollowTag(User $oUser, $tag){
+	public function unfollowTag(User $User, $tag){
 
 		if(!is_string($tag)){
 			throw new \InvalidArgumentException('$tag must be a string');
@@ -280,18 +280,18 @@ class FollowManager extends LampcmsObject
 		$tag = Utf8String::factory($tag)->toLowerCase()->stripTags()->trim()->valueOf();
 
 
-		$aFollowed = $oUser['a_f_t'];
+		$aFollowed = $User['a_f_t'];
 		d('$aFollowed: '.print_r($aFollowed, 1));
 
 		if(false !== $key = array_search($tag, $aFollowed)){
 			d('cp unsetting key: '.$key);
 			array_splice($aFollowed, $key, 1);
-			$oUser['a_f_t'] = $aFollowed;
-			$oUser->save();
-			$this->oRegistry->Mongo->QUESTION_TAGS->update(array('tag' => $tag), array('$inc' => array('i_flwrs' => -1)));
-			$this->oRegistry->Dispatcher->post($oUser, 'onTagUnfollow', array('tag' => $tag));
+			$User['a_f_t'] = $aFollowed;
+			$User->save();
+			$this->Registry->Mongo->QUESTION_TAGS->update(array('tag' => $tag), array('$inc' => array('i_flwrs' => -1)));
+			$this->Registry->Dispatcher->post($User, 'onTagUnfollow', array('tag' => $tag));
 		} else {
-			d('tag '.$tag.' is not among the followed tags of this userID: '.$oUser->getUid());
+			d('tag '.$tag.' is not among the followed tags of this userID: '.$User->getUid());
 		}
 
 		return $this;
@@ -301,35 +301,35 @@ class FollowManager extends LampcmsObject
 	/**
 	 * Process follow user request
 	 *
-	 * @param Object $oUser object of type User user who follows
+	 * @param Object $User object of type User user who follows
 	 * @param int $userid id user being followed (followee)
 	 *
 	 * @return object $this
 	 */
-	public function followUser(User $oUser, $userid){
+	public function followUser(User $User, $userid){
 
 		if(!is_int($userid)){
 			throw new \InvalidArgumentException('$userid must be an integer');
 		}
 
-		$aFollowed = $oUser['a_f_u'];
+		$aFollowed = $User['a_f_u'];
 		d('$aFollowed: '.print_r($aFollowed, 1));
 
 		if(in_array($userid, $aFollowed)){
-			e( 'User '.$oUser->getUid().' is already following $userid '.$userid);
+			e( 'User '.$User->getUid().' is already following $userid '.$userid);
 
 			return $this;
 		}
 
-		$this->oRegistry->Dispatcher->post($oUser, 'onBeforeUserFollow', array('uid' => $userid));
+		$this->Registry->Dispatcher->post($User, 'onBeforeUserFollow', array('uid' => $userid));
 
 		$aFollowed[] = $userid;
-		$oUser['a_f_u'] = $aFollowed;
-		$oUser['i_f_u'] = count($aFollowed);
-		$oUser->save();
-		$this->oRegistry->Dispatcher->post($oUser, 'onUserFollow', array('uid' => $userid));
+		$User['a_f_u'] = $aFollowed;
+		$User['i_f_u'] = count($aFollowed);
+		$User->save();
+		$this->Registry->Dispatcher->post($User, 'onUserFollow', array('uid' => $userid));
 
-		$this->oRegistry->Mongo->USERS->update(array('_id' => $userid), array('$inc' => array('i_flwrs' => 1)));
+		$this->Registry->Mongo->USERS->update(array('_id' => $userid), array('$inc' => array('i_flwrs' => 1)));
 
 		return $this;
 
@@ -339,30 +339,30 @@ class FollowManager extends LampcmsObject
 	/**
 	 * Process unfollow user request
 	 *
-	 * @param User $oUser who is following
+	 * @param User $User who is following
 	 * @param int $userid id user user being unfollowed
 	 * @throws \InvalidArgumentException
 	 *
 	 * @return object $this
 	 */
-	public function unfollowUser(User $oUser, $userid){
+	public function unfollowUser(User $User, $userid){
 
 		if(!is_int($userid)){
 			throw new \InvalidArgumentException('$userid must be an integer');
 		}
 
-		$aFollowed = $oUser['a_f_u'];
+		$aFollowed = $User['a_f_u'];
 		d('$aFollowed: '.print_r($aFollowed, 1));
 
 		if(false !== $key = array_search($userid, $aFollowed)){
 			d('cp unsetting key: '.$key);
 			array_splice($aFollowed, $key, 1);
-			$oUser['a_f_u'] = $aFollowed;
-			$oUser->save();
-			$this->oRegistry->Mongo->USERS->update(array('_id' => $userid), array('$inc' => array('i_flwrs' => -1)));
-			$this->oRegistry->Dispatcher->post($oUser, 'onUserUnfollow', array('uid' => $userid));
+			$User['a_f_u'] = $aFollowed;
+			$User->save();
+			$this->Registry->Mongo->USERS->update(array('_id' => $userid), array('$inc' => array('i_flwrs' => -1)));
+			$this->Registry->Dispatcher->post($User, 'onUserUnfollow', array('uid' => $userid));
 		} else {
-			d('tag '.$tag.' is not among the followed tags of this userID: '.$oUser->getUid());
+			d('tag '.$tag.' is not among the followed tags of this userID: '.$User->getUid());
 		}
 
 		return $this;
@@ -380,7 +380,7 @@ class FollowManager extends LampcmsObject
 	 * @return object $this
 	 */
 	protected function ensureIndexes(){
-		$coll = $this->oRegistry->Mongo->USERS;
+		$coll = $this->Registry->Mongo->USERS;
 		$coll->ensureIndex(array('a_f_t' => 1));
 		$coll->ensureIndex(array('a_f_u' => 1));
 

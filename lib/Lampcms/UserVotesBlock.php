@@ -64,10 +64,10 @@ class UserVotesBlock extends LampcmsObject
 {
 
 
-	public static function get(Registry $oRegistry, User $oUser){
+	public static function get(Registry $Registry, User $User){
 
-		$uid = $oUser->getUid();
-		$db = $oRegistry->Mongo->getDb();
+		$uid = $User->getUid();
+		$db = $Registry->Mongo->getDb();
 
 		$map = new \MongoCode("function() { emit(this.t, 1); }");
 		$reduce = new \MongoCode("function(k, vals) { ".
@@ -102,7 +102,7 @@ class UserVotesBlock extends LampcmsObject
 			$s .= \tplVoteCount::parse($vars, false);
 		}
 
-		$ret = \tplUserVotes::parse(array('count' => $total, 'stats' => $s, 'username' => $oUser->getDisplayName()));
+		$ret = \tplUserVotes::parse(array('count' => $total, 'stats' => $s, 'username' => $User->getDisplayName()));
 		d('ret: '.$ret);
 
 		return $ret;

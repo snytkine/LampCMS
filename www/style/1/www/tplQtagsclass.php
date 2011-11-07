@@ -50,7 +50,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplQtagsclass extends Lampcms\Template\Template
+class tplQtagsclass extends Lampcms\Template\Fast
 {
 	/**
 	 * This is important!

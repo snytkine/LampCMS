@@ -79,7 +79,7 @@ class CommentParser extends LampcmsObject
 	 * @var object of type Lampcms\Answer
 	 * or \Lampcms\Question but will implement Lampcms\LampcmsObject
 	 */
-	protected $oResource = null;
+	protected $Resource = null;
 
 	/**
 	 * Array of data for this one comment
@@ -91,7 +91,7 @@ class CommentParser extends LampcmsObject
 	/**
 	 * Array of one row in
 	 * either QUESTIONS or ANSWERS collection
-	 * The $this->oResource is created from this array
+	 * The $this->Resource is created from this array
 	 *
 	 * @var array
 	 */
@@ -112,11 +112,11 @@ class CommentParser extends LampcmsObject
 	 *
 	 * @var object implementing \Lampcms\Interfaces\SubmittedComment
 	 */
-	protected $oComment;
+	protected $Comment;
 
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
 	}
 
 
@@ -159,37 +159,37 @@ class CommentParser extends LampcmsObject
 	 *
 	 * @todo limit length of body to about 600 chars of plain text
 	 *
-	 * @param \Lampcms\Interfaces\SubmittedComment $oComment
+	 * @param \Lampcms\Interfaces\SubmittedComment $Comment
 	 * @throws \Lampcms\Exception
 	 */
-	public function add(\Lampcms\Interfaces\SubmittedComment $oComment){
+	public function add(\Lampcms\Interfaces\SubmittedComment $Comment){
 
-		$this->oComment = $oComment;
-		$this->oResource = $this->oComment->getResource();
+		$this->Comment = $Comment;
+		$this->Resource = $this->Comment->getResource();
 		$this->checkCommentsLimit();
 
-		$oCommentor = $this->oComment->getUserObject();
-		$res_id = $this->oResource->getResourceId();
-		$oBody = $this->oComment->getBody();
-		$this->validateBody($oBody);
+		$Commentor = $this->Comment->getUserObject();
+		$res_id = $this->Resource->getResourceId();
+		$Body = $this->Comment->getBody();
+		$this->validateBody($Body);
 
-		$body = $oBody->valueOf();
-		$uid = $this->oComment->getOwnerId();
+		$body = $Body->valueOf();
+		$uid = $this->Comment->getOwnerId();
 
-		$this->aComment['_id'] = $this->oComment->getResourceId();
+		$this->aComment['_id'] = $this->Comment->getResourceId();
 		$this->aComment['i_res'] = $res_id;
-		$this->aComment['i_qid'] = $this->oComment->getQuestionId();
+		$this->aComment['i_qid'] = $this->Comment->getQuestionId();
 		$this->aComment['b'] = $body;
-		$this->aComment['username'] = $oCommentor->getDisplayName();
-		$this->aComment['ip'] = $this->oComment->getIP();
+		$this->aComment['username'] = $Commentor->getDisplayName();
+		$this->aComment['ip'] = $this->Comment->getIP();
 		$this->aComment['i_uid'] = $uid;
-		$this->aComment['i_prnt'] = $this->oComment->getParentId();
-		$this->aComment['coll'] = $this->oComment->getCollectionName();
+		$this->aComment['i_prnt'] = $this->Comment->getParentId();
+		$this->aComment['coll'] = $this->Comment->getCollectionName();
 		$this->aComment['hash'] = hash('md5', $uid.$res_id.$body);
 		$this->aComment['i_ts'] = time();
 		$this->aComment['ts'] = date('r');
 		$this->aComment['t'] = date('M j \'y \a\\t G:i'); // must escape t with 2 backslashes because \t means tab
-		$this->aComment['avtr'] = $oCommentor->getAvatarSrc();
+		$this->aComment['avtr'] = $Commentor->getAvatarSrc();
 
 
 		/**
@@ -198,7 +198,7 @@ class CommentParser extends LampcmsObject
 		 * later in template we can add special css class
 		 * to indicate commentor is also question asker
 		 */
-		if($uid == $this->oResource->getQuestionOwnerId()){
+		if($uid == $this->Resource->getQuestionOwnerId()){
 			$this->aComment['b_owner'] = true;
 		}
 
@@ -211,7 +211,7 @@ class CommentParser extends LampcmsObject
 		 * and also add 'inreplyto' key to this comment array
 		 * inreplyto is the username of parent comment
 		 */
-		if(!empty($this->aComment['i_prnt']) && (false !== $aParent = $this->oResource->getComment((int)$this->aComment['i_prnt']))){
+		if(!empty($this->aComment['i_prnt']) && (false !== $aParent = $this->Resource->getComment((int)$this->aComment['i_prnt']))){
 			$reply = sprintf('<span id="replyto_%s" class="inreply mo ajax">@%s</span>', $this->aComment['i_prnt'], $aParent['username']);
 			
 			/**
@@ -252,13 +252,13 @@ class CommentParser extends LampcmsObject
 		 * that was used for submitting comment
 		 * We add extra data to array here
 		 */
-		$this->aComments = array_merge($this->aComment, $this->oComment->getExtraData());
+		$this->aComments = array_merge($this->aComment, $this->Comment->getExtraData());
 
 		d('$aComment '.print_r($this->aComment, 1));
 
-		$this->oRegistry->Dispatcher->post($this->oComment, 'onBeforeNewComment', $this->aComment);
+		$this->Registry->Dispatcher->post($this->Comment, 'onBeforeNewComment', $this->aComment);
 
-		$coll = $this->oRegistry->Mongo->COMMENTS;
+		$coll = $this->Registry->Mongo->COMMENTS;
 		$coll->ensureIndex(array('hash' => 1), array('unique' => true));
 		$coll->ensureIndex(array('i_uid' => 1));
 
@@ -276,11 +276,11 @@ class CommentParser extends LampcmsObject
 			throw new \Lampcms\Exception('It looks like you have already posted this comment');
 		}
 
-		$this->oResource->addComment($this)->save();
+		$this->Resource->addComment($this)->save();
 		$this->followQuestion();
 		$this->touchQuestion();
 
-		$this->oRegistry->Dispatcher->post($this->oComment, 'onNewComment', $this->aComment);
+		$this->Registry->Dispatcher->post($this->Comment, 'onNewComment', $this->aComment);
 
 		return $this;
 	}
@@ -293,9 +293,9 @@ class CommentParser extends LampcmsObject
 	 *
 	 * @throws \Lampcms\Exception
 	 */
-	protected function validateBody(Utf8String $oBody){
+	protected function validateBody(Utf8String $Body){
 
-		$len = $oBody->length();
+		$len = $Body->length();
 		if($len < 10){
 			throw new Exception('Ooopsy... Comment must be at least 10 characters long');
 		}
@@ -318,9 +318,9 @@ class CommentParser extends LampcmsObject
 	 */
 	protected function followQuestion(){
 		d('cp');
-		if($this->oResource instanceof \Lampcms\Question){
-			$oFollowManager = new FollowManager($this->oRegistry);
-			$oFollowManager->followQuestion($this->oRegistry->Viewer, $this->oResource);
+		if($this->Resource instanceof \Lampcms\Question){
+			$FollowManager = new FollowManager($this->Registry);
+			$FollowManager->followQuestion($this->Registry->Viewer, $this->Resource);
 		}
 
 		return $this;
@@ -337,8 +337,8 @@ class CommentParser extends LampcmsObject
 	 * has reached the comments limit
 	 */
 	protected function checkCommentsLimit(){
-		if(0 !== $limit = (int)$this->oRegistry->Ini->MAX_COMMENTS){
-			if($this->oResource->getCommentsCount() > $limit){
+		if(0 !== $limit = (int)$this->Registry->Ini->MAX_COMMENTS){
+			if($this->Resource->getCommentsCount() > $limit){
 				throw new \Lampcms\Exception('Unable to add comment because the limit of '.$limit.' comments per item has been reached.<br>Consider adding another answer instead');
 			}
 		} else {
@@ -372,15 +372,15 @@ class CommentParser extends LampcmsObject
 	 * @todo better permissions check. Right now deleted or suspender
 	 * user may be able to edit own comment is this OK?
 	 *
-	 * @param \Lampcms\Interfaces\SubmittedComment $oComment
+	 * @param \Lampcms\Interfaces\SubmittedComment $Comment
 	 * @param mixed (int|null) $viewerID userID of editor IF NOT by moderator
 	 * so that we can check the ownership of comment here
 	 *
 	 * @return object $this
 	 */
-	public function edit(\Lampcms\Interfaces\SubmittedComment $oComment, $viewerID = null){
-		$this->oComment = $oComment;
-		$id = $oComment->getResourceId();
+	public function edit(\Lampcms\Interfaces\SubmittedComment $Comment, $viewerID = null){
+		$this->Comment = $Comment;
+		$id = $Comment->getResourceId();
 
 		$this->findCommentRecord($id)
 		->checkIsOwner($viewerID)
@@ -389,22 +389,22 @@ class CommentParser extends LampcmsObject
 		->makeResourceObject();
 
 
-		$oBody = $oComment->getBody();
-		$this->validateBody($oBody);
+		$Body = $Comment->getBody();
+		$this->validateBody($Body);
 
-		$aComments = $this->oResource->getComments();
+		$aComments = $this->Resource->getComments();
 		$bEdited = false;
 		if(!empty($aComments)){
 			for($i = 0; $i<count($aComments); $i+=1){
 				if($aComments[$i]['_id'] == $id){
-					$oEditor =  $this->oComment->getUserObject();
+					$oEditor =  $this->Comment->getUserObject();
 					$date = date('r');
 					$editor =$oEditor->getDisplayName();
 					$editor_url = $oEditor->getProfileUrl();
 					$uid = $oEditor->getUid();
 
 					d('comment found: '.$i);
-					$aComments[$i]['b'] = $oBody->valueOf();
+					$aComments[$i]['b'] = $Body->valueOf();
 					$aComments[$i]['e'] = '<a class="ce" href="'.$editor_url.'"><span class="ico edited tu" title="This comment was edited by '.$editor.' on '.$date.'"></span></a>';
 					$bEdited = true;
 					break;
@@ -424,18 +424,18 @@ class CommentParser extends LampcmsObject
 		 *
 		 */
 		$this->aComment = array_merge($this->aComment, $aComments[$i]);
-		$this->oRegistry->Dispatcher->post($this->oResource, 'onBeforeCommentEdit', $aComments[$i]);
+		$this->Registry->Dispatcher->post($this->Resource, 'onBeforeCommentEdit', $aComments[$i]);
 
 		if($bEdited){
 			d('changes made');
-			$this->oRegistry->Mongo->COMMENTS->update(array('_id' => $id),
+			$this->Registry->Mongo->COMMENTS->update(array('_id' => $id),
 			array('$set' => array('i_lm_ts' => time(), 'i_editor' => $viewerID)));
 
-			$this->oResource->setComments($aComments);
+			$this->Resource->setComments($aComments);
 			$this->touchQuestion();
-			$this->oResource->save();
+			$this->Resource->save();
 			d('changes saved to resource');
-			$this->oRegistry->Dispatcher->post($this->oResource, 'onCommentEdit', $aComments[$i]);
+			$this->Registry->Dispatcher->post($this->Resource, 'onCommentEdit', $aComments[$i]);
 
 		}
 
@@ -452,7 +452,7 @@ class CommentParser extends LampcmsObject
 			return $this;
 		}
 
-		$timeout = $this->oRegistry->Ini->COMMENT_EDIT_TIME;
+		$timeout = $this->Registry->Ini->COMMENT_EDIT_TIME;
 		if(empty($timeout)){
 			d('edit timeout disabled in !config.ini');
 
@@ -477,16 +477,16 @@ class CommentParser extends LampcmsObject
 	 * directly in the QUESTIONS collection
 	 *
 	 * If the comment is added to a Question resource
-	 * then we already have the $this->oResource
+	 * then we already have the $this->Resource
 	 * and can just call touch() on it
 	 *
 	 * @return object $this
 	 */
 	protected function touchQuestion(){
 
-		if($this->oResource instanceof \Lampcms\Question){
-			$this->oResource->touch();
-		} elseif($this->oResource instanceof \Lampcms\Answer){
+		if($this->Resource instanceof \Lampcms\Question){
+			$this->Resource->touch();
+		} elseif($this->Resource instanceof \Lampcms\Answer){
 			try{
 				/**
 				 * If the comment is made to the answer
@@ -494,8 +494,8 @@ class CommentParser extends LampcmsObject
 				 * it will not bump the question up
 				 * in the home page
 				 */
-				$this->oRegistry->Mongo->QUESTIONS
-				->update(array('_id' => $this->oResource['i_qid']), array('$set' => array('i_etag' => time())));
+				$this->Registry->Mongo->QUESTIONS
+				->update(array('_id' => $this->Resource['i_qid']), array('$set' => array('i_etag' => time())));
 			} catch(\MongoException $e){
 				e('Unable to update question '.$e->getMessage());
 			}
@@ -535,20 +535,20 @@ class CommentParser extends LampcmsObject
 		->getResourceArray()
 		->makeResourceObject();
 
-		$this->oRegistry->Dispatcher->post($this->oResource, 'onBeforeDeleteComment', $this->aComment);
+		$this->Registry->Dispatcher->post($this->Resource, 'onBeforeDeleteComment', $this->aComment);
 
-		$this->oRegistry->Mongo->COMMENTS->remove(array('_id' => $id));
+		$this->Registry->Mongo->COMMENTS->remove(array('_id' => $id));
 
-		$this->oResource->deleteComment($id);
+		$this->Resource->deleteComment($id);
 
-		if((null !== $viewerID) && ($this->oResource instanceof \Lampcms\Question) ){
+		if((null !== $viewerID) && ($this->Resource instanceof \Lampcms\Question) ){
 			d('removing commentor as contributor of a question');
-			$this->oResource->removeContributor($viewerID);
+			$this->Resource->removeContributor($viewerID);
 		}
 
 		$this->touchQuestion();
 
-		$this->oRegistry->Dispatcher->post($this->oResource, 'onDeleteComment', $this->aComment);
+		$this->Registry->Dispatcher->post($this->Resource, 'onDeleteComment', $this->aComment);
 
 		return $this;
 	}
@@ -564,15 +564,15 @@ class CommentParser extends LampcmsObject
 
 		$class = ('QUESTIONS' === $this->aComment['coll']) ? '\\Lampcms\\Question' : '\\Lampcms\\Answer';
 
-		$this->oResource = new $class($this->oRegistry, $this->aResource);
-		d('$this->oResource: '.$this->oResource->getClass());
+		$this->Resource = new $class($this->Registry, $this->aResource);
+		d('$this->Resource: '.$this->Resource->getClass());
 
 		return $this;
 	}
 
 
 	protected function getResourceArray(){
-		$this->aResource = $this->oRegistry->Mongo->getCollection($this->aComment['coll'])
+		$this->aResource = $this->Registry->Mongo->getCollection($this->aComment['coll'])
 		->findOne(array('_id' => $this->aComment['i_res']));
 
 		if(empty($this->aResource)){
@@ -618,7 +618,7 @@ class CommentParser extends LampcmsObject
 	 * @return object $this
 	 */
 	protected function findCommentRecord($id){
-		$this->aComment = $this->oRegistry->Mongo->COMMENTS->findOne(array('_id' => $id));
+		$this->aComment = $this->Registry->Mongo->COMMENTS->findOne(array('_id' => $id));
 		if(empty($this->aComment)){
 			throw new \Lampcms\Exception('Unable to delete comment because comment not found');
 		}
@@ -645,11 +645,11 @@ class CommentParser extends LampcmsObject
 	 *
 	 * Enter description here ...
 	 */
-	public function addLike(\Lampcms\Interfaces\SubmittedComment $oComment){
-		$this->oComment = $oComment;
-		$id = $oComment->getResourceId();
+	public function addLike(\Lampcms\Interfaces\SubmittedComment $Comment){
+		$this->Comment = $Comment;
+		$id = $Comment->getResourceId();
 		d('id: '.$id);
-		$this->oRegistry->Dispatcher->post($oComment, 'onBeforeCommentLike');
+		$this->Registry->Dispatcher->post($Comment, 'onBeforeCommentLike');
 
 		/**
 		 * In case of duplicate vote
@@ -670,7 +670,7 @@ class CommentParser extends LampcmsObject
 		}
 
 		$bEdited = false;
-		$aComments = $this->oResource->getComments();
+		$aComments = $this->Resource->getComments();
 		d('$aComments: '.print_r($aComments, 1));
 
 		if(!empty($aComments)){
@@ -693,11 +693,11 @@ class CommentParser extends LampcmsObject
 		}
 
 		if($bEdited){
-			$this->oResource->setComments($aComments);
+			$this->Resource->setComments($aComments);
 			$this->touchQuestion();
-			$this->oResource->save();
+			$this->Resource->save();
 			d('changes saved to resource');
-			$this->oRegistry->Dispatcher->post($this->oResource, 'onCommentLike', $aComments[$i]);
+			$this->Registry->Dispatcher->post($this->Resource, 'onCommentLike', $aComments[$i]);
 		}
 
 		return $this;
@@ -717,14 +717,14 @@ class CommentParser extends LampcmsObject
 	 */
 	protected function addCommentLike($resID){
 
-		$uid = $this->oComment->getUserObject()->getUid();
+		$uid = $this->Comment->getUserObject()->getUid();
 		$ownerID = $this->aComment['i_uid'];
 
 		if($uid == $ownerID){
 			throw new \LogicException('Likes of own comment do not cound');
 		}
 
-		$coll = $this->oRegistry->Mongo->getCollection('COMMENTS_LIKES');
+		$coll = $this->Registry->Mongo->getCollection('COMMENTS_LIKES');
 		$coll->ensureIndex(array('i_uid' => 1));
 		$coll->ensureIndex(array('i_owner' => 1));
 

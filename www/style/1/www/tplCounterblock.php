@@ -46,7 +46,7 @@
  * of the right column
  *
  */
-class tplCounterblock extends Lampcms\Template\Template
+class tplCounterblock extends Lampcms\Template\Fast
 {
 
 	protected static $vars = array(

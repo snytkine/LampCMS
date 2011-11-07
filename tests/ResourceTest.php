@@ -57,11 +57,11 @@ class LampcmsResourceTest extends LampcmsUnitTestCase
 {
 
 	public function setUp(){
-		$this->oRegistry = new Registry();
+		$this->Registry = new Registry();
 	}
 
 	public function testConstructor(){
-		$Resource = new Resource($this->oRegistry);
+		$Resource = new Resource($this->Registry);
 		$this->assertInstanceOf('\Lampcms\Resource', $Resource);
 	}
 
@@ -70,7 +70,7 @@ class LampcmsResourceTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testFactory(){
-		$Resource = Resource::factory($this->oRegistry);
+		$Resource = Resource::factory($this->Registry);
 		$this->assertInstanceOf('\Lampcms\Resource', $Resource);
 	}
 
@@ -79,9 +79,9 @@ class LampcmsResourceTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testCreate(){
-		$id = Resource::factory($this->oRegistry)->create('MYTEST');
+		$id = Resource::factory($this->Registry)->create('MYTEST');
 		$this->assertTrue(is_int($id));
-		$a = $this->oRegistry->Mongo->RESOURCE->findOne(array('_id' => $id));
+		$a = $this->Registry->Mongo->RESOURCE->findOne(array('_id' => $id));
 		$this->assertEquals($id, $a['_id']);
 		$this->assertEquals('MYTEST', $a['res_type']);
 	}

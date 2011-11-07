@@ -50,7 +50,7 @@
  */
 
  
-class tplSocialPost extends Lampcms\Template\Template
+class tplSocialPost extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'service' => '', // 1

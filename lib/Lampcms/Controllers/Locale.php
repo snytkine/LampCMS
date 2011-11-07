@@ -78,7 +78,7 @@ class Locale extends WebPage
 	protected $aRequired = array('locale', 'redirect');
 
 	protected function main(){
-		$locale = $this->oRequest->get('locale');
+		$locale = $this->Request->get('locale');
 		/*echo __METHOD__.' '.__LINE__.'$locale: '.$locale;
 		 exit;*/
 
@@ -99,15 +99,15 @@ class Locale extends WebPage
 		}
 
 		$_SESSION['locale'] = $locale;
-		$this->oRegistry->Locale->set($locale);
+		$this->Registry->Locale->set($locale);
 		Cookie::set('locale', $locale);
 		if(!empty($_SESSION['langs'])){
 			unset($_SESSION['langs']);
 		}
 		//echo __METHOD__.' '.__LINE__.' getting Tr object for locale: '.$locale;
-		//$this->Tr = Translator::factory($this->oRegistry, $locale);
+		//$this->Tr = Translator::factory($this->Registry, $locale);
 		//echo __METHOD__.' '.__LINE__.' '.print_r($this->Tr->getMessages(), 1);//$this->Tr->get('Questions');
 
-		Responder::redirectToPage($this->oRequest->get('redirect'));
+		Responder::redirectToPage($this->Request->get('redirect'));
 	}
 }

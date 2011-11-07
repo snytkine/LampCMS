@@ -48,7 +48,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplUserInfo extends Lampcms\Template\Template
+class tplUserInfo extends Lampcms\Template\Fast
 {
 	
 	protected static $vars = array(

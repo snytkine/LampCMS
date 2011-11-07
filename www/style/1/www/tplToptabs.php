@@ -36,7 +36,7 @@
  *
  */
  
-class tplToptabs extends Lampcms\Template\Template
+class tplToptabs extends Lampcms\Template\Fast
 {
 	
 	protected static function func(&$a){

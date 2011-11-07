@@ -61,7 +61,7 @@ namespace Lampcms;
 
 use Lampcms\Interfaces\Answer;
 
-class User extends MongoDoc implements Interfaces\RoleInterface,
+class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 Interfaces\User,
 Interfaces\TwitterUser,
 Interfaces\FacebookUser,
@@ -105,14 +105,14 @@ Interfaces\LinkedinUser
 	/**
 	 * Factory method
 	 *
-	 * @param object $oRegistry Registry object
+	 * @param object $Registry Registry object
 	 *
 	 * @param array $a
 	 *
 	 * @return object of this class
 	 */
-	public static function factory(Registry $oRegistry, array $a = array()){
-		$o = new static($oRegistry, 'USERS', $a);
+	public static function factory(Registry $Registry, array $a = array()){
+		$o = new static($Registry, 'USERS', $a);
 
 		return $o;
 	}
@@ -704,7 +704,6 @@ Interfaces\LinkedinUser
 		 * then stop using parent::offsetSet()
 		 */
 		parent::offsetSet('i_rep', $iNew);
-		//$this->offsetSet('i_rep', $iNew);
 
 		return $this;
 	}
@@ -1242,9 +1241,9 @@ Interfaces\LinkedinUser
 		);
 
 		/**
-		 * Unsetting $this->oRegistry may not be necessary
+		 * Unsetting $this->Registry may not be necessary
 		 */
-		//unset($this->oRegistry);
+		//unset($this->Registry);
 
 		return serialize($a);
 	}

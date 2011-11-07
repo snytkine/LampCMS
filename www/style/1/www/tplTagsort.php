@@ -43,7 +43,7 @@
  *
  * Used in wwwViewtags
  */
-class tplTagsort extends Lampcms\Template\Template
+class tplTagsort extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'popular_c' => '', //1

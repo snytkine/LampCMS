@@ -62,12 +62,12 @@ class MongoTest extends LampcmsUnitTestCase
 	protected $COLLNAME = 'MY_MONGO_TEST_COLLECTION';
 
 	public function setUp(){
-		$this->oRegistry = new Registry();
+		$this->Registry = new Registry();
 	}
 
 	public function testConstructor(){
 
-		$oMongo = new Mongo($this->oRegistry->Ini);
+		$oMongo = new \Lampcms\Mongo\DB($this->Registry->Ini);
 		$this->assertEquals('LAMPCMS_TEST', $oMongo->getDbName());
 		$this->assertTrue($oMongo->getMongo() instanceof \Mongo);
 		$this->assertTrue($oMongo->getDb() instanceof \MongoDB);
@@ -78,7 +78,7 @@ class MongoTest extends LampcmsUnitTestCase
 	 * @depends testConstructor
 	 */
 	public function testGetCollection(){
-		$oMongo = new Mongo($this->oRegistry->Ini);
+		$oMongo = new \Lampcms\Mongo\DB($this->Registry->Ini);
 		$this->assertTrue($oMongo->getCollection($this->COLLNAME) instanceof \MongoCollection);
 	}
 
@@ -87,7 +87,7 @@ class MongoTest extends LampcmsUnitTestCase
 	 * @depends testConstructor
 	 */
 	public function testGetCollectionMagic(){
-		$oMongo = new Mongo($this->oRegistry->Ini);
+		$oMongo = new \Lampcms\Mongo\DB($this->Registry->Ini);
 		$this->assertTrue($oMongo->MY_TEST_COLLECTION instanceof \MongoCollection);
 	}
 
@@ -97,7 +97,7 @@ class MongoTest extends LampcmsUnitTestCase
 	 */
 	public function testInsertData(){
 		$aData = array('one' => 1, 'two' => 2);
-		$oMongo = new Mongo($this->oRegistry->Ini);
+		$oMongo = new \Lampcms\Mongo\DB($this->Registry->Ini);
 		$res = $oMongo->insertData($this->COLLNAME, $aData);
 		$this->assertTrue($res instanceof \MongoId);
 	}

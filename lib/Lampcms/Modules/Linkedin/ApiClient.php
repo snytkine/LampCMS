@@ -284,7 +284,7 @@ class ApiClient
 	 * @param string $image optional = may include the full
 	 * url of the thumbnail to be used in this update
 	 *
-	 * @throws \LogicException if $this->oUser is not set
+	 * @throws \LogicException if $this->User is not set
 	 * This will be the same when the current user does not
 	 * have the LinkedIn token/secret credentials.
 	 *

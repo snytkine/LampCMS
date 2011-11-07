@@ -37,7 +37,7 @@
  */
 
 
-class tplCaptcha extends Lampcms\Template\Template
+class tplCaptcha extends Lampcms\Template\Fast
 {
 	protected static $vars = array();
 

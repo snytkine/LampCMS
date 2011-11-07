@@ -61,8 +61,8 @@ session_start();
 use Lampcms\Registry;
 
 function update($collection = 'QUESTIONS'){
-	global $oRegistry;
-	$coll = $oRegistry->Mongo->getCollection($collection);
+	global $Registry;
+	$coll = $Registry->Mongo->getCollection($collection);
 	$cur = $coll->find(array('comments' => array('$ne' => null)), array('_id', 'comments'));
 	echo 'Found: '.$cur->count();
 	if($cur->count() > 0){

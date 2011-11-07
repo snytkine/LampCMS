@@ -50,7 +50,7 @@
  */
 
  
-class tplFollowers extends Lampcms\Template\Template
+class tplFollowers extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'title' => '', // 1

@@ -44,7 +44,7 @@
  * and second column of the grid
  *
  */
-class tplYuigrid2 extends Lampcms\Template\Template
+class tplYuigrid2 extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'left' => '',

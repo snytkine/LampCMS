@@ -73,11 +73,11 @@ class SubmittedAnswerWWW extends SubmittedAnswer
 	/**
 	 *
 	 * Constructor
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 * @param array $aData array submitted via Answer form
 	 */
-	public function __construct(Registry $oRegistry, array $aData){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry, array $aData){
+		$this->Registry = $Registry;
 		$this->aData = $aData;
 	}
 
@@ -87,7 +87,7 @@ class SubmittedAnswerWWW extends SubmittedAnswer
 	 * @see Lampcms.SubmittedAnswer::getUserObject()
 	 */
 	public function getUserObject(){
-		return $this->oRegistry->Viewer;
+		return $this->Registry->Viewer;
 	}
 
 	
@@ -105,11 +105,11 @@ class SubmittedAnswerWWW extends SubmittedAnswer
 	 * @see Lampcms.SubmittedAnswer::getBody()
 	 */
 	public function getBody(){
-		if(!isset($this->oBody)){
-			$this->oBody = Utf8String::factory($this->aData['qbody']);
+		if(!isset($this->Body)){
+			$this->Body = Utf8String::factory($this->aData['qbody']);
 		}
 
-		return $this->oBody;
+		return $this->Body;
 	}
 
 	
@@ -129,6 +129,6 @@ class SubmittedAnswerWWW extends SubmittedAnswer
 
 	
 	public function getExtraData(){
-		return $this->oRegistry->Geo->Location->data;
+		return $this->Registry->Geo->Location->data;
 	}
 }

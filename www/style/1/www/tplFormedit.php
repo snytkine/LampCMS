@@ -51,7 +51,7 @@
 
 
 
-class tplFormedit extends Lampcms\Template\Template
+class tplFormedit extends Lampcms\Template\Fast
 {
 	/**
 	 * Important: names of form fields

@@ -90,14 +90,14 @@ class Tumblrselect extends WebPage
 
 
 	protected function main(){
-		$a = $this->oRegistry->Viewer->getTumblrBlogs();
+		$a = $this->Registry->Viewer->getTumblrBlogs();
 		d('$a: '.print_r($a, 1));
 
 		if(empty($a)){
 			throw new \Exception('No blogs found for this user');
 		}
 
-		$selectedID = (int)substr($this->oRequest->get('blog'), 4);
+		$selectedID = (int)substr($this->Request->get('blog'), 4);
 		d('$selectedID: '. $selectedID);
 
 		/**
@@ -121,14 +121,14 @@ class Tumblrselect extends WebPage
 		\array_unshift($a, $aBlog[0]);
 		d('a after unshift: '.print_r($a, 1));
 
-		$this->oRegistry->Viewer->setTumblrBlogs($a);
+		$this->Registry->Viewer->setTumblrBlogs($a);
 		/**
 		 * Set b_tm to true which will result
 		 * in "Post to Tumblr" checkbox to
 		 * be checked. User can uncheck in later
 		 */
-		$this->oRegistry->Viewer['b_tm'] = true;
-		$this->oRegistry->Viewer->save();
+		$this->Registry->Viewer['b_tm'] = true;
+		$this->Registry->Viewer->save();
 
 		$s = Responder::PAGE_OPEN. Responder::JS_OPEN.
 		$this->JS.

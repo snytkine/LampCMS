@@ -88,7 +88,7 @@ class Tags extends Questions
 
 
 	protected function main(){
-		$this->pageID = $this->oRequest['pageID'];
+		$this->pageID = $this->Request['pageID'];
 
 		$this->setStartTime()
 		->setEndTime()
@@ -133,7 +133,7 @@ class Tags extends Questions
 
 		d('$where: '.print_r($where, 1));
 		
-		$this->cursor = $this->oRegistry->Mongo->QUESTION_TAGS->find($where, $aFields)
+		$this->cursor = $this->Registry->Mongo->QUESTION_TAGS->find($where, $aFields)
 		->sort($sort)
 		->limit($this->limit)
 		->skip($offset);
@@ -153,7 +153,7 @@ class Tags extends Questions
 
 	/**
 	 *
-	 * Set to $this->oOutput object with
+	 * Set to $this->Output object with
 	 * data from cursor
 	 *
 	 * @return object $this
@@ -165,7 +165,7 @@ class Tags extends Questions
 		'perpage' => $this->limit,
 		'tags' => \iterator_to_array($this->cursor, false));
 
-		$this->oOutput->setData($data);
+		$this->Output->setData($data);
 
 		return $this;
 	}

@@ -99,7 +99,7 @@ associated with your account.</div>';
 	/**
 	 * @var object of type Form
 	 */
-	protected $oForm;
+	protected $Form;
 
 	protected $aAllowedVars = array('login');
 
@@ -158,16 +158,16 @@ associated with your account.</div>';
 		 */
 		$this->title = 'Password help';
 
-		$this->oForm = new \Lampcms\Forms\Pwd($this->oRegistry);
+		$this->Form = new \Lampcms\Forms\Pwd($this->Registry);
 		$this->aPageVars['title'] = $this->title;
 
 
-		if($this->oForm->isSubmitted() && $this->oForm->validate() && $this->validateUser()){
+		if($this->Form->isSubmitted() && $this->Form->validate() && $this->validateUser()){
 			d('cp');
 			$this->generateCode()->emailCode();
 			$this->aPageVars['body'] = sprintf(self::TPL_SUCCESS, $this->login);
 		} else {
-			$this->aPageVars['body'] = $this->oForm->getForm();
+			$this->aPageVars['body'] = $this->Form->getForm();
 		}
 	}
 
@@ -184,36 +184,36 @@ associated with your account.</div>';
 	 * so that user will see the form with errors
 	 */
 	protected function validateUser(){
-		$this->login = \mb_strtolower($this->oForm->getSubmittedValue('login'));
+		$this->login = \mb_strtolower($this->Form->getSubmittedValue('login'));
 		d('$this->login: '.$this->login);
 		if (false !== \filter_var($this->login, FILTER_VALIDATE_EMAIL)){
 			d('cp');
 			$this->byEmail = true;
-			$aEmail = $this->oRegistry->Mongo->EMAILS->findOne(array('email' => $this->login));
+			$aEmail = $this->Registry->Mongo->EMAILS->findOne(array('email' => $this->login));
 			if(empty($aEmail)){
-				$this->oForm->setError('login', 'No user with this email address');
+				$this->Form->setError('login', 'No user with this email address');
 
 				return false;
 			}
 
 			d('$aEmail: '.print_r($aEmail, 1));
-			$aResult = $this->oRegistry->Mongo->USERS->findOne(array('_id' => (int)$aEmail['i_uid']));
+			$aResult = $this->Registry->Mongo->USERS->findOne(array('_id' => (int)$aEmail['i_uid']));
 
 		} else {
 			if(false === \Lampcms\Validate::username($this->login)){
 				d('cp');
-				$this->oForm->setError('login', 'This username is invalid');
+				$this->Form->setError('login', 'This username is invalid');
 					
 				return false;
 			}
 
-			$aResult = $this->oRegistry->Mongo->USERS->findOne(array('username_lc' => $this->login));
+			$aResult = $this->Registry->Mongo->USERS->findOne(array('username_lc' => $this->login));
 		}
 
 		if (empty($aResult)) {
 			d('cp');
 			
-			$this->oForm->setError('login', 'User Not found');
+			$this->Form->setError('login', 'User Not found');
 
 			return false;
 		}
@@ -289,7 +289,7 @@ associated with your account.</div>';
 			 * string is used
 			 */
 			try {
-				$coll = $this->oRegistry->Mongo->PASSWORD_CHANGE;
+				$coll = $this->Registry->Mongo->PASSWORD_CHANGE;
 				$coll->insert($aData, array('fsync' => true));
 				$done = true;
 				d('cp');
@@ -320,11 +320,11 @@ associated with your account.</div>';
 	 * @return object $this
 	 */
 	protected function emailCode(){
-		$link = $this->oRegistry->Ini->SITE_URL.'/index.php?a=resetpwd&uid='.$this->uid.'&r='.$this->randomString;
-		$body = vsprintf(self::EMAIL_BODY, array($this->login, $this->oRegistry->Ini->SITE_NAME, $link));
-		$subject = sprintf(self::SUBJECT, $this->oRegistry->Ini->SITE_NAME);
+		$link = $this->Registry->Ini->SITE_URL.'/index.php?a=resetpwd&uid='.$this->uid.'&r='.$this->randomString;
+		$body = vsprintf(self::EMAIL_BODY, array($this->login, $this->Registry->Ini->SITE_NAME, $link));
+		$subject = sprintf(self::SUBJECT, $this->Registry->Ini->SITE_NAME);
 		
-		Mailer::factory($this->oRegistry)->mail($this->emailAddress, $subject, $body);
+		Mailer::factory($this->Registry)->mail($this->emailAddress, $subject, $body);
 		
 		return $this;
 	}

@@ -107,11 +107,11 @@ class ExternalAuth extends LampcmsObject
 
 	/**
 	 * Constructor
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 */
-	protected function __construct(Registry $oRegistry){
+	protected function __construct(Registry $Registry){
 
-		$this->oRegistry = $oRegistry;
+		$this->Registry = $Registry;
 	}
 
 
@@ -140,7 +140,7 @@ class ExternalAuth extends LampcmsObject
 		 */
 		$displayName = Utf8String::factory($displayName)->valueOf();
 
-		$coll = $this->oRegistry->Mongo->USERS;
+		$coll = $this->Registry->Mongo->USERS;
 		$res = null;
 
 		$username = null;

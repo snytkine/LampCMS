@@ -50,7 +50,7 @@
  */
 
 
-class tplFollowedTags extends \Lampcms\Template\Template
+class tplFollowedTags extends \Lampcms\Template\Fast
 {
 	/**
 	 * This is important!

@@ -88,7 +88,7 @@ class Vote extends WebPage
 	 *
 	 * @var object
 	 */
-	protected $oResource;
+	protected $Resource;
 
 	/**
 	 * What is the vote for: QUESTION or ANSWER?
@@ -116,10 +116,10 @@ class Vote extends WebPage
 
 
 	protected function main(){
-		$this->oRegistry->registerObservers('INPUT_FILTERS');
-		$this->resID = (int)$this->oRequest['resid'];
-		$this->voteType = $this->oRequest['type'];
-		$this->resType = ('a' === $this->oRequest['res']) ? 'ANSWERS' : 'QUESTIONS';
+		$this->Registry->registerObservers('INPUT_FILTERS');
+		$this->resID = (int)$this->Request['resid'];
+		$this->voteType = $this->Request['type'];
+		$this->resType = ('a' === $this->Request['res']) ? 'ANSWERS' : 'QUESTIONS';
 
 		if(!in_array($this->voteType, array('up', 'down'))){
 			throw new \Lampcms\Exception('Invalid type of vote');
@@ -150,7 +150,7 @@ class Vote extends WebPage
 	 * @return object $this
 	 */
 	protected function postBeforeEvent(){
-		$notification  = $this->oRegistry->Dispatcher->post($this->oResource, 'onBeforeVote', array('type' => $this->voteType ));
+		$notification  = $this->Registry->Dispatcher->post($this->Resource, 'onBeforeVote', array('type' => $this->voteType ));
 		if($notification->isNotificationCancelled()){
 			throw new \Lampcms\Exception('Cancelled onBeforeVote event');
 		}
@@ -167,7 +167,7 @@ class Vote extends WebPage
 	 */
 	protected function postEvent(){
 
-		$this->oRegistry->Dispatcher->post($this->oResource, 'onNewVote', array('type' => $this->voteType, 'isUndo' => (1 === $this->inc) ));
+		$this->Registry->Dispatcher->post($this->Resource, 'onNewVote', array('type' => $this->voteType, 'isUndo' => (1 === $this->inc) ));
 
 		return $this;
 	}
@@ -179,7 +179,7 @@ class Vote extends WebPage
 	 * @return object $this
 	 */
 	protected function getResource(){
-		$a = $this->oRegistry->Mongo->getCollection($this->resType)
+		$a = $this->Registry->Mongo->getCollection($this->resType)
 		->findOne(array('_id' => $this->resID));
 
 		if(empty($a) || empty($a['_id'])){
@@ -188,8 +188,8 @@ class Vote extends WebPage
 
 		$class = ('QUESTIONS' === $this->resType) ? '\\Lampcms\\Question' : '\\Lampcms\\Answer';
 
-		$this->oResource = new $class($this->oRegistry, $a);
-		d('$this->oResource: '.$this->oResource->getClass());
+		$this->Resource = new $class($this->Registry, $a);
+		d('$this->Resource: '.$this->Resource->getClass());
 
 		return $this;
 	}
@@ -204,7 +204,7 @@ class Vote extends WebPage
 	 */
 	protected function checkIsOwner(){
 
-		if(\Lampcms\isOwner($this->oRegistry->Viewer, $this->oResource)){
+		if(\Lampcms\isOwner($this->Registry->Viewer, $this->Resource)){
 			throw new \Lampcms\Exception('Cannot rate own questions or answers');
 		}
 
@@ -221,12 +221,12 @@ class Vote extends WebPage
 	 */
 	protected function getIncrementValue(){
 
-		$coll = $this->oRegistry->Mongo->getCollection('VOTES');
+		$coll = $this->Registry->Mongo->getCollection('VOTES');
 		$coll->ensureIndex(array('i_uid' => 1));
 		$coll->ensureIndex(array('i_res' => 1));
 
 
-		$uid = $this->oRegistry->Viewer->getUid();
+		$uid = $this->Registry->Viewer->getUid();
 		$aData = array(
 		'i_uid' => $uid,
 		'i_res' => $this->resID,
@@ -246,7 +246,7 @@ class Vote extends WebPage
 			$coll->remove(array('_id' => $aRes['_id']));
 		} else {
 			$aData['i_ts'] = time();
-			$aData['i_owner'] = $this->oResource->getOwnerId();
+			$aData['i_owner'] = $this->Resource->getOwnerId();
 			$coll->insert($aData);
 		}
 
@@ -262,14 +262,14 @@ class Vote extends WebPage
 	 */
 	protected function setOwnerReputation(){
 
-		$uid = $this->oResource->getOwnerId();
+		$uid = $this->Resource->getOwnerId();
 		d('uid of resource owner: '.$uid);
 		/**
 		 * Now need to calculate points
 		 *
 		 */
 		try{
-			\Lampcms\User::factory($this->oRegistry)->by_id($uid)->setReputation($this->calculatePoints());
+			\Lampcms\User::factory($this->Registry)->by_id($uid)->setReputation($this->calculatePoints());
 		} catch(\Exception $e){
 			e($e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
 		}
@@ -311,9 +311,9 @@ class Vote extends WebPage
 	 */
 	protected function increaseVoteCount(){
 		if('up' === $this->voteType){
-			$this->oResource->addUpVote($this->inc)->touch(true);
+			$this->Resource->addUpVote($this->inc)->touch(true);
 		} else {
-			$this->oResource->addDownVote($this->inc)->touch(true);
+			$this->Resource->addDownVote($this->inc)->touch(true);
 		}
 
 		return $this;
@@ -330,14 +330,14 @@ class Vote extends WebPage
 	protected function updateQuestion(){
 		if('ANSWERS' === $this->resType){
 			try{
-				$this->oRegistry->Mongo->QUESTIONS
+				$this->Registry->Mongo->QUESTIONS
 				->update(
-				array('_id' => $this->oResource['i_qid']),
+				array('_id' => $this->Resource['i_qid']),
 				array('$set' =>
 				array('i_etag' => time())));
 
 			} catch (\Exception $e){
-				e('unable to update question after vote for answer is received '.$this->oResource['i_qid']);
+				e('unable to update question after vote for answer is received '.$this->Resource['i_qid']);
 			}
 		}
 
@@ -352,7 +352,7 @@ class Vote extends WebPage
 		if($isAjax){
 			$ret = array(
 			'vote' => array(
-				'v' => $this->oResource->getScore(), 
+				'v' => $this->Resource->getScore(), 
 				't' => $this->resType, 
 				'rid' => $this->resID)
 			);
@@ -361,7 +361,7 @@ class Vote extends WebPage
 
 		}
 
-		Responder::redirectToPage($this->oResource->getUrl());
+		Responder::redirectToPage($this->Resource->getUrl());
 
 	}
 }

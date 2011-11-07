@@ -119,7 +119,7 @@ if(!is_readable($b)){
 }
 
 
-$Importer = new \Lampcms\Geo\Import($oRegistry->Mongo->getDb(), $b, $l);
+$Importer = new \Lampcms\Geo\Import($Registry->Mongo->getDb(), $b, $l);
 $Importer->run();
 $end = microtime(true);
 echo BR.'Importing done in '.($end - $start).' seconds';

@@ -61,7 +61,7 @@
  * @author Dmitri Snytkine
  *
  */ 
-class tplTumblrblogs extends \Lampcms\Template\Template
+class tplTumblrblogs extends \Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'token' => '', //1

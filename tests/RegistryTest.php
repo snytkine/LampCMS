@@ -60,7 +60,7 @@ require_once 'bootstrap.php';
 class RegistryTest extends LampcmsUnitTestCase
 {
 
-	protected $oRegistry;
+	protected $Registry;
 
 	/**
 	 * We want to override parent setUp
@@ -70,7 +70,7 @@ class RegistryTest extends LampcmsUnitTestCase
 	 * @see Lampcms.LampcmsUnitTestCase::setUp()
 	 */
 	public function setUp(){
-		$this->oRegistry = new Registry();
+		$this->Registry = new Registry();
 	}
 
 	public function testSingleInstance(){
@@ -81,72 +81,72 @@ class RegistryTest extends LampcmsUnitTestCase
 
 
 	public function testIniAsShared(){
-		$o1 = $this->oRegistry->Ini;
-		$o2 = $this->oRegistry->Ini;
+		$o1 = $this->Registry->Ini;
+		$o2 = $this->Registry->Ini;
 		$this->assertInstanceOf('\Lampcms\Ini', $o1);
 		$this->assertSame($o1, $o2);
 	}
 
 
 	public function testMongoAsShared(){
-		$o1 = $this->oRegistry->Mongo;
-		$o2 = $this->oRegistry->Mongo;
-		$this->assertInstanceOf('\Lampcms\Mongo', $o1);
+		$o1 = $this->Registry->Mongo;
+		$o2 = $this->Registry->Mongo;
+		$this->assertInstanceOf('\Lampcms\Mongo\DB', $o1);
 		$this->assertSame($o1, $o2);
 	}
 
 	public function testIncrementorAsShared(){
-		$o1 = $this->oRegistry->Incrementor;
-		$o2 = $this->oRegistry->Incrementor;
-		$this->assertInstanceOf('\Lampcms\MongoIncrementor', $o1);
+		$o1 = $this->Registry->Incrementor;
+		$o2 = $this->Registry->Incrementor;
+		$this->assertInstanceOf('\Lampcms\Mongo\Incrementor', $o1);
 		$this->assertSame($o1, $o2);
 	}
 
 
 	public function testCacheAsShared(){
-		$o1 = $this->oRegistry->Cache;
-		$o2 = $this->oRegistry->Cache;
+		$o1 = $this->Registry->Cache;
+		$o2 = $this->Registry->Cache;
 		$this->assertInstanceOf('\Lampcms\Cache', $o1);
 		$this->assertSame($o1, $o2);
 	}
 
 
 	public function testAclAsShared(){
-		$o1 = $this->oRegistry->Acl;
-		$o2 = $this->oRegistry->Acl;
+		$o1 = $this->Registry->Acl;
+		$o2 = $this->Registry->Acl;
 		$this->assertInstanceOf('\Lampcms\Acl\Acl', $o1);
 		$this->assertSame($o1, $o2);
 	}
 
 
 	public function testRequestAsShared(){
-		$o1 = $this->oRegistry->Request;
-		$o2 = $this->oRegistry->Request;
+		$o1 = $this->Registry->Request;
+		$o2 = $this->Registry->Request;
 		$this->assertInstanceOf('\Lampcms\Request', $o1);
 		$this->assertSame($o1, $o2);
 	}
 
 
 	public function testDispatcherAsShared(){
-		$o1 = $this->oRegistry->Dispatcher;
-		$o2 = $this->oRegistry->Dispatcher;
+		$o1 = $this->Registry->Dispatcher;
+		$o2 = $this->Registry->Dispatcher;
 		$this->assertInstanceOf('\Lampcms\Event\Dispatcher', $o1);
 		$this->assertSame($o1, $o2);
 	}
 
 
 	public function testMongoDoc(){
-		$o1 = $this->oRegistry->MongoDoc;
-		$o2 = $this->oRegistry->MongoDoc;
-		$this->assertInstanceOf('\Lampcms\MongoDoc', $o1);
-		$this->assertInstanceOf('\Lampcms\MongoDoc', $o2);
+		$o1 = $this->Registry->MongoDoc;
+		$o2 = $this->Registry->MongoDoc;
+		$this->assertInstanceOf('\Lampcms\Mongo\Doc', $o1);
+		$this->assertInstanceOf('\Lampcms\Mongo\Doc', $o2);
 		$this->assertNotSame($o1, $o2);
 	}
 
 
 	public function testResource(){
-		$o1 = $this->oRegistry->Resource;
-		$o2 = $this->oRegistry->Resource;
+		$o1 = $this->Registry->Resource;
+		$o2 = $this->Registry->Resource;
 		$this->assertInstanceOf('\Lampcms\Resource', $o1);
 		$this->assertInstanceOf('\Lampcms\Resource', $o2);
 		$this->assertNotSame($o1, $o2);
@@ -154,42 +154,42 @@ class RegistryTest extends LampcmsUnitTestCase
 
 
 	public function testNonExistant(){
-		$o1 = $this->oRegistry->Abcdefg;
+		$o1 = $this->Registry->Abcdefg;
 		$this->assertTrue(null === $o1);
 	}
 
 
 	public function testSetThenGet(){
-		$this->oRegistry->Zxcvb = new \stdClass();
-		$o1 = $this->oRegistry->Zxcvb;
+		$this->Registry->Zxcvb = new \stdClass();
+		$o1 = $this->Registry->Zxcvb;
 		$this->assertInstanceOf('stdClass', $o1);
 	}
 
 
 	public function testSetGetUnset(){
-		$this->oRegistry->qwertyu = new \stdClass();
-		$o1 = $this->oRegistry->qwertyu;
+		$this->Registry->qwertyu = new \stdClass();
+		$o1 = $this->Registry->qwertyu;
 		$this->assertInstanceOf('stdClass', $o1);
-		unset($this->oRegistry->qwertyu);
-		$o2 = $this->oRegistry->qwertyu;
+		unset($this->Registry->qwertyu);
+		$o2 = $this->Registry->qwertyu;
 		$this->assertEmpty($o2);
 	}
 
 
 	public function testCustomMongoDoc(){
-		$o1 = $this->oRegistry->MongoMyTest;
-		$this->assertInstanceOf('\Lampcms\MongoDoc', $o1);
+		$o1 = $this->Registry->MongoMyTest;
+		$this->assertInstanceOf('\Lampcms\Mongo\Doc', $o1);
 		$this->assertEquals('MYTEST', $o1->getCollectionName());
 	}
 
 
 	public function testEmpty(){
-		$this->assertTrue(empty($this->oRegistry->some_fake_poiuyt));
+		$this->assertTrue(empty($this->Registry->some_fake_poiuyt));
 	}
 
 
 	public function testNotEmpty(){
-		$this->assertFalse(empty($this->oRegistry->Ini));
+		$this->assertFalse(empty($this->Registry->Ini));
 	}
 
 }

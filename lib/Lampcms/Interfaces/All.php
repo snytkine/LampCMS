@@ -456,7 +456,7 @@ interface CommentedResource
 	public function getCommentsCount();
 
 
-	public function addComment(\Lampcms\CommentParser $oComment);
+	public function addComment(\Lampcms\CommentParser $Comment);
 
 
 	public function deleteComment($id);
@@ -874,7 +874,7 @@ interface Question extends Post
 	 * has made an answer or a comment
 	 * to a question
 	 *
-	 * @param mixed int | object $oUser object of type User
+	 * @param mixed int | object $User object of type User
 	 */
 	public function addContributor($User);
 
@@ -887,7 +887,7 @@ interface Question extends Post
 	 * simply remove one of the elements
 	 * from that array.
 	 *
-	 * @param mixed int | object $oUser object of type User
+	 * @param mixed int | object $User object of type User
 	 */
 	public function removeContributor($User);
 
@@ -919,10 +919,10 @@ interface Question extends Post
 	 * Must set the id of best_answer,
 	 * also updates Answer (by side-effect)
 	 *
-	 * @param Answer $oAnswer object of type Answer
+	 * @param Answer $Answer object of type Answer
 	 * which is being accepted as best answer
 	 */
-	public function setBestAnswer(\Lampcms\Answer $oAnswer);
+	public function setBestAnswer(\Lampcms\Answer $Answer);
 
 	public function updateAnswerCount($int = 1);
 
@@ -932,10 +932,10 @@ interface Question extends Post
 	 * and time of last post and id of last answer
 	 * to the a_latest element of the Question
 	 *
-	 * @param \Lampcms\User $oUser
-	 * @param \Lampcms\Answer $oAnswer
+	 * @param \Lampcms\User $User
+	 * @param \Lampcms\Answer $Answer
 	 */
-	public function setLatestAnswer(\Lampcms\User $oUser, \Lampcms\Answer $oAnswer);
+	public function setLatestAnswer(\Lampcms\User $User, \Lampcms\Answer $Answer);
 
 	/**
 	 * Method to run when an answer is delete
@@ -944,9 +944,9 @@ interface Question extends Post
 	 * even more so if that answer
 	 * was also a "accepted" answer
 	 * 
-	 * @param \Lampcms\Answer $oAnswer
+	 * @param \Lampcms\Answer $Answer
 	 */
-	public function removeAnswer(\Lampcms\Answer $oAnswer);
+	public function removeAnswer(\Lampcms\Answer $Answer);
 }
 
 /**
@@ -982,7 +982,7 @@ interface Answer extends Post
 
 interface Search
 {
-	public function __construct(\Lampcms\Registry $oRegistry);
+	public function __construct(\Lampcms\Registry $Registry);
 
 	public function search($term = null);
 
@@ -1002,7 +1002,7 @@ interface Search
 	//public function getSimilarTitles($title, $bBoolMode = true);
 
 
-	public function getSimilarQuestions(\Lampcms\Question $oQuestion);
+	public function getSimilarQuestions(\Lampcms\Question $Question);
 
 	public function getHtml();
 
@@ -1024,13 +1024,13 @@ interface Search
  */
 interface Indexer
 {
-	public function __construct(\Lampcms\Registry $oRegistry);
+	public function __construct(\Lampcms\Registry $Registry);
 
-	public function indexQuestion(\Lampcms\Question $oQuestion);
+	public function indexQuestion(\Lampcms\Question $Question);
 
-	public function removeQuestion(\Lampcms\Question $oQuestion);
+	public function removeQuestion(\Lampcms\Question $Question);
 
-	public function updateQuestion(\Lampcms\Question $oQuestion);
+	public function updateQuestion(\Lampcms\Question $Question);
 
 	/**
 	 * Remove all records from Search index
@@ -1055,7 +1055,7 @@ interface Indexer
  */
 interface SubmittedComment extends LampcmsResource
 {
-	public function __construct(\Lampcms\Registry $oRegistry, \Lampcms\Interfaces\LampcmsResource $oResource = null);
+	public function __construct(\Lampcms\Registry $Registry, \Lampcms\Interfaces\LampcmsResource $Resource = null);
 
 	/**
 	 *

@@ -67,7 +67,7 @@ use Lampcms\Request;
  * @author Dmitri Snytkine
  *
  */
-class LoginHistory extends \Lampcms\Observer
+class LoginHistory extends \Lampcms\Event\Observer
 {
 
 	protected $loginMethod;
@@ -112,7 +112,7 @@ class LoginHistory extends \Lampcms\Observer
 	 *
 	 */
 	protected function run(){
-		$Viewer = $this->oRegistry->Viewer;
+		$Viewer = $this->Registry->Viewer;
 		$ip 	= Request::getIP();
 		$uid 	= $Viewer->getUid();
 		
@@ -127,8 +127,8 @@ class LoginHistory extends \Lampcms\Observer
 				'login_method' => $this->loginMethod
 			);
 
-			$Mongo 	= $this->oRegistry->Mongo->getDb();
-			//$Geo 	= $this->oRegistry->Geo;
+			$Mongo 	= $this->Registry->Mongo->getDb();
+			//$Geo 	= $this->Registry->Geo;
 
 			$func = function() use ($aData, $Mongo){
 

@@ -54,7 +54,7 @@ namespace Lampcms\String;
 
 /**
  * String tokenizer
- * Minics the behaviour
+ * Mimics the behaviour
  * or java.unil.StringTokenizer class
  *
  * If you need to just get array

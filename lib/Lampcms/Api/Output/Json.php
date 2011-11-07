@@ -50,7 +50,7 @@
  */
 
  
-namespace Lampcms;
+namespace Lampcms\Api\Output;
 
 /**
  * Concrete formatter class
@@ -59,7 +59,8 @@ namespace Lampcms;
  * @author Dmitri Snytkine
  *
  */
-class OutputJson extends Output{
+class Json extends Formatter
+{
 	
 	public function getContentType(){
 		return 'application/json';

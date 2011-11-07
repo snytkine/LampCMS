@@ -49,39 +49,71 @@
  *
  */
 
+ 
+namespace Lampcms\Event;
 
-namespace Lampcms\Forms;
 
-
-class Pwd extends Form
+/**
+ * LampcmsObserver is basically the same as SplObserver
+ * except that it requires to have a constructor
+ * that accepts Registry object
+ *
+ * This way all Lampcms\Observer classes are guaranteed to have
+ * access to Registry
+ *
+ * @author Dmitri Snytkine
+ *
+ */
+class Observer implements \SplObserver
 {
+	protected $Registry;
+
+	protected $obj;
+
+	protected $aInfo;
+
+	protected $eventName;
+
+	public function __construct(\Lampcms\Registry $Registry){
+		d('observer: '.get_class($this));
+		$this->Registry = $Registry;
+	}
+	
+	/**
+	 * Factory method.
+	 * All Observers are instantiated via
+	 * a factory method.
+	 * This way an observer may have own
+	 * factory method and have a login inside it
+	 * to return instance of different class depending
+	 * on some conditions. This extra abstruction
+	 * makes writing custom Observer even
+	 * more flexible
+	 * 
+	 * 
+	 * @param Registry $Registry
+	 */
+	public static function factory(\Lampcms\Registry $Registry){
+		return new static($Registry);
+	}
+	
 
 	/**
-	 * Name of form template file
-	 * The name of actual template should be
-	 * set in sub-class
-	 *
-	 * @var string
+	 * Implementation of
+	 * SplSubject::update method
+	 * 
+	 * (non-PHPdoc)
+	 * @see SplObserver::update()
 	 */
-	protected $template = 'tplFormpwd';
+	public function update(\SplSubject $oNotification){
 
-	protected function init(){
-		$Tr = $this->Registry->Tr;
-		$this->addValidator('login', function($val){
+		$this->eventName = $oNotification->getNotificationName();
+		$this->obj = $oNotification->getNotificationObject();
+		$this->aInfo = $oNotification->getNotificationInfo();
 
-			if(strlen($val) < 3){
-				d('cp');
-				
-				return 'Invalid. Please enter valid email or username';
-			}
-
-			return true;
-		});
-		
-		$this->aVars['title'] = $Tr['Forgotten password'];
-		$this->aVars['login_l'] = $Tr['Username OR Email Address'];
-		$this->aVars['login_d'] = $Tr['forgot_help'];
-		$this->aVars['submit'] = $Tr['Get Password'];
-		$this->aVars['required'] = $Tr['Required field'];
+		$this->main();
 	}
+
+	protected function main(){}
 }
+

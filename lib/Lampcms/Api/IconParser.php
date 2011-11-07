@@ -73,7 +73,7 @@ class IconParser
 	 * in User object as 'avatar' element
 	 *
 	 *
-	 * @param User $oUser
+	 * @param User $User
 	 * @param unknown_type $tempPath
 	 * @throws \Lampcms\Exception
 	 *

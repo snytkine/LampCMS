@@ -67,7 +67,7 @@ namespace Lampcms;
 class LampcmsUnitTestCase extends \PHPUnit_Framework_TestCase
 {
 
-	protected $oRegistry;
+	protected $Registry;
 
 	/**
 	 *
@@ -105,12 +105,12 @@ class LampcmsUnitTestCase extends \PHPUnit_Framework_TestCase
 	public function __destruct(){
 
 		if(!$this->persistDB){
-			$oRegistry = new Registry();
+			$Registry = new Registry();
 			try{
-				$Ini = $oRegistry->Ini;
+				$Ini = $Registry->Ini;
 				$aConfig = $Ini->getSection('MONGO');
 				$realDbname = $aConfig['db'];
-				$oMongo = new Mongo($Ini);
+				$oMongo = new \Lampcms\Mongo\DB($Ini);
 			} catch(\Exception $e){
 					
 				return;
@@ -123,7 +123,8 @@ class LampcmsUnitTestCase extends \PHPUnit_Framework_TestCase
 			 *
 			 */
 			if($realDbname !== $oMongo->getDbName()){
-				$oMongo->getDb()->drop();
+				echo ' Test complete. You can remove the test mongo database: '.$oMongo->getDbName();
+				//$oMongo->getDb()->drop();
 			} else {
 				echo 'Not going to drop db. This is the actual DB!';
 			}

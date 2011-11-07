@@ -42,7 +42,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplLoginform extends Lampcms\Template\Template
+class tplLoginform extends Lampcms\Template\Fast
 {
 
 	protected static $vars = array(

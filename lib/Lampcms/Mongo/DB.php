@@ -51,7 +51,7 @@
 
 
 
-namespace Lampcms;
+namespace Lampcms\Mongo;
 
 
 /**
@@ -61,7 +61,7 @@ namespace Lampcms;
  * @author Dmitri Snytkine
  *
  */
-class Mongo extends LampcmsObject
+class DB extends \Lampcms\LampcmsObject
 {
 
 	protected static $oMongo;
@@ -70,14 +70,14 @@ class Mongo extends LampcmsObject
 	/**
 	 * Mongo connection resource
 	 *
-	 * @var object of type Mongo
+	 * @var object of type \Mongo
 	 */
 	protected $conn;
 
 
 	/**
 	 * Object MongoDB
-	 * @var object of type MongoDB
+	 * @var object of type \MongoDB
 	 */
 	protected $db;
 
@@ -111,14 +111,14 @@ class Mongo extends LampcmsObject
 	protected $prefix = "";
 
 
-	public function __construct(Ini $oIni){
+	public function __construct(\Lampcms\Ini $Ini){
 
 		if(!\extension_loaded('mongo')){
-			exit('PHP mongo extension not loaded. Exiting');
+			exit('Unable to use this program because PHP mongo extension not loaded. Make sure your php has mongo extension enabled. Exiting');
 		}
 
 		$aOptions = array('connect' => true);
-		$aConfig = $oIni->getSection('MONGO');
+		$aConfig = $Ini->getSection('MONGO');
 		d('$aConfig: '.print_r($aConfig, 1));
 
 		$server = $aConfig['server'];
@@ -186,6 +186,8 @@ class Mongo extends LampcmsObject
 	 * @param array $args
 	 */
 	public function __call($method, $args){
+		d('Passing call to php MongoDB. Method: '.$method.' $args: '.print_r($args, 1));
+
 		return \call_user_func_array(array($this->getDb(), $method), $args);
 	}
 
@@ -208,6 +210,10 @@ class Mongo extends LampcmsObject
 	 */
 	public function insertData($collName, array $aValues, $option = true){
 		d('$option: '.var_export($option, true));
+
+		if(!is_string($collName)){
+			throw new \InvalidArgumentException('$name must be a string. Was: '.gettype($collName));
+		}
 
 		if(!preg_match('/^[A-Za-z0-9_]+$/', $collName)){
 			throw new \InvalidArgumentException('Invalid collection name: '.$collName. ' Colletion name can only contain alphanumeric chars and underscores');
@@ -248,9 +254,13 @@ class Mongo extends LampcmsObject
 	 * @param string $strErr2 can be passed to be included in logging
 	 */
 	public function updateCollection($collName, array $arrValues, $whereCol, $whereVal){
-		$strTableName = \filter_var($collName, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
-		$strTableName = \str_replace(';', '', $strTableName);
-		$strTableName = \addslashes($strTableName);
+		if(!is_string($collName)){
+			throw new \InvalidArgumentException('$name must be a string. Was: '.gettype($collName));
+		}
+
+		if(!preg_match('/^[A-Za-z0-9_]+$/', $collName)){
+			throw new \InvalidArgumentException('Invalid collection name: '.$collName. ' Colletion name can only contain alphanumeric chars and underscores');
+		}
 
 		$whereCol = \filter_var($whereCol, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
 		$whereCol = \str_replace(';', '', $whereCol);
@@ -270,22 +280,9 @@ class Mongo extends LampcmsObject
 
 
 	/**
-	 * @todo unfinished
-	 * its supposed to save Serializable object in a special way: inside the
-	 * array with keys 'o' for object (serialized string) and 's' => true means serialized
-	 * @param unknown_type $collName
-	 * @param unknown_type $_id
-	 * @param Serializable $object
-	 */
-	public function saveObject($collName, $_id, Serializable $object){
-
-	}
-
-
-	/**
 	 * Getter for $this->db
 	 *
-	 * @return object of type MongoDB
+	 * @return object of type \MongoDB
 	 */
 	public function getDb(){
 		return $this->conn->selectDB($this->dbname);
@@ -350,8 +347,8 @@ class Mongo extends LampcmsObject
 	/**
 	 * Magic getter to simplify selecting collection
 	 * Same as getCollection() but simpler code
-	 * $this->oRegistry->Mongo->USERS
-	 * the same as $this->oRegistry->Mongo->getCollection('USERS')
+	 * $this->Registry->Mongo->USERS
+	 * the same as $this->Registry->Mongo->getCollection('USERS')
 	 *
 	 * @param string $name
 	 *

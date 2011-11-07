@@ -71,12 +71,12 @@ class Ask extends Askform
 	protected function main(){
 		$this->aPageVars['title'] = $this->_('Ask a question');
 
-		$a = $this->oRegistry->Request->getArray();
+		$a = $this->Registry->Request->getArray();
 		d('request: '.print_r($a, 1).' POST: '.print_r($_POST, 1));
 
 		$this->makeForm();
 
-		if($this->oForm->validate()){
+		if($this->Form->validate()){
 			$this->process();
 		} else {
 			$this->showFormWithErrors();
@@ -97,17 +97,17 @@ class Ask extends Askform
 	 */
 	protected function process(){
 
-		$formVals = $this->oForm->getSubmittedValues();
+		$formVals = $this->Form->getSubmittedValues();
 		d('formVals: '.print_r($formVals, 1));
-		$oAdapter = new QuestionParser($this->oRegistry);
+		$oAdapter = new QuestionParser($this->Registry);
 		try{
-			$oQuestion = $oAdapter->parse(new SubmittedQuestionWWW($this->oRegistry, $formVals));
+			$Question = $oAdapter->parse(new SubmittedQuestionWWW($this->Registry, $formVals));
 			d('cp created new question');
-			d('title: '.$oQuestion['title']);
+			d('title: '.$Question['title']);
 			
-			Responder::redirectToPage($oQuestion->getUrl());
+			Responder::redirectToPage($Question->getUrl());
 		} catch (QuestionParserException $e){
-			$this->oForm->setFormError($e->getMessage());
+			$this->Form->setFormError($e->getMessage());
 			$this->showFormWithErrors();
 		}
 	}

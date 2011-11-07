@@ -83,13 +83,13 @@ class UserFollowedTags extends LampcmsObject
 	 * and also possibly a block on tags that both Viewer and User
 	 * are following
 	 * 
-	 * @param Registry $oRegistry
-	 * @param User $oUser
+	 * @param Registry $Registry
+	 * @param User $User
 	 * 
 	 * @return string html
 	 */
-	public static function get(Registry $oRegistry, User $oUser){
-		$aUserTags = $oUser['a_f_t'];
+	public static function get(Registry $Registry, User $User){
+		$aUserTags = $User['a_f_t'];
 		if(empty($aUserTags)){
 			return '';
 		}
@@ -101,7 +101,7 @@ class UserFollowedTags extends LampcmsObject
 		/**
 		 * @todo Translate string
 		 */
-		$blockTitle = $oUser->getDisplayName().' is following these tags';
+		$blockTitle = $User->getDisplayName().' is following these tags';
 		$tags = $commonTags = '';
 
 		$tags = \tplTagLink::loop($aUserTags, false);
@@ -113,8 +113,8 @@ class UserFollowedTags extends LampcmsObject
 		 * being viewer then attempt to get the 'common' tags
 		 * that both viewer and user are following
 		 */
-		if($oUser->getUid() !== $oRegistry->Viewer->getUid()){
-			$commonTags = self::getCommonTags($aUserTags, $oRegistry->Viewer['a_f_t']);
+		if($User->getUid() !== $Registry->Viewer->getUid()){
+			$commonTags = self::getCommonTags($aUserTags, $Registry->Viewer['a_f_t']);
 		}
 
 		$vals = array('count' => $blockTitle, 'label' => 'tag', 'tags' => $tags);

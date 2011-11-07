@@ -70,9 +70,9 @@ class UserAnswers extends LampcmsObject
 
 	const PER_PAGE = 10;
 
-	public static function get(Registry $oRegistry, User $oUser){
+	public static function get(Registry $Registry, User $User){
 
-		$uid = $oUser->getUid();
+		$uid = $User->getUid();
 		if(0 === $uid){
 			d('not registered user');
 
@@ -85,7 +85,7 @@ class UserAnswers extends LampcmsObject
 		 */
 		$pagerPath = '/tab/a/'.$uid.'/oldest';
 
-		$cond = $oRegistry->Request->get('sort', 's', 'recent');
+		$cond = $Registry->Request->get('sort', 's', 'recent');
 		switch($cond){
 			case 'oldest':
 				$sort = array('_id' => 1);
@@ -114,7 +114,7 @@ class UserAnswers extends LampcmsObject
 
 		}
 
-		$cursor = self::getCursor($oRegistry, $uid, $sort);
+		$cursor = self::getCursor($Registry, $uid, $sort);
 		$count = $cursor->count(true);
 		d('$count: '.$count);
 
@@ -127,10 +127,10 @@ class UserAnswers extends LampcmsObject
 			return '';
 		}
 
-		$pageID = $oRegistry->Request->get('pageID', 'i', 1);
+		$pageID = $Registry->Request->get('pageID', 'i', 1);
 
 		if($count > self::PER_PAGE || $pageID > 1){
-			$oPaginator = Paginator::factory($oRegistry);
+			$oPaginator = Paginator::factory($Registry);
 			$oPaginator->paginate($cursor, self::PER_PAGE,
 			array('path' => $pagerPath));
 
@@ -154,7 +154,7 @@ class UserAnswers extends LampcmsObject
 	 *
 	 * Get result of selectin answers from ANSWERS collection
 	 *
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 * @param int $uid
 	 *
 	 * @return object MongoCursor
@@ -163,18 +163,18 @@ class UserAnswers extends LampcmsObject
 	 * what's passed in Request: by votes,
 	 * or by creation date
 	 */
-	protected static function getCursor(Registry $oRegistry, $uid, array $sort)
+	protected static function getCursor(Registry $Registry, $uid, array $sort)
 	{
 		$where = array('i_uid' => $uid);
 		/**
 		 * Exclude deleted items unless viewer
 		 * is a moderator
 		 */
-		if(!$oRegistry->Viewer->isModerator()){
+		if(!$Registry->Viewer->isModerator()){
 			$where['i_del_ts'] = null;
 		}
 
-		$cursor = $oRegistry->Mongo->ANSWERS->find($where)->sort($sort);
+		$cursor = $Registry->Mongo->ANSWERS->find($where)->sort($sort);
 
 		return $cursor;
 	}

@@ -64,7 +64,7 @@
  * Ini X
  * Mongo X
  * Incrementor X
- * MongoDoc X
+ * Mongo\Doc X
  * Resource X
  * Request X
  * Responder <- use @outputBuffering true

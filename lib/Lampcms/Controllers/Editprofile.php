@@ -89,7 +89,7 @@ class Editprofile extends WebPage
 	 *
 	 * @var object of type \Lampcms\Forms\Form
 	 */
-	protected $oForm;
+	protected $Form;
 
 
 	/**
@@ -98,34 +98,34 @@ class Editprofile extends WebPage
 	 *
 	 * @var object of type User
 	 */
-	protected $oUser;
+	protected $User;
 
 
 	protected function main(){
 		$this->getUser();
-		$this->oForm = new \Lampcms\Forms\Profile($this->oRegistry);
-		$this->oForm->formTitle = $this->aPageVars['title'] = $this->_('Edit Profile');
+		$this->Form = new \Lampcms\Forms\Profile($this->Registry);
+		$this->Form->formTitle = $this->aPageVars['title'] = $this->_('Edit Profile');
 
-		if($this->oForm->isSubmitted() && $this->oForm->validate()){
-			$this->oRegistry->Dispatcher->post($this->oForm, 'onBeforeProfileUpdate');
+		if($this->Form->isSubmitted() && $this->Form->validate()){
+			$this->Registry->Dispatcher->post($this->Form, 'onBeforeProfileUpdate');
 			//try{
 				$this->saveProfile();
-				$this->oRegistry->Dispatcher->post($this->oForm, 'onProfileUpdate');
-				$this->aPageVars['body'] = \tplProfileSuccess::parse(array('Profile has been updated', $this->oUser->getProfileUrl(), 'View the new profile'), false);
+				$this->Registry->Dispatcher->post($this->Form, 'onProfileUpdate');
+				$this->aPageVars['body'] = \tplProfileSuccess::parse(array('Profile has been updated', $this->User->getProfileUrl(), 'View the new profile'), false);
 			/*} catch (\Lampcms\Exception $e){
-				$this->oForm->setFormError($e->getMessage());
+				$this->Form->setFormError($e->getMessage());
 				$this->setForm();
-				$this->aPageVars['body'] = $this->oForm->getForm();
+				$this->aPageVars['body'] = $this->Form->getForm();
 			}*/
 		} else {
 			$this->setForm();
-			$this->aPageVars['body'] = $this->oForm->getForm();
+			$this->aPageVars['body'] = $this->Form->getForm();
 		}
 	}
 
 
 	/**
-	 * Create $this->oUser User object for user whose
+	 * Create $this->User User object for user whose
 	 * profile is being edited
 	 *
 	 * @todo unfinished. IT will be possible to
@@ -136,16 +136,16 @@ class Editprofile extends WebPage
 	 * @return object $this
 	 */
 	protected function getUser(){
-		$uid = $this->oRequest->get('uid', 'i', null);
-		if($uid && ($uid !== $this->oRegistry->Viewer->getUid())){
+		$uid = $this->Request->get('uid', 'i', null);
+		if($uid && ($uid !== $this->Registry->Viewer->getUid())){
 			/**
 			 * This is edit profile for another user
 			 * check Viewer permission here
 			 */
 			$this->checkAccessPermission('edit_any_profile');
-			$this->oUser = \Lampcms\User::factory($this->oRegistry)->by_id($uid);
+			$this->User = \Lampcms\User::factory($this->Registry)->by_id($uid);
 		} else {
-			$this->oUser = $this->oRegistry->Viewer;
+			$this->User = $this->Registry->Viewer;
 		}
 
 		return $this;
@@ -160,27 +160,27 @@ class Editprofile extends WebPage
 	 */
 	protected function setForm(){
 
-		$this->oForm->username = $this->oUser['username'];
-		$this->oForm->usernameLabel = 'Username';
-		$this->oForm->fn = $this->oUser['fn'];
-		$this->oForm->mn = $this->oUser['mn'];
-		$this->oForm->ln = $this->oUser['ln'];
-		$this->oForm->gender = $this->getGenderOptions();
-		$this->oForm->dob = $this->oUser['dob'];
-		$this->oForm->cc = $this->getCountryOptions();
-		$this->oForm->state = $this->oUser['state'];
-		$this->oForm->city = $this->oUser['city'];
-		$this->oForm->url = $this->oUser['url'];
-		$this->oForm->zip = $this->oUser['zip'];
-		$this->oForm->description = $this->oUser['description'];
-		$this->oForm->avatarSrc = $this->oUser->getAvatarSrc();
-		$this->oForm->width = $this->oRegistry->Ini->AVATAR_SQUARE_SIZE;
-		$this->oForm->uid = $this->oUser->getUid();
-		$this->oForm->maxAvatarSize = $this->oRegistry->Ini->MAX_AVATAR_UPLOAD_SIZE;
+		$this->Form->username = $this->User['username'];
+		$this->Form->usernameLabel = 'Username';
+		$this->Form->fn = $this->User['fn'];
+		$this->Form->mn = $this->User['mn'];
+		$this->Form->ln = $this->User['ln'];
+		$this->Form->gender = $this->getGenderOptions();
+		$this->Form->dob = $this->User['dob'];
+		$this->Form->cc = $this->getCountryOptions();
+		$this->Form->state = $this->User['state'];
+		$this->Form->city = $this->User['city'];
+		$this->Form->url = $this->User['url'];
+		$this->Form->zip = $this->User['zip'];
+		$this->Form->description = $this->User['description'];
+		$this->Form->avatarSrc = $this->User->getAvatarSrc();
+		$this->Form->width = $this->Registry->Ini->AVATAR_SQUARE_SIZE;
+		$this->Form->uid = $this->User->getUid();
+		$this->Form->maxAvatarSize = $this->Registry->Ini->MAX_AVATAR_UPLOAD_SIZE;
 		/**
 		 * @todo translate string
 		 */
-		$this->oForm->avatarTos = sprintf('Upload Image. Maximum size of %sMb<br><span class="smaller">By uploading a file you certify that you have the right to distribute this picture and that it does not violate the Terms of Service.</span>', floor($this->oRegistry->Ini->MAX_AVATAR_UPLOAD_SIZE / 1000000) );
+		$this->Form->avatarTos = sprintf('Upload Image. Maximum size of %sMb<br><span class="smaller">By uploading a file you certify that you have the right to distribute this picture and that it does not violate the Terms of Service.</span>', floor($this->Registry->Ini->MAX_AVATAR_UPLOAD_SIZE / 1000000) );
 
 		/**
 		 * Add '  hide' class to avatar upload
@@ -188,7 +188,7 @@ class Editprofile extends WebPage
 		 * inside gd
 		 */
 		if(!\extension_loaded('gd') || !\function_exists('imagecreatefromjpeg')){
-			$this->oForm->hideAvatar = ' hide';
+			$this->Form->hideAvatar = ' hide';
 		}
 
 		return $this;
@@ -203,7 +203,7 @@ class Editprofile extends WebPage
 	 */
 	protected function saveProfile(){
 
-		ProfileParser::factory($this->oRegistry)->save($this->oUser, new SubmittedProfileWWW($this->oForm));
+		ProfileParser::factory($this->Registry)->save($this->User, new SubmittedProfileWWW($this->Form));
 
 		/**
 		 * Should unset 'welcome' from session
@@ -232,7 +232,7 @@ class Editprofile extends WebPage
 	 */
 	protected function getCountryOptions(){
 		$s = '';
-		$current = \strtoupper($this->oRegistry->Viewer['cc']);
+		$current = \strtoupper($this->Registry->Viewer['cc']);
 		$tpl = '<option value="%1$s"%2$s>%3$s</option>';
 		$aCountries = \array_combine(\Lampcms\Geo\Location::getCodes(), \Lampcms\Geo\Location::getNames());
 		
@@ -258,7 +258,7 @@ class Editprofile extends WebPage
 	 * @return string html string
 	 */
 	protected function getGenderOptions(){
-		$current = $this->oRegistry->Viewer['gender'];
+		$current = $this->Registry->Viewer['gender'];
 		$s = '';
 		$a = array('' => 'Select Gender', 'M' => 'Male', 'F' => 'Female');
 		$tpl = '<option value="%1$s"%2$s>%3$s</option>';

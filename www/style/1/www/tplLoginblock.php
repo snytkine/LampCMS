@@ -45,7 +45,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplLoginblock extends Lampcms\Template\Template
+class tplLoginblock extends Lampcms\Template\Fast
 {
 	protected static $vars = array('Already a member?<br>Please login');
 

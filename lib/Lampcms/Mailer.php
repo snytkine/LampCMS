@@ -61,12 +61,12 @@ class Mailer extends LampcmsObject
 
 	protected $from;
 
-	protected $oRegistry;
+	protected $Registry;
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
-		$this->adminEmail = $this->oRegistry->Ini->EMAIL_ADMIN;
-		$this->siteName = $this->oRegistry->Ini->SITE_NAME;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
+		$this->adminEmail = $this->Registry->Ini->EMAIL_ADMIN;
+		$this->siteName = $this->Registry->Ini->SITE_NAME;
 		$this->from = \Lampcms\String::prepareEmail($this->adminEmail, $this->siteName);
 	}
 

@@ -94,8 +94,8 @@ class Usertags extends Api
 	 * @return object $this
 	 */
 	protected function getData(){
-		$uid = $this->oRequest->get('uid', 'i', 0);
-		$this->aData = $this->oRegistry->Mongo->USER_TAGS->findOne(
+		$uid = $this->Request->get('uid', 'i', 0);
+		$this->aData = $this->Registry->Mongo->USER_TAGS->findOne(
 			array('_id' => $uid)
 		);
 
@@ -109,13 +109,13 @@ class Usertags extends Api
 
 	/**
 	 *
-	 * Set to $this->oOutput object with
+	 * Set to $this->Output object with
 	 * data from $this->aData
 	 *
 	 * @return object $this
 	 */
 	protected function setOutput(){
-		$this->oOutput->setData($this->aData);
+		$this->Output->setData($this->aData);
 
 		return $this;
 	}

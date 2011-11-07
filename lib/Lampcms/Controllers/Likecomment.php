@@ -76,10 +76,10 @@ class Likecomment extends WebPage
 	
 	
 	protected function main(){
-		$this->oRegistry->registerObservers('INPUT_FILTERS');
+		$this->Registry->registerObservers('INPUT_FILTERS');
 		
-		$oParser = new CommentParser($this->oRegistry);
-		$oParser->addLike(new SubmittedCommentWWW($this->oRegistry));
+		$oParser = new CommentParser($this->Registry);
+		$oParser->addLike(new SubmittedCommentWWW($this->Registry));
 		
 		$this->returnResult();
 	}

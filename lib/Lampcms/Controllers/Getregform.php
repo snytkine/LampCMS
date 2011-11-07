@@ -70,7 +70,7 @@ class Getregform extends WebPage
 
 	protected function main(){
 		d('cp');
-		$o = new RegBlockQuickReg($this->oRegistry);
+		$o = new RegBlockQuickReg($this->Registry);
 		$s = $o->getBlock();
 		
 		$aRet = array('quickreg' => $s);

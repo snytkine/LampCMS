@@ -43,7 +43,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplFbJs extends Lampcms\Template\Template
+class tplFbJs extends Lampcms\Template\Fast
 {
 
 	protected static $vars = array();

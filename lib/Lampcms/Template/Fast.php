@@ -72,7 +72,7 @@ namespace Lampcms\Template;
  * @author Dmitri Snytkine
  *
  */
-class Template
+class Fast
 {
 	/**
 	 * Can override this static method in concrete template
@@ -174,15 +174,31 @@ class Template
 		if (true === LAMPCMS_DEBUG) {
 			$t = '  ';
 			$templateName = get_called_class();
+			$templateName = LAMPCMS_WWW_DIR.'style'.DIRECTORY_SEPARATOR.STYLE_ID.DIRECTORY_SEPARATOR.VTEMPLATES_DIR.DIRECTORY_SEPARATOR.$templateName;
 			$begin = sprintf("\n$t<!-- Template %s -->\n", $templateName);
 			$end = sprintf("\n$t<!-- // Template %s -->\n", $templateName);
 		}
 
-		$ret = \vsprintf(static::$tpl, $aVars);
+		$ret = static::replace($aVars);
 
 		return $begin.$t.$ret.$end;
 	}
+	
+	
+	/**
+	 * Here the placeholders are replaced
+	 * by actual value
+	 * 
+	 * Sub-class may implement own way of replacing variables
+	 * 
+	 * @param array $aVars
+	 * @return string parsed template
+	 */
+	protected static function replace( array $aVars ){
+		return \vsprintf(static::$tpl, $aVars);
+	}
 
+	
 	/**
 	 * @todo template may contain $loop static
 	 * function, if it does then use it on

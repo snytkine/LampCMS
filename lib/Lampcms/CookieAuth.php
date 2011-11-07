@@ -85,20 +85,20 @@ class CookieAuth extends UserAuth
 
 		d('$_COOKIE: '.print_r($_COOKIE, 1));
 
-		$oUser = $this->checkRequiredCookies()
+		$User = $this->checkRequiredCookies()
 		->validateCookieSalt()
 		->checkSidFormat()
 		->checkForBannedIP()
 		->checkMultipleSidLoginErrors()
 		->getSidUser();
 
-		if (!$this->compareSids($oUser['rs'])) {
+		if (!$this->compareSids($User['rs'])) {
 			$this->logLoginError($this->uid, $this->sid, true, null, 'cookie');
 
-			throw new CookieAuthException('wrong sid '.print_r($oUser, 1));
+			throw new CookieAuthException('wrong sid '.print_r($User, 1));
 		}
 
-		return $oUser;
+		return $User;
 	}
 
 
@@ -112,7 +112,7 @@ class CookieAuth extends UserAuth
 	 */
 	protected function getSidUser(){
 
-		$arrResult = $this->oRegistry->Mongo->USERS->findOne(array('_id' => $this->uid));
+		$arrResult = $this->Registry->Mongo->USERS->findOne(array('_id' => $this->uid));
 
 		if (empty($arrResult)) {
 			d('user not found with id '.$this->uid);
@@ -121,7 +121,7 @@ class CookieAuth extends UserAuth
 			throw new CookieAuthException('no user by uid cookie');
 		}
 
-		return User::factory($this->oRegistry, $arrResult);
+		return User::factory($this->Registry, $arrResult);
 	}
 
 
@@ -228,7 +228,7 @@ class CookieAuth extends UserAuth
 		 */
 		$timediff = (time() - 604800);
 
-		$cur = $this->oRegistry->Mongo->LOGIN_ERROR
+		$cur = $this->Registry->Mongo->LOGIN_ERROR
 		->find(array('i_ts' => array('$gt' => $timediff)))
 		->sort(array('i_ts' => -1));
 
@@ -299,13 +299,13 @@ class CookieAuth extends UserAuth
 		$interval = ($now - 3600);
 		$wait = 1800;
 
-		$cur = $this->oRegistry->Mongo->LOGIN_ERROR
+		$cur = $this->Registry->Mongo->LOGIN_ERROR
 		->find(array('usr_lc' => $this->uid, 'i_ts' => array('$gt' => $interval)))
 		->sort(array('i_ts' => -1));
 
 		d('$cur: '.gettype($cur).' found count: '.$cur->count());
 
-		$aLockParams = $this->oRegistry->Ini->getSection('LOGIN_ERROR_LOCK');
+		$aLockParams = $this->Registry->Ini->getSection('LOGIN_ERROR_LOCK');
 		d('$aLockParams: '.print_r($aLockParams, 1));
 
 		if ($cur->count() > (int)$aLockParams['max_errors']) {

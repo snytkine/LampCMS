@@ -112,12 +112,12 @@ require LAMPCMS_PATH.DIRECTORY_SEPARATOR.'Mycollections.php';
 require $lampcmsClasses.'Ini.php';
 require $lampcmsClasses.'Log.php';
 require $lampcmsClasses.'Request.php';
-require $lampcmsClasses.'Mongo.php';
-require $lampcmsClasses.'MongoDoc.php'; // User extends it
+require $lampcmsClasses.DIRECTORY_SEPARATOR.'Mongo'.DIRECTORY_SEPARATOR.'DB.php';
+require $lampcmsClasses.DIRECTORY_SEPARATOR.'Mongo'.DIRECTORY_SEPARATOR.'Doc.php'; // User extends it
 require $lampcmsClasses.'User.php'; // User is always used
 require $lampcmsClasses.'SplClassLoader.php';
 require $lampcmsClasses.'Registry.php';
-require $lampcmsClasses.'Template'.DIRECTORY_SEPARATOR.'Template.php';
+require $lampcmsClasses.'Template'.DIRECTORY_SEPARATOR.'Fast.php';
 
 /**
  * Points.php is in non-standard directory,
@@ -197,11 +197,11 @@ $old_error_handler = set_error_handler("LampcmsErrorHandler");
 // autoloader here
 require 'autoload.php';
 
-$oRegistry = \Lampcms\Registry::getInstance();
+$Registry = \Lampcms\Registry::getInstance();
 
 try{
 
-	$oINI = $oRegistry->Ini;
+	$oINI = $Registry->Ini;
 	$dataDir = $oINI->LAMPCMS_DATA_DIR;
 	$dataDir = rtrim($dataDir, '/');
 
@@ -297,5 +297,5 @@ function e($message){
  * been registered because it relies on autoloaders
  * to find observer classes
  */
-$oRegistry->registerObservers();
+$Registry->registerObservers();
 

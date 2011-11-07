@@ -74,7 +74,7 @@ class BloggerPostAdapter
 	 *
 	 * @var object
 	 */
-	protected $oRegistry;
+	protected $Registry;
 
 
 	/**
@@ -91,7 +91,7 @@ class BloggerPostAdapter
 	 * @param \Lampcms\Registry $o
 	 */
 	public function __construct(\Lampcms\Registry $o){
-		$this->oRegistry = $o;
+		$this->Registry = $o;
 	}
 
 
@@ -143,7 +143,7 @@ class BloggerPostAdapter
 		$qUrl = $o->getUrl();
 		$tpl1 = '<p><a href="%s"><strong>My Question</strong></a> on %s</p>';
 		$tpl2 = '<p><a href="%s">Click here</a> to post your reply</p><br>';
-		$body = sprintf($tpl1, $qUrl, $this->oRegistry->Ini->SITE_NAME);
+		$body = sprintf($tpl1, $qUrl, $this->Registry->Ini->SITE_NAME);
 		$body .= $o->getBody();
 		$body .= sprintf($tpl2, $qUrl);
 		$body = HtmlString::factory($body);
@@ -169,7 +169,7 @@ class BloggerPostAdapter
 	 */
 	protected function makeAnswerPost(Answer $o){
 		d('cp');
-		$qlink = $this->oRegistry->Ini->SITE_URL.'/q'.$o->getQuestionId().'/';
+		$qlink = $this->Registry->Ini->SITE_URL.'/q'.$o->getQuestionId().'/';
 
 		/**
 		 * @todo Translate string
@@ -177,7 +177,7 @@ class BloggerPostAdapter
 		 * @var string
 		 */
 		$tpl = '<p>This is my answer to a <a href="%s"><strong>Question</strong></a> on %s</p><br>';
-		$body = sprintf($tpl, $qlink, $this->oRegistry->Ini->SITE_NAME);
+		$body = sprintf($tpl, $qlink, $this->Registry->Ini->SITE_NAME);
 
 		$body .= $o->getBody();
 		d('body: '.$body);

@@ -52,7 +52,6 @@
 
 namespace Lampcms\Api;
 
-use Lampcms\MongoDoc;
 
 /**
  * Class represents a registered API client
@@ -62,14 +61,14 @@ use Lampcms\MongoDoc;
  * @author Dmitri Snytkine
  *
  */
-class Clientdata extends MongoDoc
+class Clientdata extends \Lampcms\Mongo\Doc
 {
 
 	protected $aReturn = array('app', 'api_key');
 
-	public function __construct(\Lampcms\Registry $oRegistry){
+	public function __construct(\Lampcms\Registry $Registry){
 
-		parent::__construct($oRegistry,  'API_CLIENTS');
+		parent::__construct($Registry,  'API_CLIENTS');
 	}
 
 	/**
@@ -80,10 +79,10 @@ class Clientdata extends MongoDoc
 	 * It will have extra methods
 	 * to return and save extra data
 	 *
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 */
-	public static function factory(\Lampcms\Registry $oRegistry){
-		return new static($oRegistry);
+	public static function factory(\Lampcms\Registry $Registry){
+		return new static($Registry);
 	}
 
 

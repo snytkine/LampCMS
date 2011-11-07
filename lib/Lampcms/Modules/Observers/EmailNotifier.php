@@ -126,7 +126,7 @@ use \Lampcms\Mailer;
  * @author Dmitri Snytkine
  *
  */
-class EmailNotifier extends \Lampcms\Observer
+class EmailNotifier extends \Lampcms\Event\Observer
 {
 	protected static $QUESTION_BY_USER_BODY = '
 %1$s has asked a question:
@@ -269,7 +269,7 @@ site %5$s and navigating to Settings > Email preferences
 	protected $author_id = 0;
 
 
-	protected $oQuestion;
+	protected $Question;
 
 	/**
 	 * Mongo USERS collection
@@ -303,10 +303,10 @@ site %5$s and navigating to Settings > Email preferences
 	 * upgrade - it's not included in the distro
 	 *
 	 *
-	 * @param \Lampcms\Registry $oRegistry
+	 * @param \Lampcms\Registry $Registry
 	 */
-	public static function factory(\Lampcms\Registry $oRegistry){
-		return new self($oRegistry);
+	public static function factory(\Lampcms\Registry $Registry){
+		return new self($Registry);
 	}
 
 	/**
@@ -322,27 +322,27 @@ site %5$s and navigating to Settings > Email preferences
 		d('get event: '.$this->eventName);
 		switch ($this->eventName){
 			case 'onNewQuestion':
-				$this->collUsers = $this->oRegistry->Mongo->USERS;
-				$this->oQuestion = $this->obj;
+				$this->collUsers = $this->Registry->Mongo->USERS;
+				$this->Question = $this->obj;
 				$this->notifyUserFollowers();
 				$this->notifyTagFollowers();
 				break;
 
 			case 'onNewAnswer':
-				$this->collUsers = $this->oRegistry->Mongo->USERS;
-				$this->oQuestion = $this->aInfo['question'];
+				$this->collUsers = $this->Registry->Mongo->USERS;
+				$this->Question = $this->aInfo['question'];
 				$this->notifyUserFollowers();
 				$this->notifyQuestionFollowers();
 				break;
 
 			case 'onNewComment':
-				$this->collUsers = $this->oRegistry->Mongo->USERS;
+				$this->collUsers = $this->Registry->Mongo->USERS;
 				$this->notifyOnComment();
 				break;
 
 			case 'onRetag' :
-				$this->collUsers = $this->oRegistry->Mongo->USERS;
-				$this->oQuestion = $this->obj;
+				$this->collUsers = $this->Registry->Mongo->USERS;
+				$this->Question = $this->obj;
 				$this->notifyTagFollowers($this->aInfo);
 				break;
 		}
@@ -382,7 +382,7 @@ site %5$s and navigating to Settings > Email preferences
 		 * $this->obj is object of type SubmittedComment
 		 * it has getResource() method and returns a resource
 		 * for this it is a comment, usually Question or Answer
-		 * If it's a Question we set $this->oQuestion
+		 * If it's a Question we set $this->Question
 		 * and then just notify question followers
 		 *
 		 * else we notify Answer author (since there is no
@@ -392,20 +392,20 @@ site %5$s and navigating to Settings > Email preferences
 		 *
 		 * @var
 		 */
-		$oResource = $this->obj->getResource();
+		$Resource = $this->obj->getResource();
 		if(!empty($this->aInfo['inreply_uid'])){
 			d('this is a reply');
-			$this->notifyCommentAuthor($oResource);
+			$this->notifyCommentAuthor($Resource);
 		} else {
-			if($oResource instanceof \Lampcms\Question){
+			if($Resource instanceof \Lampcms\Question){
 				d('cp');
-				$this->oQuestion = $oResource;
+				$this->Question = $Resource;
 				$this->notifyQuestionFollowers();
-			} elseif($oResource instanceof \Lampcms\Answer){
+			} elseif($Resource instanceof \Lampcms\Answer){
 				d('cp');
-				$this->notifyAnswerAuthor($oResource);
+				$this->notifyAnswerAuthor($Resource);
 			} else {
-				throw new \Lampcms\DevException('Something is wrong here. The object is not Question and not Answer. it is: '.get_class($oResource));
+				throw new \Lampcms\DevException('Something is wrong here. The object is not Question and not Answer. it is: '.get_class($Resource));
 			}
 		}
 	}
@@ -417,25 +417,25 @@ site %5$s and navigating to Settings > Email preferences
 	 *
 	 * @return object $this
 	 */
-	protected function notifyAnswerAuthor(\Lampcms\Answer $oAnswer, $excludeUid = 0){
+	protected function notifyAnswerAuthor(\Lampcms\Answer $Answer, $excludeUid = 0){
 
 		$commentorID = (int)$this->aInfo['i_uid'];
-		$answerOwnerId = $oAnswer->getOwnerId();
-		$siteUrl = $this->oRegistry->Ini->SITE_URL;
+		$answerOwnerId = $Answer->getOwnerId();
+		$siteUrl = $this->Registry->Ini->SITE_URL;
 		d('$siteUrl: '.$siteUrl);
 		$commUrl = $siteUrl.'/q'.$this->aInfo['i_qid'].'/#c'.$this->aInfo['_id'];
 		d('commUrl: '.$commUrl);
 
-		$ansID = $oAnswer->getResourceId();
+		$ansID = $Answer->getResourceId();
 		d('ansID: '.$ansID);
 		d('$answerOwnerId: '.$answerOwnerId);
 
 		$coll = $this->collUsers;
 		$subj = sprintf(static::$ANS_COMMENT_SUBJ, $this->aInfo['username']);
-		$body = vsprintf(static::$ANS_COMMENT_BODY, array($this->aInfo['username'], $oAnswer['title'], \strip_tags($this->aInfo['b']), $commUrl, $siteUrl));
+		$body = vsprintf(static::$ANS_COMMENT_BODY, array($this->aInfo['username'], $Answer['title'], \strip_tags($this->aInfo['b']), $commUrl, $siteUrl));
 		d('subj: '.$subj);
 		d('body: '.$body);
-		$oMailer = new Mailer($this->oRegistry);
+		$oMailer = new Mailer($this->Registry);
 
 		/**
 		 * Don not notify if comment made
@@ -483,15 +483,15 @@ site %5$s and navigating to Settings > Email preferences
 	 * often very specific to that parent comment and NOT
 	 * interesting to Question followers...
 	 *
-	 * @param object $oResource Answer OR Question object
+	 * @param object $Resource Answer OR Question object
 	 *
 	 */
-	protected function notifyCommentAuthor(\Lampcms\Interfaces\Post $oResource){
+	protected function notifyCommentAuthor(\Lampcms\Interfaces\Post $Resource){
 		$commentorID = (int)$this->aInfo['i_uid'];
 		$parentCommentOwner = (int)$this->aInfo['inreply_uid'];	
-		$siteUrl = $this->oRegistry->Ini->SITE_URL;
+		$siteUrl = $this->Registry->Ini->SITE_URL;
 		d('$siteUrl: '.$siteUrl);
-		$commUrl = $siteUrl.'/q'.$oResource->getQuestionId().'/#c'.$this->aInfo['_id'];
+		$commUrl = $siteUrl.'/q'.$Resource->getQuestionId().'/#c'.$this->aInfo['_id'];
 		d('commUrl: '.$commUrl);
 		
 		/**
@@ -507,7 +507,7 @@ site %5$s and navigating to Settings > Email preferences
 		$body = vsprintf(static::$COMMENT_REPLY_BODY, array($this->aInfo['username'], \strip_tags($this->aInfo['parent_body']), \strip_tags($this->aInfo['b']), $commUrl, $siteUrl));
 		d('subj: '.$subj.' body: '.$body);
 
-		$oMailer = new Mailer($this->oRegistry);
+		$oMailer = new Mailer($this->Registry);
 
 		$callable = function() use ($parentCommentOwner, $coll, $subj, $body, $oMailer){
 
@@ -540,7 +540,7 @@ site %5$s and navigating to Settings > Email preferences
 	 * The cursor is then passed to Mailer object
 	 *
 	 * @param array $aNewTags array of new tags, if not passed then
-	 * array from $this->oQuestion['a_tags'] will be used. This param
+	 * array from $this->Question['a_tags'] will be used. This param
 	 * is used when handling onRetag Event in which case we receive
 	 * array of "new" tags that have been added as result of retagging
 	 *
@@ -551,7 +551,7 @@ site %5$s and navigating to Settings > Email preferences
 	 * of your tags
 	 */
 	protected function notifyTagFollowers(array $aNewTags = null){
-		$aTags = (!empty($aNewTags)) ? $aNewTags : $this->oQuestion['a_tags'];
+		$aTags = (!empty($aNewTags)) ? $aNewTags : $this->Question['a_tags'];
 		/**
 		 * since tags can be empty
 		 * simple return in case
@@ -561,10 +561,10 @@ site %5$s and navigating to Settings > Email preferences
 			return $this;
 		}
 
-		$askerID = $this->oQuestion->getOwnerId();
-		$oMailer = new Mailer($this->oRegistry);
-		$subj = sprintf(static::$QUESTION_BY_TAG_SUBJ, implode(', ', $this->oQuestion['a_tags']) );
-		$body = vsprintf(static::$QUESTION_BY_TAG_BODY, array($this->oQuestion['username'], $this->oQuestion['title'], $this->oQuestion['intro'], $this->oQuestion->getUrl(), $this->oRegistry->Ini->SITE_URL));
+		$askerID = $this->Question->getOwnerId();
+		$oMailer = new Mailer($this->Registry);
+		$subj = sprintf(static::$QUESTION_BY_TAG_SUBJ, implode(', ', $this->Question['a_tags']) );
+		$body = vsprintf(static::$QUESTION_BY_TAG_BODY, array($this->Question['username'], $this->Question['title'], $this->Question['intro'], $this->Question->getUrl(), $this->Registry->Ini->SITE_URL));
 
 
 
@@ -631,9 +631,9 @@ site %5$s and navigating to Settings > Email preferences
 		}
 
 		$subj = sprintf(static::$QUESTION_BY_USER_SUBJ, $updateType, $this->obj['username']);
-		$body = vsprintf($tpl, array($this->obj['username'], $this->oQuestion['title'], $body, $this->obj->getUrl(), $this->oRegistry->Ini->SITE_URL));
+		$body = vsprintf($tpl, array($this->obj['username'], $this->Question['title'], $body, $this->obj->getUrl(), $this->Registry->Ini->SITE_URL));
 		$coll = $this->collUsers;
-		$oMailer = new Mailer($this->oRegistry);
+		$oMailer = new Mailer($this->Registry);
 		d('before shutdown function in UserFollowers');
 
 		/**
@@ -696,27 +696,27 @@ site %5$s and navigating to Settings > Email preferences
 	 * @return object $this
 	 */
 	protected function notifyQuestionFollowers($qid = null, $excludeUid = 0){
-		$viewerID = $this->oRegistry->Viewer->getUid();
+		$viewerID = $this->Registry->Viewer->getUid();
 		d('$viewerID: '.$viewerID);
 		/**
 		 *
 		 * $qid can be passed here
-		 * OR in can be extracted from $this->oQuestion
+		 * OR in can be extracted from $this->Question
 		 *
 		 */
 		if($qid){
-			$oQuestion = new \Lampcms\Question($this->oRegistry);
+			$Question = new \Lampcms\Question($this->Registry);
 			try{
-				$oQuestion->by_id((int)$qid);
+				$Question->by_id((int)$qid);
 			} catch(\Exception $e){
 				e($e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
-				$oQuestion = null;
+				$Question = null;
 			}
 		} else {
-			$oQuestion = $this->oQuestion;
+			$Question = $this->Question;
 		}
 
-		if(null === $oQuestion){
+		if(null === $Question){
 			return $this;
 		}
 
@@ -724,17 +724,17 @@ site %5$s and navigating to Settings > Email preferences
 		$subj = sprintf(static::$QUESTION_FOLLOW_SUBJ, $updateType);
 		d('cp');
 
-		$siteUrl = $this->oRegistry->Ini->SITE_URL;
+		$siteUrl = $this->Registry->Ini->SITE_URL;
 
 		$username = ('answer' === $updateType) ? $this->obj['username']: $this->aInfo['username'];
 		$url = ('answer' === $updateType) ? $this->obj->getUrl() : $siteUrl.'/q'.$this->aInfo['i_qid'].'/#c'.$this->aInfo['_id'];;
 		d('url: '.$url);
 
 		$content = ('comment' === $updateType) ? "\n____\n".\strip_tags($this->aInfo['b'])."\n" : '';
-		$body = vsprintf(static::$QUESTION_FOLLOW_BODY, array($username, $updateType, $this->oQuestion['title'], $url, $siteUrl, $content));
+		$body = vsprintf(static::$QUESTION_FOLLOW_BODY, array($username, $updateType, $this->Question['title'], $url, $siteUrl, $content));
 		d('$body: '.$body);
 
-		$oMailer = new Mailer($this->oRegistry);
+		$oMailer = new Mailer($this->Registry);
 		d('cp');
 		/**
 		 * MongoCollection USERS
@@ -747,7 +747,7 @@ site %5$s and navigating to Settings > Email preferences
 		/**
 		 * Get array of followers for this question
 		 */
-		$aFollowers = $oQuestion['a_flwrs'];
+		$aFollowers = $Question['a_flwrs'];
 
 		if(!empty($aFollowers)){
 			$func = function() use($updateType, $viewerID, $aFollowers, $updateType, $subj, $body, $coll, $oMailer, $excludeUid){

@@ -132,7 +132,7 @@ You can also change your password after you log in.
 		$salted = String::hashPassword($this->newPwd);
 		$newdata = array('$set' => array("pwd" => $salted));
 
-		$this->oRegistry->Mongo->USERS->update(array('_id' => (int)$this->oRequest['uid']), $newdata);
+		$this->Registry->Mongo->USERS->update(array('_id' => (int)$this->Request['uid']), $newdata);
 
 		return $this;
 	}
@@ -161,16 +161,16 @@ You can also change your password after you log in.
 	 */
 	protected function validateCode(){
 		$timeOffset = (time() - 86500);
-		$uid = (int)$this->oRequest['uid'];
+		$uid = (int)$this->Request['uid'];
 
-		$aResult = $this->oRegistry->Mongo->PASSWORD_CHANGE
-		->findOne(array('_id' => $this->oRequest['r'], 'i_uid' => $uid));
+		$aResult = $this->Registry->Mongo->PASSWORD_CHANGE
+		->findOne(array('_id' => $this->Request['r'], 'i_uid' => $uid));
 
 		d('$aResult '.print_r($aResult, true));
 
 		if(empty($aResult)){
 
-			$this->saveFailedAttempt()->oRegistry->Dispatcher->post($this, 'onFailedPasswordReset');
+			$this->saveFailedAttempt()->Registry->Dispatcher->post($this, 'onFailedPasswordReset');
 
 			throw new \Lampcms\Exception('wrong password reset code');
 		}
@@ -189,7 +189,7 @@ You can also change your password after you log in.
 			throw new \Lampcms\Exception('This password reset link was already used on '.date('r', $aResult['i_used'] ));
 		}
 
-		$aVal = $this->oRegistry->Mongo->USERS
+		$aVal = $this->Registry->Mongo->USERS
 		->findOne(array('_id' => (int)$aResult['i_uid']));
 
 		$this->username = $aVal['username'];
@@ -213,8 +213,8 @@ You can also change your password after you log in.
 	protected function markCodeUsed(){
 		$newdata = array('$set' => array( 'i_used' => time()));
 
-		$this->oRegistry->Mongo->PASSWORD_CHANGE
-		->update(array('_id' => $this->oRequest['r']), $newdata);
+		$this->Registry->Mongo->PASSWORD_CHANGE
+		->update(array('_id' => $this->Request['r']), $newdata);
 
 		return $this;
 	}
@@ -230,7 +230,7 @@ You can also change your password after you log in.
 		$ip = Request::getIP();
 
 		$aData = array(
-		'i_uid' => (int)$this->oRequest['uid'],
+		'i_uid' => (int)$this->Request['uid'],
         'i_ts' => time() );
 
 		$res = $this->saveResourceLocation('1', $ip, $aData, 'PASSWORD_CHANGE');
@@ -260,7 +260,7 @@ You can also change your password after you log in.
 		$uidHacks = 0;
 
 		$timeOffset = time() - 86400;
-		$cur = $this->oRegistry->Mongo->PASSWORD_CHANGE
+		$cur = $this->Registry->Mongo->PASSWORD_CHANGE
 		->find(array('i_ts' > $timeOffset));
 
 		if($cur && ($cur->count(true) > 0) ){
@@ -272,14 +272,14 @@ You can also change your password after you log in.
 					$ipHacks += 1;
 				}
 
-				if($this->oRequest['uid'] == $aVal['i_uid'] ){
+				if($this->Request['uid'] == $aVal['i_uid'] ){
 					$uidHacks += 1;
 				}
 
 				if($uidHacks > 5 || $ipHacks > 5){
 					e('LampcmsError: hacking of password reset link. $uidHacks: '.$uidHacks. ' $ipHacks: '.$ipHacks.' from ip: '.$ip);
 
-					$this->oRegistry->Dispatcher->post($this, 'onPasswordResetHack', $aVal);
+					$this->Registry->Dispatcher->post($this, 'onPasswordResetHack', $aVal);
 
 					throw new \Lampcms\Exception('access_denied');
 				}
@@ -295,10 +295,10 @@ You can also change your password after you log in.
 	 *
 	 */
 	protected function emailPwd(){
-		$body = vsprintf(self::EMAIL_BODY, array($this->oRegistry->Ini->SITE_NAME, $this->username, $this->newPwd));
-		$subject = sprintf(self::SUBJECT, $this->oRegistry->Ini->SITE_NAME);
+		$body = vsprintf(self::EMAIL_BODY, array($this->Registry->Ini->SITE_NAME, $this->username, $this->newPwd));
+		$subject = sprintf(self::SUBJECT, $this->Registry->Ini->SITE_NAME);
 
-		\Lampcms\Mailer::factory($this->oRegistry)->mail($this->email, $subject, $body);
+		\Lampcms\Mailer::factory($this->Registry)->mail($this->email, $subject, $body);
 
 		return $this;
 	}

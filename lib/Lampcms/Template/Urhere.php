@@ -91,10 +91,10 @@ class Urhere extends LampcmsObject
 	 * we going to use it to translate strings
 	 * in template
 	 *
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 */
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
 	}
 
 
@@ -116,7 +116,7 @@ class Urhere extends LampcmsObject
 	 * this method is $obj->get('tmpSomeTemplate', 'someparam', null, $func)
 	 */
 	public function get($tpl, $current = '', array $vars = null, $func = null){
-		$Tr = $this->oRegistry->Tr;
+		$Tr = $this->Registry->Tr;
 		$template = $tpl;
 		$aVars = $template::getVars();
 		if(array_key_exists($current.'_c', $aVars)){
@@ -144,7 +144,7 @@ class Urhere extends LampcmsObject
 	 * @param array $vars passed by reference
 	 */
 	protected function translate($template, array &$vars){
-		$Translator = $this->oRegistry->Tr;
+		$Translator = $this->Registry->Tr;
 		switch($template){
 			case 'tplToptabs':
 				$vars['questions']    = $Translator['Questions'];

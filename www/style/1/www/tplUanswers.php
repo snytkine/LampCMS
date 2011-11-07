@@ -37,7 +37,7 @@
  */
  
 
-class tplUanswers extends \Lampcms\Template\Template
+class tplUanswers extends \Lampcms\Template\Fast
 {
 	
 	protected static $vars = array(

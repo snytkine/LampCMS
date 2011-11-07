@@ -52,7 +52,7 @@
 /**
  * Template for ONE User in "Members" page
  */
-class tplU3 extends Lampcms\Template\Template
+class tplU3 extends Lampcms\Template\Fast
 {
 
 	protected static function func(&$a){

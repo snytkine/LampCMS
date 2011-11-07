@@ -43,7 +43,7 @@
  * @author admin
  *
  */
-class tplUsernameblock_ extends Lampcms\Template\Template
+class tplUsernameblock_ extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'usernameLabel' => 'Username',

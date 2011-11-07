@@ -60,14 +60,14 @@ namespace Lampcms;
  * @author Dmitri Snytkine
  *
  */
-class Resource extends MongoDoc
+class Resource extends \Lampcms\Mongo\Doc
 {
 	protected $minAutoIncrement = 1;
 
 
-	public function __construct(Registry $oRegistry){
+	public function __construct(Registry $Registry){
 		
-		parent::__construct($oRegistry,  'RESOURCE');
+		parent::__construct($Registry,  'RESOURCE');
 	}
 
 	/**

@@ -100,7 +100,7 @@ class Deletecomment extends WebPage
 			$this->checkAccessPermission($this->permission);
 
 		} catch (\Exception $e){
-			$this->viewerId = $this->oRegistry->Viewer->getUid();
+			$this->viewerId = $this->Registry->Viewer->getUid();
 		}
 
 		return $this;
@@ -117,8 +117,8 @@ class Deletecomment extends WebPage
 	 * @return object this
 	 */
 	protected function delete(){
-		$oCommentParser = new \Lampcms\CommentParser($this->oRegistry);
-		$oCommentParser->delete($this->oRequest['rid'], $this->viewerId);
+		$CommentParser = new \Lampcms\CommentParser($this->Registry);
+		$CommentParser->delete($this->Request['rid'], $this->viewerId);
 
 		return $this;
 	}

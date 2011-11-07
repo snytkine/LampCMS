@@ -376,7 +376,7 @@ class EditorGD extends Editor
 	protected function copyOrig(){
 		d('start cloning orig resource');
 
-		$tmpfname = \tempnam($this->oIni->TEMP_DIR, "imgclone");
+		$tmpfname = \tempnam($this->Ini->TEMP_DIR, "imgclone");
 		d('$tmpfname: '.$tmpfname);
 
 		\imagegd2($this->hdlOrig, $tmpfname);

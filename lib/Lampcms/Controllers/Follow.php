@@ -75,11 +75,11 @@ class Follow extends WebPage
 
 	protected $aRequired = array('f', 'ftype', 'follow');
 
-	protected $oFollowManager;
+	protected $FollowManager;
 
 	protected function main(){
 
-		$this->oFollowManager = new FollowManager($this->oRegistry);
+		$this->FollowManager = new FollowManager($this->Registry);
 
 		$this->processFollow()
 		->returnResult();
@@ -87,36 +87,36 @@ class Follow extends WebPage
 
 
 	protected function processFollow(){
-		$type = $this->oRequest['ftype'];
-		$follow = $this->oRequest['follow'];
-		$f = $this->oRequest['f'];
+		$type = $this->Request['ftype'];
+		$follow = $this->Request['follow'];
+		$f = $this->Request['f'];
 
 		switch(true){
 
 			case ('q' === $type):
 				if('off' === $follow){
-					$this->oFollowManager->unfollowQuestion($this->oRegistry->Viewer, (int)$f);
+					$this->FollowManager->unfollowQuestion($this->Registry->Viewer, (int)$f);
 				} else {
-					$this->oFollowManager->followQuestion($this->oRegistry->Viewer, (int)$f);
+					$this->FollowManager->followQuestion($this->Registry->Viewer, (int)$f);
 				}
 
 				break;
 
 			case ('t' === $type):
 				if('off' === $follow){
-					$this->oFollowManager->unfollowTag($this->oRegistry->Viewer, $f);
+					$this->FollowManager->unfollowTag($this->Registry->Viewer, $f);
 				} else {
-					$this->oFollowManager->followTag($this->oRegistry->Viewer, $f);
+					$this->FollowManager->followTag($this->Registry->Viewer, $f);
 				}
 
 				break;
 
 			case ('u' === $type):
 				if('off' === $follow){
-					$this->oFollowManager->unfollowUser($this->oRegistry->Viewer, (int)$f);
+					$this->FollowManager->unfollowUser($this->Registry->Viewer, (int)$f);
 				} else {
 					d('following user '.$f);
-					$this->oFollowManager->followUser($this->oRegistry->Viewer, (int)$f);
+					$this->FollowManager->followUser($this->Registry->Viewer, (int)$f);
 				}
 
 				break;

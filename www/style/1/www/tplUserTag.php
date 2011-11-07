@@ -42,7 +42,7 @@
  *
  *
  */
-class tplUserTag extends Lampcms\Template\Template
+class tplUserTag extends Lampcms\Template\Fast
 {
 
 	/**

@@ -46,7 +46,7 @@
  * @author admin
  *
  */
-class tplComments extends Lampcms\Template\Template
+class tplComments extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'_id' => 0,

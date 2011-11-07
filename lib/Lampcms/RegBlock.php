@@ -85,7 +85,7 @@ class RegBlock extends LampcmsObject
 	);
 
 
-	protected $oRegistry;
+	protected $Registry;
 
 	/**
 	 * Object of tyle User
@@ -104,10 +104,10 @@ class RegBlock extends LampcmsObject
 	 */
 	protected $aVars = array();
 
-	public function __construct(Registry $oRegistry){
+	public function __construct(Registry $Registry){
 
-		$this->oRegistry = $oRegistry;
-		$this->oViewer = $oRegistry->Viewer;
+		$this->Registry = $Registry;
+		$this->oViewer = $Registry->Viewer;
 	}
 
 	/**
@@ -119,27 +119,27 @@ class RegBlock extends LampcmsObject
 	 * if it's a type of Google FriendConnect, then of type
 	 * RegBlockGfc, etc.
 	 *
-	 * @param Registry oRegistry
+	 * @param Registry Registry
 	 *
 	 * @return object of this class or subclass
 	 */
-	public static function factory(Registry $oRegistry){
-		$oViewer = $oRegistry->Viewer;
+	public static function factory(Registry $Registry){
+		$oViewer = $Registry->Viewer;
 		switch(true){
 			case ($oViewer instanceof UserTwitter):
-				$o = new RegBlockTwitter($oRegistry);
+				$o = new RegBlockTwitter($Registry);
 				break;
 
 			case ($oViewer instanceof UserGfc):
-				$o = new RegBlockGfc($oRegistry);
+				$o = new RegBlockGfc($Registry);
 				break;
 
 			case ($oViewer instanceof UserLinkedin):
-				$o = new RegBlockLinkedin($oRegistry);
+				$o = new RegBlockLinkedin($Registry);
 				break;
 					
 			default:
-				$o = new RegBlockTwitter($oRegistry);
+				$o = new RegBlockTwitter($Registry);
 
 		}
 

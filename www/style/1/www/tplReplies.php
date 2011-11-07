@@ -44,7 +44,7 @@
  * @author admin
  *
  */
-class tplReplies extends Lampcms\Template\Template
+class tplReplies extends Lampcms\Template\Fast
 {
 	protected static $tpl = '<div class="replies">
 	%1$s

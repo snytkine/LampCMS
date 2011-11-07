@@ -50,7 +50,7 @@
  */
 
 
-class tplFormapiclient extends Lampcms\Template\Template
+class tplFormapiclient extends Lampcms\Template\Fast
 {
 
 	/**

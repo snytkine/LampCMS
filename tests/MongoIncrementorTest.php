@@ -64,8 +64,8 @@ class MongoIncrementorTest extends LampcmsUnitTestCase
 	protected $oMongo;
 
 	public function setUp(){
-		$oRegistry = new Registry();
-		$this->oMongo = new Mongo($oRegistry->Ini);
+		$Registry = new Registry();
+		$this->oMongo = new \Lampcms\Mongo\DB($Registry->Ini);
 	}
 
 	public function getInput(){
@@ -83,7 +83,7 @@ class MongoIncrementorTest extends LampcmsUnitTestCase
 	 */
 	public function testGetNextValue($collName){
 
-		$oIncrementor = new MongoIncrementor($this->oMongo);
+		$oIncrementor = new \Lampcms\Mongo\Incrementor($this->oMongo);
 
 		$this->assertEquals(1, $oIncrementor->nextValue($collName));
 		$this->assertEquals(2, $oIncrementor->nextValue($collName));
@@ -94,7 +94,7 @@ class MongoIncrementorTest extends LampcmsUnitTestCase
 
 	
 	public function testGetNextValueStartAt100(){
-		$oIncrementor = new MongoIncrementor($this->oMongo);
+		$oIncrementor = new \Lampcms\Mongo\Incrementor($this->oMongo);
 
 		$this->assertEquals(101, $oIncrementor->nextValue('COMMENTS', 100));
 		$this->assertEquals(102, $oIncrementor->nextValue('COMMENTS', 100));

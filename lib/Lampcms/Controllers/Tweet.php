@@ -94,8 +94,8 @@ class Tweet extends WebPage
 		}
 
 		try{
-			$oTwitter = new Twitter($this->oRegistry);
-			$aResponse = $oTwitter->prepareAndPost($this->oRequest->getUTF8('tweet'));
+			$oTwitter = new Twitter($this->Registry);
+			$aResponse = $oTwitter->prepareAndPost($this->Request->getUTF8('tweet'));
 			Responder::sendJSON(array('tweet' => 'done'));
 		} catch (\Lampcms\Exception $e){
 			e('Unable to post message to Twitter: '.$e->getFile(). ' line: '.$e->getLine().' '.$e->getMessage());

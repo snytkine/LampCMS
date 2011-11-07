@@ -45,7 +45,7 @@
  * @author admin
  *
  */
-class tplConfirmemail extends \Lampcms\Template\Template
+class tplConfirmemail extends \Lampcms\Template\Fast
 {
 
 	protected static $vars = array(

@@ -74,10 +74,10 @@ class UserTest extends LampcmsUnitTestCase
 	 */
 	protected $aCollections = array('USERS');
 
-	protected $oUser;
+	protected $User;
 
 	public function setUp(){
-		$this->oUser = \Lampcms\MockUser::factory(new Registry());
+		$this->User = \Lampcms\MockUser::factory(new Registry());
 	}
 
 
@@ -90,7 +90,7 @@ class UserTest extends LampcmsUnitTestCase
 
 	public function testGetRoleId(){
 
-		$this->assertEquals('registered', $this->oUser->getRoleId());
+		$this->assertEquals('registered', $this->User->getRoleId());
 	}
 
 
@@ -98,16 +98,16 @@ class UserTest extends LampcmsUnitTestCase
 	 * @depends testGetRoleId
 	 */
 	public function testSetRoleId(){
-		$this->oUser->setRoleId('unactivated');
-		$this->assertEquals('unactivated', $this->oUser->getRoleId());
+		$this->User->setRoleId('unactivated');
+		$this->assertEquals('unactivated', $this->User->getRoleId());
 	}
 
 	/**
 	 * @depends testGetRoleId
 	 */
 	public function testSetRoleIdByAssignment(){
-		$this->oUser['role'] = 'unactivated';
-		$this->assertEquals('unactivated', $this->oUser->getRoleId());
+		$this->User['role'] = 'unactivated';
+		$this->assertEquals('unactivated', $this->User->getRoleId());
 	}
 
 
@@ -116,7 +116,7 @@ class UserTest extends LampcmsUnitTestCase
 	 */
 	public function testSetBadRoleId(){
 		try{
-			$this->oUser->setRoleId('badrole');
+			$this->User->setRoleId('badrole');
 		} catch (\Lampcms\DevException $e){
 			return;
 		}
@@ -129,7 +129,7 @@ class UserTest extends LampcmsUnitTestCase
 	 */
 	public function testSetBadRoleIdByAssignment(){
 		try{
-			$this->oUser['role'] = 'badrole';
+			$this->User['role'] = 'badrole';
 		} catch (\Lampcms\DevException $e){
 			return;
 		}
@@ -142,14 +142,14 @@ class UserTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testActivate(){
-		$this->oUser->setRoleId('unactivated');
-		$this->oUser->activate();
-		$this->assertEquals('registered', $this->oUser->getRoleId());
+		$this->User->setRoleId('unactivated');
+		$this->User->activate();
+		$this->assertEquals('registered', $this->User->getRoleId());
 	}
 
 
 	public function testGetAge(){
-		$age = $this->oUser->getAge();
+		$age = $this->User->getAge();
 		$this->assertTrue(is_numeric($age));
 		$this->assertTrue(is_string($age));
 		$this->assertTrue( 20 < (int)$age && 100 > (int)$age);
@@ -157,7 +157,7 @@ class UserTest extends LampcmsUnitTestCase
 
 
 	public function testGetAvatarSrc(){
-		$s = $this->oUser->getAvatarSrc();
+		$s = $this->User->getAvatarSrc();
 		$this->assertEquals('http://img.lampcms.com/w/img/avatar/sqr/1A.jpg', $s);
 
 	}
@@ -167,7 +167,7 @@ class UserTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testGetAvatarSrcNoCache(){
-		$s = $this->oUser->getAvatarSrc(true);
+		$s = $this->User->getAvatarSrc(true);
 		$this->assertTrue(false !== (strstr($s, 'http://img.lampcms.com/w/img/avatar/sqr/1A.jpg?id=1')) );
 
 	}
@@ -177,12 +177,12 @@ class UserTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testGetAvatarImgSrc(){
-		$s = $this->oUser->getAvatarImgSrc();
-		$this->assertEquals('<img src="http://img.lampcms.com/w/img/avatar/sqr/1A.jpg" class="img_avatar" width="40" height="40" border="0" alt="avatar"/>', $s);
+		$s = $this->User->getAvatarImgSrc();
+		$this->assertEquals('<img src="http://img.lampcms.com/w/img/avatar/sqr/1A.jpg" class="img_avatar" width="40" height="40" border="0" alt="avatar">', $s);
 	}
 
 	public function testGetFullName(){
-		$this->assertEquals('John D Doe', $this->oUser->getFullName());
+		$this->assertEquals('John D Doe', $this->User->getFullName());
 	}
 
 	/**
@@ -190,28 +190,28 @@ class UserTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testGetDisplayName(){
-		$this->assertEquals('John D Doe', $this->oUser->getDisplayName());
+		$this->assertEquals('John D Doe', $this->User->getDisplayName());
 
-		$this->oUser->offsetUnset('fn');
-		$this->oUser->offsetUnset('mn');
-		$this->oUser->offsetUnset('ln');
-		$this->oUser->setSaved();
+		$this->User->offsetUnset('fn');
+		$this->User->offsetUnset('mn');
+		$this->User->offsetUnset('ln');
+		$this->User->setSaved();
 
-		$this->assertEquals('ladada', $this->oUser->getDisplayName());
+		$this->assertEquals('ladada', $this->User->getDisplayName());
 	}
 
 
 	public function testGetLocation(){
-		$this->assertEquals('Stroudsburg, PA United States', $this->oUser->getLocation());
+		$this->assertEquals('Stroudsburg, PA United States', $this->User->getLocation());
 	}
 
 	public function testGetProfileUrl(){
-		$this->assertEquals('/users/26/ladada', $this->oUser->getProfileUrl());
+		$this->assertEquals('/users/26/ladada', $this->User->getProfileUrl());
 	}
 
 
 	public function testGetReputation(){
-		$this->assertEquals(1, $this->oUser->getReputation());
+		$this->assertEquals(1, $this->User->getReputation());
 	}
 
 	/**
@@ -219,17 +219,17 @@ class UserTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testSetReputation(){
-		$this->oUser->setReputation(0);
-		$this->assertEquals(1, $this->oUser->getReputation());
-		$this->oUser->setReputation(25);
-		$this->assertEquals(26, $this->oUser->getReputation());
-		$this->oUser->setSaved();
+		$this->User->setReputation(0);
+		$this->assertEquals(1, $this->User->getReputation());
+		$this->User->setReputation(25);
+		$this->assertEquals(26, $this->User->getReputation());
+		$this->User->setSaved();
 	}
 
 
 	public function testAssignReputation(){
 		try{
-			$this->oUser['i_rep'] = 10;
+			$this->User['i_rep'] = 10;
 		} catch (\Lampcms\DevException $e){
 			return;
 		}
@@ -239,18 +239,18 @@ class UserTest extends LampcmsUnitTestCase
 
 
 	public function testGetUid(){
-		$this->assertEquals(26, $this->oUser->getUid());
-		$this->oUser->offsetUnset('_id');
-		$this->oUser->setSaved();
-		$this->assertEquals(0, $this->oUser->getUid());
+		$this->assertEquals(26, $this->User->getUid());
+		$this->User->offsetUnset('_id');
+		$this->User->setSaved();
+		$this->assertEquals(0, $this->User->getUid());
 	}
 
 	public function testGetUrl(){
-		$this->assertEquals('<a rel="nofollow" href="http://www.lampcms.com">http://www.lampcms.com</a>', $this->oUser->getUrl());
+		$this->assertEquals('<a rel="nofollow" href="http://www.lampcms.com">http://www.lampcms.com</a>', $this->User->getUrl());
 	}
 
 	public function testIsGuest(){
-		$this->assertFalse($this->oUser->isGuest());
+		$this->assertFalse($this->User->isGuest());
 	}
 
 	/**
@@ -258,28 +258,28 @@ class UserTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testIsModerator(){
-		$this->assertFalse($this->oUser->isModerator());
-		$this->oUser->setRoleId('moderator');
-		$this->assertTrue($this->oUser->isModerator());
-		$this->oUser->setRoleId('administrator');
-		$this->assertTrue($this->oUser->isModerator());
-		$this->oUser->setSaved();
+		$this->assertFalse($this->User->isModerator());
+		$this->User->setRoleId('moderator');
+		$this->assertTrue($this->User->isModerator());
+		$this->User->setRoleId('administrator');
+		$this->assertTrue($this->User->isModerator());
+		$this->User->setSaved();
 	}
 
 	public function testSetLastActive(){
 		$now = time();
-		$this->oUser->setLastActive();
-		$this->assertTrue( ($this->oUser['i_lm_ts'] - $now) < 2 );
+		$this->User->setLastActive();
+		$this->assertTrue( ($this->User['i_lm_ts'] - $now) < 2 );
 		sleep(3);
 		$this->assertFalse((time() - $now) < 2);
-		$this->oUser->setLastActive();
-		$this->assertTrue( ($this->oUser['i_lm_ts'] - $now) < 2 );
-		$this->oUser->setSaved();
+		$this->User->setLastActive();
+		$this->assertTrue( ($this->User['i_lm_ts'] - $now) < 2 );
+		$this->User->setSaved();
 	}
 
 
 	public function testSetTime(){
-		$this->oUser->setTime();
+		$this->User->setTime();
 		$this->assertEquals('Atlantic/Azores', \date_default_timezone_get());
 	}
 
@@ -288,35 +288,35 @@ class UserTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testSetGetTimezone(){
-		$this->oUser->setTimezone('Europe/London');
-		$this->assertEquals('Europe/London', $this->oUser->getTimezone());
+		$this->User->setTimezone('Europe/London');
+		$this->assertEquals('Europe/London', $this->User->getTimezone());
 
-		$this->oUser->setTimezone('Europe/Helsinki');
-		$this->assertEquals('Europe/Helsinki', $this->oUser->getTimezone());
+		$this->User->setTimezone('Europe/Helsinki');
+		$this->assertEquals('Europe/Helsinki', $this->User->getTimezone());
 
-		$this->oUser->setTimezone('Africa/Abidjan');
-		$this->assertEquals('Africa/Abidjan', $this->oUser->getTimezone());
+		$this->User->setTimezone('Africa/Abidjan');
+		$this->assertEquals('Africa/Abidjan', $this->User->getTimezone());
 
-		$this->oUser->setTimezone('Atlantic/Bermuda');
-		$this->assertEquals('Atlantic/Bermuda', $this->oUser->getTimezone());
+		$this->User->setTimezone('Atlantic/Bermuda');
+		$this->assertEquals('Atlantic/Bermuda', $this->User->getTimezone());
 
-		$this->oUser->setTimezone('Australia/Melbourne');
-		$this->assertEquals('Australia/Melbourne', $this->oUser->getTimezone());
+		$this->User->setTimezone('Australia/Melbourne');
+		$this->assertEquals('Australia/Melbourne', $this->User->getTimezone());
 
-		$this->oUser->setTimezone('America/Argentina/San_Luis');
-		$this->assertEquals('America/Argentina/San_Luis', $this->oUser->getTimezone());
+		$this->User->setTimezone('America/Argentina/San_Luis');
+		$this->assertEquals('America/Argentina/San_Luis', $this->User->getTimezone());
 
-		$this->oUser->setTimezone('America/New_York');
-		$this->assertEquals('America/New_York', $this->oUser->getTimezone());
+		$this->User->setTimezone('America/New_York');
+		$this->assertEquals('America/New_York', $this->User->getTimezone());
 
 		/**
 		 * Setting Invalid timezone will not work
 		 * previous value will still be there!
 		 */
-		$this->oUser->setTimezone('America/Bad_Time');
-		$this->assertEquals('America/New_York', $this->oUser->getTimezone());
+		$this->User->setTimezone('America/Bad_Time');
+		$this->assertEquals('America/New_York', $this->User->getTimezone());
 
-		$this->oUser->setSaved();
+		$this->User->setSaved();
 	}
 
 
@@ -325,20 +325,20 @@ class UserTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testSetTimezoneByAssignment(){
-		$this->oUser['tz'] = 'America/New_York';
-		$this->assertEquals('America/New_York', $this->oUser->getTimezone());
+		$this->User['tz'] = 'America/New_York';
+		$this->assertEquals('America/New_York', $this->User->getTimezone());
 
-		$this->oUser['tz'] = 'America/Bad_Time';
-		$this->assertEquals('America/New_York', $this->oUser->getTimezone());
+		$this->User['tz'] = 'America/Bad_Time';
+		$this->assertEquals('America/New_York', $this->User->getTimezone());
 
-		$this->oUser->setSaved();
+		$this->User->setSaved();
 	}
 	
 	public function testSave(){
-		$oRegistry = new Registry();
-		$this->oUser->offsetUnset('_id');
-		$this->oUser->save();
-		$a = $oRegistry->Mongo->USERS->findOne(array('username_lc' => 'ladada'));
+		$Registry = new Registry();
+		$this->User->offsetUnset('_id');
+		$this->User->save();
+		$a = $Registry->Mongo->USERS->findOne(array('username_lc' => 'ladada'));
 		$this->assertTrue(is_array($a) && count($a) > 5);
 	}
 }

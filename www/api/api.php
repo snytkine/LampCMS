@@ -57,17 +57,17 @@ require($lampcmsClasses.'Api'.DIRECTORY_SEPARATOR.'Api.php');
 
 try{
 
-	$oRequest = $oRegistry->Request;
-	$a  = $oRequest['a'];
-	$v  = $oRequest->get('v', 'i', 1);
+	$Request = $Registry->Request;
+	$a  = $Request['a'];
+	$v  = $Request->get('v', 'i', 1);
 
-	d('a: '.$a.' $oRequest: '.print_r($oRequest->getArray(), 1));
+	d('a: '.$a.' $Request: '.print_r($Request->getArray(), 1));
 	$controller = ucfirst($a);
 	include($lampcmsClasses.'Api'.DIRECTORY_SEPARATOR.'v'.$v.DIRECTORY_SEPARATOR.$controller.'.php');
 	$class = '\Lampcms\\Api\\v'.$v.'\\'.$controller;
 	d('class: '.$class);
 
-	$o = new $class($oRegistry);
+	$o = new $class($Registry);
 	$Response = $o->getResponse();
 	$Response->send();
 	fastcgi_finish_request();

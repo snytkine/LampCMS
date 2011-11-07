@@ -37,7 +37,7 @@
  */
 
 
-class tplRegform extends Lampcms\Template\Template
+class tplRegform extends Lampcms\Template\Fast
 {
 
 	protected static $vars = array(

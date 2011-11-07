@@ -53,7 +53,7 @@
 namespace Lampcms\Controllers;
 
 use \Lampcms\WebPage;
-use \Lampcms\MongoDoc;
+use \Lampcms\Mongo\Doc as MongoDoc;
 use \Lampcms\Captcha;
 use \Lampcms\String;
 use \Lampcms\Api\Clientdata;
@@ -102,14 +102,14 @@ class Editapp extends WebPage
 	 *
 	 * @var object of type \Lampcms\Forms\Form
 	 */
-	protected $oForm;
+	protected $Form;
 
 
 	/**
 	 * Existing API data in case this is
 	 * an edit of client
 	 *
-	 * @var object of type MongoDoc representing
+	 * @var object of type \Lampcms\Mongo\Doc representing
 	 * the Api client
 	 */
 	protected $oApi;
@@ -117,18 +117,18 @@ class Editapp extends WebPage
 
 	protected function main(){
 		$this->setApi();
-		$email = $this->oRegistry->Viewer->email;
-		$this->oForm = new \Lampcms\Forms\Apiclient($this->oRegistry);
+		$email = $this->Registry->Viewer->email;
+		$this->Form = new \Lampcms\Forms\Apiclient($this->Registry);
 
-		if($this->oForm->isSubmitted() && $this->oForm->validate()){
+		if($this->Form->isSubmitted() && $this->Form->validate()){
 			d('$this->oApi: '.print_r($this->oApi->getArrayCopy(), 1));
 			$this->save();
-			$this->oRegistry->Dispatcher->post($this->oForm, 'onApiClientSave');
+			$this->Registry->Dispatcher->post($this->Form, 'onApiClientSave');
 			$url = '/index.php?a=viewapp&app_id='.$this->oApi['_id'];
 			Responder::redirectToPage($url);
 		} else {
 			$this->setForm();
-			$this->aPageVars['body'] = $this->oForm->getForm();
+			$this->aPageVars['body'] = $this->Form->getForm();
 		}
 	}
 
@@ -143,11 +143,11 @@ class Editapp extends WebPage
 	 * @return object $this
 	 */
 	protected function setApi(){
-		$appid = $this->oRequest->get('app_id', 'i', null);
-		$this->oApi = Clientdata::factory($this->oRegistry);
+		$appid = $this->Request->get('app_id', 'i', null);
+		$this->oApi = Clientdata::factory($this->Registry);
 		if($appid){
 
-			$a = $this->oRegistry->Mongo->API_CLIENTS->findOne(array('_id' => $appid, 'i_uid' => $this->oRegistry->Viewer->getUid()));
+			$a = $this->Registry->Mongo->API_CLIENTS->findOne(array('_id' => $appid, 'i_uid' => $this->Registry->Viewer->getUid()));
 			if(!empty($a)){
 				$this->oApi->reload($a);
 			} else {
@@ -169,19 +169,19 @@ class Editapp extends WebPage
 	 * @return object $this
 	 */
 	protected function setForm(){
-		$c = Captcha::factory($this->oRegistry)->getCaptchaBlock();
-		$id = $this->oRequest->get('app_id', 'i', 0);
-		$this->oForm->formTitle = $this->aPageVars['title'] = (empty($id)) ?  'Register an Application' : 'Edit Application details';
+		$c = Captcha::factory($this->Registry)->getCaptchaBlock();
+		$id = $this->Request->get('app_id', 'i', 0);
+		$this->Form->formTitle = $this->aPageVars['title'] = (empty($id)) ?  'Register an Application' : 'Edit Application details';
 
-		$this->oForm->setVar('captcha', $c);
-		$this->oForm->app_id 	 = (int)$this->oApi['_id'];
-		$this->oForm->app_name 	 = $this->oApi['app_name'];
-		$this->oForm->appsite    = $this->oApi['appsite'];
-		$this->oForm->company    = $this->oApi['company'];
-		$this->oForm->company    = $this->oApi['company'];
-		$this->oForm->app_type   = $this->oApi['app_type'];
-		$this->oForm->about      = $this->oApi['about'];
-		$this->oForm->icon_image = $this->oApi->getIcon(false);
+		$this->Form->setVar('captcha', $c);
+		$this->Form->app_id 	 = (int)$this->oApi['_id'];
+		$this->Form->app_name 	 = $this->oApi['app_name'];
+		$this->Form->appsite    = $this->oApi['appsite'];
+		$this->Form->company    = $this->oApi['company'];
+		$this->Form->company    = $this->oApi['company'];
+		$this->Form->app_type   = $this->oApi['app_type'];
+		$this->Form->about      = $this->oApi['about'];
+		$this->Form->icon_image = $this->oApi->getIcon(false);
 
 		return $this;
 	}
@@ -197,7 +197,7 @@ class Editapp extends WebPage
 	 */
 	protected function save(){
 		$isUpdate = false;
-		$vals = $this->oForm->getSubmittedValues();
+		$vals = $this->Form->getSubmittedValues();
 		d('vals: '.print_r($vals, 1));
 
 		$appid = (int)$vals['app_id'];
@@ -214,17 +214,17 @@ class Editapp extends WebPage
 			 * using hex based path.
 			 *
 			 */
-			$appid = $this->oRegistry->Incrementor->nextValue('USERS');
+			$appid = $this->Registry->Incrementor->nextValue('USERS');
 		}
 
 		d('$appid: '.$appid);
 		$this->oApi['_id'] 		 = $appid;
-		$this->oApi['i_uid']     = $this->oRegistry->Viewer->getUid();
-		$this->oApi['app_name']  = (string)$this->oRequest->getUTF8('app_name')->trim()->stripTags();
-		$this->oApi['appsite']   = (string)$this->oRequest->getUTF8('appsite')->trim()->stripTags();
-		$this->oApi['company']   = (string)$this->oRequest->getUTF8('company')->trim()->stripTags();
-		$this->oApi['app_type']  = (string)$this->oRequest->getUTF8('app_type')->trim()->stripTags();
-		$this->oApi['about']  	 = (string)$this->oRequest->getUTF8('about')->trim()->stripTags();
+		$this->oApi['i_uid']     = $this->Registry->Viewer->getUid();
+		$this->oApi['app_name']  = (string)$this->Request->getUTF8('app_name')->trim()->stripTags();
+		$this->oApi['appsite']   = (string)$this->Request->getUTF8('appsite')->trim()->stripTags();
+		$this->oApi['company']   = (string)$this->Request->getUTF8('company')->trim()->stripTags();
+		$this->oApi['app_type']  = (string)$this->Request->getUTF8('app_type')->trim()->stripTags();
+		$this->oApi['about']  	 = (string)$this->Request->getUTF8('about')->trim()->stripTags();
 		$this->oApi['api_key'] 	 = $appid.'.'.String::makeRandomString(12);
 
 		$this->parseIcon();
@@ -233,7 +233,7 @@ class Editapp extends WebPage
 		 * Ensure that app is a unique field
 		 * app is the name of application
 		 */
-		$coll = $this->oRegistry->Mongo->API_CLIENTS;
+		$coll = $this->Registry->Mongo->API_CLIENTS;
 		$coll->ensureIndex(array('app_name' => 1), array('unique' => true));
 		$coll->ensureIndex(array('api_key' => 1), array('unique' => true));
 		$coll->ensureIndex(array('i_uid' => 1));
@@ -268,8 +268,8 @@ class Editapp extends WebPage
 	 */
 	protected function validateAppIdOwnership($appid){
 
-		$a = $this->oRegistry->Mongo->API_CLIENTS->findOne(array('_id' => $appid));
-		if($a['i_uid'] !==  $this->oRegistry->Viewer->getUid()){
+		$a = $this->Registry->Mongo->API_CLIENTS->findOne(array('_id' => $appid));
+		if($a['i_uid'] !==  $this->Registry->Viewer->getUid()){
 			throw new \Lampcms\Exception('You do not have permission to edit this application');
 		}
 
@@ -286,7 +286,7 @@ class Editapp extends WebPage
 	protected function parseIcon(){
 		d('cp');
 
-		if(!$this->oForm->hasUploads() || (null === $tempPath = $this->oForm->getUploadedFile('icon'))){
+		if(!$this->Form->hasUploads() || (null === $tempPath = $this->Form->getUploadedFile('icon'))){
 			d('Icon not uploaded');
 
 			return $this;

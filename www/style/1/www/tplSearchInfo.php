@@ -50,7 +50,7 @@
  */
 
 
-class tplSearchInfo extends Lampcms\Template\Template
+class tplSearchInfo extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'count' => '',

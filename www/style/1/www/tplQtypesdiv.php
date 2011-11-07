@@ -48,7 +48,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplQtypesdiv extends \Lampcms\Template\Template
+class tplQtypesdiv extends \Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'newest_c' => '', //1

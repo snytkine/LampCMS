@@ -74,17 +74,17 @@ class SocialCheckboxes
 	 *
 	 * @return string html fragment
 	 */
-	public static function get(Registry $oRegistry){
+	public static function get(Registry $Registry){
 
 		d('cp');
-		$oViewer = $oRegistry->Viewer;
+		$oViewer = $Registry->Viewer;
 		if($oViewer->isGuest()){
 			d('User is guest, no social checkboxes to be added for guest');
 			return '';
 		}
 
 		$ret = '';
-		$aFilters = $oRegistry->Ini->getSection('INPUT_FILTERS');
+		$aFilters = $Registry->Ini->getSection('INPUT_FILTERS');
 		d('$aFilters: '.print_r($aFilters, 1));
 		/**
 		 * @todo Translate String

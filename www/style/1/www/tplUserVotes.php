@@ -44,7 +44,7 @@
  * 
  *
  */
-class tplUserVotes extends Lampcms\Template\Template
+class tplUserVotes extends Lampcms\Template\Fast
 {
 	protected static function func(&$a){
 		if($a['count'] != 1){

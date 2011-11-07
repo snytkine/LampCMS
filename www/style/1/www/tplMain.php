@@ -44,7 +44,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplMain extends Lampcms\Template\Template
+class tplMain extends Lampcms\Template\Fast
 {
 
 

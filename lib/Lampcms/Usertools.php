@@ -74,25 +74,25 @@ class Usertools
 	 * and a Shred button if current Viewer has necessary
 	 * permissions
 	 *
-	 * @param Registry $oRegistry
-	 * @param User $oUser use whose profile is being viewed now
+	 * @param Registry $Registry
+	 * @param User $User use whose profile is being viewed now
 	 * @return string html fragment with Form and button
 	 */
-	public static function getHtml(Registry $oRegistry, User $oUser){
-		$oACL = $oRegistry->Acl;
+	public static function getHtml(Registry $Registry, User $User){
+		$oACL = $Registry->Acl;
 
 		$options = '';
 		$shredButton = '';
 		$token = '';
-		$uid = $oUser->getUid();
+		$uid = $User->getUid();
 
-		$role = $oRegistry->Viewer->reload()->getRoleId();
+		$role = $Registry->Viewer->reload()->getRoleId();
 		d('role: '.$role);
 
 		if($oACL->isAllowed($role, null, 'change_user_role')){
 
 			d('change_user_role is allowed');
-			$userRole = $oUser->getRoleId();
+			$userRole = $User->getRoleId();
 			$roles = $oACL->getRegisteredRoles();
 			$token = Form::generateToken();
 

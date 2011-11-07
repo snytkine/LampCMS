@@ -67,7 +67,7 @@ namespace Lampcms;
  * @author HP_Administrator
  *
  */
-class Cache extends Observer
+class Cache extends \Lampcms\Event\Observer
 {
 
 	/**
@@ -76,7 +76,7 @@ class Cache extends Observer
 	 *
 	 * @var object of type ArrayDefaults
 	 */
-	protected $oTmp;
+	protected $Tmp;
 
 	/**
 	 * arrayObject where key is cache key
@@ -121,7 +121,7 @@ class Cache extends Observer
 	protected $aReturnVals = array();
 
 
-	protected $oCacheInterface;
+	protected $CacheInterface;
 
 	/**
 	 * Array of identifying tags for cache
@@ -131,19 +131,19 @@ class Cache extends Observer
 	protected $aTags = null;
 
 	/**
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 */
-	public function __construct(Registry $oRegistry){
+	public function __construct(Registry $Registry){
 		d('starting Cache');
-		parent::__construct($oRegistry);
+		parent::__construct($Registry);
 		$this->oTtl = new ArrayDefaults(array(), 0);
-		$this->oTmp = new ArrayDefaults(array());
-		$this->skipCache = $oRegistry->Ini->SKIP_CACHE;
+		$this->Tmp = new ArrayDefaults(array());
+		$this->skipCache = $Registry->Ini->SKIP_CACHE;
 		d('cp');
 		if(!$this->skipCache){
 			d('cp');
-			$this->setCacheEngine(MongoCache::factory($oRegistry));
-			$oRegistry->Dispatcher->attach($this);
+			$this->setCacheEngine(MongoCache::factory($Registry));
+			$Registry->Dispatcher->attach($this);
 		}
 	}
 
@@ -238,8 +238,8 @@ class Cache extends Observer
 
 
 
-	public function setCacheEngine(Interfaces\Cache $oCache = null){
-		$this->oCacheInterface = $oCache;
+	public function setCacheEngine(Interfaces\Cache $Cache = null){
+		$this->CacheInterface = $Cache;
 
 		return $this;
 	}
@@ -252,7 +252,7 @@ class Cache extends Observer
 	 */
 	public function flush(){
 		if(!$this->skipCache){
-			$this->oCacheInterface->flush();
+			$this->CacheInterface->flush();
 		}
 
 		return $this;
@@ -296,7 +296,7 @@ class Cache extends Observer
 
 		if($callback){
 			d('$callback object is passed');
-			$res = $callback->run($this->oRegistry, $key);
+			$res = $callback->run($this->Registry, $key);
 			d('$res: '.var_export($res, true));
 
 			return $res;
@@ -420,21 +420,21 @@ class Cache extends Observer
 	 *
 	 * @param $key
 	 *
-	 * @return mixed whatever is returned from $oCache object
+	 * @return mixed whatever is returned from $Cache object
 	 */
 	protected function getFromCache($key){
 
-		if(true === $this->skipCache || null === $this->oCacheInterface){
+		if(true === $this->skipCache || null === $this->CacheInterface){
 			d('cp');
 			return false;
 		}
 
 		if (is_string($key)) {
 			d('cp');
-			return $this->oCacheInterface->get($key);
+			return $this->CacheInterface->get($key);
 		}
 
-		return $this->oCacheInterface->getMulti($key);
+		return $this->CacheInterface->getMulti($key);
 	}
 
 
@@ -480,11 +480,11 @@ class Cache extends Observer
 				if (!empty($val) || (0 === $val)) {
 					d('going to set key '.$key.' val: '.var_export($val, 1));
 
-					return $this->oCacheInterface->set($key, $val, $this->oTtl[$key], $tags);
+					return $this->CacheInterface->set($key, $val, $this->oTtl[$key], $tags);
 				}
 			} elseif (!empty($key)) {
 
-				return $this->oCacheInterface->setMulti($key);
+				return $this->CacheInterface->setMulti($key);
 			}
 		}
 
@@ -495,7 +495,7 @@ class Cache extends Observer
 	/**
 	 * magic method to check if key exists in Cache
 	 * But it does more that just check - it will add the value
-	 * of key to $this->oTmp object
+	 * of key to $this->Tmp object
 	 * so that if we need the value of this key, it will be in the object.
 	 * This is memoization
 	 *
@@ -510,8 +510,8 @@ class Cache extends Observer
 			throw new DevException('$key can only be a string. Supplied argument was of type: '.gettype($key));
 		}
 
-		$this->oTmp[$key] = $this->getFromCache($key);
-		if ( (null !== $this->oTmp[$key]) && (false !== $this->oTmp[$key])) {
+		$this->Tmp[$key] = $this->getFromCache($key);
+		if ( (null !== $this->Tmp[$key]) && (false !== $this->Tmp[$key])) {
 
 			return true;
 		}
@@ -538,7 +538,7 @@ class Cache extends Observer
 		d('Deleting from cache key: '.$key);
 
 		if(!$this->skipCache){
-			$ret = $this->oCacheInterface->delete($key);
+			$ret = $this->CacheInterface->delete($key);
 			d('ret: '.$ret);
 
 			return $ret;
@@ -583,7 +583,7 @@ class Cache extends Observer
 	public function qrecent(){
 		d('cp');
 		$limit = 30;
-		$cur = $this->oRegistry->Mongo->QUESTION_TAGS->find(array('i_count' => array('$gt' => 0)), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
+		$cur = $this->Registry->Mongo->QUESTION_TAGS->find(array('i_count' => array('$gt' => 0)), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
 		d('got '.$cur->count(true).' tag results');
 
 		$html = \tplLinktag::loop($cur);
@@ -604,7 +604,7 @@ class Cache extends Observer
 	 */
 	public function qunanswered(){
 		$limit = 30;
-		$cur = $this->oRegistry->Mongo->UNANSWERED_TAGS->find(array(), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
+		$cur = $this->Registry->Mongo->UNANSWERED_TAGS->find(array(), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
 		$count = $cur->count(true);
 		d('got '.$count.' tag results');
 

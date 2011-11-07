@@ -42,7 +42,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplNewquestions extends Lampcms\Template\Template
+class tplNewquestions extends Lampcms\Template\Fast
 {
 
 	protected static $vars = array(

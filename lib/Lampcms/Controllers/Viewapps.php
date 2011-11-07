@@ -110,7 +110,7 @@ class Viewapps extends WebPage
 	 * @throws \Lampcms\RedirectException
 	 */
 	protected function getApps(){
-		$this->cursor = $this->oRegistry->Mongo->API_CLIENTS->find(array('i_uid' => $this->oRegistry->Viewer->getUid()));
+		$this->cursor = $this->Registry->Mongo->API_CLIENTS->find(array('i_uid' => $this->Registry->Viewer->getUid()));
 		if(0 === $this->cursor->count()){
 			throw new \Lampcms\RedirectException('/index.php?a=editapp');
 		}

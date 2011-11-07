@@ -36,7 +36,7 @@
  *
  */
 
-class tplQrecent extends Lampcms\Template\Template
+class tplQrecent extends Lampcms\Template\Fast
 {
 
 	protected static function func(&$a){

@@ -94,7 +94,7 @@ class Quickreg extends Join
 		 * $this->username and $this->pwd
 		 * are used in createNewUser() in Register
 		 */
-		$this->username = $this->oRequest['username'];
+		$this->username = $this->Request['username'];
 		$this->pwd = String::makePasswd();
 
 		$this->validateCaptcha()
@@ -115,7 +115,7 @@ class Quickreg extends Join
 			return $this;
 		}
 
-		$oCaptcha = Captcha::factory($this->oRegistry);
+		$oCaptcha = Captcha::factory($this->Registry);
 		$res = $oCaptcha->validate_submit();
 		/**
 		 * If validation good then

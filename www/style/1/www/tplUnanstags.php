@@ -42,7 +42,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplUnanstags extends Lampcms\Template\Template
+class tplUnanstags extends Lampcms\Template\Fast
 {
 
 	/**

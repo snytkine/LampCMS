@@ -131,7 +131,7 @@ class Connectblogger extends WebPage
 	 * @see classes/WebPage#main()
 	 */
 	protected function main(){
-		$Request = $this->oRegistry->Request;
+		$Request = $this->Registry->Request;
 		d('Request: '.var_export($Request, true));
 		
 		if('1' == $Request->get('blogselect', 's', '')){
@@ -140,14 +140,14 @@ class Connectblogger extends WebPage
 			return $this->selectBlog();
 		}
 
-		$this->callback = $this->oRegistry->Ini->SITE_URL.$this->callback;
+		$this->callback = $this->Registry->Ini->SITE_URL.$this->callback;
 		d('$this->callback: '.$this->callback);
 
 		if(!extension_loaded('oauth')){
 			throw new \Exception('Unable to use Blogger API because OAuth extension is not available');
 		}
 
-		$this->aConfig = $this->oRegistry->Ini['BLOGGER'];
+		$this->aConfig = $this->Registry->Ini['BLOGGER'];
 
 		try {
 			$this->oAuth = new \OAuth($this->aConfig['OAUTH_KEY'], $this->aConfig['OAUTH_SECRET'], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
@@ -164,7 +164,7 @@ class Connectblogger extends WebPage
 		 * generate token, secret and store them
 		 * in session and redirect to Blogger authorization page
 		 */
-		if(empty($_SESSION['blogger_oauth']) || empty($this->oRequest['oauth_token'])){
+		if(empty($_SESSION['blogger_oauth']) || empty($this->Request['oauth_token'])){
 			/**
 			 * Currently Blogger does not handle "Deny" response of user
 			 * too well - they just redirect back to this url
@@ -194,16 +194,16 @@ class Connectblogger extends WebPage
 			throw new \Lampcms\Exception('POST method required');
 		}
 
-		\Lampcms\Forms\Form::validateToken($this->oRegistry);
+		\Lampcms\Forms\Form::validateToken($this->Registry);
 
-		$a = $this->oRegistry->Viewer->getBloggerBlogs();
+		$a = $this->Registry->Viewer->getBloggerBlogs();
 		d('$a: '.print_r($a, 1));
 
 		if(empty($a)){
 			throw new \Exception('No blogs found for this user');
 		}
 
-		$selectedID = (int)substr($this->oRequest->get('blog'), 4);
+		$selectedID = (int)substr($this->Request->get('blog'), 4);
 		d('$selectedID: '. $selectedID);
 
 		/**
@@ -227,14 +227,14 @@ class Connectblogger extends WebPage
 		\array_unshift($a, $aBlog[0]);
 		d('a after unshift: '.print_r($a, 1));
 
-		$this->oRegistry->Viewer->setBloggerBlogs($a);
+		$this->Registry->Viewer->setBloggerBlogs($a);
 		/**
 		 * Set b_bg to true which will result
 		 * in "Post to Blogger" checkbox to
 		 * be checked. User can uncheck in later
 		 */
-		$this->oRegistry->Viewer['b_bg'] = true;
-		$this->oRegistry->Viewer->save();
+		$this->Registry->Viewer['b_bg'] = true;
+		$this->Registry->Viewer->save();
 		$this->closeWindow();
 	}
 
@@ -304,8 +304,8 @@ class Connectblogger extends WebPage
 			 * on REQUEST, else close the window
 			 */
 
-			$this->oAuth->setToken($this->oRequest['oauth_token'], $_SESSION['blogger_oauth']['oauth_token_secret']);
-			$ver = $this->oRegistry->Request['oauth_verifier'];
+			$this->oAuth->setToken($this->Request['oauth_token'], $_SESSION['blogger_oauth']['oauth_token_secret']);
+			$ver = $this->Registry->Request['oauth_verifier'];
 			d(' $ver: '.$ver);
 			$url = self::ACCESS_TOKEN_URL.'?oauth_verifier='.$ver;
 			d('url: '.$url);
@@ -348,7 +348,7 @@ class Connectblogger extends WebPage
 				 * Set flag to session indicating that user just
 				 * connected Blogger Account
 				 */
-				$this->oRegistry->Viewer['b_bg'] = true;
+				$this->Registry->Viewer['b_bg'] = true;
 				$this->closeWindow();
 			}
 
@@ -420,8 +420,8 @@ class Connectblogger extends WebPage
 	 */
 	protected function connect(){
 
-		$this->oRegistry->Viewer['blogger'] = array('tokens' => $this->aAccessToken, 'blogs' => $this->aBlogs);
-		$this->oRegistry->Viewer->save();
+		$this->Registry->Viewer['blogger'] = array('tokens' => $this->aAccessToken, 'blogs' => $this->aBlogs);
+		$this->Registry->Viewer->save();
 
 		return $this;
 	}

@@ -73,7 +73,7 @@ class Settings extends WebPage
 		 * in case user activated account from
 		 * different browser
 		 */
-		$this->oRegistry->Viewer->reload();
+		$this->Registry->Viewer->reload();
 
 		$this->aPageVars['title'] = $this->_('Edit settings');
 		
@@ -87,7 +87,7 @@ class Settings extends WebPage
 		'clearCache' => ''
 		);
 
-		if($this->oRegistry->Viewer->isAdmin()){
+		if($this->Registry->Viewer->isAdmin()){
 			$vals['clearCache'] = $this->makeClearCache();
 		}
 		
@@ -105,8 +105,8 @@ class Settings extends WebPage
 
 
 	protected function makeConfirmBlock(){
-		$role = $this->oRegistry->Viewer->getRoleId();
-		$email = $this->oRegistry->Viewer->email;
+		$role = $this->Registry->Viewer->getRoleId();
+		$email = $this->Registry->Viewer->email;
 		if( strstr($role, 'unactivated')){
 			return \tplConfirmemail::parse(array('email' => $email));
 		}

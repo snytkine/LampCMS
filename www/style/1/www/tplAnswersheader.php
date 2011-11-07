@@ -45,7 +45,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplAnswersheader extends Lampcms\Template\Template
+class tplAnswersheader extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'count' => '', //1

@@ -133,7 +133,7 @@ class ApiClient extends LampcmsObject
 	 * @var Object of type BloggerUser
 	 * set ONLY if User has Blogger Oauth credentials
 	 */
-	protected $oUser;
+	protected $User;
 
 
 	/**
@@ -148,25 +148,25 @@ class ApiClient extends LampcmsObject
 	/**
 	 * Constructor
 	 *
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 * @throws \Lampcms\Exception if oauth extension not available in php
 	 * @throws \Lampcms\DevException if there is no BLOGGER section in !config.ini
 	 * @throws \Lampcms\Exception if something goes wrong during
 	 * instantiation of OAuth object (which is very unlikely)
 	 */
-	public function __construct(Registry $oRegistry){
+	public function __construct(Registry $Registry){
 		if(!extension_loaded('oauth')){
 			throw new \Lampcms\Exception('Cannot use this class because php extension "oauth" is not loaded');
 		}
 
-		$this->oRegistry = $oRegistry;
-		$this->aConfig = $oRegistry->Ini->offsetGet('BLOGGER');
+		$this->Registry = $Registry;
+		$this->aConfig = $Registry->Ini->offsetGet('BLOGGER');
 		d('$this->aConfig: '.print_r($this->aConfig, 1));
 		if(empty($this->aConfig) || empty($this->aConfig['OAUTH_KEY']) || empty($this->aConfig['OAUTH_SECRET'])){
 			throw new DevException('Missing configuration parameters for BLOGGER API');
 		}
 
-		$Viewer = $oRegistry->Viewer;
+		$Viewer = $Registry->Viewer;
 		if($Viewer && ($Viewer instanceof BloggerUser)){
 			$this->setUser($Viewer);
 		}
@@ -186,15 +186,15 @@ class ApiClient extends LampcmsObject
 
 
 	/**
-	 * Set $this->oUser but only
-	 * of $oUser has Blogger oauth token
+	 * Set $this->User but only
+	 * of $User has Blogger oauth token
 	 *
-	 * @param BloggerUser $oUser
+	 * @param BloggerUser $User
 	 */
-	public function setUser(BloggerUser $oUser){
+	public function setUser(BloggerUser $User){
 		
-		if(null !== $oUser->getBloggerToken()){
-			$this->oUser = $oUser;
+		if(null !== $User->getBloggerToken()){
+			$this->User = $User;
 		} else {
 			d('User does not have Blogger oauth token');
 
@@ -206,13 +206,13 @@ class ApiClient extends LampcmsObject
 
 
 	/**
-	 * Getter for $this->oUser
+	 * Getter for $this->User
 	 *
-	 * @return object $this->oUser
+	 * @return object $this->User
 	 */
 	public function getUser(){
 
-		return $this->oUser;
+		return $this->User;
 	}
 
 
@@ -278,7 +278,7 @@ class ApiClient extends LampcmsObject
 	 * could be "PUT" and for reading from API it is usually "GET"
 	 * To delete a post (or comment) the method should be "DELETE"
 	 *
-	 * @throws \LogicException if $this->oUser (BloggerUser) is not yet set
+	 * @throws \LogicException if $this->User (BloggerUser) is not yet set
 	 * @throws \Lampcms\Exception
 	 *
 	 * @return string in case of adding blog post
@@ -287,22 +287,22 @@ class ApiClient extends LampcmsObject
 	 * done in add() method
 	 */
 	protected function apiWrite(\DOMDocument $entry, array $headers, $method = 'POST'){
-		if(!isset($this->oUser)){
-			throw new \LogicException('Cannot use API because $this->oUser not set. Set BloggerUser by calling setUser(BloggerUser $o) before using this method');
+		if(!isset($this->User)){
+			throw new \LogicException('Cannot use API because $this->User not set. Set BloggerUser by calling setUser(BloggerUser $o) before using this method');
 		}
 
-		$blogId = $this->oUser->getBloggerBlogId();
+		$blogId = $this->User->getBloggerBlogId();
 		$xml = $entry->saveXML();
 
 		try{
 
 			$this->oAuth->setAuthType(OAUTH_AUTH_TYPE_AUTHORIZATION);
-			$token = $this->oUser->getBloggerToken();
-			$secret = $this->oUser->getBloggerSecret();
+			$token = $this->User->getBloggerToken();
+			$secret = $this->User->getBloggerSecret();
 			d('setting $token: '.$token.' secret: '.$secret);
 
 			$this->oAuth->setToken($token, $secret);
-			$url = \sprintf(self::API_WRITE_URL, $this->oUser->getBloggerBlogId());
+			$url = \sprintf(self::API_WRITE_URL, $this->User->getBloggerBlogId());
 			d('fetching: '.$url.' entry: '.$xml);
 
 			$this->oAuth->fetch($url, $xml, $method, $headers);
@@ -344,20 +344,20 @@ class ApiClient extends LampcmsObject
 		} elseif('401' == $aDebug['http_code']){
 			d('Blogger oauth failed with 401 http code. Data: '.print_r($aData, 1));
 			/**
-			 * If this method was passed oUser
+			 * If this method was passed User
 			 * then null the tokens
 			 * and save the data to table
 			 * so that next time we will know
 			 * that this User does not have tokens
 			 */
-			if(is_object($this->oUser)){
+			if(is_object($this->User)){
 				d('Going to revoke access tokens for user object');
-				$this->oUser->revokeBloggerToken();
+				$this->User->revokeBloggerToken();
 				/**
 				 * Important to post this update
 				 * so that user object will be removed from cache
 				 */
-				$this->oRegistry->Dispatcher->post($this->oUser, 'onBloggerTokenUpdate');
+				$this->Registry->Dispatcher->post($this->User, 'onBloggerTokenUpdate');
 			}
 
 			/**

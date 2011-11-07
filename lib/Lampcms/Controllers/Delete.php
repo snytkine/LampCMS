@@ -107,7 +107,7 @@ class Delete extends WebPage
 	 *
 	 * @var object
 	 */
-	protected $oResource;
+	protected $Resource;
 
 	/**
 	 * Collection name, usually
@@ -129,7 +129,7 @@ class Delete extends WebPage
 
 
 
-	protected $oCache;
+	protected $Cache;
 
 	/**
 	 *
@@ -152,8 +152,8 @@ class Delete extends WebPage
 		 * Need to instantiate Cache so that it
 		 * will listen to event and unset some keys
 		 */
-		$this->oCache = $this->oRegistry->Cache;
-		$this->collection = ('q' == $this->oRequest['rtype']) ? 'QUESTIONS' : 'ANSWERS';
+		$this->Cache = $this->Registry->Cache;
+		$this->collection = ('q' == $this->Request['rtype']) ? 'QUESTIONS' : 'ANSWERS';
 		$this->permission = ('QUESTIONS' === $this->collection) ? 'delete_question' : 'delete_answer';
 
 		$this->getResource()
@@ -179,20 +179,20 @@ class Delete extends WebPage
 	 */
 	protected function getUserData(){
 
-		if($this->oRegistry->Viewer->isModerator()){
-			$uid = $this->oResource['i_uid'];
+		if($this->Registry->Viewer->isModerator()){
+			$uid = $this->Resource['i_uid'];
 			d('uid: '.$uid);
 				
-			$oUser = \Lampcms\User::factory($this->oRegistry)->by_id($uid);
-			$q = $this->oRegistry->Mongo->QUESTIONS->find(array('i_uid' => $uid, 'i_del_ts' => null));
-			$a = $this->oRegistry->Mongo->ANSWERS->find(array('i_uid' => $uid, 'i_del_ts' => null));
+			$User = \Lampcms\User::factory($this->Registry)->by_id($uid);
+			$q = $this->Registry->Mongo->QUESTIONS->find(array('i_uid' => $uid, 'i_del_ts' => null));
+			$a = $this->Registry->Mongo->ANSWERS->find(array('i_uid' => $uid, 'i_del_ts' => null));
 
 			$this->posterDetails = vsprintf(self::USER_DETAILS,
 			array(
 			$q->count(),
 			$a->count(),
-			$oUser->getProfileUrl(),
-			$oUser->getDisplayName())
+			$User->getProfileUrl(),
+			$User->getDisplayName())
 			);
 
 		}
@@ -213,17 +213,17 @@ class Delete extends WebPage
 
 		if(('ANSWERS' === $this->collection)){
 
-			$oQuestion = new \Lampcms\Question($this->oRegistry);
-			$oQuestion->by_id($this->oResource['i_qid']);
-			$oQuestion->removeAnswer($this->oResource);
+			$Question = new \Lampcms\Question($this->Registry);
+			$Question->by_id($this->Resource['i_qid']);
+			$Question->removeAnswer($this->Resource);
 
-			if((true === $this->oResource['accepted'])){
+			if((true === $this->Resource['accepted'])){
 				d('this was an accepted answer');
 
-				$this->oResource->unsetAccepted();
+				$this->Resource->unsetAccepted();
 			}
 
-			$oQuestion->touch()->save();
+			$Question->touch()->save();
 		}
 
 		return $this;
@@ -239,15 +239,15 @@ class Delete extends WebPage
 	 *
 	 */
 	protected function banUser(){
-		$ban = $this->oRequest->get('ban', 's', '');
+		$ban = $this->Request->get('ban', 's', '');
 		d('ban: '.$ban);
 
 		if(!empty($ban) && $this->checkAccessPermission('ban_user')){
-			$oUser = User::factory($this->oRegistry)->by_id($this->oResource->getOwnerId());
-			$oUser->offsetSet('role', 'suspended');
-			$oUser->save();
+			$User = User::factory($this->Registry)->by_id($this->Resource->getOwnerId());
+			$User->offsetSet('role', 'suspended');
+			$User->save();
 
-			$this->oRegistry->Dispatcher->post($oUser, 'onUserBanned');
+			$this->Registry->Dispatcher->post($User, 'onUserBanned');
 		}
 
 		return $this;
@@ -268,7 +268,7 @@ class Delete extends WebPage
 	 */
 	protected function checkPermission(){
 
-		if(!\Lampcms\isOwner($this->oRegistry->Viewer, $this->oResource)){
+		if(!\Lampcms\isOwner($this->Registry->Viewer, $this->Resource)){
 
 			$this->checkAccessPermission($this->permission);
 		}
@@ -290,7 +290,7 @@ class Delete extends WebPage
 	 */
 	protected function setDeleted(){
 		if(('QUESTIONS' === $this->collection)
-		&& ($this->oResource->getAnswerCount() > 0) ){
+		&& ($this->Resource->getAnswerCount() > 0) ){
 			try{
 				$this->checkAccessPermission();
 			} catch (\Lampcms\AccessException $e){
@@ -300,7 +300,7 @@ class Delete extends WebPage
 			}
 		}
 
-		$this->oRegistry->Dispatcher->post($this->oResource, 'onBeforeResourceDelete');
+		$this->Registry->Dispatcher->post($this->Resource, 'onBeforeResourceDelete');
 
 		/**
 		 * Important! run updateTags()
@@ -311,12 +311,12 @@ class Delete extends WebPage
 		 */
 		$this->updateTags();
 		$this->removeFromIndex();
-		$this->oResource->setDeleted($this->oRegistry->Viewer, $this->oRequest['note'])
+		$this->Resource->setDeleted($this->Registry->Viewer, $this->Request['note'])
 		->touch();
 
-		d('new resource data: '.print_r($this->oResource->getArrayCopy(), 1));
+		d('new resource data: '.print_r($this->Resource->getArrayCopy(), 1));
 
-		$this->oRegistry->Dispatcher->post($this->oResource, 'onResourceDelete');
+		$this->Registry->Dispatcher->post($this->Resource, 'onResourceDelete');
 
 		return $this;
 	}
@@ -332,8 +332,8 @@ class Delete extends WebPage
 	 * @return object $this
 	 */
 	protected function removeFromIndex(){
-		if($this->oResource instanceof \Lampcms\Question){
-			IndexerFactory::factory($this->oRegistry)->removeQuestion($this->oResource);
+		if($this->Resource instanceof \Lampcms\Question){
+			IndexerFactory::factory($this->Registry)->removeQuestion($this->Resource);
 		}
 
 		return $this;
@@ -350,28 +350,28 @@ class Delete extends WebPage
 
 		if(!$this->requested){
 			if('QUESTIONS' === $this->collection){
-				$oQuestion = $this->oResource;
+				$Question = $this->Resource;
 
-				\Lampcms\Qtagscounter::factory($this->oRegistry)->removeTags($oQuestion);
-				if(0 === $this->oResource['i_sel_ans']){
+				\Lampcms\Qtagscounter::factory($this->Registry)->removeTags($Question);
+				if(0 === $this->Resource['i_sel_ans']){
 					d('going to remove to Unanswered tags');
-					\Lampcms\UnansweredTags::factory($this->oRegistry)->remove($oQuestion);
+					\Lampcms\UnansweredTags::factory($this->Registry)->remove($Question);
 				}
 			} else {
-				$oQuestion = new \Lampcms\Question($this->oRegistry);
-				$oQuestion->by_id($this->oResource->getQuestionId());
-				d('tags: ' . print_r($oQuestion['a_tags'], 1));
+				$Question = new \Lampcms\Question($this->Registry);
+				$Question->by_id($this->Resource->getQuestionId());
+				d('tags: ' . print_r($Question['a_tags'], 1));
 			}
 
 			/**
-			 * Must extract uid from $this->oResource because in case
+			 * Must extract uid from $this->Resource because in case
 			 * the resource is an answer, then the
-			 * $oQuestion has different owner, thus
+			 * $Question has different owner, thus
 			 * will remove user tags for the wrong user
 			 *
 			 */
-			$uid = $this->oResource->getOwnerId();
-			\Lampcms\UserTags::factory($this->oRegistry)->removeTags($oQuestion, $uid);
+			$uid = $this->Resource->getOwnerId();
+			\Lampcms\UserTags::factory($this->Registry)->removeTags($Question, $uid);
 
 		}
 
@@ -390,7 +390,7 @@ class Delete extends WebPage
 	 * @return object $this
 	 */
 	protected function requestDelete(){
-		$cur = $this->oRegistry->Mongo->USERS->find(array(
+		$cur = $this->Registry->Mongo->USERS->find(array(
   			'role' => array('$in' => array('moderator', 'administrator'))
 		), array('email'));
 
@@ -398,7 +398,7 @@ class Delete extends WebPage
 
 		if($cur && $cur->count() > 0){
 			$aTo = iterator_to_array($cur, false);
-			$Mailer = \Lampcms\Mailer::factory($this->oRegistry);
+			$Mailer = \Lampcms\Mailer::factory($this->Registry);
 			$body = $this->makeBody();
 			$Mailer->mail($aTo, self::SUBJECT, $body);
 		}
@@ -417,11 +417,11 @@ class Delete extends WebPage
 	 */
 	protected function makeBody(){
 		$vars = array(
-		$this->oRegistry->Viewer->getDisplayName(),
-		$this->oRegistry->Ini->SITE_URL.$this->oRegistry->Viewer->getProfileUrl(),
-		$this->oResource->getUrl(),
-		$this->oResource['title'],
-		$this->oRequest['note']
+		$this->Registry->Viewer->getDisplayName(),
+		$this->Registry->Ini->SITE_URL.$this->Registry->Viewer->getProfileUrl(),
+		$this->Resource->getUrl(),
+		$this->Resource['title'],
+		$this->Request['note']
 		);
 
 		d('vars: '.print_r($vars, 1));
@@ -442,8 +442,8 @@ class Delete extends WebPage
 	protected function getResource(){
 
 		d('type: '.$this->collection);
-		$coll = $this->oRegistry->Mongo->getCollection($this->collection);
-		$a = $coll->findOne(array('_id' => (int)$this->oRequest['rid']));
+		$coll = $this->Registry->Mongo->getCollection($this->collection);
+		$a = $coll->findOne(array('_id' => (int)$this->Request['rid']));
 		d('a: '.print_r($a, 1));
 
 		if(empty($a)){
@@ -464,7 +464,7 @@ class Delete extends WebPage
 
 		$class = ('QUESTIONS' === $this->collection) ? '\\Lampcms\\Question' : '\\Lampcms\\Answer';
 
-		$this->oResource = new $class($this->oRegistry, $a);
+		$this->Resource = new $class($this->Registry, $a);
 
 		return $this;
 	}
@@ -499,6 +499,6 @@ class Delete extends WebPage
 			Responder::sendJSON($ret);
 		}
 
-		Responder::redirectToPage($this->oResource->getUrl());
+		Responder::redirectToPage($this->Resource->getUrl());
 	}
 }

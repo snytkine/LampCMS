@@ -36,7 +36,7 @@
  *
  */
 
-class tplSimtabs extends Lampcms\Template\Template
+class tplSimtabs extends Lampcms\Template\Fast
 {
 	/**
 	 * $aData will be submitted in format:

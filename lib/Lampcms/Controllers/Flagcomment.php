@@ -77,7 +77,7 @@ class Flagcomment extends Flagger
 
 
 	protected function getCommentData(){
-		$this->aComment = $this->oRegistry->Mongo->COMMENTS->findOne(array('_id' => (int)$this->oRequest['rid']));
+		$this->aComment = $this->Registry->Mongo->COMMENTS->findOne(array('_id' => (int)$this->Request['rid']));
 		if(empty($this->aComment)){
 
 			throw new \Lampcms\Exception('Item not found');
@@ -89,13 +89,13 @@ class Flagcomment extends Flagger
 
 	protected function makeBody(){
 		$vars = array(
-		$this->oRegistry->Viewer->getDisplayName(),
-		$this->oRegistry->Ini->SITE_URL.$this->oRegistry->Viewer->getProfileUrl(),
+		$this->Registry->Viewer->getDisplayName(),
+		$this->Registry->Ini->SITE_URL.$this->Registry->Viewer->getProfileUrl(),
 		'Comment',
-		$this->oRegistry->Ini->SITE_URL.'/q'.$this->aComment['i_qid'].'/#comment-'.$this->oRequest['rid'],
+		$this->Registry->Ini->SITE_URL.'/q'.$this->aComment['i_qid'].'/#comment-'.$this->Request['rid'],
 		'[Visit url to view comment]',
-		$this->oRequest->get('reason', 's', 'not given'),
-		$this->oRequest['note']
+		$this->Request->get('reason', 's', 'not given'),
+		$this->Request['note']
 		);
 
 		d('vars: '.print_r($vars, 1));

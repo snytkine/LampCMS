@@ -55,7 +55,7 @@ use \Lampcms\WebPage;
 use \Lampcms\Request;
 use \Lampcms\Cookie;
 use \Lampcms\Responder;
-use \Lampcms\MongoDoc;
+use \Lampcms\Mongo\Doc as MongoDoc;
 use \Lampcms\Twitter;
 
 /**
@@ -126,7 +126,7 @@ class Logintwitter extends WebPage
 	 *
 	 * @var object of type UserTwitter
 	 */
-	protected $oUser;
+	protected $User;
 
 
 	/**
@@ -171,7 +171,7 @@ class Logintwitter extends WebPage
 
 		d('$this->bConnect: '.$this->bConnect);
 
-		$this->aTW = $this->oRegistry->Ini['TWITTER'];
+		$this->aTW = $this->Registry->Ini['TWITTER'];
 
 		try {
 			$this->oAuth = new \OAuth($this->aTW['TWITTER_OAUTH_KEY'], $this->aTW['TWITTER_OAUTH_SECRET'], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
@@ -187,7 +187,7 @@ class Logintwitter extends WebPage
 		 * generate token, secret and store them
 		 * in session and redirect to twitter authorization page
 		 */
-		if(empty($_SESSION['oauth']) || empty($this->oRequest['oauth_token'])){
+		if(empty($_SESSION['oauth']) || empty($this->Request['oauth_token'])){
 			$this->startOauthDance();
 		} else {
 			$this->finishOauthDance();
@@ -268,7 +268,7 @@ class Logintwitter extends WebPage
 			 * @todo check first to make sure we do have oauth_token
 			 * on REQUEST, else close the window
 			 */
-			$this->oAuth->setToken($this->oRequest['oauth_token'], $_SESSION['oauth']['oauth_token_secret']);
+			$this->oAuth->setToken($this->Request['oauth_token'], $_SESSION['oauth']['oauth_token_secret']);
 			$aAccessToken = $this->oAuth->getAccessToken(self::ACCESS_TOKEN_URL);
 			d('$aAccessToken: '.print_r($aAccessToken, 1));
 
@@ -320,13 +320,13 @@ class Logintwitter extends WebPage
 
 			$this->createOrUpdate();
 			if(!$this->bConnect){
-				Cookie::sendLoginCookie($this->oRegistry->Viewer->getUid(), $this->oUser->rs);
+				Cookie::sendLoginCookie($this->Registry->Viewer->getUid(), $this->User->rs);
 			} else {
 				/**
 				 * Set flag to session indicating that user just
 				 * connected Twitter Account
 				 */
-				$this->oRegistry->Viewer['b_tw'] = true;
+				$this->Registry->Viewer['b_tw'] = true;
 			}
 
 			$this->closeWindow();
@@ -363,7 +363,7 @@ class Logintwitter extends WebPage
 	 * @todo special case if this is 'connect' type of action
 	 * where existing logged in user is adding twitter to his account
 	 * then we should delegate to connect() method which
-	 * does different things - adds twitter data to $this->oRegistry->Viewer
+	 * does different things - adds twitter data to $this->Registry->Viewer
 	 * but also first checks if another user already has
 	 * this twitter account in which case must show error - cannot
 	 * use same Twitter account by different users
@@ -380,11 +380,11 @@ class Logintwitter extends WebPage
 		if(!empty($this->bConnect)){
 			d('this is connect action');
 
-			$this->oUser = $this->oRegistry->Viewer;
+			$this->User = $this->Registry->Viewer;
 			$this->connect($tid);
 
 		} elseif(!empty($aUser)){
-			$this->oUser = $oUser = \Lampcms\UserTwitter::factory($this->oRegistry, $aUser);
+			$this->User = $User = \Lampcms\UserTwitter::factory($this->Registry, $aUser);
 			$this->updateUser();
 		} else {
 			$this->isNewAccount = true;
@@ -393,7 +393,7 @@ class Logintwitter extends WebPage
 
 
 		try{
-			$this->processLogin($this->oUser);
+			$this->processLogin($this->User);
 		} catch(\Lampcms\LoginException $e){
 			/**
 			 * re-throw as regular exception
@@ -403,9 +403,9 @@ class Logintwitter extends WebPage
 			throw new \Exception($e->getMessage());
 		}
 
-		d('SESSION oViewer: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1).  'isNew: '.$this->oRegistry->Viewer->isNewUser());
+		d('SESSION oViewer: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1).  'isNew: '.$this->Registry->Viewer->isNewUser());
 
-		$this->oRegistry->Dispatcher->post( $this, 'onTwitterLogin' );
+		$this->Registry->Dispatcher->post( $this, 'onTwitterLogin' );
 
 		if($this->isNewAccount){
 			$this->postTweetStatus();
@@ -423,7 +423,7 @@ class Logintwitter extends WebPage
 	protected function connect($tid){
 		$aUser = $this->getUserByTid($tid);
 		d('$aUser: '.print_r($aUser, 1));
-		if(!empty($aUser) && ($aUser['_id'] != $this->oUser->getUid())){
+		if(!empty($aUser) && ($aUser['_id'] != $this->User->getUid())){
 
 			$name = '';
 			if(!empty($aUser['fn'])){
@@ -486,7 +486,7 @@ class Logintwitter extends WebPage
 		$aUser['twitter_uid'] = $this->aUserData['_id'];
 		$aUser['i_rep'] = 1;
 
-		$aUser = array_merge($this->oRegistry->Geo->Location->data, $aUser);
+		$aUser = array_merge($this->Registry->Geo->Location->data, $aUser);
 
 		if(!empty($this->aUserData['url'])){
 			$aUser['url'] = $this->aUserData['url'];
@@ -498,7 +498,7 @@ class Logintwitter extends WebPage
 
 		d('aUser: '.print_r($aUser, 1));
 
-		$this->oUser = \Lampcms\UserTwitter::factory($this->oRegistry, $aUser);
+		$this->User = \Lampcms\UserTwitter::factory($this->Registry, $aUser);
 
 		/**
 		 * This will mark this userobject is new user
@@ -507,15 +507,15 @@ class Logintwitter extends WebPage
 		 * and ask the user to provide email address but only
 		 * during the same session
 		 */
-		$this->oUser->setNewUser();
-		d('isNewUser: '.$this->oUser->isNewUser());
-		$this->oUser->save();
+		$this->User->setNewUser();
+		d('isNewUser: '.$this->User->isNewUser());
+		$this->User->save();
 
-		\Lampcms\PostRegistration::createReferrerRecord($this->oRegistry, $this->oUser);
+		\Lampcms\PostRegistration::createReferrerRecord($this->Registry, $this->User);
 
-		$this->oRegistry->Dispatcher->post($this->oUser, 'onNewUser');
+		$this->Registry->Dispatcher->post($this->User, 'onNewUser');
 
-		//exit(' new user: '.$this->oUser->isNewUser().' '.print_r($this->oUser->getArrayCopy(), 1));
+		//exit(' new user: '.$this->User->isNewUser().' '.print_r($this->User->getArrayCopy(), 1));
 
 		return $this;
 	}
@@ -530,19 +530,19 @@ class Logintwitter extends WebPage
 	 */
 	protected function updateUser($bUpdateAvatar = true){
 		d('adding Twitter credentials to User object');
-		$this->oUser['oauth_token'] = $this->aUserData['oauth_token'];
-		$this->oUser['oauth_token_secret'] = $this->aUserData['oauth_token_secret'];
-		$this->oUser['twitter_uid'] = $this->aUserData['_id'];
+		$this->User['oauth_token'] = $this->aUserData['oauth_token'];
+		$this->User['oauth_token_secret'] = $this->aUserData['oauth_token_secret'];
+		$this->User['twitter_uid'] = $this->aUserData['_id'];
 		if(!empty($this->aUserData['screen_name'])){
-			$this->oUser['twtr_username'] = $this->aUserData['screen_name'];
+			$this->User['twtr_username'] = $this->aUserData['screen_name'];
 		}
 
-		$avatarTwitter = $this->oUser['avatar_external'];
+		$avatarTwitter = $this->User['avatar_external'];
 		if(empty($avatarTwitter)){
-			$this->oUser['avatar_external'] = $this->aUserData['profile_image_url'];
+			$this->User['avatar_external'] = $this->aUserData['profile_image_url'];
 		}
 
-		$this->oUser->save();
+		$this->User->save();
 
 		return $this;
 
@@ -562,10 +562,10 @@ class Logintwitter extends WebPage
 
 		$sToFollow = $this->aTW['TWITTER_USERNAME'];
 		$follow = (!empty($sToFollow)) ? ' #follow @'.$sToFollow : '';
-		$siteName = $this->oRegistry->Ini->SITE_TITLE;
-		$ourTwitterUsername = $this->oRegistry->Ini->SITE_URL.$follow;
+		$siteName = $this->Registry->Ini->SITE_TITLE;
+		$ourTwitterUsername = $this->Registry->Ini->SITE_URL.$follow;
 
-		$oTwitter = new Twitter($this->oRegistry);
+		$oTwitter = new Twitter($this->Registry);
 
 		if(!empty($ourTwitterUsername)){
 			register_shutdown_function(function() use ($oTwitter, $siteName, $ourTwitterUsername){
@@ -599,7 +599,7 @@ class Logintwitter extends WebPage
 	 */
 	protected function updateTwitterUserRecord(){
 
-		$this->oRegistry->Mongo->USERS_TWITTER->save($this->aUserData);
+		$this->Registry->Mongo->USERS_TWITTER->save($this->aUserData);
 
 		return $this;
 	}
@@ -615,7 +615,7 @@ class Logintwitter extends WebPage
 	 */
 	protected function getUserByTid($tid){
 
-		$coll = $this->oRegistry->Mongo->USERS;
+		$coll = $this->Registry->Mongo->USERS;
 		$coll->ensureIndex(array('twitter_uid' => 1));
 
 		$aUser = $coll->findOne(array('twitter_uid' => $this->aUserData['_id']));
@@ -732,7 +732,7 @@ class Logintwitter extends WebPage
 	 */
 	protected function makeUsername(){
 
-		$res = $this->oRegistry->Mongo->USERS->findOne(array('twitter_uid' => $this->aUserData['_id']));
+		$res = $this->Registry->Mongo->USERS->findOne(array('twitter_uid' => $this->aUserData['_id']));
 
 		$ret = (empty($res)) ? $this->aUserData['screen_name'] : '@'.$this->aUserData['screen_name'];
 		d('ret: '.$ret);

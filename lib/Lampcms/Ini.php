@@ -59,7 +59,7 @@ namespace Lampcms;
  * has accessorts for the whole section via getSection
  * or access values from the CONSTANTS section via
  * the magic __get method like this:
- * oIni->ADMIN_EMAIL
+ * Ini->ADMIN_EMAIL
  *
  *
  * @author admin

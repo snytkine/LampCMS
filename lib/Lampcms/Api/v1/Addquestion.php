@@ -77,7 +77,7 @@ class Addquestion extends Api
 	 *
 	 * @var object of type \Lampcms\Question
 	 */
-	protected $oQuestion;
+	protected $Question;
 
 	protected $aRequired = array('qbody', 'title');
 
@@ -89,12 +89,12 @@ class Addquestion extends Api
 	 * extends SubmittedQuestionWWW
 	 *
 	 */
-	protected $oSubmitted;
+	protected $Submitted;
 
 
 	protected function main(){
 
-		$this->oSubmitted = new SubmittedQuestion($this->oRegistry);
+		$this->Submitted = new SubmittedQuestion($this->Registry);
 
 		$this->validateTitle()
 		->validateBody()
@@ -110,10 +110,10 @@ class Addquestion extends Api
 	 * @return object $this
 	 */
 	protected function validateTitle(){
-		$t = $this->oSubmitted->getTitle();
-		$min = $this->oRegistry->Ini->MIN_TITLE_CHARS;
+		$t = $this->Submitted->getTitle();
+		$min = $this->Registry->Ini->MIN_TITLE_CHARS;
 		d('min title: '.$min);
-		if($this->oSubmitted->getTitle()->htmlentities()->trim()->length() < $min){
+		if($this->Submitted->getTitle()->htmlentities()->trim()->length() < $min){
 			throw new \Lampcms\HttpResponseCodeException('Title must contain at least '.$min.' letters', 400);
 		}
 
@@ -129,9 +129,9 @@ class Addquestion extends Api
 	 */
 	protected function validateBody(){
 
-		$minChars = $this->oRegistry->Ini->MIN_QUESTION_CHARS;
-		$minWords = $this->oRegistry->Ini->MIN_QUESTION_WORDS;
-		$body = $this->oSubmitted->getBody();
+		$minChars = $this->Registry->Ini->MIN_QUESTION_CHARS;
+		$minWords = $this->Registry->Ini->MIN_QUESTION_WORDS;
+		$body = $this->Submitted->getBody();
 		$oHtmlString = HTMLString::factory($body);
 		$wordCount = $oHtmlString->getWordsCount();
 		$len = $oHtmlString->length();
@@ -155,10 +155,10 @@ class Addquestion extends Api
 	 * @return object $this
 	 */
 	protected function validateTags(){
-		$min = $this->oRegistry->Ini->MIN_QUESTION_TAGS;
-		$max = $this->oRegistry->Ini->MAX_QUESTION_TAGS;
+		$min = $this->Registry->Ini->MIN_QUESTION_TAGS;
+		$max = $this->Registry->Ini->MAX_QUESTION_TAGS;
 		
-		$aTags = $this->oSubmitted->getTagsArray();
+		$aTags = $this->Submitted->getTagsArray();
 		$count = count($aTags);
 
 		if($count > $max){
@@ -176,15 +176,15 @@ class Addquestion extends Api
 	/**
 	 *
 	 * Process submitted form values
-	 * and create the $this->oQuestion object
+	 * and create the $this->Question object
 	 */
 	protected function process(){
 
-		$oAdapter = new QuestionParser($this->oRegistry);
+		$oAdapter = new QuestionParser($this->Registry);
 		try{
-			$this->oQuestion = $oAdapter->parse($this->oSubmitted);
+			$this->Question = $oAdapter->parse($this->Submitted);
 			d('cp created new question');
-			d('title: '.$this->oQuestion['title']);
+			d('title: '.$this->Question['title']);
 		} catch (\Lampcms\QuestionParserException $e){
 			$err = $e->getMessage();
 			d('$err: '.$err);
@@ -204,7 +204,7 @@ class Addquestion extends Api
 	 */
 	protected function setOutput(){
 
-		$this->oOutput->setData($this->oQuestion->getArrayCopy());
+		$this->Output->setData($this->Question->getArrayCopy());
 
 		return $this;
 	}

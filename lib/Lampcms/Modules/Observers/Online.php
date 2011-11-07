@@ -64,7 +64,7 @@ use Lampcms\Request;
  * @author Dmitri Snytkine
  *
  */
-class Online extends \Lampcms\Observer
+class Online extends \Lampcms\Event\Observer
 {
 	/**
 	 * Title of page currently being viewed
@@ -124,7 +124,7 @@ class Online extends \Lampcms\Observer
 	 *
 	 */
 	protected function run(){
-		$Viewer = $this->oRegistry->Viewer;
+		$Viewer = $this->Registry->Viewer;
 		$ip 	= Request::getIP();
 		$uid 	= $Viewer->getUid();
 		d('uid: '.$uid);
@@ -134,7 +134,7 @@ class Online extends \Lampcms\Observer
 		'i_ts' => time(),
 		'ua' => Request::getUserAgent(),
 		/* request_viewtags (for example) it could be translated with I18N to show what user is viewing*/
-		'action' => 'request_'.$this->oRegistry->Request->get('a', 's', 'home'), 
+		'action' => 'request_'.$this->Registry->Request->get('a', 's', 'home'), 
 		/* REQUEST_URI could be used to make a link to that page */
 		'uri' => $_SERVER['REQUEST_URI'],
 		'title' => $this->title,
@@ -151,8 +151,8 @@ class Online extends \Lampcms\Observer
 			$aData['i_rep'] 	= $Viewer->getReputation();
 		}
 
-		$Mongo 	= $this->oRegistry->Mongo->getDb();
-		$Geo 	= $this->oRegistry->Geo;
+		$Mongo 	= $this->Registry->Mongo->getDb();
+		$Geo 	= $this->Registry->Geo;
 
 		
 		$func = function() use ($aData, $Mongo, $Geo){

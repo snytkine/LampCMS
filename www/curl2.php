@@ -51,7 +51,7 @@
 
 
 require '../!inc.php';
-$tempDir = $oRegistry->Ini->TEMP_DIR;
+$tempDir = $Registry->Ini->TEMP_DIR;
 echo ' $tempDir: '.$tempDir;
 
 $cookieFile = $tempDir.'github.txt';
@@ -110,8 +110,8 @@ if(1 !== $forms->length){
 	exit('no login form or more than one');
 }
 
-$oForm = $forms->item(0); // Lampcms\Dom\Element
-$formUrl = $oForm->getAttribute('action');
+$Form = $forms->item(0); // Lampcms\Dom\Element
+$formUrl = $Form->getAttribute('action');
 echo ' $formUrl: '.$formUrl.' ';
 
 $inputs = $oHTML->xpath('//form[@action = "/session"]//input');

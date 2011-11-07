@@ -59,15 +59,15 @@ require_once 'Fixtures/MockUser.php';
 class AnswerTest extends LampcmsUnitTestCase
 {
 
-	protected $oAnswer;
+	protected $Answer;
 
 	public function setUp(){
-		$this->oAnswer = new \Lampcms\MockAnswer(new Registry());
+		$this->Answer = new \Lampcms\MockAnswer(new Registry());
 	}
 
 
 	public function testScore(){
-		$s = $this->oAnswer->getScore();
+		$s = $this->Answer->getScore();
 
 		$this->assertEquals(1, $s);
 	}
@@ -78,58 +78,58 @@ class AnswerTest extends LampcmsUnitTestCase
 	 */
 	public function testAddVote(){
 
-		$this->oAnswer->addDownVote();
+		$this->Answer->addDownVote();
 
-		$this->assertEquals(0, $this->oAnswer->getScore());
-		$this->assertEquals('s', $this->oAnswer['v_s']);
+		$this->assertEquals(0, $this->Answer->getScore());
+		$this->assertEquals('s', $this->Answer['v_s']);
 
-		$this->oAnswer->addUpVote();
-		$this->assertEquals('', $this->oAnswer['v_s']);
+		$this->Answer->addUpVote();
+		$this->assertEquals('', $this->Answer['v_s']);
 
-		$this->oAnswer->addUpVote()
+		$this->Answer->addUpVote()
 		->addUpVote();
 
-		$this->assertEquals(3, $this->oAnswer->getScore());
-		$this->assertEquals('s', $this->oAnswer['v_s']);
+		$this->assertEquals(3, $this->Answer->getScore());
+		$this->assertEquals('s', $this->Answer['v_s']);
 	}
 
 
 	public function testGetCommentsCount(){
-		$this->assertEquals(2, $this->oAnswer->getCommentsCount());
+		$this->assertEquals(2, $this->Answer->getCommentsCount());
 	}
 
 	public function testGetOwnerId(){
-		$this->assertTrue(3 === $this->oAnswer->getOwnerId());
+		$this->assertTrue(3 === $this->Answer->getOwnerId());
 	}
 
 	public function testGetQuestionOwnerId(){
-		$this->assertTrue(3 === $this->oAnswer->getQuestionOwnerId());
+		$this->assertTrue(3 === $this->Answer->getQuestionOwnerId());
 	}
 
 	public function testGetResourceTypeId(){
-		$this->assertEquals('ANSWER', $this->oAnswer->getResourceTypeId());
+		$this->assertEquals('ANSWER', $this->Answer->getResourceTypeId());
 	}
 
 	public function testGetQuestionId(){
-		$this->assertEquals(510, $this->oAnswer->getQuestionId());
+		$this->assertEquals(510, $this->Answer->getQuestionId());
 	}
 
 
 	public function testGetLastModified(){
-		$this->assertEquals(1305712931, $this->oAnswer->getLastModified());
+		$this->assertEquals(1305712931, $this->Answer->getLastModified());
 	}
 
 	public function testGetUsername(){
-		$this->assertEquals('user1', $this->oAnswer->getUsername());
+		$this->assertEquals('user1', $this->Answer->getUsername());
 	}
 
 	public function testGetRegistry(){
-		$this->assertInstanceOf('\Lampcms\Registry', $this->oAnswer->getRegistry());
+		$this->assertInstanceOf('\Lampcms\Registry', $this->Answer->getRegistry());
 	}
 
 	public function testTouch(){
-		$this->oAnswer->touch();
-		$this->assertTrue((time() - $this->oAnswer->getLastModified()) < 2);
+		$this->Answer->touch();
+		$this->assertTrue((time() - $this->Answer->getLastModified()) < 2);
 	}
 
 	/**
@@ -137,18 +137,18 @@ class AnswerTest extends LampcmsUnitTestCase
 	 * @depends testGetCommentsCount
 	 */
 	public function testGetComments(){
-		$a = $this->oAnswer->getComments();
+		$a = $this->Answer->getComments();
 		$this->assertTrue(516 === $a[0]['_id']);
 		$this->assertTrue(517 === $a[1]['_id']);
 	}
 
 
 	public function testGetTitle(){
-		$this->assertEquals('Mock Stub Post', $this->oAnswer->getTitle());
+		$this->assertEquals('Mock Stub Post', $this->Answer->getTitle());
 	}
 
 	public function testGetBody(){
-		$this->assertEquals('<span>Text of Mock Answer<br><strong>Mock test</strong><br></span>', $this->oAnswer->getBody());
+		$this->assertEquals('<span>Text of Mock Answer<br><strong>Mock test</strong><br></span>', $this->Answer->getBody());
 	}
 
 	/**
@@ -157,11 +157,11 @@ class AnswerTest extends LampcmsUnitTestCase
 	 */
 	public function testGetUrl(){
 
-		$Registry = $this->oAnswer->getRegistry();
+		$Registry = $this->Answer->getRegistry();
 
 		$siteUrl = $Registry->Ini->SITE_URL;
-		$url = $this->oAnswer->getUrl();
-		$shortUrl = $this->oAnswer->getUrl(true);
+		$url = $this->Answer->getUrl();
+		$shortUrl = $this->Answer->getUrl(true);
 
 		$this->assertEquals('/q510/#ans513', \substr($url, strlen($siteUrl)));
 		$this->assertEquals('/q510/#ans513', \substr($shortUrl, strlen($siteUrl)));
@@ -170,27 +170,27 @@ class AnswerTest extends LampcmsUnitTestCase
 
 	public function testGetVotesArray(){
 
-		$this->assertEquals(array('up' => 1, 'down' => 0, 'score' => 1), $this->oAnswer->getVotesArray());
+		$this->assertEquals(array('up' => 1, 'down' => 0, 'score' => 1), $this->Answer->getVotesArray());
 	}
 
 
 	public function testIncreaseCommentsCount(){
-		$val = $this->oAnswer->getCommentsCount();
-		$this->oAnswer->increaseCommentsCount();
-		$this->assertTrue($this->oAnswer['i_comments'] === ($val + 1) );
+		$val = $this->Answer->getCommentsCount();
+		$this->Answer->increaseCommentsCount();
+		$this->assertTrue($this->Answer['i_comments'] === ($val + 1) );
 	}
 
 
 	public function testDecreaseCommentsCount(){
-		$val = $this->oAnswer->getCommentsCount();
-		$this->oAnswer->increaseCommentsCount(-1);
-		$this->assertTrue($this->oAnswer['i_comments'] === 1 );
+		$val = $this->Answer->getCommentsCount();
+		$this->Answer->increaseCommentsCount(-1);
+		$this->assertTrue($this->Answer['i_comments'] === 1 );
 	}
 
 	public function testSetAccepted(){
-		$this->assertFalse($this->oAnswer['accepted'] === true);
-		$this->oAnswer->setAccepted();
-		$this->assertTrue($this->oAnswer['accepted'] === true);
+		$this->assertFalse($this->Answer['accepted'] === true);
+		$this->Answer->setAccepted();
+		$this->assertTrue($this->Answer['accepted'] === true);
 	}
 
 	/**
@@ -199,16 +199,16 @@ class AnswerTest extends LampcmsUnitTestCase
 	 */
 	public function testUnsetAccepted(){
 
-		$this->oAnswer->setAccepted();
-		$this->oAnswer->unsetAccepted();
-		$this->assertFalse($this->oAnswer['accepted'] === true);
+		$this->Answer->setAccepted();
+		$this->Answer->unsetAccepted();
+		$this->assertFalse($this->Answer['accepted'] === true);
 	}
 
 
 	public function testSetEdited(){
-		$oUser = new MockUser($this->oAnswer->getRegistry());
-		$this->oAnswer->setEdited($oUser, 'test of editing');
-		$a = $this->oAnswer['a_edited'];
+		$User = new MockUser($this->Answer->getRegistry());
+		$this->Answer->setEdited($User, 'test of editing');
+		$a = $this->Answer['a_edited'];
 		$this->assertTrue(is_array($a));
 		$this->assertTrue(count($a) > 1);
 
@@ -223,23 +223,23 @@ class AnswerTest extends LampcmsUnitTestCase
 
 
 	public function testSetDeleted(){
-		$oUser = new MockUser($this->oAnswer->getRegistry());
-		$this->oAnswer->setDeleted($oUser, 'test of deleting');
+		$User = new MockUser($this->Answer->getRegistry());
+		$this->Answer->setDeleted($User, 'test of deleting');
 
-		$a = $this->oAnswer['a_deleted'];
+		$a = $this->Answer['a_deleted'];
 
 		$this->assertTrue(is_array($a));
 		$this->assertEquals(count($a), 5);
 		$this->assertEquals('John D Doe', $a['username']);
 		$this->assertEquals('test of deleting', $a['reason']);
 		$this->assertEquals(26, $a['i_uid']);
-		$this->assertTrue(($this->oAnswer['i_del_ts']) > 1000);
+		$this->assertTrue(($this->Answer['i_del_ts']) > 1000);
 	}
 
 
 	public function testOffsetSetAccepted(){
 		try{
-			$this->oAnswer['accepted'] = true;
+			$this->Answer['accepted'] = true;
 		} catch (DevException $e){
 			return;
 		}
@@ -250,22 +250,22 @@ class AnswerTest extends LampcmsUnitTestCase
 
 
 	public function testSave(){
-		$oRegistry = new Registry();
-		$id = $this->oAnswer->getResourceId();
+		$Registry = new Registry();
+		$id = $this->Answer->getResourceId();
 
-		$this->oAnswer->insert();
-		$a = $oRegistry->Mongo->ANSWERS->findOne(array('_id' => $id));
+		$this->Answer->insert();
+		$a = $Registry->Mongo->ANSWERS->findOne(array('_id' => $id));
 		$this->assertTrue(is_array($a) && count($a) > 0);
 	}
 
 
 	public function testAutoInsert(){
 		$this->persistDB = true;
-		$oRegistry = new Registry();
-		$oAnswer = new Answer($oRegistry);
-		$oAnswer['b'] = 'test body';
-		$oAnswer['title'] = 'test title';
-		$oAnswer['i_uid'] = 99999999;
+		$Registry = new Registry();
+		$Answer = new Answer($Registry);
+		$Answer['b'] = 'test body';
+		$Answer['title'] = 'test title';
+		$Answer['i_uid'] = 99999999;
 
 		return;
 	}
@@ -276,8 +276,8 @@ class AnswerTest extends LampcmsUnitTestCase
 	 */
 	public function testAutoInserted(){
 
-		$oRegistry = new Registry();
-		$a = $oRegistry->Mongo->ANSWERS->findOne(array('i_uid' => 99999999));
+		$Registry = new Registry();
+		$a = $Registry->Mongo->ANSWERS->findOne(array('i_uid' => 99999999));
 		$this->assertTrue(!empty($a));
 
 		return;

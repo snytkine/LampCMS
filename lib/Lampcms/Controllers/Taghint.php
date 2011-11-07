@@ -71,12 +71,12 @@ class Taghint extends Titlehint
 
 	protected function getData(){
 
-		$q = $this->oRequest->get('q', 's');
+		$q = $this->Request->get('q', 's');
 		$q = mb_strtolower($q);
 		d('looking for tag hint $q: '.$q);
 		
 		try{
-			$cur = $this->oRegistry->Mongo->QUESTION_TAGS->find(
+			$cur = $this->Registry->Mongo->QUESTION_TAGS->find(
 			array('tag' => array('$regex' => '^'.$q) ), array('tag'))
 			->sort(array('i_count' => -1))
 			->limit(200);

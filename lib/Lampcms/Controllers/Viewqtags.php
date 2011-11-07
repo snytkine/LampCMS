@@ -99,7 +99,7 @@ class Viewqtags extends Viewquestions
 
 		$aFields = array('tag', 'i_count', 'hts');
 
-		$cond = $this->oRequest->get('cond', 's', 'popular');
+		$cond = $this->Request->get('cond', 's', 'popular');
 		d('cond: '.$cond);
 
 		/**
@@ -152,12 +152,12 @@ class Viewqtags extends Viewquestions
 				$sort = array('tag' => 1);
 		}
 
-		$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplTagsort', $cond);
+		$this->typeDiv = Urhere::factory($this->Registry)->get('tplTagsort', $cond);
 
-		$this->oCursor = $this->oRegistry->Mongo->QUESTION_TAGS->find(array('i_count' => array('$gt' => 0)), $aFields);
-		$this->count = $this->oCursor->count(true);
-		d('$this->oCursor: '.gettype($this->oCursor).' $this->count: '.$this->count);
-		$this->oCursor->sort($sort);
+		$this->Cursor = $this->Registry->Mongo->QUESTION_TAGS->find(array('i_count' => array('$gt' => 0)), $aFields);
+		$this->count = $this->Cursor->count(true);
+		d('$this->Cursor: '.gettype($this->Cursor).' $this->count: '.$this->count);
+		$this->Cursor->sort($sort);
 
 		return $this;
 	}
@@ -175,7 +175,7 @@ class Viewqtags extends Viewquestions
 	protected function sendCacheHeaders(){
 
 		if(Request::isAjax()){
-			$sQdivs = \tplTagslist::loop($this->oCursor);
+			$sQdivs = \tplTagslist::loop($this->Cursor);
 			Responder::sendJSON(array('paginated' => '<div class="tags_wrap">'.$sQdivs.$this->pagerLinks.'</div>'));
 		}
 
@@ -223,7 +223,7 @@ class Viewqtags extends Viewquestions
 		 * the same class
 		 *
 		 */
-		$sQdivs = \tplTagslist::loop($this->oCursor);
+		$sQdivs = \tplTagslist::loop($this->Cursor);
 		$sQlist = \tplQlist::parse(array($this->typeDiv, $sQdivs.$this->pagerLinks, '', $this->notAjaxPaginatable), false);
 		$this->aPageVars['body'] = $sQlist;
 		/**

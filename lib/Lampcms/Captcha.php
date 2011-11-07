@@ -272,11 +272,11 @@ class Captcha extends LampcmsObject
 	 *
 	 * Otherwise will return object of this class
 	 *
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 */
-	public static function factory(Registry $oRegistry){
+	public static function factory(Registry $Registry){
 		d('cp captcha factory');
-		$aConfig = $oRegistry->Ini->getSection('CAPTCHA');
+		$aConfig = $Registry->Ini->getSection('CAPTCHA');
 
 		if(!empty($aConfig['disabled'])){
 			d('Captcha disabled by administrator. Using CaptchaStub instead');
@@ -286,7 +286,7 @@ class Captcha extends LampcmsObject
 
 		try{
 			self::checkGD();
-			return new self($oRegistry, $aConfig);
+			return new self($Registry, $aConfig);
 		} catch (DevException $e){
 			e('Unable to use Captcha because of this error: '.$e->getMessage());
 
@@ -299,11 +299,11 @@ class Captcha extends LampcmsObject
 	 * Extracts the config array and generate needed params.
 	 *
 	 **/
-	public function __construct(Registry $oRegistry, array $config = array(), $secure=true, $debug=false ){
+	public function __construct(Registry $Registry, array $config = array(), $secure=true, $debug=false ){
 
-		$this->oRegistry = $oRegistry;
+		$this->Registry = $Registry;
 
-		$aConfig = (!empty($config)) ? $config : $oRegistry->Ini->getSection('CAPTCHA');
+		$aConfig = (!empty($config)) ? $config : $Registry->Ini->getSection('CAPTCHA');
 		d('Captcha config: '.print_r($aConfig, 1));
 
 

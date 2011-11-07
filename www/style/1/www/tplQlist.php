@@ -54,7 +54,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplQlist extends Lampcms\Template\Template
+class tplQlist extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'qtypes' => '', 

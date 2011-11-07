@@ -94,13 +94,13 @@ class Addcomment extends WebPage
 	 * @var object of type Lampcms\Answer
 	 * or \Lampcms\Question but will implement Lampcms\LampcmsObject
 	 */
-	protected $oResource;
+	protected $Resource;
 
 
-	protected $oCommentParser;
+	protected $CommentParser;
 
 	protected function main(){
-		$this->oRegistry->registerObservers('INPUT_FILTERS');
+		$this->Registry->registerObservers('INPUT_FILTERS');
 
 		$this->getResource()
 		->checkPermission()
@@ -119,8 +119,8 @@ class Addcomment extends WebPage
 	 */
 	protected function add(){
 
-		$this->oCommentParser = new CommentParser($this->oRegistry);
-		$this->oCommentParser->add(new SubmittedCommentWWW($this->oRegistry, $this->oResource));
+		$this->CommentParser = new CommentParser($this->Registry);
+		$this->CommentParser->add(new SubmittedCommentWWW($this->Registry, $this->Resource));
 
 		return $this;
 	}
@@ -133,21 +133,21 @@ class Addcomment extends WebPage
 	 */
 	protected function getResource(){
 
-		$a = $this->oRegistry->Mongo->RESOURCE->findOne(array('_id' => $this->oRequest['rid']));
+		$a = $this->Registry->Mongo->RESOURCE->findOne(array('_id' => $this->Request['rid']));
 		d('a: '.print_r($a, 1));
 		$collection = 'QUESTIONS';
 		if(empty($a)){
-			throw new \Lampcms\Exception('RESOURCE NOT FOUND by id '.$this->oRequest['rid']);
+			throw new \Lampcms\Exception('RESOURCE NOT FOUND by id '.$this->Request['rid']);
 		}
 
 		if(!empty($a['res_type']) && ('ANSWER' === $a['res_type'] )){
 			$collection = 'ANSWERS';
 		}
 		
-		$rid = (int)$this->oRequest['rid'];
+		$rid = (int)$this->Request['rid'];
 		d('$collection: '.$collection. ' $rid: '.$rid);
 
-		$coll = $this->oRegistry->Mongo->getCollection($collection);
+		$coll = $this->Registry->Mongo->getCollection($collection);
 		$a = $coll->findOne(array('_id' => $rid));
 		d('a: '.print_r($a, 1));
 
@@ -158,7 +158,7 @@ class Addcomment extends WebPage
 
 		$class = ('QUESTIONS' === $collection) ? '\\Lampcms\\Question' : '\\Lampcms\\Answer';
 
-		$this->oResource = new $class($this->oRegistry, $a);
+		$this->Resource = new $class($this->Registry, $a);
 
 		return $this;
 	}
@@ -176,7 +176,7 @@ class Addcomment extends WebPage
 	 *
 	 */
 	protected function checkPermission(){
-		$viewerID = $this->oRegistry->Viewer->getUid();
+		$viewerID = $this->Registry->Viewer->getUid();
 
 		/**
 		 * If NOT question owner AND NOT Resource owner
@@ -189,9 +189,9 @@ class Addcomment extends WebPage
 		 * OR have special 'comment' permission
 		 */
 		if(
-		($this->oResource->getQuestionOwnerId() !== $viewerID) &&
-		($this->oResource->getOwnerId() !== $viewerID) &&
-		($this->oRegistry->Viewer->getReputation() < \Lampcms\Points::COMMENT)){
+		($this->Resource->getQuestionOwnerId() !== $viewerID) &&
+		($this->Resource->getOwnerId() !== $viewerID) &&
+		($this->Registry->Viewer->getReputation() < \Lampcms\Points::COMMENT)){
 			try{
 				$this->checkAccessPermission('comment');
 			} catch(\Exception $e){
@@ -209,7 +209,7 @@ class Addcomment extends WebPage
 					
 					throw new \Lampcms\Exception('A minimum reputation score of '.\Lampcms\Points::COMMENT.
 					' is required to comment on someone else\'s question or answer. 
-					Your current reputation score is '.$this->oRegistry->Viewer->getReputation());
+					Your current reputation score is '.$this->Registry->Viewer->getReputation());
 				}else {
 					throw $e;
 				}
@@ -227,7 +227,7 @@ class Addcomment extends WebPage
 	 *
 	 */
 	protected function returnResult(){
-		$aComment = $this->oCommentParser->getArrayCopy();
+		$aComment = $this->CommentParser->getArrayCopy();
 		
 		/**
 		 * Add edit and delete tools because
@@ -251,7 +251,7 @@ class Addcomment extends WebPage
 		 * premission to add comments to own resources.
 		 * 
 		 */
-		$aComment['owner_id'] = $this->oResource->getOwnerId();
+		$aComment['owner_id'] = $this->Resource->getOwnerId();
 		
 		$aRet = array(
 			'comment' => array('id' => $aComment['_id'],

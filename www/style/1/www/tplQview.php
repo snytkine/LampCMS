@@ -38,7 +38,7 @@
 
 //namespace Lampcms\Template;
 
-//use Lampcms\Template\Template;
+//use Lampcms\Template\Fast;
 
 /**
  * Qview is the main template to
@@ -62,7 +62,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplQview extends Lampcms\Template\Template{
+class tplQview extends Lampcms\Template\Fast{
 
 	protected static $vars = array(
 	'header' => '', //1

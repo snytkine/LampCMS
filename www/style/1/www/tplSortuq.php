@@ -57,7 +57,7 @@
  *
  * Used in Userinfo controller
  */
-class tplSortuq extends Lampcms\Template\Template
+class tplSortuq extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'oldest_c' => '', //1

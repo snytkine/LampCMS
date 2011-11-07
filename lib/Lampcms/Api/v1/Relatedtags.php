@@ -81,12 +81,12 @@ class Relatedtags extends Api
 
 
 	protected function getData(){
-		$tag = $this->oRequest->get('tag', 's', '');
+		$tag = $this->Request->get('tag', 's', '');
 		if(empty($tag)){
 			throw new \Lampcms\HttpResponseCodeException('Invalid value of "tag" param in request. It cannot be empty! Must be a name of the tag', 406);
 		}
 
-		$this->aData = $this->oRegistry->Mongo->RELATED_TAGS
+		$this->aData = $this->Registry->Mongo->RELATED_TAGS
 		->findOne(array('_id' => $tag), array('_id' => 1, 'tags' => 1));
 
 		if(empty($this->aData)){
@@ -98,13 +98,13 @@ class Relatedtags extends Api
 
 	/**
 	 *
-	 * Set to $this->oOutput object with
+	 * Set to $this->Output object with
 	 * data from $this->aData
 	 *
 	 * @return object $this
 	 */
 	protected function setOutput(){
-		$this->oOutput->setData($this->aData);
+		$this->Output->setData($this->aData);
 
 		return $this;
 	}

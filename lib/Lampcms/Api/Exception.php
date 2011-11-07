@@ -49,43 +49,13 @@
  *
  */
 
-
-
-namespace Lampcms;
+ 
+namespace Lampcms\Api;
 
 /**
- * Concrete formatter class
- * Formats the data into json string
- * wrapped into callback $callback function
- *
+ * 
+ * Default API Exception
  * @author Dmitri Snytkine
  *
  */
-class OutputJsonp extends Output{
-
-	protected $callback = '';
-
-	public function __construct($callback){
-		if(!\is_string($callback)){
-			throw new \InvalidArgumentException('Invalid type of $callback param. Must be a string. Was: '.gettype($callback));
-		}
-		
-		$callback = \trim(\strip_tags($callback));
-		
-		if(empty($callback)){
-			throw new \InvalidArgumentException('$callback param cannot be empty.');
-		}
-
-		$this->callback = $callback;
-	}
-
-	
-	public function getContentType(){
-		return 'application/javascript';
-	}
-
-	
-	protected function format(){
-		return $this->callback.'('.\json_encode($this->aData).');';
-	}
-}
+class Exception extends \Lampcms\DevException{}

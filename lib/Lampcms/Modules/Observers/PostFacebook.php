@@ -63,7 +63,7 @@ use \Lampcms\Facebook;
  * @author Dmitri Snytkine
  *
  */
-class PostFacebook extends \Lampcms\Observer
+class PostFacebook extends \Lampcms\Event\Observer
 {
 	/**
 	 * Facebook configuration section
@@ -76,7 +76,7 @@ class PostFacebook extends \Lampcms\Observer
 
 	public function main(){
 		d('get event: '.$this->eventName);
-		$a = $this->oRegistry->Request->getArray();
+		$a = $this->Registry->Request->getArray();
 		if(empty($a['facebook'])){
 			d('facebook checkbox not checked');
 			/**
@@ -84,7 +84,7 @@ class PostFacebook extends \Lampcms\Observer
 			 * for that "Post to Faebook" checkbox to be not checked
 			 * This is just in case it was checked before
 			 */
-			$this->oRegistry->Viewer['b_fb'] = false;
+			$this->Registry->Viewer['b_fb'] = false;
 			return;
 		}
 
@@ -102,7 +102,7 @@ class PostFacebook extends \Lampcms\Observer
 		}
 
 		try{
-			$this->aFB = $this->oRegistry->Ini->getSection('FACEBOOK');
+			$this->aFB = $this->Registry->Ini->getSection('FACEBOOK');
 			if(empty($this->aFB) || empty($this->aFB['API_KEY'])){
 				d('Facebook API not enabled on this site');
 				return;;
@@ -112,7 +112,7 @@ class PostFacebook extends \Lampcms\Observer
 			return;
 		}
 
-		if('' === (string)$this->oRegistry->Viewer->getFacebookToken()){
+		if('' === (string)$this->Registry->Viewer->getFacebookToken()){
 			d('User does not have Facebook token');
 			return;
 		}
@@ -124,7 +124,7 @@ class PostFacebook extends \Lampcms\Observer
 		 * in User object
 		 *
 		 */
-		$this->oRegistry->Viewer['b_fb'] = true;
+		$this->Registry->Viewer['b_fb'] = true;
 
 		switch($this->eventName){
 			case 'onNewQuestion':
@@ -144,10 +144,10 @@ class PostFacebook extends \Lampcms\Observer
 
 		try{
 			$reward = \Lampcms\Points::SHARED_CONTENT;
-			$User = $this->oRegistry->Viewer;
-			$oFB = Facebook::factory($this->oRegistry);
-			$oResource = $this->obj;
-			$Mongo = $this->oRegistry->Mongo;
+			$User = $this->Registry->Viewer;
+			$oFB = Facebook::factory($this->Registry);
+			$Resource = $this->obj;
+			$Mongo = $this->Registry->Mongo;
 			$logo = (!empty($this->aFB['SITE_LOGO'])) ? $this->aFB['SITE_LOGO'] : null;
 			/**
 			 * @todo Translate String(s) of caption
@@ -163,15 +163,15 @@ class PostFacebook extends \Lampcms\Observer
 			return;
 		}
 
-		$func = function() use ($oFB, $oResource, $User, $reward, $Mongo, $logo, $caption, $description){
+		$func = function() use ($oFB, $Resource, $User, $reward, $Mongo, $logo, $caption, $description){
 
 			$result = null;
 			/**
 			 * @todo Translate string "caption"
 			 */
 			$aData = array(
-			'link' => $oResource->getUrl(),
-			'name' => $oResource['title'],
+			'link' => $Resource->getUrl(),
+			'name' => $Resource['title'],
 			'caption' => $caption,
 			'description' => $description);
 
@@ -216,8 +216,8 @@ class PostFacebook extends \Lampcms\Observer
 
 						 $status_id = $decoded['id'];
 						 $uid = $User->getUid();
-						 $rid = $oResource->getResourceId();
-						 $qid = $oResource->getQuestionId();
+						 $rid = $Resource->getResourceId();
+						 $qid = $Resource->getQuestionId();
 
 
 						 $aData = array(
@@ -240,8 +240,8 @@ class PostFacebook extends \Lampcms\Observer
 						 * on Tumblr via API
 						 *
 						 */
-						$oResource['fb_status'] = $status_id;
-						$oResource->save();
+						$Resource['fb_status'] = $status_id;
+						$Resource->save();
 
 					} catch (\Exception $e){
 						if(function_exists('e')){

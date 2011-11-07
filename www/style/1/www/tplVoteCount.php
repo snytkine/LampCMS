@@ -42,7 +42,7 @@
  * It is used inside the tplUserVotes template
  *
  */
-class tplVoteCount extends Lampcms\Template\Template
+class tplVoteCount extends Lampcms\Template\Fast
 {
 	
 	protected static $vars = array(

@@ -51,7 +51,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplSimquestions extends Lampcms\Template\Template
+class tplSimquestions extends Lampcms\Template\Fast
 {
 
 	protected static function func(&$a){

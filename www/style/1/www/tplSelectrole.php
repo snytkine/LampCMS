@@ -58,7 +58,7 @@
  * @author Dmitri Snytkine
  *
  */ 
-class tplSelectrole extends \Lampcms\Template\Template
+class tplSelectrole extends \Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'token' => '',

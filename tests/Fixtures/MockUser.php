@@ -56,15 +56,15 @@ class MockUser extends User
 {
 	const PASS = 'abc12345';
 
-	protected $JSON_ENCODED = '{"username":"ladada","username_lc":"ladada","email":"ladada123@mailinator.com","rs":"1297206315.3591az0q3KyOT1cp96s6ulBwtzuYz81sDo35G","role":"registered","tz":"Atlantic\/Azores","pwd":"c84a41b784503c9b4e766f4af56968d68e99c6edd3a069d7baada054da55576d","i_reg_ts":1305227187,"date_reg":"Thu, 12 May 2011 14:06:27 -0500","i_fv":1297206315,"lang":"en","locale":"en_US","i_rep":1,"cc":"US","country":"United States","state":"PA","city":"Stroudsburg","zip":"18301","_id":26,"i_ts_login":1305469732,"i_lm_ts":1305469733,"a_f_u":[3],"i_f_u":1,"a_f_t":["stub","mongodb"],"i_f_t":2,"fn":"John","mn":"D","ln":"Doe","url":"http:\/\/www.lampcms.com","dob":"1990\/1\/3","gender":"M","description":"I am the test user","avatar":"1A.jpg"}';
+	protected $JSON_ENCODED = '{"username":"ladada","username_lc":"ladada","email":"ladada123@mailinator.com","rs":"1297206315.3591az0q3KyOT1cp96s6ulBwtzuYz81sDo35G","role":"registered","tz":"Atlantic\/Azores","pwd":"c84a41b784503c9b4e766f4af56968d68e99c6edd3a069d7baada054da55576d","i_reg_ts":1305227187,"date_reg":"Thu, 12 May 2011 14:06:27 -0500","i_fv":1297206315,"lang":"en","locale":"en_US","i_rep":1,"cc":"US","cn":"United States","state":"PA","city":"Stroudsburg","zip":"18301","_id":26,"i_ts_login":1305469732,"i_lm_ts":1305469733,"a_f_u":[3],"i_f_u":1,"a_f_t":["stub","mongodb"],"i_f_t":2,"fn":"John","mn":"D","ln":"Doe","url":"http:\/\/www.lampcms.com","dob":"1990\/1\/3","gender":"M","description":"I am the test user","avatar":"1A.jpg"}';
 
-	public function __construct(Registry $oRegistry, $collectionName = null, array $a = array(), $default = ''){
+	public function __construct(Registry $Registry, $collectionName = null, array $a = array(), $default = ''){
 		$a = json_decode($this->JSON_ENCODED, true);
-		parent::__construct($oRegistry, 'USERS', $a);
+		parent::__construct($Registry, 'USERS', $a);
 	}
 
-	public static function factory(Registry $oRegistry, array $a = array()){
-		$o = new static($oRegistry);
+	public static function factory(Registry $Registry, array $a = array()){
+		$o = new static($Registry);
 		//$o->applyDefaults();
 
 		return $o;

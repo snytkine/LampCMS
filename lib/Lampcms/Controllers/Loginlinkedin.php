@@ -147,10 +147,10 @@ class Loginlinkedin extends WebPage
 
 		d('$this->bConnect: '.$this->bConnect);
 
-		$this->callback = $this->oRegistry->Ini->SITE_URL.$this->callback;
+		$this->callback = $this->Registry->Ini->SITE_URL.$this->callback;
 		d('$this->callback: '.$this->callback);
 
-		$this->aTm = $this->oRegistry->Ini['LINKEDIN'];
+		$this->aTm = $this->Registry->Ini['LINKEDIN'];
 
 		try {
 			$this->oAuth = new \OAuth($this->aTm['OAUTH_KEY'], $this->aTm['OAUTH_SECRET'], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
@@ -167,7 +167,7 @@ class Loginlinkedin extends WebPage
 		 * generate token, secret and store them
 		 * in session and redirect to linkedin authorization page
 		 */
-		if(empty($_SESSION['linkedin_oauth']) || empty($this->oRequest['oauth_token'])){
+		if(empty($_SESSION['linkedin_oauth']) || empty($this->Request['oauth_token'])){
 			/**
 			 * Currently Tumblr does not handle "Deny" response of user
 			 * too well - they just redirect back to this url
@@ -257,9 +257,9 @@ class Loginlinkedin extends WebPage
 			 * @todo check first to make sure we do have oauth_token
 			 * on REQUEST, else close the window
 			 */
-			$this->oAuth->setToken($this->oRequest['oauth_token'], $_SESSION['linkedin_oauth']['oauth_token_secret']);
+			$this->oAuth->setToken($this->Request['oauth_token'], $_SESSION['linkedin_oauth']['oauth_token_secret']);
 
-			$ver = $this->oRegistry->Request->get('oauth_verifier', 's', '');
+			$ver = $this->Registry->Request->get('oauth_verifier', 's', '');
 			d(' $ver: '.$ver);
 			$url = (empty($var)) ? self::ACCESS_TOKEN_URL : self::ACCESS_TOKEN_URL.'?oauth_verifier='.$ver;
 			d('url: '.$url);
@@ -278,7 +278,7 @@ class Loginlinkedin extends WebPage
 			$this->createOrUpdate();
 
 			if(!$this->bConnect){
-				\Lampcms\Cookie::sendLoginCookie($this->oRegistry->Viewer->getUid(), $this->oUser->rs);
+				\Lampcms\Cookie::sendLoginCookie($this->Registry->Viewer->getUid(), $this->User->rs);
 			} else {
 				/**
 				 * The b_li flag in Viewer is necessary
@@ -286,7 +286,7 @@ class Loginlinkedin extends WebPage
 				 * the checkbox to 'checked' state
 				 *
 				 */
-				$this->oRegistry->Viewer['b_li'] = true;
+				$this->Registry->Viewer['b_li'] = true;
 			}
 
 			$this->closeWindow();
@@ -309,11 +309,11 @@ class Loginlinkedin extends WebPage
 		if(!empty($this->bConnect)){
 			d('this is connect action');
 
-			$this->oUser = $this->oRegistry->Viewer;
+			$this->User = $this->Registry->Viewer;
 			$this->updateUser();
 
 		} elseif(!empty($aUser)){
-			$this->oUser = \Lampcms\UserLinkedin::factory($this->oRegistry, $aUser);
+			$this->User = \Lampcms\UserLinkedin::factory($this->Registry, $aUser);
 			$this->updateUser(); // only update token, secret, linkedin url
 		} else {
 			$this->isNewAccount = true;
@@ -322,7 +322,7 @@ class Loginlinkedin extends WebPage
 
 
 		try{
-			$this->processLogin($this->oUser);
+			$this->processLogin($this->User);
 		} catch(\Lampcms\LoginException $e){
 			/**
 			 * re-throw as regular exception
@@ -332,9 +332,9 @@ class Loginlinkedin extends WebPage
 			throw new \Exception($e->getMessage());
 		}
 
-		d('SESSION oViewer: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1).  'isNew: '.$this->oRegistry->Viewer->isNewUser());
+		d('SESSION oViewer: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1).  'isNew: '.$this->Registry->Viewer->isNewUser());
 
-		$this->oRegistry->Dispatcher->post( $this, 'onLinkedinLogin' );
+		$this->Registry->Dispatcher->post( $this, 'onLinkedinLogin' );
 
 		return $this;
 	}
@@ -342,7 +342,7 @@ class Loginlinkedin extends WebPage
 
 	/**
 	 * Create new record in the USERS collection
-	 * also set the $this->oUser to the newly created
+	 * also set the $this->User to the newly created
 	 * instance of UserLinkedin object
 	 *
 	 *
@@ -353,7 +353,7 @@ class Loginlinkedin extends WebPage
 
 		$ln = (!empty($this->aData['ln'])) ? $this->aData['ln'] : '';
 
-		$oEA = \Lampcms\ExternalAuth::factory($this->oRegistry);
+		$oEA = \Lampcms\ExternalAuth::factory($this->Registry);
 		$u = $this->aData['fn'].'_'.$ln;
 		d('$u: '.$u);
 
@@ -370,14 +370,14 @@ class Loginlinkedin extends WebPage
 
 		$this->aData['rs'] =  (false !== $sid) ? $sid : \Lampcms\String::makeSid();
 		$this->aData['i_rep'] = 1;
-		$this->aData['lang'] = $this->oRegistry->getCurrentLang();
-		$this->aData['locale'] = $this->oRegistry->Locale->getLocale();
+		$this->aData['lang'] = $this->Registry->getCurrentLang();
+		$this->aData['locale'] = $this->Registry->Locale->getLocale();
 
 		if(empty($this->aData['cc']) && empty($this->aData['city'])){
-			$this->aData = array_merge($this->oRegistry->Geo->Location->data, $this->aData);
+			$this->aData = array_merge($this->Registry->Geo->Location->data, $this->aData);
 		}
 
-		$this->oUser = \Lampcms\UserLinkedin::factory($this->oRegistry, $this->aData);
+		$this->User = \Lampcms\UserLinkedin::factory($this->Registry, $this->aData);
 
 		/**
 		 * This will mark this userobject is new user
@@ -386,13 +386,13 @@ class Loginlinkedin extends WebPage
 		 * and ask the user to provide email address but only
 		 * during the same session
 		 */
-		$this->oUser->setNewUser();
-		d('isNewUser: '.$this->oUser->isNewUser());
-		$this->oUser->save();
+		$this->User->setNewUser();
+		d('isNewUser: '.$this->User->isNewUser());
+		$this->User->save();
 
-		\Lampcms\PostRegistration::createReferrerRecord($this->oRegistry, $this->oUser);
+		\Lampcms\PostRegistration::createReferrerRecord($this->Registry, $this->User);
 
-		$this->oRegistry->Dispatcher->post($this->oUser, 'onNewUser');
+		$this->Registry->Dispatcher->post($this->User, 'onNewUser');
 
 		return $this;
 
@@ -479,7 +479,7 @@ class Loginlinkedin extends WebPage
 	 * and 'about' are added ONLY if they
 	 * don't already exist in User
 	 *
-	 * @post-condition: $this->oUser object is updated
+	 * @post-condition: $this->User object is updated
 	 * with the valued from $this->aData AND $this->aAccessToken
 	 * and then saved using save()
 	 *
@@ -487,7 +487,7 @@ class Loginlinkedin extends WebPage
 	 */
 	protected function updateUser(){
 
-		$avtr = $this->oUser['avatar_external'];
+		$avtr = $this->User['avatar_external'];
 		/**
 		 * Special case:
 		 * if connecting user and another user
@@ -502,12 +502,12 @@ class Loginlinkedin extends WebPage
 		 * of linkedin_id key here
 		 */
 		if($this->bConnect){
-			$a = $this->oRegistry->Mongo->USERS->findOne(array('linkedin_id' => $this->aData['linkedin_id']), array('_id' => 1));
+			$a = $this->Registry->Mongo->USERS->findOne(array('linkedin_id' => $this->aData['linkedin_id']), array('_id' => 1));
 			if(empty($a)){
-				$this->oUser['linkedin_id'] = $this->aData['linkedin_id'];
+				$this->User['linkedin_id'] = $this->aData['linkedin_id'];
 			}
 		} else {
-			$this->oUser['linkedin_id'] = $this->aData['linkedin_id'];
+			$this->User['linkedin_id'] = $this->aData['linkedin_id'];
 		}
 
 		/**
@@ -520,19 +520,19 @@ class Loginlinkedin extends WebPage
 		 * the value by editing profile.
 		 */
 		if(empty($avtr) && !empty($this->aData['avatar_external'])){
-			$this->oUser['avatar_external'] = $this->aData['avatar_external'];
+			$this->User['avatar_external'] = $this->aData['avatar_external'];
 		}
 
-		if(null === $this->oUser['description'] && !empty($this->aData['description'])){
-			$this->oUser['description'] = $this->aData['description'];
+		if(null === $this->User['description'] && !empty($this->aData['description'])){
+			$this->User['description'] = $this->aData['description'];
 		}
 
-		if(null === $this->oUser['cc'] && !empty($this->aData['cc'])){
-			$this->oUser['cc'] = $this->aData['cc'];
+		if(null === $this->User['cc'] && !empty($this->aData['cc'])){
+			$this->User['cc'] = $this->aData['cc'];
 		}
 
-		if(null === $this->oUser['city'] && !empty($this->aData['city'])){
-			$this->oUser['city'] = $this->aData['city'];
+		if(null === $this->User['city'] && !empty($this->aData['city'])){
+			$this->User['city'] = $this->aData['city'];
 		}
 
 		/**
@@ -542,9 +542,9 @@ class Loginlinkedin extends WebPage
 		 * and optionally 'url' with linkenin profile url
 		 *
 		 */
-		$this->oUser['linkedin'] = $this->aData['linkedin'];
+		$this->User['linkedin'] = $this->aData['linkedin'];
 
-		$this->oUser->save();
+		$this->User->save();
 
 		return $this;
 	}
@@ -566,7 +566,7 @@ class Loginlinkedin extends WebPage
 	 *
 	 */
 	protected function getUserByLinkedInId($lid){
-		$coll = $this->oRegistry->Mongo->USERS;
+		$coll = $this->Registry->Mongo->USERS;
 		$coll->ensureIndex(array('linkedin_id' => 1));
 
 		$aUser = $coll->findOne(array('linkedin_id' => (string)$lid));

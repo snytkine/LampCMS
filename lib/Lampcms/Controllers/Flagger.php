@@ -103,7 +103,7 @@ class Flagger extends WebPage
 
 	protected $aRequired = array('rid', 'rtype');
 
-	protected $oResource;
+	protected $Resource;
 
 	/**
 	 * Name of collection
@@ -115,7 +115,7 @@ class Flagger extends WebPage
 
 
 	protected function main(){
-		$this->collection = ('q' == $this->oRequest['rtype']) ? 'QUESTIONS' : 'ANSWERS';
+		$this->collection = ('q' == $this->Request['rtype']) ? 'QUESTIONS' : 'ANSWERS';
 		$this->checkReportFlood()
 		->getResource()
 		->updateResource()
@@ -133,8 +133,8 @@ class Flagger extends WebPage
 	protected function getResource(){
 
 		d('type: '.$this->collection);
-		$coll = $this->oRegistry->Mongo->getCollection($this->collection);
-		$a = $coll->findOne(array('_id' => (int)$this->oRequest['rid']));
+		$coll = $this->Registry->Mongo->getCollection($this->collection);
+		$a = $coll->findOne(array('_id' => (int)$this->Request['rid']));
 		d('a: '.print_r($a, 1));
 
 		if(empty($a)){
@@ -144,7 +144,7 @@ class Flagger extends WebPage
 
 		$class = ('QUESTIONS' === $this->collection) ? '\\Lampcms\\Question' : '\\Lampcms\\Answer';
 
-		$this->oResource = new $class($this->oRegistry, $a);
+		$this->Resource = new $class($this->Registry, $a);
 
 		return $this;
 	}
@@ -156,8 +156,8 @@ class Flagger extends WebPage
 	 * @return object $this
 	 */
 	protected function updateResource(){
-		$coll = $this->oRegistry->Mongo->getCollection($this->collection);
-		$coll->update(array("_id" => (int)$this->oRequest['rid']), array('$inc' => array("i_flags" => 1)), array("fsync" => true));
+		$coll = $this->Registry->Mongo->getCollection($this->collection);
+		$coll->update(array("_id" => (int)$this->Request['rid']), array('$inc' => array("i_flags" => 1)), array("fsync" => true));
 
 		return $this;
 	}
@@ -172,12 +172,12 @@ class Flagger extends WebPage
 	 * @throws \Lampcms\Exception
 	 */
 	protected function checkReportFlood(){
-		$oViewer = $this->oRegistry->Viewer;
+		$oViewer = $this->Registry->Viewer;
 		if(!$oViewer->isModerator()){
 
 			$since = time() - self::TIME_PERIOD; // 24 hours
-			$cur = $this->oRegistry->Mongo->REPORTED_ITEMS
-			->find(array('i_uid' => $this->oRegistry->Viewer->getUid(), 'i_ts' => array('$gt' => $since)), array('i_ts', 'hts'));
+			$cur = $this->Registry->Mongo->REPORTED_ITEMS
+			->find(array('i_uid' => $this->Registry->Viewer->getUid(), 'i_ts' => array('$gt' => $since)), array('i_ts', 'hts'));
 
 			if($cur && ($cur->count(true) > self::MAX_FLAGS) ){
 
@@ -198,14 +198,14 @@ class Flagger extends WebPage
 		$data = array(
 		'i_ts' => time(),
 		'h_ts' => date('r'),
-		'i_res' => $this->oRequest['rid'],
-		'rtype' => $this->oRequest['rtype'],
-		'i_uid' => $this->oRegistry->Viewer->getUid(),
-		'username' => $this->oRegistry->Viewer->getDisplayName(),
-		'note' => $this->oRequest->getUTF8('note')->stripTags()->valueOf()
+		'i_res' => $this->Request['rid'],
+		'rtype' => $this->Request['rtype'],
+		'i_uid' => $this->Registry->Viewer->getUid(),
+		'username' => $this->Registry->Viewer->getDisplayName(),
+		'note' => $this->Request->getUTF8('note')->stripTags()->valueOf()
 		);
 
-		$coll = $this->oRegistry->Mongo->REPORTED_ITEMS;
+		$coll = $this->Registry->Mongo->REPORTED_ITEMS;
 		$coll->ensureIndex(array('i_uid' => 1));
 
 		$coll->insert($data);
@@ -222,13 +222,13 @@ class Flagger extends WebPage
 	 */
 	protected function makeBody(){
 		$vars = array(
-		$this->oRegistry->Viewer->getDisplayName(),
-		$this->oRegistry->Ini->SITE_URL.$this->oRegistry->Viewer->getProfileUrl(),
-		('q' == $this->oRequest['rtype']) ? 'Question' : 'Answer',
-		$this->oResource->getUrl(),
-		$this->oResource['b'],
-		$this->oRequest->get('reason', 's', 'not given'),
-		$this->oRequest['note']
+		$this->Registry->Viewer->getDisplayName(),
+		$this->Registry->Ini->SITE_URL.$this->Registry->Viewer->getProfileUrl(),
+		('q' == $this->Request['rtype']) ? 'Question' : 'Answer',
+		$this->Resource->getUrl(),
+		$this->Resource['b'],
+		$this->Request->get('reason', 's', 'not given'),
+		$this->Request['note']
 		);
 
 		d('vars: '.print_r($vars, 1));
@@ -249,14 +249,14 @@ class Flagger extends WebPage
 	 */
 	protected function notifyModerators(){
 
-		$cur = $this->oRegistry->Mongo->USERS->find(array(
+		$cur = $this->Registry->Mongo->USERS->find(array(
   			'role' => array('$in' => array('moderator', 'administrator'))
 		), array('email'));
 
 		d('found '.$cur->count().' moderators');
 
 		if($cur && $cur->count() > 0){
-			$Mailer = Mailer::factory($this->oRegistry);
+			$Mailer = Mailer::factory($this->Registry);
 			$subject = $this->SUBJECT;
 			$body = $this->makeBody();
 			$aTo = array();
@@ -282,7 +282,7 @@ class Flagger extends WebPage
 			Responder::sendJSON(array('alert' => $message));
 		}
 
-		Responder::redirectToPage($this->oResource->getUrl());
+		Responder::redirectToPage($this->Resource->getUrl());
 	}
 
 }

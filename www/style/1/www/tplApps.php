@@ -60,7 +60,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplApps extends Lampcms\Template\Template
+class tplApps extends Lampcms\Template\Fast
 {
 	/**
 	 * If App does not have 'icon' 

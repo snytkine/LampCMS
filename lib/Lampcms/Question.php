@@ -62,7 +62,7 @@ namespace Lampcms;
  * @author Dmitri Snytkine
  *
  */
-class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDownRatable, Interfaces\CommentedResource
+class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interfaces\UpDownRatable, Interfaces\CommentedResource
 {
 	/**
 	 * Currently not used, was going to have
@@ -77,10 +77,10 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 */
 	protected $ansCollection = 'ANSWERS';
 
-	public function __construct(Registry $oRegistry, array $a = null){
+	public function __construct(Registry $Registry, array $a = null){
 
 		$a = ($a) ? $a : array();
-		parent::__construct($oRegistry, 'QUESTIONS', $a);
+		parent::__construct($Registry, 'QUESTIONS', $a);
 	}
 
 
@@ -170,7 +170,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 */
 	public function getUrl($short = false){
 
-		$url = $this->oRegistry->Ini->SITE_URL.'/q'.$this->offsetGet('_id').'/';
+		$url = $this->Registry->Ini->SITE_URL.'/q'.$this->offsetGet('_id').'/';
 
 		return ($short) ? $url : $url.$this->offsetGet('url');
 	}
@@ -368,19 +368,19 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * In case question was 'unanswered' we must also
 	 * update UNANSWERED_TAGS
 	 *
-	 * @param Answer $oAnswer object of type Answer represents
+	 * @param Answer $Answer object of type Answer represents
 	 * Answer being accepted as best answer
 	 *
 	 */
-	public function setBestAnswer(Answer $oAnswer){
+	public function setBestAnswer(Answer $Answer){
 		d('about to set status to accptd');
-		parent::offsetSet('i_sel_ans', $oAnswer->getResourceId());
-		parent::offsetSet('i_sel_uid', $oAnswer->getOwnerId());
+		parent::offsetSet('i_sel_ans', $Answer->getResourceId());
+		parent::offsetSet('i_sel_uid', $Answer->getOwnerId());
 
 		/**
 		 * Now set the Answer object's accepted status to true
 		 */
-		$oAnswer->setAccepted()->touch();
+		$Answer->setAccepted()->touch();
 
 		/**
 		 * If Question is still not 'answered', means
@@ -391,7 +391,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		 * is done via UnansweredTags object
 		 */
 		if('accptd' !== $this->offsetGet('status')){
-			UnansweredTags::factory($this->oRegistry)->remove($this);
+			UnansweredTags::factory($this->Registry)->remove($this);
 		}
 
 		parent::offsetSet('status', 'accptd');
@@ -649,7 +649,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * (non-PHPdoc)
 	 * @see Lampcms\Interfaces.CommentedResource::addComment()
 	 */
-	public function addComment(CommentParser $oComment){
+	public function addComment(CommentParser $Comment){
 		$aKeys = array(
 		'_id', 
 		'i_uid', 
@@ -678,7 +678,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		 * get rid of keys like hash, i_res
 		 * because we don't need them here
 		 */
-		$aComment = $oComment->getArrayCopy();
+		$aComment = $Comment->getArrayCopy();
 		$aComment = array_intersect_key($aComment, array_flip($aKeys));
 
 		$aComments[] = $aComment;
@@ -785,7 +785,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * and user is still considered a contributor
 	 * as long as the same user has contributed other items
 	 *
-	 * @param mixed int | object $oUser object of type User
+	 * @param mixed int | object $User object of type User
 	 */
 	public function addContributor($User){
 		if(!\is_int($User) && (!\is_object($User) || !($User instanceof User))){
@@ -803,7 +803,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 
 
 	/**
-	 * Remove user id of User $oUser
+	 * Remove user id of User $User
 	 * from array of contributors
 	 * Contributors array is not unique,
 	 * it can have more than one entry for
@@ -812,7 +812,7 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * and user is still considered a contributor
 	 * as long as the same user has contributed other items
 	 *
-	 * @param mixed int | User $oUser
+	 * @param mixed int | User $User
 	 */
 	public function removeContributor($User){
 
@@ -906,17 +906,17 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * This way if answer is deleted we can just delete
 	 * that one element from array!
 	 *
-	 * @param User $oUser object of type User who made the last
+	 * @param User $User object of type User who made the last
 	 * Answer or Comment to this question
 	 *
 	 * @return object $this
 	 */
-	public function setLatestAnswer(User $oUser, Answer $oAnswer){
+	public function setLatestAnswer(User $User, Answer $Answer){
 		$aLatest = $this->offsetGet('a_latest');
 		$a = array(
-		'u' => '<a href="'.$oUser->getProfileUrl().'">'.$oUser->getDisplayName().'</a>',
-		't' => date('F j, Y g:i a T', $oAnswer->getLastModified()),
-		'id' => $oAnswer->getResourceId()
+		'u' => '<a href="'.$User->getProfileUrl().'">'.$User->getDisplayName().'</a>',
+		't' => date('F j, Y g:i a T', $Answer->getLastModified()),
+		'id' => $Answer->getResourceId()
 		);
 
 		/**
@@ -939,12 +939,12 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 	 * then also unset the whole 'a_latest' key
 	 * from this object
 	 *
-	 * @param object $oAnswer object of type Answer
+	 * @param object $Answer object of type Answer
 	 *
 	 * @return object $this
 	 */
-	public function removeAnswer(Answer $oAnswer){
-		$id = $oAnswer->getResourceId();
+	public function removeAnswer(Answer $Answer){
+		$id = $Answer->getResourceId();
 		$aLatest = $this->offsetGet('a_latest');
 
 		for($i = 0; $i < count($aLatest); $i += 1){
@@ -973,17 +973,17 @@ class Question extends MongoDoc implements Interfaces\Question, Interfaces\UpDow
 		 * UNANSWERED_TAGS again because now
 		 * this question is technically unanswered again
 		 */
-		if((true === $oAnswer['accepted']) &&
+		if((true === $Answer['accepted']) &&
 		($id === $this->offsetGet('i_sel_ans'))
 		){
 			parent::offsetSet('status', 'answrd');
 			$this->offsetUnset('i_sel_ans');
 			$this->offsetUnset('i_sel_uid');
-			UnansweredTags::factory($this->oRegistry)->set($this);
+			UnansweredTags::factory($this->Registry)->set($this);
 		}
 
 		$this->updateAnswerCount(-1)
-		->removeContributor($oAnswer->getOwnerId());
+		->removeContributor($Answer->getOwnerId());
 
 		$this->touch(false);
 

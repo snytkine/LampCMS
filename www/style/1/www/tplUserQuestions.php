@@ -48,28 +48,28 @@
  * @author Dmitri Snytkine
  *
  */
-class tplUserQuestions extends Lampcms\Template\Template
+class tplUserQuestions extends Lampcms\Template\Simple
 {
 	protected static function func(&$a){
-		if($a['count'] != 1){
-			$a['s'] = 's';
+		if($a['{count}'] != 1){
+			$a['{s}'] = 's';
 		}
 	}
 
 	protected static $vars = array(
-	'count' => '',
-	'label' => 'Question',
-	'questions' => '',
-	's' => '',
-	'pagination' => '');
+	'{count}' => '',
+	'{label}' => 'Question',
+	'{questions}' => '',
+	'{s}' => '',
+	'{pagination}' => '');
 
 	protected static $tpl = '
 	<div class="user_questions mt10">
-	<span class="counter cb fl larger bold">%1$s %2$s%4$s</span>
+	<span class="counter cb fl larger bold">{count} {label}{s}</span>
 		<div class="cb fl">
-		%3$s
+		{questions}
 		</div> <!-- // uquestions -->
-		<div class="qpages reveal hidden">%5$s</div>
+		<div class="qpages reveal hidden">{pagination}</div>
 	</div> 
 	<!-- // user_tags  -->
 	';

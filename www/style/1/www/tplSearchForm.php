@@ -50,7 +50,7 @@
  */
 
 
-class tplSearchForm extends \Lampcms\Template\Template
+class tplSearchForm extends \Lampcms\Template\Fast
 {
 
 

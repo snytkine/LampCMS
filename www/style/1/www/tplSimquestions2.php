@@ -51,7 +51,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplSimquestions2 extends Lampcms\Template\Template
+class tplSimquestions2 extends Lampcms\Template\Fast
 {
 
 	protected static $vars = array(

@@ -72,15 +72,15 @@ class UserTagsBlock extends LampcmsObject
 	 * Renders block with user tags
 	 *
 	 * @todo get Viewer from Registry and if NOT
-	 * the same as oUser then get array intersection
+	 * the same as User then get array intersection
 	 * and show you have these 'tags' in common
 	 *
-	 * @param object $oRegistry Registry object
-	 * @param object $oUser User object
+	 * @param object $Registry Registry object
+	 * @param object $User User object
 	 */
-	public static function get(Registry $oRegistry, User $oUser){
-		$uid = $oUser->getUid();
-		$aTags = $oRegistry->Mongo->USER_TAGS->findOne(array('_id' => $uid));
+	public static function get(Registry $Registry, User $User){
+		$uid = $User->getUid();
+		$aTags = $Registry->Mongo->USER_TAGS->findOne(array('_id' => $uid));
 
 		if(empty($aTags) || empty($aTags['tags'])){
 			d('no tags for user: '.$uid);
@@ -138,7 +138,7 @@ class UserTagsBlock extends LampcmsObject
 			return '';
 		}
 
-		$aTags = $oRegistry->Mongo->USER_TAGS->findOne(array('_id' => $uid));
+		$aTags = $Registry->Mongo->USER_TAGS->findOne(array('_id' => $uid));
 
 		if(empty($aTags) || empty($aTags['tags'])){
 			d('no tags for user: '.$uid);

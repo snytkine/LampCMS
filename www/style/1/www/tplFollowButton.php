@@ -58,7 +58,7 @@
  * @author admin
  *
  */
-class tplFollowButton extends \Lampcms\Template\Template
+class tplFollowButton extends \Lampcms\Template\Fast
 {
 
 	/**

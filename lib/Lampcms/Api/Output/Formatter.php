@@ -51,10 +51,10 @@
 
 
 
-namespace Lampcms;
+namespace Lampcms\Api\Output;
 
 
-abstract class Output{
+abstract class Formatter{
 
 	/**
 	 * Actual data that is going to be
@@ -87,19 +87,24 @@ abstract class Output{
 	 * @return object of this class (sub-class if $output is 'xml')
 	 */
 	public static function factory($output = 'json', $callback = null){
+
 		d('cp');
 		switch($output){
 			case 'json':
 				d('cp');
-				return new OutputJson();
+				return new Json();
 				break;
 
 			case 'jsonp':
-				return new OutputJsonp((string)$callback);
+				return new Jsonp((string)$callback);
+				break;
+
+			case 'xml':
+				return new Xml();
 				break;
 		}
 
-		exit('Unsupported output format: '.(string)$output);
+		throw new \Lapmcms\Api\Exception('Unsupported output format: '.(string)$output);
 	}
 
 
@@ -139,7 +144,7 @@ abstract class Output{
 
 	/**
 	 * Getter for aData
-	 * 
+	 *
 	 * @return array
 	 */
 	public function getData(){

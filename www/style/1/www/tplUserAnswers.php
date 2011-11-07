@@ -48,7 +48,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplUserAnswers extends Lampcms\Template\Template
+class tplUserAnswers extends Lampcms\Template\Fast
 {
 	/**
 	 * Template pre-parse function

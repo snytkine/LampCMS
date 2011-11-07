@@ -50,7 +50,11 @@
  */
 
 
-namespace Lampcms;
+namespace Lampcms\Mongo;
+
+use Lampcms\LampcmsArray;
+use Lampcms\Exception;
+use Lampcms\Registry;
 
 /**
  * Class represents one document in Mongo collection
@@ -60,7 +64,7 @@ namespace Lampcms;
  * @author Dmitri Snytkine   implements \Serializable
  *
  */
-class MongoDoc extends LampcmsArray implements \Serializable
+class Doc extends LampcmsArray implements \Serializable
 {
 	/**
 	 * Object of type Registry
@@ -68,9 +72,9 @@ class MongoDoc extends LampcmsArray implements \Serializable
 	 * because we sometimes need to post events
 	 * and we can get Dispatcher from Registry
 	 *
-	 * @var object of type Registry
+	 * @var object of type \Lampcms\Registry
 	 */
-	protected $oRegistry;
+	protected $Registry;
 
 
 	/**
@@ -163,7 +167,7 @@ class MongoDoc extends LampcmsArray implements \Serializable
 	/**
 	 *
 	 * Static factory method
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 * @param string $collectionName
 	 * @param array $a
 	 * @param stirng $default fallback value for element
@@ -171,8 +175,8 @@ class MongoDoc extends LampcmsArray implements \Serializable
 	 *
 	 * @return object of this class OR class extending this class
 	 */
-	public static function factory(Registry $oRegistry, $collectionName = null, array $a = array(), $default = null){
-		$o = new static($oRegistry, $collectionName, $a);
+	public static function factory(Registry $Registry, $collectionName = null, array $a = array(), $default = null){
+		$o = new static($Registry, $collectionName, $a);
 
 		return $o;
 	}
@@ -189,9 +193,9 @@ class MongoDoc extends LampcmsArray implements \Serializable
 	 * set it to null or false, whatever you want to use for a default (fallback)
 	 * value of any array key
 	 */
-	public function __construct(Registry $oRegistry, $collectionName = null, array $a = array()){
+	public function __construct(Registry $Registry, $collectionName = null, array $a = array()){
 		parent::__construct($a);
-		$this->oRegistry = $oRegistry;
+		$this->Registry = $Registry;
 		$this->collectionName = $collectionName;
 		$this->md5 = \md5(\serialize($a));
 	}
@@ -230,9 +234,9 @@ class MongoDoc extends LampcmsArray implements \Serializable
 	 * @see ArrayDefaults::offsetGet()
 	 */
 	public function offsetGet($name){
-		//$ret = parent::offsetGet($name); // old way, when this was ArrayDefaults object - not anymore!
+
 		$ret = !$this->offsetExists($name) ? null : parent::offsetGet($name);
-		
+
 		d(' looking for '.$name.' getting: '.var_export($ret, true));
 		$prefix = \substr($name, 0, 2);
 		switch($prefix){
@@ -275,11 +279,11 @@ class MongoDoc extends LampcmsArray implements \Serializable
 	 * @return object of type Registry
 	 */
 	public function getRegistry(){
-		if(!isset($this->oRegistry)){
-			$this->oRegistry = Registry::getInstance();
+		if(!isset($this->Registry)){
+			$this->Registry = Registry::getInstance();
 		}
 
-		return $this->oRegistry;
+		return $this->Registry;
 	}
 
 
@@ -321,7 +325,7 @@ class MongoDoc extends LampcmsArray implements \Serializable
 	 *
 	 * @param string $method
 	 * @param array $arguments
-	 * @throws InvalidArgimentException
+	 * @throws \InvalidArgimentException if called method does not start with 'by'
 	 */
 	public function __call($method, $arguments){
 		if('by' !== substr(strtolower($method), 0, 2) ){
@@ -339,11 +343,11 @@ class MongoDoc extends LampcmsArray implements \Serializable
 			throw new \MongoException('Unable to find data in collection '.$this->collectionName.' by '.$column.' = '.$value);
 		}
 
-		if(!empty($a)){
-			d('got data a: '.print_r($a, 1));
 
-			$this->reload($a);
-		}
+		d('got data a: '.print_r($a, 1));
+
+		$this->reload($a);
+
 
 		return $this;
 	}
@@ -725,11 +729,6 @@ class MongoDoc extends LampcmsArray implements \Serializable
 					'md5' => $this->md5,
 					'bSaved' => $this->bSaved,
 					'keyColumn' => $this->keyColumn);
-
-		/**
-		 * Unsetting $this->oRegistry may not be necessary
-		 */
-		//unset($this->oRegistry);
 
 		return serialize($a);
 	}

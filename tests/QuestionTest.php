@@ -66,15 +66,15 @@ use Lampcms\Question;
  */
 class QuestionTest extends LampcmsUnitTestCase
 {
-	protected $oQuestion;
+	protected $Question;
 
 	public function setUp(){
-		$this->oQuestion = new \Lampcms\MockQuestion(new Registry());
+		$this->Question = new \Lampcms\MockQuestion(new Registry());
 	}
 
 
 	public function testScore(){
-		$s = $this->oQuestion->getScore();
+		$s = $this->Question->getScore();
 
 		$this->assertEquals(0, $s);
 	}
@@ -85,23 +85,23 @@ class QuestionTest extends LampcmsUnitTestCase
 	 */
 	public function testAddVote(){
 
-		$this->oQuestion->addDownVote();
+		$this->Question->addDownVote();
 
-		$this->assertEquals(-1, $this->oQuestion->getScore());
+		$this->assertEquals(-1, $this->Question->getScore());
 
-		$this->oQuestion->addUpVote()
+		$this->Question->addUpVote()
 		->addUpVote()
 		->addUpVote();
 
-		$this->assertEquals(2, $this->oQuestion->getScore());
+		$this->assertEquals(2, $this->Question->getScore());
 
 	}
 
 
 	public function testAddFollower(){
-		$this->oQuestion->addFollower(999999999);
+		$this->Question->addFollower(999999999);
 
-		$aFollowers = $this->oQuestion['a_flwrs'];
+		$aFollowers = $this->Question['a_flwrs'];
 		$this->assertTrue(in_array(999999999, $aFollowers));
 	}
 
@@ -110,35 +110,35 @@ class QuestionTest extends LampcmsUnitTestCase
 	 * @depends testAddFollower
 	 */
 	public function testRemoveFollower(){
-		$this->oQuestion->removeFollower(999999999);
+		$this->Question->removeFollower(999999999);
 
-		$aFollowers = $this->oQuestion['a_flwrs'];
+		$aFollowers = $this->Question['a_flwrs'];
 		$this->assertFalse(in_array(999999999, $aFollowers));
 	}
 
 
 	public function testGetCommentsCount(){
-		$this->assertTrue(2 === $this->oQuestion->getCommentsCount());
+		$this->assertTrue(2 === $this->Question->getCommentsCount());
 	}
 
 	public function testGetOwnerId(){
-		$this->assertTrue(3 === $this->oQuestion->getOwnerId());
+		$this->assertTrue(3 === $this->Question->getOwnerId());
 	}
 
 	public function testGetQuestionOwnerId(){
-		$this->assertTrue(3 === $this->oQuestion->getQuestionOwnerId());
+		$this->assertTrue(3 === $this->Question->getQuestionOwnerId());
 	}
 
 	public function testgetResourceTypeId(){
-		$this->assertEquals('QUESTION', $this->oQuestion->getResourceTypeId());
+		$this->assertEquals('QUESTION', $this->Question->getResourceTypeId());
 	}
 
 	public function testGetQuestionId(){
-		$this->assertEquals(510, $this->oQuestion->getQuestionId());
+		$this->assertEquals(510, $this->Question->getQuestionId());
 	}
 
 	public function testGetAnswerCount(){
-		$this->assertTrue(1 === $this->oQuestion->getAnswerCount());
+		$this->assertTrue(1 === $this->Question->getAnswerCount());
 	}
 
 	/**
@@ -146,9 +146,9 @@ class QuestionTest extends LampcmsUnitTestCase
 	 * @depends testGetAnswerCount
 	 */
 	public function testIncreaseAnswerCountTwice(){
-		$this->oQuestion->updateAnswerCount()->updateAnswerCount();
+		$this->Question->updateAnswerCount()->updateAnswerCount();
 
-		$this->assertTrue(3 === $this->oQuestion->getAnswerCount());
+		$this->assertTrue(3 === $this->Question->getAnswerCount());
 	}
 
 	/**
@@ -156,15 +156,15 @@ class QuestionTest extends LampcmsUnitTestCase
 	 * @depends testGetAnswerCount
 	 */
 	public function testDecreaseAnswerCountBelow1(){
-		$this->oQuestion->updateAnswerCount(-5);
+		$this->Question->updateAnswerCount(-5);
 
-		$this->assertTrue(0 === $this->oQuestion->getAnswerCount());
-		$this->assertTrue('unans' === $this->oQuestion->offsetGet('status'));
+		$this->assertTrue(0 === $this->Question->getAnswerCount());
+		$this->assertTrue('unans' === $this->Question->offsetGet('status'));
 	}
 
 
 	public function testGetLastModified(){
-		$this->assertEquals(1305401334, $this->oQuestion->getLastModified());
+		$this->assertEquals(1305401334, $this->Question->getLastModified());
 	}
 
 	/**
@@ -172,7 +172,7 @@ class QuestionTest extends LampcmsUnitTestCase
 	 * @depends testGetLastModified
 	 */
 	public function testGetEtag(){
-		$this->assertEquals(1305401334, $this->oQuestion->getEtag());
+		$this->assertEquals(1305401334, $this->Question->getEtag());
 	}
 
 	/**
@@ -180,9 +180,9 @@ class QuestionTest extends LampcmsUnitTestCase
 	 * @depends testGetEtag
 	 */
 	public function testTouch(){
-		$this->oQuestion->touch();
-		$this->assertTrue((time() - $this->oQuestion->getEtag()) < 2);
-		$this->assertTrue((time() - $this->oQuestion->getLastModified()) < 2);
+		$this->Question->touch();
+		$this->assertTrue((time() - $this->Question->getEtag()) < 2);
+		$this->assertTrue((time() - $this->Question->getLastModified()) < 2);
 	}
 
 
@@ -191,35 +191,35 @@ class QuestionTest extends LampcmsUnitTestCase
 	 * @depends testGetCommentsCount
 	 */
 	public function testGetComments(){
-		$a = $this->oQuestion->getComments();
+		$a = $this->Question->getComments();
 		$this->assertTrue(511 === $a[0]['_id']);
 		$this->assertTrue(512 === $a[1]['_id']);
 	}
 
 
 	public function testGetTitle(){
-		$this->assertEquals('Mock Stub Post', $this->oQuestion->getTitle());
+		$this->assertEquals('Mock Stub Post', $this->Question->getTitle());
 	}
 
 	public function testGetBody(){
-		$this->assertEquals('<span>This is a simple <em class="wtag">mock</em> question</span>', $this->oQuestion->getBody());
+		$this->assertEquals('<span>This is a simple <em class="wtag">mock</em> question</span>', $this->Question->getBody());
 	}
 
 	public function testGetUsername(){
-		$this->assertEquals('user1', $this->oQuestion->getUsername());
+		$this->assertEquals('user1', $this->Question->getUsername());
 	}
 
 
 	public function testIsClosed(){
-		$this->assertFalse($this->oQuestion->isClosed());
+		$this->assertFalse($this->Question->isClosed());
 	}
 
 	public function testSeoUrl(){
-		$this->assertEquals('Mock-Stub-Post', $this->oQuestion->getSeoUrl());
+		$this->assertEquals('Mock-Stub-Post', $this->Question->getSeoUrl());
 	}
 
 	public function testGetRegistry(){
-		$this->assertInstanceOf('\Lampcms\Registry', $this->oQuestion->getRegistry());
+		$this->assertInstanceOf('\Lampcms\Registry', $this->Question->getRegistry());
 	}
 
 
@@ -229,11 +229,11 @@ class QuestionTest extends LampcmsUnitTestCase
 	 */
 	public function testGetUrl(){
 
-		$Registry = $this->oQuestion->getRegistry();
+		$Registry = $this->Question->getRegistry();
 
 		$siteUrl = $Registry->Ini->SITE_URL;
-		$url = $this->oQuestion->getUrl();
-		$shortUrl = $this->oQuestion->getUrl(true);
+		$url = $this->Question->getUrl();
+		$shortUrl = $this->Question->getUrl(true);
 
 		$this->assertEquals('/q510/Mock-Stub-Post', \substr($url, strlen($siteUrl)));
 		$this->assertEquals('/q510/', \substr($shortUrl, strlen($siteUrl)));
@@ -246,18 +246,18 @@ class QuestionTest extends LampcmsUnitTestCase
 	 * @depends testGetComments
 	 */
 	public function testDeleteCommentComments(){
-		$a = $this->oQuestion->deleteComment(511);
-		$this->assertTrue(1 === $this->oQuestion->getCommentsCount());
+		$a = $this->Question->deleteComment(511);
+		$this->assertTrue(1 === $this->Question->getCommentsCount());
 	}
 
 
 	public function testAddContributor(){
-		$this->oQuestion->addContributor(5);
-		$a1 = $this->oQuestion['a_uids'];
+		$this->Question->addContributor(5);
+		$a1 = $this->Question['a_uids'];
 		$this->assertTrue(in_array(5, $a1));
 		$this->assertFalse(in_array(26, $a1));
-		$this->oQuestion->addContributor(new MockUser($this->oQuestion->getRegistry()));
-		$a2 = $this->oQuestion['a_uids'];
+		$this->Question->addContributor(new MockUser($this->Question->getRegistry()));
+		$a2 = $this->Question['a_uids'];
 		$this->assertTrue(in_array(26, $a2));
 
 	}
@@ -268,21 +268,21 @@ class QuestionTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testRemoveContributor(){
-		$this->oQuestion->addContributor(new MockUser($this->oQuestion->getRegistry()));
-		$this->oQuestion->removeContributor(new MockUser($this->oQuestion->getRegistry()));
-		$a2 = $this->oQuestion['a_uids'];
+		$this->Question->addContributor(new MockUser($this->Question->getRegistry()));
+		$this->Question->removeContributor(new MockUser($this->Question->getRegistry()));
+		$a2 = $this->Question['a_uids'];
 		$this->assertFalse(in_array(26, $a2));
 	}
 
 
 	public function testSetBestAnswer(){
-		$Answer = new MockAnswer($this->oQuestion->getRegistry());
-		$this->oQuestion->setBestAnswer($Answer);
+		$Answer = new MockAnswer($this->Question->getRegistry());
+		$this->Question->setBestAnswer($Answer);
 
-		$this->assertEquals(513, $this->oQuestion['i_sel_ans']);
-		$this->assertEquals(3, $this->oQuestion['i_sel_uid']);
-		$this->assertEquals('accptd', $this->oQuestion['status']);
-		$this->assertTrue( (time() - $this->oQuestion['i_etag']) < 2 );
+		$this->assertEquals(513, $this->Question['i_sel_ans']);
+		$this->assertEquals(3, $this->Question['i_sel_uid']);
+		$this->assertEquals('accptd', $this->Question['status']);
+		$this->assertTrue( (time() - $this->Question['i_etag']) < 2 );
 		$this->assertTrue($Answer['accepted'] === true);
 		$this->assertTrue((time() - $Answer->getLastModified()) < 2);
 	}
@@ -291,17 +291,17 @@ class QuestionTest extends LampcmsUnitTestCase
 
 
 	public function testSetDeleted(){
-		$oUser = new MockUser($this->oQuestion->getRegistry());
-		$this->oQuestion->setDeleted($oUser, 'test of deleting');
+		$User = new MockUser($this->Question->getRegistry());
+		$this->Question->setDeleted($User, 'test of deleting');
 
-		$a = $this->oQuestion['a_deleted'];
+		$a = $this->Question['a_deleted'];
 
 		$this->assertTrue(is_array($a));
 		$this->assertEquals(count($a), 5);
 		$this->assertEquals('John D Doe', $a['username']);
 		$this->assertEquals('test of deleting', $a['reason']);
 		$this->assertEquals(26, $a['i_uid']);
-		$this->assertTrue(( time() - $this->oQuestion['i_del_ts']) < 2);
+		$this->assertTrue(( time() - $this->Question['i_del_ts']) < 2);
 	}
 
 	/**
@@ -309,17 +309,17 @@ class QuestionTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testGetDeletedTime(){
-		$this->assertEquals(0, $this->oQuestion->getDeletedTime());
-		$oUser = new MockUser($this->oQuestion->getRegistry());
-		$this->oQuestion->setDeleted($oUser, 'test of deleting');
-		$this->assertTrue(( time() - $this->oQuestion->getDeletedTime()) < 2);
+		$this->assertEquals(0, $this->Question->getDeletedTime());
+		$User = new MockUser($this->Question->getRegistry());
+		$this->Question->setDeleted($User, 'test of deleting');
+		$this->assertTrue(( time() - $this->Question->getDeletedTime()) < 2);
 	}
 
 
 	public function testSetEdited(){
-		$oUser = new MockUser($this->oQuestion->getRegistry());
-		$this->oQuestion->setEdited($oUser, 'test of editing');
-		$a = $this->oQuestion['a_edited'];
+		$User = new MockUser($this->Question->getRegistry());
+		$this->Question->setEdited($User, 'test of editing');
+		$a = $this->Question['a_edited'];
 		$this->assertTrue(is_array($a));
 		$this->assertTrue(count($a) > 0);
 
@@ -337,17 +337,17 @@ class QuestionTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testSetClosed(){
-		$oUser = new MockUser($this->oQuestion->getRegistry());
-		$this->oQuestion->setClosed($oUser, 'test of closed');
-		$a = $this->oQuestion['a_closed'];
+		$User = new MockUser($this->Question->getRegistry());
+		$this->Question->setClosed($User, 'test of closed');
+		$a = $this->Question['a_closed'];
 		$this->assertTrue(is_array($a));
 
 		$this->assertEquals(count($a), 5);
 		$this->assertEquals('John D Doe', $a['username']);
 		$this->assertEquals('test of closed', $a['reason']);
 		$this->assertEquals(26, $a['i_uid']);
-		$this->assertEquals($a['av'], $oUser->getAvatarSrc());
-		$this->assertSame($a, ($this->oQuestion->isClosed()) );
+		$this->assertEquals($a['av'], $User->getAvatarSrc());
+		$this->assertSame($a, ($this->Question->isClosed()) );
 	}
 
 	
@@ -356,54 +356,54 @@ class QuestionTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testUpdateAnswerCount(){
-		$this->oQuestion->updateAnswerCount(-1);
-		$this->assertEquals(0, $this->oQuestion->getAnswerCount());
-		$this->assertEquals('unans', $this->oQuestion['status']);
-		$this->assertEquals('s', $this->oQuestion['ans_s']);
+		$this->Question->updateAnswerCount(-1);
+		$this->assertEquals(0, $this->Question->getAnswerCount());
+		$this->assertEquals('unans', $this->Question['status']);
+		$this->assertEquals('s', $this->Question['ans_s']);
 
-		$this->oQuestion->updateAnswerCount(-2);
-		$this->assertEquals(0, $this->oQuestion->getAnswerCount());
-		$this->assertEquals('unans', $this->oQuestion['status']);
-		$this->assertEquals('s', $this->oQuestion['ans_s']);
+		$this->Question->updateAnswerCount(-2);
+		$this->assertEquals(0, $this->Question->getAnswerCount());
+		$this->assertEquals('unans', $this->Question['status']);
+		$this->assertEquals('s', $this->Question['ans_s']);
 
-		$this->oQuestion->updateAnswerCount();
-		$this->assertEquals(1, $this->oQuestion->getAnswerCount());
-		$this->assertEquals('answrd', $this->oQuestion['status']);
-		$this->assertEquals('', $this->oQuestion['ans_s']);
+		$this->Question->updateAnswerCount();
+		$this->assertEquals(1, $this->Question->getAnswerCount());
+		$this->assertEquals('answrd', $this->Question['status']);
+		$this->assertEquals('', $this->Question['ans_s']);
 
-		$this->oQuestion->updateAnswerCount(1);
-		$this->assertEquals(2, $this->oQuestion->getAnswerCount());
-		$this->assertEquals('answrd', $this->oQuestion['status']);
-		$this->assertEquals('s', $this->oQuestion['ans_s']);
+		$this->Question->updateAnswerCount(1);
+		$this->assertEquals(2, $this->Question->getAnswerCount());
+		$this->assertEquals('answrd', $this->Question['status']);
+		$this->assertEquals('s', $this->Question['ans_s']);
 	}
 
 
 	public function testIncreaseViews(){
-		$oUser = new MockUser($this->oQuestion->getRegistry());
-		$this->oQuestion->increaseViews($oUser);
-		$this->assertEquals(2, $this->oQuestion['i_views']);
-		$this->oQuestion->increaseViews($oUser);
-		$this->assertEquals(2, $this->oQuestion['i_views']);
+		$User = new MockUser($this->Question->getRegistry());
+		$this->Question->increaseViews($User);
+		$this->assertEquals(2, $this->Question['i_views']);
+		$this->Question->increaseViews($User);
+		$this->assertEquals(2, $this->Question['i_views']);
 
-		$oUser['_id'] = 7;
-		$this->oQuestion->increaseViews($oUser);
-		$this->assertEquals(3, $this->oQuestion['i_views']);
+		$User['_id'] = 7;
+		$this->Question->increaseViews($User);
+		$this->assertEquals(3, $this->Question['i_views']);
 		/**
 		 * Test when Viewer is owner of question
 		 * in which case view should not count
 		 */
-		$oUser['_id'] = 3;
-		$this->oQuestion->increaseViews($oUser);
-		$this->assertEquals(3, $this->oQuestion['i_views']);
+		$User['_id'] = 3;
+		$this->Question->increaseViews($User);
+		$this->assertEquals(3, $this->Question['i_views']);
 
 		/**
 		 * Test when Viewer is guest (_id is 0)
 		 * View should count
 		 * in which case view should not count
 		 */
-		$oUser['_id'] = 0;
-		$this->oQuestion->increaseViews($oUser);
-		$this->assertEquals(4, $this->oQuestion['i_views']);
+		$User['_id'] = 0;
+		$this->Question->increaseViews($User);
+		$this->assertEquals(4, $this->Question['i_views']);
 	}
 
 
@@ -413,24 +413,24 @@ class QuestionTest extends LampcmsUnitTestCase
 	 */
 	public function testSetLatestAnswer(){
 
-		$oUser = new MockUser($this->oQuestion->getRegistry());
-		$oAnswer = new MockAnswer($this->oQuestion->getRegistry());
+		$User = new MockUser($this->Question->getRegistry());
+		$Answer = new MockAnswer($this->Question->getRegistry());
 
-		$this->oQuestion->setLatestAnswer($oUser, $oAnswer);
-		$a = $this->oQuestion['a_latest'];
+		$this->Question->setLatestAnswer($User, $Answer);
+		$a = $this->Question['a_latest'];
 		$this->assertTrue(is_array($a[0]));
 		$this->assertEquals(1, count($a));
 		$this->assertEquals('<a href="/users/26/ladada">John D Doe</a>', $a['0']['u']);
 		$this->assertEquals(513, $a['0']['id']);
 
-		$oAnswer['_id'] = 999;
-		$oUser['username'] = 'Dude';
-		$oUser['_id'] = 999999;
-		$oAnswer->setSaved();
-		$oUser->setSaved();
+		$Answer['_id'] = 999;
+		$User['username'] = 'Dude';
+		$User['_id'] = 999999;
+		$Answer->setSaved();
+		$User->setSaved();
 
-		$this->oQuestion->setLatestAnswer($oUser, $oAnswer);
-		$a = $this->oQuestion['a_latest'];
+		$this->Question->setLatestAnswer($User, $Answer);
+		$a = $this->Question['a_latest'];
 		$this->assertTrue(is_array($a[0]));
 		$this->assertEquals(2, count($a));
 		$this->assertEquals('<a href="/users/999999/Dude">John D Doe</a>', $a['0']['u']);
@@ -438,12 +438,12 @@ class QuestionTest extends LampcmsUnitTestCase
 		$this->assertEquals('<a href="/users/26/ladada">John D Doe</a>', $a['1']['u']);
 		$this->assertEquals(513, $a['1']['id']);
 
-		$this->oQuestion->insert();
+		$this->Question->insert();
 
-		$oQuestion = new Question($this->oQuestion->getRegistry());
-		$oQuestion->by_id(510);
+		$Question = new Question($this->Question->getRegistry());
+		$Question->by_id(510);
 
-		$a = $oQuestion['a_latest'];
+		$a = $Question['a_latest'];
 		$this->assertEquals(999, $a['0']['id']);
 	}
 
@@ -458,22 +458,22 @@ class QuestionTest extends LampcmsUnitTestCase
 		 * Mock question has i_ans set to 1, we need to reset it
 		 * to 0 for this test
 		 */
-		$this->oQuestion->updateAnswerCount(-1);
+		$this->Question->updateAnswerCount(-1);
 
-		$oUser = new MockUser($this->oQuestion->getRegistry());
-		$oAnswer = new MockAnswer($this->oQuestion->getRegistry());
-		$oAnswer2 = new MockAnswer($this->oQuestion->getRegistry());
-		$oAnswer2['_id'] = 999;
+		$User = new MockUser($this->Question->getRegistry());
+		$Answer = new MockAnswer($this->Question->getRegistry());
+		$Answer2 = new MockAnswer($this->Question->getRegistry());
+		$Answer2['_id'] = 999;
 
-		$this->oQuestion->setLatestAnswer($oUser, $oAnswer)->updateAnswerCount();
-		$this->oQuestion->setBestAnswer($oAnswer);
+		$this->Question->setLatestAnswer($User, $Answer)->updateAnswerCount();
+		$this->Question->setBestAnswer($Answer);
 
-		$this->oQuestion->setLatestAnswer($oUser, $oAnswer2)->updateAnswerCount();
-		$a = $this->oQuestion['a_latest'];
+		$this->Question->setLatestAnswer($User, $Answer2)->updateAnswerCount();
+		$a = $this->Question['a_latest'];
 		$this->assertEquals(999, $a['0']['id']);
-		$this->assertEquals('accptd', $this->oQuestion['status']);
-		$this->assertEquals(3, $this->oQuestion['i_sel_uid']);
-		$this->assertEquals(513, $this->oQuestion['i_sel_ans']);
+		$this->assertEquals('accptd', $this->Question['status']);
+		$this->assertEquals(3, $this->Question['i_sel_uid']);
+		$this->assertEquals(513, $this->Question['i_sel_ans']);
 
 		/**
 		 * Remove answer that was set as best
@@ -481,12 +481,12 @@ class QuestionTest extends LampcmsUnitTestCase
 		 * and change it to answrd
 		 * it should also unset keys i_sel_uid and i_sel_ans
 		 */
-		$this->oQuestion->removeAnswer($oAnswer);
-		$a = $this->oQuestion['a_latest'];
+		$this->Question->removeAnswer($Answer);
+		$a = $this->Question['a_latest'];
 		$this->assertEquals(999, $a['0']['id']);
-		$this->assertEquals('answrd', $this->oQuestion['status']);
-		$this->assertFalse($this->oQuestion->offsetExists('i_sel_uid'));
-		$this->assertFalse($this->oQuestion->offsetExists('i_sel_ans'));
+		$this->assertEquals('answrd', $this->Question['status']);
+		$this->assertFalse($this->Question->offsetExists('i_sel_uid'));
+		$this->assertFalse($this->Question->offsetExists('i_sel_ans'));
 
 		/**
 		 * Removing second answer should
@@ -494,9 +494,9 @@ class QuestionTest extends LampcmsUnitTestCase
 		 * and reset status to unans since there
 		 * are no answeres now
 		 */
-		$this->oQuestion->removeAnswer($oAnswer2);
-		$this->assertEquals('unans', $this->oQuestion['status']);
-		$this->assertFalse($this->oQuestion->offsetExists('a_latest'));
+		$this->Question->removeAnswer($Answer2);
+		$this->assertEquals('unans', $this->Question['status']);
+		$this->assertFalse($this->Question->offsetExists('a_latest'));
 
 	}
 
@@ -506,28 +506,28 @@ class QuestionTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testRetag(){
-		$oUser = new MockUser($this->oQuestion->getRegistry());
-		$this->oQuestion->retag($oUser, array('brown', 'fox'));
+		$User = new MockUser($this->Question->getRegistry());
+		$this->Question->retag($User, array('brown', 'fox'));
 
-		$tags     = $this->oQuestion['a_tags'];
-		$tagsHtml = $this->oQuestion['tags_html'];
-		$body     = $this->oQuestion['b'];
+		$tags     = $this->Question['a_tags'];
+		$tagsHtml = $this->Question['tags_html'];
+		$body     = $this->Question['b'];
 
 		$this->assertEquals(array('brown', 'fox'), $tags);
 		$this->assertContains('<a href="/tagged/brown/" title="Questions tagged brown">brown</a> <a href="/tagged/fox/" title="Questions tagged fox">fox</a>', $tagsHtml);
 		$this->assertEquals('<span>This is a simple mock question</span>', $body);
 
-		$this->oQuestion->retag($oUser, array('mock', 'simple'));
+		$this->Question->retag($User, array('mock', 'simple'));
 
-		$tags     = $this->oQuestion['a_tags'];
-		$tagsHtml = $this->oQuestion['tags_html'];
-		$body     = $this->oQuestion['b'];
+		$tags     = $this->Question['a_tags'];
+		$tagsHtml = $this->Question['tags_html'];
+		$body     = $this->Question['b'];
 
 		$this->assertEquals(array('mock', 'simple'), $tags);
 		$this->assertContains('<a href="/tagged/mock/" title="Questions tagged mock">mock</a> <a href="/tagged/simple/" title="Questions tagged simple">simple</a>', $tagsHtml);
 		$this->assertEquals('<span>This is a <em class="wtag">simple</em> <em class="wtag">mock</em> question</span>', $body);
 		
-		$a = $this->oQuestion['a_edited'];
+		$a = $this->Question['a_edited'];
 		$this->assertTrue(is_array($a));
 		$this->assertTrue(count($a) > 0);
 

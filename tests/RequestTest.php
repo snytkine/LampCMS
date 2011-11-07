@@ -105,9 +105,7 @@ class LampcmsRequestTest extends LampcmsUnitTestCase
 
 	public function testGetHttpHeaderUseApacheHeaders(){
 		if(defined('HAS_APACHE_REQUEST_HEADERS')){
-			$this->markTestSkipped(
-              'This test is probably run from browser, skipping'
-              );
+			$this->markTestSkipped('This test is probably run from browser, skipping');
 		}
 
 		$this->assertEquals('ISO-8859-1,utf-8;q=0.7,*;q=0.7' , Request::getHttpHeader('Accept-Charset'));

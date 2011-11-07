@@ -66,7 +66,7 @@ class Changepwd extends Resetpwd
 	/**
 	 * @var object of type Form
 	 */
-	protected $oForm;
+	protected $Form;
 
 
 
@@ -80,10 +80,10 @@ class Changepwd extends Resetpwd
 
 	protected function main(){
 
-		$this->oForm = new \Lampcms\Forms\Changepwd($this->oRegistry);
-		$this->oForm->formTitle = $this->aPageVars['title'] = $this->_('Change Password');
+		$this->Form = new \Lampcms\Forms\Changepwd($this->Registry);
+		$this->Form->formTitle = $this->aPageVars['title'] = $this->_('Change Password');
 
-		if($this->oForm->isSubmitted() && $this->oForm->validate()){
+		if($this->Form->isSubmitted() && $this->Form->validate()){
 			$this->saveNewPassword();
 			if(!empty($this->email)){
 				$this->emailPwd();
@@ -92,7 +92,7 @@ class Changepwd extends Resetpwd
 			$this->aPageVars['body'] = '<div id="tools">'.$this->_('Password updated successfully').'</div>';
 
 		} else {
-			$this->aPageVars['body'] = $this->oForm->getForm();
+			$this->aPageVars['body'] = $this->Form->getForm();
 		}
 	}
 
@@ -103,12 +103,12 @@ class Changepwd extends Resetpwd
 	 * @return object $this
 	 */
 	protected function saveNewPassword(){
-		$this->email = $this->oRegistry->Viewer['email'];
-		$this->username = $this->oRegistry->Viewer['username'];
-		$this->newPwd = $this->oRequest['pwd1'];
+		$this->email = $this->Registry->Viewer['email'];
+		$this->username = $this->Registry->Viewer['username'];
+		$this->newPwd = $this->Request['pwd1'];
 
-		$this->oRegistry->Viewer['pwd'] = String::hashPassword($this->newPwd);
-		$this->oRegistry->Viewer->save();
+		$this->Registry->Viewer['pwd'] = String::hashPassword($this->newPwd);
+		$this->Registry->Viewer->save();
 
 		return $this;
 	}

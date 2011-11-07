@@ -111,8 +111,8 @@ class Base extends LampcmsObject
 	protected $bLoggedIn;
 
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
 	}
 
 
@@ -142,7 +142,7 @@ class Base extends LampcmsObject
 			return false;
 		}
 
-		$aLocation = $this->oRegistry->Geo->getLocation($ip)->data;
+		$aLocation = $this->Registry->Geo->getLocation($ip)->data;
 
 		if ( empty($aLocation) && 'RESOURCE_LOCATION' === $collection) {
 			d( 'Did not find location for this ip: '.$ip );
@@ -169,9 +169,9 @@ class Base extends LampcmsObject
 		 * Ensure index on column $columnName
 		 *
 		 */
-		$this->oRegistry->Mongo->getCollection($collection)->ensureIndex(array($columnName => 1));
+		$this->Registry->Mongo->getCollection($collection)->ensureIndex(array($columnName => 1));
 
-		$saved = $this->oRegistry->Mongo->insertData($collection, $arrData, null);
+		$saved = $this->Registry->Mongo->insertData($collection, $arrData, null);
 		d( '$saved: '.$saved );
 
 		return (bool)$saved;
@@ -245,7 +245,7 @@ class Base extends LampcmsObject
 		 * reload operation does not require even a single sql select
 		 *
 		 */
-		d('role: '.$role. ' $this->oRegistry->Viewer: '.$this->oRegistry->Viewer);
+		d('role: '.$role. ' $this->Registry->Viewer: '.$this->Registry->Viewer);
 
 		/**
 		 * How not to reload the object?
@@ -272,7 +272,7 @@ class Base extends LampcmsObject
 		 *
 		 */
 
-		$role = (null !== $role) ? $role : $this->oRegistry->Viewer->reload();
+		$role = (null !== $role) ? $role : $this->Registry->Viewer->reload();
 
 		d('role: '.$role);
 
@@ -282,8 +282,8 @@ class Base extends LampcmsObject
 		 * edit acl.ini you must manually remove
 		 * Acl key from cache. (from C_Cache collection)
 		 */
-		//$oACL = $this->oRegistry->Cache->Acl;
-		$oACL = $this->oRegistry->Acl;//new \Lampcms\Acl\Acl();
+		//$oACL = $this->Registry->Cache->Acl;
+		$oACL = $this->Registry->Acl;//new \Lampcms\Acl\Acl();
 
 		$roleID = $role->getRoleId();
 		d('$roleID '.$roleID.' $privilege: '.$privilege);
@@ -352,7 +352,7 @@ class Base extends LampcmsObject
 
 		if(!isset($this->bLoggedIn)){
 			d('bLoggedIn not set');
-			$this->bLoggedIn = !$this->oRegistry->Viewer->isGuest();
+			$this->bLoggedIn = !$this->Registry->Viewer->isGuest();
 			d('bLoggedIn now: '.$this->bLoggedIn);
 		}
 

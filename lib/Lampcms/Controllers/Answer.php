@@ -77,7 +77,7 @@ class Answer extends Viewquestion
 
 	protected function main(){
 		$this->getQuestion()->makeForm();
-		if($this->oForm->validate()){
+		if($this->Form->validate()){
 			/**
 			 * The process() will either send out
 			 * json for ajax request OR will
@@ -112,13 +112,13 @@ class Answer extends Viewquestion
 	 * @return void
 	 */
 	protected function process(){
-		$formVals = $this->oForm->getSubmittedValues();
+		$formVals = $this->Form->getSubmittedValues();
 		d('formVals: '.print_r($formVals, 1));
-		$oAdapter = new AnswerParser($this->oRegistry);
+		$oAdapter = new AnswerParser($this->Registry);
 		try{
-			$oAnswer = $oAdapter->parse(new SubmittedAnswerWWW($this->oRegistry, $formVals));
-			d('cp created new answer: '.print_r($oAnswer->getArrayCopy(), 1));
-			d('ans id: '.$oAnswer->getResourceId());
+			$Answer = $oAdapter->parse(new SubmittedAnswerWWW($this->Registry, $formVals));
+			d('cp created new answer: '.print_r($Answer->getArrayCopy(), 1));
+			d('ans id: '.$Answer->getResourceId());
 
 			/**
 			 * In case of ajax we need to send out a
@@ -129,7 +129,7 @@ class Answer extends Viewquestion
 			 * hopefull the new answer will show up there too
 			 */
 			if(Request::isAjax()){
-				$aAnswer = $oAnswer->getArrayCopy();
+				$aAnswer = $Answer->getArrayCopy();
 				/**
 				 * Add edit and delete tools because
 				 * Viewer already owns this comment and is
@@ -146,7 +146,7 @@ class Answer extends Viewquestion
 				Responder::sendJSON($a);
 
 			} else {
-				Responder::redirectToPage($this->oQuestion->getUrl());
+				Responder::redirectToPage($this->Question->getUrl());
 			}
 
 		} catch (\Lampcms\AnswerParserException $e){
@@ -155,7 +155,7 @@ class Answer extends Viewquestion
 			 * case of Ajax request, so we don't have to
 			 * worry about it here
 			 */
-			$this->oForm->setFormError($e->getMessage());
+			$this->Form->setFormError($e->getMessage());
 			$this->showFormWithErrors();
 		}
 	}

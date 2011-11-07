@@ -70,8 +70,8 @@ class UserTags extends LampcmsObject
 
 	const USER_TAGS = 'USER_TAGS';
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
 	}
 
 
@@ -79,9 +79,9 @@ class UserTags extends LampcmsObject
 	 * Add array of tags to per-user tags collection
 	 *
 	 * @param int $uid
-	 * @param Question $oQuestion
+	 * @param Question $Question
 	 */
-	public function addTags($uid, \Lampcms\Question $oQuestion){
+	public function addTags($uid, \Lampcms\Question $Question){
 		/**
 		 * Questions that come from external APIs may not
 		 * have any user associated with it, uid is 0 or null then
@@ -95,7 +95,7 @@ class UserTags extends LampcmsObject
 
 		$uid = (int)$uid;
 
-		$aTags = $oQuestion['a_tags'];
+		$aTags = $Question['a_tags'];
 		
 		/**
 		 * Extra precaution to filter out
@@ -104,7 +104,7 @@ class UserTags extends LampcmsObject
 		$aTags = \array_filter($aTags);
 		
 
-		$coll = $this->oRegistry->Mongo->getCollection(self::USER_TAGS);
+		$coll = $this->Registry->Mongo->getCollection(self::USER_TAGS);
 		$a = $coll->findOne(array('_id' => $uid));
 		
 		/**
@@ -157,19 +157,19 @@ class UserTags extends LampcmsObject
 	 * we must update the user tags to account
 	 * for all tags in the removed question
 	 *
-	 * @param Question $oQuestion
+	 * @param Question $Question
 	 */
-	public function removeTags(Question $oQuestion, $uid = null){
+	public function removeTags(Question $Question, $uid = null){
 
 		/**
 		 * If question is deleted
 		 * then dont update anything
 		 *
 		 */
-		$uid = ($uid) ? (int)$uid : $oQuestion->getOwnerId();
+		$uid = ($uid) ? (int)$uid : $Question->getOwnerId();
 		
 
-		$aTags = $oQuestion['a_tags'];
+		$aTags = $Question['a_tags'];
 		
 
 		/**
@@ -178,7 +178,7 @@ class UserTags extends LampcmsObject
 		 */
 		$aTags = array_filter($aTags);
 
-		$coll = $this->oRegistry->Mongo->getCollection(self::USER_TAGS);
+		$coll = $this->Registry->Mongo->getCollection(self::USER_TAGS);
 		$a = $coll->findOne(array('_id' => $uid));
 
 		if(empty($a) || empty($a['tags'])){

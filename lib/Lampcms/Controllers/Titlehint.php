@@ -73,7 +73,7 @@ class Titlehint extends WebPage
 	protected $aData = array();
 
 	protected function main(){
-		$disabled = $this->oRegistry->Ini->DISABLE_AUTOCOMPLETE;
+		$disabled = $this->Registry->Ini->DISABLE_AUTOCOMPLETE;
 		if($disabled){
 			exit;
 		}
@@ -90,12 +90,12 @@ class Titlehint extends WebPage
 	 */
 	protected function getData(){
 
-		$aTokens = TitleTokenizer::factory($this->oRequest->getUTF8('q'))->getArrayCopy();
+		$aTokens = TitleTokenizer::factory($this->Request->getUTF8('q'))->getArrayCopy();
 
 		if(!empty($aTokens)){
 			d('looking for something');
 			try{
-				$cur = $this->oRegistry->Mongo->QUESTIONS->find(array('a_title' => array('$all' => $aTokens), 'a_deleted' => null), array('_id', 'title', 'url', 'intro', 'hts', 'status', 'i_ans', 'ans_s'))
+				$cur = $this->Registry->Mongo->QUESTIONS->find(array('a_title' => array('$all' => $aTokens), 'a_deleted' => null), array('_id', 'title', 'url', 'intro', 'hts', 'status', 'i_ans', 'ans_s'))
 				->sort(array('status' => 1, 'i_ans' => -1))
 				->limit(12);
 				$this->aData = iterator_to_array($cur, false);
@@ -116,7 +116,7 @@ class Titlehint extends WebPage
 	 * @return string
 	 */
 	protected function sendResult(){
-		$callback =  $this->oRequest->get('callback');
+		$callback =  $this->Request->get('callback');
 		d('$callback: '.$callback);
 
 		Responder::sendJSONP(array('ac' => $this->aData), $callback);

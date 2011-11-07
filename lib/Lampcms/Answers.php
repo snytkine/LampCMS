@@ -73,11 +73,11 @@ class Answers extends LampcmsObject
 	 *
 	 * @var oject of type MongoCursor
 	 */
-	protected $oCursor;
+	protected $Cursor;
 
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
 	}
 
 
@@ -91,7 +91,7 @@ class Answers extends LampcmsObject
 	 * @todo add skip() and limit() to cursor
 	 * in order to use pagination. 
 	 *
-	 * @param Question $oQuestion
+	 * @param Question $Question
 	 *
 	 * @param string desired format of result. Possible
 	 * options are: html, array or json object
@@ -100,18 +100,18 @@ class Answers extends LampcmsObject
 	 *
 	 * @return string html block
 	 */
-	public function getAnswers(Question $oQuestion, $result = 'html'){
-		$Tr = $this->oRegistry->Tr;
-		$qid = $oQuestion['_id'];
-		$url = $oQuestion['url'];
+	public function getAnswers(Question $Question, $result = 'html'){
+		$Tr = $this->Registry->Tr;
+		$qid = $Question['_id'];
+		$url = $Question['url'];
 		d('url: '.$url);
 		d('_GET: '.print_r($_GET, 1));
 		
-		$cond = $this->oRegistry->Request->get('sort', 's', 'i_lm_ts');
+		$cond = $this->Registry->Request->get('sort', 's', 'i_lm_ts');
 		d('cond: '.$cond);
-		$noComments = (false === (bool)$this->oRegistry->Ini->MAX_COMMENTS);
+		$noComments = (false === (bool)$this->Registry->Ini->MAX_COMMENTS);
 		d('no comments: '.$noComments);
-		$aFields = ($noComments || false === (bool)$this->oRegistry->Ini->SHOW_COMMENTS) ? array('comments' => 0) : array();
+		$aFields = ($noComments || false === (bool)$this->Registry->Ini->SHOW_COMMENTS) ? array('comments' => 0) : array();
 		/**
 		 * Extra security validation,
 		 * IMPORTANT because we should never use
@@ -123,7 +123,7 @@ class Answers extends LampcmsObject
 		}
 
 		$where = array('i_qid' => $qid);
-		if(!$this->oRegistry->Viewer->isModerator()){
+		if(!$this->Registry->Viewer->isModerator()){
 			d('not moderator');
 			$where['i_del_ts'] = null;
 		}
@@ -141,19 +141,19 @@ class Answers extends LampcmsObject
 				$sort = array($cond => -1);
 		}
 
-		$cursor = $this->oRegistry->Mongo->ANSWERS->find($where, $aFields);
+		$cursor = $this->Registry->Mongo->ANSWERS->find($where, $aFields);
 		d('$cursor: '.gettype($cursor));
 		$cursor->sort($sort);
-		$oPager = Paginator::factory($this->oRegistry);
-		$oPager->paginate($cursor, $this->oRegistry->Ini->PER_PAGE_ANSWERS,
-		array('path' => $this->oRegistry->Ini->SITE_URL.'/q'.$qid.'/'.$url.'/'.$cond,
+		$oPager = Paginator::factory($this->Registry);
+		$oPager->paginate($cursor, $this->Registry->Ini->PER_PAGE_ANSWERS,
+		array('path' => $this->Registry->Ini->SITE_URL.'/q'.$qid.'/'.$url.'/'.$cond,
 		'append' => false)); //, 'fileName' => '&pageID=%d'
 
 		$pagerLinks = $oPager->getLinks();
 
 		$func = null;
-		$ownerId = $oQuestion['i_uid'];
-		$showLink = (($ownerId > 0) && ($this->oRegistry->Viewer->isModerator() || $ownerId == $this->oRegistry->Viewer->getUid()) );
+		$ownerId = $Question['i_uid'];
+		$showLink = (($ownerId > 0) && ($this->Registry->Viewer->isModerator() || $ownerId == $this->Registry->Viewer->getUid()) );
 
 		d('adding accept link callback function');
 		/**

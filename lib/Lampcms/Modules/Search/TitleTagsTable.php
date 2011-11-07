@@ -82,9 +82,9 @@ class TitleTagsTable
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8 COMMENT=\'Table used for full text indexing of question title\';
 	';
 
-	public static function create(\Lampcms\Registry $oRegistry){
+	public static function create(\Lampcms\Registry $Registry){
 		d('Table "question_title" not found going to create it now');
-		$res = $oRegistry->Db->exec(self::SQL);
+		$res = $Registry->Db->exec(self::SQL);
 		d('res: '.$res);
 		
 		return true;

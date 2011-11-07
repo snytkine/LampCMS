@@ -203,11 +203,11 @@ class Questions extends Api
 
 	protected function getCursor(){
 
-		if(true === $this->oRequest->get('comments', 'b')){
+		if(true === $this->Request->get('comments', 'b')){
 			unset($this->aFields['a_comments']);
 		}
 
-		if(true === $this->oRequest->get('body', 'b')){
+		if(true === $this->Request->get('body', 'b')){
 			unset($this->aFields['b']);
 		}
 
@@ -252,7 +252,7 @@ class Questions extends Api
 		$offset = (($this->pageID - 1) * $this->limit);
 		d('offset: '.$offset);
 
-		$this->cursor = $this->oRegistry->Mongo->QUESTIONS->find($where, $this->aFields)
+		$this->cursor = $this->Registry->Mongo->QUESTIONS->find($where, $this->aFields)
 		->sort($sort)
 		->limit($this->limit)
 		->skip($offset);
@@ -271,7 +271,7 @@ class Questions extends Api
 
 
 	/**
-	 * Popular the $this->oOutput object
+	 * Popular the $this->Output object
 	 * with data
 	 * Output object will format this data to
 	 * appropriate format (json or jsonc or xml),
@@ -286,7 +286,7 @@ class Questions extends Api
 		'perpage' => $this->limit,
 		'questions' => \iterator_to_array($this->cursor, false));
 
-		$this->oOutput->setData($data);
+		$this->Output->setData($data);
 
 		return $this;
 	}
@@ -299,7 +299,7 @@ class Questions extends Api
 	 * @return object $this
 	 */
 	protected function setUserId(){
-		$id = $this->oRequest->get('uid', 'i', null);
+		$id = $this->Request->get('uid', 'i', null);
 		if(!empty($id)){
 			$this->userId = $id;
 			d('$this->userId '.$this->userId);
@@ -316,7 +316,7 @@ class Questions extends Api
 	 * @return object $this
 	 */
 	protected function setTags(){
-		$tags = $this->oRequest->get('tags', 's', '');
+		$tags = $this->Request->get('tags', 's', '');
 		//$tags = \urldecode($tags); // server already urldecodes stuff
 
 		if(empty($tags)){
@@ -349,7 +349,7 @@ class Questions extends Api
 			return $this;
 		}
 
-		$cond = $this->oRequest->get('match', 's', 'any');
+		$cond = $this->Request->get('match', 's', 'any');
 		$allowed = array('any', 'all');
 		if(!\in_array($cond, $allowed)){
 			throw new \Lampcms\HttpResponseCodeException('Invalid value of "match" param in request. Allowed values are: '.implode(', ', $allowed).' Value was" '.$cond, 406);
@@ -371,7 +371,7 @@ class Questions extends Api
 	 */
 	protected function setQuestionType(){
 		$allowed = array('unans', 'answrd', 'accptd');
-		$type = $this->oRequest->get('type', 's', null);
+		$type = $this->Request->get('type', 's', null);
 		d('$type: '.var_export($type, true));
 
 		if(!empty($type)){
@@ -394,7 +394,7 @@ class Questions extends Api
 	 * @return object $this
 	 */
 	protected function setStartId(){
-		$id = $this->oRequest->get('start_id', 'i', null);
+		$id = $this->Request->get('start_id', 'i', null);
 		if(!empty($id)){
 			$this->startId = $id;
 		}
@@ -409,7 +409,7 @@ class Questions extends Api
 	 * @return object $this
 	 */
 	protected function setMaxId(){
-		$id = $this->oRequest->get('max_id', 'i', null);
+		$id = $this->Request->get('max_id', 'i', null);
 		if(!empty($id)){
 			$this->maxId = $id;
 		}

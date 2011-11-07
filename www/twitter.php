@@ -71,7 +71,7 @@ try {
 
 	include($lampcmsClasses.'Controllers'.DIRECTORY_SEPARATOR.'Logintwitter.php');
 
-	$o = new \Lampcms\Controllers\Logintwitter($oRegistry);
+	$o = new \Lampcms\Controllers\Logintwitter($Registry);
 	header('Content-Type: text/html; charset=utf-8');
 	echo $o->getResult();
 	fastcgi_finish_request();

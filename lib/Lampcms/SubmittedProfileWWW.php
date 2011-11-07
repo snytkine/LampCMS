@@ -54,64 +54,64 @@ namespace Lampcms;
 class SubmittedProfileWWW extends SubmittedProfile
 {
 
-	protected $oForm;
+	protected $Form;
 
-	public function __construct(\Lampcms\Forms\Profile $oForm){
-		$this->oForm = $oForm;	
+	public function __construct(\Lampcms\Forms\Profile $Form){
+		$this->Form = $Form;	
 	}
 
 	public function getFirstName(){
-		return $this->oForm->getSubmittedValue('fn');
+		return $this->Form->getSubmittedValue('fn');
 	}
 
 	public function getLastName(){
-		return $this->oForm->getSubmittedValue('ln');
+		return $this->Form->getSubmittedValue('ln');
 	}
 
 	public function getMiddleName(){
-		return $this->oForm->getSubmittedValue('mn');
+		return $this->Form->getSubmittedValue('mn');
 	}
 
 	public function getCountry(){
-		return $this->oForm->getSubmittedValue('cc');
+		return $this->Form->getSubmittedValue('cc');
 	}
 
 	public function getState(){
-		return $this->oForm->getSubmittedValue('state');
+		return $this->Form->getSubmittedValue('state');
 	}
 
 	public function getCity(){
-		return $this->oForm->getSubmittedValue('city');
+		return $this->Form->getSubmittedValue('city');
 	}
 
 	public function getZip(){
-		return $this->oForm->getSubmittedValue('zip');
+		return $this->Form->getSubmittedValue('zip');
 	}
 
 	public function getDob(){
-		return $this->oForm->getSubmittedValue('dob');
+		return $this->Form->getSubmittedValue('dob');
 	}
 
 	public function getGender(){
-		$val =  $this->oForm->getSubmittedValue('gender');
+		$val =  $this->Form->getSubmittedValue('gender');
 		$val = strtoupper($val);
 		
 		return (('M' !== $val) && ('F' !== $val)) ? '' : $val;
 	}
 
 	public function getUrl(){
-		return $this->oForm->getSubmittedValue('url');
+		return $this->Form->getSubmittedValue('url');
 	}
 
 	public function getDescription(){
-		return $this->oForm->getSubmittedValue('description');
+		return $this->Form->getSubmittedValue('description');
 	}
 	
 	public function getUploadedAvatar(){
-		if(!$this->oForm->hasUploads()){
+		if(!$this->Form->hasUploads()){
 			return null;
 		}
 		
-		return $this->oForm->getUploadedFile('profile_image');
+		return $this->Form->getUploadedFile('profile_image');
 	}
 }

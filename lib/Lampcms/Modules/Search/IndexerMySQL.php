@@ -79,10 +79,10 @@ class IndexerMySQL implements Indexer
 	 * Registry Object
 	 * @var object of type Registry
 	 */
-	protected $oRegistry;
+	protected $Registry;
 
-	public function __construct(\Lampcms\Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(\Lampcms\Registry $Registry){
+		$this->Registry = $Registry;
 	}
 
 
@@ -97,9 +97,9 @@ class IndexerMySQL implements Indexer
 	 * also use this for site search feature
 	 * to some extent. Cool
 	 *
-	 * @param Question $oQuestion
+	 * @param Question $Question
 	 */
-	public function indexQuestion(\Lampcms\Question $oQuestion){
+	public function indexQuestion(\Lampcms\Question $Question){
 		if(!extension_loaded('pdo_mysql')){
 			d('pdo_mysql not loaded ');
 
@@ -107,16 +107,16 @@ class IndexerMySQL implements Indexer
 		}
 
 		$res       = false;
-		$qid       = $oQuestion['_id'];
-		$title     = $oQuestion['title'];
-		$body      = $oQuestion['b'];
-		$url       = $oQuestion['url'];
-		$intro     = $oQuestion['intro'];
-		$uid       = $oQuestion['i_uid'];
-		$username  = $oQuestion['username'];
-		$ulink     = $oQuestion['ulink'];
-		$avatar    = $oQuestion['avtr'];
-		$tags_html = $oQuestion['tags_html'];
+		$qid       = $Question['_id'];
+		$title     = $Question['title'];
+		$body      = $Question['b'];
+		$url       = $Question['url'];
+		$intro     = $Question['intro'];
+		$uid       = $Question['i_uid'];
+		$username  = $Question['username'];
+		$ulink     = $Question['ulink'];
+		$avatar    = $Question['avtr'];
+		$tags_html = $Question['tags_html'];
 
 		d($qid.' title: '. $title. ' url: '. $url.' intro: '.$intro);
 
@@ -146,7 +146,7 @@ class IndexerMySQL implements Indexer
 
 
 		try{
-			$sth = $this->oRegistry->Db->makePrepared($sql);
+			$sth = $this->Registry->Db->makePrepared($sql);
 			$sth->bindParam(':qid', $qid, \PDO::PARAM_INT);
 			$sth->bindParam(':qtitle', $title, \PDO::PARAM_STR);
 			$sth->bindParam(':qbody', $body, \PDO::PARAM_STR);
@@ -165,8 +165,8 @@ class IndexerMySQL implements Indexer
 			d('mysql error: '.$err);
 
 			if('42S02' === $e->getCode()){
-				if(true === TitleTagsTable::create($this->oRegistry)){
-					$this->indexTitle($oQuestion);
+				if(true === TitleTagsTable::create($this->Registry)){
+					$this->indexTitle($Question);
 				}
 			} else {
 				throw $e;
@@ -183,22 +183,22 @@ class IndexerMySQL implements Indexer
 	 * Remove record for one Question from the
 	 * Index
 	 *
-	 * @param Question $oQuestion
+	 * @param Question $Question
 	 * @return object $this
 	 */
-	public function removeQuestion(\Lampcms\Question $oQuestion){
+	public function removeQuestion(\Lampcms\Question $Question){
 		if(!extension_loaded('pdo_mysql')){
 			d('pdo_mysql not loaded ');
 
 			return $this;
 		}
 
-		$qid   = $oQuestion->offsetGet('_id');
+		$qid   = $Question->offsetGet('_id');
 		$sql = 'DELETE FROM question_title WHERE qid = :qid';
 		d('about to remove question with qid: '.$qid);
 
 		try{
-			$sth = $sth = $this->oRegistry->Db->makePrepared($sql);
+			$sth = $sth = $this->Registry->Db->makePrepared($sql);
 			$sth->bindParam(':qid', $qid, \PDO::PARAM_INT);
 			$res = $sth->execute();
 			d('res: '.$res);
@@ -216,9 +216,9 @@ class IndexerMySQL implements Indexer
 	 * run this method to also update
 	 * the index.
 	 *
-	 * @param Question $oQuestion
+	 * @param Question $Question
 	 */
-	public function updateQuestion(\Lampcms\Question $oQuestion){
+	public function updateQuestion(\Lampcms\Question $Question){
 
 		if(!extension_loaded('pdo_mysql')){
 			d('pdo_mysql not loaded ');
@@ -227,15 +227,15 @@ class IndexerMySQL implements Indexer
 		}
 
 		$res   = false;
-		$qid   = $oQuestion->offsetGet('_id');
-		$title = $oQuestion->offsetGet('title');
-		$url   = $oQuestion->offsetGet('url');
-		$intro = $oQuestion->offsetGet('intro');
-		$username = $oQuestion['username'];
-		$ulink = $oQuestion['ulink'];
-		$avatar = $oQuestion['avtr'];
-		$tags_html = $oQuestion['tags_html'];
-		$body = $oQuestion['body'];
+		$qid   = $Question->offsetGet('_id');
+		$title = $Question->offsetGet('title');
+		$url   = $Question->offsetGet('url');
+		$intro = $Question->offsetGet('intro');
+		$username = $Question['username'];
+		$ulink = $Question['ulink'];
+		$avatar = $Question['avtr'];
+		$tags_html = $Question['tags_html'];
+		$body = $Question['body'];
 
 		d($qid.' title: '. $title. ' url: '. $url.' intro: '.$intro);
 
@@ -253,7 +253,7 @@ class IndexerMySQL implements Indexer
 
 
 		try{
-			$sth = $this->oRegistry->Db->makePrepared($sql);
+			$sth = $this->Registry->Db->makePrepared($sql);
 			$sth->bindParam(':qid', $qid, \PDO::PARAM_INT);
 			$sth->bindParam(':qtitle', $title, \PDO::PARAM_STR);
 			$sth->bindParam(':qbody', $body, \PDO::PARAM_STR);
@@ -271,8 +271,8 @@ class IndexerMySQL implements Indexer
 			d('mysql error: '.$err);
 
 			if('42S02' === $e->getCode()){
-				if(true === TitleTagsTable::create($this->oRegistry)){
-					$this->indexTitle($oQuestion);
+				if(true === TitleTagsTable::create($this->Registry)){
+					$this->indexTitle($Question);
 				}
 			} else {
 				throw $e;
@@ -303,7 +303,7 @@ class IndexerMySQL implements Indexer
 		d('about to remove question with uid: '.$uid);
 
 		try{
-			$sth = $sth = $this->oRegistry->Db->makePrepared($sql);
+			$sth = $sth = $this->Registry->Db->makePrepared($sql);
 			$sth->bindParam(':uid', $uid, \PDO::PARAM_INT);
 			$res = $sth->execute();
 			d('res: '.$res);

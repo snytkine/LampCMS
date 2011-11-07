@@ -69,7 +69,7 @@ class Userinfotab extends Userinfo
 
 	protected function main(){
 		$this->getUser();
-		$tab = $this->oRequest->get('tab');
+		$tab = $this->Request->get('tab');
 		if('q' === $tab){
 			return $this->getQuestions();
 		}
@@ -83,7 +83,7 @@ class Userinfotab extends Userinfo
 	 *
 	 */
 	protected function getQuestions(){
-		$s = \Lampcms\UserQuestions::get($this->oRegistry, $this->oUser);
+		$s = \Lampcms\UserQuestions::get($this->Registry, $this->User);
 		Responder::sendJSON(array('replace' => array('target' => 'uquestions', 'content' => $s) ));
 	}
 
@@ -95,7 +95,7 @@ class Userinfotab extends Userinfo
 	 */
 	protected function getAnswers(){
 		d('getting answers block');
-		$s = \Lampcms\UserAnswers::get($this->oRegistry, $this->oUser);
+		$s = \Lampcms\UserAnswers::get($this->Registry, $this->User);
 		Responder::sendJSON(array('replace' => array('target' => 'useranswers', 'content' => $s) ));
 	}
 

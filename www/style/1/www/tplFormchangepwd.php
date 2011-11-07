@@ -36,7 +36,7 @@
  *
  */
 
-class tplFormchangepwd extends \Lampcms\Template\Template
+class tplFormchangepwd extends \Lampcms\Template\Fast
 {
 
 	protected static $vars = array(

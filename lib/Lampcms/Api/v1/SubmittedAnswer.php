@@ -57,9 +57,9 @@ use Lampcms\SubmittedAnswerWWW;
 class SubmittedAnswer extends SubmittedAnswerWWW
 {
 
-	public function __construct(\Lampcms\Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
-		$this->aData = $oRegistry->Request->getArray();
+	public function __construct(\Lampcms\Registry $Registry){
+		$this->Registry = $Registry;
+		$this->aData = $Registry->Request->getArray();
 		d('$this->aData: '.print_r($this->aData, 1));
 	}
 
@@ -69,7 +69,7 @@ class SubmittedAnswer extends SubmittedAnswerWWW
 	 * @return string
 	 */
 	public function getApp(){
-		return $this->oRegistry->appName;
+		return $this->Registry->appName;
 	}
 
 
@@ -79,6 +79,6 @@ class SubmittedAnswer extends SubmittedAnswerWWW
 	 * @return null
 	 */
 	public function getAppId(){
-		return $this->oRegistry->clientAppId;
+		return $this->Registry->clientAppId;
 	}
 }

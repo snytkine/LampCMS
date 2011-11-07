@@ -63,7 +63,7 @@ namespace Lampcms\Modules\Tumblr;
  * @author Dmitri Snytkine
  *
  */
-class PostTumblr extends \Lampcms\Observer
+class PostTumblr extends \Lampcms\Event\Observer
 {
 	/**
 	 * TUMBLR API Config array
@@ -75,7 +75,7 @@ class PostTumblr extends \Lampcms\Observer
 
 	public function main(){
 
-		$a = $this->oRegistry->Request->getArray();
+		$a = $this->Registry->Request->getArray();
 		if(empty($a['tumblr'])){
 			d('tumblr checkbox not checked');
 			/**
@@ -83,7 +83,7 @@ class PostTumblr extends \Lampcms\Observer
 			 * for that "Post to tumblr" checkbox to be not checked
 			 * This is just in case it was checked before
 			 */
-			$this->oRegistry->Viewer['b_tm'] = false;
+			$this->Registry->Viewer['b_tm'] = false;
 
 			return;
 		}
@@ -104,7 +104,7 @@ class PostTumblr extends \Lampcms\Observer
 
 		try{
 
-			$this->aConfig = $this->oRegistry->Ini->getSection('TUMBLR');
+			$this->aConfig = $this->Registry->Ini->getSection('TUMBLR');
 
 			if(empty($this->aConfig)
 			|| empty($this->aConfig['OAUTH_KEY'])
@@ -119,7 +119,7 @@ class PostTumblr extends \Lampcms\Observer
 			return;
 		}
 
-		if(null === $this->oRegistry->Viewer->getTumblrToken()){
+		if(null === $this->Registry->Viewer->getTumblrToken()){
 			d('User does not have Tumblr token');
 			return;
 		}
@@ -131,7 +131,7 @@ class PostTumblr extends \Lampcms\Observer
 		 * in User object
 		 *
 		 */
-		$this->oRegistry->Viewer['b_tm'] = true;
+		$this->Registry->Viewer['b_tm'] = true;
 		d('cp');
 		switch($this->eventName){
 			case 'onNewQuestion':
@@ -150,8 +150,8 @@ class PostTumblr extends \Lampcms\Observer
 
 		try{
 			
-			$oTumblr = new ApiClient($this->oRegistry);
-			$User = $this->oRegistry->Viewer;
+			$oTumblr = new ApiClient($this->Registry);
+			$User = $this->Registry->Viewer;
 			if(false === $oTumblr->setUser($User)){
 				d('User does not have Tumblr Oauth credentials');
 
@@ -159,8 +159,8 @@ class PostTumblr extends \Lampcms\Observer
 			}
 				
 			$reward = \Lampcms\Points::SHARED_CONTENT;
-			$oResource = $this->obj;
-			$oAdapter = new TumblrPostAdapter($this->oRegistry);
+			$Resource = $this->obj;
+			$oAdapter = new TumblrPostAdapter($this->Registry);
 
 		} catch (\Exception $e){
 			d('Unable to post to Tumblr because of this exception: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
@@ -168,12 +168,12 @@ class PostTumblr extends \Lampcms\Observer
 			return;
 		}
 
-		$func = function() use ($oTumblr, $oAdapter, $oResource, $User, $reward){
+		$func = function() use ($oTumblr, $oAdapter, $Resource, $User, $reward){
 
 			$result = null;
 
 			try{
-				$result = $oTumblr->add($oAdapter->get($oResource));
+				$result = $oTumblr->add($oAdapter->get($Resource));
 			} catch(\Exception $e){
 				
 				return;
@@ -194,8 +194,8 @@ class PostTumblr extends \Lampcms\Observer
 				 * id deleted
 				 *
 				 */
-				$oResource['i_tumblr'] = (int)$result;
-				$oResource->save();
+				$Resource['i_tumblr'] = (int)$result;
+				$Resource->save();
 				
 			}
 		};

@@ -60,7 +60,7 @@
  * @author Dmitri Snytkine
  *
  */ 
-class tplViewapp extends Lampcms\Template\Template
+class tplViewapp extends Lampcms\Template\Fast
 {
 	
 	protected static $vars = array(

@@ -79,7 +79,7 @@ class Retag extends WebPage
 	 *
 	 * @var object of type Question
 	 */
-	protected $oQuestion;
+	protected $Question;
 
 
 	/**
@@ -113,7 +113,7 @@ class Retag extends WebPage
 
 
 	protected function main(){
-		$this->aSubmitted = TagsTokenizer::factory($this->oRequest->getUTF8('tags'))->getArrayCopy();
+		$this->aSubmitted = TagsTokenizer::factory($this->Request->getUTF8('tags'))->getArrayCopy();
 		d('$this->aSubmitted: '.print_r($this->aSubmitted, 1));
 
 
@@ -139,8 +139,8 @@ class Retag extends WebPage
 	 */
 	protected function validateSubmitted(){
 
-		$min = $this->oRegistry->Ini->MIN_QUESTION_TAGS;
-		$max = $this->oRegistry->Ini->MAX_QUESTION_TAGS;
+		$min = $this->Registry->Ini->MIN_QUESTION_TAGS;
+		$max = $this->Registry->Ini->MAX_QUESTION_TAGS;
 
 		if(($min > 0) && empty($this->aSubmitted)){
 			/*
@@ -170,7 +170,7 @@ class Retag extends WebPage
 
 
 	/**
-	 * Create $this->oQuestion object
+	 * Create $this->Question object
 	 *
 	 * @throws \Lampcms\Exception if question
 	 * not found or is marked as deleted
@@ -179,7 +179,7 @@ class Retag extends WebPage
 	 */
 	protected function getQuestion(){
 
-		$a = $this->oRegistry->Mongo->QUESTIONS->findOne(array('_id' => (int)$this->oRequest['qid']));
+		$a = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => (int)$this->Request['qid']));
 		d('a: '.print_r($a, 1));
 
 		if(empty($a) || !empty($a['i_del_ts'])){
@@ -187,8 +187,8 @@ class Retag extends WebPage
 			throw new \Lampcms\Exception('Question not found');
 		}
 
-		$this->oQuestion = new \Lampcms\Question($this->oRegistry, $a);
-		$this->aOldTags = $this->oQuestion['a_tags'];
+		$this->Question = new \Lampcms\Question($this->Registry, $a);
+		$this->aOldTags = $this->Question['a_tags'];
 
 		return $this;
 	}
@@ -205,8 +205,8 @@ class Retag extends WebPage
 	 */
 	protected function checkPermission(){
 
-		if(!\Lampcms\isOwner($this->oRegistry->Viewer, $this->oQuestion)
-		&& ($this->oRegistry->Viewer->getReputation() < \Lampcms\Points::RETAG)){
+		if(!\Lampcms\isOwner($this->Registry->Viewer, $this->Question)
+		&& ($this->Registry->Viewer->getReputation() < \Lampcms\Points::RETAG)){
 
 			$this->checkAccessPermission('retag');
 		}
@@ -246,16 +246,16 @@ class Retag extends WebPage
 	 * @return object $this
 	 */
 	protected function removeOldTags(){
-		\Lampcms\Qtagscounter::factory($this->oRegistry)->removeTags($this->oQuestion);
-		\Lampcms\UserTags::factory($this->oRegistry)->removeTags($this->oQuestion);
-		\Lampcms\Relatedtags::factory($this->oRegistry)->removeTags($this->oQuestion);
+		\Lampcms\Qtagscounter::factory($this->Registry)->removeTags($this->Question);
+		\Lampcms\UserTags::factory($this->Registry)->removeTags($this->Question);
+		\Lampcms\Relatedtags::factory($this->Registry)->removeTags($this->Question);
 		/**
 		 * Also update UNANSWERED_TAGS if this question
 		 * is unanswered
 		 */
-		if(0 === $this->oQuestion['i_sel_ans']){
+		if(0 === $this->Question['i_sel_ans']){
 			d('going to remove from Unanswered tags');
-			\Lampcms\UnansweredTags::factory($this->oRegistry)->remove($this->oQuestion);
+			\Lampcms\UnansweredTags::factory($this->Registry)->remove($this->Question);
 		}
 
 		return $this;
@@ -270,13 +270,13 @@ class Retag extends WebPage
 	 */
 	protected function addNewTags(){
 		if(count($this->aSubmitted) > 0){
-			\Lampcms\Qtagscounter::factory($this->oRegistry)->parse($this->oQuestion);
-			\Lampcms\UserTags::factory($this->oRegistry)->addTags($this->oQuestion['i_uid'], $this->oQuestion);
-			\Lampcms\Relatedtags::factory($this->oRegistry)->addTags($this->oQuestion);
+			\Lampcms\Qtagscounter::factory($this->Registry)->parse($this->Question);
+			\Lampcms\UserTags::factory($this->Registry)->addTags($this->Question['i_uid'], $this->Question);
+			\Lampcms\Relatedtags::factory($this->Registry)->addTags($this->Question);
 
-			if(0 === $this->oQuestion['i_sel_ans']){
+			if(0 === $this->Question['i_sel_ans']){
 				d('going to add to Unanswered tags');
-				\Lampcms\UnansweredTags::factory($this->oRegistry)->set($this->oQuestion);
+				\Lampcms\UnansweredTags::factory($this->Registry)->set($this->Question);
 			}
 		}
 		
@@ -292,7 +292,7 @@ class Retag extends WebPage
 	 */
 	protected function updateQuestion(){
 
-		$this->oQuestion->retag($this->oRegistry->Viewer, $this->aSubmitted)
+		$this->Question->retag($this->Registry->Viewer, $this->aSubmitted)
 		->save();
 
 		return $this;
@@ -305,7 +305,7 @@ class Retag extends WebPage
 	 * @return object $this
 	 */
 	protected function postEvent(){
-		$this->oRegistry->Dispatcher->post($this->oQuestion, 'onRetag', $this->aAddedTags);
+		$this->Registry->Dispatcher->post($this->Question, 'onRetag', $this->aAddedTags);
 
 		return $this;
 	}
@@ -323,7 +323,7 @@ class Retag extends WebPage
 			Responder::sendJSON($ret);
 		}
 
-		Responder::redirectToPage($this->oQuestion->getUrl());
+		Responder::redirectToPage($this->Question->getUrl());
 	}
 
 }

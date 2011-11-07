@@ -81,8 +81,8 @@ class Relatedtags extends LampcmsObject
 	const MAX_TAGS = 30;
 
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
 	}
 
 
@@ -91,10 +91,10 @@ class Relatedtags extends LampcmsObject
 	 * to update RELATED tags to take into account
 	 * all the removed tags
 	 * 
-	 * @param Question $oQuestion
+	 * @param Question $Question
 	 */
-	public function removeTags(Question $oQuestion){
-		$this->addTags($oQuestion, -1);
+	public function removeTags(Question $Question){
+		$this->addTags($Question, -1);
 
 		return $this;
 	}
@@ -121,8 +121,8 @@ class Relatedtags extends LampcmsObject
 	 *
 	 * @param array $aTags
 	 */
-	public function addTags(Question $oQuestion, $inc = 1){
-		$aTags = $oQuestion['a_tags'];
+	public function addTags(Question $Question, $inc = 1){
+		$aTags = $Question['a_tags'];
 		/**
 		 * Some questions may only have one tag
 		 * If case of just one tag we will do nothing
@@ -172,7 +172,7 @@ class Relatedtags extends LampcmsObject
 		 * Also pre-parse the 'related tags' template
 		 * and save it as 'html' value
 		 */
-		$coll = $this->oRegistry->Mongo->getCollection(self::COLLECTION);
+		$coll = $this->Registry->Mongo->getCollection(self::COLLECTION);
 		$a = $coll->findOne(array('_id' => $tag));
 		if(empty($a)){
 
@@ -265,7 +265,7 @@ class Relatedtags extends LampcmsObject
 		 * removing of all related tags for certain tag,
 		 * we should just remove this $tag from collection
 		 */
-		$coll = $this->oRegistry->Mongo->getCollection(self::COLLECTION);
+		$coll = $this->Registry->Mongo->getCollection(self::COLLECTION);
 
 		if(empty($aNew)){
 			d('removing orphan tag '.$tag.' from RELATED_TAGS collection');
@@ -287,7 +287,7 @@ class Relatedtags extends LampcmsObject
 	 * keys: '_id', 'tags', 'count' and 'html'
 	 */
 	public function getRecord($tag){
-		$coll = $this->oRegistry->Mongo->getCollection(self::COLLECTION);
+		$coll = $this->Registry->Mongo->getCollection(self::COLLECTION);
 
 		return $coll->findOne(array('_id' => $tag));
 	}
@@ -303,7 +303,7 @@ class Relatedtags extends LampcmsObject
 	 * are count of occurances
 	 */
 	public function getTags($tag){
-		$coll = $this->oRegistry->Mongo->getCollection(self::COLLECTION);
+		$coll = $this->Registry->Mongo->getCollection(self::COLLECTION);
 		$a = $coll->findOne(array('_id' => $tag), array('tags'));
 		d('a: '.print_r($a, 1));
 
@@ -320,7 +320,7 @@ class Relatedtags extends LampcmsObject
 	 * or empty string if no record for this tag exists
 	 */
 	public function getHtml($tag){
-		$coll = $this->oRegistry->Mongo->getCollection(self::COLLECTION);
+		$coll = $this->Registry->Mongo->getCollection(self::COLLECTION);
 		$a = $coll->findOne(array('_id' => $tag), array('html'));
 		d('a: '.print_r($a, 1));
 

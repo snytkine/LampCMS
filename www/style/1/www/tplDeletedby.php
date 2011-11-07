@@ -60,7 +60,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplDeletedby extends \Lampcms\Template\Template
+class tplDeletedby extends \Lampcms\Template\Fast
 {
 
 	protected static $vars = array(

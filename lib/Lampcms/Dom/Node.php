@@ -60,6 +60,6 @@ class Node extends \DOMNode
 	 * @see Lampcms\Interfaces.LampcmsObject::__toString()
 	 */
 	public function __toString(){
-		return 'Object of type '.$this->getClass().' nodeName: '.$this->nodeName.' value: '.$this->nodeValue;
+		return 'Object of type '.get_class($this).' nodeName: '.$this->nodeName.' value: '.$this->nodeValue;
 	}
 }

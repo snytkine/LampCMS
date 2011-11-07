@@ -68,10 +68,10 @@ use Lampcms\Interfaces\Indexer;
 class IndexerFactory
 {
 
-	public static function factory(Registry $oRegistry){
+	public static function factory(Registry $Registry){
 
 		if(extension_loaded('pdo_mysql')){
-			$o = new \Lampcms\Modules\Search\IndexerMySQL($oRegistry);
+			$o = new \Lampcms\Modules\Search\IndexerMySQL($Registry);
 		}
 
 

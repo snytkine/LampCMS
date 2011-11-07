@@ -60,7 +60,7 @@ namespace Lampcms\Modules\Observers;
  * @author Dmitri Snytkine
  *
  */
-class FloodCheck extends \Lampcms\Observer
+class FloodCheck extends \Lampcms\Event\Observer
 {
 	/**
 	 * @todo later we should check the time
@@ -78,7 +78,7 @@ class FloodCheck extends \Lampcms\Observer
 			return;
 		}
 		
-		$this->minutesToWait = (int)$this->oRegistry->Ini->FLOOD_CHECK_TIME;
+		$this->minutesToWait = (int)$this->Registry->Ini->FLOOD_CHECK_TIME;
 		/**
 		 * Do not apply this filter
 		 * to moderators (and admins)
@@ -86,7 +86,7 @@ class FloodCheck extends \Lampcms\Observer
 		 * as fast as they want
 		 *
 		 */
-		if(!$this->oRegistry->Viewer->isModerator()){
+		if(!$this->Registry->Viewer->isModerator()){
 			switch ($this->eventName){
 				case 'onBeforeNewQuestion':
 					$this->byUser('QUESTIONS')->byIp('QUESTIONS');
@@ -113,15 +113,15 @@ class FloodCheck extends \Lampcms\Observer
 	 */
 	protected function checkComment(){
 		d('cp');
-		if(!$this->oRegistry->Viewer->isModerator()){
+		if(!$this->Registry->Viewer->isModerator()){
 			d('cp');
-			$uid = $this->oRegistry->Viewer->getUid();
-			$timeout = (int)$this->oRegistry->Ini->COMMENTS_FLOOD_TIME;
+			$uid = $this->Registry->Viewer->getUid();
+			$timeout = (int)$this->Registry->Ini->COMMENTS_FLOOD_TIME;
 			d('timeout: '.$timeout);
 			$since = time() - $timeout;
 			$where = array('i_uid' => $uid, 'i_ts' => array('$gt' => $since));
 				
-			$a = $this->oRegistry->Mongo->COMMENTS->findOne($where);
+			$a = $this->Registry->Mongo->COMMENTS->findOne($where);
 
 			if(!empty($a)){
 				throw new \Lampcms\Exception('You are posting too fast.<br>You must wait '.$timeout.' seconds between comments');
@@ -138,9 +138,9 @@ class FloodCheck extends \Lampcms\Observer
 	 */
 	protected function byIp($collName){
 		d('$collName: '.$collName);
-		if(!$this->oRegistry->Viewer->isModerator()){
+		if(!$this->Registry->Viewer->isModerator()){
 			$since = time() - ($this->minutesToWait * 60);
-			$byIP = $this->oRegistry->Mongo
+			$byIP = $this->Registry->Mongo
 			->getCollection($collName)
 			->findOne(array('ip' => $this->obj['ip'], 'i_ts' => array('$gt' => $since)), array('i_ts', 'hts'));
 
@@ -155,9 +155,9 @@ class FloodCheck extends \Lampcms\Observer
 
 	
 	protected function byUser($collName){
-		if(!$this->oRegistry->Viewer->isModerator()){
+		if(!$this->Registry->Viewer->isModerator()){
 			$since = time() - ($this->minutesToWait * 60);
-			$byUid = $this->oRegistry->Mongo
+			$byUid = $this->Registry->Mongo
 			->getCollection($collName)
 			->findOne(array('i_uid' => $this->obj['i_uid'], 'i_ts' => array('$gt' => $since)), array('i_ts', 'hts'));
 

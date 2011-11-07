@@ -193,9 +193,9 @@ class Form extends LampcmsObject
 	protected $Tr;
 
 
-	public function __construct(Registry $oRegistry, $useToken = true){
-		$this->oRegistry = $oRegistry;
-		$this->Tr = $oRegistry->Tr;
+	public function __construct(Registry $Registry, $useToken = true){
+		$this->Registry = $Registry;
+		$this->Tr = $Registry->Tr;
 
 		$this->useToken = $useToken;
 		$tpl = $this->template;
@@ -207,7 +207,7 @@ class Form extends LampcmsObject
 		if('POST' === Request::getRequestMethod()){
 			$this->bSubmitted = true;
 			if(true === $useToken){
-				self::validateToken($oRegistry);
+				self::validateToken($Registry);
 			}
 			$this->aUploads = $_FILES;
 			d('$this->aUploads: '.print_r($this->aUploads, 1));
@@ -331,7 +331,7 @@ class Form extends LampcmsObject
 	 */
 	public function getSubmittedValues(){
 		$aFields = $this->getFields();
-		$a = $this->oRegistry->Request->getArray();
+		$a = $this->Registry->Request->getArray();
 		d('$aFields: '.print_r($aFields, 1).' Request->getArray(): '.print_r($a, 1).' POST: '.print_r($_POST, 1));
 
 		/**
@@ -357,7 +357,7 @@ class Form extends LampcmsObject
 			throw new \Lampcms\DevException('field '.$field.' does not exist');
 		}
 
-		return $this->oRegistry->Request[$field];
+		return $this->Registry->Request[$field];
 	}
 
 
@@ -617,7 +617,7 @@ class Form extends LampcmsObject
 		 * form is rendered
 		 *
 		 */
-		$this->oRegistry->Dispatcher->post($this, 'onBeforeFormRender');
+		$this->Registry->Dispatcher->post($this, 'onBeforeFormRender');
 
 		return $tpl::parse($this->aVars);
 	}
@@ -634,7 +634,7 @@ class Form extends LampcmsObject
 	protected function prepareVars(){
 
 		if($this->bSubmitted){
-			$a = $this->oRegistry->Request->getArray();
+			$a = $this->Registry->Request->getArray();
 			d('a from request: '.print_r($a, 1));
 			d('$this->aVars : '.print_r($this->aVars, 1));
 
@@ -748,13 +748,13 @@ class Form extends LampcmsObject
 	 * @return true on success
 	 *
 	 */
-	public static function validateToken(Registry $oRegistry){
+	public static function validateToken(Registry $Registry){
 
 		if(empty($_SESSION['secret'])){
 			throw new \Lampcms\TokenException('Form token not found in session');
 		}
 
-		$token = $oRegistry->Request['token'];
+		$token = $Registry->Request['token'];
 		d('submitted form token: '.$token);
 		if($token !== $_SESSION['secret']){
 			throw new \Lampcms\TokenException('Invalid security token. You need to reload this page in browser and try submitting this form again');

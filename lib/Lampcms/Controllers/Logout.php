@@ -94,7 +94,7 @@ class Logout extends WebPage
 	 */
 	public function main(){
 
-		$this->oRegistry->Dispatcher->post($this, 'onBeforeUserLogout');
+		$this->Registry->Dispatcher->post($this, 'onBeforeUserLogout');
 
 
 		/**
@@ -119,9 +119,9 @@ class Logout extends WebPage
 		 * different: we need to delete user's fcauth cookie(s)
 		 *
 		 */
-		if($this->oRegistry->Viewer instanceof UserGfc){
+		if($this->Registry->Viewer instanceof UserGfc){
 
-			$GfcSiteID = $this->oRegistry->Ini->GFC_ID;
+			$GfcSiteID = $this->Registry->Ini->GFC_ID;
 			if(!empty($GfcSiteID)){
 				$gfc = sprintf(self::GFC_SIGNOUT, $GfcSiteID);
 				$gfc = Responder::PAGE_OPEN.$gfc.Responder::PAGE_CLOSE;
@@ -135,7 +135,7 @@ class Logout extends WebPage
 		}
 
 		d('logging out Facebook User');
-		$aFB = $this->oRegistry->Ini->getSection('FACEBOOK');
+		$aFB = $this->Registry->Ini->getSection('FACEBOOK');
 		if(!empty($aFB) && !empty($aFB['APP_ID'])){
 			$fb_cookie = 'fbs_'.$aFB['APP_ID'];
 			d('deleting Facebook cookie '.$fb_cookie.' len: '.strlen($fb_cookie));
@@ -152,18 +152,18 @@ class Logout extends WebPage
 		 * out and after the $this->oViewer has been destroyed
 		 *
 		 */
-		$aUser = $this->oRegistry->Viewer->getArrayCopy();
-		$this->oRegistry->Viewer = null;
+		$aUser = $this->Registry->Viewer->getArrayCopy();
+		$this->Registry->Viewer = null;
 
 		session_destroy();
 		$_SESSION = array();
 
-		$this->oRegistry->Dispatcher->post($this, 'onUserLogout', $aUser);
+		$this->Registry->Dispatcher->post($this, 'onUserLogout', $aUser);
 
 		d('Logged out SESSION: '.print_r($_SESSION, 1));
 
 		/*if (Request::isAjax()) {
-			$sLoginForm = \Lampcms\LoginForm::makeLoginForm($this->oRegistry);
+			$sLoginForm = \Lampcms\LoginForm::makeLoginForm($this->Registry);
 			$arrJSON = array('message'=> $sLoginForm);
 			d('sending json: '.$sLoginForm);
 			Responder::sendJSON($arrJSON);

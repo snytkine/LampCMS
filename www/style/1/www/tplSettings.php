@@ -36,7 +36,7 @@
  *
  */
 
-class tplSettings extends \Lampcms\Template\Template
+class tplSettings extends \Lampcms\Template\Fast
 {
 
 	protected static $vars = array(

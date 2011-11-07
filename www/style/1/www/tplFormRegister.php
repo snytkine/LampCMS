@@ -42,7 +42,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplFormRegister extends \Lampcms\Template\Template
+class tplFormRegister extends \Lampcms\Template\Fast
 {
 	protected static $vars = array();
 	

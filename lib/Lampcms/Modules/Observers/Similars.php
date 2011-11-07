@@ -57,7 +57,7 @@ use \Lampcms\SearchFactory;
 /**
  * Observer listens to onNewQuestion
  * and will create blocks with similar items
- * and add them to oQuestion object
+ * and add them to Question object
  * the object will then be auto-saved to Mongo from
  * __destructor
  *
@@ -69,14 +69,14 @@ use \Lampcms\SearchFactory;
  * @author Dmitri Snytkine
  *
  */
-class Similars extends \Lampcms\Observer
+class Similars extends \Lampcms\Event\Observer
 {
 	protected function main(){
 		d('cp');
 		if('onNewQuestion' === $this->eventName){
-			$oQuestion = $this->obj;
-			$oParser = SearchFactory::factory($this->oRegistry);
-			$oParser->getSimilarQuestions($oQuestion);
+			$Question = $this->obj;
+			$oParser = SearchFactory::factory($this->Registry);
+			$oParser->getSimilarQuestions($Question);
 		}
 	}
 }

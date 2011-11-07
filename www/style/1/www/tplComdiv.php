@@ -46,7 +46,7 @@
  * @author admin
  *
  */
-class tplComdiv extends Lampcms\Template\Template
+class tplComdiv extends Lampcms\Template\Fast
 {
 
 	protected static $vars = array('', 'Add new comment');

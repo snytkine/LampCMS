@@ -57,11 +57,11 @@ use \Lampcms\Registry;
 
 class MySQL implements Search
 {
-	protected $oQuestion;
+	protected $Question;
 
 	protected $qid;
 
-	protected $oRegistry;
+	protected $Registry;
 
 	protected $countResults;
 
@@ -100,11 +100,11 @@ class MySQL implements Search
 	const BY_TITLE_BODY = 'MATCH (title, q_body) AGAINST (:subj)';
 
 
-	public function __construct(Registry $oRegistry){
+	public function __construct(Registry $Registry){
 
-		$this->oRegistry = $oRegistry;
-		$this->perPage = $perPage = $this->oRegistry->Ini->PER_PAGE_SEARCH;
-		if('recent' == $this->oRegistry->Request->get('ord', 's', '')){
+		$this->Registry = $Registry;
+		$this->perPage = $perPage = $this->Registry->Ini->PER_PAGE_SEARCH;
+		if('recent' == $this->Registry->Request->get('ord', 's', '')){
 			$this->order = 'ORDER by ts DESC';
 		}
 	}
@@ -112,7 +112,7 @@ class MySQL implements Search
 
 	public function search($term = null){
 
-		$this->term = (!empty($term)) ? $term : $this->oRegistry->Request->getUTF8('q')->stripTags();
+		$this->term = (!empty($term)) ? $term : $this->Registry->Request->getUTF8('q')->stripTags();
 
 		$this->getCondition()
 		->getCount()
@@ -129,7 +129,7 @@ class MySQL implements Search
 	 * Enter description here ...
 	 */
 	protected function getCondition(){
-		$t = $this->oRegistry->Request->get('t', 's', '');
+		$t = $this->Registry->Request->get('t', 's', '');
 
 		$this->condition = ('t' == $t) ? self::BY_TITLE : self::BY_TITLE_BODY;
 
@@ -146,7 +146,7 @@ class MySQL implements Search
 					WHERE '.$this->condition;
 		d('sql: '.$sql.' $this->term: '.$this->term);
 		try{
-			$sth = $this->oRegistry->Db->makePrepared($sql);
+			$sth = $this->Registry->Db->makePrepared($sql);
 			$sth->bindParam(':subj', $this->term, \PDO::PARAM_STR);
 			$sth->execute();
 		} catch(\Exception $e){
@@ -154,7 +154,7 @@ class MySQL implements Search
 			d('mysql error: '.$err);
 
 			if('42S02' === $e->getCode()){
-				if(true === TitleTagsTable::create($this->oRegistry)){
+				if(true === TitleTagsTable::create($this->Registry)){
 
 					return $this;
 				} else {
@@ -227,7 +227,7 @@ class MySQL implements Search
 		 */
 		if($this->countResults > $this->perPage){
 			d('cp');
-			$oPaginator = \Lampcms\Paginator::factory($this->oRegistry);
+			$oPaginator = \Lampcms\Paginator::factory($this->Registry);
 			$oPaginator->paginate($this->countResults, $this->perPage,
 			array('path' => $this->getPagerPath()));
 
@@ -238,7 +238,7 @@ class MySQL implements Search
 
 		$sql = sprintf($sql, $this->condition, $this->order, $this->perPage);
 		d('sql: '.$sql);
-		$sth = $this->oRegistry->Db->makePrepared($sql);
+		$sth = $this->Registry->Db->makePrepared($sql);
 		$sth->bindParam(':subj', $this->term, \PDO::PARAM_STR);
 		$sth->bindParam(':offset', $offset, \PDO::PARAM_INT);
 		$sth->execute();
@@ -301,7 +301,7 @@ class MySQL implements Search
 	/**
 	 * Get array of up to 30
 	 * similar questions, create html block from
-	 * these questions and save in oQuestion
+	 * these questions and save in Question
 	 * under the sim_q key
 	 *
 	 * @param bool $ret indicats that this is a retry
@@ -311,7 +311,7 @@ class MySQL implements Search
 	 * @return object $this
 	 *
 	 */
-	public function getSimilarQuestions(\Lampcms\Question $oQuestion){
+	public function getSimilarQuestions(\Lampcms\Question $Question){
 
 		if(!extension_loaded('pdo_mysql')){
 			d('pdo or pdo_mysql not loaded skipping parsing of similar items');
@@ -319,8 +319,8 @@ class MySQL implements Search
 			return $this;
 		}
 
-		$qid = (int)$this->oQuestion['_id'];
-		$term = $oQuestion['title'];
+		$qid = (int)$this->Question['_id'];
+		$term = $Question['title'];
 		$html = '';
 		$aRes = array();
 
@@ -339,7 +339,7 @@ class MySQL implements Search
 		d('$sql: '.$sql);
 
 		try{
-			$sth = $this->oRegistry->Db->makePrepared($sql);
+			$sth = $this->Registry->Db->makePrepared($sql);
 			$sth->bindParam(':qid', $qid, \PDO::PARAM_INT);
 			$sth->bindParam(':subj', $term, \PDO::PARAM_STR);
 			$sth->execute();
@@ -351,7 +351,7 @@ class MySQL implements Search
 				$html = \tplSimquestions::loop($aRes);
 				$s = '<div id="sim_questions" class="similars">'.$html.'</div>';
 				d('html: '.$s);
-				$oQuestion->offsetSet('sim_q', $s);
+				$Question->offsetSet('sim_q', $s);
 			}
 				
 		} catch(\Exception $e){
@@ -359,7 +359,7 @@ class MySQL implements Search
 			d('mysql error: '.$err);
 
 			if('42S02' === $e->getCode()){
-				if(true === TitleTagsTable::create($this->oRegistry)){
+				if(true === TitleTagsTable::create($this->Registry)){
 
 					return $this;
 				} else {
@@ -375,7 +375,7 @@ class MySQL implements Search
 
 
 	protected function getPagerPath(){
-		return $this->pagerPath.'/'.$this->oRegistry->Request->get('ord', 's', 'm').'/' .urlencode($this->term);
+		return $this->pagerPath.'/'.$this->Registry->Request->get('ord', 's', 'm').'/' .urlencode($this->term);
 	}
 
 

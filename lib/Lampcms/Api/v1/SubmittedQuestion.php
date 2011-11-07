@@ -71,11 +71,11 @@ class SubmittedQuestion extends SubmittedQuestionWWW
 {
 
 
-	public function __construct(\Lampcms\Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
-		$this->aData = $oRegistry->Request->getArray();
+	public function __construct(\Lampcms\Registry $Registry){
+		$this->Registry = $Registry;
+		$this->aData = $Registry->Request->getArray();
 		d('$this->aData: '.print_r($this->aData, 1));
-		$this->oUser = $oRegistry->Viewer;
+		$this->User = $Registry->Viewer;
 	}
 
 
@@ -85,7 +85,7 @@ class SubmittedQuestion extends SubmittedQuestionWWW
 	 * @return string
 	 */
 	public function getApp(){
-		return $this->oRegistry->appName;
+		return $this->Registry->appName;
 	}
 
 
@@ -95,7 +95,7 @@ class SubmittedQuestion extends SubmittedQuestionWWW
 	 * @return null
 	 */
 	public function getAppId(){
-		return $this->oRegistry->clientAppId;
+		return $this->Registry->clientAppId;
 	}
 
 	
@@ -108,13 +108,13 @@ class SubmittedQuestion extends SubmittedQuestionWWW
 	 * @see Lampcms.SubmittedQuestionWWW::getUtf8Tags()
 	 */
 	public function getUtf8Tags(){
-		if(!isset($this->oTags)){
+		if(!isset($this->Tags)){
 				
-			$tags = $this->oRegistry->Request->get('tags', 's', '');
-			$this->oTags = Utf8String::factory($tags);
+			$tags = $this->Registry->Request->get('tags', 's', '');
+			$this->Tags = Utf8String::factory($tags);
 		}
 
-		return $this->oTags;
+		return $this->Tags;
 	}
 
 }

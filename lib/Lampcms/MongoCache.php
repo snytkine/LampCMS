@@ -99,11 +99,11 @@ class MongoCache implements Interfaces\Cache
 	protected $bCompress = false;
 
 
-	public static function factory(Registry $oRegistry){
-		$oIni = $oRegistry->Ini;
-		$aConfig = $oIni->getSection('CACHE_MONGO');
+	public static function factory(Registry $Registry){
+		$Ini = $Registry->Ini;
+		$aConfig = $Ini->getSection('CACHE_MONGO');
 		d('cp');
-		$oMongo = $oRegistry->Mongo->getMongo();
+		$oMongo = $Registry->Mongo->getMongo();
 
 		$o = new self($oMongo, $aConfig['db'], $aConfig['collection']);
 

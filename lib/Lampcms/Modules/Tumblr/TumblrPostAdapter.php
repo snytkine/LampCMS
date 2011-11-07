@@ -83,7 +83,7 @@ class TumblrPostAdapter extends LampcmsObject
 	protected $oTumblrPost;
 
 	public function __construct(Registry $o){
-		$this->oRegistry = $o;
+		$this->Registry = $o;
 	}
 
 
@@ -137,7 +137,7 @@ class TumblrPostAdapter extends LampcmsObject
 		$qUrl = $o->getUrl();
 		$tpl1 = '<p><a href="%s"><strong>My question</strong></a> on %s</p>';
 		$tpl2 = '<p><a href="%s">Click here</a> to post your reply</p><br>';
-		$body = sprintf($tpl1, $qUrl, $this->oRegistry->Ini->SITE_NAME);
+		$body = sprintf($tpl1, $qUrl, $this->Registry->Ini->SITE_NAME);
 		$body .= $o->getBody();
 		$body .= sprintf($tpl2, $qUrl);
 
@@ -166,7 +166,7 @@ class TumblrPostAdapter extends LampcmsObject
 	protected function makeAnswerPost(Answer $o){
 		d('cp');
 		$this->oTumblrPost = new TumblrPost();
-		$qlink = $this->oRegistry->Ini->SITE_URL.'/q'.$o->getQuestionId().'/';
+		$qlink = $this->Registry->Ini->SITE_URL.'/q'.$o->getQuestionId().'/';
 
 		/**
 		 * @todo Translate string
@@ -174,7 +174,7 @@ class TumblrPostAdapter extends LampcmsObject
 		 * @var string
 		 */
 		$tpl = '<p>This is my answer to a <a href="%s"><strong>question</strong></a> on %s</p><br>';
-		$body = sprintf($tpl, $qlink, $this->oRegistry->Ini->SITE_NAME);
+		$body = sprintf($tpl, $qlink, $this->Registry->Ini->SITE_NAME);
 
 		$body .= $o->getBody();
 		d('body: '.$body);

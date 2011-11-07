@@ -72,17 +72,17 @@ class ProfileParser extends LampcmsObject
 	 *
 	 * @var object of type User
 	 */
-	protected $oUser;
+	protected $User;
 
 
 	/**
 	 * @var object of type SubmittedProfile
 	 */
-	protected $oSubmitted;
+	protected $Submitted;
 
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
 	}
 
 	/**
@@ -90,30 +90,30 @@ class ProfileParser extends LampcmsObject
 	 * Modify values in User object
 	 * based on SubmittedProfile
 	 *
-	 * @param User $oUser
+	 * @param User $User
 	 * @param SubmittedProfile $o
 	 *
 	 * @return bool true
 	 */
-	public function save(User $oUser, SubmittedProfile $o){
-		$this->oUser = $oUser;
-		$this->oSubmitted = $o;
+	public function save(User $User, SubmittedProfile $o){
+		$this->User = $User;
+		$this->Submitted = $o;
 
-		$oUser['fn'] 	= $this->getClean($o->getFirstName())->substr(0, 60)->valueOf();
-		$oUser['mn'] 	= $this->getClean($o->getMiddleName())->substr(0, 60)->valueOf();
-		$oUser['ln'] 	= $this->getClean($o->getLastName())->substr(0, 80)->valueOf();
-		$oUser['cc'] 	= $this->getClean($o->getCountry())->valueOf();
-		$oUser['state'] = $this->getClean($o->getState())->substr(0, 50)->valueOf();
-		$oUser['city'] 	= $this->getClean($o->getCity())->substr(0, 80)->valueOf();
-		$oUser['url'] 	= $this->getUrl($this->getClean($o->getUrl()));
-		$oUser['zip'] 	= $this->getClean($o->getZip())->substr(0, 8)->valueOf();
-		$oUser['dob'] 	= $this->getDob($o->getDob());
-		$oUser['gender'] = $this->getGender($o->getGender());
-		$oUser['description'] = \wordwrap($this->getClean($o->getDescription())->substr(0, 2000)->valueOf(), 50);
+		$User['fn'] 	= $this->getClean($o->getFirstName())->substr(0, 60)->valueOf();
+		$User['mn'] 	= $this->getClean($o->getMiddleName())->substr(0, 60)->valueOf();
+		$User['ln'] 	= $this->getClean($o->getLastName())->substr(0, 80)->valueOf();
+		$User['cc'] 	= $this->getClean($o->getCountry())->valueOf();
+		$User['state'] = $this->getClean($o->getState())->substr(0, 50)->valueOf();
+		$User['city'] 	= $this->getClean($o->getCity())->substr(0, 80)->valueOf();
+		$User['url'] 	= $this->getUrl($this->getClean($o->getUrl()));
+		$User['zip'] 	= $this->getClean($o->getZip())->substr(0, 8)->valueOf();
+		$User['dob'] 	= $this->getDob($o->getDob());
+		$User['gender'] = $this->getGender($o->getGender());
+		$User['description'] = \wordwrap($this->getClean($o->getDescription())->substr(0, 2000)->valueOf(), 50);
 		
 		$this->makeAvatar();
 		
-		$oUser->save();
+		$User->save();
 
 		return true;
 
@@ -193,7 +193,7 @@ class ProfileParser extends LampcmsObject
 	 * @return object $this
 	 */
 	protected function makeAvatar(){
-		AvatarParser::factory($this->oRegistry)->addAvatar($this->oUser, $this->oSubmitted->getUploadedAvatar());
+		AvatarParser::factory($this->Registry)->addAvatar($this->User, $this->Submitted->getUploadedAvatar());
 
 		return $this;
 	}

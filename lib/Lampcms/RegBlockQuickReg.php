@@ -80,9 +80,9 @@ class RegBlockQuickReg extends RegBlock
 	protected function prepareVars(){
 
 		$this->aVars = array(
-		'titleBar' => 'Welcome to '.$this->oRegistry->Ini->SITE_NAME,
+		'titleBar' => 'Welcome to '.$this->Registry->Ini->SITE_NAME,
 		'token' => Form::generateToken(), /*$this->oGlobal->addFormToken(),*/
-		'title' => 'Welcome to '.$this->oRegistry->Ini->SITE_NAME,
+		'title' => 'Welcome to '.$this->Registry->Ini->SITE_NAME,
 		'header2' => '<div class="step2">Join us! It\'s super easy and free!</div>',
 		'captcha' => $this->makeCaptchaBlock(),
 		'action' => 'quickreg',
@@ -125,7 +125,7 @@ class RegBlockQuickReg extends RegBlock
 	 * @return string HTML block
 	 */
 	protected function makeCaptchaBlock(){			
-		$s = Captcha::factory($this->oRegistry)->getCaptchaBlock();
+		$s = Captcha::factory($this->Registry)->getCaptchaBlock();
 
 		return $s;
 	}
@@ -141,11 +141,11 @@ class RegBlockQuickReg extends RegBlock
 	 */
 	public function makeSocialAuthBlock($or = '<h2>-OR-</h2>'){
 		$s = '';
-		$oIni = $this->oRegistry->Ini;
-		$GfcSiteID = $oIni->GFC_ID;
+		$Ini = $this->Registry->Ini;
+		$GfcSiteID = $Ini->GFC_ID;
 
-		if(isset($oIni->TWITTER)){
-			$aTW = $oIni['TWITTER'];
+		if(isset($Ini->TWITTER)){
+			$aTW = $Ini['TWITTER'];
 			if(!empty($aTW['TWITTER_OAUTH_KEY']) && !empty($aTW['TWITTER_OAUTH_SECRET'])){
 				//onClick="oSL.Twitter.startDance(); return false"
 				$s  .= '<div class="extauth"><a href="#" class="ajax twsignin"><img class="hand" src="/images/signin.png" width="151" height="24" alt="Sign in with Twitter account"/></a></div>';
@@ -153,8 +153,8 @@ class RegBlockQuickReg extends RegBlock
 		}
 
 		d('cp');
-		if(isset($oIni->FACEBOOK)){
-			$aFB = $oIni['FACEBOOK'];
+		if(isset($Ini->FACEBOOK)){
+			$aFB = $Ini['FACEBOOK'];
 			d('cp');
 			if(!empty($aFB['APP_ID'])){
 				d('cp');

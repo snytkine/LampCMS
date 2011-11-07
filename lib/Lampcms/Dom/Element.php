@@ -291,7 +291,7 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
 	 * then create one and append it
 	 * as child of this element
 	 *
-	 * 
+	 *
 	 * @param string $name
 	 * @param bool $create
 	 */
@@ -302,6 +302,37 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
 		}
 
 		return (true === (bool)$create) ? $this->addChild($name): null;
+	}
+
+	/**
+	 * Add array of data as child elements
+	 * of this element
+	 *
+	 *
+	 * @param array $a
+	 */
+	public function addArray(array $a){
+		foreach($a as $name => $val){
+
+			if(is_numeric($name)){
+				$name = 'i'.$name;
+			}
+
+			if(is_string($val) || is_int($val) || is_bool($val) || is_null($val)){
+				$t = gettype($val);
+				$e = $this->addChild($name, htmlspecialchars((string)$val, ENT_NOQUOTES, 'UTF-8'));
+				if('string' !== $t){
+					$e->setAttribute('type', $t);
+				}
+			} elseif(is_array($val)){
+				$this->addChild($name)->addArray($val);
+			} else {
+				throw new \Lampcms\DevException('Invalid type of $val. Must be string or int or array. Was: '.gettype($val));
+			}
+		}
+
+
+		return $this;
 	}
 
 }

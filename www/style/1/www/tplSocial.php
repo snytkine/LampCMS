@@ -49,7 +49,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplSocial extends Lampcms\Template\Template
+class tplSocial extends Lampcms\Template\Fast
 {
 	// %3$s was <h3>Join with account you already have</h3>
 	protected static $vars = array(

@@ -80,7 +80,7 @@ class Edit extends WebPage
 	 * 
 	 * @var object 
 	 */
-	protected $oResource;
+	protected $Resource;
 
 	
 	/**
@@ -88,7 +88,7 @@ class Edit extends WebPage
 	 * 
 	 * @var object
 	 */
-	protected $oForm;
+	protected $Form;
 
 	protected function main(){
 
@@ -122,25 +122,25 @@ class Edit extends WebPage
 
 	protected function makeForm(){
 		d('cp');
-		$this->oForm = new \Lampcms\Forms\Edit($this->oRegistry);
-		$body = $this->oResource['b'];
+		$this->Form = new \Lampcms\Forms\Edit($this->Registry);
+		$body = $this->Resource['b'];
 		
 		/**
 		 * <pre rel="codepreview" class="xml"> 
 		 */
 		d('body: '.$body);
 		$body = str_replace('rel="code"', 'alt="codepreview"', $body);
-		$this->oForm->qbody = $body;
-		$this->oForm->id = $this->oResource['_id'];
-		$this->oForm->rtype = $this->oRequest['rtype'];
+		$this->Form->qbody = $body;
+		$this->Form->id = $this->Resource['_id'];
+		$this->Form->rtype = $this->Request['rtype'];
 
 		if('ANSWERS' === $this->collection){
-			$this->oForm->hidden = ' hidden';
+			$this->Form->hidden = ' hidden';
 		} else {
-			$this->oForm->title = $this->oResource['title'];
-			$this->oForm->id_title = $this->oResource['id_title'];
-			$minTitle = $this->oRegistry->Ini->MIN_TITLE_CHARS;
-			$this->oForm->addValidator('title', function($val) use ($minTitle){
+			$this->Form->title = $this->Resource['title'];
+			$this->Form->id_title = $this->Resource['id_title'];
+			$minTitle = $this->Registry->Ini->MIN_TITLE_CHARS;
+			$this->Form->addValidator('title', function($val) use ($minTitle){
 
 				if(mb_strlen($val) < $minTitle){
 					$err = 'Title must contain at least %s letters';
@@ -162,7 +162,7 @@ class Edit extends WebPage
 	 * @return object $this
 	 */
 	protected function setForm(){
-		$form = $this->oForm->getForm();
+		$form = $this->Form->getForm();
 		$this->aPageVars['body'] = $form;
 
 		return $this;
@@ -175,12 +175,12 @@ class Edit extends WebPage
 	 * @return object $this
 	 */
 	protected function getResource(){
-		$this->collection = ('q' == $this->oRequest['rtype']) ? 'QUESTIONS' : 'ANSWERS';
+		$this->collection = ('q' == $this->Request['rtype']) ? 'QUESTIONS' : 'ANSWERS';
 		$this->permission = ('QUESTIONS' === $this->collection) ? 'edit_question' : 'edit_answer';
 
 		d('type: '.$this->collection);
-		$coll = $this->oRegistry->Mongo->getCollection($this->collection);
-		$a = $coll->findOne(array('_id' => (int)$this->oRequest['rid']));
+		$coll = $this->Registry->Mongo->getCollection($this->collection);
+		$a = $coll->findOne(array('_id' => (int)$this->Request['rid']));
 		d('a: '.print_r($a, 1));
 
 		if(empty($a)){
@@ -190,7 +190,7 @@ class Edit extends WebPage
 
 		$class = ('QUESTIONS' === $this->collection) ? '\\Lampcms\\Question' : '\\Lampcms\\Answer';
 
-		$this->oResource = new $class($this->oRegistry, $a);
+		$this->Resource = new $class($this->Registry, $a);
 
 		return $this;
 	}
@@ -205,8 +205,8 @@ class Edit extends WebPage
 	 * if Viewer does not have required permission
 	 */
 	protected function checkPermission(){
-		if(!\Lampcms\isOwner($this->oRegistry->Viewer, $this->oResource)){
-			if(\Lampcms\Points::EDIT > $this->oRegistry->Viewer->getReputation()){
+		if(!\Lampcms\isOwner($this->Registry->Viewer, $this->Resource)){
+			if(\Lampcms\Points::EDIT > $this->Registry->Viewer->getReputation()){
 				$this->checkAccessPermission();
 			}
 		}

@@ -265,7 +265,7 @@ class LampcmsObject implements Interfaces\LampcmsObject
 	 *
 	 * @var unknown_type
 	 */
-	protected $oRegistry;
+	protected $Registry;
 
 	/**
 	 * Default constructor
@@ -278,13 +278,13 @@ class LampcmsObject implements Interfaces\LampcmsObject
 	 * So, for now it is up to the concrete class to make
 	 * their own constructor
 	 * BUT, this is IMPORTANT: a concrete class
-	 * should alwasy take the oRegistry as the first param
+	 * should alwasy take the Registry as the first param
 	 * and make all other params optional (have default values)
 	 *
-	 * @param object Registry $oRegistry
+	 * @param object Registry $Registry
 	 */
-	/*public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	/*public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
 		}*/
 
 	/**
@@ -292,10 +292,10 @@ class LampcmsObject implements Interfaces\LampcmsObject
 	 * and it does not have to have its own factory
 	 * or constructor
 	 *
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 */
-	public static function factory(Registry $oRegistry){
-		return new static($oRegistry);
+	public static function factory(Registry $Registry){
+		return new static($Registry);
 	}
 
 	
@@ -331,12 +331,12 @@ class LampcmsObject implements Interfaces\LampcmsObject
 	}
 	
 	/**
-	 * Getter for $this->oRegistry
+	 * Getter for $this->Registry
 	 * 
 	 * @return object of type Registry
 	 */
 	public function getRegistry(){
-		return $this->oRegistry;
+		return $this->Registry;
 	}
 
 }

@@ -80,7 +80,7 @@ class Close extends WebPage
 
 	protected $aRequired = array('qid', 'reason');
 
-	protected $oQuestion;
+	protected $Question;
 
 	protected $requested = false;
 
@@ -125,16 +125,16 @@ class Close extends WebPage
 
 
 	protected function getQuestion(){
-		$a = $this->oRegistry->Mongo->QUESTIONS->findOne(
+		$a = $this->Registry->Mongo->QUESTIONS->findOne(
 		array(
-		'_id' => $this->oRequest['qid'])
+		'_id' => $this->Request['qid'])
 		);
 
 		if(empty($a)){
 			throw new \Lampcms\Exception('Question not found');
 		}
 
-		$this->oQuestion = new Question($this->oRegistry, $a);
+		$this->Question = new Question($this->Registry, $a);
 
 		return $this;
 	}
@@ -152,18 +152,18 @@ class Close extends WebPage
 		try{
 			$this->checkAccessPermission('close_question');
 		} catch (\Lampcms\AccessException $e){
-			if(!\Lampcms\isOwner($this->oRegistry->Viewer, $this->oQuestion)){
+			if(!\Lampcms\isOwner($this->Registry->Viewer, $this->Question)){
 				throw $e;
 			}
 
 			return $this->requestClose();
 		}
 
-		$reason = $this->oRequest['reason'].'. '.$this->oRequest['note'];
+		$reason = $this->Request['reason'].'. '.$this->Request['note'];
 		d('reason: '.$reason);
 
-		$this->oQuestion->setClosed($this->oRegistry->Viewer, $reason);
-		$this->oRegistry->Dispatcher->post($this->oQuestion, 'onQuestionClosed');
+		$this->Question->setClosed($this->Registry->Viewer, $reason);
+		$this->Registry->Dispatcher->post($this->Question, 'onQuestionClosed');
 
 		return $this;
 	}
@@ -176,7 +176,7 @@ class Close extends WebPage
 	 * @return object $this
 	 */
 	protected function requestClose(){
-		$cur = $this->oRegistry->Mongo->USERS->find(array(
+		$cur = $this->Registry->Mongo->USERS->find(array(
   			'role' => array('$in' => array('moderator', 'administrator'))
 		), array('email'));
 
@@ -185,7 +185,7 @@ class Close extends WebPage
 		if($cur && $cur->count() > 0){
 			$aModerators = iterator_to_array($cur, false);
 			d('$aModerators '.print_r($aModerators, 1));
-			$Mailer = \Lampcms\Mailer::factory($this->oRegistry);
+			$Mailer = \Lampcms\Mailer::factory($this->Registry);
 			$body = $this->makeBody();
 			$Mailer->mail($aModerators, self::SUBJECT, $body);
 		}
@@ -204,13 +204,13 @@ class Close extends WebPage
 	 */
 	protected function makeBody(){
 		$vars = array(
-		$this->oRegistry->Viewer->getDisplayName(),
-		$this->oRegistry->Ini->SITE_URL.$this->oRegistry->Viewer->getProfileUrl(),
-		$this->oQuestion->getUrl(),
-		$this->oQuestion['title'],
-		$this->oQuestion['intro'],
-		$this->oRequest['reason'],
-		$this->oRequest['note']
+		$this->Registry->Viewer->getDisplayName(),
+		$this->Registry->Ini->SITE_URL.$this->Registry->Viewer->getProfileUrl(),
+		$this->Question->getUrl(),
+		$this->Question['title'],
+		$this->Question['intro'],
+		$this->Request['reason'],
+		$this->Request['note']
 		);
 
 		d('vars: '.print_r($vars, 1));
@@ -250,7 +250,7 @@ class Close extends WebPage
 			Responder::sendJSON($ret);
 		}
 
-		Responder::redirectToPage($this->oResource->getUrl());
+		Responder::redirectToPage($this->Resource->getUrl());
 	}
 
 }

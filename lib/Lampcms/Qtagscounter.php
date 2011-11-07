@@ -72,9 +72,9 @@ class Qtagscounter extends LampcmsObject
 	 */
 	protected $coll;
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
-		$this->coll = $oRegistry->Mongo->QUESTION_TAGS;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
+		$this->coll = $Registry->Mongo->QUESTION_TAGS;
 	}
 
 
@@ -104,12 +104,12 @@ class Qtagscounter extends LampcmsObject
 	 *
 	 *  @todo we can use this as post-echo method
 	 *
-	 * @param Question $oQuestion
+	 * @param Question $Question
 	 * @return object $this
 	 */
-	public function parse(Question $oQuestion, array $aExtra = array()){
-		$aTags = $oQuestion['a_tags'];
-		$time = $oQuestion['i_ts'];
+	public function parse(Question $Question, array $aExtra = array()){
+		$aTags = $Question['a_tags'];
+		$time = $Question['i_ts'];
 
 		if(!empty($aTags)){
 			$set = array('i_ts' => $time, 'hts' => date("F j, Y g:i a"));
@@ -148,16 +148,16 @@ class Qtagscounter extends LampcmsObject
 	 * to decrease number of tags count to account
 	 * for this removed question
 	 *
-	 * @param Question $oQuestion
+	 * @param Question $Question
 	 *
 	 * @return object $this;
 	 */
-	public function removeTags($oQuestion){
-		if(!is_array($oQuestion) && (!($oQuestion instanceof \Lampcms\Question))){
-			throw new \InvalidArgumentException('$oQuestion must be array OR instance of Question. was: '.gettype($oQuestion));
+	public function removeTags($Question){
+		if(!is_array($Question) && (!($Question instanceof \Lampcms\Question))){
+			throw new \InvalidArgumentException('$Question must be array OR instance of Question. was: '.gettype($Question));
 		}
 
-		$aTags = (is_array($oQuestion)) ? $oQuestion : $oQuestion['a_tags'];
+		$aTags = (is_array($Question)) ? $Question : $Question['a_tags'];
 
 		if(!empty($aTags)){
 			/**

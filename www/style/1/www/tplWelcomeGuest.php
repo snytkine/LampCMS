@@ -50,7 +50,7 @@
  */
 
  
-class tplWelcomeGuest extends \Lampcms\Template\Template
+class tplWelcomeGuest extends \Lampcms\Template\Fast
 {
 	
 	protected static $vars = array(

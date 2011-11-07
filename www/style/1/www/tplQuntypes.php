@@ -44,7 +44,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplQuntypes extends Lampcms\Template\Template
+class tplQuntypes extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'newest_c' => '',

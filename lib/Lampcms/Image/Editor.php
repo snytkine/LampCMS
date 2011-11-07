@@ -150,14 +150,14 @@ abstract class Editor extends \Lampcms\LampcmsObject
 	 * @throws LampcmsImageException if sub-class could
 	 * not be instantiated for any reason
 	 */
-	public static final function factory(\Lampcms\Registry $oRegistry){
+	public static final function factory(\Lampcms\Registry $Registry){
 
 		/**
 		 * @todo later may add
 		 * support for imagick
 		 */
 		if(extension_loaded('gd')){
-			return new EditorGD($oRegistry);
+			return new EditorGD($Registry);
 		}
 
 		throw new \Lampcms\Exception('Unable to parse images because neither GD nor Imagick extensions are available');

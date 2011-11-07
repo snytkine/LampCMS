@@ -101,8 +101,8 @@ class Changepwd extends Form
 		$current = $this->getSubmittedValue('current');
 
 		try {
-			$oCheckLogin = new UserAuth($this->oRegistry);
-			$oUser = $oCheckLogin->validateLogin($this->oRegistry->Viewer->username, $current);
+			$oCheckLogin = new UserAuth($this->Registry);
+			$User = $oCheckLogin->validateLogin($this->Registry->Viewer->username, $current);
 		} catch (\Lampcms\LoginException $e) {
 			$this->setError('current', $this->_('This is not the correct password'));
 		}

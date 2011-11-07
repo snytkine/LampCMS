@@ -109,7 +109,7 @@ abstract class WebPage extends Base
 	 *
 	 * @var object of type Request
 	 */
-	protected $oRequest;
+	protected $Request;
 
 
 	/**
@@ -244,15 +244,15 @@ abstract class WebPage extends Base
 	/**
 	 * Constructor
 	 * @return
-	 * @param object $oRegistry
-	 * @param object $oRequest
+	 * @param object $Registry
+	 * @param object $Request
 	 */
-	public function __construct(Registry $oRegistry, Request $oRequest = null){
+	public function __construct(Registry $Registry, Request $Request = null){
 
-		parent::__construct($oRegistry);
+		parent::__construct($Registry);
 
-		$this->oRequest = (null !== $oRequest) ? $oRequest : $oRegistry->Request;
-		$this->action = $this->oRequest['a'];
+		$this->Request = (null !== $Request) ? $Request : $Registry->Request;
+		$this->action = $this->Request['a'];
 
 		$this->initParams()
 		->setTemplateDir()
@@ -283,7 +283,7 @@ abstract class WebPage extends Base
 		 * recording of who's online and at what url
 		 */
 
-		$this->oRegistry->Dispatcher->post($this, 'onPageView', $this->aPageVars);
+		$this->Registry->Dispatcher->post($this, 'onPageView', $this->aPageVars);
 		
 		//\Lampcms\Log::dump();
 	}
@@ -304,7 +304,7 @@ abstract class WebPage extends Base
 
 		if(empty($_SESSION['oViewer'])){
 			d('cp no Viewer in session');
-			$_SESSION['oViewer'] = User::factory($this->oRegistry);
+			$_SESSION['oViewer'] = User::factory($this->Registry);
 			$_SESSION['oViewer']->setTime();
 			d('oViewer new: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1) );
 			/**
@@ -313,7 +313,7 @@ abstract class WebPage extends Base
 			Cookie::sendRefferrerCookie();
 		}
 
-		$this->oRegistry->Viewer = $_SESSION['oViewer'];
+		$this->Registry->Viewer = $_SESSION['oViewer'];
 
 		d(' session viewer: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1));
 
@@ -322,8 +322,8 @@ abstract class WebPage extends Base
 
 
 	protected function setLocale(){
-		$this->oRegistry->Locale->setLocale();
-		$this->Tr = $this->oRegistry->Tr;
+		$this->Registry->Locale->setLocale();
+		$this->Tr = $this->Registry->Tr;
 
 		return $this;
 	}
@@ -385,10 +385,10 @@ abstract class WebPage extends Base
 			throw new Exception('POST method required');
 		}
 			
-		$this->oRequest->setRequired($this->aRequired)->checkRequired();
+		$this->Request->setRequired($this->aRequired)->checkRequired();
 
 		if(true === $this->requireToken){
-			\Lampcms\Forms\Form::validateToken($this->oRegistry);
+			\Lampcms\Forms\Form::validateToken($this->Registry);
 		}
 
 		d('cp');
@@ -418,18 +418,18 @@ abstract class WebPage extends Base
 			return $this;
 		}
 
-		$Viewer = $this->oRegistry->Viewer;
+		$Viewer = $this->Registry->Viewer;
 		$this->aPageVars = \tplMain::getVars();
 			
-		$oIni = $this->oRegistry->Ini;
-		$this->aPageVars['site_title'] = $oIni->SITE_TITLE;
-		$this->aPageVars['site_url'] = $oIni->SITE_URL;
-		$this->aPageVars['site_description'] = $oIni->SITE_NAME;
-		$this->aPageVars['show_comments'] = $oIni->SHOW_COMMENTS;
-		$this->aPageVars['max_comments'] = $oIni->MAX_COMMENTS;
-		$this->aPageVars['comments_timeout'] = $oIni->COMMENT_EDIT_TIME;
+		$Ini = $this->Registry->Ini;
+		$this->aPageVars['site_title'] = $Ini->SITE_TITLE;
+		$this->aPageVars['site_url'] = $Ini->SITE_URL;
+		$this->aPageVars['site_description'] = $Ini->SITE_NAME;
+		$this->aPageVars['show_comments'] = $Ini->SHOW_COMMENTS;
+		$this->aPageVars['max_comments'] = $Ini->MAX_COMMENTS;
+		$this->aPageVars['comments_timeout'] = $Ini->COMMENT_EDIT_TIME;
 		$this->aPageVars['layoutID'] = $this->layoutID;
-		$this->aPageVars['DISABLE_AUTOCOMPLETE'] = $oIni->DISABLE_AUTOCOMPLETE;
+		$this->aPageVars['DISABLE_AUTOCOMPLETE'] = $Ini->DISABLE_AUTOCOMPLETE;
 		$this->aPageVars['JS_MIN_ID'] = JS_MIN_ID;
 		$this->aPageVars['home'] = $this->_('Home');
 
@@ -439,14 +439,14 @@ abstract class WebPage extends Base
 		 *
 		 */
 		$css = (true === LAMPCMS_DEBUG) ? '/_main.css' : '/main.css';
-		$this->aPageVars['main_css'] = $oIni->CSS_SITE.'/style/'.STYLE_ID.'/'.VTEMPLATES_DIR.$css;
+		$this->aPageVars['main_css'] = $Ini->CSS_SITE.'/style/'.STYLE_ID.'/'.VTEMPLATES_DIR.$css;
 
 
-		if('' !== $gfcID = $oIni->GFC_ID){
+		if('' !== $gfcID = $Ini->GFC_ID){
 			$this->addGFCCode($gfcID);
 		}
 
-		$aFacebookConf = $oIni->getSection('FACEBOOK');
+		$aFacebookConf = $Ini->getSection('FACEBOOK');
 
 		if(!empty($aFacebookConf)){
 			if(!empty($aFacebookConf['APP_ID'])){
@@ -474,7 +474,7 @@ abstract class WebPage extends Base
 
 		$js = (true === LAMPCMS_DEBUG) ? '/qa.js' : '/min/qa_'.JS_MIN_ID.'.js';
 		//$js = (true === LAMPCMS_DEBUG) ? '/temp1.js' : '/min/qa_'.JS_MIN_ID.'.js';
-		$src = $oIni->JS_SITE.'/js'.$js;
+		$src = $Ini->JS_SITE.'/js'.$js;
 
 		$this->aPageVars['JS'] = $src;
 		/**
@@ -568,9 +568,9 @@ abstract class WebPage extends Base
 		}
 
 		try {
-			$oCheckLogin = new CookieAuth($this->oRegistry);
-			$oUser = $oCheckLogin->authByCookie();
-			d('aResult: '.print_r($oUser->getArrayCopy(), 1));
+			$oCheckLogin = new CookieAuth($this->Registry);
+			$User = $oCheckLogin->authByCookie();
+			d('aResult: '.print_r($User->getArrayCopy(), 1));
 
 		} catch(CookieAuthException $e) {
 			e('LampcmsError: login by sid failed with message: '.$e->getMessage());
@@ -586,8 +586,8 @@ abstract class WebPage extends Base
 		 * but its not necessary because user
 		 *  will be redirected anyway
 		 */
-		$this->processLogin($oUser);
-		$this->oRegistry->Dispatcher->post( $this, 'onCookieLogin' );
+		$this->processLogin($User);
+		$this->Registry->Dispatcher->post( $this, 'onCookieLogin' );
 
 		return $this;
 	}
@@ -607,14 +607,14 @@ abstract class WebPage extends Base
 			return $this;
 		}
 
-		$GfcSiteID = $this->oRegistry->Ini->GFC_ID;
+		$GfcSiteID = $this->Registry->Ini->GFC_ID;
 		if(empty($GfcSiteID)){
 			d('not using friend connect');
 			return $this;
 		}
 
 		try{
-			$oGfc = new ExternalAuthGfc($this->oRegistry, $GfcSiteID);
+			$oGfc = new ExternalAuthGfc($this->Registry, $GfcSiteID);
 			$oViewer = $oGfc->getUserObject();
 		} catch(GFCAuthException $e){
 
@@ -624,7 +624,7 @@ abstract class WebPage extends Base
 		}
 
 		$this->processLogin($oViewer);
-		$this->oRegistry->Dispatcher->post( $this, 'onGfcLogin' );
+		$this->Registry->Dispatcher->post( $this, 'onGfcLogin' );
 
 		return $this;
 
@@ -651,11 +651,11 @@ abstract class WebPage extends Base
 		}
 
 		try{
-			$oViewer = ExternalAuthFb::getUserObject($this->oRegistry);
+			$oViewer = ExternalAuthFb::getUserObject($this->Registry);
 			d('got $oViewer: '.print_r($oViewer->getArrayCopy(), 1));
 			$this->processLogin($oViewer);
-			d('logged in facebook user: '.$this->oRegistry->Viewer->getUid());
-			$this->oRegistry->Dispatcher->post( $this, 'onFacebookLogin' );
+			d('logged in facebook user: '.$this->Registry->Viewer->getUid());
+			$this->Registry->Dispatcher->post( $this, 'onFacebookLogin' );
 
 		} catch (FacebookAuthException $e){
 			d('Facebook login failed. '.$e->getMessage().' '.$e->getFile().' '.$e->getLine());
@@ -668,18 +668,18 @@ abstract class WebPage extends Base
 	/**
 	 *
 	 * Resets the $_SESSION array, adds ['viewer'] to $_SESSION
-	 * and points $this->oRegistry->Viewer = $_SESSION['oViewer'] = $oUser;
+	 * and points $this->Registry->Viewer = $_SESSION['oViewer'] = $User;
 	 *
-	 * @param User $oUser
+	 * @param User $User
 	 * @param unknown_type $bResetSession
 	 * @throws LoginException in case filter regected
 	 * the login by cancelling onBeforeLogin event
 	 *
 	 * @return object $this
 	 */
-	protected function processLogin(User $oUser, $bResetSession = false){
+	protected function processLogin(User $User, $bResetSession = false){
 
-		d('processing user hashCode: '.$oUser->hashCode().' userHash: '.$oUser->hashCode());
+		d('processing user hashCode: '.$User->hashCode().' userHash: '.$User->hashCode());
 
 		/**
 		 * This little thing is not
@@ -692,14 +692,14 @@ abstract class WebPage extends Base
 			$_SESSION = array();
 		}
 
-		d('cp '.gettype($oUser));
+		d('cp '.gettype($User));
 
 		/**
 		 * This give a change for some sort of filter to examine twitter id, twitter name
 		 * and possibly disallow the login
 		 *
 		 */
-		if (false === $this->oRegistry->Dispatcher->post($oUser, 'onBeforeUserLogin')) {
+		if (false === $this->Registry->Dispatcher->post($User, 'onBeforeUserLogin')) {
 			d('onBeforeUserLogin returned false');
 			throw new LoginException('Access denied');
 		}
@@ -727,7 +727,7 @@ abstract class WebPage extends Base
 		 */
 		d('old SESSION oViewer hash code was: '.$_SESSION['oViewer']->hashCode().' old userHash: '.$_SESSION['oViewer']->hashCode());
 
-		$this->oRegistry->Viewer = $_SESSION['oViewer'] = $oUser;
+		$this->Registry->Viewer = $_SESSION['oViewer'] = $User;
 		d('Viewer in session now: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1));
 		/**
 		 * This is important otherwise
@@ -762,13 +762,11 @@ abstract class WebPage extends Base
 
 	/**
 	 * Performs the last step in assembling
-	 * the XML object by appending the
-	 * Switchaccount form and side menu HTML
-	 * if necessary and then
-	 * returns the textual representation
-	 * of the $this->oDocGlobal object
+	 * the page
 	 *
-	 * @return mixed result of toHTML()
+	 * @return string parsed tplMail template
+	 * with the {timer} replaced with
+	 * page generation time (if present)
 	 */
 	public function getResult(){
 
@@ -783,7 +781,7 @@ abstract class WebPage extends Base
 		/**
 		 * @todo Translate string
 		 */
-		$scriptTime = ($this->oRegistry->Ini->SHOW_TIMER) ? 'Page generated in '.abs((microtime() - INIT_TIMESTAMP)).' seconds' : '';
+		$scriptTime = ($this->Registry->Ini->SHOW_TIMER) ? 'Page generated in '.abs((microtime() - INIT_TIMESTAMP)).' seconds' : '';
 
 		return \str_replace('{timer}', $scriptTime, $tpl);
 	}
@@ -838,7 +836,7 @@ abstract class WebPage extends Base
 	 * @return object $this
 	 */
 	protected function configureEditor(){
-		$a = $this->oRegistry->Ini->getSection('EDITOR');
+		$a = $this->Registry->Ini->getSection('EDITOR');
 		if($a['ENABLE_CODE_EDITOR']){
 			d('enabling code highlighter');
 			$this->lastJs = array('/js/min/shCoreMin.js', '/js/min/dsBrushes.js');
@@ -860,7 +858,7 @@ abstract class WebPage extends Base
 	 */
 	protected function addLoginBlock(){
 		if('logout' !== $this->action){
-			$this->aPageVars['header'] = LoginForm::makeWelcomeMenu($this->oRegistry);
+			$this->aPageVars['header'] = LoginForm::makeWelcomeMenu($this->Registry);
 		}
 
 		return $this;
@@ -931,7 +929,7 @@ abstract class WebPage extends Base
 			 * if the request isAjax
 			 *
 			 */
-			$err = Exception::formatException($le, null, $this->oRegistry->Tr);
+			$err = Exception::formatException($le, null, $this->Registry->Tr);
 			/**
 			 * @todo if Login exception then present a login form!
 			 *
@@ -960,7 +958,7 @@ abstract class WebPage extends Base
 		$a = array();
 		d('cp');
 		if($this->isLoggedIn()){
-			$welcome = LoginForm::makeWelcomeMenu($this->oRegistry);
+			$welcome = LoginForm::makeWelcomeMenu($this->Registry);
 			$a['welcome'] = $welcome;
 		}
 
@@ -987,7 +985,7 @@ abstract class WebPage extends Base
 	protected function validateToken($token = null){
 
 		$message = '';
-		$token = ( (null === $token) && !empty($this->oRequest['token']) ) ? $this->oRequest['token'] : $token;
+		$token = ( (null === $token) && !empty($this->Request['token']) ) ? $this->Request['token'] : $token;
 
 		if(empty($_SESSION['secret'])){
 			d("No token in SESSION ".print_r($_SESSION, 1));
@@ -1038,14 +1036,14 @@ abstract class WebPage extends Base
 			$cookie = Cookie::get('dnd');
 			d('dnd: '.$cookie);
 			if(!$cookie){
-				$isNewUser = $this->oRegistry->Viewer->isNewUser();
-				d('isNewUser: '.$isNewUser.' $this->oRegistry->Viewer: '.print_r($this->oRegistry->Viewer->getArrayCopy(), 1));
+				$isNewUser = $this->Registry->Viewer->isNewUser();
+				d('isNewUser: '.$isNewUser.' $this->Registry->Viewer: '.print_r($this->Registry->Viewer->getArrayCopy(), 1));
 
-				if($this->oRegistry->Viewer instanceof UserExternal){
-					$email = $this->oRegistry->Viewer->email;
+				if($this->Registry->Viewer instanceof UserExternal){
+					$email = $this->Registry->Viewer->email;
 					d('email: '.var_export($email, true));
 					if(empty($email)){
-						$sHtml = RegBlock::factory($this->oRegistry)->getBlock();
+						$sHtml = RegBlock::factory($this->Registry)->getBlock();
 						d('$sHtml: '.$sHtml);
 						$this->aPageVars['extra_html'] = $sHtml;
 					}
@@ -1064,7 +1062,7 @@ abstract class WebPage extends Base
 	 * we need to serve mobile pages
 	 *
 	 * @todo something like this:
-	 * oRegistry->Viewer->getStyleId().DS.$this->tplDir
+	 * Registry->Viewer->getStyleId().DS.$this->tplDir
 	 * where getStyleId will return whatever user
 	 * has selected with fallback to default '1'
 	 *
@@ -1088,7 +1086,7 @@ abstract class WebPage extends Base
 	 * @return $this
 	 */
 	protected function addLangForm(){
-		$this->aPageVars['langsForm'] = $this->oRegistry->Locale->getOptions();
+		$this->aPageVars['langsForm'] = $this->Registry->Locale->getOptions();
 
 		return $this;
 	}

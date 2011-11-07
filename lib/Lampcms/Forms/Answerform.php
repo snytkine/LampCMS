@@ -81,11 +81,11 @@ class Answerform extends Form
 	 * and also setting the 'mustLogin' related elements
 	 * if user not logged in
 	 *
-	 * @param Question $oQuestion
+	 * @param Question $Question
 	 *
 	 * @return string html of form or message block
 	 */
-	public function getAnswerForm(\Lampcms\Question $oQuestion){
+	public function getAnswerForm(\Lampcms\Question $Question){
 
 		d('cp');
 
@@ -100,7 +100,7 @@ class Answerform extends Form
 		 * OR NOT show answer form based on Viewer object if viewer
 		 * has been flagged as spammer
 		 */
-		$oNotification = $this->oRegistry->Dispatcher->post($oQuestion, 'onBeforeAnswerForm');
+		$oNotification = $this->Registry->Dispatcher->post($Question, 'onBeforeAnswerForm');
 		d('cp');
 		if($oNotification->isNotificationCancelled()){
 			d('onBeforeAnswerform cancelled by observer');
@@ -113,30 +113,30 @@ class Answerform extends Form
 		 * instead of answer form return
 		 * the div with "closed" message
 		 */
-		if(false !== $aClosed = $oQuestion->isClosed()){
+		if(false !== $aClosed = $Question->isClosed()){
 
 			return \tplClosedby::parse($aClosed);
 		}
 		d('cp');
 
 
-		$formTitle = (0 === $oQuestion['i_ans']) ? $this->Tr['Be the first to answer this question'] : $this->Tr['Your answer'] ;
+		$formTitle = (0 === $Question['i_ans']) ? $this->Tr['Be the first to answer this question'] : $this->Tr['Your answer'] ;
 
 		$this->setVar('title', $formTitle);
-		$this->setVar('qid', $oQuestion['_id']);
+		$this->setVar('qid', $Question['_id']);
 		$this->setVar('submit', $this->Tr['Submit answer']);
 		$this->setVar('preview', $this->Tr['Preview']);
 
-		if($this->oRegistry->Viewer->isGuest()){
+		if($this->Registry->Viewer->isGuest()){
 			d('cp');
 			$this->qbody = $this->_('Please login to post your answer');
 			$this->com_hand = ' com_hand';
 			$this->readonly = 'readonly="readonly"';
 			$this->disabled = ' disabled="disabled"';
 
-			$oQuickReg = new \Lampcms\RegBlockQuickReg($this->oRegistry);
+			$oQuickReg = new \Lampcms\RegBlockQuickReg($this->Registry);
 			d('cp');
-			$socialButtons = LoginForm::makeSocialButtons($this->oRegistry);
+			$socialButtons = LoginForm::makeSocialButtons($this->Registry);
 			/**
 			 * @todo Translate string
 			 */
@@ -165,9 +165,9 @@ class Answerform extends Form
 	 */
 	protected function doValidate(){
 
-		$minChars = $this->oRegistry->Ini->MIN_ANSWER_CHARS;
-		$minWords = $this->oRegistry->Ini->MIN_ANSWER_WORDS;
-		$body = $this->oRegistry->Request->getUTF8('qbody');
+		$minChars = $this->Registry->Ini->MIN_ANSWER_CHARS;
+		$minWords = $this->Registry->Ini->MIN_ANSWER_WORDS;
+		$body = $this->Registry->Request->getUTF8('qbody');
 		$oHtmlString = HTMLString::factory($body);
 		$wordCount = $oHtmlString->getWordsCount();
 		$len = $oHtmlString->length();

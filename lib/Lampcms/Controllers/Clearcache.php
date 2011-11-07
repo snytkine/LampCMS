@@ -71,7 +71,7 @@ class Clearcache extends WebPage
 	protected $layoutID = 1;
 	
 	protected function main(){
-		$this->oRegistry->Cache->flush();
+		$this->Registry->Cache->flush();
 		
 		$this->aPageVars['body'] = '<div id="tools">'.$this->_('Cache Cleared').'</div>';
 		

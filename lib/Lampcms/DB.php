@@ -63,7 +63,7 @@ use \PDO;
  */
 class DB extends LampcmsObject
 {
-	protected $oRegistry;
+	protected $Registry;
 
 	/**
 	 * Instance of this object
@@ -107,9 +107,9 @@ class DB extends LampcmsObject
 	 *
 	 * @return object
 	 */
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
-		$this->oIni = $oRegistry->Ini;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
+		$this->Ini = $Registry->Ini;
 	}
 
 
@@ -206,7 +206,7 @@ class DB extends LampcmsObject
 	 * in the !config.ini file
 	 */
 	protected function makeDsn(){
-		$this->aDB = $this->oIni->getSection('DB');
+		$this->aDB = $this->Ini->getSection('DB');
 
 		if (!isset($this->aDB['Database_username']) || !isset($this->aDB['Database_password'])) {
 				

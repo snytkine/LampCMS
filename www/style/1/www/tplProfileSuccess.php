@@ -58,7 +58,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplProfileSuccess extends Lampcms\Template\Template
+class tplProfileSuccess extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'h3' => '', //1

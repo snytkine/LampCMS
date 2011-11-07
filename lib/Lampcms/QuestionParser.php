@@ -81,7 +81,7 @@ class QuestionParser extends LampcmsObject
 	 *
 	 * @var Object SubmittedQuestion
 	 */
-	protected $oSubmitted;
+	protected $Submitted;
 
 	/**
 	 * New question object
@@ -89,24 +89,24 @@ class QuestionParser extends LampcmsObject
 	 *
 	 * @var object of type Question
 	 */
-	protected $oQuestion;
+	protected $Question;
 
-	protected $oCache;
+	protected $Cache;
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
 		/**
 		 * Need to instantiate Cache so that it
 		 * will listen to event and unset some keys
 		 */
-		$this->oCache = $this->oRegistry->Cache;
-		$this->oRegistry->registerObservers('INPUT_FILTERS');
+		$this->Cache = $this->Registry->Cache;
+		$this->Registry->registerObservers('INPUT_FILTERS');
 	}
 
 	/**
 	 * Getter for submitted object
 	 * This can be used from observer object
-	 * like spam filter so that via oSubmitted
+	 * like spam filter so that via Submitted
 	 * it's possible to call getUserObject()
 	 * and get user object of question submitter, then
 	 * look at some personal stats like reputation score,
@@ -116,7 +116,7 @@ class QuestionParser extends LampcmsObject
 	 */
 	public function getSubmitted(){
 
-		return $this->oSubmitted;
+		return $this->Submitted;
 	}
 
 	/**
@@ -127,7 +127,7 @@ class QuestionParser extends LampcmsObject
 	 */
 	public function parse(SubmittedQuestion $o){
 
-		$this->oSubmitted = $o;
+		$this->Submitted = $o;
 
 		$this->makeQuestion()
 		->addToSearchIndex()
@@ -138,13 +138,13 @@ class QuestionParser extends LampcmsObject
 
 		d('cp parsing done, returning question');
 
-		return $this->oQuestion;
+		return $this->Question;
 	}
 
 
 	/**
 	 * Prepares data for the question object,
-	 * creates the $this->oQuestion object
+	 * creates the $this->Question object
 	 * and saves data to QUESTIONS collection
 	 *
 	 * @return object $this
@@ -155,19 +155,19 @@ class QuestionParser extends LampcmsObject
 	 */
 	protected function makeQuestion(){
 
-		$oTitle = $this->oSubmitted->getTitle()->htmlentities()->trim();
+		$oTitle = $this->Submitted->getTitle()->htmlentities()->trim();
 
-		$username = $this->oSubmitted->getUserObject()->getDisplayName();
+		$username = $this->Submitted->getUserObject()->getDisplayName();
 
-		$aTags = $this->oSubmitted->getTagsArray();
+		$aTags = $this->Submitted->getTagsArray();
 
 		/**
 		 * Must pass array('drop-proprietary-attributes' => false)
 		 * otherwise tidy removes rel="code"
 		 */
-		$aEditorConfig = $this->oRegistry->Ini->getSection('EDITOR');
+		$aEditorConfig = $this->Registry->Ini->getSection('EDITOR');
 		$tidyConfig = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
-		$oBody = $this->oSubmitted->getBody()->tidy($tidyConfig)->safeHtml()->asHtml();
+		$Body = $this->Submitted->getBody()->tidy($tidyConfig)->safeHtml()->asHtml();
 
 		/**
 		 *
@@ -177,10 +177,10 @@ class QuestionParser extends LampcmsObject
 		 * make sure all links are nofollow
 		 *
 		 */
-		$htmlBody = HTMLStringParser::factory($oBody)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->hilightWords($aTags)->valueOf();
+		$htmlBody = HTMLStringParser::factory($Body)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->hilightWords($aTags)->valueOf();
 		d('after HTMLStringParser: '.$htmlBody);
 
-		$uid = $this->oSubmitted->getUserObject()->getUid();
+		$uid = $this->Submitted->getUserObject()->getUid();
 		$hash = hash('md5', strtolower($htmlBody.json_encode($aTags)));
 
 		/**
@@ -193,25 +193,25 @@ class QuestionParser extends LampcmsObject
 		 */
 		$this->checkForDuplicate($uid, $hash);
 
-		$username = $this->oSubmitted->getUserObject()->getDisplayName();
+		$username = $this->Submitted->getUserObject()->getDisplayName();
 		$time = time();
 		/**
 		 *
 		 * @var array
 		 */
 		$aData = array(
-		'_id' => $this->oRegistry->Resource->create('QUESTION'),
+		'_id' => $this->Registry->Resource->create('QUESTION'),
 		'title' => $oTitle->valueOf(),
 		/*'title_hash' => hash('md5', strtolower(trim($title)) ),*/
 		'b' => $htmlBody,
 		'hash' => $hash,
-		'intro' => $this->oSubmitted->getBody()->asPlainText()->truncate(150)->valueOf(),
-		'url' => $this->oSubmitted->getTitle()->toASCII()->makeLinkTitle()->valueOf(),
-		'i_words' => $this->oSubmitted->getBody()->asPlainText()->getWordsCount(),
+		'intro' => $this->Submitted->getBody()->asPlainText()->truncate(150)->valueOf(),
+		'url' => $this->Submitted->getTitle()->toASCII()->makeLinkTitle()->valueOf(),
+		'i_words' => $this->Submitted->getBody()->asPlainText()->getWordsCount(),
 		'i_uid' => $uid,
 		'username' => $username,
-		'ulink' => '<a href="'.$this->oSubmitted->getUserObject()->getProfileUrl().'">'.$username.'</a>',
-		'avtr' => $this->oSubmitted->getUserObject()->getAvatarSrc(),
+		'ulink' => '<a href="'.$this->Submitted->getUserObject()->getProfileUrl().'">'.$username.'</a>',
+		'avtr' => $this->Submitted->getUserObject()->getAvatarSrc(),
 		'i_up' => 0,
 		'i_down' => 0,
 		'i_votes' => 0,
@@ -229,10 +229,10 @@ class QuestionParser extends LampcmsObject
 		'ans_s' => 's',
 		'v_s' => 's',
 		'f_s' => 's',
-		'ip' => $this->oSubmitted->getIP(),
-		'app' => $this->oSubmitted->getApp(),
-		'app_id' => $this->oSubmitted->getAppId(),
-		'app_link' => $this->oSubmitted->getAppLink(),
+		'ip' => $this->Submitted->getIP(),
+		'app' => $this->Submitted->getApp(),
+		'app_id' => $this->Submitted->getAppId(),
+		'app_link' => $this->Submitted->getAppLink(),
 		'i_flwrs' => 1 // initially question has 1 follower - its author
 		);
 
@@ -245,13 +245,13 @@ class QuestionParser extends LampcmsObject
 		 *
 		 * as well as adding 'credit' div
 		 */
-		$aExtraData = $this->oSubmitted->getExtraData();
+		$aExtraData = $this->Submitted->getExtraData();
 		d('$aExtraData: '.print_r($aExtraData, 1));
 		if(is_array($aExtraData) && !empty($aExtraData)){
 			$aData = array_merge($aData, $aExtraData);
 		}
 
-		$this->oQuestion = new Question($this->oRegistry, $aData);
+		$this->Question = new Question($this->Registry, $aData);
 
 		/**
 		 * Post onBeforeNewQuestion event
@@ -267,12 +267,12 @@ class QuestionParser extends LampcmsObject
 		 * the user right on the question form while question form's data
 		 * is preserved in form.
 		 *
-		 * Filter can also modify the data in oQuestion before
+		 * Filter can also modify the data in Question before
 		 * it is saved. This is convenient, we can even set different
 		 * username, i_uid if we want to 'post as alias'
 		 */
 		try {
-			$oNotification = $this->oRegistry->Dispatcher->post($this->oQuestion, 'onBeforeNewQuestion');
+			$oNotification = $this->Registry->Dispatcher->post($this->Question, 'onBeforeNewQuestion');
 			if($oNotification->isNotificationCancelled()){
 				throw new QuestionParserException('Sorry, we are unable to process your question at this time.');
 			}
@@ -287,10 +287,10 @@ class QuestionParser extends LampcmsObject
 		 */
 		$this->ensureIndexes();
 
-		$this->oQuestion->insert();
+		$this->Question->insert();
 		$this->followQuestion();
 
-		$this->oRegistry->Dispatcher->post($this->oQuestion, 'onNewQuestion');
+		$this->Registry->Dispatcher->post($this->Question, 'onNewQuestion');
 
 		return $this;
 	}
@@ -310,7 +310,7 @@ class QuestionParser extends LampcmsObject
 		 * Best is to go through FollowManager and don't
 		 * do this manually
 		 */
-		FollowManager::factory($this->oRegistry)->followQuestion($this->oRegistry->Viewer, $this->oQuestion);
+		FollowManager::factory($this->Registry)->followQuestion($this->Registry->Viewer, $this->Question);
 
 		return $this;
 	}
@@ -323,7 +323,7 @@ class QuestionParser extends LampcmsObject
 	 * @return object $this
 	 */
 	protected function ensureIndexes(){
-		$quest = $this->oRegistry->Mongo->QUESTIONS;
+		$quest = $this->Registry->Mongo->QUESTIONS;
 		$quest->ensureIndex(array('i_sticky' => 1));
 		$quest->ensureIndex(array('i_ts' => 1));
 		$quest->ensureIndex(array('i_votes' => 1));
@@ -345,7 +345,7 @@ class QuestionParser extends LampcmsObject
 		 * Index a_f_q in USERS (array of followed question ids)
 		 * @todo move this to when the user is created!
 		 */
-		$this->oRegistry->Mongo->USERS->ensureIndex(array('a_f_q' => 1));
+		$this->Registry->Mongo->USERS->ensureIndex(array('a_f_q' => 1));
 
 		return $this;
 	}
@@ -361,7 +361,7 @@ class QuestionParser extends LampcmsObject
 	 * @param string $hash hash of question body
 	 */
 	protected function checkForDuplicate($uid, $hash){
-		$a = $this->oRegistry->Mongo->QUESTIONS->findOne(array('i_uid' => $uid, 'hash' => $hash ));
+		$a = $this->Registry->Mongo->QUESTIONS->findOne(array('i_uid' => $uid, 'hash' => $hash ));
 		if(!empty($a)){
 			$err = 'You have already asked exact same question  <span title="'.$a['hts'].'" class="ts" rel="time">on '.$a['hts'].
 			'</span><br><a class="link" href="/questions/'.$a['_id'].'/'.$a['url'].'">'.$a['title'].'</a><br>
@@ -381,7 +381,7 @@ class QuestionParser extends LampcmsObject
 	 */
 	protected function addToSearchIndex(){
 
-		IndexerFactory::factory($this->oRegistry)->indexQuestion($this->oQuestion);
+		IndexerFactory::factory($this->Registry)->indexQuestion($this->Question);
 
 		return $this;
 	}
@@ -394,11 +394,11 @@ class QuestionParser extends LampcmsObject
 	 */
 	protected function addTags(){
 
-		$o = Qtagscounter::factory($this->oRegistry);
-		$oQuestion = $this->oQuestion;
-		if(count($oQuestion['a_tags']) > 0){
-			$callable = function() use($o, $oQuestion){
-				$o->parse($oQuestion);
+		$o = Qtagscounter::factory($this->Registry);
+		$Question = $this->Question;
+		if(count($Question['a_tags']) > 0){
+			$callable = function() use($o, $Question){
+				$o->parse($Question);
 			};
 			d('cp');
 			runLater($callable);
@@ -416,12 +416,12 @@ class QuestionParser extends LampcmsObject
 	 */
 	protected function addRelatedTags(){
 
-		$oRelated = Relatedtags::factory($this->oRegistry);
-		$oQuestion = $this->oQuestion;
-		if(count($oQuestion['a_tags']) > 0){
+		$oRelated = Relatedtags::factory($this->Registry);
+		$Question = $this->Question;
+		if(count($Question['a_tags']) > 0){
 			d('cp');
-			$callable = function() use ($oRelated, $oQuestion){
-				$oRelated->addTags($oQuestion);
+			$callable = function() use ($oRelated, $Question){
+				$oRelated->addTags($Question);
 			};
 			runLater($callable);
 		}
@@ -432,19 +432,19 @@ class QuestionParser extends LampcmsObject
 
 
 	/**
-	 * Skip if $this->oQuestion['status'] is accptd
+	 * Skip if $this->Question['status'] is accptd
 	 * which would be the case when question came from API
 	 * and is already answered
 	 *
 	 * @return object $this
 	 */
 	protected function addUnansweredTags(){
-		if('accptd' !== $this->oQuestion['status']){
-			if(count($this->oQuestion['a_tags']) > 0){
-				$o = new UnansweredTags($this->oRegistry);
-				$oQuestion = $this->oQuestion;
-				$callable = function() use ($o, $oQuestion){
-					$o->set($oQuestion);
+		if('accptd' !== $this->Question['status']){
+			if(count($this->Question['a_tags']) > 0){
+				$o = new UnansweredTags($this->Registry);
+				$Question = $this->Question;
+				$callable = function() use ($o, $Question){
+					$o->set($Question);
 				};
 				d('cp');
 				runLater($callable);
@@ -463,12 +463,12 @@ class QuestionParser extends LampcmsObject
 	 */
 	protected function addUserTags(){
 
-		$oUserTags = UserTags::factory($this->oRegistry);
-		$uid = $this->oSubmitted->getUserObject()->getUid();
-		$oQuestion = $this->oQuestion;
-		if(count($oQuestion['a_tags']) > 0){
-			$callable = function() use ($oUserTags, $uid, $oQuestion){
-				$oUserTags->addTags($uid, $oQuestion);
+		$UserTags = UserTags::factory($this->Registry);
+		$uid = $this->Submitted->getUserObject()->getUid();
+		$Question = $this->Question;
+		if(count($Question['a_tags']) > 0){
+			$callable = function() use ($UserTags, $uid, $Question){
+				$UserTags->addTags($uid, $Question);
 			};
 			
 			runLater($callable);

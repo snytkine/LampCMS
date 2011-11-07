@@ -88,14 +88,14 @@ class CacheCallback{
 	 * This method is invoked from the Cache object
 	 *
 	 *
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 * @param string $key
 	 */
-	public function run(\Lampcms\Registry $oRegistry, $key = null){
+	public function run(\Lampcms\Registry $Registry, $key = null){
 		if(!empty($key) && !is_string($key)){
 			throw new \InvalidArgumentException('Param $key must be a key. Was: '.gettype($key));
 		}
 		
-		return $this->func($oRegistry, $key);
+		return $this->func($Registry, $key);
 	}
 }

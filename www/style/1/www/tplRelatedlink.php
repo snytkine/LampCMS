@@ -45,7 +45,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplRelatedlink extends Lampcms\Template\Template
+class tplRelatedlink extends Lampcms\Template\Fast
 {
 	/**
 	 * 'tag' and 'link' are not always the same

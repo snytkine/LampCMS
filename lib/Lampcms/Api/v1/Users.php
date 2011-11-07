@@ -99,7 +99,7 @@ class Users extends Api
 
 
 	protected function main(){
-		$this->pageID = $this->oRequest['pageID'];
+		$this->pageID = $this->Request['pageID'];
 
 		$this->setSortBy()
 		->setStartTime()
@@ -122,7 +122,7 @@ class Users extends Api
 	 * @return object $this
 	 */
 	protected function setUids(){
-		$uids = $this->oRequest->get('uids', 's');
+		$uids = $this->Request->get('uids', 's');
 		
 		if(!empty($uids)){
 			$this->aUids = explode(';', $uids);
@@ -162,7 +162,7 @@ class Users extends Api
 
 		d('$where: '.print_r($where, 1));
 		
-		$this->cursor = $this->oRegistry->Mongo->USERS->find($where, $this->aFields)
+		$this->cursor = $this->Registry->Mongo->USERS->find($where, $this->aFields)
 		->sort($sort)
 		->limit($this->limit)
 		->skip($offset);
@@ -182,7 +182,7 @@ class Users extends Api
 	
 	/**
 	 *
-	 * Set to $this->oOutput object with
+	 * Set to $this->Output object with
 	 * data from cursor
 	 *
 	 * @return object $this
@@ -194,7 +194,7 @@ class Users extends Api
 		'perpage' => $this->limit,
 		'users' => \iterator_to_array($this->cursor, false));
 
-		$this->oOutput->setData($data);
+		$this->Output->setData($data);
 
 		return $this;
 	}

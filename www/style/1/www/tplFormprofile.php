@@ -53,7 +53,7 @@
  * Template for Edit profile form
  * 
  */
- class tplFormprofile extends Lampcms\Template\Template
+ class tplFormprofile extends Lampcms\Template\Fast
  {
  	
  	protected static $vars = array(

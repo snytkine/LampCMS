@@ -63,12 +63,12 @@ namespace Lampcms;
  */
 class Paginator extends LampcmsObject
 {
-	protected $oRegistry;
+	protected $Registry;
 
 	protected $oPager;
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
 	}
 
 

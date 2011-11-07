@@ -104,7 +104,7 @@ class Unanswered extends Viewquestions
 	protected function getCursor(){
 
 
-		$cond = $this->oRequest->get('cond', 's', 'recent');
+		$cond = $this->Request->get('cond', 's', 'recent');
 		d('cond: '.$cond);
 
 		/**
@@ -135,13 +135,13 @@ class Unanswered extends Viewquestions
 				$this->title = $this->_('Questions with no answers');
 				$this->pagerPath = '/unanswered/noanswers';
 				$where = array('i_ans' => 0);
-				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQuntypes', 'noanswer');
+				$this->typeDiv = Urhere::factory($this->Registry)->get('tplQuntypes', 'noanswer');
 				break;
 
 			case 'tagged':
 				$where = array('i_sel_ans' => null, 'a_tags' => array('$all' => $this->getTags()) );
 				$this->pagerPath = '/unanswered/tagged/'.$this->rawTags;
-				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQuntypes', 'newest');
+				$this->typeDiv = Urhere::factory($this->Registry)->get('tplQuntypes', 'newest');
 				$this->makeFollowTagButton();
 				$replaced = \str_replace(' ', ' + ', $this->tags);
 				$this->counterTaggedText = \tplCounterblocksub::parse(array($replaced, $this->_('Tagged')), false);
@@ -154,7 +154,7 @@ class Unanswered extends Viewquestions
 			default:
 				$this->title = $this->_('Questions with no accepted answer');
 				$where = array('i_sel_ans' => null);
-				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQuntypes', 'newest');
+				$this->typeDiv = Urhere::factory($this->Registry)->get('tplQuntypes', 'newest');
 		}
 
 		/**
@@ -162,10 +162,10 @@ class Unanswered extends Viewquestions
 		 */
 		$where['i_del_ts'] = null;
 
-		$this->oCursor = $this->oRegistry->Mongo->QUESTIONS->find($where, $this->aFields);
-		$this->count = $this->oCursor->count(true);
-		d('$this->oCursor: '.gettype($this->oCursor).' $this->count: '.$this->count);
-		$this->oCursor->sort($sort);
+		$this->Cursor = $this->Registry->Mongo->QUESTIONS->find($where, $this->aFields);
+		$this->count = $this->Cursor->count(true);
+		d('$this->Cursor: '.gettype($this->Cursor).' $this->count: '.$this->count);
+		$this->Cursor->sort($sort);
 
 		return $this;
 	}
@@ -173,7 +173,7 @@ class Unanswered extends Viewquestions
 
 
 	protected function addTagFollowers(){
-		$s = \Lampcms\ShowFollowers::factory($this->oRegistry)->getTagFollowers($this->aTags[0]);
+		$s = \Lampcms\ShowFollowers::factory($this->Registry)->getTagFollowers($this->aTags[0]);
 		d('tag followers: '.$s);
 		$this->aPageVars['side'] .= '<div class="fr cb w90 lg rounded3 pl10 mb10">'.$s.'</div>';
 
@@ -234,7 +234,7 @@ class Unanswered extends Viewquestions
 				 * and it's possible the rewrite worked without this bug
 				 */
 				d('no REQUEST_URI available');
-				$tags = $this->oRequest['tags'];
+				$tags = $this->Request['tags'];
 				$this->tags = \urldecode($tags);
 			}
 
@@ -273,11 +273,11 @@ class Unanswered extends Viewquestions
 		 * a nice personalization that does increase
 		 * the click rate!
 		 * */
-		$aUserTags = $this->oRegistry->Viewer['a_f_t'];
+		$aUserTags = $this->Registry->Viewer['a_f_t'];
 		if(!empty($aUserTags)){
 			$s = $this->getSortedRecentTags($aUserTags, 'unanswered');
 		} else {
-			$s = $this->oRegistry->Cache->qunanswered;
+			$s = $this->Registry->Cache->qunanswered;
 		}
 
 		$tags = \tplBoxrecent::parse(array('tags' => $s, 'title' => $this->_('Unanswered tags')));
@@ -319,7 +319,7 @@ class Unanswered extends Viewquestions
 			$tag = $this->aTags[0];
 			d('tag: '.$tag);
 
-			$aFollowed = $this->oRegistry->Viewer['a_f_t'];
+			$aFollowed = $this->Registry->Viewer['a_f_t'];
 			d('$aFollowed: '.print_r($aFollowed, 1));
 
 			$aVars = array(

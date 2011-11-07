@@ -92,7 +92,7 @@ class Tagged extends Unanswered
 
 		$aFields = array();
 
-		$cond = $this->oRequest->get('cond', 's', 'recent');
+		$cond = $this->Request->get('cond', 's', 'recent');
 		
 		/**
 		 * Default sort is by timestamp Descending
@@ -106,9 +106,9 @@ class Tagged extends Unanswered
 
 		$this->counterTaggedText = \tplCounterblocksub::parse(array(str_replace(' ', ' + ', $this->tags), $this->_('Tagged')), false);
 
-		$this->oCursor = $this->oRegistry->Mongo->QUESTIONS->find($where, $this->aFields);
-		$this->count = $this->oCursor->count(true);
-		$this->oCursor->sort($sort);
+		$this->Cursor = $this->Registry->Mongo->QUESTIONS->find($where, $this->aFields);
+		$this->count = $this->Cursor->count(true);
+		$this->Cursor->sort($sort);
 
 		return $this;
 	}
@@ -145,7 +145,7 @@ class Tagged extends Unanswered
 		$tag = end($this->aTags);
 		d('tag: '.$tag);
 
-		$s = Relatedtags::factory($this->oRegistry)->getHtml($tag);
+		$s = Relatedtags::factory($this->Registry)->getHtml($tag);
 
 		if(!empty($s)){
 			$tags = \tplBoxrecent::parse(array('tags' => $s, 'title' => $this->_('Related Tags')));

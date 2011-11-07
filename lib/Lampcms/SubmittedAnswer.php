@@ -63,10 +63,10 @@ namespace Lampcms;
 abstract class SubmittedAnswer extends LampcmsObject
 {
 
-	protected $oUser;
+	protected $User;
 
 
-	protected $oBody;
+	protected $Body;
 
 
 	/**

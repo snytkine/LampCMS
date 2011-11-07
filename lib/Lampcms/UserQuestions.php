@@ -77,13 +77,13 @@ class UserQuestions extends LampcmsObject
 	 * will work ONLY with AJAX  and then just hide pagination from
 	 * non-js browsers!
 	 *
-	 * @param Registry $oRegistry
-	 * @param User $oUser
+	 * @param Registry $Registry
+	 * @param User $User
 	 *
 	 * @return string html of user questions
 	 */
-	public static function get(Registry $oRegistry, User $oUser){
-		$uid = $oUser->getUid();
+	public static function get(Registry $Registry, User $User){
+		$uid = $User->getUid();
 		if(0 === $uid){
 			d('not registered user');
 
@@ -92,7 +92,7 @@ class UserQuestions extends LampcmsObject
 
 		$pagerLinks = '';
 
-		$pageID = $oRegistry->Request->get('pageID', 'i', 1);
+		$pageID = $Registry->Request->get('pageID', 'i', 1);
 		/**
 		 * Default pager path
 		 */
@@ -104,7 +104,7 @@ class UserQuestions extends LampcmsObject
 		 */
 		$sort = array('i_ts' => 1);
 
-		//$mode = $oRegistry->Request->get('tab', 's', '');
+		//$mode = $Registry->Request->get('tab', 's', '');
 
 		/**
 		 * sort order possible values:
@@ -125,7 +125,7 @@ class UserQuestions extends LampcmsObject
 		 */
 		//if('q' === $mode){
 				
-			$cond = $oRegistry->Request->get('sort', 's', 'recent');
+			$cond = $Registry->Request->get('sort', 's', 'recent');
 			switch($cond){
 				case 'recent':
 					$sort = array('i_ts' => -1);
@@ -155,7 +155,7 @@ class UserQuestions extends LampcmsObject
 			}
 		//}
 
-		$cursor = self::getCursor($oRegistry, $uid, $sort);
+		$cursor = self::getCursor($Registry, $uid, $sort);
 		$count = $cursor->count(true);
 		d('$count: '.$count);
 		
@@ -170,7 +170,7 @@ class UserQuestions extends LampcmsObject
 
 		if($count > self::PER_PAGE ||  $pageID > 1 ){
 
-			$oPaginator = Paginator::factory($oRegistry);
+			$oPaginator = Paginator::factory($Registry);
 
 			$oPaginator->paginate($cursor, self::PER_PAGE,
 			array('path' => $pagerPath));
@@ -184,26 +184,26 @@ class UserQuestions extends LampcmsObject
 		d('questions: '.$questions);
 
 		$vals = array(
-		'count' => $count,
-		'questions' => $questions,
-		'pagination' => $pagerLinks);
+		'{count}' => $count,
+		'{questions}' => $questions,
+		'{pagination}' => $pagerLinks);
 
 		return \tplUserQuestions::parse($vals);
 	}
 
 
-	protected static function getCursor(Registry $oRegistry, $uid, array $sort){
+	protected static function getCursor(Registry $Registry, $uid, array $sort){
 		
 		$where = array('i_uid' => $uid);
 		/**
 		 * Exclude deleted items unless viewer
 		 * is a moderator
 		 */
-		if(!$oRegistry->Viewer->isModerator()){
+		if(!$Registry->Viewer->isModerator()){
 			$where['i_del_ts'] = null;
 		}
 
-		$cursor = $oRegistry->Mongo->QUESTIONS->find($where)->sort($sort);
+		$cursor = $Registry->Mongo->QUESTIONS->find($where)->sort($sort);
 
 		return $cursor;
 	}

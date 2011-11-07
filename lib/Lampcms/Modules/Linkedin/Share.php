@@ -61,7 +61,7 @@ namespace Lampcms\Modules\Linkedin;
  * @author Dmitri Snytkine
  *
  */
-class Share extends \Lampcms\Observer
+class Share extends \Lampcms\Event\Observer
 {
 	/**
 	 * LINKEDIN API Config array
@@ -73,7 +73,7 @@ class Share extends \Lampcms\Observer
 
 	public function main(){
 
-		$a = $this->oRegistry->Request->getArray();
+		$a = $this->Registry->Request->getArray();
 		if(empty($a['linkedin'])){
 			d('linkedin checkbox not checked');
 			/**
@@ -81,7 +81,7 @@ class Share extends \Lampcms\Observer
 			 * for that "Post to linkedin" checkbox to be not checked
 			 * This is just in case it was checked before
 			 */
-			$this->oRegistry->Viewer['b_li'] = false;
+			$this->Registry->Viewer['b_li'] = false;
 
 			return;
 		}
@@ -102,7 +102,7 @@ class Share extends \Lampcms\Observer
 
 		try{
 
-			$this->aConfig = $this->oRegistry->Ini->getSection('LINKEDIN');
+			$this->aConfig = $this->Registry->Ini->getSection('LINKEDIN');
 
 			if(empty($this->aConfig)
 			|| empty($this->aConfig['OAUTH_KEY'])
@@ -117,7 +117,7 @@ class Share extends \Lampcms\Observer
 			return;
 		}
 
-		if(null === $this->oRegistry->Viewer->getLinkedinToken()){
+		if(null === $this->Registry->Viewer->getLinkedinToken()){
 			d('User does not have linkedin token');
 			return;
 		}
@@ -129,7 +129,7 @@ class Share extends \Lampcms\Observer
 		 * in User object
 		 *
 		 */
-		$this->oRegistry->Viewer['b_li'] = true;
+		$this->Registry->Viewer['b_li'] = true;
 		d('cp');
 		switch($this->eventName){
 			case 'onNewQuestion':
@@ -143,7 +143,7 @@ class Share extends \Lampcms\Observer
 	protected function post(){
 		$url = $this->obj->getUrl();
 		$label = $this->obj->getTitle();
-		$comment = 'I asked this on '.$this->oRegistry->Ini->SITE_NAME;
+		$comment = 'I asked this on '.$this->Registry->Ini->SITE_NAME;
 
 		if($this->obj instanceof \Lampcms\Answer){
 			$comment = 'My answer to "'.$label.'"';
@@ -152,7 +152,7 @@ class Share extends \Lampcms\Observer
 		d('$comment: '.$comment.' label: '.$label.' $url: '.$url);
 
 		$reward = \Lampcms\Points::SHARED_CONTENT;
-		$User = $this->oRegistry->Viewer;
+		$User = $this->Registry->Viewer;
 
 		$token  = $User->getLinkedinToken();
 		$secret = $User->getlinkedinSecret();

@@ -36,7 +36,7 @@
  *
  */
 
-class tplSimitemdiv extends Lampcms\Template\Template
+class tplSimitemdiv extends Lampcms\Template\Fast
 {
 
 	protected static $vars = array(

@@ -62,7 +62,7 @@ namespace Lampcms\Modules\Blogger;
  * @author Dmitri Snytkine
  *
  */
-class PostBlogger extends \Lampcms\Observer
+class PostBlogger extends \Lampcms\Event\Observer
 {
 	/**
 	 * blogger API Config array
@@ -74,7 +74,7 @@ class PostBlogger extends \Lampcms\Observer
 
 	public function main(){
 
-		$a = $this->oRegistry->Request->getArray();
+		$a = $this->Registry->Request->getArray();
 		if(empty($a['blogger'])){
 			d('blogger checkbox not checked');
 			/**
@@ -82,7 +82,7 @@ class PostBlogger extends \Lampcms\Observer
 			 * for that "Post to blogger" checkbox to be not checked
 			 * This is just in case it was checked before
 			 */
-			$this->oRegistry->Viewer['b_bg'] = false;
+			$this->Registry->Viewer['b_bg'] = false;
 
 			return;
 		}
@@ -103,7 +103,7 @@ class PostBlogger extends \Lampcms\Observer
 
 		try{
 
-			$this->aConfig = $this->oRegistry->Ini->getSection('BLOGGER');
+			$this->aConfig = $this->Registry->Ini->getSection('BLOGGER');
 
 			if(empty($this->aConfig)
 			|| empty($this->aConfig['OAUTH_KEY'])
@@ -118,7 +118,7 @@ class PostBlogger extends \Lampcms\Observer
 			return;
 		}
 
-		if(null === $this->oRegistry->Viewer->getBloggerToken()){
+		if(null === $this->Registry->Viewer->getBloggerToken()){
 			d('User does not have Blogger token');
 			return;
 		}
@@ -130,7 +130,7 @@ class PostBlogger extends \Lampcms\Observer
 		 * in User object
 		 *
 		 */
-		$this->oRegistry->Viewer['b_bg'] = true;
+		$this->Registry->Viewer['b_bg'] = true;
 		d('cp $this->eventName: '.$this->eventName);
 		switch($this->eventName){
 			case 'onNewQuestion':
@@ -150,9 +150,9 @@ class PostBlogger extends \Lampcms\Observer
 		d('cp');
 		try{
 			d('cp');
-			$oBlogger = new ApiClient($this->oRegistry);
+			$oBlogger = new ApiClient($this->Registry);
 			d('cp');
-			$User = $this->oRegistry->Viewer;
+			$User = $this->Registry->Viewer;
 			d('cp');
 			if(false === $oBlogger->setUser($User)){
 				d('User does not have Blogger Oauth credentials');
@@ -161,21 +161,21 @@ class PostBlogger extends \Lampcms\Observer
 			}
 			d('cp');
 			$reward = \Lampcms\Points::SHARED_CONTENT;
-			$oResource = $this->obj;
+			$Resource = $this->obj;
 			d('cp');
-			$oAdapter = new BloggerPostAdapter($this->oRegistry);
+			$oAdapter = new BloggerPostAdapter($this->Registry);
 			d('cp');
 		} catch (\Exception $e){
 			d('Unable to post to blogger because of this exception: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
 			return;
 		}
 		d('cp');
-		$func = function() use ($oBlogger, $oAdapter, $oResource, $User, $reward){
+		$func = function() use ($oBlogger, $oAdapter, $Resource, $User, $reward){
 
 			$result = null;
 
 			try{
-				$result = $oBlogger->add($oAdapter->makeEntry($oResource));
+				$result = $oBlogger->add($oAdapter->makeEntry($Resource));
 			} catch(\Exception $e){
 				
 				return;
@@ -196,8 +196,8 @@ class PostBlogger extends \Lampcms\Observer
 				 * id deleted
 				 *
 				 */
-				$oResource['blogger_id'] = $result;
-				$oResource->save();
+				$Resource['blogger_id'] = $result;
+				$Resource->save();
 				
 			}
 		};

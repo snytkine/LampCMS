@@ -81,7 +81,7 @@ class Viewquestions extends WebPage
 	 * Object MongoCursor
 	 * @var Object MongoCursor
 	 */
-	protected $oCursor = null;
+	protected $Cursor = null;
 
 	protected $pageID = 1;
 
@@ -130,7 +130,7 @@ class Viewquestions extends WebPage
 
 	protected function main(){
 
-		$this->pageID = (int)$this->oRequest->get('pageID', 'i', 1);
+		$this->pageID = (int)$this->Request->get('pageID', 'i', 1);
 
 		$this->getCursor()
 		->paginate()
@@ -153,12 +153,12 @@ class Viewquestions extends WebPage
 	 * Conditions can be == 'unanswered', 'hot', 'recent' (default)
 	 */
 	protected function getCursor(){
-		$this->PER_PAGE = $this->oRegistry->Ini->PER_PAGE_QUESTIONS;
+		$this->PER_PAGE = $this->Registry->Ini->PER_PAGE_QUESTIONS;
 
 		//$aFields = array();
 
 
-		$cond = $this->oRequest->get('cond', 's', 'recent');
+		$cond = $this->Request->get('cond', 's', 'recent');
 		d('cond: '.$cond);
 		$where = array();
 		/**
@@ -191,7 +191,7 @@ class Viewquestions extends WebPage
 			case 'active':
 				$this->title = $this->_('Active Questions');
 				$this->pagerPath = '/active';
-				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQtypesdiv', 'active');
+				$this->typeDiv = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'active');
 				$where = array('i_ts' => array('$gt' => (time() - 604800)));
 				$sort = array('i_ans' => -1);
 				break;
@@ -207,7 +207,7 @@ class Viewquestions extends WebPage
 				$this->pagerPath = '/voted';
 				d('cp');
 				$this->title = $this->_('Questions with highest votes in past 7 days');
-				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQtypesdiv', 'voted');
+				$this->typeDiv = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'voted');
 				$where = array('i_ts' => array('$gt' => (time() - 604800)));
 				$sort = array('i_votes' => -1);
 				break;
@@ -219,7 +219,7 @@ class Viewquestions extends WebPage
 				 */
 			default:
 				$this->title = $this->_('All questions');
-				$this->typeDiv = Urhere::factory($this->oRegistry)->get('tplQtypesdiv', 'newest');
+				$this->typeDiv = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'newest');
 		}
 
 		/**
@@ -236,9 +236,9 @@ class Viewquestions extends WebPage
 		 * a_edited and a_title
 		 *
 		 */
-		$this->oCursor = $this->oRegistry->Mongo->QUESTIONS->find($where, $this->aFields);
-		d('$this->oCursor: '.gettype($this->oCursor));
-		$this->oCursor->sort($sort);
+		$this->Cursor = $this->Registry->Mongo->QUESTIONS->find($where, $this->aFields);
+		d('$this->Cursor: '.gettype($this->Cursor));
+		$this->Cursor->sort($sort);
 
 		return $this;
 	}
@@ -252,8 +252,8 @@ class Viewquestions extends WebPage
 	 */
 	protected function paginate(){
 		d('paginating with $this->pagerPath: '.$this->pagerPath);
-		$oPaginator = Paginator::factory($this->oRegistry);
-		$oPaginator->paginate($this->oCursor, $this->PER_PAGE,
+		$oPaginator = Paginator::factory($this->Registry);
+		$oPaginator->paginate($this->Cursor, $this->PER_PAGE,
 		array('path' => $this->pagerPath));
 
 		$this->pagerLinks = $oPaginator->getLinks();
@@ -282,11 +282,11 @@ class Viewquestions extends WebPage
 	 */
 	protected function makeRecentTags(){
 
-		$aUserTags = $this->oRegistry->Viewer['a_f_t'];
+		$aUserTags = $this->Registry->Viewer['a_f_t'];
 		if(!empty($aUserTags)){
 			$s = $this->getSortedRecentTags($aUserTags);
 		} else {
-			$s = $this->oRegistry->Cache->get('qrecent');
+			$s = $this->Registry->Cache->get('qrecent');
 		}
 
 		$tags = \tplBoxrecent::parse(array('tags' => $s, 'title' => $this->_('Recent Tags')));
@@ -314,7 +314,7 @@ class Viewquestions extends WebPage
 
 	protected function makeTopTabs(){
 
-		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', $this->qtab);
+		$tabs = Urhere::factory($this->Registry)->get('tplToptabs', $this->qtab);
 		$this->aPageVars['topTabs'] = $tabs;
 
 		return $this;
@@ -331,10 +331,10 @@ class Viewquestions extends WebPage
 
 	protected function makeQlistBody(){
 
-		$uid = $this->oRegistry->Viewer->getUid();
+		$uid = $this->Registry->Viewer->getUid();
 
-		$aUserTags 		= $this->oRegistry->Viewer['a_f_t'];
-		$showDeleted 	= $this->oRegistry->Viewer->isModerator();
+		$aUserTags 		= $this->Registry->Viewer['a_f_t'];
+		$showDeleted 	= $this->Registry->Viewer->isModerator();
 		$contributed	= $this->_('You have contributed to this question');
 		$following		= $this->_('You are following this question');
 		$asked			= $this->_('Asked');
@@ -365,7 +365,7 @@ class Viewquestions extends WebPage
 		};
 
 
-		$sQdivs = \tplQrecent::loop($this->oCursor, true, $func);
+		$sQdivs = \tplQrecent::loop($this->Cursor, true, $func);
 
 		$sQlist = \tplQlist::parse(array($this->typeDiv, $sQdivs, $this->pagerLinks, $this->notAjaxPaginatable), false);
 		$this->aPageVars['body'] = $sQlist;
@@ -382,7 +382,7 @@ class Viewquestions extends WebPage
 	 *
 	 */
 	protected function makeCounterBlock(){
-		$this->aPageVars['topRight'] = \tplCounterblock::parse(array($this->oCursor->count(), $this->_('Number of Questions'), ''), false);
+		$this->aPageVars['topRight'] = \tplCounterblock::parse(array($this->Cursor->count(), $this->_('Number of Questions'), ''), false);
 
 		return $this;
 	}
@@ -401,7 +401,7 @@ class Viewquestions extends WebPage
 	 */
 	protected function makeFollowedTags(){
 
-		$aFollowed = $this->oRegistry->Viewer['a_f_t'];
+		$aFollowed = $this->Registry->Viewer['a_f_t'];
 		d('$aFollowed: '.print_r($aFollowed, 1));
 		if(!empty($aFollowed)){
 
@@ -429,9 +429,9 @@ class Viewquestions extends WebPage
 
 		$limit = 30;
 		if('unanswered' === $type){
-			$cur = $this->oRegistry->Mongo->UNANSWERED_TAGS->find(array(), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
+			$cur = $this->Registry->Mongo->UNANSWERED_TAGS->find(array(), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
 		} else {
-			$cur = $this->oRegistry->Mongo->QUESTION_TAGS->find(array('i_count' => array('$gt' => 0)), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
+			$cur = $this->Registry->Mongo->QUESTION_TAGS->find(array('i_count' => array('$gt' => 0)), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
 		}
 
 		d('got '.$cur->count(true).' tag results');

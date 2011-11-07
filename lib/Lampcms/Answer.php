@@ -61,12 +61,12 @@ namespace Lampcms;
  * @author Dmitri Snytkine
  *
  */
-class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRatable, Interfaces\CommentedResource
+class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces\UpDownRatable, Interfaces\CommentedResource
 {
 
-	public function __construct(Registry $oRegistry, array $a = null){
+	public function __construct(Registry $Registry, array $a = null){
 		$a = ($a) ? $a : array();
-		parent::__construct($oRegistry, 'ANSWERS', $a);
+		parent::__construct($Registry, 'ANSWERS', $a);
 	}
 
 
@@ -326,7 +326,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 	 */
 	public function getUrl($short = false){
 
-		return $this->oRegistry->Ini->SITE_URL.'/q'.$this->offsetGet('i_qid').'/#ans'.$this->offsetGet('_id');
+		return $this->Registry->Ini->SITE_URL.'/q'.$this->offsetGet('i_qid').'/#ans'.$this->offsetGet('_id');
 	}
 
 
@@ -361,7 +361,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 	 * (non-PHPdoc)
 	 * @see Lampcms\Interfaces.CommentedResource::addComment()
 	 */
-	public function addComment(CommentParser $oComment){
+	public function addComment(CommentParser $Comment){
 		$aKeys = array(
 		'_id', 
 		'i_uid', 
@@ -390,7 +390,7 @@ class Answer extends MongoDoc implements Interfaces\Answer, Interfaces\UpDownRat
 		 * get rid of keys like hash, i_res
 		 * because we don't need them here
 		 */
-		$aComment = $oComment->getArrayCopy();
+		$aComment = $Comment->getArrayCopy();
 		$aComment = \array_intersect_key($aComment, array_flip($aKeys));
 
 		$aComments[] = $aComment;

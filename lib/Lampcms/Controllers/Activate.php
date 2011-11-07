@@ -101,7 +101,7 @@ class Activate extends WebPage
 	 */
 	protected function getEmailRecord()
 	{
-		$this->aEmail = $this->oRegistry->Mongo->EMAILS->findOne(array('_id' => $this->oRequest['eid'], 'code' =>  $this->oRequest['hash']));
+		$this->aEmail = $this->Registry->Mongo->EMAILS->findOne(array('_id' => $this->Request['eid'], 'code' =>  $this->Request['hash']));
 		if(empty($this->aEmail)){
 			throw new \Lampcms\Exception('Unable to find record of user');
 		}
@@ -143,13 +143,13 @@ class Activate extends WebPage
 	 */
 	protected function activateUser()
 	{
-		$aUser = $this->oRegistry->Mongo->USERS->findOne(array('_id' => (int)$this->aEmail['i_uid']) );
+		$aUser = $this->Registry->Mongo->USERS->findOne(array('_id' => (int)$this->aEmail['i_uid']) );
 
 		if(empty($aUser)){
 			throw new \Lampcms\Exception('Unable to find user, please create a new account');
 		}
 
-		$this->oActivatedUser = User::factory($this->oRegistry, $aUser);
+		$this->oActivatedUser = User::factory($this->Registry, $aUser);
 		$this->oActivatedUser->activate()->save();
 
 		/**
@@ -158,14 +158,14 @@ class Activate extends WebPage
 		 * If we don't then the Viewer object is not updated
 		 * and the Viewer in session is still unactivated
 		 */
-		if($this->oRegistry->Viewer->getUid() === $this->oActivatedUser->getUid()){
+		if($this->Registry->Viewer->getUid() === $this->oActivatedUser->getUid()){
 			$this->processLogin($this->oActivatedUser);
 		}
 
-		$this->oRegistry->Dispatcher->post($this->oActivatedUser, 'onUserUpdate');
+		$this->Registry->Dispatcher->post($this->oActivatedUser, 'onUserUpdate');
 
 		$this->aEmail['i_vts'] = time();
-		$this->oRegistry->Mongo->EMAILS->save($this->aEmail);
+		$this->Registry->Mongo->EMAILS->save($this->aEmail);
 
 		return $this;
 	}

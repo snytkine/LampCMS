@@ -75,10 +75,10 @@ namespace Lampcms;
 class SiteMap extends LampcmsObject
 {
 	/**
-	 * Object of type MongoDoc
+	 * Object of type \Lampcms\Mongo\Doc
 	 * that holds array of latest IDs
 	 *
-	 * @var object MongoDoc
+	 * @var object \Lampcms\Mongo\Doc
 	 */
 	protected $oLatest;
 
@@ -155,7 +155,7 @@ class SiteMap extends LampcmsObject
 
 
 	public function __construct(Registry $o){
-		$this->oRegistry = $o;
+		$this->Registry = $o;
 	}
 	
 	public function run($fileName = null){
@@ -173,10 +173,10 @@ class SiteMap extends LampcmsObject
 	protected function getLatestIds()
 	{
 				
-		$oMongo = $this->oRegistry->Mongo;
+		$oMongo = $this->Registry->Mongo;
 		$aLatest = $oMongo->getCollection('SITEMAP_LATEST')->findOne();
 		$aLatest = (!$aLatest) ? array() : $aLatest;
-		$this->oLatest = new MongoDoc($this->oRegistry, 'SITEMAP_LATEST', $aLatest);
+		$this->oLatest = new \Lampcms\Mongo\Doc($this->Registry, 'SITEMAP_LATEST', $aLatest);
 		
 		return $this;
 	}
@@ -203,8 +203,8 @@ class SiteMap extends LampcmsObject
 
 		$id = (int)$this->oLatest['i_qid'];
 		d('latest QID: '.$id);
-		$urlPrefix = $this->oRegistry->Ini->SITE_URL.'/';
-		$oMongo = $this->oRegistry->Mongo;
+		$urlPrefix = $this->Registry->Ini->SITE_URL.'/';
+		$oMongo = $this->Registry->Mongo;
 		$coll = $oMongo->getCollection('QUESTIONS');
 		$cursor = $coll->find(array('_id' => array( '$gt' => $id)), array('_id', 'url', 'i_ts'))->limit(12000);
 
@@ -293,7 +293,7 @@ class SiteMap extends LampcmsObject
 		}
 
 		$oMap = $this->oSXEIndexMap->addChild('sitemap');
-		$oMap->addChild('loc', $this->oRegistry->Ini->SITE_URL.'/w/sitemap/'.$this->siteMapName);
+		$oMap->addChild('loc', $this->Registry->Ini->SITE_URL.'/w/sitemap/'.$this->siteMapName);
 		$oMap->addChild('lastmod', date('c'));
 
 		if(false === $this->oSXEIndexMap->asXml($file)){
@@ -344,7 +344,7 @@ class SiteMap extends LampcmsObject
 	{
 
 		$oHttp = new Curl();
-		$url = $this->oRegistry->Ini->SITE_URL.'/w/sitemap/'.$this->siteMapName;
+		$url = $this->Registry->Ini->SITE_URL.'/w/sitemap/'.$this->siteMapName;
 
 		foreach($this->aPingUrls as $key => $val){
 			try{

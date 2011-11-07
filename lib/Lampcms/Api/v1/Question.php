@@ -127,10 +127,10 @@ class Question extends Questions
 
 
 	protected function main(){
-		$this->pageID = $this->oRequest['pageID'];
-		$this->qid = $this->oRequest['qid'];
+		$this->pageID = $this->Request['pageID'];
+		$this->qid = $this->Request['qid'];
 
-		if(true === $this->oRequest->get('comments', 'b')){
+		if(true === $this->Request->get('comments', 'b')){
 			unset($this->aFields['a_comments']);
 		}
 
@@ -151,7 +151,7 @@ class Question extends Questions
 	 * @return object $this
 	 */
 	protected function setQuestion(){
-		$this->aQuestion = $this->oRegistry->Mongo->QUESTIONS->findOne(array('_id' => $this->qid), $this->aFields);
+		$this->aQuestion = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => $this->qid), $this->aFields);
 
 		if(empty($this->aQuestion)){
 			throw new \Lampcms\HttpResponseCodeException('Question with id: '.$this->qid.' not found', 404);
@@ -182,7 +182,7 @@ class Question extends Questions
 		
 		$where = array(
 		'i_del_ts' => null,
-		'i_qid' => $this->oRequest['qid']);
+		'i_qid' => $this->Request['qid']);
 
 		if($this->startTime){
 			$where['i_lm_ts'] = array('$gt' => (int)$this->startTime);
@@ -205,7 +205,7 @@ class Question extends Questions
 		$offset = (($this->pageID - 1) * $this->limit);
 		d('offset: '.$offset);
 
-		$this->cursor = $this->oRegistry->Mongo->ANSWERS->find($where, $this->aFields)
+		$this->cursor = $this->Registry->Mongo->ANSWERS->find($where, $this->aFields)
 		->sort($sort)
 		->limit($this->limit)
 		->skip($offset);
@@ -233,7 +233,7 @@ class Question extends Questions
 	protected function setOutput(){
 
 
-		$this->oOutput->setData($this->aQuestion);
+		$this->Output->setData($this->aQuestion);
 
 		return $this;
 	}

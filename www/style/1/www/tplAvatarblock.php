@@ -37,7 +37,7 @@
  */
 
 
-class tplAvatarblock extends Lampcms\Template\Template
+class tplAvatarblock extends Lampcms\Template\Fast
 {
 	protected static $vars = array('', '', '');
 

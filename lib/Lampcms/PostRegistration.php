@@ -78,11 +78,11 @@ class PostRegistration
 	 *
 	 * @return void
 	 */
-	public static function createReferrerRecord(Registry $oRegistry, User $oUser){
+	public static function createReferrerRecord(Registry $Registry, User $User){
 		$ref = (!empty($_COOKIE['ref'])) ? filter_input(INPUT_COOKIE, 'ref', FILTER_SANITIZE_URL) : '';
 		if(!empty($ref)){
-			$a = array('users_id' => $oUser->getUid(), 'referer_url' => $ref);
-			$oRegistry->Mongo->USER_REFEREF->insert($a);
+			$a = array('users_id' => $User->getUid(), 'referer_url' => $ref);
+			$Registry->Mongo->USER_REFEREF->insert($a);
 		}
 	}
 

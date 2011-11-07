@@ -60,7 +60,7 @@ class ShowFollowers extends LampcmsObject
 	 *
 	 * @var object of type MongoCursor
 	 */
-	protected $oCursor;
+	protected $Cursor;
 
 
 	/**
@@ -78,10 +78,10 @@ class ShowFollowers extends LampcmsObject
 	/**
 	 * Constructor
 	 *
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 */
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
 	}
 
 
@@ -122,7 +122,7 @@ class ShowFollowers extends LampcmsObject
 
 		$where = array('_id' => array('$in' => $aUids), 'role' => array('$ne' => 'deleted'));
 
-		$this->oCursor = $this->oRegistry->Mongo->USERS->find(
+		$this->Cursor = $this->Registry->Mongo->USERS->find(
 		$where, array(
 			'_id', 
 			'i_rep', 
@@ -135,7 +135,7 @@ class ShowFollowers extends LampcmsObject
 			'avatar_external')
 		);
 
-		$total = ($total) ? $total : $this->oCursor->count();
+		$total = ($total) ? $total : $this->Cursor->count();
 
 		if(0 === $total){
 			return '';
@@ -152,7 +152,7 @@ class ShowFollowers extends LampcmsObject
 		d('followers title: '.$title);
 
 		$func = null;
-		$aGravatar = $this->oRegistry->Ini->getSection('GRAVATAR');
+		$aGravatar = $this->Registry->Ini->getSection('GRAVATAR');
 
 		if(count($aGravatar) > 0){
 			$func = function(&$a) use ($aGravatar){
@@ -160,7 +160,7 @@ class ShowFollowers extends LampcmsObject
 			};
 		}
 
-		$followers = \tplOneFollower::loop($this->oCursor, true, $func);
+		$followers = \tplOneFollower::loop($this->Cursor, true, $func);
 
 		/**
 		 * @todo translate title string
@@ -182,7 +182,7 @@ class ShowFollowers extends LampcmsObject
 	 */
 	public function getTagFollowers($tag){
 		$where = array('a_f_t' => $tag, 'role' => array('$ne' => 'deleted'));
-		$this->oCursor = $this->oRegistry->Mongo->USERS->find(
+		$this->Cursor = $this->Registry->Mongo->USERS->find(
 		$where, array(
 			'_id', 
 			'i_rep', 
@@ -195,7 +195,7 @@ class ShowFollowers extends LampcmsObject
 			'avatar_external')
 		);
 
-		$total = $this->oCursor->count();
+		$total = $this->Cursor->count();
 
 		d('total tag followers: '.$total);
 
@@ -203,7 +203,7 @@ class ShowFollowers extends LampcmsObject
 			return '';
 		}
 
-		$this->oCursor->limit($this->maxPerBlock);
+		$this->Cursor->limit($this->maxPerBlock);
 		d('total tag followers: '.$total);
 
 		$title = $total.' ';
@@ -213,7 +213,7 @@ class ShowFollowers extends LampcmsObject
 		d('followers title: '.$title);
 
 		$func = null;
-		$aGravatar = $this->oRegistry->Ini->getSection('GRAVATAR');
+		$aGravatar = $this->Registry->Ini->getSection('GRAVATAR');
 
 		if(count($aGravatar) > 0){
 			$func = function(&$a) use ($aGravatar){
@@ -221,7 +221,7 @@ class ShowFollowers extends LampcmsObject
 			};
 		}
 
-		$followers = \tplOneFollower::loop($this->oCursor, true, $func);
+		$followers = \tplOneFollower::loop($this->Cursor, true, $func);
 
 		/**
 		 * @todo translate title string
@@ -234,17 +234,17 @@ class ShowFollowers extends LampcmsObject
 	/**
 	 * Get html block with User's followers
 	 *
-	 * @param User $oUser
+	 * @param User $User
 	 *
 	 * @return string html
 	 */
-	public function getUserFollowers(User $oUser){
+	public function getUserFollowers(User $User){
 
-		$uid = $oUser->getUid();
+		$uid = $User->getUid();
 		d('uid: '.$uid);
 		$where = array('a_f_u' => $uid);
 
-		$this->oCursor = $this->oRegistry->Mongo->USERS->find(
+		$this->Cursor = $this->Registry->Mongo->USERS->find(
 		$where, array(
 			'_id', 
 			'i_rep', 
@@ -257,7 +257,7 @@ class ShowFollowers extends LampcmsObject
 			'avatar_external')
 		);
 
-		$total = $this->oCursor->count();
+		$total = $this->Cursor->count();
 		d('total followers: '.$total);
 
 		if(0 === $total){
@@ -276,7 +276,7 @@ class ShowFollowers extends LampcmsObject
 		d('followers title: '.$title);
 
 		$func = null;
-		$aGravatar = $this->oRegistry->Ini->getSection('GRAVATAR');
+		$aGravatar = $this->Registry->Ini->getSection('GRAVATAR');
 
 		if(count($aGravatar) > 0){
 			$func = function(&$a) use ($aGravatar){
@@ -284,7 +284,7 @@ class ShowFollowers extends LampcmsObject
 			};
 		}
 
-		$followers = \tplOneFollower::loop($this->oCursor, true, $func);
+		$followers = \tplOneFollower::loop($this->Cursor, true, $func);
 
 		/**
 		 * @todo translate title string
@@ -297,13 +297,13 @@ class ShowFollowers extends LampcmsObject
 	/**
 	 * Get div with users that this use is following
 	 *
-	 * @param User $oUser
+	 * @param User $User
 	 *
 	 * @return string html
 	 */
-	public function getUserFollowing(User $oUser){
+	public function getUserFollowing(User $User){
 
-		$aFollowing = $oUser['a_f_u'];
+		$aFollowing = $User['a_f_u'];
 
 		if(empty($aFollowing)){
 			d('user not following anyone');
@@ -321,7 +321,7 @@ class ShowFollowers extends LampcmsObject
 		 * Find all users that has this user has in the
 		 * 'a_f_u' array
 		 */
-		$this->oCursor = $this->oRegistry->Mongo->USERS->find(
+		$this->Cursor = $this->Registry->Mongo->USERS->find(
 		$where, array(
 			'_id', 
 			'i_rep', 
@@ -334,7 +334,7 @@ class ShowFollowers extends LampcmsObject
 			'avatar_external')
 		);
 
-		if(0 === $this->oCursor->count()){
+		if(0 === $this->Cursor->count()){
 			d('no following users found');
 			
 			return '';
@@ -348,7 +348,7 @@ class ShowFollowers extends LampcmsObject
 		d('followers title: '.$title);
 
 		$func = null;
-		$aGravatar = $this->oRegistry->Ini->getSection('GRAVATAR');
+		$aGravatar = $this->Registry->Ini->getSection('GRAVATAR');
 
 		if(count($aGravatar) > 0){
 			$func = function(&$a) use ($aGravatar){
@@ -356,7 +356,7 @@ class ShowFollowers extends LampcmsObject
 			};
 		}
 
-		$followees = \tplOneFollowee::loop($this->oCursor, true, $func);
+		$followees = \tplOneFollowee::loop($this->Cursor, true, $func);
 
 		/**
 		 * @todo translate title string

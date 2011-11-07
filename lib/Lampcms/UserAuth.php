@@ -72,8 +72,8 @@ namespace Lampcms;
 class UserAuth extends LampcmsObject
 {
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
 	}
 
 	
@@ -118,7 +118,7 @@ class UserAuth extends LampcmsObject
 		 */
 		if (false !== filter_var($sUsername, FILTER_VALIDATE_EMAIL)){
 			$this->byEmail = true;
-			$aEmail = $this->oRegistry->Mongo->EMAILS->findOne(array('_id' => $sUsername));
+			$aEmail = $this->Registry->Mongo->EMAILS->findOne(array('_id' => $sUsername));
 
 			if(empty($aEmail)){
 				
@@ -126,14 +126,14 @@ class UserAuth extends LampcmsObject
 			}
 
 			d('$aEmail: '.print_r($aEmail, 1));
-			$aResult = $this->oRegistry->Mongo->USERS->findOne(array('_id' => $aEmail['i_uid']));
+			$aResult = $this->Registry->Mongo->USERS->findOne(array('_id' => $aEmail['i_uid']));
 			d('$aResult', print_r($aResult, 1));
 			if(empty($aResult)){
 				
 				throw new WrongUserException('User not found');
 			}
 
-			$oUser = $className::factory($this->oRegistry, $aResult);
+			$User = $className::factory($this->Registry, $aResult);
 		} else {
 
 			if (false === Validate::username($sUsername)) {
@@ -146,11 +146,11 @@ class UserAuth extends LampcmsObject
 				throw new WrongUserException('Wrong user');
 			}
 
-			$oUser = $this->getUser($sUsername, $sPassword, $className);
+			$User = $this->getUser($sUsername, $sPassword, $className);
 		}
 
 
-		if (false === $this->comparePasswords($sPassword, $oUser['pwd'])) {
+		if (false === $this->comparePasswords($sPassword, $User['pwd'])) {
 			d('failed to compare password');
 			$this->logLoginError($sUsername, $sPassword);
 			/**
@@ -161,7 +161,7 @@ class UserAuth extends LampcmsObject
 
 		}
 
-		return $oUser;
+		return $User;
 	}
 
 
@@ -191,7 +191,7 @@ class UserAuth extends LampcmsObject
 		 * and index on login_lc
 		 * @var unknown_type
 		 */
-		$arrResult = $this->oRegistry->Mongo->USERS->findOne(array('username_lc' => strtolower($sUsername)));
+		$arrResult = $this->Registry->Mongo->USERS->findOne(array('username_lc' => strtolower($sUsername)));
 
 		d('$arrResult: '.print_r($arrResult, true));
 
@@ -206,7 +206,7 @@ class UserAuth extends LampcmsObject
 
 		}
 
-		return $className::factory($this->oRegistry, $arrResult);
+		return $className::factory($this->Registry, $arrResult);
 	}
 
 
@@ -246,7 +246,7 @@ class UserAuth extends LampcmsObject
 	protected function checkMultipleLoginErrors($sUsername){
 		d('cp');
 
-		$aLockParams = $this->oRegistry->Ini->getSection('LOGIN_ERROR_LOCK');
+		$aLockParams = $this->Registry->Ini->getSection('LOGIN_ERROR_LOCK');
 		d('$aLockParams: '.print_r($aLockParams, 1));
 		/**
 		 * If LOGIN_ERROR_LOCK was not set
@@ -265,7 +265,7 @@ class UserAuth extends LampcmsObject
 		$interval = ($now - $aLockParams['interval']);
 		$wait = $aLockParams['wait'];
 
-		$cur = $this->oRegistry->Mongo->LOGIN_ERROR
+		$cur = $this->Registry->Mongo->LOGIN_ERROR
 		->find(array('usr_lc' => strtolower($sUsername), 'i_ts' => array('$gt' => $interval)))
 		->sort(array('i_ts' => -1));
 
@@ -313,7 +313,7 @@ class UserAuth extends LampcmsObject
 
 		$timediff = (time() - 600); // 10 minutes
 
-		$cur = $this->oRegistry->Mongo->LOGIN_ERROR
+		$cur = $this->Registry->Mongo->LOGIN_ERROR
 		->find(array('ip' => $ip, 'i_ts' => array('$gt' => $timediff)))
 		->limit(7);
 
@@ -373,15 +373,15 @@ class UserAuth extends LampcmsObject
 		 * ensured in saveResourceLocation()
 		 *
 		 */
-		$coll = $this->oRegistry->Mongo->LOGIN_ERROR;
+		$coll = $this->Registry->Mongo->LOGIN_ERROR;
 		$indexed1 = $coll->ensureIndex(array('usr_lc' => 1));
 		$indexed1 = $coll->ensureIndex(array('i_ts' => 1));
 		$indexed2 = $coll->ensureIndex(array('ip' => 1));
 
 		if ('cookie' === $login_type) {
-			$this->oRegistry->Dispatcher->post($this, 'onSidHack');
+			$this->Registry->Dispatcher->post($this, 'onSidHack');
 		} elseif ('switch' === $login_type) {
-			$this->oRegistry->Dispatcher->post($this, 'onSwitchHack');
+			$this->Registry->Dispatcher->post($this, 'onSwitchHack');
 		}
 
 		return false;

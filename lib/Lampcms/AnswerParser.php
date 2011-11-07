@@ -75,7 +75,7 @@ class Answerparser extends LampcmsObject
 	 *
 	 * @var Object SubmittedAnswer
 	 */
-	protected $oSubmittedAnswer;
+	protected $SubmittedAnswer;
 
 
 	/**
@@ -84,14 +84,14 @@ class Answerparser extends LampcmsObject
 	 *
 	 * @var object of type Question
 	 */
-	protected $oQuestion;
+	protected $Question;
 
 
 	/**
 	 * Cache object
 	 * @var object of type \Lampcms\Cache
 	 */
-	protected $oCache;
+	protected $Cache;
 
 
 	/**
@@ -99,42 +99,42 @@ class Answerparser extends LampcmsObject
 	 * an object of type Answer represents one
 	 * answer and is a MongoDoc object
 	 *
-	 * @var object of type Answer (extends MongoDoc object)
+	 * @var object of type Answer (extends \Lampcms\Mongo\Doc object)
 	 */
-	protected $oAnswer = null;
+	protected $Answer = null;
 
 	
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
 		/**
 		 * Need to instantiate Cache so that it
 		 * will listen to event and unset some keys
 		 */
-		$this->oCache = $this->oRegistry->Cache;
-		$this->oRegistry->registerObservers('INPUT_FILTERS');
+		$this->Cache = $this->Registry->Cache;
+		$this->Registry->registerObservers('INPUT_FILTERS');
 	}
 
 
 	/**
-	 * Getter for oSubmittedAnswer
+	 * Getter for SubmittedAnswer
 	 *
 	 * @return object of type SubmittedAnswer
 	 */
 	public function getSubmittedAnswer(){
 
-		return $this->oSubmittedAnswer;
+		return $this->SubmittedAnswer;
 	}
 
 
 	/**
-	 * Getter for $this->oAnswer
+	 * Getter for $this->Answer
 	 *
 	 * @return mixed object of type Answer or null
 	 * if answer object has not yet been created
 	 */
 	public function getAnswer(){
 
-		return $this->oAnswer;
+		return $this->Answer;
 	}
 
 
@@ -153,20 +153,20 @@ class Answerparser extends LampcmsObject
 	 */
 	public function parse(SubmittedAnswer $o, Question $q = null){
 
-		$this->oSubmittedAnswer = $o;
-		$this->oQuestion = (null !== $q) ? $q : $this->getQuestion();
+		$this->SubmittedAnswer = $o;
+		$this->Question = (null !== $q) ? $q : $this->getQuestion();
 
 		$this->makeAnswer()
 		->followQuestion()
 		->updateQuestion();
 
-		return $this->oAnswer;
+		return $this->Answer;
 	}
 
 
 	/**
 	 * Prepare array of data for the answer,
-	 * then create oAnswer object from it and
+	 * then create Answer object from it and
 	 * save. It will also fire onBeforeNewAnswer
 	 * and onNewAnswer events
 	 *
@@ -176,23 +176,23 @@ class Answerparser extends LampcmsObject
 	 */
 	protected function makeAnswer(){
 
-		$username = $this->oSubmittedAnswer->getUserObject()->getDisplayName();
+		$username = $this->SubmittedAnswer->getUserObject()->getDisplayName();
 
 		/**
 		 * Must pass array('drop-proprietary-attributes' => false)
 		 * otherwise tidy removes rel="code"
 		 */
-		$aEditorConfig = $this->oRegistry->Ini->getSection('EDITOR');
-		$tidyConfig = ($aEditorConfig['k']) ? array('drop-proprietary-attributes' => false) : null;
-		$oBody = $this->oSubmittedAnswer->getBody()->tidy($tidyConfig)->safeHtml()->asHtml();
+		$aEditorConfig = $this->Registry->Ini->getSection('EDITOR');
+		$tidyConfig = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
+		$Body = $this->SubmittedAnswer->getBody()->tidy($tidyConfig)->safeHtml()->asHtml();
 
-		$htmlBody = HTMLStringParser::factory($oBody)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->valueOf();
+		$htmlBody = HTMLStringParser::factory($Body)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->valueOf();
 
 		d('after HTMLStringParser: '.$htmlBody);
 
-		$username = $this->oSubmittedAnswer->getUserObject()->getDisplayName();
-		$uid = $this->oSubmittedAnswer->getUserObject()->getUid();
-		$qid = $this->oSubmittedAnswer->getQid();
+		$username = $this->SubmittedAnswer->getUserObject()->getDisplayName();
+		$uid = $this->SubmittedAnswer->getUserObject()->getUid();
+		$qid = $this->SubmittedAnswer->getQid();
 
 		$hash = hash('md5', \mb_strtolower($htmlBody.$qid));
 
@@ -209,16 +209,16 @@ class Answerparser extends LampcmsObject
 		$this->checkForDuplicate($hash);
 
 		$aData = array(
-		'_id' => $this->oRegistry->Resource->create('ANSWER'),
+		'_id' => $this->Registry->Resource->create('ANSWER'),
 		'i_qid' => $qid,
 		'i_uid' => $uid,
-		'i_quid' => $this->oQuestion->getOwnerId(),
-		'title' => $this->oQuestion->getTitle(),	
+		'i_quid' => $this->Question->getOwnerId(),
+		'title' => $this->Question->getTitle(),	
 		'hash' => $hash,
 		'username' => $username,
-		'ulink' => '<a href="'.$this->oSubmittedAnswer->getUserObject()->getProfileUrl().'">'.$username.'</a>',
-		'avtr' => $this->oSubmittedAnswer->getUserObject()->getAvatarSrc(),
-		'i_words' => $oBody->asPlainText()->getWordsCount(),
+		'ulink' => '<a href="'.$this->SubmittedAnswer->getUserObject()->getProfileUrl().'">'.$username.'</a>',
+		'avtr' => $this->SubmittedAnswer->getUserObject()->getAvatarSrc(),
+		'i_words' => $Body->asPlainText()->getWordsCount(),
 		'i_up' => 0,
 		'i_down' => 0,
 		'i_votes' => 0,
@@ -228,7 +228,7 @@ class Answerparser extends LampcmsObject
 		'hts' => date('F j, Y g:i a T'),
 		'v_s' => 's',
 		'accepted' => false,
-		'ip' => $this->oSubmittedAnswer->getIP(),
+		'ip' => $this->SubmittedAnswer->getIP(),
 		'app' => 'web'
 		);
 
@@ -242,14 +242,14 @@ class Answerparser extends LampcmsObject
 		 *
 		 * as well as adding 'credit' div
 		 */
-		$aExtraData = $this->oSubmittedAnswer->getExtraData();
+		$aExtraData = $this->SubmittedAnswer->getExtraData();
 		d('$aExtraData: '.print_r($aExtraData, 1));
 		if(!empty($aExtraData)){
 			$aData = array_merge($aData, $aExtraData);
 		}
 		d('$aData: '.print_r($aData, 1));
 
-		$this->oAnswer = new Answer($this->oRegistry, $aData);
+		$this->Answer = new Answer($this->Registry, $aData);
 
 		/**
 		 * Post onBeforeNewQuestion event
@@ -266,7 +266,7 @@ class Answerparser extends LampcmsObject
 		 * is preserved in form.
 		 */
 		try {
-			$oNotification = $this->oRegistry->Dispatcher->post($this->oAnswer, 'onBeforeNewAnswer');
+			$oNotification = $this->Registry->Dispatcher->post($this->Answer, 'onBeforeNewAnswer');
 			if($oNotification->isNotificationCancelled()){
 				throw new AnswerParserException('Sorry, we are unable to process your answer at this time.');
 			}
@@ -281,14 +281,14 @@ class Answerparser extends LampcmsObject
 		 */
 		$this->ensureIndexes();
 
-		$this->oAnswer->insert();
+		$this->Answer->insert();
 
-		$this->oRegistry->Dispatcher->post($this->oAnswer, 'onNewAnswer', array('question' => $this->oQuestion));
+		$this->Registry->Dispatcher->post($this->Answer, 'onNewAnswer', array('question' => $this->Question));
 
 		/**
 		 * Reuse $uid since we already resolved it here,
 		 * so no need to go through the same
-		 * $this->oSubmittedAnswer->getUserObject()->getUid() again
+		 * $this->SubmittedAnswer->getUserObject()->getUid() again
 		 */
 		$this->addUserTags($uid);
 
@@ -303,7 +303,7 @@ class Answerparser extends LampcmsObject
 	 * @return object $this
 	 */
 	protected function ensureIndexes(){
-		$ans = $this->oRegistry->Mongo->ANSWERS;
+		$ans = $this->Registry->Mongo->ANSWERS;
 		/**
 		 * There is no reason to index by original timestamp
 		 * (i_ts) because if we want to order by added time
@@ -337,7 +337,7 @@ class Answerparser extends LampcmsObject
 	 * @return object $this
 	 */
 	protected function checkForDuplicate($hash){
-		$a = $this->oRegistry->Mongo->ANSWERS->findOne(array('hash' => $hash));
+		$a = $this->Registry->Mongo->ANSWERS->findOne(array('hash' => $hash));
 		if(!empty($a)){
 			throw new AnswerParserException('Someone (possibly you) has already added exact same answer for this question. Duplicate answers are not allowed');
 		}
@@ -361,11 +361,11 @@ class Answerparser extends LampcmsObject
 	 */
 	protected function updateQuestion(){
 
-		$oUser = $this->oSubmittedAnswer->getUserObject();
+		$User = $this->SubmittedAnswer->getUserObject();
 
-		$this->oQuestion->updateAnswerCount()
-		->addContributor($oUser)
-		->setLatestAnswer($oUser, $this->oAnswer)
+		$this->Question->updateAnswerCount()
+		->addContributor($User)
+		->setLatestAnswer($User, $this->Answer)
 		->touch();
 
 		return $this;
@@ -379,8 +379,8 @@ class Answerparser extends LampcmsObject
 	 * @return object $this
 	 */
 	protected function followQuestion(){
-		$oFollowManager = new FollowManager($this->oRegistry);
-		$oFollowManager->followQuestion($this->oRegistry->Viewer, $this->oQuestion);
+		$FollowManager = new FollowManager($this->Registry);
+		$FollowManager->followQuestion($this->Registry->Viewer, $this->Question);
 
 		return $this;
 	}
@@ -397,11 +397,11 @@ class Answerparser extends LampcmsObject
 	 */
 	protected function addUserTags($uid){
 
-		$oTags = UserTags::factory($this->oRegistry);
-		$oQuestion = $this->oQuestion;
+		$Tags = UserTags::factory($this->Registry);
+		$Question = $this->Question;
 
-		$func = function() use ($oTags, $uid, $oQuestion){
-			$oTags->addTags($uid, $oQuestion);
+		$func = function() use ($Tags, $uid, $Question){
+			$Tags->addTags($uid, $Question);
 		};
 		d('cp');
 		runLater($func);
@@ -412,25 +412,25 @@ class Answerparser extends LampcmsObject
 
 
 	/**
-	 * Getter for $this->oQuestion
+	 * Getter for $this->Question
 	 *
 	 * @return object of type Question representing the Question
 	 * for which we parsing the answer
 	 */
 	public function getQuestion(){
-		if(!isset($this->oQuestion)){
-			$a = $this->oRegistry->Mongo->QUESTIONS->findOne(array('_id' => $this->oSubmittedAnswer->getQid()));
+		if(!isset($this->Question)){
+			$a = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => $this->SubmittedAnswer->getQid()));
 
 			if(empty($a)){
-				e('Cannot find question with _id: '.$this->oAnswer['qid']);
+				e('Cannot find question with _id: '.$this->Answer['qid']);
 
 				throw new Exception('Unable to find parent question for this answer');
 			}
 
-			$this->oQuestion = new Question($this->oRegistry, $a);
+			$this->Question = new Question($this->Registry, $a);
 		}
 
-		return $this->oQuestion;
+		return $this->Question;
 	}
 
 }

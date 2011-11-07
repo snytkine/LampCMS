@@ -47,7 +47,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplUquestions extends \Lampcms\Template\Template
+class tplUquestions extends \Lampcms\Template\Fast
 {
 
 	protected static function func(&$a){

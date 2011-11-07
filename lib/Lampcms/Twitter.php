@@ -89,7 +89,7 @@ class Twitter extends LampcmsObject
 	 * Instance of TwitterUserInterface which is also User object
 	 * @var object User
 	 */
-	protected $oUser;
+	protected $User;
 
 	/**
 	 * URL of Twitter API where to post stuff
@@ -101,24 +101,24 @@ class Twitter extends LampcmsObject
 	/**
 	 * Constructor
 	 *
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 * @return void
 	 */
-	public function __construct(Registry $oRegistry){
+	public function __construct(Registry $Registry){
 		if(!extension_loaded('oauth')){
 			throw new \Lampcms\Exception('Cannot use this class because php extension "oauth" is not loaded');
 		}
 
-		$this->oRegistry = $oRegistry;
-		$oViewer = $oRegistry->Viewer;
+		$this->Registry = $Registry;
+		$oViewer = $Registry->Viewer;
 		if($oViewer instanceof TwitterUser){
 
-			$this->oUser = $oViewer;
-			//d(' $this->oUser: '.print_r($this->oUser, 1));
+			$this->User = $oViewer;
+			//d(' $this->User: '.print_r($this->User, 1));
 		}
 		d('cp');
 
-		$this->aTwitterConfig = $oRegistry->Ini->offsetGet('TWITTER');
+		$this->aTwitterConfig = $Registry->Ini->offsetGet('TWITTER');
 		d('$this->aTwitterConfig: '.print_r($this->aTwitterConfig, 1));
 		if(empty($this->aTwitterConfig) || empty($this->aTwitterConfig['TWITTER_OAUTH_KEY']) || empty($this->aTwitterConfig['TWITTER_OAUTH_SECRET'])){
 			throw new DevException('Missing configuration parameters for TWITTER API');
@@ -138,13 +138,13 @@ class Twitter extends LampcmsObject
 
 
 	/**
-	 * Setter for $this->oUser
+	 * Setter for $this->User
 	 *
-	 * @param User $oUser
+	 * @param User $User
 	 * @return object $this
 	 */
-	public function setUser(\Lampcms\TwitterUser $oUser){
-		$this->oUser = $oUser;
+	public function setUser(\Lampcms\TwitterUser $User){
+		$this->User = $User;
 
 		return $this;
 	}
@@ -160,15 +160,15 @@ class Twitter extends LampcmsObject
 
 	/**
 	 * Factory method
-	 * @param Registry $oRegistry
-	 * @param User $oUser
+	 * @param Registry $Registry
+	 * @param User $User
 	 * @return object of this class
 	 */
-	/*public static function factory(Registry $oRegistry, TwitterUser $oUser = null)
+	/*public static function factory(Registry $Registry, TwitterUser $User = null)
 	 {
-		$o = new self($oRegistry);
-		if(null !== $oUser){
-		$o->setUser($oUser);
+		$o = new self($Registry);
+		if(null !== $User){
+		$o->setUser($User);
 		}
 
 		return $o;
@@ -201,7 +201,7 @@ class Twitter extends LampcmsObject
 			throw new DevException('$token is not a string and not an object');
 		}
 
-		$oUser = null;
+		$User = null;
 
 		if(is_string($token) && is_string($secret)){
 			$sToken = $token;
@@ -209,11 +209,11 @@ class Twitter extends LampcmsObject
 		}
 
 		if(null === $token){
-			if(!isset($this->oUser)){
-				throw new DevException('$token is null and $this->oUser is not set');
+			if(!isset($this->User)){
+				throw new DevException('$token is null and $this->User is not set');
 			}
 
-			$token = $this->oUser;
+			$token = $this->User;
 		}
 
 		if(is_object($token)){
@@ -221,9 +221,9 @@ class Twitter extends LampcmsObject
 				throw new DevException('param $token is not a string and not instance of User '. get_class($token));
 			}
 
-			$oUser = $token;
-			$sToken = $oUser->getTwitterToken();
-			$sSecret = $oUser->getTwitterSecret();
+			$User = $token;
+			$sToken = $User->getTwitterToken();
+			$sSecret = $User->getTwitterSecret();
 		}
 
 		if(empty($sToken) || empty($sSecret)){
@@ -235,7 +235,7 @@ class Twitter extends LampcmsObject
 			$this->oAuth->setToken($sToken, $sSecret);
 			$this->oAuth->fetch(self::URL_VERIFY_CREDENTIALS);
 
-			return $this->getResponse($oUser);
+			return $this->getResponse($User);
 
 		} catch(\OAuthException $e) {
 			e('LampcmsError OAuthException: '.$e->getMessage().' '.print_r($e, 1));
@@ -251,7 +251,7 @@ class Twitter extends LampcmsObject
 
 	/**
 	 * Post message (update) to Twitter
-	 * using oAuth credentials from oUser
+	 * using oAuth credentials from User
 	 *
 	 * If post is successfull then we update the User
 	 * with the latest profile data we get from Twitter
@@ -260,7 +260,7 @@ class Twitter extends LampcmsObject
 	 *
 	 * @param string $sMessage message to post
 	 *
-	 * @param object $oUser
+	 * @param object $User
 	 *
 	 * @param int $inReplyToId twitter status id
 	 * Optional. The ID of an existing status that the update is in reply to.
@@ -313,10 +313,10 @@ class Twitter extends LampcmsObject
 		}
 
 		try {
-			$coll = $this->oRegistry->Mongo->TWEETS;
+			$coll = $this->Registry->Mongo->TWEETS;
 			$coll->ensureIndex(array('i_uid' => 1));
 
-			$aData = array('_id' => $tweet['id_str'], 'i_uid' => $this->oUser->getUid(), 'i_ts' => time());
+			$aData = array('_id' => $tweet['id_str'], 'i_uid' => $this->User->getUid(), 'i_ts' => time());
 			$coll->save($aData);
 		} catch (\Exception $e){
 			e('Unable to save data to TWEETS collection because of '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
@@ -346,7 +346,7 @@ class Twitter extends LampcmsObject
 	/**
 	 * Add or delete status from user's favorites
 	 * @param TwitterUserInterface $intStatusId
-	 * @param $oUser
+	 * @param $User
 	 * @param $isDelete
 	 * @return unknown_type
 	 */
@@ -385,16 +385,16 @@ class Twitter extends LampcmsObject
 
 
 	/**
-	 * Get oAuth token, secret from oUser and set
+	 * Get oAuth token, secret from User and set
 	 * the values in this oAuth object
 	 *
-	 * @param TwitterUserInterface $oUser
+	 * @param TwitterUserInterface $User
 	 * @return object $this
 	 */
 	public function setOAuthTokens($token = null, $secret = null){
-		d('this->oUser: '.print_r($this->oUser->getArrayCopy(), 1));
-		$token = (!empty($token)) ? $token : $this->oUser->getTwitterToken();
-		$secret = (!empty($secret)) ? $secret : $this->oUser->getTwitterSecret();
+		d('this->User: '.print_r($this->User->getArrayCopy(), 1));
+		$token = (!empty($token)) ? $token : $this->User->getTwitterToken();
+		$secret = (!empty($secret)) ? $secret : $this->User->getTwitterSecret();
 
 		d('setting $token: '.$token.' secret: '.$secret);
 
@@ -427,20 +427,20 @@ class Twitter extends LampcmsObject
 		} elseif('401' == $aDebug['http_code']){
 			d('Twitter oauth failed with 401 http code. Data: '.print_r($aData, 1));
 			/**
-			 * If this method was passed oUser
+			 * If this method was passed User
 			 * then null the tokens
 			 * and save the data to table
 			 * so that next time we will know
 			 * that this User does not have tokens
 			 */
-			if(is_object($this->oUser)){
+			if(is_object($this->User)){
 				d('Going to revoke access tokens for user object');
-				$this->oUser->revokeOauthToken();
+				$this->User->revokeOauthToken();
 				/**
 				 * Important to post this update
 				 * so that user object will be removed from cache
 				 */
-				$this->oRegistry->Dispatcher->post($this->oUser, 'onTwitterUserUpdate');
+				$this->Registry->Dispatcher->post($this->User, 'onTwitterUserUpdate');
 			}
 
 			/**
@@ -467,7 +467,7 @@ class Twitter extends LampcmsObject
 	 */
 	protected function apiPost($aData = null){
 
-		if(!is_object($this->oUser)){
+		if(!is_object($this->User)){
 			throw new TwitterException('Object of type UserTwitter was not set');
 		}
 
@@ -516,8 +516,8 @@ class Twitter extends LampcmsObject
 			 * not really do this unless we store separate external
 			 * avatars per service like twitter, facebook, etc.
 			 */
-			//$this->oUser['avatar_external'] = $aResponse['user']['profile_image_url'];
-			//$this->oUser->saveIfChanged();
+			//$this->User['avatar_external'] = $aResponse['user']['profile_image_url'];
+			//$this->User->saveIfChanged();
 
 		}
 

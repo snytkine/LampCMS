@@ -36,7 +36,7 @@
  *
  */
 
-class tplFormask extends Lampcms\Template\Template
+class tplFormask extends Lampcms\Template\Simple
 {
 	/**
 	 * Important: names of form fields
@@ -47,64 +47,64 @@ class tplFormask extends Lampcms\Template\Template
 	 * @var array
 	 */
 	protected static $vars = array(
-	'token' => '', //1
-	'required' => 'required', //2
-	'title' => '', //3
-	'title_l' => 'Title', // 4
+	'token' => '', 
+	'required' => 'required', 
+	'title' => '', 
+	'title_l' => 'Title', 
 	'title_d' => 'Enter a descriptive title',
-	'title_e' => '', // 6
-	'title_c' => 'ask_title', // 7
-	'qbody' => '', //8
-	'qbody_e' => '', //9
-	'tags' => '', //10
-	'tags_l' => 'Tags', //11
-	'tags_d' => 'At least one tag, max 5 tags separated by spaces', //12
-	'tags_e' => '', //13
-	'submit' => 'Submit', //14
-	'com_hand' => '', // 15
-	'readonly' => '', // 16
-	'disabled' => '', // 17
-	'connectBlock' => '', //18
-	'formError' => '', //19
-	'tags_required' => '', //20
-	'socials' => '', //21
-	'Preview' => 'Preview' // 22
+	'title_e' => '', 
+	'title_c' => 'ask_title', 
+	'qbody' => '', 
+	'qbody_e' => '',
+	'tags' => '', 
+	'tags_l' => 'Tags', 
+	'tags_d' => 'At least one tag, max 5 tags separated by spaces',
+	'tags_e' => '',
+	'submit' => 'Submit',
+	'com_hand' => '',
+	'readonly' => '', 
+	'disabled' => '', 
+	'connectBlock' => '',
+	'formError' => '',
+	'tags_required' => '', 
+	'socials' => '', 
+	'Preview' => 'Preview' 
 	); 
 
 	protected static $tpl = '
 	<div id="ask_form"  class="form_wrap">
-	<div class="form_error">%19$s</div>
+	<div class="form_error">{formError}</div>
 		<form class="qa_form" name="qaForm" method="POST" action="/index.php" accept-charset="utf-8">
 		<input type="hidden" name="a" value="ask">	
-		<input type="hidden" name="token" value="%1$s">
-		%18$s
+		<input type="hidden" name="token" value="{token}">
+		{connectBlock}
 		<div class="form_el"> 
-                <label for="id_title">%4$s</label> <span class="f_err" id="title_e">%6$s</span><br> 
-                <input autocomplete="off" id="id_title" class="title_c%15$s" type="text" name="title" size="80" value="%3$s" %16$s> 
-                <div id="title_d" class="caption">%5$s</div> 
+                <label for="id_title">{title_l}</label> <span class="f_err" id="title_e">{title_e}</span><br> 
+                <input autocomplete="off" id="id_title" class="title_c{com_hand}" type="text" name="title" size="80" value="{title}" {readonly}> 
+                <div id="title_d" class="caption">{title_d}</div> 
        </div>
        <!-- // el title -->
             <div id="similar_questions"></div> 
             <div class="form_el"> 
-                <textarea id="id_qbody" rows="6" cols="40" class="com_body%15$s" name="qbody" %16$s>%8$s</textarea>
-                <span class="f_err fl cb" id="qbody_e">%9$s</span>
+                <textarea id="id_qbody" rows="6" cols="40" class="com_body{com_hand}" name="qbody" {readonly}>{qbody}</textarea>
+                <span class="f_err fl cb" id="qbody_e">{qbody_e}</span>
                 <div id="body_preview"></div>
-                <span class="label">%22$s</span>
+                <span class="label">{Preview}</span>
                 <div id="tmp_preview"></div>
             </div>
             <!-- // el body -->
             
             <div class="form_el"> 
-            	<label for="id_tags">%11$s</label> %20$s <span class="f_err"  id="tags_e">%13$s</span><br> 
-                <input id="id_tags" type="text" name="tags" class="tags_c%15$s" size="80" value="%10$s" %16$s>  
-            	<div id="tags_d" class="caption">%12$s</div> 
+            	<label for="id_tags">{tags_l}</label> {tags_required} <span class="f_err"  id="tags_e">{tags_e}</span><br> 
+                <input id="id_tags" type="text" name="tags" class="tags_c{com_hand}" size="80" value="{tags}" {readonly}>  
+            	<div id="tags_d" class="caption">{tags_d}</div> 
             </div>
             <!-- // el tags -->
             <div class="fl cb socials">
-            %21$s
+            {socials}
             </div>
             <div class="form_el">
-            	<input id="dostuff" name="submit" type="submit" value="%14$s" %17$s class="btn btn-m"> 
+            	<input id="dostuff" name="submit" type="submit" value="{submit}" {disabled} class="btn btn-m"> 
             </div>
             <!-- // el submit -->
 		</form>

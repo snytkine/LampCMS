@@ -77,7 +77,7 @@ use \Lampcms\Bitly;
  * @author Dmitri Snytkine
  *
  */
-class PostTweet extends \Lampcms\Observer
+class PostTweet extends \Lampcms\Event\Observer
 {
 
 	protected $text;
@@ -86,7 +86,7 @@ class PostTweet extends \Lampcms\Observer
 
 	public function main(){
 		d('get event: '.$this->eventName);
-		$a = $this->oRegistry->Request->getArray();
+		$a = $this->Registry->Request->getArray();
 		if(empty($a['tweet'])){
 			d('tweet checkbox not checked');
 			/**
@@ -94,7 +94,7 @@ class PostTweet extends \Lampcms\Observer
 			 * for that "Post to Twitter" checkbox to be not checked
 			 * This is just in case it was checked before
 			 */
-			$this->oRegistry->Viewer['b_tw'] = false;
+			$this->Registry->Viewer['b_tw'] = false;
 			return;
 		}
 
@@ -112,7 +112,7 @@ class PostTweet extends \Lampcms\Observer
 		}
 
 		try{
-			$aTW = $this->oRegistry->Ini->getSection('TWITTER');
+			$aTW = $this->Registry->Ini->getSection('TWITTER');
 			if(empty($aTW) || empty($aTW['TWITTER_OAUTH_KEY']) || empty($aTW['TWITTER_OAUTH_SECRET'])){
 				d('Twitter API not enabled on this site');
 				return;;
@@ -122,7 +122,7 @@ class PostTweet extends \Lampcms\Observer
 			return;
 		}
 
-		if('' === (string)$this->oRegistry->Viewer->getTwitterSecret()){
+		if('' === (string)$this->Registry->Viewer->getTwitterSecret()){
 			d('User does not have Twitter token');
 			return;
 		}
@@ -134,7 +134,7 @@ class PostTweet extends \Lampcms\Observer
 		 * in User object
 		 *
 		 */
-		$this->oRegistry->Viewer['b_tw'] = true;
+		$this->Registry->Viewer['b_tw'] = true;
 
 		switch($this->eventName){
 			case 'onNewQuestion':
@@ -153,20 +153,20 @@ class PostTweet extends \Lampcms\Observer
 
 		try{
 			$reward = \Lampcms\Points::SHARED_CONTENT;
-			$User = $this->oRegistry->Viewer;
+			$User = $this->Registry->Viewer;
 			$oTweet = new Tweet();
-			$oBitly = new Bitly($this->oRegistry->Ini->getSection('BITLY'));
-			$oTwitter = new Twitter($this->oRegistry);
-			$oResource = $this->obj;
-			$Mongo = $this->oRegistry->Mongo;
+			$oBitly = new Bitly($this->Registry->Ini->getSection('BITLY'));
+			$oTwitter = new Twitter($this->Registry);
+			$Resource = $this->obj;
+			$Mongo = $this->Registry->Mongo;
 			d('cp');
 		} catch (\Exception $e){
 			d('Unable to post tweet because of this exception: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
 			return;
 		}
 
-		$func = function() use ($oTweet, $oBitly, $oTwitter, $oResource, $User, $reward, $Mongo){
-			$result = $oTweet->post($oTwitter, $oBitly, $oResource);
+		$func = function() use ($oTweet, $oBitly, $oTwitter, $Resource, $User, $reward, $Mongo){
+			$result = $oTweet->post($oTwitter, $oBitly, $Resource);
 			if(!empty($result) && is_array($result)){
 				
 				/**
@@ -200,8 +200,8 @@ class PostTweet extends \Lampcms\Observer
 						$aData = array(
 						'_id' => $result['id_str'], 
 						'i_uid' => $User->getUid(), 
-						'i_rid' => $oResource->getResourceId(),
-						'i_qid' => $oResource->getQuestionId(),
+						'i_rid' => $Resource->getResourceId(),
+						'i_qid' => $Resource->getQuestionId(),
 						'tw_user_id_str' => $tw_uid,
 						'tw_username' => $tw_username,
 						'i_ts' => time(),

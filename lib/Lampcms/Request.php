@@ -62,7 +62,7 @@ namespace Lampcms;
  * the same process of resolving  and filtering
  * Must first examine to possibilities of when user
  * sets the value of Request var by simply
- * doing somehting like $oRequest['myvar'] = 'new value'
+ * doing somehting like $Request['myvar'] = 'new value'
  * It will just set the value into the underlying array object
  * but no way we can also put it into cache. This means if
  * user does this and then requests this var again, the cached
@@ -276,7 +276,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 * This overrides the ArrayObject's own
 	 * method so that if something is added
 	 * to this object by using
-	 * $oRequest['var'] = $val then it is
+	 * $Request['var'] = $val then it is
 	 * automatically also added to aFiltered array
 	 *
 	 * @param $key

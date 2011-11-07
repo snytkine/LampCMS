@@ -75,19 +75,19 @@ try {
 		d('No Viewer is $_SESSION');
 	}
 
-	$oRequest = $oRegistry->Request;
-	$a = $oRequest['a'];
+	$Request = $Registry->Request;
+	$a = $Request['a'];
 
 	$controller = ucfirst($a);
 	include($lampcmsClasses.'Controllers'.DIRECTORY_SEPARATOR.$controller.'.php');
 	$class = '\Lampcms\\Controllers\\'.$controller;
 
 	header('Content-Type: text/html; charset=utf-8');
-	echo new $class($oRegistry);
+	echo new $class($Registry);
 	fastcgi_finish_request();
 
 	//$_SESSION['oViewer']->save();
-	//$oRegistry->Viewer = null;
+	//$Registry->Viewer = null;
 	//session_write_close();
 
 } catch(\Exception $e) {

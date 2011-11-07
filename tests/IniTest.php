@@ -59,22 +59,22 @@ require_once 'bootstrap.php';
  */
 class IniTest extends LampcmsUnitTestCase
 {
-	protected $oIni;
+	protected $Ini;
 
 	public function setUp(){
-		$this->oIni = new \Lampcms\Ini();
+		$this->Ini = new \Lampcms\Ini();
 	}
 
 	public function testConstructor(){
-		$this->oIni = new \Lampcms\Ini();
-		$this->assertTrue(is_object($this->oIni) && ($this->oIni instanceof \Lampcms\Ini));
+		$this->Ini = new \Lampcms\Ini();
+		$this->assertTrue(is_object($this->Ini) && ($this->Ini instanceof \Lampcms\Ini));
 	}
 
 	/**
 	 * @depends testConstructor
 	 */
 	public function testArrayCopy(){
-		$a = $this->oIni->getArrayCopy();
+		$a = $this->Ini->getArrayCopy();
 		$this->assertTrue(is_array($a) && !empty($a));
 	}
 
@@ -83,7 +83,7 @@ class IniTest extends LampcmsUnitTestCase
 	 */
 	public function testMongoConfig(){
 		try{
-			$a = $this->oIni->getSection('MONGO');
+			$a = $this->Ini->getSection('MONGO');
 		} catch(IniException $e){
 			$this->fail($e->getMessage());
 		}
@@ -106,7 +106,7 @@ class IniTest extends LampcmsUnitTestCase
 	 */
 	public function testSiteUrl(){
 		try{
-			$url = $this->oIni->SITE_URL;
+			$url = $this->Ini->SITE_URL;
 		} catch(IniException $e){
 			$this->fail($e->getMessage());
 		}
@@ -127,7 +127,7 @@ class IniTest extends LampcmsUnitTestCase
 	 */
 	public function testEmailAdmin(){
 		try{
-			$v = $this->oIni->EMAIL_ADMIN;
+			$v = $this->Ini->EMAIL_ADMIN;
 		} catch(IniException $e){
 			$this->fail($e->getMessage());
 		}
@@ -142,7 +142,7 @@ class IniTest extends LampcmsUnitTestCase
 	 */
 	public function testEmailDomain(){
 		try{
-			$v = $this->oIni->EMAIL_DOMAIN;
+			$v = $this->Ini->EMAIL_DOMAIN;
 		} catch(IniException $e){
 			$this->fail($e->getMessage());
 		}
@@ -158,7 +158,7 @@ class IniTest extends LampcmsUnitTestCase
 	 */
 	public function testSalt(){
 		try{
-			$v = $this->oIni->SALT;
+			$v = $this->Ini->SALT;
 		} catch(IniException $e){
 			$this->fail($e->getMessage());
 		}
@@ -173,13 +173,13 @@ class IniTest extends LampcmsUnitTestCase
 	 */
 	public function testCookieSalt(){
 		try{
-			$v = $this->oIni->LAMPCMS_COOKIE_SALT;
+			$v = $this->Ini->COOKIE_SALT;
 		} catch(IniException $e){
 			$this->fail($e->getMessage());
 		}
 
 		if(empty($v)){
-			$this->fail('Value of LAMPCMS_COOKIE_SALT in !config.inc cannot be empty');
+			$this->fail('Value of COOKIE_SALT in !config.inc cannot be empty');
 		}
 	}
 
@@ -189,7 +189,7 @@ class IniTest extends LampcmsUnitTestCase
 	 */
 	public function testCaptchaSection(){
 		try{
-			$v = $this->oIni->getSection('CAPTCHA');
+			$v = $this->Ini->getSection('CAPTCHA');
 		} catch(IniException $e){
 			$this->fail($e->getMessage());
 		}
@@ -200,7 +200,7 @@ class IniTest extends LampcmsUnitTestCase
 	 */
 	public function testGravatarSection(){
 		try{
-			$v = $this->oIni->getSection('GRAVATAR');
+			$v = $this->Ini->getSection('GRAVATAR');
 		} catch(IniException $e){
 			$this->fail($e->getMessage());
 		}
@@ -212,9 +212,9 @@ class IniTest extends LampcmsUnitTestCase
 		'server' => '"mongodb://127.0.0.5:2777"', 
 		'db' => "LAMPCMS_TEST");
 
-		$this->oIni->setSection('MONGO', $a);
+		$this->Ini->setSection('MONGO', $a);
 
-		$this->assertEquals($this->oIni->getSection('MONGO'), $a);
+		$this->assertEquals($this->Ini->getSection('MONGO'), $a);
 	}
 
 }

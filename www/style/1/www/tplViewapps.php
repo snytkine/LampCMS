@@ -50,7 +50,7 @@
  */
 
 
-class tplViewapps extends Lampcms\Template\Template
+class tplViewapps extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'label' => 'Manage your applications',

@@ -103,14 +103,14 @@ class ExternalAuthGfc extends ExternalAuth
 	 *
 	 * @var object which extends User
 	 */
-	protected $oUser;
+	protected $User;
 
 
-	public function __construct(Registry $oRegistry, $gfcSiteId){
+	public function __construct(Registry $Registry, $gfcSiteId){
 		if(!extension_loaded('curl')){
 			throw new \Lampcms\Exception('Cannot use this class because php extension "curl" is not loaded');
 		}
-		parent::__construct($oRegistry);
+		parent::__construct($Registry);
 		$this->gfcSiteId = $gfcSiteId;
 		$this->getGfcCookieVal();
 	}
@@ -213,13 +213,13 @@ class ExternalAuthGfc extends ExternalAuth
 	protected function revokeFcauth(){
 
 		if(!empty($this->aGfcData['id'])){
-			$this->oRegistry->Mongo->USERS_GFC->update(array('_id' => $this->aGfcData['id']), array('$set' => array('fcauth' => null)));
+			$this->Registry->Mongo->USERS_GFC->update(array('_id' => $this->aGfcData['id']), array('$set' => array('fcauth' => null)));
 			d('cp');
 		}
 
-		$this->oUser->offsetUnset('fcauth');
-		$this->oUser->save();
-		$this->oRegistry->Dispatcher->post($this, 'onGfcUserDelete');
+		$this->User->offsetUnset('fcauth');
+		$this->User->save();
+		$this->Registry->Dispatcher->post($this, 'onGfcUserDelete');
 		d('cp');
 		Cookie::delete(array('fcauth'.$this->gfcSiteId.'-s', 'fcauth'.$this->gfcSiteId));
 
@@ -243,28 +243,28 @@ class ExternalAuthGfc extends ExternalAuth
 		 *
 		 */
 
-		$aGfc = $this->oRegistry->Mongo->USERS_GFC->findOne(array('_id' => $this->aGfcData['id']));
+		$aGfc = $this->Registry->Mongo->USERS_GFC->findOne(array('_id' => $this->aGfcData['id']));
 
 		if(empty($aGfc) || empty($aGfc['i_uid'])){
 			d('cp');
 			$this->createNewUser();
 
-			return $this->oUser;
+			return $this->User;
 		}
 
-		$aUser = $this->oRegistry->Mongo->getCollection('USERS')
+		$aUser = $this->Registry->Mongo->getCollection('USERS')
 		->findOne(array('_id' => (int)$aGfc['i_uid']));
 
 		if(!empty($aUser)){
-			$this->oUser = UserGfc::factory($this->oRegistry, $aUser);
-			d('$this->oUser: '.print_r($this->oUser->getArrayCopy(), 1));
+			$this->User = UserGfc::factory($this->Registry, $aUser);
+			d('$this->User: '.print_r($this->User->getArrayCopy(), 1));
 			$this->updateUser()->updateGfcUserRecord(true);
 		} else {
 			d('cp');
 			$this->createNewUser();
 		}
 
-		return $this->oUser;
+		return $this->User;
 	}
 
 
@@ -311,13 +311,13 @@ class ExternalAuthGfc extends ExternalAuth
 	 *
 	 */
 	protected function updateUser(){
-		$oldAvatar = $this->oUser->avatar_external;
+		$oldAvatar = $this->User->avatar_external;
 		$newAvatar = $this->aGfcData['thumbnailUrl'];
 
-		$oldName = $this->oUser->fn;
+		$oldName = $this->User->fn;
 		$newName = $this->aGfcData['displayName'];
 
-		$oldFcauth = $this->oUser->fcauth;
+		$oldFcauth = $this->User->fcauth;
 
 
 		if($oldAvatar !== $newAvatar || $oldName !== $newName || $oldFcauth !== $this->fcauth){
@@ -328,8 +328,8 @@ class ExternalAuthGfc extends ExternalAuth
 			'i_lm_ts' => time());
 
 			d('going to update user object '.print_r($aUpdate, 1));
-			$this->oUser->addArray($aUpdate)->save();
-			$this->oRegistry->Dispatcher->post($this->oUser, 'onUserUpdate');
+			$this->User->addArray($aUpdate)->save();
+			$this->Registry->Dispatcher->post($this->User, 'onUserUpdate');
 
 		}
 
@@ -361,17 +361,17 @@ class ExternalAuthGfc extends ExternalAuth
 		'username' => $username,
 		'username_lc' => \mb_strtolower($username),
 		'role' => 'external_auth',
-		'lang' => $this->oRegistry->getCurrentLang(),
-		'locale' => $this->oRegistry->Locale->getLocale(),
+		'lang' => $this->Registry->getCurrentLang(),
+		'locale' => $this->Registry->Locale->getLocale(),
 		'fcauth' => $this->fcauth,
 		'tz' => TimeZone::getTZbyoffset($tzo),
 		'i_rep' => 1,
 		'i_fv' => (false !== $intFv = Cookie::getSidCookie(true)) ? $intFv : time());
 
-		$aUser = array_merge($this->oRegistry->Geo->Location->data, $aUser);
+		$aUser = array_merge($this->Registry->Geo->Location->data, $aUser);
 		d('aUser: '.print_r($aUser, 1));
 
-		$this->oUser = UserGfc::factory($this->oRegistry, $aUser);
+		$this->User = UserGfc::factory($this->Registry, $aUser);
 
 		/**
 		 * This will mark this userobject is new user
@@ -387,18 +387,18 @@ class ExternalAuthGfc extends ExternalAuth
 		 * This may change if serialize()/unserialize() methods are
 		 * modified in User class
 		 */
-		$this->oUser->setNewUser();
-		$this->oUser->save();
+		$this->User->setNewUser();
+		$this->User->save();
 
-		$this->oRegistry->Dispatcher->post($this->oUser, 'onNewUser');
-		$this->oRegistry->Dispatcher->post($this->oUser, 'onNewGfcUser');
+		$this->Registry->Dispatcher->post($this->User, 'onNewUser');
+		$this->Registry->Dispatcher->post($this->User, 'onNewGfcUser');
 
 		/**
 		 * Create new record in USERS_GFC
 		 */
 		$this->updateGfcUserRecord();
 
-		PostRegistration::createReferrerRecord($this->oRegistry, $this->oUser);
+		PostRegistration::createReferrerRecord($this->Registry, $this->User);
 
 		return $this;
 	}
@@ -415,7 +415,7 @@ class ExternalAuthGfc extends ExternalAuth
 		/**
 		 * Create new record or update in USERS_GFC collection
 		 */
-		$uid = $this->oUser->getUid();
+		$uid = $this->User->getUid();
 		d('uid '.$uid);
 
 		$aGfc = array(
@@ -427,7 +427,7 @@ class ExternalAuthGfc extends ExternalAuth
 
 		d('$aGfc: '.print_r($aGfc, 1));
 
-		$this->oRegistry->Mongo->USERS_GFC->save($aGfc, array('fsync' => true));
+		$this->Registry->Mongo->USERS_GFC->save($aGfc, array('fsync' => true));
 
 		return $this;
 	}

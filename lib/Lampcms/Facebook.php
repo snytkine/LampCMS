@@ -90,7 +90,7 @@ class Facebook extends ExternalAuth
 	 *
 	 * @var object which extends User
 	 */
-	protected $oUser;
+	protected $User;
 
 
 	/**
@@ -136,12 +136,12 @@ class Facebook extends ExternalAuth
 	/**
 	 * Constructor
 	 * 
-	 * @param object $oRegistry
-	 * @param object $oUser
+	 * @param object $Registry
+	 * @param object $User
 	 */
-	protected function __construct(Registry $oRegistry, FacebookUser $oUser = null){
-		parent::__construct($oRegistry);
-		$this->oUser = (null !== $oUser) ? $oUser : $oRegistry->Viewer;
+	protected function __construct(Registry $Registry, FacebookUser $User = null){
+		parent::__construct($Registry);
+		$this->User = (null !== $User) ? $User : $Registry->Viewer;
 		$this->initHttpObject();
 	}
 
@@ -158,13 +158,13 @@ class Facebook extends ExternalAuth
 
 
 	/**
-	 * Setter for $this->oUser
+	 * Setter for $this->User
 	 *
-	 * @param FacebookUser $oUser
+	 * @param FacebookUser $User
 	 * @return object $this
 	 */
-	public function setUser(FacebookUser $oUser){
-		$this->oUser = $oUser;
+	public function setUser(FacebookUser $User){
+		$this->User = $User;
 
 		return $this;
 	}
@@ -177,15 +177,15 @@ class Facebook extends ExternalAuth
 	 * with actual message to post some html allowed, some not.
 	 * It's up to facebook to decide which html is not allowed
 	 *
-	 * @param object $oRegistry Registry object
-	 * @param object $oUser user object or null
+	 * @param object $Registry Registry object
+	 * @param object $User user object or null
 	 * in case of null the currently logged in user is used
 	 *
 	 * @return mixed whatever is returned by postUpdate method
 	 * @see postUpdate()
 	 */
-	public static function postToWall(Registry $oRegistry, $aData, FacebookUser $oUser = null){
-		$o = new self($oRegistry, $oUser);
+	public static function postToWall(Registry $Registry, $aData, FacebookUser $User = null){
+		$o = new self($Registry, $User);
 		return $o->postUpdate($aData);
 	}
 
@@ -218,8 +218,8 @@ class Facebook extends ExternalAuth
 
 		$aData = \is_array($aData) ? $aData : array('message' => $aData);
 
-		$facebookUid = $this->oUser->getFacebookUid();
-		$facebookToken = $this->oUser->getFacebookToken();
+		$facebookUid = $this->User->getFacebookUid();
+		$facebookToken = $this->User->getFacebookToken();
 		d('$facebookUid: '.$facebookUid.' $facebookToken: '.$facebookToken);
 
 		if(empty($facebookUid) || empty($facebookToken)){
@@ -228,7 +228,7 @@ class Facebook extends ExternalAuth
 			return false;
 		}
 
-		$aData['access_token'] = $this->oUser->getFacebookToken();
+		$aData['access_token'] = $this->User->getFacebookToken();
 		d('$aData: '.print_r($aData, 1));
 
 		$url = \sprintf($this->wallUpdateUrl, $facebookUid);
@@ -280,7 +280,7 @@ class Facebook extends ExternalAuth
 		}
 
 		if(empty($aData['access_token'])){
-			$aData['access_token'] = $this->oUser->getFacebookToken();
+			$aData['access_token'] = $this->User->getFacebookToken();
 		}
 	}
 
@@ -308,9 +308,9 @@ class Facebook extends ExternalAuth
 		 * This means user viewer is not logged in, but why?
 		 *
 		 */
-		d('$this->oUser: '.get_class($this->oUser).' '.print_r($this->oUser->getArrayCopy(), 1));
+		d('$this->User: '.get_class($this->User).' '.print_r($this->User->getArrayCopy(), 1));
 
-		$this->oUser->revokeFacebookConnect();
+		$this->User->revokeFacebookConnect();
 
 		return $this;
 	}

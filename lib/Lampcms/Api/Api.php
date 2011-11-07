@@ -56,7 +56,6 @@ use \Lampcms\Registry;
 use \Lampcms\User;
 use \Lampcms\Request;
 use \Lampcms\Response;
-use \Lampcms\Output;
 use \Lampcms\UserAuth;
 
 /**
@@ -65,7 +64,7 @@ use \Lampcms\UserAuth;
  * rate limit, authenticating client APPs
  * and creating Viewer object,
  * oResponse object
- * oOutput object based on type of
+ * Output object based on type of
  * format a client requested - json, jsonp or xml
  * as well as doing base pre and post
  * processing of request
@@ -75,7 +74,7 @@ use \Lampcms\UserAuth;
  * concrete sub-classes and is responsible
  * for generating actual data to be returned to
  * the client as well as populating the
- * $this->oOutput object
+ * $this->Output object
  *
  * @author Dmitri Snytkine
  *
@@ -145,7 +144,7 @@ abstract class Api extends \Lampcms\Base
 	 *
 	 * @var object of type \Lampcms\Request
 	 */
-	protected $oRequest;
+	protected $Request;
 
 
 	/**
@@ -154,7 +153,7 @@ abstract class Api extends \Lampcms\Base
 	 *
 	 * @var object of type \Lampcms\Api\Formatter
 	 */
-	protected $oOutput;
+	protected $Output;
 
 	/**
 	 * MongoCursor that holds
@@ -259,17 +258,18 @@ abstract class Api extends \Lampcms\Base
 	protected $restful = true;
 
 
-	public function __construct(Registry $oRegistry, Request $oRequest = null, $restful = true){
-		parent::__construct($oRegistry);
-		$this->oRequest = (null !== $oRequest) ? $oRequest : $oRegistry->Request;
+	public function __construct(Registry $Registry, Request $Request = null, $restful = true){
+		parent::__construct($Registry);
+		$this->Request = (null !== $Request) ? $Request : $Registry->Request;
 		$this->restful = $restful;
-		$format = $this->oRequest->get('alt', 's', 'json');
-		$callback = $this->oRequest->get('callback', 's', null);
-		$this->oOutput = \Lampcms\Output::factory($format, $callback);
-		$this->oRegistry->Response = Response::factory();
-		$this->aConfig = $oRegistry->Ini->getSection('API');
+		$format = $this->Request->get('alt', 's', 'json');
+		d('requested output format: '.$format);
+		$callback = $this->Request->get('callback', 's', null);
+		$this->Output = Output\Formatter::factory($format, $callback);
+		$this->Registry->Response = Response::factory();
+		$this->aConfig = $Registry->Ini->getSection('API');
 
-		$this->pageID = $this->oRequest['pageID'];
+		$this->pageID = $this->Request['pageID'];
 		try {
 			$this->initParams()
 			->initClientUser()
@@ -312,20 +312,20 @@ abstract class Api extends \Lampcms\Base
 			 * will get from the database based on apikey!
 			 *
 			 */
-			$this->oRegistry->clientAppId = $this->oRequest->get('apikey', 's', null);
+			$this->Registry->clientAppId = $this->Request->get('apikey', 's', null);
 			/**
 			 * Check here if the API idenditied by this API key
 			 * isValid or has been suspended of deleted
 			 */
-			if(!empty($this->oRegistry->clientAppId)){
+			if(!empty($this->Registry->clientAppId)){
 
-				$a = $this->oRegistry->Mongo->API_CLIENTS->findOne(array('api_key' => $this->oRegistry->clientAppId), array('_id' => 1, 'i_suspended' => 1, 'i_deleted' => 1));
+				$a = $this->Registry->Mongo->API_CLIENTS->findOne(array('api_key' => $this->Registry->clientAppId), array('_id' => 1, 'i_suspended' => 1, 'i_deleted' => 1));
 				if(empty($a)){
-					throw new \Lampcms\HttpResponseCodeException('Invalid api key: '.$this->oRegistry->clientAppId, 401);
+					throw new \Lampcms\HttpResponseCodeException('Invalid api key: '.$this->Registry->clientAppId, 401);
 				}
 
 				if(!empty($a['i_suspended'])){
-					throw new \Lampcms\HttpResponseCodeException('Suspended api key: '.$this->oRegistry->clientAppId, 401);
+					throw new \Lampcms\HttpResponseCodeException('Suspended api key: '.$this->Registry->clientAppId, 401);
 				}
 
 				if(!empty($a['i_deleted'])){
@@ -362,10 +362,10 @@ abstract class Api extends \Lampcms\Base
 			$this->initBasicAuthUser($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
 		} else {
 			d('No user credentials in request. Using basic quest user');
-			$this->oRegistry->Viewer = ApiUser::factory($this->oRegistry);
+			$this->Registry->Viewer = ApiUser::factory($this->Registry);
 		}
 
-		d('Viewer id: '.$this->oRegistry->Viewer->getUid());
+		d('Viewer id: '.$this->Registry->Viewer->getUid());
 
 		return $this;
 	}
@@ -381,8 +381,8 @@ abstract class Api extends \Lampcms\Base
 
 
 		try {
-			$oUserAuth = new UserAuth($this->oRegistry);
-			$oUser = $oUserAuth->validateLogin($username, $pwd, '\Lampcms\\Api\\UserBasicAuth');
+			$UserAuth = new UserAuth($this->Registry);
+			$User = $UserAuth->validateLogin($username, $pwd, '\Lampcms\\Api\\UserBasicAuth');
 
 			/**
 			 * If user logged in that means he got the email
@@ -390,8 +390,8 @@ abstract class Api extends \Lampcms\Base
 			 * thus we confirmed email address
 			 * and can activate user
 			 */
-			$oUser->activate();
-			$this->oRegistry->Viewer = $oUser;
+			$User->activate();
+			$this->Registry->Viewer = $User;
 			/**
 			 * Set $this->viewerId
 			 * it will result in increasing
@@ -399,7 +399,7 @@ abstract class Api extends \Lampcms\Base
 			 *
 			 *
 			 */
-			$this->viewerId = $oUser->getUid();
+			$this->viewerId = $User->getUid();
 				
 		} catch(\Lampcms\LoginException $e) {
 			e('Login error: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
@@ -422,10 +422,10 @@ abstract class Api extends \Lampcms\Base
 	 */
 	protected function makeAccessId(){
 		if(!isset($this->accessId)){
-			d('making accessId. $this->oRegistry->clientAppId is: '.$this->oRegistry->clientAppId);
-			$clientId = (empty($this->oRegistry->clientAppId)) ? Request::getIP() : $this->oRegistry->clientAppId;
+			d('making accessId. $this->Registry->clientAppId is: '.$this->Registry->clientAppId);
+			$clientId = (empty($this->Registry->clientAppId)) ? Request::getIP() : $this->Registry->clientAppId;
 			d('clientId: '.$clientId);
-			$this->accessId =  date('Ymd').'_'.$clientId.'_'.$this->oRegistry->Viewer->getUid();
+			$this->accessId =  date('Ymd').'_'.$clientId.'_'.$this->Registry->Viewer->getUid();
 		}
 
 		return $this;
@@ -458,9 +458,9 @@ abstract class Api extends \Lampcms\Base
 			return $this;
 		}
 
-		$this->oRegistry->Mongo->API_ACCESS_COUNTER->ensureIndex(array('id' => 1), array('unique' => true));
+		$this->Registry->Mongo->API_ACCESS_COUNTER->ensureIndex(array('id' => 1), array('unique' => true));
 
-		$a = $this->oRegistry->Mongo->API_ACCESS_COUNTER->findOne(array('id' => $this->accessId));
+		$a = $this->Registry->Mongo->API_ACCESS_COUNTER->findOne(array('id' => $this->accessId));
 		d('a: '.print_r($a, 1));
 
 		switch(true){
@@ -468,7 +468,7 @@ abstract class Api extends \Lampcms\Base
 				$this->rateLimit = $this->aConfig['DAILY_LIMIT_USER'];
 				break;
 
-			case (isset($this->oRegistry->clientAppId)):
+			case (isset($this->Registry->clientAppId)):
 				$this->rateLimit = $this->aConfig['DAILY_LIMIT_APP'];
 				break;
 
@@ -503,7 +503,7 @@ abstract class Api extends \Lampcms\Base
 		if($this->bRateLimited){
 			d('updating daily counter for $this->accessId: '.$this->accessId);
 
-			$this->oRegistry->Mongo->API_ACCESS_COUNTER->update(array('id' => $this->accessId), array('$inc' => array("i_count" => 1)), array("upsert" => true));
+			$this->Registry->Mongo->API_ACCESS_COUNTER->update(array('id' => $this->accessId), array('$inc' => array("i_count" => 1)), array("upsert" => true));
 		}
 
 		/**
@@ -511,7 +511,7 @@ abstract class Api extends \Lampcms\Base
 		 * enables to later write Observer class
 		 * to log API calls.
 		 */
-		$this->oRegistry->Dispatcher->post($this->oRequest, 'onApiAccess');
+		$this->Registry->Dispatcher->post($this->Request, 'onApiAccess');
 
 		return $this;
 	}
@@ -520,9 +520,9 @@ abstract class Api extends \Lampcms\Base
 	/**
 	 * The job of main() in concrete sub-classes
 	 * is to populate
-	 * the $this->oOutput object
-	 * Now we can use $this->oOutput to populate
-	 * $this->oRegistry->Response with value for the body
+	 * the $this->Output object
+	 * Now we can use $this->Output to populate
+	 * $this->Registry->Response with value for the body
 	 * and headers of response
 	 * The Response object will then
 	 * be ready for sending out output
@@ -534,8 +534,8 @@ abstract class Api extends \Lampcms\Base
 		d('this->rateLimit: '.$this->rateLimit.' $this->accessCounter: '.$this->accessCounter);
 
 
-		$this->oRegistry->Response->addHeader('X-RateLimit-Limit', $this->rateLimit);
-		$this->oRegistry->Response->addHeader('X-RateLimit-Remaining', ($this->rateLimit - $this->accessCounter) );
+		$this->Registry->Response->addHeader('X-RateLimit-Limit', $this->rateLimit);
+		$this->Registry->Response->addHeader('X-RateLimit-Remaining', ($this->rateLimit - $this->accessCounter) );
 		/**
 		 * Currently the reset of rate limit is
 		 * on the start of next day. In the future we may
@@ -546,10 +546,12 @@ abstract class Api extends \Lampcms\Base
 		 *
 		 */
 		$resetTimestamp = mktime(0, 0, 0, date('n'), date('j') + 1);
-		$this->oRegistry->Response->addHeader('X-RateLimit-Reset', $resetTimestamp );
+		$this->Registry->Response->addHeader('X-RateLimit-Reset', $resetTimestamp );
 
 		if($this->restful){
-			$this->oRegistry->Response->setOutput($this->oOutput);
+			d('setting output object of type: '.get_class($this->Output));
+			
+			$this->Registry->Response->setOutput($this->Output);
 		}
 		
 		return $this;
@@ -571,14 +573,14 @@ abstract class Api extends \Lampcms\Base
 
 		if($e instanceof \Lampcms\HttpResponseCodeException){
 			$code = $e->getHttpCode();
-			$this->oRegistry->Response->setHttpCode($code);
+			$this->Registry->Response->setHttpCode($code);
 			/**
 			 * @todo if $code = 405 and bRequirePost then
 			 * set extra header Allow: POST
 			 * This is to comply with RFC
 			 */
 		} else {
-			$this->oRegistry->Response->setHttpCode(500);
+			$this->Registry->Response->setHttpCode(500);
 		}
 
 		$err = \strip_tags($e->getMessage());
@@ -586,8 +588,8 @@ abstract class Api extends \Lampcms\Base
 
 		d($err2);
 
-		$this->oOutput->setData(array('error' => $err));
-		$this->oRegistry->Response->setBody($this->oOutput);
+		$this->Output->setData(array('error' => $err));
+		$this->Registry->Response->setBody($this->Output);
 
 	}
 
@@ -604,10 +606,10 @@ abstract class Api extends \Lampcms\Base
 			throw new \Lampcms\HttpResponseCodeException('HTTP POST request method required', 405);
 		}
 			
-		$this->oRequest->setRequired($this->aRequired);
+		$this->Request->setRequired($this->aRequired);
 
 		try{
-			$this->oRequest->checkRequired();
+			$this->Request->checkRequired();
 		} catch(\Exception $e){
 			throw new \Lampcms\HttpResponseCodeException($e->getMessage(), 400);
 		}
@@ -627,7 +629,7 @@ abstract class Api extends \Lampcms\Base
 	 * @return object $this
 	 */
 	protected function setStartTime(){
-		$id = $this->oRequest->get('starttime', 'i', null);
+		$id = $this->Request->get('starttime', 'i', null);
 		if(!empty($id)){
 			$this->startTime = abs($id);
 		}
@@ -645,7 +647,7 @@ abstract class Api extends \Lampcms\Base
 	 * @return object $this
 	 */
 	protected function setEndTime(){
-		$id = $this->oRequest->get('endtime', 'i', null);
+		$id = $this->Request->get('endtime', 'i', null);
 		if(!empty($id)){
 			$this->endTime = abs($id);
 		}
@@ -665,7 +667,7 @@ abstract class Api extends \Lampcms\Base
 	 * @return object $this
 	 */
 	protected function setLimit(){
-		$limit = $this->oRequest->get('limit', 'i', 20);
+		$limit = $this->Request->get('limit', 'i', 20);
 		d('limit: '.$limit);
 
 		if(!empty($limit)){
@@ -695,7 +697,7 @@ abstract class Api extends \Lampcms\Base
 	 * @return object $this
 	 */
 	protected function setSortBy(){
-		$sortBy = $this->oRequest->get('sort', 's', null);
+		$sortBy = $this->Request->get('sort', 's', null);
 		if(empty($sortBy)) $sortBy = $this->sortBy;
 		if(!\in_array($sortBy, $this->allowedSortBy)){
 			throw new \Lampcms\HttpResponseCodeException('Invalid value of "sort" param in request. Allowed values are: '.implode(', ', $this->allowedSortBy).' Value was" '.$sortBy, 406);
@@ -719,7 +721,7 @@ abstract class Api extends \Lampcms\Base
 	 */
 	protected function setSortOrder(){
 		$allowed = array('asc', 'desc');
-		$order = $this->oRequest->get('dir', 's', 'desc');
+		$order = $this->Request->get('dir', 's', 'desc');
 		if(!\in_array($order, $allowed)){
 			throw new \Lampcms\HttpResponseCodeException('Invalid value of "dir" param in request. Allowed values are: '.implode(', ', $allowed).' Value was" '.$dir, 406);
 		}
@@ -735,8 +737,8 @@ abstract class Api extends \Lampcms\Base
 	 * The job of this method is to
 	 * Generate either MongoCursor with results
 	 * or some other type of data (if the form
-	 * of php array) and set the $this->oOutput->setData($data)
-	 * End result of main() is that $this->oOutput is populated
+	 * of php array) and set the $this->Output->setData($data)
+	 * End result of main() is that $this->Output is populated
 	 * with some data.
 	 *
 	 */
@@ -750,7 +752,7 @@ abstract class Api extends \Lampcms\Base
 	 *
 	 */
 	public function getResponse(){
-		return $this->oRegistry->Response;
+		return $this->Registry->Response;
 	}
 
 }

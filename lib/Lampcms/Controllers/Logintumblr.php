@@ -142,7 +142,7 @@ class Logintumblr extends WebPage
 			throw new \Exception('Unable to use Tumblr API because OAuth extension is not available');
 		}
 
-		$this->aTm = $this->oRegistry->Ini['TUMBLR'];
+		$this->aTm = $this->Registry->Ini['TUMBLR'];
 
 		try {
 			$this->oAuth = new \OAuth($this->aTm['OAUTH_KEY'], $this->aTm['OAUTH_SECRET'], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
@@ -159,7 +159,7 @@ class Logintumblr extends WebPage
 		 * generate token, secret and store them
 		 * in session and redirect to tumblr authorization page
 		 */
-		if(empty($_SESSION['tumblr_oauth']) || empty($this->oRequest['oauth_token'])){
+		if(empty($_SESSION['tumblr_oauth']) || empty($this->Request['oauth_token'])){
 			/**
 			 * Currently Tumblr does not handle "Deny" response of user
 			 * too well - they just redirect back to this url
@@ -244,7 +244,7 @@ class Logintumblr extends WebPage
 			 * @todo check first to make sure we do have oauth_token
 			 * on REQUEST, else close the window
 			 */
-			$this->oAuth->setToken($this->oRequest['oauth_token'], $_SESSION['tumblr_oauth']['oauth_token_secret']);
+			$this->oAuth->setToken($this->Request['oauth_token'], $_SESSION['tumblr_oauth']['oauth_token_secret']);
 			$this->aAccessToken = $this->oAuth->getAccessToken(self::ACCESS_TOKEN_URL);
 			d('$this->aAccessToken: '.print_r($this->aAccessToken, 1));
 
@@ -284,7 +284,7 @@ class Logintumblr extends WebPage
 				 * Set flag to session indicating that user just
 				 * connected tumblr Account
 				 */
-				$this->oRegistry->Viewer['b_tm'] = true;
+				$this->Registry->Viewer['b_tm'] = true;
 				$this->closeWindow();
 			}
 
@@ -428,8 +428,8 @@ class Logintumblr extends WebPage
 	 */
 	protected function connect(){
 
-		$this->oRegistry->Viewer['tumblr'] = array('tokens' => $this->aAccessToken, 'blogs' => $this->aBlogs);
-		$this->oRegistry->Viewer->save();
+		$this->Registry->Viewer['tumblr'] = array('tokens' => $this->aAccessToken, 'blogs' => $this->aBlogs);
+		$this->Registry->Viewer->save();
 
 		return $this;
 	}

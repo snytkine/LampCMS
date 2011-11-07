@@ -76,14 +76,14 @@ class Accept extends WebPage
 	 * Question object
 	 * @var Object Question for which answer is accepted
 	 */
-	protected $oQuestion;
+	protected $Question;
 
 	/**
 	 * Answer object
 	 * 
 	 * @var Answer object
 	 */
-	protected $oAnswer;
+	protected $Answer;
 
 	protected $membersOnly = true;
 
@@ -96,8 +96,8 @@ class Accept extends WebPage
 		 * because its constructor attaches itself to
 		 * Dispatcher.
 		 */
-		$oCache = $this->oRegistry->Cache;
-		$this->oRegistry->registerObservers('INPUT_FILTERS');
+		$Cache = $this->Registry->Cache;
+		$this->Registry->registerObservers('INPUT_FILTERS');
 		//try{
 		$this->checkVoteHack()
 		->getAnswer()
@@ -122,7 +122,7 @@ class Accept extends WebPage
 	 * @return object $this
 	 */
 	protected function postEvent(){
-		$this->oRegistry->Dispatcher->post($this->oQuestion, 'onAcceptAnswer', array('answer' => $this->oAnswer));
+		$this->Registry->Dispatcher->post($this->Question, 'onAcceptAnswer', array('answer' => $this->Answer));
 
 		return $this;
 	}
@@ -137,7 +137,7 @@ class Accept extends WebPage
 	 * @return object $this
 	 */
 	protected function postOnBefore(){
-		$notification = $this->oRegistry->Dispatcher->post($this->oQuestion, 'onBeforeAcceptAnswer', array('answer' => $this->oAnswer));
+		$notification = $this->Registry->Dispatcher->post($this->Question, 'onBeforeAcceptAnswer', array('answer' => $this->Answer));
 		if($notification->isNotificationCancelled()){
 			d('notification onBeforeAcceptAnswer cancelled');
 			/**
@@ -145,7 +145,7 @@ class Accept extends WebPage
 			 * so it will not be auto-saved
 			 * by its own __destruct()
 			 */
-			$this->oAnswer->setSaved();
+			$this->Answer->setSaved();
 			throw new \Lampcms\Exception('This feature is unavailable at this time');
 		}
 
@@ -170,14 +170,14 @@ class Accept extends WebPage
 	 */
 	protected function checkVoteHack(){
 
-		if(!$this->oRegistry->Viewer->isModerator()){
+		if(!$this->Registry->Viewer->isModerator()){
 			$timeOffset = time() - 172800; // 2 days
 
-			$cur = $this->oRegistry->Mongo->VOTE_HACKS->find(array('i_ts' => array('$gt' => $timeOffset)));
+			$cur = $this->Registry->Mongo->VOTE_HACKS->find(array('i_ts' => array('$gt' => $timeOffset)));
 
 			if($cur && $cur->count(true)  > 0){
 				$ip = Request::getIP();
-				$uid = $this->oRegistry->Viewer->getUid();
+				$uid = $this->Registry->Viewer->getUid();
 
 				foreach($cur as $aRec){
 					if($ip === $aRec['ip'] || $uid == $uid){
@@ -193,7 +193,7 @@ class Accept extends WebPage
 
 	/**
 	 * Get record for the selected answer
-	 * and create the $this->oAnswer Answer object
+	 * and create the $this->Answer Answer object
 	 *
 	 * @throws \Lampcms\Exception if unable to find record
 	 * in ANSWERS collection
@@ -201,14 +201,14 @@ class Accept extends WebPage
 	 * @return object $this
 	 */
 	protected function getAnswer(){
-		$aAnswer = $this->oRegistry->Mongo->ANSWERS->findOne(array('_id' => $this->oRequest['aid']));
+		$aAnswer = $this->Registry->Mongo->ANSWERS->findOne(array('_id' => $this->Request['aid']));
 		d('$aAnswer: '.print_r($aAnswer, 1));
 
 		if(empty($aAnswer)){
-			throw new \Lampcms\Exception('Answer not found by id: '.$this->oRequest['aid']);
+			throw new \Lampcms\Exception('Answer not found by id: '.$this->Request['aid']);
 		}
 
-		$this->oAnswer = new \Lampcms\Answer($this->oRegistry, $aAnswer);
+		$this->Answer = new \Lampcms\Answer($this->Registry, $aAnswer);
 
 		return $this;
 	}
@@ -217,7 +217,7 @@ class Accept extends WebPage
 	/**
 	 * Get data for a question for which
 	 * the answer is being accepted
-	 * and create object $this->oQuestion
+	 * and create object $this->Question
 	 *
 	 * We need object instead of just array because
 	 * object has getUrl() method which we will need to redirect
@@ -228,15 +228,15 @@ class Accept extends WebPage
 	 * @throws Exception
 	 */
 	protected function getQuestion(){
-		$aQuestion = $this->oRegistry->Mongo->QUESTIONS->findOne(array('_id' => $this->oAnswer->getQuestionId()));
+		$aQuestion = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => $this->Answer->getQuestionId()));
 
 		d('$aQuestion: '.print_r($aQuestion, 1));
 
 		if(empty($aQuestion)){
-			throw new \Lampcms\Exception('Question not found for this answer: '.$this->oRequest['aid']);
+			throw new \Lampcms\Exception('Question not found for this answer: '.$this->Request['aid']);
 		}
 
-		$this->oQuestion = new Question($this->oRegistry, $aQuestion);
+		$this->Question = new Question($this->Registry, $aQuestion);
 		d('cp');
 
 		return $this;
@@ -258,14 +258,14 @@ class Accept extends WebPage
 	 * @return object $this
 	 */
 	protected function checkViewer(){
-		$ownerID = $this->oQuestion->getOwnerId();
-		if(!$this->oRegistry->Viewer->isModerator()){
-			if($ownerID != $this->oRegistry->Viewer->getUid()){
+		$ownerID = $this->Question->getOwnerId();
+		if(!$this->Registry->Viewer->isModerator()){
+			if($ownerID != $this->Registry->Viewer->getUid()){
 				d('cp voting for someone else question');
 				/**
 				 * Post onAcceptHack event
 				 */
-				$this->oRegistry->Dispatcher->post($this->oQuestion, 'onAcceptHack');
+				$this->Registry->Dispatcher->post($this->Question, 'onAcceptHack');
 				
 				$this->recordVoteHack();
 
@@ -288,12 +288,12 @@ class Accept extends WebPage
 	 * @return object $this
 	 */
 	protected function updateQuestion(){
-		$ansID = $this->oQuestion['i_sel_ans'];
+		$ansID = $this->Question['i_sel_ans'];
 		d('$ansID: '.$ansID);
 
 		if(!empty( $ansID ) ){
 
-			if($ansID == $this->oAnswer->getResourceId()){
+			if($ansID == $this->Answer->getResourceId()){
 				$err = 'This answer is already a selected answer';
 
 				/**
@@ -318,7 +318,7 @@ class Accept extends WebPage
 			$this->rewardViewer();
 		}
 
-		$this->oQuestion->setBestAnswer($this->oAnswer);
+		$this->Question->setBestAnswer($this->Answer);
 
 		return $this;
 	}
@@ -330,7 +330,7 @@ class Accept extends WebPage
 	 * @return object $this
 	 */
 	protected function getOldAnswer(){
-		$this->aOldAnswer = $this->oRegistry->Mongo->ANSWERS->findOne(array('_id' => $this->oQuestion['i_sel_ans']));
+		$this->aOldAnswer = $this->Registry->Mongo->ANSWERS->findOne(array('_id' => $this->Question['i_sel_ans']));
 		d('old answer: '.print_r($this->aOldAnswer, 1));
 
 		return $this;
@@ -345,7 +345,7 @@ class Accept extends WebPage
 	protected function updateOldAnswer(){
 		if(!empty($this->aOldAnswer)){
 			$this->aOldAnswer['accepted'] = false;
-			$this->oRegistry->Mongo->ANSWERS->save($this->aOldAnswer);
+			$this->Registry->Mongo->ANSWERS->save($this->aOldAnswer);
 		}
 
 		return $this;
@@ -367,7 +367,7 @@ class Accept extends WebPage
 			$uid = $this->aOldAnswer['i_uid'];
 			if(!empty($uid)){
 				try{
-					\Lampcms\User::factory($this->oRegistry)->by_id($uid)->setReputation((0 - \Lampcms\Points::BEST_ANSWER))->save();
+					\Lampcms\User::factory($this->Registry)->by_id($uid)->setReputation((0 - \Lampcms\Points::BEST_ANSWER))->save();
 
 				} catch(\MongoException $e ){
 					e('unable to update reputation for old answerer '.$e->getMessage());
@@ -389,17 +389,17 @@ class Accept extends WebPage
 	 * @return object $this
 	 */
 	protected function updateUser(){
-		$uid = $this->oAnswer->getOwnerId();
-		d('$this->oAnswer->getOwnerId():. '.$uid);
+		$uid = $this->Answer->getOwnerId();
+		d('$this->Answer->getOwnerId():. '.$uid);
 
-		if(!empty($uid) && ($this->oQuestion['i_uid'] == $uid) ){
+		if(!empty($uid) && ($this->Question['i_uid'] == $uid) ){
 			d('Answered own question, this does not count');
 
 			return $this;
 		}
 
 		try{
-			$this->oRegistry->Mongo->USERS->update(array('_id' => $uid), array('$inc' => array("i_rep" => \Lampcms\Points::BEST_ANSWER)));
+			$this->Registry->Mongo->USERS->update(array('_id' => $uid), array('$inc' => array("i_rep" => \Lampcms\Points::BEST_ANSWER)));
 		} catch(\MongoException $e ){
 			e('unable to increase reputation for answerer '.$e->getMessage());
 		}
@@ -424,8 +424,8 @@ class Accept extends WebPage
 		 * we don't reward moderator by accpeting
 		 * the answer for someone else's question
 		 */
-		if($this->oQuestion->getOwnerId() == $this->oRegistry->Viewer->getUid()){
-			$this->oRegistry->Viewer->setReputation(\Lampcms\Points::ACCEPT_ANSWER)->save();
+		if($this->Question->getOwnerId() == $this->Registry->Viewer->getUid()){
+			$this->Registry->Viewer->setReputation(\Lampcms\Points::ACCEPT_ANSWER)->save();
 		}
 
 		return $this;
@@ -438,10 +438,10 @@ class Accept extends WebPage
 	 * this method static, accepting only Registry
 	 */
 	protected function recordVoteHack(){
-		$coll = $this->oRegistry->Mongo->VOTE_HACKS;
+		$coll = $this->Registry->Mongo->VOTE_HACKS;
 		$coll->ensureIndex(array('i_ts' => 1));
 		$aData = array(
-		'i_uid' => $this->oRegistry->Viewer->getUid(),
+		'i_uid' => $this->Registry->Viewer->getUid(),
 		'i_ts' => time(),
 		'ip' => Request::getIP());
 
@@ -460,6 +460,6 @@ class Accept extends WebPage
 	 */
 	protected function redirect(){
 
-		Responder::redirectToPage($this->oQuestion->getUrl());
+		Responder::redirectToPage($this->Question->getUrl());
 	}
 }

@@ -67,9 +67,9 @@ use Lampcms\Responder;
  */
 class Getanswers extends Viewquestion
 {
-	protected $oQuestion;
+	protected $Question;
 	
-	protected $oAnswers;
+	protected $Answers;
 	
 	protected function main(){
 		$this->getQuestion()->getAnswers()->setReturn();

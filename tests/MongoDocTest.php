@@ -54,6 +54,7 @@
 namespace Lampcms;
 require_once 'bootstrap.php';
 
+
 /**
  * Run after MongoTest
  *
@@ -67,8 +68,8 @@ class MongoDocTest extends LampcmsUnitTestCase
 	protected $aData = array('one' => 1, 'two' => 2);
 
 	public function setUp(){
-		$this->oRegistry = new Registry();
-		$this->oMongoDoc = MongoDoc::factory($this->oRegistry, $this->COLLNAME);
+		$this->Registry = new Registry();
+		$this->oMongoDoc = \Lampcms\Mongo\Doc::factory($this->Registry, $this->COLLNAME);
 
 	}
 
@@ -113,7 +114,7 @@ class MongoDocTest extends LampcmsUnitTestCase
 		
 		$this->assertTrue(is_int($res));
 
-		$data = $this->oRegistry->Mongo->getCollection($this->COLLNAME)->findOne(array('_id' => $res));
+		$data = $this->Registry->Mongo->getCollection($this->COLLNAME)->findOne(array('_id' => $res));
 		$this->assertEquals(1, $data['one']);
 		$this->assertEquals(2, $data['two']);
 		$this->assertEquals('Johnson', $data['name']);
@@ -130,14 +131,14 @@ class MongoDocTest extends LampcmsUnitTestCase
 	 * @depends testSave
 	 */
 	public function testUpdate(){
-		$oMongoDoc = new MongoDoc($this->oRegistry, $this->COLLNAME);
+		$oMongoDoc = new \Lampcms\Mongo\Doc($this->Registry, $this->COLLNAME);
 		$oMongoDoc->byone(1);
 
 		$this->assertEquals(1, $oMongoDoc['one']);
 		$oMongoDoc['two'] = 3;
 		$oMongoDoc->save();
 
-		$data = $this->oRegistry->Mongo->getCollection($this->COLLNAME)->findOne(array('two' => 3));
+		$data = $this->Registry->Mongo->getCollection($this->COLLNAME)->findOne(array('two' => 3));
 		$this->assertEquals(1, $data['one']);
 		$this->assertEquals(3, $data['two']);
 		$this->assertEquals('Johnson', $data['name']);
@@ -153,12 +154,12 @@ class MongoDocTest extends LampcmsUnitTestCase
 	 * @depends testSave
 	 */
 	public function testReload(){
-		$oMongoDoc = new MongoDoc($this->oRegistry, $this->COLLNAME);
+		$oMongoDoc = new \Lampcms\Mongo\Doc($this->Registry, $this->COLLNAME);
 		$oMongoDoc->byone(1);
 
 		$this->assertEquals(1, $oMongoDoc['one']);
 
-		$this->oRegistry->Mongo->getCollection($this->COLLNAME)
+		$this->Registry->Mongo->getCollection($this->COLLNAME)
 		->update(array('one' => 1), array('$set' => array('five' => 5)));
 
 		$oMongoDoc->reload();
@@ -173,7 +174,7 @@ class MongoDocTest extends LampcmsUnitTestCase
 	 *
 	 */
 	public function testSerialization(){
-		$oMongoDoc = new MongoDoc($this->oRegistry, $this->COLLNAME);
+		$oMongoDoc = new \Lampcms\Mongo\Doc($this->Registry, $this->COLLNAME);
 		$oMongoDoc->byone(1);
 		$md5 = $oMongoDoc->getChecksum();
 		$saved = $oMongoDoc->getSavedFlag();
@@ -181,7 +182,7 @@ class MongoDocTest extends LampcmsUnitTestCase
 		$oNew = unserialize($s);
 
 		$this->assertTrue($this->oMongoDoc->getRegistry() instanceof \Lampcms\Registry);
-		$this->assertTrue($oNew instanceof \Lampcms\MongoDoc);
+		$this->assertTrue($oNew instanceof \Lampcms\Mongo\Doc);
 		$this->assertEquals($oNew['one'], 1);
 		$this->assertEquals($oNew->getChecksum(), $md5);
 		$this->assertEquals($saved, $oNew->getSavedFlag());

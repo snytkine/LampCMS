@@ -86,12 +86,12 @@ class Usergroup extends WebPage{
 	}
 
 	protected function setRole(){
-		$uid = $this->oRequest['uid'];
-		$role = $this->oRequest['role'];
+		$uid = $this->Request['uid'];
+		$role = $this->Request['role'];
 		d('uid: '.$uid.' role: '.$role);
 
 		$update = array('$set' => array('role' => $role));
-		$res = $this->oRegistry->Mongo->USERS->update(array('_id' => $uid), $update);
+		$res = $this->Registry->Mongo->USERS->update(array('_id' => $uid), $update);
 		d('$res: ' .$res);
 
 		return $this;

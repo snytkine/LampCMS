@@ -47,7 +47,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplRecentquestions extends Lampcms\Template\Template
+class tplRecentquestions extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'_id' => '0', // 1

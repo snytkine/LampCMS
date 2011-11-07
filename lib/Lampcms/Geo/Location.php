@@ -165,16 +165,6 @@ class Location implements \Serializable
 			return $this->data;
 		}
 
-		/**
-		 * Magic method makes this object
-		 * callable
-		 *
-		 * @return array $this->data
-		 */
-		public function __invoke(){
-			return $this->data;
-		}
-
 
 		/**
 		 * Magic method to get value from $this->aData array

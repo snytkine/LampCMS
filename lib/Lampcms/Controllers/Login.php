@@ -99,19 +99,19 @@ class Login extends WebPage
 		 * 'not yet logged in', so there is really
 		 * nothing to gain by tricking someonw to login
 		 */
-		$bRemember = (isset($this->oRequest['chkRemember']) ? (bool)$this->oRequest['chkRemember'] : false);
-		d('$bRemember '.$bRemember.' $this->oRequest '.print_r($this->oRequest->getArrayCopy(), 1));
+		$bRemember = (isset($this->Request['chkRemember']) ? (bool)$this->Request['chkRemember'] : false);
+		d('$bRemember '.$bRemember.' $this->Request '.print_r($this->Request->getArrayCopy(), 1));
 
 		try {
-			$oCheckLogin = new UserAuth($this->oRegistry);
-			$oUser = $oCheckLogin->validateLogin($this->oRequest['login'], $this->oRequest['pwd']);
+			$oCheckLogin = new UserAuth($this->Registry);
+			$User = $oCheckLogin->validateLogin($this->Request['login'], $this->Request['pwd']);
 			/**
 			 * If user logged in that means he got the email
 			 * with password,
 			 * thus we confirmed email address
 			 * and can activate user
 			 */
-			$oUser->activate();
+			$User->activate();
 		} catch(\Lampcms\LoginException $e) {
 			e('Login error: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
 			if (Request::isAjax()) {
@@ -124,13 +124,13 @@ class Login extends WebPage
 			Responder::redirectToPage();
 		}
 
-		d('oUser: '.gettype($oUser));
+		d('User: '.gettype($User));
 
-		$this->processLogin($oUser);
-		$this->oRegistry->Dispatcher->post( $this, 'onUserLogin' );
+		$this->processLogin($User);
+		$this->Registry->Dispatcher->post( $this, 'onUserLogin' );
 
 		if($bRemember){
-			\Lampcms\Cookie::sendLoginCookie($oUser->getUid(), $oUser['rs']);
+			\Lampcms\Cookie::sendLoginCookie($User->getUid(), $User['rs']);
 		}
 
 		Responder::redirectToPage();

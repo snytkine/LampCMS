@@ -63,11 +63,11 @@ class LoginForm
 {
 
 
-	protected static function forMember(Registry $oRegistry){
+	protected static function forMember(Registry $Registry){
 		if(empty($_SESSION['welcome'])){
-			$Translator = $oRegistry->Tr;
+			$Translator = $Registry->Tr;
 			
-			$oViewer = $oRegistry->Viewer;
+			$oViewer = $Registry->Viewer;
 			$invite = self::makeInviteLink($oViewer);
 			$url = $oViewer->getProfileUrl();
 			$avatar = $oViewer->getAvatarImgSrc();
@@ -97,19 +97,19 @@ class LoginForm
 	 * Make contents of login or welcome
 	 * block, depending on status of user
 	 *
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 *
 	 * @return html of the Welcome or Login Block
 	 * that will be shown on top of page (in header)
 	 */
-	public static function makeWelcomeMenu(Registry $oRegistry){
+	public static function makeWelcomeMenu(Registry $Registry){
 
-		if($oRegistry->Viewer->isGuest()){
+		if($Registry->Viewer->isGuest()){
 			d('going to make login form');
 
-			return self::forGuest($oRegistry);
+			return self::forGuest($Registry);
 		} else {
-			return self::forMember($oRegistry);
+			return self::forMember($Registry);
 		}
 	}
 
@@ -121,11 +121,11 @@ class LoginForm
 	 * and signup buttons
 	 *
 	 *
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 *
 	 * @return string html
 	 */
-	protected static function forGuest(Registry $oRegistry){
+	protected static function forGuest(Registry $Registry){
 
 		d('SESSION: '.print_r($_SESSION, 1));
 
@@ -133,7 +133,7 @@ class LoginForm
 
 			$html = '';
 
-			$html = self::makeLoginBlock($oRegistry).self::makeWelcomeGuest($oRegistry);
+			$html = self::makeLoginBlock($Registry).self::makeWelcomeGuest($Registry);
 			/**
 			 * If !empty($_SESSION['login_error']) is set
 			 * then don't store the login form in session
@@ -167,17 +167,17 @@ class LoginForm
 	 * if login form already exists in SESSION then use it and skip
 	 * creation of html part
 	 *
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 *
 	 * @return string html fragment containing div with login Form
 	 * and buttons for external login providers like facebook
 	 */
-	protected static function makeWelcomeGuest(Registry $oRegistry){
+	protected static function makeWelcomeGuest(Registry $Registry){
 
 		if(empty($_SESSION['welcome_guest'])){
-			$Translator = $oRegistry->Tr;
+			$Translator = $Registry->Tr;
 
-			$socialBtns = self::makeSocialButtons($oRegistry);
+			$socialBtns = self::makeSocialButtons($Registry);
 
 			if(!empty($socialBtns)){
 				$socialBtns = '<div class="fl" id="socialbtns"><span>'.$Translator['Or Join with'].' </span>'.$socialBtns.'</div>';
@@ -197,13 +197,13 @@ class LoginForm
 	 * providers
 	 *
 	 *
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 *
 	 * @return string html
 	 */
-	public static function makeSocialButtons(Registry $oRegistry){
+	public static function makeSocialButtons(Registry $Registry){
 		if(empty($_SESSION['social_buttons'])){
-			$oIni = $oRegistry->Ini;
+			$Ini = $Registry->Ini;
 			$html = '';
 			$socialBtns = '';
 			$gfcButton = $twitterButton = $fbButton = '';
@@ -211,8 +211,8 @@ class LoginForm
 			/**
 			 * Facebook
 			 */
-			if(extension_loaded('curl') && isset($oIni->FACEBOOK)){
-				$aFB = $oIni['FACEBOOK'];
+			if(extension_loaded('curl') && isset($Ini->FACEBOOK)){
+				$aFB = $Ini['FACEBOOK'];
 
 				if(!empty($aFB['APP_ID'])){
 					//id="fbsignup"
@@ -225,8 +225,8 @@ class LoginForm
 			/**
 			 * Twitter
 			 */
-			if(extension_loaded('oauth') && isset($oIni->TWITTER)){
-				$aTW = $oIni['TWITTER'];
+			if(extension_loaded('oauth') && isset($Ini->TWITTER)){
+				$aTW = $Ini['TWITTER'];
 				if(!empty($aTW['TWITTER_OAUTH_KEY']) && !empty($aTW['TWITTER_OAUTH_SECRET'])){
 					d('$aTW: '.print_r($aTW, 1));
 					$socialBtns .= '<img class="ajax twsignin hand ttt" src='.LAMPCMS_IMAGE_SITE.'"/images/t_32.png" width="32" height="32" alt="T" title="Sign in with Twitter Account">';
@@ -237,8 +237,8 @@ class LoginForm
 			/**
 			 * LinkedIn
 			 */
-			if(extension_loaded('oauth') && isset($oIni->LINKEDIN)){
-				$aLI = $oIni['LINKEDIN'];
+			if(extension_loaded('oauth') && isset($Ini->LINKEDIN)){
+				$aLI = $Ini['LINKEDIN'];
 				if(!empty($aLI['OAUTH_KEY']) && !empty($aLI['OAUTH_SECRET'])){
 					d('$aLI: '.print_r($aLI, 1));
 					$socialBtns .= '<img class="ajax add_linkedin hand ttt" src='.LAMPCMS_IMAGE_SITE.'"/images/linkedin_32.png" width="32" height="32" alt="T" title="Sign in with LinkedIn Account">';
@@ -248,7 +248,7 @@ class LoginForm
 			/**
 			 * Google Friend Connect
 			 */
-			$GfcSiteID = $oIni->GFC_ID;
+			$GfcSiteID = $Ini->GFC_ID;
 			if(extension_loaded('curl') && !empty($GfcSiteID)){
 				d('cp '.strlen($gfcButton));
 
@@ -267,11 +267,11 @@ class LoginForm
 	 * If login_error exists in session
 	 * it will also add that error to the form
 	 *
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 * @return string html
 	 */
-	protected static function makeLoginBlock(Registry $oRegistry){
-		$Translator = $oRegistry->Tr;
+	protected static function makeLoginBlock(Registry $Registry){
+		$Translator = $Registry->Tr;
 		
 		$error = (!empty($_SESSION['login_error'])) ? $_SESSION['login_error'] : '';
 		d('$error: '.$error);
@@ -294,22 +294,22 @@ class LoginForm
 	 * Make extra links like 'Invite Friends' based
 	 * on what type of user is currently logged in
 	 *
-	 * @param User $oUser
+	 * @param User $User
 	 *
 	 * @return string HTML string for links
 	 */
-	protected static function makeInviteLink(User $oUser){
+	protected static function makeInviteLink(User $User){
 		switch(true){
-			case ($oUser instanceof UserGfc):
+			case ($User instanceof UserGfc):
 				d('cp');
 				$ret = '<div class="gfclinks"><a href="#" id="gfcset" class="ajax">FriendConnect settings</a> | <a href="#" class="ajax" id="gfcinvite">Invite friends</a></div>';
 				break;
-			case ($oUser instanceof UserFacebook):
+			case ($User instanceof UserFacebook):
 				d('cp');
 				$ret = '<div class="gfclinks"><a href="#" class="ajax" id="fbinvite" title="I\'ve registered at this site, and think you will enjoy your stay here too! Please check it out!">Invite your facebook friends</a></div>';
 				break;
 
-			case ($oUser instanceof UserTwitter):
+			case ($User instanceof UserTwitter):
 				d('cp');
 				$ret = '<div class="gfclinks"><a href="#" class="ajax" id="twinvite" title="Hey everyone! Join me at this site (Use the *Sign in with Twitter* button) ">Invite your Twitter friends</a></div>';
 				break;

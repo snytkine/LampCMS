@@ -55,7 +55,7 @@
  * @author Dmitri Snytkine
  *
  */ 
-class tplUsersheader extends Lampcms\Template\Template
+class tplUsersheader extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'count' => '', //1

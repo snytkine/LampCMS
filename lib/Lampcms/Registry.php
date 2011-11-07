@@ -151,7 +151,7 @@ class Registry implements Interfaces\LampcmsObject
 		});
 
 		$this->values['Mongo'] = $this->asShared(function ($c) {
-			return new \Lampcms\Mongo($c->Ini);
+			return new \Lampcms\Mongo\DB($c->Ini);
 		});
 
 
@@ -174,7 +174,7 @@ class Registry implements Interfaces\LampcmsObject
 		});
 
 		$this->values['Incrementor'] = $this->asShared(function ($c) {
-			return new \Lampcms\MongoIncrementor($c->Mongo);
+			return new \Lampcms\Mongo\Incrementor($c->Mongo);
 		});
 
 		$this->values['Cache'] = $this->asShared(function ($c) {
@@ -207,7 +207,7 @@ class Registry implements Interfaces\LampcmsObject
 		 * It will inject $this as dependency
 		 */
 		$this->__set('MongoDoc', function($c){
-			return new MongoDoc($c);
+			return new \Lampcms\Mongo\Doc($c);
 		});
 
 

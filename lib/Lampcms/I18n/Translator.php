@@ -103,7 +103,7 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
 	 * with fallback language locale merged
 	 * with default catalog
 	 * 
-	 * @param \Lampcms\Registry $oRegistry
+	 * @param \Lampcms\Registry $Registry
 	 */
 	public static function factory(\Lampcms\Cache $Cache, $locale){
 		if(!\is_string($locale)){

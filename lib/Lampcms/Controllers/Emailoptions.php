@@ -75,12 +75,12 @@ class Emailoptions extends WebPage
 	/**
 	 * @var object of type Form
 	 */
-	protected $oForm;
+	protected $Form;
 
 
 	/**
 	 * @todo Translate strings used in form using the
-	 * $this->oForm->name = val setting
+	 * $this->Form->name = val setting
 	 *
 	 * @todo maybe send email on save() notifying
 	 * that email settings has been updated
@@ -90,20 +90,20 @@ class Emailoptions extends WebPage
 	 */
 	protected function main(){
 
-		$email = $this->oRegistry->Viewer->email;
-		$this->oForm = new \Lampcms\Forms\EmailOptions($this->oRegistry);
-		$this->oForm->formTitle = $this->aPageVars['title'] = $this->_('Your Email Subscription Preferences');
-		$this->oForm->your_email = $email;
+		$email = $this->Registry->Viewer->email;
+		$this->Form = new \Lampcms\Forms\EmailOptions($this->Registry);
+		$this->Form->formTitle = $this->aPageVars['title'] = $this->_('Your Email Subscription Preferences');
+		$this->Form->your_email = $email;
 
-		if($this->oForm->isSubmitted()){
-			$this->oRegistry->Dispatcher->post($this->oForm, 'onBeforeEmailOptionsUpdate');
+		if($this->Form->isSubmitted()){
+			$this->Registry->Dispatcher->post($this->Form, 'onBeforeEmailOptionsUpdate');
 			$this->savePrefs();
-			$this->oRegistry->Dispatcher->post($this->oForm, 'onEmailOptionsUpdate');
+			$this->Registry->Dispatcher->post($this->Form, 'onEmailOptionsUpdate');
 			$this->aPageVars['body'] = '<div id="tools"><h3>Your email subscription preferences have been updated.</h3><p><a href="/emailoptions/">Your email preferences</a></p></div>';
 
 		} else {
 			$this->setForm();
-			$this->aPageVars['body'] = $this->oForm->getForm();
+			$this->aPageVars['body'] = $this->Form->getForm();
 		}
 	}
 
@@ -122,9 +122,9 @@ class Emailoptions extends WebPage
 	 */
 	protected function savePrefs(){
 
-		$formVals = $this->oForm->getSubmittedValues();
+		$formVals = $this->Form->getSubmittedValues();
 		d('formVals: '.print_r($formVals, 1));
-		$oViewer = $this->oRegistry->Viewer;
+		$oViewer = $this->Registry->Viewer;
 
 		$oViewer['ne_fu'] = (empty($formVals['e_fu']));
 		$oViewer['ne_fq'] = (empty($formVals['e_fq']));
@@ -153,12 +153,12 @@ class Emailoptions extends WebPage
 	 */
 	protected function setForm(){
 
-		$this->oForm->e_fu = (true !== $this->oRegistry->Viewer->ne_fu) ? 'checked' : '';
-		$this->oForm->e_ft = (true !== $this->oRegistry->Viewer->ne_ft) ? 'checked' : '';
-		$this->oForm->e_fq = (true !== $this->oRegistry->Viewer->ne_fq) ? 'checked' : '';
-		$this->oForm->e_fa = (true !== $this->oRegistry->Viewer->ne_fa) ? 'checked' : '';
-		$this->oForm->e_fc = (true !== $this->oRegistry->Viewer->ne_fc) ? 'checked' : '';
-		$this->oForm->e_ok = (true !== $this->oRegistry->Viewer->ne_ok) ? 'checked' : '';
+		$this->Form->e_fu = (true !== $this->Registry->Viewer->ne_fu) ? 'checked' : '';
+		$this->Form->e_ft = (true !== $this->Registry->Viewer->ne_ft) ? 'checked' : '';
+		$this->Form->e_fq = (true !== $this->Registry->Viewer->ne_fq) ? 'checked' : '';
+		$this->Form->e_fa = (true !== $this->Registry->Viewer->ne_fa) ? 'checked' : '';
+		$this->Form->e_fc = (true !== $this->Registry->Viewer->ne_fc) ? 'checked' : '';
+		$this->Form->e_ok = (true !== $this->Registry->Viewer->ne_ok) ? 'checked' : '';
 
 		return $this;
 	}

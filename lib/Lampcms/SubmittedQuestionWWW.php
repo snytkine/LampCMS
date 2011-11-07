@@ -62,16 +62,16 @@ class SubmittedQuestionWWW extends SubmittedQuestion
 	 */
 	protected $aData;
 
-	public function __construct(Registry $oRegistry, array $aData){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry, array $aData){
+		$this->Registry = $Registry;
 		$this->aData = $aData;
 		d('$this->aData: '.print_r($this->aData, 1));
-		$this->oUser = $oRegistry->Viewer;
+		$this->User = $Registry->Viewer;
 
 	}
 
 	public function getUserObject(){
-		return $this->oUser;
+		return $this->User;
 	}
 
 	public function getIP(){
@@ -79,11 +79,11 @@ class SubmittedQuestionWWW extends SubmittedQuestion
 	}
 
 	public function getBody(){
-		if(!isset($this->oBody)){
-			$this->oBody = Utf8String::factory($this->aData['qbody']);
+		if(!isset($this->Body)){
+			$this->Body = Utf8String::factory($this->aData['qbody']);
 		}
 
-		return $this->oBody;
+		return $this->Body;
 	}
 
 	public function getTitle(){
@@ -103,11 +103,11 @@ class SubmittedQuestionWWW extends SubmittedQuestion
 	 * @see Lampcms.SubmittedQuestion::getTags()
 	 */
 	public function getUtf8Tags(){
-		if(!isset($this->oTags)){
-			$this->oTags = Utf8String::factory($this->aData['tags']);
+		if(!isset($this->Tags)){
+			$this->Tags = Utf8String::factory($this->aData['tags']);
 		}
 
-		return $this->oTags;
+		return $this->Tags;
 	}
 
 	/**
@@ -115,7 +115,7 @@ class SubmittedQuestionWWW extends SubmittedQuestion
 	 * @see Lampcms.SubmittedQuestion::getExtraData()
 	 */
 	public function getExtraData(){
-		return $this->oRegistry->Geo->Location->data;
+		return $this->Registry->Geo->Location->data;
 	}
 
 

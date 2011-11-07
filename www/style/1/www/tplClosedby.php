@@ -60,7 +60,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplClosedby extends \Lampcms\Template\Template
+class tplClosedby extends \Lampcms\Template\Fast
 {
 
 	protected static $vars = array(

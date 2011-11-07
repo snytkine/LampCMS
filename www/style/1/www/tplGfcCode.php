@@ -42,7 +42,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplGfcCode extends Lampcms\Template\Template
+class tplGfcCode extends Lampcms\Template\Fast
 {
 	protected static $vars = array('id' => '');
 

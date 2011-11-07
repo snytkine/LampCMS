@@ -104,15 +104,15 @@ class Isfollowing extends Api
 	protected $isFollowing = false;
 
 	protected function main(){
-		$this->uid = $this->oRequest['uid'];
-		$this->val = $this->oRequest['val'];
+		$this->uid = $this->Request['uid'];
+		$this->val = $this->Request['val'];
 		$this->setType()
 		->getData()
 		->setOutput();
 	}
 
 	protected function setType(){
-		$this->type = $this->oRequest->get('type', 's', 'u');
+		$this->type = $this->Request->get('type', 's', 'u');
 
 		return $this;
 	}
@@ -120,15 +120,15 @@ class Isfollowing extends Api
 	protected function getData(){
 		switch($this->type){
 			case 'u':
-				$data = $this->oRegistry->Mongo->USERS->findOne(array('_id' => $this->uid, 'a_f_u' => array('$in' => array((int)$this->val))), array('_id' => 1));
+				$data = $this->Registry->Mongo->USERS->findOne(array('_id' => $this->uid, 'a_f_u' => array('$in' => array((int)$this->val))), array('_id' => 1));
 				break;
 
 			case 't':
-				$data = $this->oRegistry->Mongo->USERS->findOne(array('_id' => $this->uid, 'a_f_t' => array('$in' => array($this->val))), array('_id' => 1));
+				$data = $this->Registry->Mongo->USERS->findOne(array('_id' => $this->uid, 'a_f_t' => array('$in' => array($this->val))), array('_id' => 1));
 				break;
 
 			case 'q':
-				$data = $this->oRegistry->Mongo->QUESTIONS->findOne(array('_id' => (int)$this->val, 'a_flwrs' => array('$in' => array($this->uid))), array('_id' => 1));
+				$data = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => (int)$this->val, 'a_flwrs' => array('$in' => array($this->uid))), array('_id' => 1));
 				break;
 		}
 
@@ -144,7 +144,7 @@ class Isfollowing extends Api
 
 		$data = array('isfollowing' => $this->isFollowing);
 
-		$this->oOutput->setData($data);
+		$this->Output->setData($data);
 
 		return $this;
 	}

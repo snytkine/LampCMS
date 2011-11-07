@@ -50,7 +50,7 @@
  */
 
  
-class tplApiclientok extends Lampcms\Template\Template
+class tplApiclientok extends Lampcms\Template\Fast
 {
 	
 	protected static $vars = array();

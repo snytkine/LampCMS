@@ -51,7 +51,7 @@
 
  
 
-class tplQtags extends \Lampcms\Template\Template
+class tplQtags extends \Lampcms\Template\Fast
 {
 	/**
 	 * This is important!

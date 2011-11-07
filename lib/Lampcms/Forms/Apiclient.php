@@ -95,7 +95,7 @@ class Apiclient extends Form
 	 * @return object $this
 	 */
 	protected function validateAppId(){
-		$appid = $this->oRegistry->Request->get('app_id', 's', null);
+		$appid = $this->Registry->Request->get('app_id', 's', null);
 		if(!is_numeric($appid)){
 			throw new \Lampcms\DevException('Something is wrong with the form. Unexpected value of app_id: '.$appid);
 		}
@@ -111,7 +111,7 @@ class Apiclient extends Form
 	 * @return object $this
 	 */
 	protected function validateApptype(){
-		$type = $this->oRegistry->Request->get('app_type', 's', null);
+		$type = $this->Registry->Request->get('app_type', 's', null);
 		if(empty($type)){
 			$this->setError('app_type', 'You must indicate the application type');
 		} else if(!in_array($type, array('b',' c'))){
@@ -130,7 +130,7 @@ class Apiclient extends Form
 	 * @return object $this
 	 */
 	protected function validateTitle(){
-		$t = \trim($this->oRegistry->Request['app_name']);
+		$t = \trim($this->Registry->Request['app_name']);
 		if(empty($t)){
 			$this->setError('app_name', 'You must provide application name');
 		}
@@ -149,9 +149,9 @@ class Apiclient extends Form
 		 * the application with this name already exists - this one!
 		 * 
 		 */
-		$id = $this->oRegistry->Request['app_id'];
+		$id = $this->Registry->Request['app_id'];
 		if(empty($id)){
-			$a = $this->oRegistry->Mongo->API_CLIENTS->findOne(array('app' => $t));
+			$a = $this->Registry->Mongo->API_CLIENTS->findOne(array('app' => $t));
 			if(!empty($a)){
 				$this->setError('app_name', 'There is already an APP with this name. Please choose different name for your app');
 			}
@@ -202,7 +202,7 @@ class Apiclient extends Form
 				}
 			} else {
 
-				$aConfig = $this->oRegistry->Ini->getSection('API');
+				$aConfig = $this->Registry->Ini->getSection('API');
 				$maxSize = $aConfig['MAX_ICON_UPLOAD_SIZE'];
 				d('$maxSize '.$maxSize);
 
@@ -252,7 +252,7 @@ class Apiclient extends Form
 	 */
 	protected function validateCaptcha(){
 
-		$oCaptcha = Captcha::factory($this->oRegistry);
+		$oCaptcha = Captcha::factory($this->Registry);
 		$res = $oCaptcha->validate_submit();
 
 		/**

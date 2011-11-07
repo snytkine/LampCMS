@@ -48,7 +48,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplLinktag extends Lampcms\Template\Template
+class tplLinktag extends Lampcms\Template\Fast
 {
 	/**
 	 * This is important!

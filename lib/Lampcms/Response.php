@@ -52,6 +52,8 @@
 
 namespace Lampcms;
 
+use \Lampcms\Api\Output\Formatter;
+
 /**
  * Class for storing a data
  * ready for the HTTP Response
@@ -140,7 +142,7 @@ class Response
 		return $this;
 	}
 
-	
+
 	/**
 	 * Getter for body
 	 *
@@ -177,8 +179,11 @@ class Response
 	 *
 	 * @param Output $o instance of Output object
 	 */
-	public function setOutput(Output $o){
-		$this->aHeaders['Content-Type'] = $o->getContentType();
+	public function setOutput(Formatter $o){
+		$type = $o->getContentType();
+		$this->contentType = $type;
+		d('setting Content-Type header to: '.$type);
+
 		$this->setBody($o);
 
 		return $this;
@@ -292,12 +297,15 @@ class Response
 	 *
 	 */
 	public function sendHeaders(){
-
-		header(sprintf('HTTP/%s %s %s', $this->httpVersion, $this->httpCode, $this->httpMessage));
-		header('Content-Type: '.$this->contentType.'; charset='.strtolower($this->charset));
+		if(headers_sent($file, $line)){
+			d('Headers already sent in '.$file.' line '.$line);
+		}
+		d('before sending out api resonse. $this->contentType: '.$this->contentType.' $this->aHeaders: '.print_r($this->aHeaders, 1));
+		\header(sprintf('HTTP/%s %s %s', $this->httpVersion, $this->httpCode, $this->httpMessage));
+		\header('Content-Type: '.$this->contentType.'; charset='.strtolower($this->charset));
 
 		foreach ($this->aHeaders as $name => $value) {
-			header($name.': '.$value);
+			\header($name.': '.$value);
 		}
 	}
 

@@ -51,7 +51,7 @@
 
  
 
-class tplEditedby extends \Lampcms\Template\Template
+class tplEditedby extends \Lampcms\Template\Fast
 {
 
 	protected static $vars = array(

@@ -52,10 +52,13 @@
 namespace Lampcms\Controllers;
 
 use Lampcms\WebPage;
-use Lampcms\MongoDoc;
 
 class Requestactivation extends WebPage
 {
+	/**
+	 * @todo Translate strings (and make these instance variables
+	 * instead of constants)
+	 */
 	const EMAIL_BODY = 'Welcome to %1$s!
 
 IMPORTANT: You Must use the link below to activate your account
@@ -69,7 +72,7 @@ IMPORTANT: You Must use the link below to activate your account
 
 
 	protected $membersOnly = true;
-	
+
 	protected $layoutID = 1;
 
 	protected $oEmail;
@@ -98,14 +101,20 @@ IMPORTANT: You Must use the link below to activate your account
 	 * @return object $this
 	 */
 	protected function getEmailObject(){
-		$this->email = strtolower($this->oRegistry->Viewer->email);
+		$this->email = strtolower($this->Registry->Viewer->email);
 		if(empty($this->email)){
 			throw new \Lampcms\NoemailException('You have not selected any email address for your account yet');
 		}
 
-		$this->oEmail = MongoDoc::factory($this->oRegistry, 'EMAILS')->byEmail($this->email);
-		if('' == $this->oEmail['email']){
+		try{
+			$this->oEmail = \Lampcms\Mongo\Doc::factory($this->Registry, 'EMAILS')->byEmail($this->email);
+			if('' == $this->oEmail['email']){
+				throw new \Lampcms\NoemailException('You have not selected any email address for your account yet');
+			}
+		} catch (\MongoException $e){
+
 			throw new \Lampcms\NoemailException('You have not selected any email address for your account yet');
+
 		}
 
 		return $this;
@@ -143,14 +152,14 @@ IMPORTANT: You Must use the link below to activate your account
 	 */
 	protected function sendActivationEmail()
 	{
-		$tpl = $this->oRegistry->Ini->SITE_URL.'/aa/%d/%s';
+		$tpl = $this->Registry->Ini->SITE_URL.'/aa/%d/%s';
 		$link = sprintf($tpl, $this->oEmail['_id'], $this->oEmail['code']);
 		d('$link: '.$link);
-		
-		$siteName = $this->oRegistry->Ini->SITE_NAME;
+
+		$siteName = $this->Registry->Ini->SITE_NAME;
 		$body = vsprintf(self::EMAIL_BODY, array($siteName, $link));
 		$subject = sprintf(self::SUBJECT, $siteName);
-		\Lampcms\Mailer::factory($this->oRegistry)->mail($this->email, $subject, $body);
+		\Lampcms\Mailer::factory($this->Registry)->mail($this->email, $subject, $body);
 
 		return $this;
 	}

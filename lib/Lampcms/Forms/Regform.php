@@ -76,7 +76,7 @@ class Regform extends Form
 	}
 	
 	protected function init(){
-		$Tr = $this->oRegistry->Tr;
+		$Tr = $this->Registry->Tr;
 		$this->aVars['username_d'] = $Tr['Username will appear alongside your posts'];
 		$this->aVars['username_l'] = $Tr['Username'];
 	}
@@ -96,7 +96,7 @@ class Regform extends Form
 			$this->setError('email', 'This is not a valid email address');
 		}
 
-		$a = $this->oRegistry->Mongo->EMAILS->findOne(array('email' => $email ));
+		$a = $this->Registry->Mongo->EMAILS->findOne(array('email' => $email ));
 
 		if(!empty($a)){
 			$this->setError('email', 'There is already an account with this email address. Have you already registered on our site before?');
@@ -124,7 +124,7 @@ class Regform extends Form
 		}
 
 
-		$a = $this->oRegistry->Mongo->USERS->findOne(array('username_lc' => $username ));
+		$a = $this->Registry->Mongo->USERS->findOne(array('username_lc' => $username ));
 
 		if(!empty($a)){
 			$this->setError('username', 'This username is already in use');
@@ -143,7 +143,7 @@ class Regform extends Form
 			return $this;
 		}
 
-		$oCaptcha = Captcha::factory($this->oRegistry);
+		$oCaptcha = Captcha::factory($this->Registry);
 		$res = $oCaptcha->validate_submit();
 		/**
 		 * If validation good then

@@ -70,7 +70,7 @@ class RegBlockTwitter extends RegBlock
 		$this->aVars = array(
 		'externalAccount' => $this->makeBlockExternal(),
 		/*'token' => $_SESSION['token'],*/
-		'title' => 'Welcome to '.$this->oRegistry->Ini->SITE_NAME,
+		'title' => 'Welcome to '.$this->Registry->Ini->SITE_NAME,
 		'header2' => '<div class="step2">Step 2: Provide Email Address</div>'
 		);
 

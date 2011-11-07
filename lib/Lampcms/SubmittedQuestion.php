@@ -66,7 +66,7 @@ namespace Lampcms;
 abstract class SubmittedQuestion extends LampcmsObject
 {
 
-	protected $oUser;
+	protected $User;
 
 	/**
 	 * Object represents body of
@@ -74,7 +74,7 @@ abstract class SubmittedQuestion extends LampcmsObject
 	 *
 	 * @var object of type Utf8String
 	 */
-	protected $oBody;
+	protected $Body;
 
 	/**
 	 *
@@ -89,7 +89,7 @@ abstract class SubmittedQuestion extends LampcmsObject
 	 *
 	 *  @var object of type Utf8String
 	 */
-	protected $oTags;
+	protected $Tags;
 
 
 	/**
@@ -137,8 +137,8 @@ abstract class SubmittedQuestion extends LampcmsObject
 	 */
 	public final function getTagsArray(){
 		if(!isset($this->aTags)){
-			$oTags = $this->getUtf8Tags();
-			$this->aTags = TagsTokenizer::factory($oTags)->getArrayCopy();
+			$Tags = $this->getUtf8Tags();
+			$this->aTags = TagsTokenizer::factory($Tags)->getArrayCopy();
 		}
 
 		return $this->aTags;

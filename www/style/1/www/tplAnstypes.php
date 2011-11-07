@@ -44,7 +44,7 @@
  * @author admin
  *
  */
-class tplAnstypes extends Lampcms\Template\Template
+class tplAnstypes extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	

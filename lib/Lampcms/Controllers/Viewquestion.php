@@ -84,8 +84,8 @@ class Viewquestion extends WebPage
 
 	/**
 	 * Array with question data
-	 * The oQuestion is created from this array
-	 * but even though we can use oQuestion to
+	 * The Question is created from this array
+	 * but even though we can use Question to
 	 * get all the data, it may be faster to
 	 * get data from array, so why not have
 	 * them both in this object at a tiny
@@ -101,14 +101,14 @@ class Viewquestion extends WebPage
 	 *
 	 * @var object of type Question
 	 */
-	protected $oQuestion;
+	protected $Question;
 
 	/**
 	 * The "Answer" form object
 	 *
 	 * @var object of type Answerform which is a Form
 	 */
-	protected $oForm;
+	protected $Form;
 
 	protected $aTplVars = array();
 
@@ -167,9 +167,9 @@ class Viewquestion extends WebPage
 
 
 
-		$this->pageID = $this->oRegistry->Request->get('pageID', 'i', 1);
-		$this->tab = $this->oRegistry->Request->get('sort', 's', 'i_lm_ts');
-		$this->oRegistry->registerObservers();
+		$this->pageID = $this->Registry->Request->get('pageID', 'i', 1);
+		$this->tab = $this->Registry->Request->get('sort', 's', 'i_lm_ts');
+		$this->Registry->registerObservers();
 
 		$this->getQuestion()
 		->addMetas()
@@ -190,7 +190,7 @@ class Viewquestion extends WebPage
 		->increaseView()
 		->makeTopTabs();
 
-		$this->oRegistry->Dispatcher->post($this->oQuestion, 'onQuestionView');
+		$this->Registry->Dispatcher->post($this->Question, 'onQuestionView');
 	}
 
 
@@ -202,9 +202,9 @@ class Viewquestion extends WebPage
 	 * @return object $this
 	 */
 	protected function addMetas(){
-		$this->addMetaTag('tm', (null !== $this->oRegistry->Viewer->getTumblrToken()));
-		$this->addMetaTag('blgr', (null !== $this->oRegistry->Viewer->getBloggerToken()));
-		$this->addMetaTag('linkedin', (null !== $this->oRegistry->Viewer->getLinkedInToken()));
+		$this->addMetaTag('tm', (null !== $this->Registry->Viewer->getTumblrToken()));
+		$this->addMetaTag('blgr', (null !== $this->Registry->Viewer->getBloggerToken()));
+		$this->addMetaTag('linkedin', (null !== $this->Registry->Viewer->getLinkedInToken()));
 		
 		return $this;
 	}
@@ -218,7 +218,7 @@ class Viewquestion extends WebPage
 	 */
 	protected function setQuestionInfo(){
 
-		$this->aPageVars['side'] .= QuestionInfo::factory($this->oRegistry)->getHtml($this->oQuestion);
+		$this->aPageVars['side'] .= QuestionInfo::factory($this->Registry)->getHtml($this->Question);
 
 		return $this;
 	}
@@ -232,10 +232,10 @@ class Viewquestion extends WebPage
 	 * @return object $this
 	 */
 	protected function setFollowersBlock(){
-		$aFlwrs = $this->oQuestion['a_flwrs'];
+		$aFlwrs = $this->Question['a_flwrs'];
 		$count = count($aFlwrs);
 		if($count > 0){
-			$s = \Lampcms\ShowFollowers::factory($this->oRegistry)->getQuestionFollowers($aFlwrs, $count);
+			$s = \Lampcms\ShowFollowers::factory($this->Registry)->getQuestionFollowers($aFlwrs, $count);
 			d('followers: '.$s);
 			$this->aPageVars['side'] .= '<div class="fr cb w90 lg rounded3 pl10 mb10">'.$s.'</div>';
 		}
@@ -255,12 +255,12 @@ class Viewquestion extends WebPage
 	 * @return object $this
 	 */
 	protected function addMetaTags(){
-		$this->addMetaTag('lmts', $this->oQuestion['i_lm_ts']);
-		$this->addMetaTag('qid', $this->oQuestion['_id']);
-		$this->addMetaTag('asker_id', $this->oQuestion->getOwnerId());
-		$this->addMetaTag('etag', $this->oQuestion['i_etag']);
+		$this->addMetaTag('lmts', $this->Question['i_lm_ts']);
+		$this->addMetaTag('qid', $this->Question['_id']);
+		$this->addMetaTag('asker_id', $this->Question->getOwnerId());
+		$this->addMetaTag('etag', $this->Question['i_etag']);
 		$this->addMetaTag('min_com_rep', \Lampcms\Points::COMMENT);
-		$this->addMetaTag('comment', $this->oRegistry->Viewer->isAllowed('comment'));
+		$this->addMetaTag('comment', $this->Registry->Viewer->isAllowed('comment'));
 
 		return $this;
 	}
@@ -268,7 +268,7 @@ class Viewquestion extends WebPage
 
 	/**
 	 * Get array for this one question,
-	 * set $this->oQuestion
+	 * set $this->Question
 	 * and also set $this->aTplVars['body']
 	 * with parsed tplQuestion block
 	 *
@@ -278,12 +278,12 @@ class Viewquestion extends WebPage
 	 * @return object $this
 	 */
 	protected function getQuestion(){
-		$isModerator = $this->oRegistry->Viewer->isModerator();
-		$this->noComments = (false === (bool)$this->oRegistry->Ini->MAX_COMMENTS);
+		$isModerator = $this->Registry->Viewer->isModerator();
+		$this->noComments = (false === (bool)$this->Registry->Ini->MAX_COMMENTS);
 		d('no comments: '.$this->noComments);
-		$aFields = ($this->noComments || false === (bool)$this->oRegistry->Ini->SHOW_COMMENTS) ? array('comments' => 0) : array();
+		$aFields = ($this->noComments || false === (bool)$this->Registry->Ini->SHOW_COMMENTS) ? array('comments' => 0) : array();
 
-		$this->aQuestion = $this->oRegistry->Mongo->QUESTIONS->findOne(array('_id' => (int)$this->oRequest['qid']), $aFields);
+		$this->aQuestion = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => (int)$this->Request['qid']), $aFields);
 
 		/**
 		 * @todo Translate string
@@ -310,13 +310,13 @@ class Viewquestion extends WebPage
 			$this->aQuestion['b'] = Badwords::filter($this->aQuestion['b'], true);
 		}
 
-		$this->oQuestion = new Question($this->oRegistry, $this->aQuestion);
+		$this->Question = new Question($this->Registry, $this->aQuestion);
 
 		/**
 		 * @todo Translate string
 		 */
 		if($deleted){
-			if(!$isModerator && !\Lampcms\isOwner($this->oRegistry->Viewer, $this->oQuestion)){
+			if(!$isModerator && !\Lampcms\isOwner($this->Registry->Viewer, $this->Question)){
 				throw new \Lampcms\Lampcms404Exception('Question was deleted on '.date('F j Y', $this->aQuestion['i_del_ts']));
 			}
 
@@ -367,14 +367,14 @@ class Viewquestion extends WebPage
 		 * any type of 'sort by' when there is
 		 * only 1 answer or no answers at all
 		 */
-		if($this->oQuestion['i_ans'] > 1){
-			$cond = $this->oRegistry->Request->get('sort', 's', 'i_lm_ts');
-			$tabs = Urhere::factory($this->oRegistry)->get('tplAnstypes', $cond);
+		if($this->Question['i_ans'] > 1){
+			$cond = $this->Registry->Request->get('sort', 's', 'i_lm_ts');
+			$tabs = Urhere::factory($this->Registry)->get('tplAnstypes', $cond);
 		}
 
 		$aVars = array(
-		$this->oQuestion['i_ans'],
-		'Answer'.$this->oQuestion['ans_s'],
+		$this->Question['i_ans'],
+		'Answer'.$this->Question['ans_s'],
 		$tabs
 		);
 
@@ -390,7 +390,7 @@ class Viewquestion extends WebPage
 	 * @return object $this
 	 */
 	protected function setTitle(){
-		$title = $this->oQuestion['title'];
+		$title = $this->Question['title'];
 		$title = (!$this->isLoggedIn()) ? Badwords::filter($title) : $title;
 
 		/**
@@ -424,10 +424,10 @@ class Viewquestion extends WebPage
 			return $this;
 		}
 
-		$latestReplyTime = $this->oQuestion->getEtag();
-		$userHash = $this->oRegistry->Viewer->hashCode();
+		$latestReplyTime = $this->Question->getEtag();
+		$userHash = $this->Registry->Viewer->hashCode();
 		d('user Hash: '.$userHash);
-		$etag = '"'.hash('md5', $this->oRequest['qid'].'-'.$this->pageID.$this->tab.'-'.$latestReplyTime.'-' .$userHash).'"';
+		$etag = '"'.hash('md5', $this->Request['qid'].'-'.$this->pageID.$this->tab.'-'.$latestReplyTime.'-' .$userHash).'"';
 		//$lastModified = gmdate("D, d M Y H:i:s", $latestReplyTime)." GMT";
 
 		CacheHeaders::processCacheHeaders($etag); //, $lastModified
@@ -441,7 +441,7 @@ class Viewquestion extends WebPage
 	 * sort tags
 	 * and under it add div id="answers"
 	 * and insert answers html into it
-	 * use Answers::get(oQuestion, $sort, $pageID)
+	 * use Answers::get(Question, $sort, $pageID)
 	 * it should return html with all answers
 	 *
 	 * OR if there are no answers, then a text saying
@@ -456,7 +456,7 @@ class Viewquestion extends WebPage
 	protected function setAnswers(){
 
 		$tpl = '<div id="answers" class="sortable paginated fl cb w100" lampcms:total="%1$s" lampcms:perpage="%2$s">%3$s</div><!-- // answers -->';
-		$this->aPageVars['body'] .= vsprintf($tpl, array($this->numAnswers, $this->oRegistry->Ini->PER_PAGE_ANSWERS, $this->answers));
+		$this->aPageVars['body'] .= vsprintf($tpl, array($this->numAnswers, $this->Registry->Ini->PER_PAGE_ANSWERS, $this->answers));
 
 		return $this;
 	}
@@ -476,9 +476,9 @@ class Viewquestion extends WebPage
 	 */
 	protected function getAnswers(){
 		$this->answers = '';
-		$this->numAnswers = $this->oQuestion['i_ans'];
-		if($this->numAnswers > 0 || $this->oRegistry->Viewer->isModerator()){
-			$this->answers = Answers::factory($this->oRegistry)->getAnswers($this->oQuestion);
+		$this->numAnswers = $this->Question['i_ans'];
+		if($this->numAnswers > 0 || $this->Registry->Viewer->isModerator()){
+			$this->answers = Answers::factory($this->Registry)->getAnswers($this->Question);
 		}
 
 		/**
@@ -529,14 +529,14 @@ class Viewquestion extends WebPage
 	 */
 	protected function setAnswerForm(){
 
-		$this->aPageVars['body'] .= $this->oForm->getAnswerForm($this->oQuestion);
+		$this->aPageVars['body'] .= $this->Form->getAnswerForm($this->Question);
 
 		return $this;
 	}
 
 
 	/**
-	 * Sets the $this->oForm object
+	 * Sets the $this->Form object
 	 * We use it to get html of answer form (or empty
 	 * string if question is closed to new answers)
 	 *
@@ -546,8 +546,8 @@ class Viewquestion extends WebPage
 	 * @return object $this
 	 */
 	protected function makeForm(){
-		$this->oForm = Answerform::factory($this->oRegistry);
-		$this->oForm->socials = SocialCheckboxes::get($this->oRegistry);
+		$this->Form = Answerform::factory($this->Registry);
+		$this->Form->socials = SocialCheckboxes::get($this->Registry);
 
 		return $this;
 	}
@@ -563,7 +563,7 @@ class Viewquestion extends WebPage
 	 */
 	protected function setFooter(){
 
-		if($this->oQuestion['i_ans'] > 0){
+		if($this->Question['i_ans'] > 0){
 			$text = 'Explore other questions tagged %1$s or <a href="/ask/">ask your own question</a>';
 		} else {
 			$text = '';
@@ -576,7 +576,7 @@ class Viewquestion extends WebPage
 	/**
 	 * Must check if current user has already viewed this question,
 	 * if not then update QUESTIONS_VIEWS per user collection
-	 * and call increaseViews() on oQuestion
+	 * and call increaseViews() on Question
 	 *
 	 * For not-logged-in users use some other method like
 	 * checking ip address or maybe just per-session
@@ -587,7 +587,7 @@ class Viewquestion extends WebPage
 	 *
 	 */
 	protected function increaseView(){
-		$this->oQuestion->increaseViews($this->oRegistry->Viewer);
+		$this->Question->increaseViews($this->Registry->Viewer);
 
 		return $this;
 	}
@@ -595,7 +595,7 @@ class Viewquestion extends WebPage
 
 	protected function makeTopTabs(){
 
-		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', 'questions');
+		$tabs = Urhere::factory($this->Registry)->get('tplToptabs', 'questions');
 		$this->aPageVars['topTabs'] = $tabs;
 
 		return $this;
@@ -611,7 +611,7 @@ class Viewquestion extends WebPage
 	 */
 	protected function makeFollowButton(){
 
-		$qid = $this->oQuestion->getResourceId();
+		$qid = $this->Question->getResourceId();
 
 		$aVars = array(
 		'id' => $qid,
@@ -623,7 +623,7 @@ class Viewquestion extends WebPage
 		);
 
 
-		if(in_array($this->oRegistry->Viewer->getUid(), $this->oQuestion['a_flwrs'])){
+		if(in_array($this->Registry->Viewer->getUid(), $this->Question['a_flwrs'])){
 			$aVars['label'] = $this->_('Following');
 			$aVars['class'] = 'following';
 			$aVars['icon'] = 'check';

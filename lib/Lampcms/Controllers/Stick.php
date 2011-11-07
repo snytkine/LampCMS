@@ -71,7 +71,7 @@ class Stick extends WebPage
 
 	protected $aRequired = array('qid');
 
-	protected $oQuestion;
+	protected $Question;
 
 	protected function main(){
 		$this->getQuestion()
@@ -82,18 +82,18 @@ class Stick extends WebPage
 
 	/**
 	 * Get data for one question
-	 * and create this->oQuestion object
+	 * and create this->Question object
 	 *
 	 * @throws \Lampcms\Exception if question not found
 	 * in database
 	 */
 	protected function getQuestion(){
-		$a = $this->oRegistry->Mongo->QUESTIONS->findOne(array('_id' => $this->oRequest['qid']));
+		$a = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => $this->Request['qid']));
 		if(empty($a)){
-			throw new \Lampcms\Exception('Question not found by id: '.$this->oRequest['qid']);
+			throw new \Lampcms\Exception('Question not found by id: '.$this->Request['qid']);
 		}
 
-		$this->oQuestion = new Question($this->oRegistry, $a);
+		$this->Question = new Question($this->Registry, $a);
 
 		return $this;
 	}
@@ -104,8 +104,8 @@ class Stick extends WebPage
 	 * @return object $this
 	 */
 	protected function setSticky(){
-		$this->oQuestion['i_sticky'] = 1;
-		$this->oQuestion->touch()->save();
+		$this->Question['i_sticky'] = 1;
+		$this->Question->touch()->save();
 
 		return $this;
 	}
@@ -115,7 +115,7 @@ class Stick extends WebPage
 	 *
 	 */
 	protected function redirect(){
-		Responder::redirectToPage($this->oQuestion->getUrl());
+		Responder::redirectToPage($this->Question->getUrl());
 	}
 
 }

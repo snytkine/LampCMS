@@ -46,7 +46,7 @@
  * @author Dmitri Snytkine
  *
  */
-class tplCounterblocksub extends Lampcms\Template\Template
+class tplCounterblocksub extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'tags' => '',

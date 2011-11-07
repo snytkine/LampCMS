@@ -81,7 +81,7 @@ class ApiClient extends LampcmsObject
 	 * @var Object of type TumblrUser
 	 * set ONLY if User has Tumblr Oauth credentials
 	 */
-	protected $oUser;
+	protected $User;
 
 
 	/**
@@ -96,24 +96,24 @@ class ApiClient extends LampcmsObject
 	/**
 	 * Constructory
 	 * 
-	 * @param Registry $oRegistry
+	 * @param Registry $Registry
 	 * @throws \Lampcms\Exception
 	 * @throws \Lampcms\DevException
 	 * @throws \Lampcms\Exception 
 	 */
-	public function __construct(Registry $oRegistry){
+	public function __construct(Registry $Registry){
 		if(!extension_loaded('oauth')){
 			throw new \Lampcms\Exception('Cannot use this class because php extension "oauth" is not loaded');
 		}
 
-		$this->oRegistry = $oRegistry;
-		$this->aConfig = $oRegistry->Ini->offsetGet('TUMBLR');
+		$this->Registry = $Registry;
+		$this->aConfig = $Registry->Ini->offsetGet('TUMBLR');
 		d('$this->aConfig: '.print_r($this->aConfig, 1));
 		if(empty($this->aConfig) || empty($this->aConfig['OAUTH_KEY']) || empty($this->aConfig['OAUTH_SECRET'])){
 			throw new DevException('Missing configuration parameters for TUMBLR API');
 		}
 
-		$this->setUser($oRegistry->Viewer);
+		$this->setUser($Registry->Viewer);
 
 		try {
 			d('cp');
@@ -130,14 +130,14 @@ class ApiClient extends LampcmsObject
 
 
 	/**
-	 * Set $this->oUser but only
-	 * of $oUser has tumblr oauth token
+	 * Set $this->User but only
+	 * of $User has tumblr oauth token
 	 *
-	 * @param TumblrUser $oUser
+	 * @param TumblrUser $User
 	 */
-	public function setUser(TumblrUser $oUser){
-		if(null !== $oUser->getTumblrToken()){
-			$this->oUser = $oUser;
+	public function setUser(TumblrUser $User){
+		if(null !== $User->getTumblrToken()){
+			$this->User = $User;
 		} else {
 			d('user does not have Tumblr oauth token');
 			
@@ -149,12 +149,12 @@ class ApiClient extends LampcmsObject
 
 
 	/**
-	 * Getter for $this->oUser
+	 * Getter for $this->User
 	 *
-	 * @return object $this->oUser
+	 * @return object $this->User
 	 */
 	public function getUser(){
-		return $this->oUser;
+		return $this->User;
 	}
 
 
@@ -251,17 +251,17 @@ class ApiClient extends LampcmsObject
 	 * in case of adding blog post it is id of new post
 	 */
 	protected function apiWrite(array $data){
-		if(!isset($this->oUser)){
-			throw new \LogicException('Cannot use API because $this->oUser not set');
+		if(!isset($this->User)){
+			throw new \LogicException('Cannot use API because $this->User not set');
 		}
 
-		$data['group'] = $this->oUser->getTumblrBlogId();
+		$data['group'] = $this->User->getTumblrBlogId();
 
 		try{
 
 			$this->oAuth->setAuthType(OAUTH_AUTH_TYPE_FORM);
-			$token = $this->oUser->getTumblrToken();
-			$secret = $this->oUser->getTumblrSecret();
+			$token = $this->User->getTumblrToken();
+			$secret = $this->User->getTumblrSecret();
 
 			d('setting $token: '.$token.' secret: '.$secret);
 
@@ -307,20 +307,20 @@ class ApiClient extends LampcmsObject
 		} elseif('401' == $aDebug['http_code']){
 			d('Tumblr oauth failed with 401 http code. Data: '.print_r($aData, 1));
 			/**
-			 * If this method was passed oUser
+			 * If this method was passed User
 			 * then null the tokens
 			 * and save the data to table
 			 * so that next time we will know
 			 * that this User does not have tokens
 			 */
-			if(is_object($this->oUser)){
+			if(is_object($this->User)){
 				d('Going to revoke access tokens for user object');
-				$this->oUser->revokeTumblrToken();
+				$this->User->revokeTumblrToken();
 				/**
 				 * Important to post this update
 				 * so that user object will be removed from cache
 				 */
-				$this->oRegistry->Dispatcher->post($this->oUser, 'onTumblrTokenUpdate');
+				$this->Registry->Dispatcher->post($this->User, 'onTumblrTokenUpdate');
 			}
 
 			/**

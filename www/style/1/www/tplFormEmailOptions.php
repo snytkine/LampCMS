@@ -50,7 +50,7 @@
  */
 
  
-class tplFormEmailOptions extends \Lampcms\Template\Template
+class tplFormEmailOptions extends \Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	'token' => '', // 1

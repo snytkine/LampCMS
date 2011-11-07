@@ -57,7 +57,7 @@ class AvatarParser extends LampcmsObject
 {
 
 	public function __construct(Registry $o){
-		$this->oRegistry = $o;
+		$this->Registry = $o;
 	}
 
 
@@ -68,13 +68,13 @@ class AvatarParser extends LampcmsObject
 	 * in User object as 'avatar' element
 	 *
 	 *
-	 * @param User $oUser
+	 * @param User $User
 	 * @param unknown_type $tempPath
 	 * @throws \Lampcms\Exception
 	 *
 	 * @return object $this
 	 */
-	public function addAvatar(User $oUser, $tempPath){
+	public function addAvatar(User $User, $tempPath){
 
 		d('$tempPath: '.$tempPath);
 		if(empty($tempPath)){
@@ -82,12 +82,12 @@ class AvatarParser extends LampcmsObject
 			return $this;
 		}
 
-		$size = $this->oRegistry->Ini->AVATAR_SQUARE_SIZE;
+		$size = $this->Registry->Ini->AVATAR_SQUARE_SIZE;
 
 		$avatarDir = LAMPCMS_DATA_DIR.'img'.DS.'avatar'.DS.'sqr'.DS;
 		d('$avatarDir: '.$avatarDir);
 
-		$savePath = Path::prepare($oUser->getUid(), $avatarDir);
+		$savePath = Path::prepare($User->getUid(), $avatarDir);
 		d('$savePath: '.$savePath);
 		
 		/**
@@ -95,7 +95,7 @@ class AvatarParser extends LampcmsObject
 		 * with compression level of 80% (small compression)
 		 */
 		//try{
-			$ImgParser = \Lampcms\Image\Editor::factory($this->oRegistry)
+			$ImgParser = \Lampcms\Image\Editor::factory($this->Registry)
 			->loadImage($tempPath)
 			->makeSquare($size);
 			$savePath .= $ImgParser->getExtension();
@@ -119,7 +119,7 @@ class AvatarParser extends LampcmsObject
 		 * actually the Viewer object) or call save()
 		 * from a function that invoked this method
 		 */
-		$oUser['avatar'] = $savePath;
+		$User['avatar'] = $savePath;
 
 		return $this;
 	}
@@ -132,20 +132,20 @@ class AvatarParser extends LampcmsObject
 	 *
 	 * @todo unfinished
 	 * 
-	 * @param object $oUser object of type User
+	 * @param object $User object of type User
 	 * @param string $src path to avatar
 	 *
 	 * @return object $this
 	 */
-	public function removeAvatar(User $oUser, $src){
+	public function removeAvatar(User $User, $src){
 
 		if(0 === \strncmp($src, 'http', 4)){
 			/**
 			 * External avatar, just remove from User object and done
 			 */
-			$external = $oUser['avatar_external'];
+			$external = $User['avatar_external'];
 			if($src == $external){
-				$oUser['avatar_external'] = null;
+				$User['avatar_external'] = null;
 			} 
 			
 			/**
@@ -154,7 +154,7 @@ class AvatarParser extends LampcmsObject
 			 * and then it will not use gravatar ever again
 			 * there will not be any way to undo it...
 			 */
-			$oUser['noavatar'] = true;
+			$User['noavatar'] = true;
 			
 			return $this;
 		}

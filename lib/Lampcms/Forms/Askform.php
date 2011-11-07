@@ -96,8 +96,8 @@ class Askform extends Form
 		return true;
 		});*/
 
-		$minTags = $this->oRegistry->Ini->MIN_QUESTION_TAGS;
-		$maxTags = $this->oRegistry->Ini->MAX_QUESTION_TAGS;
+		$minTags = $this->Registry->Ini->MIN_QUESTION_TAGS;
+		$maxTags = $this->Registry->Ini->MAX_QUESTION_TAGS;
 
 		$d = $this->Tr->get('Please enter between {min_tags} and {max_tags} tags, separated by spaces', array('{min_tags}' => $minTags, '{max_tags}' => $maxTags));
 		$this->setVar('tags_d',  $d);
@@ -113,7 +113,7 @@ class Askform extends Form
 			$this->setVar('tags_required', sprintf($tagsRequired, 'required'));
 		}
 
-		$minTitle = $this->oRegistry->Ini->MIN_TITLE_CHARS;
+		$minTitle = $this->Registry->Ini->MIN_TITLE_CHARS;
 		if($minTitle > 0){
 			$t = 'Please enter a descriptive title at least %s characters long';
 			$this->setVar('title_d', sprintf($t, $minTitle));
@@ -138,8 +138,8 @@ class Askform extends Form
 	 * @return object $this
 	 */
 	protected function validateTitle(){
-		$t = $this->oRegistry->Request['title'];
-		$min = $this->oRegistry->Ini->MIN_TITLE_CHARS;
+		$t = $this->Registry->Request['title'];
+		$min = $this->Registry->Ini->MIN_TITLE_CHARS;
 		d('min title: '.$min);
 		if(\mb_strlen($t) < $min){
 			$this->setError('title', 'Title must contain at least '.$min.' letters');
@@ -157,9 +157,9 @@ class Askform extends Form
 	 */
 	protected function validateBody(){
 
-		$minChars = $this->oRegistry->Ini->MIN_QUESTION_CHARS;
-		$minWords = $this->oRegistry->Ini->MIN_QUESTION_WORDS;
-		$body = $this->oRegistry->Request->getUTF8('qbody');
+		$minChars = $this->Registry->Ini->MIN_QUESTION_CHARS;
+		$minWords = $this->Registry->Ini->MIN_QUESTION_WORDS;
+		$body = $this->Registry->Request->getUTF8('qbody');
 		$oHtmlString = HTMLString::factory($body);
 		$wordCount = $oHtmlString->getWordsCount();
 		$len = $oHtmlString->length();
@@ -190,9 +190,9 @@ class Askform extends Form
 	 * @return object $this
 	 */
 	protected function validateTags(){
-		$min = $this->oRegistry->Ini->MIN_QUESTION_TAGS;
-		$max = $this->oRegistry->Ini->MAX_QUESTION_TAGS;
-		$tags = $this->oRegistry->Request->get('tags', 's', '');
+		$min = $this->Registry->Ini->MIN_QUESTION_TAGS;
+		$max = $this->Registry->Ini->MAX_QUESTION_TAGS;
+		$tags = $this->Registry->Request->get('tags', 's', '');
 		$tags = \trim($tags);
 		/*if(($min > 0) && empty($tags)){
 			$this->setError('tags', 'You must include at least one tag');

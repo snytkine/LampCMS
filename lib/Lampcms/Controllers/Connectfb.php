@@ -85,7 +85,7 @@ class Connectfb extends WebPage
 	protected function main(){
 		try{
 			d('cp');
-			ExternalAuthFb::factory($this->oRegistry)->connect($this->oRegistry->Viewer);
+			ExternalAuthFb::factory($this->Registry)->connect($this->Registry->Viewer);
 			d('cp');
 		} catch (\Lampcms\FacebookAuthException $e ){
 			d('Caught FacebookAuthException');
@@ -116,7 +116,7 @@ class Connectfb extends WebPage
 	protected function respond(){
 
 		$aRet = array('setmeta' => array('key' => 'fb', 'val' => '1'),
-		'replace' => array('target' => 'my_fb', 'content' => $this->oRegistry->Viewer->getFacebookUrl()));
+		'replace' => array('target' => 'my_fb', 'content' => $this->Registry->Viewer->getFacebookUrl()));
 		d('sending out JSON: '.print_r($aRet, 1));
 
 		Responder::sendJSON($aRet);

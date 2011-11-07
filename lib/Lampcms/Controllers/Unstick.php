@@ -70,8 +70,8 @@ class Unstick extends Stick
 	}
 	
 	protected function unsetSticky(){
-		$this->oQuestion->offsetUnset('i_sticky');
-		$this->oQuestion->touch()->save();
+		$this->Question->offsetUnset('i_sticky');
+		$this->Question->touch()->save();
 
 		return $this;
 	}

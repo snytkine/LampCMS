@@ -59,7 +59,7 @@
  * 
  *
  */
-class tplQuestionInfo extends Lampcms\Template\Template
+class tplQuestionInfo extends Lampcms\Template\Fast
 {
 	
 	protected static $vars = array(

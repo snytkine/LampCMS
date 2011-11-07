@@ -50,7 +50,7 @@
  */
 
  
-class tplUsertypes extends Lampcms\Template\Template
+class tplUsertypes extends Lampcms\Template\Fast
 {
 	protected static $vars = array(
 	

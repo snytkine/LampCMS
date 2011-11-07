@@ -82,7 +82,7 @@ class Profile extends Form
 
 
 	protected function validateDob(){
-		$dob = $this->oRegistry->Request['dob'];
+		$dob = $this->Registry->Request['dob'];
 		if(!empty($dob) && !Validate::validateDob($dob)){
 			$this->setError('dob', 'Invalid format of date string OR invalid values');
 		}
@@ -132,7 +132,7 @@ class Profile extends Form
 				}
 			} else {
 
-				$maxSize = $this->oRegistry->Ini->MAX_AVATAR_UPLOAD_SIZE;
+				$maxSize = $this->Registry->Ini->MAX_AVATAR_UPLOAD_SIZE;
 				d('$maxSize '.$maxSize);
 
 				/**

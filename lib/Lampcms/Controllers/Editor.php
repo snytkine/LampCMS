@@ -88,7 +88,7 @@ class Editor extends Edit
 	 *
 	 * @var object of type Utf8string
 	 */
-	protected $oBody;
+	protected $Body;
 
 
 	protected function main(){
@@ -96,7 +96,7 @@ class Editor extends Edit
 		->checkPermission()
 		->makeForm();
 
-		if($this->oForm->validate()){
+		if($this->Form->validate()){
 			$this->process()->updateQuestion()->returnResult();
 		} else {
 			$this->returnErrors();
@@ -109,7 +109,7 @@ class Editor extends Edit
 
 		if(Request::isAjax()){
 			d('cp');
-			$aErrors = $this->oForm->getErrors();
+			$aErrors = $this->Form->getErrors();
 
 			Responder::sendJSON(array('formErrors' => $aErrors));
 		}
@@ -125,13 +125,13 @@ class Editor extends Edit
 	 * Process submitted form values
 	 */
 	protected function process(){
-		$this->oRegistry->Dispatcher->post($this->oResource, 'onBeforeEdit');
+		$this->Registry->Dispatcher->post($this->Resource, 'onBeforeEdit');
 
-		$formVals = $this->oForm->getSubmittedValues();
+		$formVals = $this->Form->getSubmittedValues();
 		d('formVals: '.print_r($formVals, 1));
 
-		$this->oResource['b'] = $this->makeBody($formVals['qbody']);
-		$this->oResource['i_words'] = $this->oBody->asPlainText()->getWordsCount();
+		$this->Resource['b'] = $this->makeBody($formVals['qbody']);
+		$this->Resource['i_words'] = $this->Body->asPlainText()->getWordsCount();
 		
 		/**
 		 * @important Don't attempt to edit the value of title
@@ -139,12 +139,12 @@ class Editor extends Edit
 		 * If we don't skip this step for Answer then title
 		 * of answer will be removed
 		 */
-		if($this->oResource instanceof \Lampcms\Question){
+		if($this->Resource instanceof \Lampcms\Question){
 			$oTitle = $this->makeTitle($formVals['title']);
 			$title = $oTitle->valueOf();
-			$this->oResource['title'] = $title;
-			$this->oResource['url'] = $oTitle->toASCII()->makeLinkTitle()->valueOf();
-			$this->oResource['a_title'] = \Lampcms\TitleTokenizer::factory($oTitle)->getArrayCopy();
+			$this->Resource['title'] = $title;
+			$this->Resource['url'] = $oTitle->toASCII()->makeLinkTitle()->valueOf();
+			$this->Resource['a_title'] = \Lampcms\TitleTokenizer::factory($oTitle)->getArrayCopy();
 		
 			/**
 			 * @todo
@@ -154,10 +154,10 @@ class Editor extends Edit
 		
 		}
 
-		$this->oResource->setEdited($this->oRegistry->Viewer, \strip_tags($formVals['reason']));
-		$this->oResource->touch()->save();
+		$this->Resource->setEdited($this->Registry->Viewer, \strip_tags($formVals['reason']));
+		$this->Resource->touch()->save();
 
-		$this->oRegistry->Dispatcher->post($this->oResource, 'onEdit');
+		$this->Registry->Dispatcher->post($this->Resource, 'onEdit');
 
 		return $this;
 	}
@@ -183,21 +183,21 @@ class Editor extends Edit
 		 * Must pass array('drop-proprietary-attributes' => false)
 		 * otherwise tidy removes rel="code"
 		 */
-		$aEditorConfig = $this->oRegistry->Ini->getSection('EDITOR');
+		$aEditorConfig = $this->Registry->Ini->getSection('EDITOR');
 		$tidyConfig = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
 		
-		$this->oBody = Utf8String::factory($body)
+		$this->Body = Utf8String::factory($body)
 		->tidy($tidyConfig)
 		->safeHtml()
 		->asHtml();
 
-		$oBody = HTMLStringParser::factory($this->oBody)->parseCodeTags()->linkify()->reload()->setNofollow();
+		$Body = HTMLStringParser::factory($this->Body)->parseCodeTags()->linkify()->reload()->setNofollow();
 
-		if($this->oResource instanceof \Lampcms\Question){
-			$oBody->unhilight()->hilightWords($this->oResource['a_tags']);
+		if($this->Resource instanceof \Lampcms\Question){
+			$Body->unhilight()->hilightWords($this->Resource['a_tags']);
 		}
 
-		$htmlBody = $oBody->valueOf();
+		$htmlBody = $Body->valueOf();
 
 		d('after HTMLStringParser: '.$htmlBody);
 
@@ -231,7 +231,7 @@ class Editor extends Edit
 			d('need to update QUESTION');
 
 			try{
-				$this->oRegistry->Mongo->QUESTIONS->update(array('_id' => $this->oResource['i_qid']),
+				$this->Registry->Mongo->QUESTIONS->update(array('_id' => $this->Resource['i_qid']),
 				array(
 					'$set' => array(
 									'i_lm_ts' => time(), 
@@ -249,6 +249,6 @@ class Editor extends Edit
 
 	protected function returnResult(){
 
-		Responder::redirectToPage($this->oResource->getUrl());
+		Responder::redirectToPage($this->Resource->getUrl());
 	}
 }

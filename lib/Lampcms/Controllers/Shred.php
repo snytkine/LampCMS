@@ -80,7 +80,7 @@ class Shred extends WebPage
 	protected $aQuestions = array();
 
 
-	protected $oCache;
+	protected $Cache;
 
 
 	protected function main(){
@@ -88,7 +88,7 @@ class Shred extends WebPage
 		 * Need to instantiate Cache so that it
 		 * will listen to event and unset some keys
 		 */
-		$this->oCache = $this->oRegistry->Cache;
+		$this->Cache = $this->Registry->Cache;
 		$this->excludeAdmin()
 		->deleteQuestions()
 		->deleteAnswers()
@@ -108,7 +108,7 @@ class Shred extends WebPage
 	 */
 	protected function excludeAdmin(){
 
-		$aUser = $this->oRegistry->Mongo->USERS->findOne(array('_id' => $this->oRequest['uid']));
+		$aUser = $this->Registry->Mongo->USERS->findOne(array('_id' => $this->Request['uid']));
 		if($aUser && ('administrator' === $aUser['role'])){
 			throw new \Lampcms\Exception('Dude! Not cool! You cannot shred the admin user');
 		}
@@ -125,7 +125,7 @@ class Shred extends WebPage
 	 * @return object $this
 	 */
 	protected function postEvent(){
-		$this->oRegistry->Dispatcher->post($this, 'onResourceDelete');
+		$this->Registry->Dispatcher->post($this, 'onResourceDelete');
 
 		return $this;
 	}
@@ -145,8 +145,8 @@ class Shred extends WebPage
 	 * @return object $this
 	 */
 	protected function deleteQuestions(){
-		$coll = $this->oRegistry->Mongo->QUESTIONS;
-		$uid = (int)$this->oRequest['uid'];
+		$coll = $this->Registry->Mongo->QUESTIONS;
+		$uid = (int)$this->Request['uid'];
 		$cur = $coll->find(array('i_uid' => $uid));
 		if($cur && $cur->count() > 0){
 			d('got '.$cur->count().' questions to delete');
@@ -162,14 +162,14 @@ class Shred extends WebPage
 				 */
 				if(empty($a['i_sel_ans']) && !empty($a['a_tags']) ){
 					d('going to add to Unanswered tags');
-					\Lampcms\UnansweredTags::factory($this->oRegistry)->remove($a['a_tags']);
+					\Lampcms\UnansweredTags::factory($this->Registry)->remove($a['a_tags']);
 				}
 
 				/**
 				 * Remove from QUESTION_TAGS
 				 */
 				if(!empty($a['a_tags'])){
-					\Lampcms\Qtagscounter::factory($this->oRegistry)->removeTags($a['a_tags']);
+					\Lampcms\Qtagscounter::factory($this->Registry)->removeTags($a['a_tags']);
 				}
 
 			}
@@ -193,24 +193,24 @@ class Shred extends WebPage
 	 * @return object $this
 	 */
 	protected function deleteAnswers(){
-		$coll = $this->oRegistry->Mongo->ANSWERS;
-		$cur = $coll->find(array('i_uid' => $this->oRequest['uid']));
+		$coll = $this->Registry->Mongo->ANSWERS;
+		$cur = $coll->find(array('i_uid' => $this->Request['uid']));
 		if($cur && ($cur->count() > 0)){
 
 			foreach($cur as $a){
 				
-				$oQuestion = new \Lampcms\Question($this->oRegistry);
+				$Question = new \Lampcms\Question($this->Registry);
 				try{
-					$oQuestion->by_id((int)$oAnswer->getQuestionId());
-					$oAnswer = new Answer($this->oRegistry, $a);
-					$oQuestion->removeAnswer($oAnswer);
-					$oQuestion->save();
+					$Question->by_id((int)$Answer->getQuestionId());
+					$Answer = new Answer($this->Registry, $a);
+					$Question->removeAnswer($Answer);
+					$Question->save();
 					/**
 					 * setSaved() because we don't need auto-save feature 
 					 * to save each answer 
 					 * since all answers will be removed at end of this method
 					 */
-					$oAnswer->setSaved(); 
+					$Answer->setSaved(); 
 				} catch(\MongoException $e){
 					d('Question not found by _id: '.$a['i_qid']);
 				}
@@ -220,7 +220,7 @@ class Shred extends WebPage
 				}
 			}
 
-			$res = $coll->remove(array('i_uid' => $this->oRequest['uid']), array('safe' => true));
+			$res = $coll->remove(array('i_uid' => $this->Request['uid']), array('safe' => true));
 			d('questions removed: '.print_r($res, 1));
 		}
 
@@ -230,8 +230,8 @@ class Shred extends WebPage
 
 
 	protected function deleteUserTags(){
-		$coll = $this->oRegistry->Mongo->USER_TAGS;
-		$res = $coll->remove(array('_id' => $this->oRequest['uid']), array('safe' => true));
+		$coll = $this->Registry->Mongo->USER_TAGS;
+		$res = $coll->remove(array('_id' => $this->Request['uid']), array('safe' => true));
 		d('questions removed: '.print_r($res, 1));
 
 		return $this;
@@ -250,7 +250,7 @@ class Shred extends WebPage
 	 */
 	protected function deleteUser(){
 
-		$this->oRegistry->Mongo->USERS->update(array('_id' => $this->oRequest['uid']),
+		$this->Registry->Mongo->USERS->update(array('_id' => $this->Request['uid']),
 		array('$set' => array('role' => 'deleted')),
 		array('safe' => true));
 
@@ -271,7 +271,7 @@ class Shred extends WebPage
 			foreach($IPS as $val){
 				d('banning IP '.$val);
 				try{
-					$this->oRegistry->Mongo->BANNED_IP->insert(array('_id' => $val), array('safe' => true));
+					$this->Registry->Mongo->BANNED_IP->insert(array('_id' => $val), array('safe' => true));
 				} catch (\MongoException $e){
 					d('IP address '.$val.' already banned');
 				}

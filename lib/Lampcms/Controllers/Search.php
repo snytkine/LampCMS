@@ -76,7 +76,12 @@ class Search extends WebPage
 	 */
 	protected $notAjaxPaginatable = true;
 	
-	//protected $bRequirePost = true;
+	/**
+	 * 
+	 * 
+	 * @var object returned b SearchFactory
+	 */
+	protected $Search;
 
 	/**
 	 * (non-PHPdoc)
@@ -89,15 +94,15 @@ class Search extends WebPage
 		 *  $_GET as underlying array, and php
 		 *  already decodes $_GET or $_POST vars
 		 */
-		$this->term = $this->oRegistry->Request->getUTF8('q')->stripTags();
+		$this->term = $this->Registry->Request->getUTF8('q')->stripTags();
 		$this->aPageVars['qheader'] = '<h1>Search results for: '.$this->term.'</h1>';
 
 		$this->aPageVars['title'] = 'Questions matching &#39;'.$this->term.'&#39;';
 		d('$this->term: '.$this->term);
 
 			
-		$this->oSearch = SearchFactory::factory($this->oRegistry);
-		$this->oSearch->search($this->term);
+		$this->Search = SearchFactory::factory($this->Registry);
+		$this->Search->search($this->term);
 
 		$this->makeTopTabs()
 		->makeInfo()
@@ -106,7 +111,7 @@ class Search extends WebPage
 
 	protected function makeTopTabs(){
 
-		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', 'questions');
+		$tabs = Urhere::factory($this->Registry)->get('tplToptabs', 'questions');
 		$this->aPageVars['topTabs'] = $tabs;
 
 		return $this;
@@ -122,7 +127,7 @@ class Search extends WebPage
 
 	protected function makeInfo(){
 
-		$this->aPageVars['side'] = \tplSearchInfo::parse(array($this->oSearch->count(), $this->term, 'questions matching'), false);
+		$this->aPageVars['side'] = \tplSearchInfo::parse(array($this->Search->count(), $this->term, 'questions matching'), false);
 
 
 		return $this;
@@ -133,7 +138,7 @@ class Search extends WebPage
 	protected function makeBody(){
 
 
-		$this->aPageVars['body'] = \tplQlist::parse(array('', $this->oSearch->getHtml(), $this->oSearch->getPagerLinks(), $this->notAjaxPaginatable), false);
+		$this->aPageVars['body'] = \tplQlist::parse(array('', $this->Search->getHtml(), $this->Search->getPagerLinks(), $this->notAjaxPaginatable), false);
 
 		return $this;
 	}

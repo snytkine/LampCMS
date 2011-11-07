@@ -50,7 +50,7 @@
  */
 
 
-namespace Lampcms;
+namespace Lampcms\Mongo;
 
 
 /**
@@ -61,17 +61,17 @@ namespace Lampcms;
  * @author Dmitri Snytkine
  *
  */
-class MongoIncrementor
+class Incrementor
 {
 	
 	/**
-	 * Object of type Lampcms\Mongo
-	 * Enter description here ...
+	 * Object of type Lampcms\Mongo\DB
+	 * 
 	 * @var object of type \Lampcms\Mongo
 	 */
 	protected $oMongo;
 
-	public function __construct(Mongo $oMongo){
+	public function __construct(\Lampcms\Mongo\DB $oMongo){
 		$this->oMongo = $oMongo;
 	}
 

@@ -73,9 +73,9 @@ class UnansweredTags extends LampcmsObject
 	 */
 	protected $coll;
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
-		$this->coll = $oRegistry->Mongo->UNANSWERED_TAGS;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
+		$this->coll = $Registry->Mongo->UNANSWERED_TAGS;
 		
 		$this->coll->ensureIndex(array('tag' => 1), array('unique' => true));
 		$this->coll->ensureIndex(array('i_ts' => 1));
@@ -85,10 +85,10 @@ class UnansweredTags extends LampcmsObject
 	 * Increases count for each tag
 	 * in tags from supplied question
 	 *
-	 * @param object $oQuestion
+	 * @param object $Question
 	 */
-	public function set(Question $oQuestion){
-		$aTags = $oQuestion->offsetGet('a_tags');
+	public function set(Question $Question){
+		$aTags = $Question->offsetGet('a_tags');
 		
 
 		if(!is_array($aTags) || empty($aTags)){
@@ -117,15 +117,15 @@ class UnansweredTags extends LampcmsObject
 	 * this object/method should be invoked and pass
 	 * the question object to it
 	 *
-	 * @param Question $oQuestion
+	 * @param Question $Question
 	 */
-	public function remove($oQuestion){
+	public function remove($Question){
 
-		if(!is_array($oQuestion) && (!($oQuestion instanceof \Lampcms\Question))){
-			throw new \InvalidArgumentException('$oQuestion must be array OR instance of Question. was: '.gettype($oQuestion));
+		if(!is_array($Question) && (!($Question instanceof \Lampcms\Question))){
+			throw new \InvalidArgumentException('$Question must be array OR instance of Question. was: '.gettype($Question));
 		}
 
-		$aTags = (is_array($oQuestion)) ? $oQuestion : $oQuestion['a_tags'];
+		$aTags = (is_array($Question)) ? $Question : $Question['a_tags'];
 
 
 		if(empty($aTags) || !is_array($aTags)){
@@ -164,6 +164,6 @@ class UnansweredTags extends LampcmsObject
 		 * the tagsUnanswered have to be unset from cache
 		 * as well as posssibly some other cached items
 		 */
-		$this->oRegistry->Dispatcher->post($this, 'onRemovedUnansweredTags', $aTags);
+		$this->Registry->Dispatcher->post($this, 'onRemovedUnansweredTags', $aTags);
 	}
 }

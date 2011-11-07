@@ -108,7 +108,7 @@ class Join extends Register
 		->createEmailRecord()
 		->updateViewer();
 
-		$this->oRegistry->Dispatcher->post($this->oRegistry->Viewer, 'onUserUpdate');
+		$this->Registry->Dispatcher->post($this->Registry->Viewer, 'onUserUpdate');
 		$this->sendActivationEmail();
 		$this->setReturn();
 	}
@@ -123,14 +123,14 @@ class Join extends Register
 	 */
 	protected function updateViewer(){
 		
-		$currentRole = $this->oRegistry->Viewer->getRoleId();
+		$currentRole = $this->Registry->Viewer->getRoleId();
 		d('$currentRole: '.$currentRole);
 
 		$this->pwd = String::makePasswd();
 
 		$pwd = String::hashPassword($this->pwd);
 
-		$this->oRegistry->Viewer->offsetSet('email', $this->email );
+		$this->Registry->Viewer->offsetSet('email', $this->email );
 
 		/**
 		 * Only change username IF this is a new registration
@@ -143,15 +143,15 @@ class Join extends Register
 		 * hack where an existing user otherwise may be able
 		 * to change username
 		 */
-		if(!empty($this->oRequest['username']) ){
-			$username = trim($this->oRequest['username']);
-			$this->oRegistry->Viewer->offsetSet('username', $username);
-			$this->oRegistry->Viewer->offsetSet('username_lc', strtolower($username) );
+		if(!empty($this->Request['username']) ){
+			$username = trim($this->Request['username']);
+			$this->Registry->Viewer->offsetSet('username', $username);
+			$this->Registry->Viewer->offsetSet('username_lc', strtolower($username) );
 			/**
 			 * Set the hashed password but it will only be
 			 * set if this is a new registration (post-registration)
 			 */
-			$this->oRegistry->Viewer->offsetSet('pwd', $pwd);
+			$this->Registry->Viewer->offsetSet('pwd', $pwd);
 		}
 
 
@@ -189,14 +189,14 @@ class Join extends Register
 		 */
 
 
-		$this->oRegistry->Viewer->offsetSet('role', 'unactivated_external');
-		$this->oRegistry->Viewer->save();
+		$this->Registry->Viewer->offsetSet('role', 'unactivated_external');
+		$this->Registry->Viewer->save();
 
 		/**
 		 * 
 		 * This is used in Register for sending out email
 		 */
-		$this->username = $this->oRegistry->Viewer->offsetGet('username');
+		$this->username = $this->Registry->Viewer->offsetGet('username');
 
 		return $this;
 	}
@@ -227,12 +227,12 @@ class Join extends Register
 	<a class="regok" href="/settings/"> Edit profile --&gt;</a>
 	</p> ';
 
-		$ret = sprintf($tpl, $this->oRegistry->Ini->SITE_NAME);
+		$ret = sprintf($tpl, $this->Registry->Ini->SITE_NAME);
 
 		d('ret: '.$ret);
 
 		if(Request::isAjax()){
-			$a = array('action' => 'done', 'body' => $ret, 'uid' => $this->oRegistry->Viewer->getUid());
+			$a = array('action' => 'done', 'body' => $ret, 'uid' => $this->Registry->Viewer->getUid());
 
 			Responder::sendJSON($a);
 		}
@@ -248,7 +248,7 @@ class Join extends Register
 	 * @return object $this
 	 */
 	protected function checkUsername(){
-		if(empty($this->oRequest['username'])){
+		if(empty($this->Request['username'])){
 
 			return $this;
 		}
@@ -257,20 +257,20 @@ class Join extends Register
 		 * If user has not changed suggested username than
 		 * we don't have to worry about validating it
 		 */
-		if($this->oRequest['username'] === $this->oRegistry->Viewer->username){
+		if($this->Request['username'] === $this->Registry->Viewer->username){
 
 			return $this;
 		}
 
-		if(false === Validate::username($this->oRequest['username'])){
+		if(false === Validate::username($this->Request['username'])){
 
 			throw new \Lampcms\FormException('Invalid username. Username can only contain English letters, numbers and a hyphen (but cannot start or end with the hyphen)', 'username');
 		}
 
 		$aReserved = \Lampcms\getReservedNames();
 
-		$username = strtolower($this->oRequest['username']);
-		$aUser = $this->oRegistry->Mongo->USERS->findOne(array('username_lc' => $username));
+		$username = strtolower($this->Request['username']);
+		$aUser = $this->Registry->Mongo->USERS->findOne(array('username_lc' => $username));
 
 		if(!empty($aUser) || in_array( $username, $aReserved )){
 
@@ -282,7 +282,7 @@ class Join extends Register
 		 * Need to set $this->username because
 		 * it's used in sendActivationEmail()
 		 */
-		$this->username = $this->oRequest['username'];
+		$this->username = $this->Request['username'];
 
 		return $this;
 	}
@@ -296,12 +296,12 @@ class Join extends Register
 	 */
 	protected function validateEmail(){
 
-		$email = strtolower($this->oRequest['email']);
+		$email = strtolower($this->Request['email']);
 		if(false === Validate::email( $email )){
-			throw new \Lampcms\FormException('Email address '.$this->oRequest['email'].' is invalid<br/>Please correct it and resubmit the form', 'email');
+			throw new \Lampcms\FormException('Email address '.$this->Request['email'].' is invalid<br/>Please correct it and resubmit the form', 'email');
 		}
 
-		$ret = $this->oRegistry->Mongo->EMAILS->findOne(array('email' => $email ));
+		$ret = $this->Registry->Mongo->EMAILS->findOne(array('email' => $email ));
 
 		/**
 		 * @todo when we have 'join existing account'

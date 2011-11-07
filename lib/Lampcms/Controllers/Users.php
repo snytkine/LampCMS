@@ -124,7 +124,7 @@ class Users extends WebPage
 	 *
 	 * @var object of type MongoCursor
 	 */
-	protected $oCursor;
+	protected $Cursor;
 
 
 	/**
@@ -173,7 +173,7 @@ class Users extends WebPage
 	 * @return object $this
 	 */
 	protected function setTitle(){
-		$title = $this->oRegistry->Ini->SITE_TITLE.' Members';
+		$title = $this->Registry->Ini->SITE_TITLE.' Members';
 		$this->aPageVars['title'] = $title;
 		$this->aPageVars['qheader'] = '<h1>'.$title.'</h1>';
 
@@ -191,10 +191,10 @@ class Users extends WebPage
 	 */
 	protected function init(){
 
-		$this->perPage = $this->oRegistry->Ini->PER_PAGE_USERS;
+		$this->perPage = $this->Registry->Ini->PER_PAGE_USERS;
 
 
-		$this->sort = $this->oRegistry->Request->get('sort', 's', 'rep');
+		$this->sort = $this->Registry->Request->get('sort', 's', 'rep');
 		if(!in_array($this->sort, array('rep', 'new', 'old', 'active'))){
 			throw new \InvalidArgumentException('Invalid value of "sort" param. Valid values are "new", "old" or "rep" or "active". Was: '.$this->sort);
 		}
@@ -234,7 +234,7 @@ class Users extends WebPage
 	 */
 	protected function makeTopTabs(){
 		d('cp');
-		$tabs = Urhere::factory($this->oRegistry)->get('tplToptabs', $this->qtab);
+		$tabs = Urhere::factory($this->Registry)->get('tplToptabs', $this->qtab);
 		$this->aPageVars['topTabs'] = $tabs;
 
 		return $this;
@@ -250,8 +250,8 @@ class Users extends WebPage
 	protected function paginate(){
 
 		d('paginating');
-		$oPaginator = Paginator::factory($this->oRegistry);
-		$oPaginator->paginate($this->oCursor, $this->perPage,
+		$oPaginator = Paginator::factory($this->Registry);
+		$oPaginator->paginate($this->Cursor, $this->perPage,
 		array('path' => $this->pagerPath));
 
 		$this->pagerLinks = $oPaginator->getLinks();
@@ -284,7 +284,7 @@ class Users extends WebPage
 		 */
 		if($this->usersCount > 4){
 
-			$tabs = Urhere::factory($this->oRegistry)->get('tplUsertypes', $this->sort);
+			$tabs = Urhere::factory($this->Registry)->get('tplUsertypes', $this->sort);
 		}
 
 		$aVars = array(
@@ -302,7 +302,7 @@ class Users extends WebPage
 
 	/**
 	 * Runs the find() in the USERS collection
-	 * and sets the $this->oCursor instance variable
+	 * and sets the $this->Cursor instance variable
 	 *
 	 * @return object $this
 	 */
@@ -311,11 +311,11 @@ class Users extends WebPage
 		/**
 		 * Moderators can see deleted viewers
 		 */
-		if($this->oRegistry->Viewer->isModerator()){
+		if($this->Registry->Viewer->isModerator()){
 			$where = array();
 		}
 
-		$this->oCursor = $this->oRegistry->Mongo->USERS->find($where,
+		$this->Cursor = $this->Registry->Mongo->USERS->find($where,
 		array(
 			'_id', 
 			'i_rep', 
@@ -332,8 +332,8 @@ class Users extends WebPage
 			)
 			);
 
-			$this->oCursor->sort($this->sortOrder);
-			$this->usersCount = $this->oCursor->count();
+			$this->Cursor->sort($this->sortOrder);
+			$this->usersCount = $this->Cursor->count();
 
 			return $this;
 	}
@@ -350,7 +350,7 @@ class Users extends WebPage
 	 */
 	protected function renderUsersHtml(){
 		$func = null;
-		$aGravatar = $this->oRegistry->Ini->getSection('GRAVATAR');
+		$aGravatar = $this->Registry->Ini->getSection('GRAVATAR');
 
 		if(count($aGravatar) > 0){
 			$func = function(&$a) use ($aGravatar){
@@ -358,7 +358,7 @@ class Users extends WebPage
 			};
 		}
 
-		$this->usersHtml = '<div class="users_wrap">'.\tplU3::loop($this->oCursor, true, $func).$this->pagerLinks.'</div>';
+		$this->usersHtml = '<div class="users_wrap">'.\tplU3::loop($this->Cursor, true, $func).$this->pagerLinks.'</div>';
 
 		return $this;
 	}

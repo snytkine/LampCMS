@@ -55,10 +55,10 @@ namespace Lampcms;
 class QuestionInfo extends LampcmsObject
 {
 
-	protected $oQuestion;
+	protected $Question;
 
-	public function __construct(Registry $oRegistry){
-		$this->oRegistry = $oRegistry;
+	public function __construct(Registry $Registry){
+		$this->Registry = $Registry;
 	}
 
 
@@ -70,14 +70,14 @@ class QuestionInfo extends LampcmsObject
 	 * followers
 	 * Followers to be selected from USERS collection
 	 * using find() by a_f_q and using limit 5
-	 * and then link to 'show more' if i_flwrs in oQuestion is > 5
+	 * and then link to 'show more' if i_flwrs in Question is > 5
 	 *
 	 *
-	 * @param Question $oQuestion
+	 * @param Question $Question
 	 */
-	public function getHtml(Question $oQuestion){
-		$this->oQuestion = $oQuestion;
-		$Tr = $this->oRegistry->Tr;
+	public function getHtml(Question $Question){
+		$this->Question = $Question;
+		$Tr = $this->Registry->Tr;
 		/**
 		 * @todo translate Title string
 		 */
@@ -95,10 +95,10 @@ class QuestionInfo extends LampcmsObject
 		$ret = \tplQuestionInfo::parse(
 		array(
 				'tags' => $tagsBlock,
-				'asked' => TimeAgo::format(new \DateTime($oQuestion['hts'])).' ago',
-				'updated' => TimeAgo::format(new \DateTime(date('r', $oQuestion['i_lm_ts']))).' ago',
-				'views' => $this->oQuestion['i_views'],
-		        'ans_count' => $this->oQuestion->getAnswerCount(),
+				'asked' => TimeAgo::format(new \DateTime($Question['hts'])).' ago',
+				'updated' => TimeAgo::format(new \DateTime(date('r', $Question['i_lm_ts']))).' ago',
+				'views' => $this->Question['i_views'],
+		        'ans_count' => $this->Question->getAnswerCount(),
 				'asked_label' => $Tr['Asked'],
 				'updated_label' => $Tr['Last updated'],
 				'ans_count_label'  => $Tr['Number of Answers'],
@@ -113,7 +113,7 @@ class QuestionInfo extends LampcmsObject
 
 
 	protected function getTags(){
-		$aTags = $this->oQuestion['a_tags'];
+		$aTags = $this->Question['a_tags'];
 		d('aTags: '.print_r($aTags, 1));
 		if(empty($aTags) || empty($aTags[0])){
 			d('empty tags detected');
@@ -121,7 +121,7 @@ class QuestionInfo extends LampcmsObject
 		}
 
 		$res = '';
-		$cur = $this->oRegistry->Mongo->QUESTION_TAGS->find(array('tag' => array('$in' => $aTags), 'i_count' => array('$gt' => 0)));
+		$cur = $this->Registry->Mongo->QUESTION_TAGS->find(array('tag' => array('$in' => $aTags), 'i_count' => array('$gt' => 0)));
 		$count = $cur->count();
 		d('count: '.$count);
 
