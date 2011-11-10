@@ -49,53 +49,44 @@
  *
  */
 
-namespace Lampcms;
+
+namespace Lampcms\Modules\Search;
+
+use \Lampcms\Interfaces\Search;
+
 
 /**
- * Class for encapsulating
- * the callback function that will be used
- * by the Cache object when value of $key
- * not found in cache
+ *
+ * This class is responsible for instantiating and
+ * returning the search provider object
+ * It will use the best available search provider
+ * and is guaranteed to return object that implements
+ * \Lampcms\Interfaces\Search interface
  *
  * @author Dmitri Snytkine
  *
  */
-class CacheCallback{
+class Factory
+{
 
-	protected $func;
+	public static function get(\Lampcms\Registry $Registry){
 
-	/**
-	 * 
-	 * Constructor
-	 * 
-	 * @param function $func function. Could be Closure
-	 * Must accept 2 params: Registry as first argument and optional $key
-	 * as second
-	 * 
-	 * @throws \InvalidArgumentException if not a callable function
-	 * 
-	 */
-	public function __construct($func){
-		if(!\is_callable($func)){
-			throw new \InvalidArgumentException('param $func must be a callable function. Was: '.gettype($func));
-		}
-
-		$this->func = $func;
-	}
-
-	
-	/**
-	 * This method is invoked from the Cache object
-	 *
-	 *
-	 * @param Registry $Registry
-	 * @param string $key
-	 */
-	public function run(\Lampcms\Registry $Registry, $key = null){
-		if(!empty($key) && !is_string($key)){
-			throw new \InvalidArgumentException('Param $key must be a key. Was: '.gettype($key));
-		}
 		
-		return $this->func($Registry, $key);
+		if(extension_loaded('pdo_mysql')){
+			$o = new \Lampcms\Modules\Search\MySQL($Registry);
+		}
+
+
+
+		if(!isset($o)){
+			e('Search feature is not implemented because no search providers are defined');
+			return new Stub();
+		}
+
+		if(!($o instanceof Search)){
+			throw new \Lampcms\DevException('Search provider class '.get_class($o).' does not implement Search interface');
+		}
+
+		return $o;
 	}
 }

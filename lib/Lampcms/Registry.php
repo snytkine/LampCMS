@@ -178,7 +178,7 @@ class Registry implements Interfaces\LampcmsObject
 		});
 
 		$this->values['Cache'] = $this->asShared(function ($c) {
-			return new \Lampcms\Cache($c);
+			return new \Lampcms\Cache\Cache($c);
 		});
 
 

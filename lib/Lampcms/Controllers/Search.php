@@ -54,7 +54,7 @@ namespace Lampcms\Controllers;
 
 use \Lampcms\WebPage;
 use \Lampcms\Template\Urhere;
-use \Lampcms\SearchFactory;
+use \Lampcms\Modules\Search\Factory as SearchFactory;
 
 class Search extends WebPage
 {
@@ -100,8 +100,8 @@ class Search extends WebPage
 		$this->aPageVars['title'] = 'Questions matching &#39;'.$this->term.'&#39;';
 		d('$this->term: '.$this->term);
 
-			
-		$this->Search = SearchFactory::factory($this->Registry);
+		$this->Search = SearchFactory::get($this->Registry);
+
 		$this->Search->search($this->term);
 
 		$this->makeTopTabs()

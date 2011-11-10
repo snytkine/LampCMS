@@ -50,7 +50,9 @@
  */
 
 
-namespace Lampcms;
+namespace Lampcms\Cache;
+
+use \Lampcms\Registry;
 
 
 /**
@@ -59,13 +61,13 @@ namespace Lampcms;
  * methods in try/catch blocks and add logging
  * to log errors
  */
-class MongoCache implements Interfaces\Cache
+class Mongo implements \Lampcms\Interfaces\Cache
 {
 	/**
 	 * Mongo object
-	 * @var object of type Mongo
+	 * @var object of type \Mongo (php's \Mongo class, NOT Lampcms Mongo)
 	 */
-	protected $oMongo;
+	protected $Mongo;
 
 
 	/**
@@ -103,9 +105,9 @@ class MongoCache implements Interfaces\Cache
 		$Ini = $Registry->Ini;
 		$aConfig = $Ini->getSection('CACHE_MONGO');
 		d('cp');
-		$oMongo = $Registry->Mongo->getMongo();
+		$Mongo = $Registry->Mongo->getMongo();
 
-		$o = new self($oMongo, $aConfig['db'], $aConfig['collection']);
+		$o = new self($Mongo, $aConfig['db'], $aConfig['collection']);
 
 		return $o;
 	}
@@ -121,8 +123,11 @@ class MongoCache implements Interfaces\Cache
 	 * @param string $db name of database
 	 *
 	 * @param string $collection name of collection
+	 * 
+	 * @param bool $compress is true then will store values compressed with gzip
+	 * to save space (extra processing overhead will be incured to compress/uncompress)
 	 */
-	public function __construct(\Mongo $oMongo, $db, $collection, $nameSpace = null, $compress = false){
+	public function __construct(\Mongo $Mongo, $db, $collection, $nameSpace = null, $compress = false){
 
 		if (!extension_loaded('mongo')) {
 			throw new \LogicException('The MongoDB extension must be loaded for using this backend !');
@@ -138,8 +143,8 @@ class MongoCache implements Interfaces\Cache
 			$this->bCompress = (bool)$compress;
 		}
 
-		$this->oMongo      = $oMongo;
-		$this->_collection = $oMongo->selectCollection($db, $collection);//$this->_db->selectCollection($collection);
+		$this->Mongo      = $Mongo;
+		$this->_collection = $Mongo->selectCollection($db, $collection);//$this->_db->selectCollection($collection);
 		$this->_collection->ensureIndex(array('tags' => 1));
 	}
 
@@ -200,7 +205,7 @@ class MongoCache implements Interfaces\Cache
 	 *
 	 */
 	public function clean(){
-		return $this->_collection->remove(array('$where' => new MongoCode('function() { return this.exp < '.(time() - 1).'; }')));
+		return $this->_collection->remove(array('$where' => new \MongoCode('function() { return this.exp < '.(time() - 1).'; }')));
 	}
 
 

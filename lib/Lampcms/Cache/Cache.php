@@ -50,21 +50,15 @@
  */
 
 
-namespace Lampcms;
+namespace Lampcms\Cache;
+
+use Lampcms\ArrayDefaults;
+use Lampcms\Registry;
 
 
 /**
- * @todo add to autoloaded a function
- * to include cache driver class from Drivers dir
  *
- * @todo add require_once to include CacheDriver and CacheInterface
- * at the beginning of this file
- * use realpath(dirname(__FILE__))
- *
- * But the best solution is probably to just define everything in
- * autoload once before even calling this class
- *
- * @author HP_Administrator
+ * @author Dmitri Snytkine
  *
  */
 class Cache extends \Lampcms\Event\Observer
@@ -142,7 +136,7 @@ class Cache extends \Lampcms\Event\Observer
 		d('cp');
 		if(!$this->skipCache){
 			d('cp');
-			$this->setCacheEngine(MongoCache::factory($Registry));
+			$this->setCacheEngine(Mongo::factory($Registry));
 			$Registry->Dispatcher->attach($this);
 		}
 	}
@@ -155,7 +149,7 @@ class Cache extends \Lampcms\Event\Observer
 	 * @throws Cache_Proxy_User_Exception
 	 */
 	public function __clone(){
-		throw new DevException('Cloning this object is not allowed.');
+		throw new \Lampcms\DevException('Cloning this object is not allowed.');
 	}
 
 
@@ -178,7 +172,7 @@ class Cache extends \Lampcms\Event\Observer
 	 *
 	 * @throws DevException is case the requested key is not a string or array
 	 */
-	public function get($key, CacheCallback $callback = null, array $arrExtra = array()){
+	public function get($key, Callback $callback = null, array $arrExtra = array()){
 
 		d('$key: '.$key);
 		if(!empty($arrExtra)){
@@ -238,7 +232,7 @@ class Cache extends \Lampcms\Event\Observer
 
 
 
-	public function setCacheEngine(Interfaces\Cache $Cache = null){
+	public function setCacheEngine(\Lampcms\Interfaces\Cache $Cache = null){
 		$this->CacheInterface = $Cache;
 
 		return $this;
