@@ -118,7 +118,8 @@ class tplMain extends Lampcms\Template\Fast
 %9$s
 <link href="%10$s" rel="stylesheet" type="text/css">
 %11$s
-<script type="text/javascript" src="http://yui.yahooapis.com/combo?3.3.0pr3/build/yui/yui-min.js&3.3.0pr3/build/loader/loader-min.js"></script>
+<!-- <script type="text/javascript" src="http://yui.yahooapis.com/combo?3.3.0pr3/build/yui/yui-min.js&3.3.0pr3/build/loader/loader-min.js"></script> -->
+<script src="http://yui.yahooapis.com/3.4.1/build/yui/yui-min.js"></script>
 %12$s
 <link rel="shortcut icon" href="/favicon.ico">
 </head>

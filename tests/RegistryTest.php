@@ -106,7 +106,7 @@ class RegistryTest extends LampcmsUnitTestCase
 	public function testCacheAsShared(){
 		$o1 = $this->Registry->Cache;
 		$o2 = $this->Registry->Cache;
-		$this->assertInstanceOf('\Lampcms\Cache', $o1);
+		$this->assertInstanceOf('\Lampcms\Cache\Cache', $o1);
 		$this->assertSame($o1, $o2);
 	}
 

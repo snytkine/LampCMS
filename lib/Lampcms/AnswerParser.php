@@ -89,7 +89,7 @@ class Answerparser extends LampcmsObject
 
 	/**
 	 * Cache object
-	 * @var object of type \Lampcms\Cache
+	 * @var object of type \Lampcms\Cache\Cache
 	 */
 	protected $Cache;
 

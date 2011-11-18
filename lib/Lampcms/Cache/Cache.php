@@ -52,8 +52,9 @@
 
 namespace Lampcms\Cache;
 
-use Lampcms\ArrayDefaults;
-use Lampcms\Registry;
+use \Lampcms\ArrayDefaults;
+use \Lampcms\Registry;
+use \Lampcms\DevException;
 
 
 /**
@@ -146,7 +147,7 @@ class Cache extends \Lampcms\Event\Observer
 	 * Since this is a singleton object
 	 * we should disallow cloning
 	 * @return void
-	 * @throws Cache_Proxy_User_Exception
+	 * @throws \Lampcms\DevException
 	 */
 	public function __clone(){
 		throw new \Lampcms\DevException('Cloning this object is not allowed.');
@@ -155,7 +156,7 @@ class Cache extends \Lampcms\Event\Observer
 
 	public function __toString(){
 
-		return 'object of type CacheHandler';
+		return 'object Lampcms\Cache\Cache';
 	}
 
 
@@ -273,7 +274,7 @@ class Cache extends \Lampcms\Event\Observer
 	 * and calls on that method
 	 *
 	 * @param $key
-	 * @param object $callback object of type CacheCallback
+	 * @param object $callback object of type Lampcms\Cache\Callback
 	 * if this object is passed it contains method
 	 * for getting the value of requested key - it will be
 	 * used if the $key is not present in cache.
@@ -286,7 +287,7 @@ class Cache extends \Lampcms\Event\Observer
 	 *
 	 * @return mixed a data returned for the requested key or false
 	 */
-	protected function getKeyValue($key, CacheCallback $callback = null){
+	protected function getKeyValue($key, Callback $callback = null){
 
 		if($callback){
 			d('$callback object is passed');

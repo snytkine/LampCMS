@@ -52,7 +52,7 @@
 
 namespace Lampcms\I18n;
 
-use \Lampcms\CacheCallback;
+use \Lampcms\Cache\Callback;
 
 /**
  * Simple translator class
@@ -105,7 +105,7 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
 	 * 
 	 * @param \Lampcms\Registry $Registry
 	 */
-	public static function factory(\Lampcms\Cache $Cache, $locale){
+	public static function factory(\Lampcms\Cache\Cache $Cache, $locale){
 		if(!\is_string($locale)){
 			throw new \Lampcms\DevException('Param $locale must be a string. Was: '.gettype($locale));
 		}
