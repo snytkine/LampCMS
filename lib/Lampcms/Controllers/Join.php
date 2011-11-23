@@ -187,9 +187,7 @@ class Join extends Register
 		 * has not activated an account
 		 * and present a reminder as some point.
 		 */
-
-
-		$this->Registry->Viewer->offsetSet('role', 'unactivated_external');
+		$this->Registry->Viewer->setRoleId('unactivated_external');
 		$this->Registry->Viewer->save();
 
 		/**

@@ -287,11 +287,11 @@ class Log
 			$msg .= "\n".'HTTP_REFERER: '.self::getServerVar('HTTP_REFERER');
 			$msg .= "\n".'-----------------------------------------------------';
 			$msg .= "\n".'REMOTE_ADDR/IP: '.self::getServerVar('REMOTE_ADDR');
-			$msg .= "\n".'-----------------------------------------------------';
-			$msg .= "\n".'GEOIP_CITY: '.self::getServerVar('GEOIP_CITY');
-			$msg .= "\n".'GEOIP_COUNTRY_CODE: '.self::getServerVar('GEOIP_COUNTRY_CODE');
-			$msg .= "\n".'GEOIP_COUNTRY_NAME: '.self::getServerVar('GEOIP_COUNTRY_NAME');
-			$msg .= "\n".'GEOIP_REGION: '.self::getServerVar('GEOIP_REGION');
+			
+			if(Request::isPost()){
+				$msg .= "\n".'-----------------------------------------------------';
+				$msg .= "\n".'POST: '.print_r($_POST, true);
+			}
 		}
 
 		/**

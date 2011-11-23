@@ -55,8 +55,12 @@ use \Lampcms\WebPage;
 
 /**
  * Controller for
+ * "Settings" page
+ * This page is shown to all users
+ * but admins see extra links to
+ * "Clear Cache" and to "Edit Categories"
  *
- * @author admin
+ * @author Dmitri Snytkine
  *
  */
 class Settings extends WebPage

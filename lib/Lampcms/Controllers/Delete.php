@@ -244,7 +244,7 @@ class Delete extends WebPage
 
 		if(!empty($ban) && $this->checkAccessPermission('ban_user')){
 			$User = User::factory($this->Registry)->by_id($this->Resource->getOwnerId());
-			$User->offsetSet('role', 'suspended');
+			$User->setRoleId('suspended');
 			$User->save();
 
 			$this->Registry->Dispatcher->post($User, 'onUserBanned');

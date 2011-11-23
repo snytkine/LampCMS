@@ -203,9 +203,7 @@ class UserQuestions extends LampcmsObject
 			$where['i_del_ts'] = null;
 		}
 
-		$cursor = $Registry->Mongo->QUESTIONS->find($where)->sort($sort);
-
-		return $cursor;
+		return $Registry->Mongo->QUESTIONS->find($where)->sort($sort);
 	}
 
 }

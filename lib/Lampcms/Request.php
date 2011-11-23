@@ -503,5 +503,15 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
 		return $sUserAgent;
 	}
+	
+	/**
+	 * Check if request has been submitted 
+	 * via the POST method
+	 * 
+	 * @return bool true if request came via HTTP POST
+	 */
+	public static function isPost(){
+		return self::getRequestMethod() === 'POST';
+	}
 
 }

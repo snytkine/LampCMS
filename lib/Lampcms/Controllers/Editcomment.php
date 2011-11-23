@@ -79,6 +79,7 @@ class Editcomment extends Addcomment
 	protected function main(){
 		$this->Registry->registerObservers('INPUT_FILTERS');
 		$this->permission = 'edit_any_comment';
+		//$this->getResource();
 
 		$this->checkPermission()
 		->saveEdit()
@@ -108,7 +109,9 @@ class Editcomment extends Addcomment
 
 	protected function saveEdit(){
 		$this->CommentParser = new \Lampcms\CommentParser($this->Registry);
-		$this->CommentParser->edit(new \Lampcms\SubmittedCommentWWW($this->Registry), $this->viewerId);
+		$Comment = new \Lampcms\SubmittedCommentWWW($this->Registry);
+		$this->Resource = $Comment->getResource();
+		$this->CommentParser->edit($Comment, $this->viewerId);
 
 		return $this;
 	}

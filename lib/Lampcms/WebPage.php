@@ -1036,8 +1036,8 @@ abstract class WebPage extends Base
 			$cookie = Cookie::get('dnd');
 			d('dnd: '.$cookie);
 			if(!$cookie){
-				$isNewUser = $this->Registry->Viewer->isNewUser();
-				d('isNewUser: '.$isNewUser.' $this->Registry->Viewer: '.print_r($this->Registry->Viewer->getArrayCopy(), 1));
+				//$isNewUser = $this->Registry->Viewer->isNewUser();
+				//d('isNewUser: '.$isNewUser.' $this->Registry->Viewer: '.print_r($this->Registry->Viewer->getArrayCopy(), 1));
 
 				if($this->Registry->Viewer instanceof UserExternal){
 					$email = $this->Registry->Viewer->email;

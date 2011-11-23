@@ -356,6 +356,7 @@ Interfaces\LinkedinUser
 		if(!\is_string($role)){
 			throw new \InvalidArgumentException('$role must be a string. was: '.gettype($role));
 		}
+		
 		$a = $this->getRegistry()->Acl->getRegisteredRoles();
 		if(!\array_key_exists($role, $a)){
 			throw new \Lampcms\DevException('The $role name: '.$role.' is not one of the roles in the acl.ini file');

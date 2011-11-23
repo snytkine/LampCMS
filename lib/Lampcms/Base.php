@@ -109,6 +109,13 @@ class Base extends LampcmsObject
 	 * @var bool
 	 */
 	protected $bLoggedIn;
+	
+	/**
+	 * Registry Object
+	 * 
+	 * @var object of type \Lampcms\Registry
+	 */
+	protected $Registry;
 
 
 	public function __construct(Registry $Registry){
@@ -309,9 +316,7 @@ class Base extends LampcmsObject
 
 		return $this;
 	}
-
-
-
+	
 
 	/**
 	 * Checks the access permissions for current page
@@ -340,6 +345,7 @@ class Base extends LampcmsObject
 		return $this;
 	}
 
+	
 	/**
 	 *
 	 * Check to see if current viewer
