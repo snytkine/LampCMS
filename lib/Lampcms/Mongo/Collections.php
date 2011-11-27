@@ -297,7 +297,7 @@ const API_ACCESS_COUNTER = 'API_ACCESS_COUNTER';
  * tests. This is a temporary collection which
  * is created only during run of test suite and
  * then dropped at end of test
- * Enter description here ...
+ * 
  */
 const MY_MONGO_TEST_COLLECTION = 'MY_MONGO_TEST_COLLECTION';
 
@@ -323,5 +323,12 @@ const TRANSLATION = 'TRANSLATION';
 const GEO_BLOCKS = 'GEO_BLOCKS';
 
 const GEO_LOCATION = 'GEO_LOCATION';
+
+/**
+ * CATEGORY collection stores
+ * categories data
+ * 
+ */
+const CATEGORY = 'CATEGORY';
 
 

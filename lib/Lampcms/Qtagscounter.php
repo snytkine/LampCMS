@@ -99,7 +99,7 @@ class Qtagscounter extends LampcmsObject
 	 * We must either trust external API's timestamp or don't
 	 *  trust it. We can't trust it in one collection
 	 *  and not trust it in another.
-	 *  It will be a hell of a lot easier if we just
+	 *  It will be a lot easier if we just
 	 *  trust external API's timestamp
 	 *
 	 *  @todo we can use this as post-echo method

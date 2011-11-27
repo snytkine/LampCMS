@@ -74,6 +74,8 @@
 
 // include.js
 
+// Editcat here
+
 /**
  * 
  */
@@ -959,7 +961,7 @@ oSL.Regform = (function() {
 YUI({
 	/*filter: 'raw',
 	gallery : 'gallery-2010.08.18-17-12'*/
-		}).use('node', 'dump', 'event', 'escape', 'gallery-storage-lite', 'gallery-overlay-extras', 'dd-plugin', 'anim', 'transition', 'yui2-container', 'yui2-editor', 'yui2-element', 'yui2-button', 'yui2-resize', 'yui2-animation', 'io-form', 'json', 'jsonp', 'imageloader', 'autocomplete', 'autocomplete-filters','autocomplete-highlighters', 'gallery-node-tokeninput', 'cookie', function(Y, result) {
+		}).use('node', 'dump', 'event', 'escape', 'gallery-storage-lite', 'gallery-overlay-extras', 'dd-plugin', 'anim', 'transition', 'yui2-container', 'yui2-editor', 'yui2-element', 'yui2-button', 'yui2-resize', 'yui2-animation', 'io-base', 'io-form', 'io-upload-iframe', 'json', 'jsonp', 'imageloader', 'autocomplete', 'autocomplete-filters','autocomplete-highlighters', 'gallery-node-tokeninput', 'cookie', function(Y, result) {
 	
 		
 	var YAHOO = Y.YUI2, //
@@ -981,6 +983,7 @@ YUI({
 	previewDiv, //
 	preview, //
 	MysubmitForm, //
+	Editcat, //
 	showDeleteForm, //
 	showRetagForm, //
 	showShredForm, //
@@ -2301,6 +2304,7 @@ YUI({
 
 	// A function handler to use for successful requests:
 	handleSuccess = function(ioId, o, args) {
+		
 		hideLoading();
 		Y.log("args from Y.io: " + Y.dump(args));
 		var data, target, paginated, scoreDiv, comDivID, eDiv, eRepliesDiv, sContentType = Y.Lang.trim(o.getResponseHeader("Content-Type"));
@@ -2600,8 +2604,6 @@ YUI({
 	MysubmitForm = function(e) {
 		
 		var request, cfg, mbody, title, tags, reason, form = e.currentTarget;
-		
-		//Y.log('form is: ' + form);
 
 		title = form.one("#id_title");
 		tags = form.one("#id_tags");
@@ -2654,6 +2656,47 @@ YUI({
 		e.halt();
 		return false;
 
+	};
+	
+	Editcat = function(e){
+		Y.log('starting Editcat');
+		var request, cfg, title, desc, slug, form = e.currentTarget;
+		e.halt();
+		e.preventDefault();
+		errors = false;
+		title = form.one("#id_cattitle");
+		slug = form.one("#id_catslug");
+		sTitle = Y.Lang.trim(title.get('value'));
+		sSlug = Y.Lang.trim(slug.get('value'));
+		//alert('title: ' + title.get('value'));
+		if(!sTitle.length){
+			setFormError({'cattitle':'required'});
+			errors = true;
+		}
+		
+		if(!sSlug.length){
+			setFormError({'catslug':'required'});
+			errors = true;
+		}
+		
+		if(!errors){
+			cfg = {
+					method : 'POST',
+					form : {
+						id : form
+						/*upload: true,*/
+						}
+					
+				};
+				
+				showLoading(Y.one("#cat_submit").ancestor('div'));
+				request = Y.io('/index.php', cfg);
+				return false;
+		}
+		
+		
+		
+		
 	};
 
 	
@@ -4151,6 +4194,7 @@ YUI({
 	
 	Y.on('submit', MysubmitForm, '.qa_form');
 	Y.on('change', changeLang, '#id_locale');
+	Y.on('submit', Editcat, '#id_edit_category');
 	
 	/**
 	 * Listening the clicks on links inside #lastdiv

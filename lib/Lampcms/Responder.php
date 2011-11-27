@@ -163,7 +163,6 @@ class Responder
 		$json = json_encode($aJson);
 
 		$strResult = self::PAGE_OPEN.self::JS_OPEN.'
-        //alert("Dude!");
 		if(parent && parent.oSL && (parent.oSL.oFrm && parent.oSL.oFrm.fParseResponce) ){
 		parent.oSL.oFrm.fParseResponce('.$json.');
 		}

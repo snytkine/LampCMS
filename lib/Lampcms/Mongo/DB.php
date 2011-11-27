@@ -53,6 +53,7 @@
 
 namespace Lampcms\Mongo;
 
+use \Lampcms\DevException;
 
 /**
  * Wrapped class for working with

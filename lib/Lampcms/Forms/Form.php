@@ -201,10 +201,12 @@ class Form extends LampcmsObject
 		$tpl = $this->template;
 		d('tpl: '.$tpl);
 
-
-		$this->aVars = $tpl::getVars();
-		d('$this->aVars: '.print_r($this->aVars, 1));
-		if('POST' === Request::getRequestMethod()){
+		if(isset($tpl)){
+			$this->aVars = $tpl::getVars();
+			d('$this->aVars: '.print_r($this->aVars, 1));
+		}
+		
+		if(Request::isPost()){
 			$this->bSubmitted = true;
 			if(true === $useToken){
 				self::validateToken($Registry);
@@ -228,11 +230,11 @@ class Form extends LampcmsObject
 	 * @param string $string string to translate
 	 * @param array $vars optional array of replacement vars for
 	 * translation
-	 * 
+	 *
 	 * @return string translated string
 	 */
 	protected function _($string, array $vars = null){
-		
+
 		return $this->Tr->get($string, $vars);
 	}
 
