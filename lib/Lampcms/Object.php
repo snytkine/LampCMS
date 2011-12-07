@@ -145,17 +145,12 @@ const DIR_XXX = 'xxx';
  * @param unknown_type $callable
  *
  */
-function runLater(\Closure $callable){
+function runLater($callable){
 	if(!is_callable($callable)){
 		throw new Exception('param passed to runLater must be a callable function. Was: '.\gettype($callable));
 	}
 
 	register_shutdown_function($callable);
-	/*if(defined('NO_FFR')){
-		$callable();
-	} else {
-		register_shutdown_function($callable);
-	}*/
 }
 
 /**

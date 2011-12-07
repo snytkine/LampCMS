@@ -113,7 +113,12 @@ class Login extends WebPage
 			 */
 			$User->activate();
 		} catch(\Lampcms\LoginException $e) {
-			e('Login error: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
+			/**
+			 * @todo may add extra setting to !config.ini to send login errors
+			 * to special dedicated email address that will receive all security (hacking attempts)
+			 * related errors.
+			 */
+			d('Login error: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
 			if (Request::isAjax()) {
 				Responder::sendJSON(array('error' => $e->getMessage()));
 			}

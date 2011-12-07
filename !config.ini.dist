@@ -152,7 +152,7 @@ COOKIE_DOMAIN =
 TEMP_DIR = 
 ;
 ;Some configuration constants
-;Leave black if you host images, css and js
+;Leave blank if you host images, css and js
 ;on the same server as this program,
 ;otherwise defile the full path to domain + dir
 ;where the files reside, without the '/' at the end

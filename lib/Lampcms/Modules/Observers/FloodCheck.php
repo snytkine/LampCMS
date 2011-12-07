@@ -124,7 +124,11 @@ class FloodCheck extends \Lampcms\Event\Observer
 			$a = $this->Registry->Mongo->COMMENTS->findOne($where);
 
 			if(!empty($a)){
-				throw new \Lampcms\Exception('You are posting too fast.<br>You must wait '.$timeout.' seconds between comments');
+				/**
+				 * @todo
+				 * Translate string
+				 */
+				throw new \Lampcms\AccessException('You are posting too fast.<br>You must wait '.$timeout.' seconds between comments');
 			}
 		}
 	}

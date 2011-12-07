@@ -789,6 +789,10 @@ abstract class WebPage extends Base
 
 	/**
 	 * Adds (appends) value to last_js element of page
+	 * 
+	 * @todo check if relavite path of src
+	 * then also take into account
+	 * config option JS
 	 *
 	 * @return object $this
 	 */
@@ -918,7 +922,7 @@ abstract class WebPage extends Base
 				$this->httpCode = 404;
 			}
 
-			if(!($le instanceof AuthException) && !($le instanceof MustLoginException) && !($le instanceof LoginException)){
+			if(!($le instanceof AuthException)  && !($le instanceof LoginException) && !($le instanceof MustLoginException)){
 				e('Exception caught in: '.$le->getFile().' on line: '.$le->getLine().' '.$le->getMessage());
 			}
 

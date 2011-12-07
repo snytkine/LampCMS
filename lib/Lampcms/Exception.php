@@ -363,7 +363,21 @@ class Exception extends \Exception
  * @author Dmitri Snytkine
  *
  */
-class NoemailException extends \Lampcms\Exception{}
+class NoemailException extends Exception{}
+
+
+class LoginException extends Exception{}
+
+
+/**
+ * This exception indicated that
+ * user must login in order
+ * to view or use the page
+ * The HTTP code
+ * @author Dmitri Snytkine
+ *
+ */
+class AuthException extends Exception{}
 
 /**
  * This exception should be thrown when
@@ -464,15 +478,6 @@ class PDODuplicateException extends DBException
  * used in admin classes
  *
  */
-class AdminException extends Exception{}
-
-class Lampcms404Exception extends Exception{}
-
-class CookieAuthException extends Exception{}
-
-class AclException extends Exception{}
-
-class AclRoleRegistryException extends AclException{}
 
 /**
  * This exception indicates that user does
@@ -482,7 +487,18 @@ class AclRoleRegistryException extends AclException{}
  * @author Dmitri Snytkine
  *
  */
-class AccessException extends Exception{}
+class AccessException extends AuthException{}
+
+class AdminException extends Exception{}
+
+class Lampcms404Exception extends Exception{}
+
+class CookieAuthException extends AuthException{}
+
+class AclException extends AccessException{}
+
+class AclRoleRegistryException extends AclException{}
+
 
 /**
  *
@@ -492,17 +508,8 @@ class AccessException extends Exception{}
  * @author Dmitri Snytkine
  *
  */
-class MustLoginException extends Exception{}
+class MustLoginException extends LoginException{}
 
-/**
- * This exception indicated that
- * user must login in order
- * to view or use the page
- * The HTTP code
- * @author Dmitri Snytkine
- *
- */
-class AuthException extends Exception{}
 
 /**
  *
@@ -510,7 +517,7 @@ class AuthException extends Exception{}
  * email address
  *
  */
-class UnactivatedException extends Exception{}
+class UnactivatedException extends AuthException{}
 
 /**
  * Special exception indicates
@@ -579,7 +586,7 @@ class FacebookApiException extends Exception{}
 
 class ImageException extends DevException{}
 
-class ExternalAuthException extends Exception{}
+class ExternalAuthException extends AuthException{}
 
 class GFCAuthException extends ExternalAuthException{}
 
@@ -596,15 +603,13 @@ class FacebookAuthException extends ExternalAuthException{}
  */
 class FacebookAuthUserException extends FacebookAuthException{}
 
-class CaptchaLimitException extends Exception{}
+class CaptchaLimitException extends AccessException{}
 
 class TokenException extends Exception{}
 
 class TrException extends Exception{}
 
 class TwitterException extends Exception{}
-
-class LoginException extends Exception{}
 
 class WrongUserException extends LoginException{}
 
@@ -791,4 +796,7 @@ class FilterException extends Exception {}
 
 
 class HTML2TextException extends Exception{}
+
+class AlertException extends Exception{}
+
 
