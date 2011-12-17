@@ -573,7 +573,7 @@ abstract class WebPage extends Base
 			d('aResult: '.print_r($User->getArrayCopy(), 1));
 
 		} catch(CookieAuthException $e) {
-			e('LampcmsError: login by sid failed with message: '.$e->getMessage());
+			d('LampcmsError: login by sid failed with message: '.$e->getMessage());
 			Cookie::delete(array('uid'));
 
 			return $this;
@@ -922,7 +922,7 @@ abstract class WebPage extends Base
 				$this->httpCode = 404;
 			}
 
-			if(!($le instanceof AuthException)  && !($le instanceof LoginException) && !($le instanceof MustLoginException)){
+			if(!($le instanceof Lampcms404Exception) && !($le instanceof AuthException)  && !($le instanceof LoginException) && !($le instanceof MustLoginException)){
 				e('Exception caught in: '.$le->getFile().' on line: '.$le->getLine().' '.$le->getMessage());
 			}
 

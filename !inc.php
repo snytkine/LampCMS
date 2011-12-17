@@ -37,8 +37,7 @@
  */
 
 error_reporting(E_ALL | E_DEPRECATED);
-//ini_set('display_errors', 1);
-//ini_set('display_startup_errors', 1);
+
 
 /**
  * For those unfortunate souls
@@ -74,7 +73,7 @@ if(function_exists('mb_internal_encoding')){
 }
 
 function exception_handler($e){
-	//echo 'Eeeeee '.$e->getMessage()."\n<br>";
+	
 	try {
 		$err =  Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
 		$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';
@@ -119,6 +118,11 @@ require $lampcmsClasses.'SplClassLoader.php';
 require $lampcmsClasses.'Registry.php';
 require $lampcmsClasses.'Template'.DIRECTORY_SEPARATOR.'Fast.php';
 
+if(defined('IS_WWW')){
+	if (true !== session_start()) {
+		exit('session start error');
+	}
+}
 /**
  * Points.php is in non-standard directory,
  * in fact this file is not even included in distro
@@ -185,7 +189,7 @@ function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
 		 * error reporting mask, then throw an ErrorException
 		 */
 		if ($errLevel & $errno) {
-				
+
 			throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
 		}
 	}
@@ -282,7 +286,7 @@ if((true === LAMPCMS_DEBUG) && ('' !== LOG_FILE_PATH) && (true === (bool)$oINI->
  * has been defined
  */
 function d($message){
-	if(defined('LAMPCMS_DEBUG') && true === LAMPCMS_DEBUG){
+	if(true === LAMPCMS_DEBUG){
 		\Lampcms\Log::d($message, 2);
 	}
 }

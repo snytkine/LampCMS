@@ -112,7 +112,10 @@ class Userinfo extends WebPage
 		$a = $this->Registry->Mongo->USERS->findOne(array('_id' => $this->Request['uid']));
 
 		if(empty($a)){
-			throw new \Lampcms\Exception('User not found');
+			/**
+			 * @todo translate string
+			 */
+			throw new \Lampcms\Lampcms404Exception($this->_('User not found'));
 		}
 
 		$this->User = User::factory($this->Registry, $a);

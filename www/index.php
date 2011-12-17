@@ -52,13 +52,9 @@ ini_set('session.use_trans_sid', false);
 ini_set('session.use_only_cookies', true);
 
 define('INIT_TIMESTAMP', microtime());
-
+define('IS_WWW', 1);
 
 include '../!inc.php';
-
-if (true !== session_start()) {
-	throw new Lampcms\Exception('session start error');
-}
 
 require($lampcmsClasses.'Base.php');
 require($lampcmsClasses.'WebPage.php');

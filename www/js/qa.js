@@ -961,7 +961,7 @@ oSL.Regform = (function() {
 YUI({
 	/*filter: 'raw',
 	gallery : 'gallery-2010.08.18-17-12'*/
-		}).use('node', 'dump', 'event', 'escape', 'gallery-storage-lite', 'gallery-overlay-extras', 'dd-plugin', 'anim', 'transition', 'yui2-container', 'yui2-editor', 'yui2-element', 'yui2-button', 'yui2-resize', 'yui2-animation', 'io-base', 'io-form', 'io-upload-iframe', 'json', 'jsonp', 'imageloader', 'autocomplete', 'autocomplete-filters','autocomplete-highlighters', 'gallery-node-tokeninput', 'cookie', function(Y, result) {
+		}).use('node', 'dump', 'event', 'escape', 'gallery-storage-lite', 'gallery-overlay-extras', 'dd-plugin', 'anim', 'transition', 'yui2-container', 'yui2-editor', 'yui2-element', 'yui2-button', 'yui2-resize', 'yui2-animation', 'io-base', 'io-form', 'io-upload-iframe', 'json', 'jsonp', 'imageloader', 'autocomplete', 'autocomplete-filters','autocomplete-highlighters', 'gallery-node-tokeninput', 'cookie', 'cateditor', function(Y, result) {
 	
 		
 	var YAHOO = Y.YUI2, //
@@ -2657,7 +2657,7 @@ YUI({
 		return false;
 
 	};
-	
+	/*
 	Editcat = function(e){
 		Y.log('starting Editcat');
 		var request, cfg, title, desc, slug, form = e.currentTarget;
@@ -2668,7 +2668,7 @@ YUI({
 		slug = form.one("#id_catslug");
 		sTitle = Y.Lang.trim(title.get('value'));
 		sSlug = Y.Lang.trim(slug.get('value'));
-		//alert('title: ' + title.get('value'));
+		
 		if(!sTitle.length){
 			setFormError({'cattitle':'required'});
 			errors = true;
@@ -2684,7 +2684,7 @@ YUI({
 					method : 'POST',
 					form : {
 						id : form
-						/*upload: true,*/
+						upload: true,
 						}
 					
 				};
@@ -2698,7 +2698,7 @@ YUI({
 		
 		
 	};
-
+*/
 	
 	var getYTbutton = function(){
 		var ret = {type : 'separator'};
@@ -4194,7 +4194,12 @@ YUI({
 	
 	Y.on('submit', MysubmitForm, '.qa_form');
 	Y.on('change', changeLang, '#id_locale');
-	Y.on('submit', Editcat, '#id_edit_category');
+	//Y.on('submit', Editcat, '#id_edit_category');
+	if(Y.hasOwnProperty('categoryEditor')){
+		Y.categoryEditor.Editor();
+		} else {
+			Y.log('no cat editor here');
+		}
 	
 	/**
 	 * Listening the clicks on links inside #lastdiv

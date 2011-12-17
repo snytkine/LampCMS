@@ -114,6 +114,10 @@ class Import{
 		}
 
 		$coll = $this->Mongo->GEO_BLOCKS;
+		$coll->ensureIndex(array('s' => 1));
+		$coll->ensureIndex(array('e' => 1));
+		
+		echo '<br>Starting the import process. Be patient, it may take about 5-10 minutes, depending on your server.';
 
 		$row = 0;
 		while (($data = fgetcsv($handle, 1000, ",")) !== false) {
@@ -132,10 +136,6 @@ class Import{
 		}
 
 		echo '<br>Imported '.number_format($row).' rows to GEO_BLOCKS collection';
-
-		$coll->ensureIndex(array('s' => 1));
-		$coll->ensureIndex(array('e' => 1));
-
 	}
 
 
