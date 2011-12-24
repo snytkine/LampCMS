@@ -50,6 +50,9 @@
  */
 
 
+ini_set('session.use_only_cookies', true);
+ini_set('session.use_trans_sid', false);
+
 define('INIT_TIMESTAMP', microtime());
 
 /**
@@ -61,27 +64,48 @@ define('INIT_TIMESTAMP', microtime());
 include '../!inc.php';
 
 
-try {
-
-	ini_set('session.use_only_cookies', true);
-	ini_set('session.use_trans_sid', false);
-	if (true !== session_start()) {
-		throw new Lampcms\Exception('session_start_error');
-	}
-
-	include($lampcmsClasses.'Controllers'.DIRECTORY_SEPARATOR.'Logintwitter.php');
-
-	$o = new \Lampcms\Controllers\Logintwitter($Registry);
-	header('Content-Type: text/html; charset=utf-8');
-	echo $o->getResult();
-	fastcgi_finish_request();
-
-} catch(\Exception $e) {
-
+if (true !== session_start()) {
+	/**
+	 * @todo
+	 * Translate String
+	 */
+	echo ('Session start error');
+} else {
 	try {
-		echo \Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.\Lampcms\Exception::formatException($e));
 
-	}catch(Exception $e2) {
-		echo \Lampcms\Responder::makeErrorPage('<strong>Exception:</strong> '.$e2->getMessage()."\nIn file:".$e2->getFile()."\nLine: ".$e2->getLine());
+		include($lampcmsClasses.'Controllers'.DIRECTORY_SEPARATOR.'Logintwitter.php');
+
+		$o = new \Lampcms\Controllers\Logintwitter($Registry);
+		header('Content-Type: text/html; charset=utf-8');
+		echo $o->getResult();
+		session_write_close();
+		fastcgi_finish_request();
+
+	} catch(\OutOfBoundsException $e){
+		session_write_close();
+		/**
+		 * Special case is OutOfBoundsException which
+		 * is our special way of saying exit(); but do it
+		 * gracefully - let it be caught here and then do nothing
+		 * This is better than using exit() because on some servers
+		 * exit may terminate the whole fastcgi process instead of just
+		 * stopping this one script
+		 */
+		$errMessage = trim($e->getMessage());
+		
+		if(!empty($errMessage)){
+			echo '<div class="exit_error">'.$errMessage.'</div>';
+			d('Got exit signal from '.$e->getTraceAsString());
+		}
+		fastcgi_finish_request();
+
+	}catch(\Exception $e) {
+
+		try {
+			echo \Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.\Lampcms\Exception::formatException($e));
+
+		}catch(Exception $e2) {
+			echo \Lampcms\Responder::makeErrorPage('<strong>Exception:</strong> '.$e2->getMessage()."\nIn file:".$e2->getFile()."\nLine: ".$e2->getLine());
+		}
 	}
 }

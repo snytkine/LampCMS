@@ -122,7 +122,6 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
 		$current = libxml_use_internal_errors(true);
 		if (!@$oDom->load($file, LIBXML_COMPACT)) {
 			$err = implode("\n", $this->getXmlErrors());
-			exit($err);
 			throw new \Lampcms\DevException($err);
 		}
 

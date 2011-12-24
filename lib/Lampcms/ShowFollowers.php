@@ -114,7 +114,7 @@ class ShowFollowers extends LampcmsObject
 	 * @return string html
 	 */
 	public function getQuestionFollowers(array $aUids, $total = null){
-		d('aUids: '.print_r($aUids, 1));
+		//d('aUids: '.print_r($aUids, 1));
 
 		if(count($aUids) > $this->maxPerBlock){
 			$aUids = array_splice($aUids, 0, $this->maxPerBlock);

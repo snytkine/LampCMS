@@ -101,7 +101,7 @@ class IndexerMySQL implements Indexer
 	 */
 	public function indexQuestion(\Lampcms\Question $Question){
 		if(!extension_loaded('pdo_mysql')){
-			d('pdo_mysql not loaded ');
+			//d('pdo_mysql not loaded ');
 
 			return $this;
 		}
@@ -118,7 +118,7 @@ class IndexerMySQL implements Indexer
 		$avatar    = $Question['avtr'];
 		$tags_html = $Question['tags_html'];
 
-		d($qid.' title: '. $title. ' url: '. $url.' intro: '.$intro);
+		//d($qid.' title: '. $title. ' url: '. $url.' intro: '.$intro);
 
 		$sql = 'INSERT INTO question_title
 		(
@@ -162,7 +162,7 @@ class IndexerMySQL implements Indexer
 		} catch (\Exception $e){
 
 			$err = ('Exception: '.get_class($e).' Unable to insert into mysql because: '.$e->getMessage().' Err Code: '.$e->getCode().' trace: '.$e->getTraceAsString());
-			d('mysql error: '.$err);
+			//d('mysql error: '.$err);
 
 			if('42S02' === $e->getCode()){
 				if(true === TitleTagsTable::create($this->Registry)){
@@ -173,7 +173,7 @@ class IndexerMySQL implements Indexer
 			}
 
 		}
-		d('res: '.$res);
+		//d('res: '.$res);
 
 		return $this;
 	}
@@ -188,23 +188,23 @@ class IndexerMySQL implements Indexer
 	 */
 	public function removeQuestion(\Lampcms\Question $Question){
 		if(!extension_loaded('pdo_mysql')){
-			d('pdo_mysql not loaded ');
+			//d('pdo_mysql not loaded ');
 
 			return $this;
 		}
 
 		$qid   = $Question->offsetGet('_id');
 		$sql = 'DELETE FROM question_title WHERE qid = :qid';
-		d('about to remove question with qid: '.$qid);
+		//d('about to remove question with qid: '.$qid);
 
 		try{
 			$sth = $sth = $this->Registry->Db->makePrepared($sql);
 			$sth->bindParam(':qid', $qid, \PDO::PARAM_INT);
 			$res = $sth->execute();
-			d('res: '.$res);
+			//d('res: '.$res);
 		} catch(\Exception $e){
 			$err = ('Exception: '.get_class($e).' Unable to delete question because: '.$e->getMessage().' Err Code: '.$e->getCode().' trace: '.$e->getTraceAsString());
-			d('mysql error: '.$err);
+			//d('mysql error: '.$err);
 		}
 
 		return $this;

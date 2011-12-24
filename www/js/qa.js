@@ -1917,13 +1917,13 @@ YUI({
 			showLoading(el);
 			fbappid = getMeta('fbappid');
 			
-			if((typeof FB !== 'undefined') && fbappid && FB.getSession()){
+			if((typeof FB !== 'undefined') && fbappid && FB.getAuthResponse()){
 				FB.logout(function(response) {
 					Y.log('FB response ' + Y.dump(response));
-					fbcookie = "fbs_" + fbappid;
+					fbcookie = "fbsr_" + fbappid;
 					Y.log('removing fbcookie: ' + fbcookie);
 					Y.Cookie.remove(fbcookie);
-					Y.log('FB Session after logout: ' + Y.dump(FB.getSession()), 'warn');
+					Y.log('FB Session after logout: ' + Y.dump(FB.getAuthResponse()), 'warn');
 					window.location.assign('/index.php?a=logout');
 				});
 
@@ -2304,7 +2304,6 @@ YUI({
 
 	// A function handler to use for successful requests:
 	handleSuccess = function(ioId, o, args) {
-		
 		hideLoading();
 		Y.log("args from Y.io: " + Y.dump(args));
 		var data, target, paginated, scoreDiv, comDivID, eDiv, eRepliesDiv, sContentType = Y.Lang.trim(o.getResponseHeader("Content-Type"));
@@ -2657,49 +2656,7 @@ YUI({
 		return false;
 
 	};
-	/*
-	Editcat = function(e){
-		Y.log('starting Editcat');
-		var request, cfg, title, desc, slug, form = e.currentTarget;
-		e.halt();
-		e.preventDefault();
-		errors = false;
-		title = form.one("#id_cattitle");
-		slug = form.one("#id_catslug");
-		sTitle = Y.Lang.trim(title.get('value'));
-		sSlug = Y.Lang.trim(slug.get('value'));
 		
-		if(!sTitle.length){
-			setFormError({'cattitle':'required'});
-			errors = true;
-		}
-		
-		if(!sSlug.length){
-			setFormError({'catslug':'required'});
-			errors = true;
-		}
-		
-		if(!errors){
-			cfg = {
-					method : 'POST',
-					form : {
-						id : form
-						upload: true,
-						}
-					
-				};
-				
-				showLoading(Y.one("#cat_submit").ancestor('div'));
-				request = Y.io('/index.php', cfg);
-				return false;
-		}
-		
-		
-		
-		
-	};
-*/
-	
 	var getYTbutton = function(){
 		var ret = {type : 'separator'};
 		if('1' == getMeta('btn_yt')){
@@ -3783,6 +3740,8 @@ YUI({
 				fbPerms = '';
 			}
 			
+			Y.log('fbPerms: ' + fbPerms);
+			
 			/**
 			 * If user is logged in then this is a request
 			 * to Connect Facebook to existing user
@@ -3796,9 +3755,9 @@ YUI({
 			if(isLoggedIn()){
 				callback = function(response) {
 					Y.log('Connecting Facebook account', 'warn');
-					if (response.session) {
-						//Y.log('FB Signed in');
-						if (response.perms) {
+					if (response.authResponse) {
+						Y.log('FB Signed in response: ' + Y.dump(response));
+						if (response.status === 'connected') {
 							showLoading(null, 'Connecting<br>Facebook account');
 							Y.io('/index.php?a=connectfb');
 						} else {
@@ -3807,24 +3766,19 @@ YUI({
 					}
 				};
 			} else {
+				Y.log('before logging it to facebook');
 				callback = function(response) {
-					if (response.session) {
-						//Y.log('FB Signed in');
-						if (response.perms) {
-							// user is logged in and granted some
-							// permissions.
-							// perms is a comma separated list of granted
-							// permissions
-							// alert('Granted perms: ' + response.perms);
-							window.top.location.reload(true);
-						} 
+					if (response.authResponse && response.status === 'connected') {
+						Y.log('FB Signed in response: ' + Y.dump(response));
+						window.top.location.reload(true);
 					} else {
 						Y.log('Facebook login did not work', 'error');
 					}
 				};
 			}
 		
-			FB.login(callback, {perms : fbPerms});
+			FB.login(callback, {scope : fbPerms});
+			Y.log('after login to facebook');
 		}
 
 		return;

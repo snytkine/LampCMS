@@ -115,18 +115,18 @@ class Bitly
 		$tplUrl = 'http://api.bitly.com/v3/shorten?login=%s&apiKey=%s&longUrl=%s&format=json';
 		if(!empty($this->config) && !empty($this->config['user']) && !empty($this->config['api_key'])){
 			$context = \stream_context_create($this->aStreamOptions);
-			$res = \file_get_contents(sprintf($tplUrl, $this->config['user'], $this->config['api_key'], urlencode($url) ), false, $context);
+			$res = \file_get_contents(\sprintf($tplUrl, $this->config['user'], $this->config['api_key'], \urlencode($url) ), false, $context);
 			if(empty($res)){
 				d('did not get data back from bit.ly');
 				return false;
 			}
 
-			if(false === $a = json_decode($res, true)){
+			if(false === $a = \json_decode($res, true)){
 				d('unable to json_decode data returned by bit.ly '.$res);
 				return false;
 			}
 
-			d('bit.ly decoded json data: '.print_r($a, 1));
+			d('bit.ly decoded json data: '.\print_r($a, 1));
 			
 			if(!empty($a)
 			&& !empty($a['status_code'])
@@ -139,6 +139,7 @@ class Bitly
 		}
 
 		d('no short url from bitly');
+		
 		return false;
 	}
 }

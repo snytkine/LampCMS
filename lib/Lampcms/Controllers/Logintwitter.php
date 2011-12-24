@@ -403,8 +403,6 @@ class Logintwitter extends WebPage
 			throw new \Exception($e->getMessage());
 		}
 
-		d('SESSION oViewer: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1).  'isNew: '.$this->Registry->Viewer->isNewUser());
-
 		$this->Registry->Dispatcher->post( $this, 'onTwitterLogin' );
 
 		if($this->isNewAccount){
@@ -507,13 +505,14 @@ class Logintwitter extends WebPage
 		 * and ask the user to provide email address but only
 		 * during the same session
 		 */
-		$this->User->setNewUser();
-		d('isNewUser: '.$this->User->isNewUser());
+		//$this->User->setNewUser();
+		//d('isNewUser: '.$this->User->isNewUser());
 		$this->User->save();
 
 		\Lampcms\PostRegistration::createReferrerRecord($this->Registry, $this->User);
 
 		$this->Registry->Dispatcher->post($this->User, 'onNewUser');
+		$this->Registry->Dispatcher->post($this->User, 'onNewTwitterUser');
 
 		//exit(' new user: '.$this->User->isNewUser().' '.print_r($this->User->getArrayCopy(), 1));
 
@@ -540,6 +539,22 @@ class Logintwitter extends WebPage
 		$avatarTwitter = $this->User['avatar_external'];
 		if(empty($avatarTwitter)){
 			$this->User['avatar_external'] = $this->aUserData['profile_image_url'];
+				
+			$srcAvatar = \trim($this->User->offsetGet('avatar'));
+			/**
+			 * If user also did not have any avatar
+			 * then
+			 * after this update we should also update
+			 * the welcome block (removing it from SESSION will
+			 * ensure that it updates on next page load) so that
+			 * avatar on the welcome block will change to the
+			 * external avatar
+			 */
+			if(empty($srcAvatar)){
+				if(!empty($_SESSION) && !empty($_SESSION['welcome'])){
+					unset($_SESSION['welcome']);
+				}
+			}
 		}
 
 		$this->User->save();
@@ -732,7 +747,7 @@ class Logintwitter extends WebPage
 	 */
 	protected function makeUsername(){
 
-		$res = $this->Registry->Mongo->USERS->findOne(array('twitter_uid' => $this->aUserData['_id']));
+		$res = $this->Registry->Mongo->USERS->findOne(array('username_lc' => \mb_strtolower($this->aUserData['screen_name']) ));
 
 		$ret = (empty($res)) ? $this->aUserData['screen_name'] : '@'.$this->aUserData['screen_name'];
 		d('ret: '.$ret);

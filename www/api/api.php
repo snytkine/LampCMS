@@ -72,7 +72,23 @@ try{
 	$Response->send();
 	fastcgi_finish_request();
 
-} catch (\Exception $e){
+}catch(\OutOfBoundsException $e){
+	/**
+	 * Special case is OutOfBoundsException which
+	 * is our special way of saying exit(); but do it
+	 * gracefully - let it be caught here and then do nothing
+	 * This is better than using exit() because on some servers
+	 * exit may terminate the whole fastcgi process instead of just
+	 * stopping this one script
+	 */
+	$errMessage = $e->getMessage();
+	d('Got exit signal from '.$e->getTraceAtString());
+	if(!empty(trim($errMessage))){
+		echo '<div class="exit_error">'.$errMessage.'</div>';
+	}
+	fastcgi_finish_request();
+
+}catch (\Exception $e){
 
 	header("HTTP/1.0 500 Exception");
 	header("Content-Type:text/html; charset=utf-8");

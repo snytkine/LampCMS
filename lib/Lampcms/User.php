@@ -69,7 +69,8 @@ Interfaces\TumblrUser,
 Interfaces\BloggerUser,
 Interfaces\LinkedinUser
 {
-
+	const COLLECTION = 'USERS';
+	
 	/**
 	 * Special flag indicates that user has
 	 * just registered.
@@ -99,7 +100,9 @@ Interfaces\LinkedinUser
 	 *
 	 * @var string
 	 */
-	protected $collectionName = 'USERS';
+	//protected $collectionName = 'USERS';
+
+	protected $nice = 'NICE';
 
 
 	/**
@@ -276,7 +279,9 @@ Interfaces\LinkedinUser
 				$srcAvatar =  \trim($this->offsetGet('avatar_external'));
 			}
 
-			//  && (true !== $this->offsetGet('noavatar'))
+			/**
+			 *
+			 */
 			if(empty($srcAvatar)){
 				$email = $this->offsetGet('email');
 				$aGravatar = array();
@@ -356,7 +361,7 @@ Interfaces\LinkedinUser
 		if(!\is_string($role)){
 			throw new \InvalidArgumentException('$role must be a string. was: '.gettype($role));
 		}
-		
+
 		$a = $this->getRegistry()->Acl->getRegisteredRoles();
 		if(!\array_key_exists($role, $a)){
 			throw new \Lampcms\DevException('The $role name: '.$role.' is not one of the roles in the acl.ini file');
@@ -503,7 +508,11 @@ Interfaces\LinkedinUser
 			return '';
 		}
 
-		return '<a rel="nofollow" class="fbook" href="'.$url.'">'.$url.'</a>';
+		$name = $this->offsetGet('fn').' '.$this->offsetGet('ln');
+
+		$name = (!empty($name)) ? $name : $url;
+
+		return '<a rel="nofollow" class="fbook" href="'.$url.'">'.$name.'</a>';
 	}
 
 
@@ -1233,18 +1242,20 @@ Interfaces\LinkedinUser
 		return (string)$this->offsetGet('linkedin_id');
 	}
 
-	//public function __destruct(){}
+	/**
+	 * Do not want auto-save on destruction
+	 *
+	 *
+	 * (non-PHPdoc)
+	 * @see Lampcms\Mongo.Doc::__destruct()
+	 */
+	public function __destruct(){}
 
 	public function serialize(){
 		$a = array('array' => $this->getArrayCopy(),
 					'md5' => $this->md5,
 					'bSaved' => $this->bSaved
 		);
-
-		/**
-		 * Unsetting $this->Registry may not be necessary
-		 */
-		//unset($this->Registry);
 
 		return serialize($a);
 	}

@@ -60,6 +60,8 @@ namespace Lampcms;
  *
  *
  * @author Dmitri Snytkine
+ * 
+ * @todo Translate Strings
  *
  */
 class RegBlock extends LampcmsObject

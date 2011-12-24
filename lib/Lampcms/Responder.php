@@ -73,7 +73,7 @@ class Responder
 
 	const CSS_CLOSE = '</style>';
 
-	
+
 	/**
 	 * Flag indicates that
 	 * request came to the iframe
@@ -90,7 +90,7 @@ class Responder
 	 */
 	protected static $bIframe = false;
 
-	
+
 	/**
 	 * Send the string to a browser and exit
 	 *
@@ -109,7 +109,7 @@ class Responder
 
 		if ( Request::isIframe() || !empty($addJSTags)) {
 			self::sendJsonPage($aJSON);
-			exit;
+			throw new \OutOfBoundsException;
 		}
 
 		$contentType = "Content-Type: text/json; charset=UTF-8";
@@ -119,8 +119,9 @@ class Responder
 		header("HTTP/1.1 ".$httpCode." OK");
 		header($contentType);
 		echo($res);
+		session_write_close();
 		fastcgi_finish_request();
-		exit;
+		throw new \OutOfBoundsException;
 	}
 
 
@@ -140,13 +141,14 @@ class Responder
 		if(!is_string($callback)){
 			throw new \InvalidArgumentException('$callback must be a string. Was: '.gettype($callback));
 		}
-	
+
 		header("HTTP/1.1 200 OK");
 		header("Content-Type: application/javascript; charset=UTF-8");
 
 		echo $callback.'('.json_encode($aJSON).')';
+		session_write_close();
 		fastcgi_finish_request();
-		exit;
+		throw new \OutOfBoundsException;
 	}
 
 
@@ -159,10 +161,10 @@ class Responder
 	 * @return
 	 */
 	public static function sendJsonPage(array $aJson){
-		$strHeader = "Content-Type: text/html";
+		$header = "Content-Type: text/html";
 		$json = json_encode($aJson);
 
-		$strResult = self::PAGE_OPEN.self::JS_OPEN.'
+		$result = self::PAGE_OPEN.self::JS_OPEN.'
 		if(parent && parent.oSL && (parent.oSL.oFrm && parent.oSL.oFrm.fParseResponce) ){
 		parent.oSL.oFrm.fParseResponce('.$json.');
 		}
@@ -171,11 +173,12 @@ class Responder
         }
 		'.self::JS_CLOSE.self::PAGE_CLOSE;
 
-		header($strHeader);
+		header($header);
 
-		echo $strResult;
+		echo $result;
+		session_write_close();
 		fastcgi_finish_request();
-		exit;
+		throw new \OutOfBoundsException;
 	}
 
 
@@ -193,7 +196,7 @@ class Responder
 		return self::PAGE_OPEN."\n".'<div id="excsl"><div id="tools">'.$sError.'</div></div>'."\n".self::PAGE_CLOSE;
 	}
 
-	
+
 	/**
 	 * Redirecting browser to a new url
 	 * using the header "Location" value
@@ -209,10 +212,11 @@ class Responder
 		if(Request::isAjax()){
 			self::sendJSON(array('redirect' => $url));
 		}
-
+		
+		session_write_close();
 		header("Location: ".$url);
 		fastcgi_finish_request();
-		exit(0);
+		throw new \OutOfBoundsException;
 	}
 
 
@@ -233,5 +237,5 @@ class Responder
 
 		return $sUrl;
 	}
-	
+
 }

@@ -44,7 +44,7 @@ namespace Lampcms\Event;
  *
  * @category  Event
  * @package   Event_Dispatcher2
- * @author    Dmitri Snytkine <d.snytkine@gmail.com>
+ * @author    Dmitri Snytkine 
  * @author    Bertrand Mansion <bmansion@mamasam.com>
  * @author    Stephan Schmidt <schst@php.net>
  * @copyright 1997-2009 The PHP Group

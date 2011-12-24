@@ -191,7 +191,7 @@ class SplClassLoader
 				if(false === @include($reqfile) ) {
 					$arrBacktrace = debug_backtrace(false);
 					$err = '<strong>File not found</strong>: '.$reqfile."\nBacktrace: ".print_r($arrBacktrace, 1);
-					exit($err);
+					throw new \OutOfBoundsException($err);
 				}
 			} else {
 				require $reqfile;

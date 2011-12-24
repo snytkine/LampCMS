@@ -471,6 +471,7 @@ class QuestionParser extends LampcmsObject
 				$UserTags->addTags($uid, $Question);
 			};
 			
+			d('cp');
 			runLater($callable);
 		}
 

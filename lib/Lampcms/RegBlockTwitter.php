@@ -49,7 +49,7 @@
  *
  */
 
- 
+
 namespace Lampcms;
 
 
@@ -66,7 +66,10 @@ class RegBlockTwitter extends RegBlock
 
 
 	protected function prepareVars(){
-
+		/**
+		 * @todo
+		 * Translate Strings
+		 */
 		$this->aVars = array(
 		'externalAccount' => $this->makeBlockExternal(),
 		/*'token' => $_SESSION['token'],*/

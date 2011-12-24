@@ -332,8 +332,6 @@ class Loginlinkedin extends WebPage
 			throw new \Exception($e->getMessage());
 		}
 
-		d('SESSION oViewer: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1).  'isNew: '.$this->Registry->Viewer->isNewUser());
-
 		$this->Registry->Dispatcher->post( $this, 'onLinkedinLogin' );
 
 		return $this;

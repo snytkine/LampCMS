@@ -73,16 +73,19 @@ if(function_exists('mb_internal_encoding')){
 }
 
 function exception_handler($e){
-	
-	try {
-		$err =  Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
-		$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';
-		if(defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 1){
-			@mail(LAMPCMS_DEVELOPER_EMAIL, 'ErrorHandle in inc.php', $err.$extra);
+	if(!($e instanceof \OutOfBoundsException)){
+		try {
+			$err =  Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
+			$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';
+			if(defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 1){
+				@mail(LAMPCMS_DEVELOPER_EMAIL, 'ErrorHandle in inc.php', $err.$extra);
+			}
+			echo ($err);
+		} catch(\Exception $e) {
+			echo 'Error in Exception handler: : '.$e->getMessage().' line '.$e->getLine().$e->getTraceAsString();
 		}
-		exit ($err);
-	}catch(\Exception $e) {
-		echo 'Error in Exception handler: : '.$e->getMessage().' line '.$e->getLine().$e->getTraceAsString();
+	} else {
+		d('Got exit signal in error_handler from '.$e->getTraceAtString());
 	}
 }
 
@@ -118,11 +121,6 @@ require $lampcmsClasses.'SplClassLoader.php';
 require $lampcmsClasses.'Registry.php';
 require $lampcmsClasses.'Template'.DIRECTORY_SEPARATOR.'Fast.php';
 
-if(defined('IS_WWW')){
-	if (true !== session_start()) {
-		exit('session start error');
-	}
-}
 /**
  * Points.php is in non-standard directory,
  * in fact this file is not even included in distro
@@ -228,7 +226,7 @@ try{
 	}
 
 } catch(Lampcms\IniException $e){
-	exit($e->getMessage());
+	throw new \OutOfBoundsException($e->getMessage());
 }
 
 
@@ -256,6 +254,24 @@ if ($debug || isset($aMyIPs[$myIP]) || defined('SPECIAL_LOG_FILE')) {
 	ini_set('display_errors', 1);
 	ini_set('display_startup_errors', 1);
 	ini_set('warn_plus_overloading', 1);
+	/**
+	 * Turn on session garbage collection
+	 * to be run at every session start
+	 * to give us consistant behaviour
+	 * in debug mode
+	 * Session expiration is 5 minutes
+	 * which means when logged in without
+	 * using "remember me" option,
+	 * you supposed to be logged out after 5 minutes
+	 * of inactivity. The only way to test it
+	 * is to login, then after 6-7 minutes access site
+	 * with a different browser. Then go to the browser with logged
+	 * in user and try to use any other link. User should not
+	 * be logged in anymore at this time.
+	 */
+	ini_set("session.gc_maxlifetime", "300");
+	ini_set('session.gc_probability', "1");
+	ini_set('session.gc_divisor', "1");
 } else {
 	define('LAMPCMS_DEBUG', false);
 	error_reporting(E_ALL ^ E_WARNING);
@@ -286,7 +302,7 @@ if((true === LAMPCMS_DEBUG) && ('' !== LOG_FILE_PATH) && (true === (bool)$oINI->
  * has been defined
  */
 function d($message){
-	if(true === LAMPCMS_DEBUG){
+	if(defined('LAMPCMS_DEBUG') && true === LAMPCMS_DEBUG){
 		\Lampcms\Log::d($message, 2);
 	}
 }

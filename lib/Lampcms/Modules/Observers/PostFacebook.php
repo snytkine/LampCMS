@@ -54,7 +54,6 @@
 namespace Lampcms\Modules\Observers;
 
 use \Lampcms\Utf8String;
-use \Lampcms\Facebook;
 
 /**
  * This observer will post Question or Answer link
@@ -145,7 +144,7 @@ class PostFacebook extends \Lampcms\Event\Observer
 		try{
 			$reward = \Lampcms\Points::SHARED_CONTENT;
 			$User = $this->Registry->Viewer;
-			$oFB = Facebook::factory($this->Registry);
+			$oFB = $this->Registry->Facebook;
 			$Resource = $this->obj;
 			$Mongo = $this->Registry->Mongo;
 			$logo = (!empty($this->aFB['SITE_LOGO'])) ? $this->aFB['SITE_LOGO'] : null;
@@ -155,9 +154,8 @@ class PostFacebook extends \Lampcms\Event\Observer
 			 * @var string
 			 */
 			$caption = ($this->obj instanceof \Lampcms\Question) ? 'Please click if you can answer this question' : 'I answered this question';
-			d('cp');
 			$description = Utf8String::factory($this->obj['b'], 'utf-8', true)->asPlainText()->valueOf();
-			d('cp');
+
 		} catch (\Exception $e){
 			d('Unable to post to facebook because of this exception: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
 			return;
@@ -166,13 +164,11 @@ class PostFacebook extends \Lampcms\Event\Observer
 		$func = function() use ($oFB, $Resource, $User, $reward, $Mongo, $logo, $caption, $description){
 
 			$result = null;
-			/**
-			 * @todo Translate string "caption"
-			 */
+
 			$aData = array(
 			'link' => $Resource->getUrl(),
 			'name' => $Resource['title'],
-			'caption' => $caption,
+			'message' => $caption,
 			'description' => $description);
 
 			if(!empty($logo) && ('http' == substr($logo, 0, 4))){
@@ -180,8 +176,7 @@ class PostFacebook extends \Lampcms\Event\Observer
 			}
 
 			try{
-				$result = $oFB->postUpdate($aData);
-					
+				$result = $oFB->postUpdate($User, $aData);			
 			} catch(\Exception $e){
 				// does not matter
 			}
@@ -193,6 +188,7 @@ class PostFacebook extends \Lampcms\Event\Observer
 				 * then reward the user with points!
 				 */
 				if(!empty($decoded['id'])){
+					$status_id = (string)$decoded['id'];
 					$User->setReputation($reward);
 
 					/**
@@ -200,37 +196,7 @@ class PostFacebook extends \Lampcms\Event\Observer
 					 * to FB_STATUSES collection
 					 */
 					try {
-						/**
-						 *
-						 * Later can query Facebook to find
-						 * replies to this post and add them
-						 * as "comments" to this Question or Answer
-						 *
-						 * HINT: if i_rid !== i_qid then it's an ANSWER
-						 * if these are the same then it's a Question
-						 * @var array
-						 */
-						/*$coll = $Mongo->FB_STATUSES;
-						 $coll->ensureIndex(array('i_uid' => 1));
-						 $coll->ensureIndex(array('status_id' => 1));
-
-						 $status_id = $decoded['id'];
-						 $uid = $User->getUid();
-						 $rid = $Resource->getResourceId();
-						 $qid = $Resource->getQuestionId();
-
-
-						 $aData = array(
-						 'status_id' => $status_id,
-						 'i_uid' => $uid,
-						 'i_rid' => $rid,
-						 'i_qid' => $qid,
-						 'i_ts' => time(),
-						 'h_ts' => date('r')
-						 );
-
-						 $coll->save($aData);
-						 */
+					
 						/**
 						 * Also save fb_status to QUESTIONS or ANSWERS
 						 * collection.
@@ -238,7 +204,7 @@ class PostFacebook extends \Lampcms\Event\Observer
 						 * We can add a function so that if user edits
 						 * Post on the site we can also edit it
 						 * on Tumblr via API
-						 *
+						 * 
 						 */
 						$Resource['fb_status'] = $status_id;
 						$Resource->save();

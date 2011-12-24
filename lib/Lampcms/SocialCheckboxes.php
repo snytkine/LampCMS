@@ -85,7 +85,7 @@ class SocialCheckboxes
 
 		$ret = '';
 		$aFilters = $Registry->Ini->getSection('INPUT_FILTERS');
-		d('$aFilters: '.print_r($aFilters, 1));
+		//d('$aFilters: '.print_r($aFilters, 1));
 		/**
 		 * @todo Translate String
 		 */

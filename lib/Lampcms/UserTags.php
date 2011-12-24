@@ -70,6 +70,16 @@ class UserTags extends LampcmsObject
 
 	const USER_TAGS = 'USER_TAGS';
 
+	/**
+	 * @todo pass only Mongo\DB
+	 * and not Registry
+	 *
+	 * do not extend LampcmsObject
+	 * set own $Mongo instance variable
+	 * add own factory method
+	 *
+	 * @param Registry $Registry
+	 */
 	public function __construct(Registry $Registry){
 		$this->Registry = $Registry;
 	}
@@ -89,24 +99,24 @@ class UserTags extends LampcmsObject
 		 * insert user tags, just return
 		 */
 		if(empty($uid)){
-			
+				
 			return;
 		}
 
 		$uid = (int)$uid;
 
 		$aTags = $Question['a_tags'];
-		
+
 		/**
 		 * Extra precaution to filter out
 		 * empty values
 		 */
 		$aTags = \array_filter($aTags);
-		
+
 
 		$coll = $this->Registry->Mongo->getCollection(self::USER_TAGS);
 		$a = $coll->findOne(array('_id' => $uid));
-		
+
 		/**
 		 * If there is not record of tags for this user yet,
 		 * then we will make array with $tag => 1
@@ -118,7 +128,7 @@ class UserTags extends LampcmsObject
 		 */
 		if(empty($a)){
 			$aTemp = array_count_values($aTags);
-			
+				
 
 		} else {
 			$aTemp = $a['tags'];
@@ -130,8 +140,8 @@ class UserTags extends LampcmsObject
 				 * in index may cause very bad times in Mongo.
 				 */
 				if(empty($t)){
-					//e('Strangly enough there is an empty value of the tag in array: '.print_r($aTags, 1));
-					
+					//e('Strange, there is an empty value of the tag in array: '.print_r($aTags, 1));
+						
 					continue;
 				}
 
@@ -142,11 +152,13 @@ class UserTags extends LampcmsObject
 				}
 			}
 
-			arsort($aTemp, SORT_NUMERIC);
+			\arsort($aTemp, SORT_NUMERIC);
 		}
 
+		d('Saving (updating) User tags');
 		$coll->save(array('_id' => $uid, 'tags' => $aTemp, 'i_count' => count($aTemp)), array('fsync' => true));
-
+		d('Updated User Tags');
+		
 		return $this;
 	}
 
@@ -167,10 +179,10 @@ class UserTags extends LampcmsObject
 		 *
 		 */
 		$uid = ($uid) ? (int)$uid : $Question->getOwnerId();
-		
+
 
 		$aTags = $Question['a_tags'];
-		
+
 
 		/**
 		 * Extra precaution to filter out
@@ -182,7 +194,7 @@ class UserTags extends LampcmsObject
 		$a = $coll->findOne(array('_id' => $uid));
 
 		if(empty($a) || empty($a['tags'])){
-			
+				
 
 			return $this;
 		}

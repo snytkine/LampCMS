@@ -126,7 +126,6 @@ class MySQL implements Search
 	 * then check the value(s) for title and body
 	 * if both present then use 'both'
 	 *
-	 * Enter description here ...
 	 */
 	protected function getCondition(){
 		$t = $this->Registry->Request->get('t', 's', '');
@@ -227,13 +226,13 @@ class MySQL implements Search
 		 */
 		if($this->countResults > $this->perPage){
 			d('cp');
-			$oPaginator = \Lampcms\Paginator::factory($this->Registry);
-			$oPaginator->paginate($this->countResults, $this->perPage,
+			$Paginator = \Lampcms\Paginator::factory($this->Registry);
+			$Paginator->paginate($this->countResults, $this->perPage,
 			array('path' => $this->getPagerPath()));
 
-			$offset = ($oPaginator->getPager()->getCurrentPageID() - 1) * $this->perPage;
+			$offset = ($Paginator->getPager()->getCurrentPageID() - 1) * $this->perPage;
 			d('$offset: '.$offset);
-			$this->pagerLinks = $oPaginator->getLinks();
+			$this->pagerLinks = $Paginator->getLinks();
 		}
 
 		$sql = sprintf($sql, $this->condition, $this->order, $this->perPage);
@@ -291,7 +290,7 @@ class MySQL implements Search
 	 */
 	public function count(){
 		if(!isset($this->countResults)){
-			throw new \Lampcms\DevException('count not available. You must run search() before running getCount()');
+			throw new \Lampcms\DevException('Count not available. Must run search() before running getCount()');
 		}
 
 		return $this->countResults;
@@ -352,6 +351,7 @@ class MySQL implements Search
 				$s = '<div id="sim_questions" class="similars">'.$html.'</div>';
 				d('html: '.$s);
 				$Question->offsetSet('sim_q', $s);
+				$Question->save();
 			}
 				
 		} catch(\Exception $e){
@@ -360,7 +360,6 @@ class MySQL implements Search
 
 			if('42S02' === $e->getCode()){
 				if(true === TitleTagsTable::create($this->Registry)){
-
 					return $this;
 				} else {
 					throw $e;

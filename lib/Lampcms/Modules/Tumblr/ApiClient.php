@@ -213,7 +213,7 @@ class ApiClient extends LampcmsObject
 			$data['tags'] = $tags;
 		}
 
-		d('data: '.print_r($data, 1));
+		//d('data: '.print_r($data, 1));
 
 		return $this->apiWrite($data);
 
@@ -252,7 +252,9 @@ class ApiClient extends LampcmsObject
 	 */
 	protected function apiWrite(array $data){
 		if(!isset($this->User)){
-			throw new \LogicException('Cannot use API because $this->User not set');
+			e('Cannot use API because $this->User not set');
+			
+			return;
 		}
 
 		$data['group'] = $this->User->getTumblrBlogId();
@@ -263,10 +265,10 @@ class ApiClient extends LampcmsObject
 			$token = $this->User->getTumblrToken();
 			$secret = $this->User->getTumblrSecret();
 
-			d('setting $token: '.$token.' secret: '.$secret);
+			//d('setting $token: '.$token.' secret: '.$secret);
 
 			$this->oAuth->setToken($token, $secret);
-			d('fetching: '.self::API_WRITE_URL.' data: '.print_r($data, 1));
+			//d('fetching: '.self::API_WRITE_URL.' data: '.print_r($data, 1));
 			$this->oAuth->fetch(self::API_WRITE_URL, $data);
 
 		} catch(\OAuthException $e) {
@@ -279,7 +281,7 @@ class ApiClient extends LampcmsObject
 			 * we are not sure it was actually due to authorization
 			 * or maby Tumblr was bugged down or something else
 			 */
-			throw new \Lampcms\Exception('Something went wrong during connection with Tumblr. Please try again later'.$e->getMessage());
+			//throw new \Lampcms\Exception('Something went wrong during connection with Tumblr. Please try again later'.$e->getMessage());
 		}
 
 		return $this->getResponse();
@@ -298,14 +300,14 @@ class ApiClient extends LampcmsObject
 		$ret = $this->oAuth->getLastResponse();
 
 		$aDebug = $this->oAuth->getLastResponseInfo();
-		d('debug: '.print_r($aDebug, 1));
+		//d('debug: '.print_r($aDebug, 1));
 		if('200' == $aDebug['http_code'] || '201' == $aDebug['http_code']){
-			d('successful post to API');
+			//d('successful post to API');
 
 			return $ret;
 
 		} elseif('401' == $aDebug['http_code']){
-			d('Tumblr oauth failed with 401 http code. Data: '.print_r($aData, 1));
+			//d('Tumblr oauth failed with 401 http code. Data: '.print_r($aData, 1));
 			/**
 			 * If this method was passed User
 			 * then null the tokens
@@ -314,7 +316,7 @@ class ApiClient extends LampcmsObject
 			 * that this User does not have tokens
 			 */
 			if(is_object($this->User)){
-				d('Going to revoke access tokens for user object');
+				//d('Going to revoke access tokens for user object');
 				$this->User->revokeTumblrToken();
 				/**
 				 * Important to post this update
@@ -328,13 +330,16 @@ class ApiClient extends LampcmsObject
 			 * cause the ajax message with special key=>value which will
 			 * trigger the popup to be shown to user with link
 			 * to signing with Tumblr
+			 * At this time the function
+			 * is called from inside a shutdown function
+			 * and therefore cannot send ajax or show anything to user
 			 */
-			throw new \Lampcms\DevException('Tumblr API OAuth credentials failed. Possibly user removed our app');
+			//throw new \Lampcms\DevException('Tumblr API OAuth credentials failed. Possibly user removed our app');
 
 		} else {
 			e('Tumblr API Post failed http code was: '.$aDebug['http_code'].' full debug: ' .print_r($aDebug, 1).' response: '.$ret);
 
-			throw new \Lampcms\DevException('Tumblr OAuth post failed');
+			//throw new \Lampcms\DevException('Tumblr OAuth post failed');
 		}
 	}
 

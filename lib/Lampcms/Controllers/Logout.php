@@ -134,13 +134,13 @@ class Logout extends WebPage
 			}
 		}
 
-		d('logging out Facebook User');
-		$aFB = $this->Registry->Ini->getSection('FACEBOOK');
-		if(!empty($aFB) && !empty($aFB['APP_ID'])){
-			$fb_cookie = 'fbs_'.$aFB['APP_ID'];
-			d('deleting Facebook cookie '.$fb_cookie.' len: '.strlen($fb_cookie));
-			$aDelete[] = $fb_cookie;
-		}
+		//d('logging out Facebook User');
+		//$aFB = $this->Registry->Ini->getSection('FACEBOOK');
+		//if(!empty($aFB) && !empty($aFB['APP_ID'])){
+		//	$fb_cookie = 'fbsr_'.$aFB['APP_ID'];
+		//	d('deleting Facebook cookie '.$fb_cookie.' len: '.strlen($fb_cookie));
+		//	$aDelete[] = $fb_cookie;
+		//}
 
 		d('Delete these cookies: '.print_r($aDelete, 1));
 

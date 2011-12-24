@@ -97,13 +97,12 @@ class TumblrPostAdapter extends LampcmsObject
 	 * @return object of type TumblrPost
 	 */
 	public function get(Post $o){
-		d('cp');
+		
 		if($o instanceof Question){
 			$this->makeQuestionPost($o);
 		} elseif($o instanceof Answer){
 			$this->makeAnswerPost($o);
 		}
-		d('cp');
 
 		return $this->getTumblrPost();
 	}
@@ -126,7 +125,7 @@ class TumblrPostAdapter extends LampcmsObject
 	 * @param Question $o
 	 */
 	protected function makeQuestionPost(Question $o){
-		d('cp');
+		
 		$this->oTumblrPost = new TumblrPost();
 
 		/**
@@ -144,12 +143,12 @@ class TumblrPostAdapter extends LampcmsObject
 		$this->oTumblrPost->setBody($body)->setTitle($o->getTitle());
 
 		$tags = $o['a_tags'];
-		d('$tags: '.print_r($tags, 1));
+		//d('$tags: '.print_r($tags, 1));
 		if(!empty($tags)){
 			$this->oTumblrPost->setTags($tags);
 		}
 
-		d('cp');
+		//d('cp');
 		$this->oTumblrPost->setSlug($o->getSeoUrl());
 
 		return $this;
@@ -164,7 +163,7 @@ class TumblrPostAdapter extends LampcmsObject
 	 * @param Answer $o
 	 */
 	protected function makeAnswerPost(Answer $o){
-		d('cp');
+		//d('cp');
 		$this->oTumblrPost = new TumblrPost();
 		$qlink = $this->Registry->Ini->SITE_URL.'/q'.$o->getQuestionId().'/';
 
@@ -177,7 +176,7 @@ class TumblrPostAdapter extends LampcmsObject
 		$body = sprintf($tpl, $qlink, $this->Registry->Ini->SITE_NAME);
 
 		$body .= $o->getBody();
-		d('body: '.$body);
+		//d('body: '.$body);
 
 		$title = 'My answer to "'.$o->getTitle().'"';
 

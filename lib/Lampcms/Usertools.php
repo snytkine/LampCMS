@@ -75,7 +75,7 @@ class Usertools
 	 * permissions
 	 *
 	 * @param Registry $Registry
-	 * @param User $User use whose profile is being viewed now
+	 * @param User $User user whose profile is being viewed now
 	 * @return string html fragment with Form and button
 	 */
 	public static function getHtml(Registry $Registry, User $User){
@@ -105,6 +105,10 @@ class Usertools
 
 		if($oACL->isAllowed($role, null, 'shred_user')){
 			d('getting shred button');
+			/**
+			 * @todo
+			 * Translate String
+			 */
 			$shredButton = '<div class="fl cb"><input type="button" class="ajax btn_shred rounded4" value="Shred User" id="shred'.$uid.'"></div>';
 		}
 

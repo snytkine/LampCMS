@@ -61,9 +61,9 @@ use \PDO;
  * @author Dmitri Snytkine
  *
  */
-class DB extends LampcmsObject
+class DB
 {
-	protected $Registry;
+	protected $Ini;
 
 	/**
 	 * Instance of this object
@@ -107,35 +107,10 @@ class DB extends LampcmsObject
 	 *
 	 * @return object
 	 */
-	public function __construct(Registry $Registry){
-		$this->Registry = $Registry;
-		$this->Ini = $Registry->Ini;
+	public function __construct(Ini $Ini){
+		$this->Ini = $Ini;
 	}
 
-
-	/**
-	 * Release resource when this object terminates
-	 *
-	 * @todo keep an eye on the possible problems related to
-	 * this destructor.
-	 *
-	 * It may cause some problems that have to do with serializing
-	 * and unserializing an object, in which case this descructor
-	 * may be triggered, unsetting the dbh and since this object is singleton,
-	 * it may affect other objects that are still alive and need
-	 * and access to dbh through the instance of this class.
-	 *
-	 * This is complicated, this should not really happened, but
-	 * if there are any weired errors that are traced to call to
-	 * member function on non-object and it's traced to dbh
-	 * not being an object where it's supposed to be an object for sure,
-	 * then the problem is almost certainly due to this destructor
-	 *
-	 * @return void
-	 */
-	public function __destruct(){
-
-	}
 
 	protected function connect(){
 		$sDsn = $this->makeDsn();

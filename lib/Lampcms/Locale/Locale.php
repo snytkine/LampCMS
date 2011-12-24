@@ -51,7 +51,17 @@
 
 
 namespace Lampcms\Locale;
-
+/**
+ * Class for setting
+ * Locate value, 
+ * and for settings SESSION['langs'] drop-down menu
+ * 
+ * @todo Pass only Viewer and Ini to constructor, do not
+ * pass Registry and not necessary to extend LampcmsObject
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class Locale extends \Lampcms\LampcmsObject
 {
 	/**
@@ -95,7 +105,7 @@ class Locale extends \Lampcms\LampcmsObject
 			 * If Viewer is not a guest then
 			 * get value of locale from Viewer object
 			 */
-			if(is_object($this->Registry->Viewer) && !$this->Registry->Viewer->isGuest()){
+			if(!$this->Registry->Viewer->isGuest()){
 				$this->locale = $this->Registry->Viewer->offsetGet('locale');
 			} elseif (isset($_COOKIE) && !empty($_COOKIE['locale'])) {
 				$this->locale = $_COOKIE['locale'];
@@ -162,10 +172,10 @@ class Locale extends \Lampcms\LampcmsObject
 
 			$tpl = '<select name="locale" class="locales" id="id_locale">%s</select>';
 
-			$ret = sprintf($tpl, $ret);
+			$ret = \sprintf($tpl, $ret);
 		}
 
-		return sprintf($tplWrapper, $ret);
+		return \sprintf($tplWrapper, $ret);
 	}
 
 
@@ -181,9 +191,9 @@ class Locale extends \Lampcms\LampcmsObject
 	 * @return string html fragment
 	 */
 	public function getOptions(){
-		/*if(isset($_SESSION) && !empty($_SESSION['langs'])){
+		if(isset($_SESSION) && !empty($_SESSION['langs'])){
 			return $_SESSION['langs'];
-		}*/
+		}
 
 		$langs = $this->makeOptions();
 
@@ -207,9 +217,9 @@ class Locale extends \Lampcms\LampcmsObject
 		d(' $locale: '.$locale);
 		$res = false;
 		$locales = array(
-		str_replace('_', '-', $locale),
-		str_replace('-', '_', $locale),
-		strtolower(substr($locale, 0, 2))
+		\str_replace('_', '-', $locale),
+		\str_replace('-', '_', $locale),
+		\strtolower(\substr($locale, 0, 2))
 		);
 
 		$this->locale = $locale;
@@ -240,6 +250,6 @@ class Locale extends \Lampcms\LampcmsObject
 	 *
 	 */
 	public function setLocale(){
-		return @setlocale(LC_ALL, $this->locale, str_replace('_', '-', $this->locale));
+		return @setlocale(LC_ALL, $this->locale, \str_replace('_', '-', $this->locale));
 	}
 }

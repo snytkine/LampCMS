@@ -157,7 +157,7 @@ class Acl implements \Serializable
 				$aGroupPermissions[$roleName]['deny'] = $deny;
 			}
 				
-			d('$aGroupPermissions: '.print_r($aGroupPermissions, 1));
+			//d('$aGroupPermissions: '.print_r($aGroupPermissions, 1));
 				
 		} catch (\Exception $e){
 			throw new \Lampcms\DevException('Unable to add role to ACL. Original file: '.$e->getFile().' orig line: '.$e->getLine().' original message: '.$e->getMessage());

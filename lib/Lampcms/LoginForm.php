@@ -127,8 +127,6 @@ class LoginForm
 	 */
 	protected static function forGuest(Registry $Registry){
 
-		d('SESSION: '.print_r($_SESSION, 1));
-
 		if( empty($_SESSION['guest_block']) || !empty($_SESSION['login_error'])) {
 
 			$html = '';

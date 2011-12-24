@@ -201,7 +201,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	public function getArray($resetFiltered = true){
 
 		$a = $this->getArrayCopy();
-		d('raw request array: '.print_r($a, 1));
+		//d('raw request array: '.print_r($a, 1));
 		foreach($a as $key => $val) {
 			if(!array_key_exists($key, $this->aFiltered)){
 				$this->aFiltered[$key] = $this->offsetGet($key);

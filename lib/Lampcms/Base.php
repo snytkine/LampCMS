@@ -219,7 +219,7 @@ class Base extends LampcmsObject
 	 */
 	public function checkAccessPermission($privilege = null, RoleInterface $role = null, $resource = null){
 
-		d('$privilege: '.$privilege.' '.var_export($privilege, true));
+		//d('$privilege: '.$privilege.' '.var_export($privilege, true));
 
 		if(null === $privilege){
 			d('$privilege is null');
@@ -252,7 +252,7 @@ class Base extends LampcmsObject
 		 * reload operation does not require even a single sql select
 		 *
 		 */
-		d('role: '.$role. ' $this->Registry->Viewer: '.$this->Registry->Viewer);
+		//d('role: '.$role. ' $this->Registry->Viewer: '.$this->Registry->Viewer);
 
 		/**
 		 * How not to reload the object?
@@ -279,9 +279,8 @@ class Base extends LampcmsObject
 		 *
 		 */
 
-		$role = (null !== $role) ? $role : $this->Registry->Viewer->reload();
+		$role = (null !== $role) ? $role : $this->Registry->Viewer;
 
-		d('role: '.$role);
 
 		/**
 		 * oACL can be cached, which saves about 5-7 milliseconds
@@ -289,8 +288,8 @@ class Base extends LampcmsObject
 		 * edit acl.ini you must manually remove
 		 * Acl key from cache. (from C_Cache collection)
 		 */
-		//$oACL = $this->Registry->Cache->Acl;
-		$oACL = $this->Registry->Acl;//new \Lampcms\Acl\Acl();
+		
+		$oACL = $this->Registry->Acl;
 
 		$roleID = $role->getRoleId();
 		d('$roleID '.$roleID.' $privilege: '.$privilege);

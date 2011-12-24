@@ -72,7 +72,7 @@ class ProfileDiv extends LampcmsObject
 	 */
 	protected $hasOauth = false;
 
-	
+
 	/**
 	 *
 	 * User whose profile page being created
@@ -80,10 +80,10 @@ class ProfileDiv extends LampcmsObject
 	 */
 	protected $User;
 
-	
+
 	/**
 	 * Constructor
-	 * 
+	 *
 	 * @param Registry $Registry
 	 */
 	public function __construct(Registry $Registry){
@@ -91,10 +91,10 @@ class ProfileDiv extends LampcmsObject
 		$this->hasOauth = \extension_loaded('oauth');
 	}
 
-	
+
 	/**
 	 * Setter for $this->User
-	 * 
+	 *
 	 * @param User $User
 	 */
 	public function setUser(User $User){
@@ -172,6 +172,10 @@ class ProfileDiv extends LampcmsObject
 		if($this->hasOauth && $isSameUser){
 			$aTwitter = $this->Registry->Ini->getSection('TWITTER');
 			if(!empty($aTwitter['TWITTER_OAUTH_KEY']) && !empty($aTwitter['TWITTER_OAUTH_SECRET'])){
+				/**
+				 * @todo
+				 * Translate String
+				 */
 				return '<div id="connect_twtr" class="twsignin ajax ttt btn_connect rounded4" title="Connect Twitter Account"><img src="/images/tw-user.png" width="16" height="16"><span class="_bg_tw">Connect Twitter</span></div>';
 			}
 		}
@@ -179,7 +183,7 @@ class ProfileDiv extends LampcmsObject
 		return '';
 	}
 
-	
+
 	/**
 	 * Get either the link to Tumblr blog
 	 * if user has one
@@ -205,6 +209,10 @@ class ProfileDiv extends LampcmsObject
 		if($this->hasOauth && $isSameUser){
 			$a = $this->Registry->Ini->getSection('TUMBLR');
 			if(!empty($a) && !empty($a['OAUTH_KEY']) && !empty($a['OAUTH_SECRET'])){
+				/**
+				 * @todo
+				 * Translate string
+				 */
 				return '<div id="connect_tumblr" class="add_tumblr ajax ttt btn_connect rounded4" title="Connect Tumblr Blog"><img src="/images/tumblr_16.png" width="16" height="16"><span class="_bg_tw">Connect Tumblr Blog</span></div>';
 			}
 		}
@@ -238,16 +246,20 @@ class ProfileDiv extends LampcmsObject
 		if($this->hasOauth && $isSameUser){
 			$a = $this->Registry->Ini->getSection('BLOGGER');
 			if(!empty($a) && !empty($a['OAUTH_KEY']) && !empty($a['OAUTH_SECRET'])){
+				/**
+				 * @todo
+				 * Translate string
+				 */
 				return '<div id="connect_blogger" class="add_blogger ajax ttt btn_connect rounded4" title="Connect Blogger.com Blog"><img src="/images/blogger_16.png" width="16" height="16"><span class="_bg_tw">Connect Blogger Blog</span></div>';
 			}
 		}
 
 		return '';
 	}
-	
-	
-	
-/**
+
+
+
+	/**
 	 * Get either the link to Tumblr blog
 	 * if user has one
 	 * OR html for the button to connect Tumblr account
@@ -272,6 +284,10 @@ class ProfileDiv extends LampcmsObject
 		if($this->hasOauth && $isSameUser){
 			$a = $this->Registry->Ini->getSection('LINKEDIN');
 			if(!empty($a) && !empty($a['OAUTH_KEY']) && !empty($a['OAUTH_SECRET'])){
+				/**
+				 * @todo
+				 * Translate string
+				 */
 				return '<div id="connect_linkedin" class="add_linkedin ajax ttt btn_connect rounded4" title="Connect LinkedIn Account"><img src="/images/linkedin_16.png" width="16" height="16"><span class="_bg_tw">Connect LinkedIn</span></div>';
 			}
 		}
@@ -304,7 +320,10 @@ class ProfileDiv extends LampcmsObject
 		if($this->hasOauth && $isSameUser){
 			$aFB = $this->Registry->Ini->getSection('FACEBOOK');
 			if(!empty($aFB) && !empty($aFB['APP_ID'])){
-
+				/**
+				 * @todo
+				 * Translate string
+				 */
 				return '<div id="connect_fb" class="fbsignup ajax ttt btn_connect rounded4" title="Connect Facebook Account"><img src="/images/facebook_16.png" width="16" height="16"><span class="_bg_tw">Connect Facebook</span></div>';
 			}
 		}
@@ -324,10 +343,20 @@ class ProfileDiv extends LampcmsObject
 		$gender = $this->User['gender'];
 		switch($gender){
 			case 'M':
+				/**
+				 * @todo
+				 * Translate string
+				 *
+				 */
 				$ret = 'Male';
 				break;
 
 			case 'F':
+				/**
+				 * @todo
+				 * Translate string
+				 *
+				 */
 				$ret = 'Female';
 				break;
 
@@ -359,7 +388,10 @@ class ProfileDiv extends LampcmsObject
 		$uid = $this->User->getUid();
 
 		if($uid !== $oViewer->getUid()){
-
+			/**
+			 * @todo
+			 * Translate strings
+			 */
 			$aVars = array(
 			'id' => $uid,
 			'icon' => 'cplus',
@@ -368,7 +400,10 @@ class ProfileDiv extends LampcmsObject
 			'type' => 'u',
 			'title' => 'Follow this user'
 			);
-
+			/**
+			 * @todo
+			 * Translate strings
+			 */
 			if(in_array($uid, $oViewer['a_f_u'])){
 				$aVars['label'] = 'Following';
 				$aVars['class'] = 'following';

@@ -157,7 +157,7 @@ class tplAnswer extends Lampcms\Template\Fast
 		<div class="ans_body" id="ansbody-%1$s">%2$s</div>
 
 		<div class="answer controls uid-%7$s" id="res_%1$s">
-		   	<span class="ico flag ttt" title="Flag this answer as inappropriate">flag</span>%19$s
+		   	<span class="ico flag ttt ajax" title="Flag this answer as inappropriate">flag</span>%19$s
 		</div>
 		<!-- // -->
 		<table class="foot">

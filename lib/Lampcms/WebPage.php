@@ -256,7 +256,6 @@ abstract class WebPage extends Base
 
 		$this->initParams()
 		->setTemplateDir()
-		->initViewerObject()
 		->setLocale()
 		->loginByFacebookCookie()
 		->loginByGfcCookie()
@@ -275,7 +274,7 @@ abstract class WebPage extends Base
 			$this->handleException($e);
 		}
 
-		
+
 		/**
 		 * Observer will be able to
 		 * record access of current Viewer to
@@ -284,40 +283,8 @@ abstract class WebPage extends Base
 		 */
 
 		$this->Registry->Dispatcher->post($this, 'onPageView', $this->aPageVars);
-		
+
 		//\Lampcms\Log::dump();
-	}
-
-
-
-	/**
-	 * Sets SESSION['oViewer']
-	 * and then points
-	 * $this->oViewer object to it
-	 * It is set even if user is not logged in
-	 * in which case it will be just an
-	 * object with default values from USERS table
-	 *
-	 * @return object $this
-	 */
-	protected function initViewerObject(){
-
-		if(empty($_SESSION['oViewer'])){
-			d('cp no Viewer in session');
-			$_SESSION['oViewer'] = User::factory($this->Registry);
-			$_SESSION['oViewer']->setTime();
-			d('oViewer new: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1) );
-			/**
-			 * Send referrer cookie if necessary
-			 */
-			Cookie::sendRefferrerCookie();
-		}
-
-		$this->Registry->Viewer = $_SESSION['oViewer'];
-
-		d(' session viewer: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1));
-
-		return $this;
 	}
 
 
@@ -555,14 +522,14 @@ abstract class WebPage extends Base
 	 * after the redirect
 	 */
 	protected function loginBySid(){
-		
+
 		if ($this->isLoggedIn() || 'logout' === $this->action || 'login' === $this->action) {
 			d('cp');
 			return $this;
 		}
 
 		if (!isset($_COOKIE) || !isset($_COOKIE['uid']) || !isset($_COOKIE['sid'])) {
-			d('$_COOKIE: '.print_r($_COOKIE, 1));
+			d('uid or sid cooke not set');
 
 			return $this;
 		}
@@ -570,7 +537,7 @@ abstract class WebPage extends Base
 		try {
 			$oCheckLogin = new CookieAuth($this->Registry);
 			$User = $oCheckLogin->authByCookie();
-			d('aResult: '.print_r($User->getArrayCopy(), 1));
+			//d('aResult: '.print_r($User->getArrayCopy(), 1));
 
 		} catch(CookieAuthException $e) {
 			d('LampcmsError: login by sid failed with message: '.$e->getMessage());
@@ -651,8 +618,8 @@ abstract class WebPage extends Base
 		}
 
 		try{
-			$oViewer = ExternalAuthFb::getUserObject($this->Registry);
-			d('got $oViewer: '.print_r($oViewer->getArrayCopy(), 1));
+			$oViewer = $this->Registry->Facebook->getFacebookUser();
+			//d('got $oViewer: '.print_r($oViewer->getArrayCopy(), 1));
 			$this->processLogin($oViewer);
 			d('logged in facebook user: '.$this->Registry->Viewer->getUid());
 			$this->Registry->Dispatcher->post( $this, 'onFacebookLogin' );
@@ -664,22 +631,7 @@ abstract class WebPage extends Base
 		return $this;
 	}
 
-
-	/**
-	 *
-	 * Resets the $_SESSION array, adds ['viewer'] to $_SESSION
-	 * and points $this->Registry->Viewer = $_SESSION['oViewer'] = $User;
-	 *
-	 * @param User $User
-	 * @param unknown_type $bResetSession
-	 * @throws LoginException in case filter regected
-	 * the login by cancelling onBeforeLogin event
-	 *
-	 * @return object $this
-	 */
 	protected function processLogin(User $User, $bResetSession = false){
-
-		d('processing user hashCode: '.$User->hashCode().' userHash: '.$User->hashCode());
 
 		/**
 		 * This little thing is not
@@ -691,8 +643,6 @@ abstract class WebPage extends Base
 		if(!isset($_SESSION)){
 			$_SESSION = array();
 		}
-
-		d('cp '.gettype($User));
 
 		/**
 		 * This give a change for some sort of filter to examine twitter id, twitter name
@@ -708,27 +658,9 @@ abstract class WebPage extends Base
 			session_regenerate_id();
 		}
 
-		/**
-		 * New way just replace the $_SESSION['oViewer'] with this new object
-		 * Not sure if this will actually work, but....
-		 * have to try it, otherwise how else can we replace
-		 * the type of oViewer from User to the new object
-		 * which may now be TwitterUser?
-		 *
-		 * An alternative would probably be to create a brand new object
-		 * of the same type and copy the underlying array to the new object
-		 * maybe the clone is a good way to do this?
-		 * Not sure if there are any pitfalls in cloning the ArrayObject object
-		 *
-		 */
-		/**
-		 * Just a precaution to make sure
-		 * descructor will not try to save the object that we no longer need.
-		 */
-		d('old SESSION oViewer hash code was: '.$_SESSION['oViewer']->hashCode().' old userHash: '.$_SESSION['oViewer']->hashCode());
+		$this->Registry->Viewer = $User;
+		$_SESSION['viewer'] = array('id' => $User->getUid(), 'class' => $User->getClass());
 
-		$this->Registry->Viewer = $_SESSION['oViewer'] = $User;
-		d('Viewer in session now: '.print_r($_SESSION['oViewer']->getArrayCopy(), 1));
 		/**
 		 * This is important otherwise
 		 * the old stale value is used
@@ -737,12 +669,6 @@ abstract class WebPage extends Base
 		if(isset($this->bLoggedIn)){
 			unset($this->bLoggedIn);
 		}
-
-		d('SESSION oViewer is now of type '.$_SESSION['oViewer']->getClass().' hash: '.$_SESSION['oViewer']->hashCode());
-
-
-		$_SESSION['oViewer']->setTime();
-
 
 		/**
 		 * Remove navlinks block from
@@ -754,6 +680,7 @@ abstract class WebPage extends Base
 			$_SESSION['navlinks'] = array();
 			$_SESSION['login_form'] = null;
 			$_SESSION['login_error'] = null;
+			$_SESSION['langs'] = null;
 		}
 
 		return $this;
@@ -789,7 +716,7 @@ abstract class WebPage extends Base
 
 	/**
 	 * Adds (appends) value to last_js element of page
-	 * 
+	 *
 	 * @todo check if relavite path of src
 	 * then also take into account
 	 * config option JS
@@ -883,9 +810,10 @@ abstract class WebPage extends Base
 			d('cp');
 
 			if($le instanceof RedirectException){
+				session_write_close();
 				header("Location: ".$le->getMessage(), true, $le->getCode());
 				fastcgi_finish_request();
-				exit;
+				throw new \OutOfBoundsException;
 			}
 
 			if($le instanceof CaptchaLimitException){
@@ -941,13 +869,16 @@ abstract class WebPage extends Base
 			$this->aPageVars['layoutID'] = 1;
 			$this->aPageVars['body'] = \tplException::parse(array('message' => $err, 'class' => $class, 'title' => $this->_('Alert')));
 
-		} catch(\Exception $e) {
+		} catch(\OutOfBoundsException $e){
+			throw $e;
+		} catch(\Exception $e) {		
 			e('Exception object '.$e->getMessage());
 			$err = Responder::makeErrorPage($le->getMessage().' in '.$e->getFile());
 			echo $err;
 			fastcgi_finish_request();
-			exit;
+			throw new \OutOfBoundsException;
 		}
+
 	}
 
 
@@ -967,7 +898,7 @@ abstract class WebPage extends Base
 		}
 
 		d('cp');
-		d('a: '.print_r($a, 1));
+		//d('a: '.print_r($a, 1));
 
 		return $a;
 	}
@@ -992,7 +923,7 @@ abstract class WebPage extends Base
 		$token = ( (null === $token) && !empty($this->Request['token']) ) ? $this->Request['token'] : $token;
 
 		if(empty($_SESSION['secret'])){
-			d("No token in SESSION ".print_r($_SESSION, 1));
+			d("No token in SESSION ");
 			/**
 			 * @todo
 			 * Translate String
@@ -1036,16 +967,19 @@ abstract class WebPage extends Base
 			 * @todo set ttl for this cookie to last only a couple of days
 			 * so we can keep nagging user again after awhile until user
 			 * finally enters email address
+			 * Also do not have to check if user is UserExternal - if user
+			 * does not have email address then keep nagging the user
+			 * The thing is - only external user can possibly be logged in without
+			 * any email address because normal user will not know their password
+			 * since temp passwords are sent to email.
 			 */
 			$cookie = Cookie::get('dnd');
 			d('dnd: '.$cookie);
 			if(!$cookie){
-				//$isNewUser = $this->Registry->Viewer->isNewUser();
-				//d('isNewUser: '.$isNewUser.' $this->Registry->Viewer: '.print_r($this->Registry->Viewer->getArrayCopy(), 1));
 
 				if($this->Registry->Viewer instanceof UserExternal){
 					$email = $this->Registry->Viewer->email;
-					d('email: '.var_export($email, true));
+					d('email: '.$email);
 					if(empty($email)){
 						$sHtml = RegBlock::factory($this->Registry)->getBlock();
 						d('$sHtml: '.$sHtml);

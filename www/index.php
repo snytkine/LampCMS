@@ -52,7 +52,7 @@ ini_set('session.use_trans_sid', false);
 ini_set('session.use_only_cookies', true);
 
 define('INIT_TIMESTAMP', microtime());
-define('IS_WWW', 1);
+
 
 include '../!inc.php';
 
@@ -63,48 +63,86 @@ require($lampcmsClasses.'Cookie.php');
 require($lampcmsClasses.'LoginForm.php');
 
 
-try {
-	
-	if(!empty($_SESSION['oViewer'])){
-		d('SESSION: '.print_r($_SESSION, 1).' oViewer in session: '. print_r($_SESSION['oViewer']->getArrayCopy(), 1) );
-	} else {
-		d('No Viewer is $_SESSION');
-	}
+if (true !== session_start()) {
+	/**
+	 * @todo
+	 * Translate String
+	 */
+	echo ('Session start error');
+} else {
 
-	$Request = $Registry->Request;
-	$a = $Request['a'];
-
-	$controller = ucfirst($a);
-	include($lampcmsClasses.'Controllers'.DIRECTORY_SEPARATOR.$controller.'.php');
-	$class = '\Lampcms\\Controllers\\'.$controller;
-
-	header('Content-Type: text/html; charset=utf-8');
-	echo new $class($Registry);
-	fastcgi_finish_request();
-
-	//$_SESSION['oViewer']->save();
-	//$Registry->Viewer = null;
-	//session_write_close();
-
-} catch(\Exception $e) {
-	header("HTTP/1.0 500 Exception");
 	try {
-		$sHtml = \Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
-		$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no server';
-		$extra .= 'file: '.$e->getFile(). ' line: '.$e->getLine().' trace: '.$e->getTraceAsString();
-		if(defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7){
-			@mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $sHtml.$extra);
+
+		if(empty($_SESSION['viewer'])){
+			d('No Viewer is $_SESSION');
+			\Lampcms\Cookie::sendRefferrerCookie();
 		}
-		echo $sHtml;
+
+		$Request = $Registry->Request;
+		$a = $Request['a'];
+
+		$controller = ucfirst($a);
+		include($lampcmsClasses.'Controllers'.DIRECTORY_SEPARATOR.$controller.'.php');
+		$class = '\Lampcms\\Controllers\\'.$controller;
+
+		header('Content-Type: text/html; charset=utf-8');
+		echo new $class($Registry);
+		/**
+		 * 
+		 * Commenting out the session_write_close()
+		 * may improve performance since all session writes
+		 * will be done after the browser connection
+		 * is closed.
+		 * The downside is that if any of the registered shutdown
+		 * functions cause fatar error the session
+		 * may never be saved. It's worth trying commenting this out
+		 * and running the site for awhile. If noticing any problems
+		 * with sessions (like user suddenly logged out
+		 * while browsing beteen pages) then uncomment this
+		 */
+		// session_write_close();
 		fastcgi_finish_request();
 
-	}catch(\Exception $e2) {
-		$sHtml = \Lampcms\Responder::makeErrorPage('<strong>Exception:</strong> '.strip_tags($e2->getMessage())."\nIn file:".$e2->getFile()."\nLine: ".$e2->getLine());
-		$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';
-		if(defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7){
-			@mail(LAMPCMS_DEVELOPER_EMAIL, 'Error in index.php on line '.__LINE__, $sHtml.$extra);
+	} catch(\OutOfBoundsException $e){
+		session_write_close();
+		/**
+		 * Special case is OutOfBoundsException which
+		 * is our special way of saying exit(); but do it
+		 * gracefully - let it be caught here and then do nothing
+		 * This is better than using exit() because on some servers
+		 * exit may terminate the whole fastcgi process instead of just
+		 * stopping this one script
+		 */
+		$errMessage = trim($e->getMessage());
+		
+		if(!empty($errMessage)){
+			echo '<div class="exit_error">'.$errMessage.'</div>';
+			d('Got exit signal from '.$e->getTraceAsString());
 		}
-		echo $sHtml;
+		fastcgi_finish_request();
+
+	} catch(\Exception $e) {
+		session_write_close();
+		header("HTTP/1.0 500 Exception");
+		try {
+			$sHtml = \Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
+			$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no server';
+			$extra .= 'file: '.$e->getFile(). ' line: '.$e->getLine().' trace: '.$e->getTraceAsString();
+			if(defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7){
+				@mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $sHtml.$extra);
+			}
+			echo $sHtml;
+
+		}catch(\Exception $e2) {
+			$sHtml = \Lampcms\Responder::makeErrorPage('<strong>Exception:</strong> '.strip_tags($e2->getMessage())."\nIn file:".$e2->getFile()."\nLine: ".$e2->getLine());
+			$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';
+			if(defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7){
+				@mail(LAMPCMS_DEVELOPER_EMAIL, 'Error in index.php on line '.__LINE__, $sHtml.$extra);
+			}
+			echo $sHtml;			
+		}
+		
 		fastcgi_finish_request();
 	}
 }
+

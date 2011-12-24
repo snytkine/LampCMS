@@ -54,7 +54,13 @@ namespace Lampcms;
 
 class FollowManager extends LampcmsObject
 {
-
+	/**
+	 * @todo instead
+	 * should pass Mongo, Dispatcher objects
+	 * And not extend LampcmsObject
+	 * 
+	 * @param Registry $Registry
+	 */
 	public function __construct(Registry $Registry){
 		$this->Registry = $Registry;
 	}

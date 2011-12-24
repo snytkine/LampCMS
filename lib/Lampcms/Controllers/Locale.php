@@ -79,8 +79,6 @@ class Locale extends WebPage
 
 	protected function main(){
 		$locale = $this->Request->get('locale');
-		/*echo __METHOD__.' '.__LINE__.'$locale: '.$locale;
-		 exit;*/
 
 		if(isset($_SESSION['guest_block'])){
 			unset($_SESSION['guest_block']);

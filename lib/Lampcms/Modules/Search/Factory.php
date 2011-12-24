@@ -53,6 +53,7 @@
 namespace Lampcms\Modules\Search;
 
 use \Lampcms\Interfaces\Search;
+use \Lampcms\Stub;
 
 
 /**
@@ -75,8 +76,6 @@ class Factory
 		if(extension_loaded('pdo_mysql')){
 			$o = new \Lampcms\Modules\Search\MySQL($Registry);
 		}
-
-
 
 		if(!isset($o)){
 			e('Search feature is not implemented because no search providers are defined');

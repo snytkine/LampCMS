@@ -83,7 +83,7 @@ class CookieAuth extends UserAuth
 
 	public function authByCookie(){
 
-		d('$_COOKIE: '.print_r($_COOKIE, 1));
+		//d('$_COOKIE: '.print_r($_COOKIE, 1));
 
 		$User = $this->checkRequiredCookies()
 		->validateCookieSalt()
@@ -165,7 +165,7 @@ class CookieAuth extends UserAuth
 	 */
 	protected function validateCookieSalt(){
 		parse_str($this->cookie, $a);
-		d('parsed cookie: '.print_r($a, 1));
+		//d('parsed cookie: '.print_r($a, 1));
 		if(!is_array($a) || !array_key_exists('uid', $a) || !array_key_exists('s', $a)){
 
 			throw new CookieAuthException('Wrong value of uid cookie could not parse it');
@@ -306,11 +306,11 @@ class CookieAuth extends UserAuth
 		d('$cur: '.gettype($cur).' found count: '.$cur->count());
 
 		$aLockParams = $this->Registry->Ini->getSection('LOGIN_ERROR_LOCK');
-		d('$aLockParams: '.print_r($aLockParams, 1));
+		//d('$aLockParams: '.print_r($aLockParams, 1));
 
 		if ($cur->count() > (int)$aLockParams['max_errors']) {
 			$a1 = $cur->getNext();
-			d('a1: '.print_r($a1, 1));
+			//d('a1: '.print_r($a1, 1));
 			$lastAttempt = ($now - $a1['i_ts']);
 
 			d('$lastAttempt: '.$lastAttempt);

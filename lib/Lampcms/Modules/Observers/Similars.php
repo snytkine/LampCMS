@@ -58,8 +58,6 @@ use \Lampcms\Modules\Search\Factory as SearchFactory;
  * Observer listens to onNewQuestion
  * and will create blocks with similar items
  * and add them to Question object
- * the object will then be auto-saved to Mongo from
- * __destructor
  *
  * The ways it was supposed to work is to add
  * simtabs via a registered observer (this class)

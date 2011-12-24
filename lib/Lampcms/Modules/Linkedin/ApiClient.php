@@ -299,7 +299,7 @@ class ApiClient
 		$method = 'POST';
 		$img = (!empty($image)) ?  '<submitted-image-url>'.$image.'</submitted-image-url>' : '';
 		$xml = \vsprintf(self::TPL_SHARE, array($comment, $label, $url, $img));
-		d('$xml: '.$xml);
+		//d('$xml: '.$xml);
 
 		try{
 			/**
@@ -320,9 +320,9 @@ class ApiClient
 
 		} catch(\OAuthException $e) {
 			$aDebug = $this->oAuth->getLastResponseInfo();
-			d('debug: '.print_r($aDebug, 1));
+			//d('debug: '.print_r($aDebug, 1));
 
-			e('OAuthException: '.$e->getMessage());
+			//e('OAuthException: '.$e->getMessage());
 			/**
 			 * Should NOT throw Exception because
 			 * we are not sure it was actually due to authorization
@@ -476,7 +476,7 @@ class ApiClient
 			$ret = $this->oAuth->getLastResponse();
 		} catch(\Exception $e){
 			$aDebug = $this->oAuth->getLastResponseInfo();
-			d('debug: '.print_r($aDebug, 1));
+			//d('debug: '.print_r($aDebug, 1));
 		}
 
 		return $ret;
@@ -515,14 +515,14 @@ class ApiClient
 		$ret = $this->oAuth->getLastResponse();
 
 		$aDebug = $this->oAuth->getLastResponseInfo();
-		d('debug: '.print_r($aDebug, 1).' ret: '.$ret);
+		//d('debug: '.print_r($aDebug, 1).' ret: '.$ret);
 		if('200' == $aDebug['http_code'] || '201' == $aDebug['http_code']){
-			d('successful post to API');
+			//d('successful post to API');
 
 			return $ret;
 
 		} elseif('401' == $aDebug['http_code']){
-			d('Linkedin oauth failed with 401 http code. Data: '.print_r($aDebug, 1));
+			//d('Linkedin oauth failed with 401 http code. Data: '.print_r($aDebug, 1));
 
 			/**
 			 * This exception should be caught all the way in WebPage and it will
@@ -536,7 +536,7 @@ class ApiClient
 			throw new \BadMethodCallException('Linkedin API OAuth credentials failed. Possibly user removed our app');
 
 		} else {
-			e('Linkedin API Post failed http code was: '.$aDebug['http_code'].' full debug: ' .print_r($aDebug, 1).' response: '.$ret);
+			//e('Linkedin API Post failed http code was: '.$aDebug['http_code'].' full debug: ' .print_r($aDebug, 1).' response: '.$ret);
 
 			throw new \RuntimeException('Linkedin OAuth post failed');
 		}

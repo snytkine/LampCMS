@@ -109,7 +109,7 @@ class ExternalAuth extends LampcmsObject
 	 * Constructor
 	 * @param Registry $Registry
 	 */
-	protected function __construct(Registry $Registry){
+	public function __construct(Registry $Registry){
 
 		$this->Registry = $Registry;
 	}

@@ -70,6 +70,9 @@ namespace Lampcms;
  * Class that generate a captcha-image with text and a form to fill in this text
  * @author Horst Nogajski, (mail: horst@nogajski.de)
  * @version 1.3
+ * 
+ * @todo this class does not have to extend LampcmsObject
+ * and does not need Registry in constructor, only Ini
  *
  */
 class Captcha extends LampcmsObject

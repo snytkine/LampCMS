@@ -291,16 +291,14 @@ class CacheHeaders
 		 * we return 304 header but ONLY if request method is GET or HEAD,
 		 * for all others return special code
 		 */
-		if($noChangeByEtag || $noChangeByTimestamp)
-		{
-			if($noChangeByEtag && ('GET' !== $_SERVER['REQUEST_METHOD'] && 'HEAD' !== $_SERVER['REQUEST_METHOD']))
-			{
+		if($noChangeByEtag || $noChangeByTimestamp){
+			if($noChangeByEtag && ('GET' !== $_SERVER['REQUEST_METHOD'] && 'HEAD' !== $_SERVER['REQUEST_METHOD'])){
 				header("HTTP/1.1 412 (Precondition Failed)");
-				exit;
+				throw new \OutOfBoundsException;
 			}
 
 			header("HTTP/1.1 304 Not Modified");
-			exit;
+			throw new \OutOfBoundsException;
 		}
 
 		return true;

@@ -236,7 +236,7 @@ class Fast
 		foreach($a as $aVars){
 			if(is_string($aVars)){
 				$vars = array($aVars);
-				d('aVars now: '.print_r($vars, 1));
+				//d('aVars now: '.print_r($vars, 1));
 			}else {
 				$vars = $aVars;
 			}

@@ -154,6 +154,10 @@ class Registry implements Interfaces\LampcmsObject
 			return new \Lampcms\Mongo\DB($c->Ini);
 		});
 
+		$this->values['Facebook'] = $this->asShared(function ($c) {
+			return new \Lampcms\Modules\Facebook\Client($c);
+		});
+
 
 		$this->values['Locale'] = $this->asShared(function ($c) {
 
@@ -170,7 +174,7 @@ class Registry implements Interfaces\LampcmsObject
 
 
 		$this->values['Db'] = $this->asShared(function ($c) {
-			return new DB($c);
+			return new DB($c->Ini);
 		});
 
 		$this->values['Incrementor'] = $this->asShared(function ($c) {
@@ -185,11 +189,48 @@ class Registry implements Interfaces\LampcmsObject
 		$this->values['Acl'] = $this->asShared(function ($c) {
 			return $c->Cache->Acl;
 		});
-		
+
 		$this->values['Geo'] = $this->asShared(function ($c) {
 			return new \Lampcms\Geo\Ip($c->Mongo->getDb());
 		});
 
+		/**
+		 * Instantiation of current Viewer
+		 * If have value $_SESSION['viewer'] then it's always an array
+		 * of class and id.
+		 * In this case create object of that class and populate
+		 * it by id.
+		 *
+		 * Otherwise return default empty User object
+		 *
+		 * The processLogin() in WebPage overrides this
+		 * and sets Viewer to an actual object
+		 *
+		 * @todo do not rely on by_id, instead find user by id here, then
+		 * pass to constructor. It's just a little bit faster to not go
+		 * through reload()
+		 * also throw exception is user not found by id OR
+		 * log error and return default empty user
+		 *
+		 */
+		$this->values['Viewer'] = $this->asShared(function ($c) {
+
+			if(!empty($_SESSION) && !empty($_SESSION['viewer']) ){
+
+				$u = $_SESSION['viewer'];
+				$a = $c->Mongo->USERS->findOne(array('_id' => $u['id']));
+
+				if(!empty($a)){
+					$User = new $u['class']($c, 'USERS', $a);
+					$User->setTime();
+					return $User;
+				}
+
+				unset($_SESSION['viewer']);
+			}
+				
+			return new \Lampcms\User($c);
+		});
 
 		/**
 		 * Our main default EventDispatcher

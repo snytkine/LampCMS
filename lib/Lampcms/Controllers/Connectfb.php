@@ -52,10 +52,10 @@
 
 namespace Lampcms\Controllers;
 
-use Lampcms\WebPage;
+use \Lampcms\WebPage;
 use \Lampcms\Request;
 use \Lampcms\Responder;
-use \Lampcms\ExternalAuthFb;
+//use \Lampcms\ExternalAuthFb;
 
 /**
  *
@@ -85,7 +85,7 @@ class Connectfb extends WebPage
 	protected function main(){
 		try{
 			d('cp');
-			ExternalAuthFb::factory($this->Registry)->connect($this->Registry->Viewer);
+			$this->Registry->Facebook->connect($this->Registry->Viewer);
 			d('cp');
 		} catch (\Lampcms\FacebookAuthException $e ){
 			d('Caught FacebookAuthException');
@@ -99,7 +99,7 @@ class Connectfb extends WebPage
 				throw $e;
 			}
 			
-			e('Unable to connect Facebook account. '.$e->getMessage.' in file '.$e->getFile().' on line '.$e->getLine());
+			e('Unable to connect Facebook account. '.$e->getMessage().' in file '.$e->getFile().' on line '.$e->getLine());
 			throw new \Lampcms\Exception('Unable to connect Facebook account at this time');
 		}
 

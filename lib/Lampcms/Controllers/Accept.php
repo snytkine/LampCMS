@@ -107,6 +107,8 @@ class Accept extends WebPage
 		->updateQuestion()
 		->updateUser()
 		->postEvent();
+		
+		$this->Answer->save();
 		//} catch(\Exception $e){
 		//	d('Accept not counted due to exception: '.$e->getMessage().' in '.$e->getFile().' line: '.$e->getLine());
 		//}
@@ -318,7 +320,7 @@ class Accept extends WebPage
 			$this->rewardViewer();
 		}
 
-		$this->Question->setBestAnswer($this->Answer);
+		$this->Question->setBestAnswer($this->Answer)->save();
 
 		return $this;
 	}

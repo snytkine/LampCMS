@@ -71,7 +71,8 @@ class tplU3 extends Lampcms\Template\Fast
 		$mn = (!empty($a['mn'])) ? $a['mn'] : '';
 
 		$displayName = $fn.' '.$mn. ' '.$ln;
-		$a['displayName'] = (strlen($displayName) > 2) ? $displayName : $a['username'];
+		
+		$a['displayName'] = (strlen($displayName) > 2) ? $displayName : ((array_key_exists('username', $a)) ? $a['username'] : '');
 
 		$lastActive = (!empty( $a['i_lm_ts'])) ?  $a['i_lm_ts'] : $a['i_reg_ts'];
 		$registered = $a['i_reg_ts'];

@@ -48,11 +48,23 @@ class tplFbJs extends Lampcms\Template\Fast
 
 	protected static $vars = array();
 
-	protected static $tpl = '<div id="fb-root"></div>
+	/**
+	 * <div id="fb-root"></div>
+	<!--
 <script src="http://connect.facebook.net/en_US/all.js"></script>
 <script>
- FB.init({appId: \'%1$s\', status: true, cookie: true,
+ FB.init({appId: \'%1$s\', status: true, oauth : true, cookie: true,
  xfbml: true});
-</script>';
+</script>
+--> 
+	 * Enter description here ...
+	 * @var unknown_type
+	 */
+	protected static $tpl = '<div id="fb-root"></div>
+	<script src="http://connect.facebook.net/en_US/all.js"></script>
+	<script>
+ 	FB.init({appId: \'%1$s\', status: true, oauth : true, cookie: true,
+ 	xfbml: true});
+	</script>';
 
 }

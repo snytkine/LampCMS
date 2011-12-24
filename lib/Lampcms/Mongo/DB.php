@@ -65,7 +65,7 @@ use \Lampcms\DevException;
 class DB extends \Lampcms\LampcmsObject
 {
 
-	protected static $oMongo;
+	//protected static $oMongo;
 
 
 	/**
@@ -115,12 +115,12 @@ class DB extends \Lampcms\LampcmsObject
 	public function __construct(\Lampcms\Ini $Ini){
 
 		if(!\extension_loaded('mongo')){
-			exit('Unable to use this program because PHP mongo extension not loaded. Make sure your php has mongo extension enabled. Exiting');
+			throw new \OutOfBoundsException('Unable to use this program because PHP mongo extension not loaded. Make sure your php has mongo extension enabled. Exiting');
 		}
 
 		$aOptions = array('connect' => true);
 		$aConfig = $Ini->getSection('MONGO');
-		d('$aConfig: '.print_r($aConfig, 1));
+		//d('$aConfig: '.print_r($aConfig, 1));
 
 		$server = $aConfig['server'];
 		/**
@@ -182,7 +182,7 @@ class DB extends \Lampcms\LampcmsObject
 
 
 	/**
-	 * By default pass methos to $this->db (MongoDatabase object)
+	 * By default pass methods to $this->db (MongoDatabase object)
 	 * @param string $method
 	 * @param array $args
 	 */
@@ -230,7 +230,7 @@ class DB extends \Lampcms\LampcmsObject
 			return false;
 		}
 
-		d('$ret: '.$ret. ' $aValues: '.print_r($aValues, 1));
+		//d('$ret: '.$ret. ' $aValues: '.print_r($aValues, 1));
 
 		return (!empty($aValues['_id'])) ? $aValues['_id'] : false;
 

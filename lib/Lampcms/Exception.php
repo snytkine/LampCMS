@@ -217,7 +217,7 @@ class Exception extends \Exception
 		//$bHtml = ($e instanceof \Lampcms\Exception) ? $e->getHtmlFlag() : false;
 
 		if ($e instanceof Lampcms\DevException) {
-			$sMessage = ( (defined('LAMPCMS_DEBUG')) && true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occured';//$oTr->get('generic_error', 'exceptions');
+			$sMessage = ( (defined('LAMPCMS_DEBUG')) &&  true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occured';//$oTr->get('generic_error', 'exceptions');
 		}
 
 		$sMessage = strip_tags($sMessage);
@@ -531,13 +531,13 @@ class RedirectException extends Exception
 	/**
 	 * Constructor
 	 *
-	 * @param str $strNewLocation must be a full url where
+	 * @param string $newLocation must be a full url where
 	 * the page can be found
 	 *
-	 * @param int $intHttpCode HTTP response code
+	 * @param int $httpCode HTTP response code
 	 */
-	public function __construct($strNewLocation, $intHttpCode = 301, $boolHTML = true){
-		parent::__construct($strNewLocation, null, $intHttpCode, $boolHTML);
+	public function __construct($newLocation, $httpCode = 301, $boolHTML = true){
+		parent::__construct($newLocation, null, $httpCode, $boolHTML);
 	}
 }
 

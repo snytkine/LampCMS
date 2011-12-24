@@ -366,7 +366,8 @@ class Answerparser extends LampcmsObject
 		$this->Question->updateAnswerCount()
 		->addContributor($User)
 		->setLatestAnswer($User, $this->Answer)
-		->touch();
+		->touch()
+		->save();
 
 		return $this;
 	}

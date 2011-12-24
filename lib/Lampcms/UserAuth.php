@@ -125,9 +125,9 @@ class UserAuth extends LampcmsObject
 				throw new WrongUserException('User with this email address not found');
 			}
 
-			d('$aEmail: '.print_r($aEmail, 1));
+			//d('$aEmail: '.print_r($aEmail, 1));
 			$aResult = $this->Registry->Mongo->USERS->findOne(array('_id' => $aEmail['i_uid']));
-			d('$aResult', print_r($aResult, 1));
+			//d('$aResult', print_r($aResult, 1));
 			if(empty($aResult)){
 				
 				throw new WrongUserException('User not found');
@@ -273,7 +273,7 @@ class UserAuth extends LampcmsObject
 
 		if ($cur->count() > (int)$aLockParams['max_errors']) {
 			$a1 = $cur->getNext();
-			d('a1: '.print_r($a1, 1));
+			//d('a1: '.print_r($a1, 1));
 			$lastAttempt = ($now - $a1['i_ts']);
 
 			d('$lastAttempt: '.$lastAttempt);

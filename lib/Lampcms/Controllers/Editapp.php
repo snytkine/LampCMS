@@ -251,7 +251,7 @@ class Editapp extends WebPage
 				$res = $this->oApi->insert();
 			}
 		} catch (\Exception $e){
-			exit($e->getMessage());
+			throw new \OutOfBoundsException($e->getMessage());
 		}
 
 		d('$res: '.$res);

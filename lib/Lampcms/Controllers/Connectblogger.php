@@ -341,7 +341,8 @@ class Connectblogger extends WebPage
 				d('User has more than one blog, generating "select blog" form');
 				$form = $this->makeBlogSelectionForm();
 				d('$form: '.$form);
-				exit(Responder::makeErrorPage($form));
+				echo(Responder::makeErrorPage($form));
+				throw new \OutOfBoundsException;
 			} else {
 				d('User has one Blogger blog, using it now');
 				/**

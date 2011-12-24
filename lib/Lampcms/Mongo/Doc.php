@@ -66,6 +66,7 @@ use Lampcms\Registry;
  */
 class Doc extends LampcmsArray implements \Serializable
 {
+	const COLLECTION = '';
 	/**
 	 * Object of type Registry
 	 * We need Registry and not just oMongo
@@ -184,7 +185,7 @@ class Doc extends LampcmsArray implements \Serializable
 
 	/**
 	 * Constructor
-	 * @param array $a
+	 * @param object $Registry registry object
 	 * @param string $collectionName name of Mongo Collection in which
 	 * data of this document belongs
 	 *
@@ -192,11 +193,21 @@ class Doc extends LampcmsArray implements \Serializable
 	 * the array key does not exist. Usually this is empty string, but you can
 	 * set it to null or false, whatever you want to use for a default (fallback)
 	 * value of any array key
+	 *
+	 * @todo instead may try to pass Mongo/DB, Dispatcher, Incrementor
+	 * and have getMongo() instead of getRegistry()
+	 * the idea is not to have reference to Registry object in here
+	 * Must first look into all child classes to see if they may need
+	 * access to Registry for any other reasons
 	 */
 	public function __construct(Registry $Registry, $collectionName = null, array $a = array()){
 		parent::__construct($a);
 		$this->Registry = $Registry;
-		$this->collectionName = $collectionName;
+		if(is_string($collectionName)){
+			$this->collectionName = $collectionName;
+		} elseif(strlen(static::COLLECTION) > 0){
+			$this->collectionName = static::COLLECTION;
+		}
 		$this->md5 = \md5(\serialize($a));
 	}
 
@@ -263,7 +274,7 @@ class Doc extends LampcmsArray implements \Serializable
 			default:
 				$ret = $ret;
 		}
-
+		
 		return $ret;
 	}
 
@@ -332,19 +343,14 @@ class Doc extends LampcmsArray implements \Serializable
 			throw new \InvalidArgumentException('Unknown method: '.$method);
 		}
 
-		$column = strtolower(substr($method, 2));
+		$column = \strtolower(\substr($method, 2));
 		$value = $arguments[0];
-
-		d('$collectionName: '.$this->collectionName. ' $column: '.$column.' $value: '.$value);
 
 		$a = $this->getRegistry()->Mongo->getCollection($this->collectionName)->findOne(array($column => $value) );
 
 		if(empty($a)){
 			throw new \MongoException('Unable to find data in collection '.$this->collectionName.' by '.$column.' = '.$value);
 		}
-
-
-		d('got data a: '.print_r($a, 1));
 
 		$this->reload($a);
 
@@ -534,6 +540,7 @@ class Doc extends LampcmsArray implements \Serializable
 	 * of type MongoId
 	 */
 	public function insert(){
+		$res = false;
 
 		if(!$this->offsetExists($this->keyColumn) && $this->minAutoIncrement){
 			$_id = $this->getRegistry()->Incrementor->nextValue($this->collectionName, $this->minAutoIncrement);
@@ -548,12 +555,12 @@ class Doc extends LampcmsArray implements \Serializable
 			d('insertData returned res: '.$res);
 
 		} catch(\MongoException $e){
-			e('LampcmsError Unable to insert document into Mongo: '.$e->getMessage());
+			throw new \Lampcms\DevException('LampcmsError Unable to insert document into Mongo. Exception: '.$e->getMessage().' in file: '.$e->getFile().' on line: '.$e->getLine());
 		}
 
-		if(false === $res && empty($aData['_id'])){
+		if(false === $res ){
 
-			throw new Exception('Failed to insert data into MongoDB collection: '.$this->collectionName.' aData: '.print_r($aData, 1));
+			throw new \Lampcms\DevException('Failed to insert data into MongoDB collection: '.$this->collectionName.' aData: '.print_r($aData, 1));
 		}
 
 		$this->offsetSet($this->keyColumn, $res);
@@ -580,8 +587,9 @@ class Doc extends LampcmsArray implements \Serializable
 	 *
 	 * @todo why don't we update the md5 value?
 	 *
-	 * @return mixed number of affected rows (which could be 0)
-	 * or false in case of some error during update sql statement
+	 * @return string value of key column on which
+	 * the collection was updated
+	 * usually this is the value of _id
 	 *
 	 */
 	protected function update(){
@@ -593,7 +601,7 @@ class Doc extends LampcmsArray implements \Serializable
 
 			$ret = $this->getRegistry()->Mongo->updateCollection($this->collectionName, $aData, $this->keyColumn, $whereVal, __METHOD__);
 		} catch (\Exception $e){
-			d('could not update MongoCollection $whereVal: '.$whereVal. ' $aData: '.print_r($aData, 1));
+			throw new \Lampcms\DevException('Could not update MongoCollection $whereVal: '.$whereVal. ' $aData: '.print_r($aData, 1).' Exception: '.$e->getMessage().' in '.$e->getFile().' line: '.$e->getLine());
 
 			return false;
 		}
@@ -609,7 +617,7 @@ class Doc extends LampcmsArray implements \Serializable
 		 * This is why we must test for false and not for empty()
 		 */
 		if(false === $ret){
-			e('could not update MongoCollection $whereVal: '.$whereVal. ' $aData: '.print_r($aData, 1));
+			e('Could not update MongoCollection $whereVal: '.$whereVal. ' $aData: '.print_r($aData, 1));
 
 			return false;
 		}
@@ -702,7 +710,6 @@ class Doc extends LampcmsArray implements \Serializable
 			$a = $this->getArrayCopy();
 
 			$a = \array_merge($aDefaults, $a);
-
 
 			$this->md5 = \md5(\serialize($a));
 			$this->exchangeArray($a);
