@@ -57,25 +57,21 @@
  * - Added a debug option for testing the current configuration
  */
 
-namespace Lampcms;
+namespace Lampcms\Captcha;
 
+use \Lampcms\DevException;
 /**
  * All the configuration settings are passed to the class in an array when the object instance is initialized.
  *
  * The class only needs two function calls to be used: display_form() and validate_submit().
  *
- * The class comes with an examplefile.
- * If you don't have it: http://hn273.users.phpclasses.org/browse/package/1569.html
  *
  * Class that generate a captcha-image with text and a form to fill in this text
  * @author Horst Nogajski, (mail: horst@nogajski.de)
  * @version 1.3
- * 
- * @todo this class does not have to extend LampcmsObject
- * and does not need Registry in constructor, only Ini
  *
  */
-class Captcha extends LampcmsObject
+class Captcha
 {
 
 	////////////////////////////////
@@ -99,7 +95,7 @@ class Captcha extends LampcmsObject
 	 *  Absolute path to folder with TrueTypeFonts (with trailing slash!).
 	 *  This must be readable by PHP.
 	 *
-	 * @var string
+	 * @protected string
 	 *
 	 **/
 	protected $TTF_folder;
@@ -110,7 +106,7 @@ class Captcha extends LampcmsObject
 	 * @access public
 	 *
 	 **/
-	var $TTF_RANGE  = array('BLOODGUT.TTF');
+	protected $TTF_RANGE  = array('BLOODGUT.TTF');
 
 	/**
 	 *  How many chars the generated text should have
@@ -118,7 +114,7 @@ class Captcha extends LampcmsObject
 	 * @access public
 	 *
 	 **/
-	var $chars		= 5;
+	protected $chars		= 5;
 
 	/**
 	 *  The minimum size a Char should have
@@ -126,7 +122,7 @@ class Captcha extends LampcmsObject
 	 * @access public
 	 *
 	 **/
-	var $minsize	= 20;
+	protected $minsize	= 20;
 
 	/**
 	 *  The maximum size a Char can have
@@ -134,7 +130,7 @@ class Captcha extends LampcmsObject
 	 * @access public
 	 *
 	 **/
-	var $maxsize	= 30;
+	protected $maxsize	= 30;
 
 	/**
 	 *  The maximum degrees a Char should be rotated. Set it to 30 means a random rotation between -30 and 30.
@@ -142,7 +138,7 @@ class Captcha extends LampcmsObject
 	 * @access public
 	 *
 	 **/
-	var $maxrotation = 25;
+	protected $maxrotation = 25;
 
 	/**
 	 *  Background noise On/Off (if is Off, a grid will be created)
@@ -150,7 +146,7 @@ class Captcha extends LampcmsObject
 	 * @access public
 	 *
 	 **/
-	var $noise		= true;
+	protected $noise		= true;
 
 	/**
 	 *  This will only use the 216 websafe color pallette for the image.
@@ -158,7 +154,7 @@ class Captcha extends LampcmsObject
 	 * @access public
 	 *
 	 **/
-	var $websafecolors = false;
+	protected $websafecolors = false;
 
 	/**
 	 *  Switches language, available are 'en' and 'de'. You can easily add more. Look in CONSTRUCTOR.
@@ -166,7 +162,7 @@ class Captcha extends LampcmsObject
 	 * @access public
 	 *
 	 **/
-	var $lang		= "en";
+	protected $lang		= "en";
 
 	/**
 	 *  If a user has reached this number of try's without success, he will moved to the $badguys_url
@@ -174,7 +170,7 @@ class Captcha extends LampcmsObject
 	 * @access public
 	 *
 	 **/
-	var $maxtry		= 3;
+	protected $maxtry		= 3;
 
 	/**
 	 *  Gives the user the possibility to generate a new captcha-image.
@@ -182,7 +178,7 @@ class Captcha extends LampcmsObject
 	 * @access public
 	 *
 	 **/
-	var $refreshlink = true;
+	protected $refreshlink = true;
 
 	/**
 	 *  If a user has reached his maximum try's, he will located to this url.
@@ -190,7 +186,7 @@ class Captcha extends LampcmsObject
 	 * @access public
 	 *
 	 **/
-	var $badguys_url = "/";
+	protected $badguys_url = "/";
 
 	/**
 	 * Number between 1 and 32
@@ -200,7 +196,7 @@ class Captcha extends LampcmsObject
 	 * @access public
 	 *
 	 **/
-	var $secretposition = 15;
+	protected $secretposition = 15;
 
 	/**
 	 *  The string is used to generate the md5-key.
@@ -208,7 +204,7 @@ class Captcha extends LampcmsObject
 	 * @access public
 	 *
 	 **/
-	var $secretstring = "A very interesting string like 8 char password!";
+	protected $secretstring = "A very interesting string like 8 char password!";
 
 	/**
 	 *  Outputs configuration values for testing
@@ -216,7 +212,7 @@ class Captcha extends LampcmsObject
 	 * @access public
 	 *
 	 **/
-	var $debug = false ;
+	protected $debug = false ;
 
 	/** @access public **/
 	public $msg1;
@@ -275,25 +271,25 @@ class Captcha extends LampcmsObject
 	 *
 	 * Otherwise will return object of this class
 	 *
-	 * @param Registry $Registry
+	 * @param object $Ini Lampcms\Ini object
 	 */
-	public static function factory(Registry $Registry){
+	public static function factory(\Lampcms\Ini $Ini){
 		d('cp captcha factory');
-		$aConfig = $Registry->Ini->getSection('CAPTCHA');
+		$aConfig = $Ini->getSection('CAPTCHA');
 
 		if(!empty($aConfig['disabled'])){
-			d('Captcha disabled by administrator. Using CaptchaStub instead');
+			d('Captcha disabled by administrator. Using Captcha Stub instead');
 
-			return new CaptchaStub();
+			return new Stub();
 		}
 
 		try{
 			self::checkGD();
-			return new self($Registry, $aConfig);
+			return new self($Ini, $aConfig);
 		} catch (DevException $e){
 			e('Unable to use Captcha because of this error: '.$e->getMessage());
 
-			return new CaptchaStub();
+			return new Stub();
 		}
 	}
 
@@ -302,11 +298,11 @@ class Captcha extends LampcmsObject
 	 * Extracts the config array and generate needed params.
 	 *
 	 **/
-	public function __construct(Registry $Registry, array $config = array(), $secure=true, $debug=false ){
+	public function __construct(\Lampcms\Ini $Ini, array $config = array(), $secure=true, $debug=false ){
 
-		$this->Registry = $Registry;
+		$this->Ini = $Ini;
 
-		$aConfig = (!empty($config)) ? $config : $Registry->Ini->getSection('CAPTCHA');
+		$aConfig = (!empty($config)) ? $config : $Ini->getSection('CAPTCHA');
 		d('Captcha config: '.print_r($aConfig, 1));
 
 
@@ -317,7 +313,7 @@ class Captcha extends LampcmsObject
 
 		d('$this->tempfolder: '.$this->tempfolder.' $this->TTF_folder: '.$this->TTF_folder);
 
-		// Hackprevention
+		// Hack prevention
 		if(
 		(isset($_GET['maxtry']) || isset($_POST['maxtry']) || isset($_COOKIE['maxtry']))
 		||
@@ -333,7 +329,7 @@ class Captcha extends LampcmsObject
 				header('Location: '.$this->badguys_url);
 			}
 			else {
-				throw new Exception('Sorry but something is not right with this captcha image submittion.');
+				throw new \Lampcms\Exception('Sorry but something is not right with this captcha image');
 			}
 		}
 
@@ -369,7 +365,7 @@ class Captcha extends LampcmsObject
 			$this->TTF_RANGE = $temp;
 			d("Valid TrueType-files: (".count($this->TTF_RANGE).")");
 			if(count($this->TTF_RANGE) < 1){
-				throw new Exception('No Truetypefont available for the CaptchaClass.');
+				throw new \Lampcms\Exception('No Truetypefont available for the CaptchaClass.');
 			}
 		} else {
 			d("Check given TrueType-File! (".$this->TTF_RANGE.")");

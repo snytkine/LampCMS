@@ -53,7 +53,7 @@
 namespace Lampcms\Forms;
 
 use \Lampcms\Validate;
-use \Lampcms\Captcha;
+use \Lampcms\Captcha\Captcha;
 use \Lampcms\Request;
 
 class Regform extends Form
@@ -143,7 +143,7 @@ class Regform extends Form
 			return $this;
 		}
 
-		$oCaptcha = Captcha::factory($this->Registry);
+		$oCaptcha = Captcha::factory($this->Registry->Ini);
 		$res = $oCaptcha->validate_submit();
 		/**
 		 * If validation good then

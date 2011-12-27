@@ -288,6 +288,17 @@ class DB extends \Lampcms\LampcmsObject
 	public function getDb(){
 		return $this->conn->selectDB($this->dbname);
 	}
+	
+	/**
+	 * Flush (comming) all changes to disk
+	 * Usually you would run this method
+	 * after perfirming multiple save() or insert
+	 * operations without the fsync = true option
+	 * 
+	 */
+	public function flush(){
+		return $this->getDb()->command( array( "getlasterror" => 1 , "fsync" => 1 ) );
+	}
 
 
 	/**

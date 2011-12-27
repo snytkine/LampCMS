@@ -54,7 +54,7 @@
 namespace Lampcms\Forms;
 
 use \Lampcms\Validate;
-use \Lampcms\Captcha;
+use \Lampcms\Captcha\Captcha;
 
 class Apiclient extends Form
 {
@@ -252,7 +252,7 @@ class Apiclient extends Form
 	 */
 	protected function validateCaptcha(){
 
-		$oCaptcha = Captcha::factory($this->Registry);
+		$oCaptcha = Captcha::factory($this->Registry->Ini);
 		$res = $oCaptcha->validate_submit();
 
 		/**

@@ -86,7 +86,7 @@ class Usertools
 		$token = '';
 		$uid = $User->getUid();
 
-		$role = $Registry->Viewer->reload()->getRoleId();
+		$role = $Registry->Viewer->getRoleId();
 		d('role: '.$role);
 
 		if($oACL->isAllowed($role, null, 'change_user_role')){

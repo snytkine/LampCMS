@@ -53,7 +53,7 @@ namespace Lampcms\Controllers;
 
 use Lampcms\WebPage;
 use Lampcms\String;
-use Lampcms\Mailer;
+//use Lampcms\Mailer;
 
 /**
  * Class responsible for
@@ -324,7 +324,8 @@ associated with your account.</div>';
 		$body = vsprintf(self::EMAIL_BODY, array($this->login, $this->Registry->Ini->SITE_NAME, $link));
 		$subject = sprintf(self::SUBJECT, $this->Registry->Ini->SITE_NAME);
 		
-		Mailer::factory($this->Registry)->mail($this->emailAddress, $subject, $body);
+		//Mailer::factory($this->Registry)->mail($this->emailAddress, $subject, $body);
+		$this->Registry->Mailer->mail($this->emailAddress, $subject, $body);
 		
 		return $this;
 	}

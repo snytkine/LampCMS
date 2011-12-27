@@ -57,7 +57,6 @@ use \Lampcms\WebPage;
 use \Lampcms\Answer;
 use \Lampcms\Question;
 use \Lampcms\Request;
-use \Lampcms\Mailer;
 
 /**
  * Controller for processing the
@@ -256,7 +255,7 @@ class Flagger extends WebPage
 		d('found '.$cur->count().' moderators');
 
 		if($cur && $cur->count() > 0){
-			$Mailer = Mailer::factory($this->Registry);
+			
 			$subject = $this->SUBJECT;
 			$body = $this->makeBody();
 			$aTo = array();
@@ -265,7 +264,7 @@ class Flagger extends WebPage
 			}
 			
 			d('aTo: '.print_r($aTo, 1));
-			$Mailer->mail($aTo, $subject, $body);
+			$this->Registry->Mailer->mail($aTo, $subject, $body);
 		}
 
 		return $this;

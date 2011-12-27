@@ -185,9 +185,8 @@ class Close extends WebPage
 		if($cur && $cur->count() > 0){
 			$aModerators = iterator_to_array($cur, false);
 			d('$aModerators '.print_r($aModerators, 1));
-			$Mailer = \Lampcms\Mailer::factory($this->Registry);
 			$body = $this->makeBody();
-			$Mailer->mail($aModerators, self::SUBJECT, $body);
+			$this->Registry->Mailer->mail($aModerators, self::SUBJECT, $body);
 		}
 
 		$this->requested = true;

@@ -125,7 +125,7 @@ class RegBlockQuickReg extends RegBlock
 	 * @return string HTML block
 	 */
 	protected function makeCaptchaBlock(){			
-		$s = Captcha::factory($this->Registry)->getCaptchaBlock();
+		$s = Captcha\Captcha::factory($this->Registry->Ini)->getCaptchaBlock();
 
 		return $s;
 	}

@@ -52,7 +52,7 @@
 
 namespace Lampcms\Modules\Observers;
 
-use \Lampcms\Mailer;
+
 
 /**
  * This class is an observer
@@ -435,7 +435,7 @@ site %5$s and navigating to Settings > Email preferences
 		$body = vsprintf(static::$ANS_COMMENT_BODY, array($this->aInfo['username'], $Answer['title'], \strip_tags($this->aInfo['b']), $commUrl, $siteUrl));
 		d('subj: '.$subj);
 		d('body: '.$body);
-		$oMailer = new Mailer($this->Registry);
+		$oMailer = $this->Registry->Mailer;
 
 		/**
 		 * Don not notify if comment made
@@ -507,7 +507,7 @@ site %5$s and navigating to Settings > Email preferences
 		$body = vsprintf(static::$COMMENT_REPLY_BODY, array($this->aInfo['username'], \strip_tags($this->aInfo['parent_body']), \strip_tags($this->aInfo['b']), $commUrl, $siteUrl));
 		d('subj: '.$subj.' body: '.$body);
 
-		$oMailer = new Mailer($this->Registry);
+		$oMailer = $this->Registry->Mailer;
 
 		$callable = function() use ($parentCommentOwner, $coll, $subj, $body, $oMailer){
 
@@ -562,12 +562,9 @@ site %5$s and navigating to Settings > Email preferences
 		}
 
 		$askerID = $this->Question->getOwnerId();
-		$oMailer = new Mailer($this->Registry);
+		$oMailer = $this->Registry->Mailer;
 		$subj = sprintf(static::$QUESTION_BY_TAG_SUBJ, implode(', ', $this->Question['a_tags']) );
 		$body = vsprintf(static::$QUESTION_BY_TAG_BODY, array($this->Question['username'], $this->Question['title'], $this->Question['intro'], $this->Question->getUrl(), $this->Registry->Ini->SITE_URL));
-
-
-
 
 		$coll = $this->collUsers;
 		d('before shutdown function in TagFollowers');
@@ -633,7 +630,7 @@ site %5$s and navigating to Settings > Email preferences
 		$subj = sprintf(static::$QUESTION_BY_USER_SUBJ, $updateType, $this->obj['username']);
 		$body = vsprintf($tpl, array($this->obj['username'], $this->Question['title'], $body, $this->obj->getUrl(), $this->Registry->Ini->SITE_URL));
 		$coll = $this->collUsers;
-		$oMailer = new Mailer($this->Registry);
+		$oMailer = $this->Registry->Mailer;
 		d('before shutdown function in UserFollowers');
 
 		/**
@@ -734,7 +731,7 @@ site %5$s and navigating to Settings > Email preferences
 		$body = vsprintf(static::$QUESTION_FOLLOW_BODY, array($username, $updateType, $this->Question['title'], $url, $siteUrl, $content));
 		d('$body: '.$body);
 
-		$oMailer = new Mailer($this->Registry);
+		$oMailer = $this->Registry->Mailer;
 		d('cp');
 		/**
 		 * MongoCollection USERS

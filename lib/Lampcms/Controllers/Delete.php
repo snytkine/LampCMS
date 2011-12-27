@@ -398,9 +398,8 @@ class Delete extends WebPage
 
 		if($cur && $cur->count() > 0){
 			$aTo = iterator_to_array($cur, false);
-			$Mailer = \Lampcms\Mailer::factory($this->Registry);
 			$body = $this->makeBody();
-			$Mailer->mail($aTo, self::SUBJECT, $body);
+			$this->Registry->Mailer->mail($aTo, self::SUBJECT, $body);
 		}
 
 		$this->requested = true;

@@ -85,7 +85,7 @@ You can also change your password after you log in.
 	protected $username;
 
 	protected $email;
-	
+
 	protected $layoutID = 1;
 
 	/**
@@ -260,8 +260,7 @@ You can also change your password after you log in.
 		$uidHacks = 0;
 
 		$timeOffset = time() - 86400;
-		$cur = $this->Registry->Mongo->PASSWORD_CHANGE
-		->find(array('i_ts' > $timeOffset));
+		$cur = $this->Registry->Mongo->PASSWORD_CHANGE->find(array('i_ts' > $timeOffset));
 
 		if($cur && ($cur->count(true) > 0) ){
 
@@ -280,8 +279,10 @@ You can also change your password after you log in.
 					e('LampcmsError: hacking of password reset link. $uidHacks: '.$uidHacks. ' $ipHacks: '.$ipHacks.' from ip: '.$ip);
 
 					$this->Registry->Dispatcher->post($this, 'onPasswordResetHack', $aVal);
-
-					throw new \Lampcms\Exception('access_denied');
+					/**
+					 * @todo Translate String
+					 */
+					throw new \Lampcms\Exception($this->_('Access Denied'));
 				}
 			}
 		}
@@ -298,7 +299,7 @@ You can also change your password after you log in.
 		$body = vsprintf(self::EMAIL_BODY, array($this->Registry->Ini->SITE_NAME, $this->username, $this->newPwd));
 		$subject = sprintf(self::SUBJECT, $this->Registry->Ini->SITE_NAME);
 
-		\Lampcms\Mailer::factory($this->Registry)->mail($this->email, $subject, $body);
+		$this->Registry->Mailer->mail($this->email, $subject, $body);
 
 		return $this;
 	}

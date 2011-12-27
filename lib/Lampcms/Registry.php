@@ -153,6 +153,10 @@ class Registry implements Interfaces\LampcmsObject
 		$this->values['Mongo'] = $this->asShared(function ($c) {
 			return new \Lampcms\Mongo\DB($c->Ini);
 		});
+		
+		$this->values['Mailer'] = $this->asShared(function ($c) {
+			return new \Lampcms\Mail\Mailer($c->Ini);
+		});
 
 		$this->values['Facebook'] = $this->asShared(function ($c) {
 			return new \Lampcms\Modules\Facebook\Client($c);
@@ -187,7 +191,8 @@ class Registry implements Interfaces\LampcmsObject
 
 
 		$this->values['Acl'] = $this->asShared(function ($c) {
-			return $c->Cache->Acl;
+			return new \Lampcms\Acl\Acl;
+			//return $c->Cache->Acl;
 		});
 
 		$this->values['Geo'] = $this->asShared(function ($c) {

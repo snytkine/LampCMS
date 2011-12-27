@@ -150,8 +150,7 @@ IMPORTANT: You Must use the link below to activate your account
 	 *
 	 * @return object $this
 	 */
-	protected function sendActivationEmail()
-	{
+	protected function sendActivationEmail(){
 		$tpl = $this->Registry->Ini->SITE_URL.'/aa/%d/%s';
 		$link = sprintf($tpl, $this->oEmail['_id'], $this->oEmail['code']);
 		d('$link: '.$link);
@@ -159,7 +158,7 @@ IMPORTANT: You Must use the link below to activate your account
 		$siteName = $this->Registry->Ini->SITE_NAME;
 		$body = vsprintf(self::EMAIL_BODY, array($siteName, $link));
 		$subject = sprintf(self::SUBJECT, $siteName);
-		\Lampcms\Mailer::factory($this->Registry)->mail($this->email, $subject, $body);
+		$this->Registry->Mailer->mail($this->email, $subject, $body);
 
 		return $this;
 	}

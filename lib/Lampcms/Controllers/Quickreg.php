@@ -53,7 +53,7 @@ namespace Lampcms\Controllers;
 
 use \Lampcms\Responder;
 use \Lampcms\Validate;
-use \Lampcms\Captcha;
+use \Lampcms\Captcha\Captcha;
 use \Lampcms\String;
 
 /**
@@ -115,7 +115,7 @@ class Quickreg extends Join
 			return $this;
 		}
 
-		$oCaptcha = Captcha::factory($this->Registry);
+		$oCaptcha = Captcha::factory($this->Registry->Ini);
 		$res = $oCaptcha->validate_submit();
 		/**
 		 * If validation good then

@@ -297,6 +297,10 @@ class CommentParser extends LampcmsObject
 
 		$len = $Body->length();
 		if($len < 10){
+			/**
+			 * @todo
+			 * Translate String
+			 */
 			throw new Exception('Ooopsy... Comment must be at least 10 characters long');
 		}
 

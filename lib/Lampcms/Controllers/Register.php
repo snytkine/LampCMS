@@ -55,8 +55,7 @@ use \Lampcms\WebPage;
 use \Lampcms\String;
 use \Lampcms\Cookie;
 use \Lampcms\Request;
-use \Lampcms\Captcha;
-use \Lampcms\Mailer;
+use \Lampcms\Captcha\Captcha;
 
 /**
  * Main class for creating new account
@@ -172,7 +171,7 @@ You can change your password after you log in.
 		$this->Form->setVar('className', 'registration');
 		$this->Form->setVar('header2', $this->_('Create New Account'));
 		$this->Form->setVar('button', '<input name="submit" value="'.$this->_('Register').'" type="submit" class="btn btn-m">');
-		$this->Form->setVar('captcha', Captcha::factory($this->Registry)->getCaptchaBlock());
+		$this->Form->setVar('captcha', Captcha::factory($this->Registry->Ini)->getCaptchaBlock());
 		$this->Form->setVar('title', $this->_('Create an Account'));
 		$this->Form->setVar('titleBar', '');
 
@@ -331,7 +330,7 @@ You can change your password after you log in.
 		$body = vsprintf(self::EMAIL_BODY, array($siteName, $this->username, $this->pwd, $sActivationLink));
 		$subject = sprintf(self::SUBJECT, $this->Registry->Ini->SITE_NAME);
 
-		Mailer::factory($this->Registry)->mail($this->email, $subject, $body);
+		$this->Registry->Mailer->mail($this->email, $subject, $body);
 
 		return $this;
 	}

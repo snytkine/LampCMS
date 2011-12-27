@@ -50,9 +50,17 @@
  */
 
 
-namespace Lampcms;
+namespace Lampcms\Mail;
 
-class Mailer extends LampcmsObject
+use \Lampcms\DevException;
+
+/**
+ * Class for sending out emails
+ *
+ * @author Dmitri Snytkine
+ *
+ */
+class Mailer
 {
 
 	protected $adminEmail;
@@ -61,12 +69,17 @@ class Mailer extends LampcmsObject
 
 	protected $from;
 
-	protected $Registry;
+	/**
+	 * Ini object
+	 *
+	 * @var object \Lampcms\Ini
+	 */
+	protected $Ini;
 
-	public function __construct(Registry $Registry){
-		$this->Registry = $Registry;
-		$this->adminEmail = $this->Registry->Ini->EMAIL_ADMIN;
-		$this->siteName = $this->Registry->Ini->SITE_NAME;
+	public function __construct(\Lampcms\Ini $Ini){
+		$this->Ini = $Ini;
+		$this->adminEmail = $Ini->EMAIL_ADMIN;
+		$this->siteName = $Ini->SITE_NAME;
 		$this->from = \Lampcms\String::prepareEmail($this->adminEmail, $this->siteName);
 	}
 
@@ -150,7 +163,7 @@ class Mailer extends LampcmsObject
 		$callable = function() use ($subject, $body, $headers, $aTo, $func){
 
 			$total = (is_array($aTo)) ? count($aTo) : $aTo->count();
-				
+
 			/**
 			 * @todo deal with breaking up
 			 * the long array/cursor into
@@ -212,11 +225,14 @@ class Mailer extends LampcmsObject
 							
 						continue;
 					}
-					
-					
+						
+						
 					$ER = error_reporting(0);
 					if(true !== @\mail($to, $subject, $body, $headers)){
-
+						// was unable to send out email
+						if(function_exists('e')){
+							e('unable to send email to '.$to.' subject: '.$subj.' body: '.$body);
+						}
 					}
 					error_reporting($ER);
 				}
@@ -225,7 +241,7 @@ class Mailer extends LampcmsObject
 		};
 
 		if($sendLater){
-			runLater($callable);
+			\Lampcms\runLater($callable);
 		} else {
 			$callable();
 		}

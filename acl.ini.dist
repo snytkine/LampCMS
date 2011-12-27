@@ -103,6 +103,7 @@ change_user_role = A
 make_sticky = A
 edit_any_profile = A
 clear_cache = A
+edit_category = A
            
 ;
 ;user caught spamming

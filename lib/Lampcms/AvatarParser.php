@@ -51,7 +51,8 @@
 
 
 namespace Lampcms;
-use Lampcms\FS\Path;
+
+use \Lampcms\FS\Path;
 
 class AvatarParser extends LampcmsObject
 {

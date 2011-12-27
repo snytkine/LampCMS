@@ -78,6 +78,10 @@ class tplQuestion extends Lampcms\Template\Fast
 			$a['sticky'] = ' sticky';
 		}
 		
+		if(!empty($a['cc'])){
+		$a['cc'] = strtolower($a['cc']);
+		}
+		
 		if(!empty($a['a_comments'])){
 			/**
 			 * Closure function
@@ -133,7 +137,10 @@ class tplQuestion extends Lampcms\Template\Fast
 	'comments_html' => '', //20
 	'i_comments' => '0', //21
 	'nocomments' => '', //22
-	'add_comment' => 'add comment' //23
+	'add_comment' => 'add comment', //23
+	'cc' => '', // 24
+	'cn' => '', //25
+	'city' => '' //26
 	);
 
 	protected static $tpl = '
@@ -179,12 +186,16 @@ class tplQuestion extends Lampcms\Template\Fast
 		<!-- // -->
 		<table class="foot">
           <tr>
+          <td>
+            </td>
             <td class="edits">
                 %18$s
             </td>
             <td class="td_poster owner">
+            
             <div class="usr_info">
             <div class="qtime">asked <span title="%7$s" class="ts">%7$s</span></div>
+          
             <div class="avtr32">
              <img src="%4$s" height="32" width="32" alt="">
             </div>
@@ -192,6 +203,8 @@ class tplQuestion extends Lampcms\Template\Fast
             	%3$s<br>
             	<span class="reputation" title="reputation score"></span>
 				</div>
+				  <br>
+			&nbsp;<img src="/images/blank.gif" class="flag flag-%24$s" alt="%24$s" title="%25$s">
 			</div>
             </td>
           </tr>

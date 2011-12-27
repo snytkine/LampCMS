@@ -1,0 +1,120 @@
+@CHARSET "ISO-8859-1";
+
+small {
+	font-size: 90%;
+}
+
+small code {
+	font-size: 11px;
+}
+
+.placeholder {
+	background-color: #cfcfcf;
+}
+
+.ui-nestedSortable-error {
+	background: #fbe3e4;
+	color: #8a1f11;
+}
+
+ol {
+	margin: 0;
+	padding: 0;
+	padding-left: 30px;
+}
+
+ol.sortable,ol.sortable ol {
+	margin: 0 0 0 25px;
+	padding: 0;
+	list-style-type: none !important;
+}
+
+/* ol.sortable {
+	margin: 2em 0;
+} */
+.sortable li {
+	margin: 7px 0 0 0;
+	padding: 0;
+	list-style-type: none !important;
+}
+
+.sortable li div {
+	border: 1px solid black;
+	padding: 3px;
+	margin: 0;
+	background-color: lightblue;
+	cursor: move;
+}
+
+.sortable li div.editable {
+	border-color: red !important;
+}
+
+.sortable li div.sci1 {
+	border: 1px solid black;
+	padding: 3px;
+	margin: 0;
+	background-color: black;
+	color: lightblue;
+	cursor: move;
+}
+
+.sortable li div.active {
+	text-decoration: line-through !important;
+	cursor: move;
+}
+
+div.edited {
+	border: 1px solid black;
+	padding: 3px;
+	margin: 0;
+	background-color: lightyellow !important;
+	cursor: move;
+}
+
+p,ol,ul,pre,form {
+	margin-top: 0;
+	margin-bottom: 1em;
+}
+
+dl {
+	margin: 0;
+}
+
+dd {
+	margin: 0;
+	padding: 0 0 0 1.5em;
+}
+
+.notice {
+	color: #c33;
+}
+
+div.new_cat {
+	background-color: lightblue;
+}
+
+div.cateditor {
+	width: 90%;
+	margin-left: 2em;
+	padding: 1em;
+}
+
+#save_order {
+	position: relative;
+	clear: both;
+	float: left;
+	margin-left: 2em;
+	padding: 2em;
+}
+
+.hidden_item {
+	visibility: hidden;
+	display: none;
+}
+
+.info {
+	border: 1px solid #EDEDED;
+	padding: 3px;
+	background-color: #FFFFCC;
+}

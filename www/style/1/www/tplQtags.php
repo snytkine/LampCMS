@@ -51,6 +51,18 @@
 class tplQtags extends Lampcms\Template\Fast
 {
 	/**
+	 * For this template we don't 
+	 * want to add html debug code
+	 * even when in debug mode
+	 * because result of this parsed
+	 * question is stored with the
+	 * question.
+	 * 
+	 * @var bool
+	 */
+	protected static $debug = false;
+	
+	/**
 	 * This is important!
 	 * Since tags can be any combination of chars, even
 	 * brackets and + sign, we should always urlencode tag's value

@@ -95,6 +95,21 @@ class Fast
 	 * @var bool
 	 */
 	protected static $skip = false;
+	
+	/**
+	 * 
+	 * Flag indicates that in debug mode
+	 * an extra html comments will be added
+	 * before and after the template
+	 * Some templates may want to skip adding debug code
+	 * even when in debug mode. Usually these will
+	 * be the templates that created html blocks that 
+	 * are stored with questions or in cache.
+	 * 
+	 * 
+	 * @var bool
+	 */
+	protected static $debug = true;
 
 
 	protected static function translate($s, array $vars = null){
@@ -171,7 +186,7 @@ class Fast
 
 		$begin = $end = $t = '';
 
-		if (true === LAMPCMS_DEBUG) {
+		if (true === LAMPCMS_DEBUG && static::$debug) {
 			$t = '  ';
 			$templateName = get_called_class();
 			$templateName = LAMPCMS_WWW_DIR.'style'.DIRECTORY_SEPARATOR.STYLE_ID.DIRECTORY_SEPARATOR.VTEMPLATES_DIR.DIRECTORY_SEPARATOR.$templateName;
@@ -243,7 +258,7 @@ class Fast
 			$s .= static::parse($vars, $merge, $func);
 		}
 
-		if (true === LAMPCMS_DEBUG) {
+		if (true === LAMPCMS_DEBUG && static::$debug) {
 			$templateName = get_called_class();
 			$begin = sprintf("\n<!-- BEGIN LOOP in template: %s -->\n", $templateName);
 			$end = sprintf("\n<!-- // END  LOOP in template: %s -->\n", $templateName);

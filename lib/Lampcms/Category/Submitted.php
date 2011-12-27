@@ -49,32 +49,26 @@
  *
  */
 
+ 
+namespace Lampcms\Category;
 
-namespace Lampcms;
-
-/**
- * A Dummy object
- * it acts as a Captcha class but
- * does not do much, only returns empty strings
- * for most of the method calls
- * and returns 1 to validate_captcha, pretending
- * that captcha has been validated
- *
- *
- * @author Dmitri Snytkine
- *
- */
-class CaptchaStub extends Stub
+abstract class Submitted
 {
-	public function validate_submit(){
-		return 1;
-	}
-
-	public function getCaptchaArray(){
-		return array(
-		'img' => '',
-		'public_key' =>'',
-		'hncaptcha' => '');
-	}
+	abstract public function getTitle();
 	
+	abstract public function getSlug();
+	
+	abstract public function getDescription();
+	
+	abstract public function getUploadedImage();
+	
+	abstract public function getId();
+	
+	abstract public function getParentId();
+	
+	abstract public function isActive();
+	
+	abstract public function isCategory();
+	
+	abstract public function getWeight();
 }

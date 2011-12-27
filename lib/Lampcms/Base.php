@@ -142,8 +142,7 @@ class Base extends LampcmsObject
 	 */
 	public function saveResourceLocation($resourceId = '', $ip = '', array $arrExtra = array(),
 	$collection = 'RESOURCE_LOCATION', $columnName = 'i_res_id',
-	$addIp = true)
-	{
+	$addIp = true){
 
 		if (empty($ip) || empty($resourceId)) {
 			return false;

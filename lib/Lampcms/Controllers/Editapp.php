@@ -54,7 +54,7 @@ namespace Lampcms\Controllers;
 
 use \Lampcms\WebPage;
 use \Lampcms\Mongo\Doc as MongoDoc;
-use \Lampcms\Captcha;
+use \Lampcms\Captcha\Captcha;
 use \Lampcms\String;
 use \Lampcms\Api\Clientdata;
 use \Lampcms\Api\IconParser;
@@ -169,7 +169,7 @@ class Editapp extends WebPage
 	 * @return object $this
 	 */
 	protected function setForm(){
-		$c = Captcha::factory($this->Registry)->getCaptchaBlock();
+		$c = Captcha::factory($this->Registry->Ini)->getCaptchaBlock();
 		$id = $this->Request->get('app_id', 'i', 0);
 		$this->Form->formTitle = $this->aPageVars['title'] = (empty($id)) ?  'Register an Application' : 'Edit Application details';
 

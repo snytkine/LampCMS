@@ -61,14 +61,26 @@ namespace Lampcms;
  * @author Dmitri Snytkine
  *
  */
-class Paginator extends LampcmsObject
+class Paginator
 {
-	protected $Registry;
 
 	protected $oPager;
 
-	public function __construct(Registry $Registry){
-		$this->Registry = $Registry;
+	/**
+	 * This is how this object is usually
+	 * instantiated
+	 * No parameters are necessary
+	 * but for backward compatability it
+	 * can accept one param, but it's totally ignored
+	 * This is because originally it used to accept Registry object
+	 * and other methods still passing Registry to it but
+	 * it's not used anymore
+	 * @param mixed $r this param is ignored, traditionally
+	 * Registry object used to be passed here but not
+	 * it is unnecessary
+	 */
+	public static function factory($r = null){
+		return new self;
 	}
 
 
@@ -89,18 +101,16 @@ class Paginator extends LampcmsObject
 	 * @param mixed int|array|object MongoCursor $arrData
 	 * @param int $perPage
 	 * @param array $arrExtraParams
-	 * 
+	 *
 	 * @return array paged data
 	 *
 	 * @throws LampcmsDevException
 	 */
-	public function paginate($arrData = null, $perPage, $arrExtraParams = array())
-	{
+	public function paginate($arrData = null, $perPage, $arrExtraParams = array()){
 
 		$mongoCursor = null;
-
-		if (2 > 1) // was: FALSE == MOBILE_BROWSER_SETTINGS
-		{
+		// was: FALSE == MOBILE_BROWSER_SETTINGS
+		if (true) {
 			$arrParams = array('mode'=>'Sliding', 'fileName'=>'page%d.html', 'path'=>'', 'append'=>false, 'perPage'=>$perPage, 'delta'=>2, 'urlVar'=>'pageID');
 
 			if (!empty($arrData)) {
@@ -128,7 +138,7 @@ class Paginator extends LampcmsObject
 
 			include_once(LAMPCMS_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'Pear'.DIRECTORY_SEPARATOR.'Pager.php');
 			include_once(LAMPCMS_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'Pear'.DIRECTORY_SEPARATOR.'Pager'.DIRECTORY_SEPARATOR.'Common.php');
-		
+
 			$this->oPager = \Pager::factory($arrParams);
 
 			if(null !== $mongoCursor){
@@ -152,7 +162,7 @@ class Paginator extends LampcmsObject
 			}
 
 			$arrPagerData = $this->oPager->getPageData();
-			
+				
 
 			d('$arrPagerData: '.print_r($arrPagerData, true));
 
