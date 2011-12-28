@@ -96,10 +96,10 @@ class Editcategory extends WebPage
 		 * that handles Category editor
 		 */
 		$this->lastJs = array(
-		'/nested/jquery-1.5.2.min.js', 
-		'/nested/jquery-ui-1.8.11.custom.min.js', 
-		'/nested/jquery.ui.nestedSortable.js', 
-		'/nested/cateditor.js'
+		'/js/jquery-1.5.2.min.js', 
+		'/js/jquery-ui-1.8.11.custom.min.js', 
+		'/js/jquery.ui.nestedSortable.js', 
+		'/js/cateditor.js'
 		);
 		$this->extraCss = '/css/cateditor.css';
 		$this->setBody();
