@@ -63,6 +63,14 @@ namespace Lampcms\Category;
  */
 class Editor
 {
+	/**
+	 * Name of collection that holds
+	 * categories data
+	 *
+	 * @var string
+	 */
+	const COLLECTION = 'CATEGORY';
+
 	protected $Registry;
 
 	protected $aCategories = array();
@@ -90,28 +98,33 @@ class Editor
 		if(!$this->Registry->Viewer->isAdmin() && !$this->Registry->Acl->isAllowed($role, null, 'edit_category')){
 			throw new \Lampcms\AccessException('Not allowed to edit category');
 		}
+		
+		$this->Registry->Cache->__unset('categories');
 	}
 
 	public function saveCategory(Submitted $Category){
 
 		$id = $Category->getId();
-		$Coll = $this->Registry->Mongo->CATEGORY;
+		$Coll = $this->Registry->Mongo->{self::COLLECTION};
 		/**
 		 * Need to ensure that slug is unique index
 		 * since url of category will be looked up by value of slug
-		 *
+		 * filter_var($val, FILTER_SANITIZE_STRING); //, FILTER_FLAG_STRIP_LOW
 		 */
 		$Coll->ensureIndex(array('slug' => 1), array('unique' => true));
+		$Coll->ensureIndex(array('id' => 1), array('unique' => true));
 		$data = array(
-			'title' => $Category->getTitle(),
-			'slug' => \mb_strtolower(preg_replace('/[\s]+/', '_', $Category->getSlug())),
-			'desc' => $Category->getDescription(),
+			'title' => \filter_var(\trim($Category->getTitle()), FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW),
+			'slug' => \trim(\mb_strtolower(preg_replace('/[\s]+/', '_', $Category->getSlug()))),
+			'desc' => \filter_var(\trim($Category->getDescription()), FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW),
 			'b_active' => (bool)$Category->isActive(),
 			'b_catonly' => (bool)$Category->isCategory()
 		);
 
+		d('data: '. print_r($data, 1));
+
 		if(empty($id)){
-			$data['_id'] = $id = $this->Registry->Incrementor->nextValue('CATEGORY');
+			$data['id'] = $id = $this->Registry->Incrementor->nextValue(self::COLLECTION);
 			/**
 			 * Every newly added category
 			 * is assigned a parent id of 0, making
@@ -122,6 +135,10 @@ class Editor
 			 */
 			$data['i_parent'] = 0;
 			$data['i_weight'] = 1;
+			$data['i_qcount'] = 0;
+			$data['i_acount'] = 0;
+			$data['a_latest'] = null;
+			$data['i_ts'] = 0;
 			d('inserting category data: '.print_r($data, 1));
 			try{
 				$Coll->insert($data, array('fsync' => true));
@@ -145,45 +162,73 @@ class Editor
 			 */
 			$id = (int)$id;
 			d('Updating category id: '.$id);
-			$Coll->update(array('_id' => $id), array('$set' => $data), array('fsync' => true) );
+			$Coll->update(array('id' => $id), array('$set' => $data), array('fsync' => true) );
 
 		}
 
-		return $Coll->findOne(array('_id' => $id));
+		$ret =  $Coll->findOne(array('id' => $id),
+		array(
+		'id' => true, 
+		'title' => true, 
+		'desc' => true, 
+		'slug' => true, 
+		'b_active' => true, 
+		'b_catonly' => true,
+		'_id' => false)
+		);
+		
+		return $ret;
 	}
 
 	/**
 	 * Delete category by value of id
+	 * also update the a_sub of parent category and
+	 * remove the $id from a_sub array of parent
+	 * if this category has any parent category.
 	 *
 	 * @param int $id
+	 *
+	 * @return bool
 	 */
 	public function delete($id){
 		if(!is_numeric($id)){
 			throw new \InvalidArgumentException('Value of param $id must be numeric');
 		}
 
-		$id = (int)$id;
+		d('before deleting: '.$id);
 
-		return $this->Registry->Mongo->CATEGORY->remove(array('_id' => $id), array('fsync' => true));
+		$id = (int)$id;
+		$coll = $this->Registry->Mongo->{self::COLLECTION};
+
+		$a = $coll->findOne(array('id' => $id), array('i_parent'));
+		d('cp');
+		if($a && !empty($a['i_parent'])){
+			d('cp');
+			$coll->update(array('id' => $a['i_parent']), array('$pull' => array('a_sub' => $id)));
+		}
+
+		return $coll->remove(array('id' => $id), array('fsync' => true));
 	}
+
 
 	/**
 	 * Setup array of categories
 	 * They will be sorted by parent id (no parent id first)
 	 * and then by i_weight - lowest weight first
-	 * index them by _id
-	 * 
+	 * index them by id
+	 *
 	 * @return object $this
 	 */
 	protected function setCategories(){
-		$cur = $this->Registry->Mongo->CATEGORY->find(array())->sort(array('i_parent' => 1, 'i_weight' => -1));
+		$cur = $this->Registry->Mongo->{self::COLLECTION}->find(array())->sort(array('i_parent' => 1, 'i_weight' => -1));
 		/**
 		 * Rekey the array so that array keys
 		 * are category id
 		 */
 		foreach($cur as $item){
-			$this->aCategories[$item['_id']] = $item;
+			$this->aCategories[$item['id']] = $item;
 		}
+		
 
 		return $this;
 	}
@@ -193,7 +238,7 @@ class Editor
 	 * and nesting order of categories
 	 * as they were submitted from
 	 * the nestedSortable
-	 * 
+	 *
 	 * @param array $categories
 	 */
 	public function saveOrder(array $categories){
@@ -201,14 +246,14 @@ class Editor
 		$i = 1;
 		foreach($categories as $id => $parent_id){
 			/**
-			 * Very important to case 
+			 * Very important to case
 			 * id and parent_id to integer
 			 * because Mongo is type sensitive
 			 * and expects ints for these values
 			 */
 			$id = (int)$id;
 			$parent_id = (int)$parent_id;
-			
+
 			/**
 			 * Extra sanity check to make
 			 * sure category with this id exists
@@ -245,13 +290,13 @@ class Editor
 		 */
 		if(!empty($this->aSubs)){
 			foreach($this->aSubs as $id => $subs){
-				
+
 				$this->aCategories[$id]['a_sub'] = $subs;
 			}
 		}
 
 		d('Saving sorted categories: '.print_r($this->aCategories, 1));
-		$coll = $this->Registry->Mongo->CATEGORY;
+		$coll = $this->Registry->Mongo->{self::COLLECTION};
 		$j = 0;
 		foreach($this->aCategories as $data){
 
@@ -262,7 +307,7 @@ class Editor
 		 * Commit mongo data to disk
 		 */
 		$this->Registry->Mongo->flush();
-		
+
 		return $j;
 	}
 }

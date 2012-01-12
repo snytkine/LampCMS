@@ -72,12 +72,12 @@ class Base extends LampcmsObject
 
 	/**
 	 * Premission required to access this script
-	 * 
+	 *
 	 * @var string
 	 */
 	protected $permission;
-	
-	
+
+
 
 	/**
 	 * Special type of permission check where we don't
@@ -109,10 +109,10 @@ class Base extends LampcmsObject
 	 * @var bool
 	 */
 	protected $bLoggedIn;
-	
+
 	/**
 	 * Registry Object
-	 * 
+	 *
 	 * @var object of type \Lampcms\Registry
 	 */
 	protected $Registry;
@@ -280,14 +280,14 @@ class Base extends LampcmsObject
 
 		$role = (null !== $role) ? $role : $this->Registry->Viewer;
 
-
+		$Tr = $this->Registry->Tr;
 		/**
 		 * oACL can be cached, which saves about 5-7 milliseconds
 		 * on my dev machine. The downside is that if you
 		 * edit acl.ini you must manually remove
 		 * Acl key from cache. (from C_Cache collection)
 		 */
-		
+
 		$oACL = $this->Registry->Acl;
 
 		$roleID = $role->getRoleId();
@@ -298,23 +298,34 @@ class Base extends LampcmsObject
 				/**
 				 * @todo translate string
 				 */
-				throw new AuthException('Please Register or Login to perform this action');
+				throw new AuthException($Tr->get('Please Register or Login to perform this action') );
 			}
 
-			if(strstr($roleID, 'unactivated')){
-				/**
-				 * @todo
-				 * Translate string
-				 */
-				throw new UnactivatedException('You have not confirmed email address<br>Go to <a href="/settings/">Settings</a> and confirm your email');
+			if(\strstr($roleID, 'unactivated')){
+
+				if(  ($role instanceof User) && strlen($role->email) > 6 ){
+					/**
+					 * @todo
+					 * Translate string
+					 */
+					$email = $role->email;
+					$err = \tplConfirmemail::parse(array('email' => $email,
+							'notConfirmed' => $Tr->get('not validated'),
+							'sendLink' => $Tr->get('send me validation link') )).'<br>';
+				} else {
+					$err = $Tr->get('You have not confirmed email address').'<br><a href="/settings/">'.$Tr->get('Request activation email').'</a><br>';
+				}
+
+				throw new UnactivatedException($err);
+
 			}
 
-			throw new AccessException("Your account does not have permission to perform this action");
+			throw new AccessException($Tr->get('Your account does not have permission to perform this action'));
 		}
 
 		return $this;
 	}
-	
+
 
 	/**
 	 * Checks the access permissions for current page
@@ -343,7 +354,7 @@ class Base extends LampcmsObject
 		return $this;
 	}
 
-	
+
 	/**
 	 *
 	 * Check to see if current viewer

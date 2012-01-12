@@ -65,9 +65,16 @@ IMPORTANT: You Must use the link below to activate your account
 %2$s
 
 	';
-
+	/**
+	 * @todo
+	 * Translate String
+	 */
 	const SUBJECT = '%s account activation';
 
+	/**
+	 * @todo
+	 * Translate String
+	 */
 	const SUCCESS = 'Activation instructions have just been emailed to you to %s';
 
 
@@ -80,7 +87,11 @@ IMPORTANT: You Must use the link below to activate your account
 	protected $email;
 
 	protected function main(){
-		$this->aPageVars['title'] = 'Request email confirmation';
+		/**
+		 * @todo
+		 * Translate String
+		 */
+		$this->aPageVars['title'] = $this->_('Request email confirmation');
 
 		$this->getEmailObject()
 		->makeActivationCode()
@@ -103,17 +114,28 @@ IMPORTANT: You Must use the link below to activate your account
 	protected function getEmailObject(){
 		$this->email = strtolower($this->Registry->Viewer->email);
 		if(empty($this->email)){
-			throw new \Lampcms\NoemailException('You have not selected any email address for your account yet');
+			/**
+			 * @todo
+			 * Translate String
+			 */
+			throw new \Lampcms\NoemailException($this->_('You have not selected any email address for your account yet') );
 		}
 
 		try{
 			$this->oEmail = \Lampcms\Mongo\Doc::factory($this->Registry, 'EMAILS')->byEmail($this->email);
 			if('' == $this->oEmail['email']){
-				throw new \Lampcms\NoemailException('You have not selected any email address for your account yet');
+				/**
+				 * @todo
+				 * Translate String
+				 */
+				throw new \Lampcms\NoemailException($this->_('You have not selected any email address for your account yet'));
 			}
 		} catch (\MongoException $e){
-
-			throw new \Lampcms\NoemailException('You have not selected any email address for your account yet');
+			/**
+			 * @todo
+			 * Translate String
+			 */
+			throw new \Lampcms\NoemailException($this->_('You have not selected any email address for your account yet') );
 
 		}
 
@@ -125,7 +147,12 @@ IMPORTANT: You Must use the link below to activate your account
 	protected function makeActivationCode(){
 
 		if((!empty($this->oEmail['i_vts'])) && $this->oEmail['i_vts'] > 0){
-			throw new \Lampcms\Exception('This account has already been activated');
+			e('Account already activated. i_vts in aEmail: '.$this->oEmail['i_vts'].' $this->oEmail: '.print_r($this->oEmail->getArrayCopy(), 1));
+			/**
+			 * @todo
+			 * Translate String
+			 */
+			throw new \Lampcms\Exception($this->_('This account has already been activated') );
 		}
 
 		$code = $this->oEmail['code'];

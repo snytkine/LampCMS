@@ -124,6 +124,15 @@ abstract class SubmittedQuestion extends LampcmsObject
 	 * was posted
 	 */
 	abstract public function getIP();
+	
+	/**
+	 * @return int id of submitted
+	 * category
+	 * If no category then return 0
+	 * but it must always return integer
+	 * 
+	 */
+	abstract public function getCategoryId();
 
 	/**
 	 * Get array of tags, with all

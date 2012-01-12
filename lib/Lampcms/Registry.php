@@ -128,7 +128,7 @@ class Registry implements Interfaces\LampcmsObject
 	 * @throws \LogicException
 	 */
 	public function __clone(){
-		throw new \LogicException('Thau shall not clone the singleton object');
+		throw new \LogicException('Cannot clone the singleton object');
 	}
 
 
@@ -153,7 +153,7 @@ class Registry implements Interfaces\LampcmsObject
 		$this->values['Mongo'] = $this->asShared(function ($c) {
 			return new \Lampcms\Mongo\DB($c->Ini);
 		});
-		
+
 		$this->values['Mailer'] = $this->asShared(function ($c) {
 			return new \Lampcms\Mail\Mailer($c->Ini);
 		});
@@ -228,12 +228,18 @@ class Registry implements Interfaces\LampcmsObject
 				if(!empty($a)){
 					$User = new $u['class']($c, 'USERS', $a);
 					$User->setTime();
+						
 					return $User;
 				}
-
+				
+				/**
+				 * Unsetting 'viewer' from $_SESSION
+				 * IF were not able to find
+				 * user by value of 'id' in $_SESSION['viewer']['id']
+				 */
 				unset($_SESSION['viewer']);
 			}
-				
+
 			return new \Lampcms\User($c);
 		});
 

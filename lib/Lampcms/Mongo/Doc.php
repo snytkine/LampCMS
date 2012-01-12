@@ -252,6 +252,7 @@ class Doc extends LampcmsArray implements \Serializable
 		$prefix = \substr($name, 0, 2);
 		switch($prefix){
 			case 'i_':
+			case 'id':
 				$ret = (int)$ret;
 				break;
 

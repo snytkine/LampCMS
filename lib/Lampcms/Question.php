@@ -684,7 +684,6 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 		$aComments[] = $aComment;
 
 		$this->setComments($aComments);
-		$this->increaseCommentsCount();
 
 		/**
 		 * A commentor on the question
@@ -1041,6 +1040,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 	 */
 	public function setComments(array $aComments){
 		parent::offsetSet('a_comments', $aComments);
+		parent::offsetSet('i_comments', count($aComments) );
 
 		return $this;
 	}

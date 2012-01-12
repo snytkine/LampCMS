@@ -63,9 +63,9 @@
   */
 class tplSortedCategory extends \Lampcms\Template\Simple
 {
-	//{b_active}{b_catonly}
+	
 	protected static $vars = array(
-		'_id' => '',
+		'id' => '',
 		'desc' => '',
 		'slug' => '',
 		'title' => '',
@@ -74,5 +74,5 @@ class tplSortedCategory extends \Lampcms\Template\Simple
 		'b_active' => ''
 	);
 	
-	protected static $tpl = '<li id="cat_{_id}"><div lampcms:desc="{desc}" lampcms:slug="{slug}" lampcms:catonly="{b_catonly}" lampcms:active="{b_active}" class="sci{b_catonly} active{b_active}">{title}<span class="icoc del fr" title="Delete">&nbsp;</span></div>{subs}</li>';
+	protected static $tpl = '<li id="cat_{id}"><div lampcms:desc="{desc}" lampcms:slug="{slug}" lampcms:catonly="{b_catonly}" lampcms:active="{b_active}" class="sci{b_catonly} active{b_active}">{title}<span class="icoc del fr" title="Delete">&nbsp;</span></div>{subs}</li>';
 }

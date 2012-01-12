@@ -559,6 +559,10 @@ class Cache extends \Lampcms\Event\Observer
 			case 'onAcceptAnswer':
 				$this->__unset('qunanswered');
 				break;
+				
+			case 'onCategoryUpdate':
+				$this->__unset('categories');
+				break;
 		}
 	}
 
@@ -588,6 +592,29 @@ class Cache extends \Lampcms\Event\Observer
 
 		return '<div class="tags-list">'.$html.'</div>';
 
+	}
+
+	/**
+	 * Get array of categories
+	 * rekeys by id
+	 *
+	 */
+	public function categories(){
+		$aRes = array();
+		$cur = $this->Registry->Mongo->CATEGORY->find(array(), array('_id' => false))
+		->sort(array('i_parent' => 1, 'i_weight' => 1));
+
+		/**
+		 * Rekey the array so that array keys
+		 * are category id
+		 */
+		if($cur && $cur->count() > 0){
+			foreach($cur as $item){
+				$aRes[(int)$item['id']] = $item;
+			}
+		}
+
+		return $aRes;
 	}
 
 

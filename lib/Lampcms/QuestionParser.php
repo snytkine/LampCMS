@@ -217,6 +217,7 @@ class QuestionParser extends LampcmsObject
 		'i_votes' => 0,
 		'i_favs' => 0,
 		'i_views' => 0,
+		'i_cat' => $this->Submitted->getCategoryId(),
 		'a_tags' => $aTags,
 		'a_title' => TitleTokenizer::factory($oTitle)->getArrayCopy(),
 		'status' => 'unans',
@@ -332,11 +333,17 @@ class QuestionParser extends LampcmsObject
 		$quest->ensureIndex(array('i_uid' => 1));
 		$quest->ensureIndex(array('hash' => 1));
 		$quest->ensureIndex(array('a_title' => 1));
+		$quest->ensureIndex(array('i_cat' => 1));
 
 		/**
 		 * Need ip index to use flood filter by ip
 		 * and to quickly find all posts by ip
 		 * in case of deleting a spam.
+		 * 
+		 * @todo should store ip as LONG
+		 * using ip2long and don't worry
+		 * about "sign" problem on 32 bit php
+		 * 
 		 *
 		 */
 		$quest->ensureIndex(array('ip' => 1));
@@ -476,6 +483,14 @@ class QuestionParser extends LampcmsObject
 		}
 
 		return $this;
+	}
+	
+	/**
+	 * Update count of questions in a category
+	 * 
+	 */
+	protected function updateCategory(){
+		
 	}
 
 }

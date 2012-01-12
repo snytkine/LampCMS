@@ -396,7 +396,6 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 		$aComments[] = $aComment;
 
 		$this->setComments($aComments);
-		$this->increaseCommentsCount();
 
 		return $this;
 
@@ -479,8 +478,6 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 			$this->setComments($aComments);
 		}
 
-		$this->increaseCommentsCount(-1);
-
 		return $this;
 	}
 
@@ -536,6 +533,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 	 */
 	public function setComments(array $aComments){
 		parent::offsetSet('a_comments', $aComments);
+		parent::offsetSet('i_comments', count($aComments) );
 
 		return $this;
 	}

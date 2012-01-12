@@ -52,7 +52,10 @@
 
 namespace Lampcms\Forms;
 
+use \Lampcms\Category\Renderer;
 use \Lampcms\String\HTMLString;
+
+
 /**
  * Class responsible
  * for processing the "Ask" form
@@ -74,10 +77,16 @@ class Askform extends Form
 	 */
 	protected $template = 'tplFormask';
 
+	protected $selected = 0;
 
+
+	public function __construct(\Lampcms\Registry $R, $selected = 0){
+		$this->selected = $selected;
+		parent::__construct($R);
+	}
 
 	protected function init(){
-		
+
 		/**
 		 * This is just an example how a custom validation
 		 * callback could be added to form
@@ -96,6 +105,45 @@ class Askform extends Form
 		return true;
 		});*/
 
+
+		/**
+		 * Check if category is
+		 * optional/required/none
+		 * If required then add 3rd param 'true'
+		 * also set "Select Category" only
+		 * If selected is not passed here
+		 */
+		$categs = $this->Registry->Ini->CATEGORIES;
+		$selectMenu = $clabel = $crequired = null;
+		if($categs){
+			$Menu = new Renderer($this->Registry);
+			$clabel = $this->Registry->Tr->get('Select Category');
+			/**
+			 * If CATEGORIES in !config.ini is set to 2
+			 * then category selection is required.
+			 * Adding validator server-side
+			 * and HTML5 'required' tag client-side
+			 */
+			if (2 == $categs){
+				$crequired = true;
+				$err = $this->Registry->Tr->get('You must select a category');
+				$this->addValidator('category', function($val) use ($err){
+
+					if(strlen($val) < 1){
+						return $err;
+					}
+
+					return true;
+				});
+			}
+
+			$selectMenu = $Menu->getSelectMenu($this->selected, $clabel, $crequired );
+			d('$selectMenu: '.$selectMenu);
+		}
+
+
+
+
 		$minTags = $this->Registry->Ini->MIN_QUESTION_TAGS;
 		$maxTags = $this->Registry->Ini->MAX_QUESTION_TAGS;
 
@@ -107,7 +155,10 @@ class Askform extends Form
 		$this->setVar('title_d', $this->Tr['Enter a descriptive title']);
 		$this->setVar('title_l', $this->Tr['Title']);
 		$this->setVar('submit',  $this->Tr['Ask Question']);
-		
+		$this->setVar('category_menu', $selectMenu);
+		if(0 === strlen($categs)){
+			$this->setVar('category_class', 'hide');
+		}
 		if($minTags > 0){
 			$tagsRequired = '(* %s)';
 			$this->setVar('tags_required', sprintf($tagsRequired, 'required'));
@@ -163,7 +214,7 @@ class Askform extends Form
 		$oHtmlString = HTMLString::factory($body);
 		$wordCount = $oHtmlString->getWordsCount();
 		$len = $oHtmlString->length();
-		
+
 		if($len < $minChars){
 			/**
 			 * @todo Translate string
@@ -171,7 +222,7 @@ class Askform extends Form
 			$this->setError('qbody', 'Question must contain at least '.$minChars.' letters');
 		}
 
-		
+
 		if($wordCount < $minWords){
 			/**
 			 * @todo Translate string
@@ -196,7 +247,7 @@ class Askform extends Form
 		$tags = \trim($tags);
 		/*if(($min > 0) && empty($tags)){
 			$this->setError('tags', 'You must include at least one tag');
-		}*/
+			}*/
 
 		\mb_regex_encoding('UTF-8');
 		$aTags = \mb_split('([\s,;]+)', $tags);

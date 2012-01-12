@@ -342,9 +342,27 @@ class Viewquestion extends WebPage
 		$this->aQuestion['reply_t']     = $this->_('Reply to this comment');
 		$this->aQuestion['edited']      = $this->_('Edited');
 
-		$this->aPageVars['body'] = \tplQuestion::parse($this->aQuestion);
+		$breadcrumb = (empty($this->aQuestion['i_cat'])) ? '' : $this->getBreadcrumb($this->aQuestion['i_cat']);
+		
+		$this->aPageVars['body'] = $breadcrumb.\tplQuestion::parse($this->aQuestion);
 
 		return $this;
+	}
+	
+	/**
+	 * Get breakcrumb links
+	 * 
+	 * @param int $id
+	 * @return string html of breadcrumb
+	 */
+	protected function getBreadcrumb($id){
+		if('' == $this->Registry->Ini->CATEGORIES){
+			return '';
+		}
+		
+		$Renderer = new \Lampcms\Category\Renderer($this->Registry);
+		
+		return $Renderer->getBreadCrumb($id);
 	}
 
 

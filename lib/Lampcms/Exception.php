@@ -219,14 +219,14 @@ class Exception extends \Exception
 		if ($e instanceof Lampcms\DevException) {
 			$sMessage = ( (defined('LAMPCMS_DEBUG')) &&  true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occured';//$oTr->get('generic_error', 'exceptions');
 		}
-
-		$sMessage = strip_tags($sMessage);
+		// not sure why strip_tags was here
+		//$sMessage = strip_tags($sMessage);
 
 		$aArgs = ($e instanceof \Lampcms\Exception) ? $e->getArgs() : null;
 		$sMessage = (!empty($aArgs)) ? vsprintf($sMessage, $aArgs) : $sMessage;
 
 		if($Tr){
-			
+				
 			$sMessage = $Tr[$sMessage];
 		}
 

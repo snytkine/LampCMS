@@ -60,6 +60,11 @@ class tplFormask extends Lampcms\Template\Simple
 	'tags_l' => 'Tags', 
 	'tags_d' => 'At least one tag, max 5 tags separated by spaces',
 	'tags_e' => '',
+	'category' => '', 
+	'category_class' => 'category',
+	'category_l' => 'Category', 
+	'category_e' => '',
+	'category_menu' => '',
 	'submit' => 'Submit',
 	'com_hand' => '',
 	'readonly' => '', 
@@ -93,6 +98,14 @@ class tplFormask extends Lampcms\Template\Simple
                 <div id="tmp_preview"></div>
             </div>
             <!-- // el body -->
+            
+            <!-- CATEGORY {category_class} -->
+            <div class="form_el {category_class}"> 
+            	<label for="id_category">{category_l}</label> <span class="f_err"  id="category_e">{category_e}</span><br> 
+                {category_menu}
+            	<div id="category_d" class="caption"></div> 
+            </div>
+            <!-- //CATEGORY -->
             
             <div class="form_el"> 
             	<label for="id_tags">{tags_l}</label> {tags_required} <span class="f_err"  id="tags_e">{tags_e}</span><br> 

@@ -143,6 +143,19 @@ class Location implements \Serializable
 
 		protected $data = array();
 
+		/**
+		 * Constructor
+		 * 
+		 * @param array $a default value is array with an empty
+		 * string as value of 'cc'
+		 * The reason for this is that even if location is not found 
+		 * the return array will still include
+		 * at least the array with a 'cc' key.
+		 * If we going to show "flag" by the value of 'cc'
+		 * we need to be sure that 'cc' key exists in a record, even
+		 * if it's empty, so we don't get undefined index when parsing
+		 * a template and accessing value of $data['cc']
+		 */
 		public function __construct(array $a = array()){
 
 			$this->data = $a;
@@ -152,6 +165,14 @@ class Location implements \Serializable
 				if(array_key_exists($a['cc'], $aCountries)){
 					$this->data['cn'] = $aCountries[$a['cc']];
 				}
+				/**
+				 * Now Convert 'cc' to lower case
+				 * because we rely on lower-case values of 'cc'
+				 * to show flags (using flags.css, which have all country code
+				 * values in lower case)
+				 	
+				 */
+				$this->data['cc'] = \strtolower($this->data['cc']);
 			}
 		}
 

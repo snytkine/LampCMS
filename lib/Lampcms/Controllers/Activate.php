@@ -86,8 +86,8 @@ class Activate extends WebPage
 	 */
 	protected $timeLimit = 604800;
 
-	protected function main()
-	{
+	protected function main(){
+
 		$this->getEmailRecord()
 		->validateExpiration()
 		->activateUser()
@@ -99,18 +99,17 @@ class Activate extends WebPage
 	 *
 	 * @return $this
 	 */
-	protected function getEmailRecord()
-	{
+	protected function getEmailRecord(){
 		$this->aEmail = $this->Registry->Mongo->EMAILS->findOne(array('_id' => $this->Request['eid'], 'code' =>  $this->Request['hash']));
 		if(empty($this->aEmail)){
-			throw new \Lampcms\Exception('Unable to find record of user');
+			/**
+			 * @todo
+			 * Translate string
+			 */
+			throw new \Lampcms\Exception($this->_('Unable to find user') );
 		}
 
 		d('$this->aEmail: '.print_r($this->aEmail, 1));
-
-		if((!empty($this->aEmail['i_vts'])) && $this->aEmail['i_vts'] > 0){
-			throw new \Lampcms\Exception('This account has already been activated');
-		}
 
 		return $this;
 	}
@@ -125,10 +124,12 @@ class Activate extends WebPage
 	 *
 	 * @return object $this
 	 */
-	protected function validateExpiration()
-	{
+	protected function validateExpiration(){
 		if( ($this->aEmail['i_code_ts'] + $this->timeLimit) < time()){
-			throw new \Lampcms\Exception('Activation code no longer valid');
+			/**
+			 * @todo translate string
+			 */
+			throw new \Lampcms\Exception($this->_('Activation code no longer valid') );
 		}
 
 		return $this;
@@ -141,15 +142,33 @@ class Activate extends WebPage
 	 *
 	 * @return object $this
 	 */
-	protected function activateUser()
-	{
+	protected function activateUser(){
+
 		$aUser = $this->Registry->Mongo->USERS->findOne(array('_id' => (int)$this->aEmail['i_uid']) );
 
 		if(empty($aUser)){
-			throw new \Lampcms\Exception('Unable to find user, please create a new account');
+			/**
+			 * @todo translate string
+			 */
+			throw new \Lampcms\Exception($this->_('Unable to find user, please create a new account') );
 		}
+		
 
 		$this->oActivatedUser = User::factory($this->Registry, $aUser);
+		$role = $this->oActivatedUser->getRoleId();
+		/**
+		 * If User's role is NOT 'unactivated' then
+		 * throw an exception
+		 */
+		if( false === \strstr($role, 'unactivated')){
+			e('Account already activated. '.$role.' $aUser: '.print_r($aUser, 1)."\n this->aEmail".print_r($this->aEmail, 1));
+			/**
+			 * @todo
+			 * Translate string
+			 */
+			throw new \Lampcms\Exception($this->_('This account has already been activated') );
+		}
+		
 		$this->oActivatedUser->activate()->save();
 
 		/**
@@ -158,11 +177,11 @@ class Activate extends WebPage
 		 * If we don't then the Viewer object is not updated
 		 * and the Viewer in session is still unactivated
 		 */
-		if($this->Registry->Viewer->getUid() === $this->oActivatedUser->getUid()){
+		if($this->Registry->Viewer->equals($this->oActivatedUser)){
 			$this->processLogin($this->oActivatedUser);
 		}
 
-		$this->Registry->Dispatcher->post($this->oActivatedUser, 'onUserUpdate');
+		$this->Registry->Dispatcher->post($this->oActivatedUser, 'onUserActivated');
 
 		$this->aEmail['i_vts'] = time();
 		$this->Registry->Mongo->EMAILS->save($this->aEmail);
@@ -174,8 +193,8 @@ class Activate extends WebPage
 	 * @todo translate string
 	 *
 	 */
-	protected function setReturn()
-	{
+	protected function setReturn(){
+
 		$this->aPageVars['title'] = 'Account activation complete';
 
 		$this->aPageVars['body'] = '<div id="tools" class="larger">Account activation complete<br/>The account <b>'.$this->oActivatedUser->username.'</b> now has all the privileges<br/>
@@ -185,8 +204,7 @@ class Activate extends WebPage
 	}
 
 
-	protected function sendNewCode()
-	{
+	protected function sendNewCode(){
 
 	}
 }

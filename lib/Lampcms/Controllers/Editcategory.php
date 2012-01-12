@@ -112,7 +112,9 @@ class Editcategory extends WebPage
 	 * @param int $id
 	 */
 	protected function delete($id){
+		d('cp');
 		$Editor = new \Lampcms\Category\Editor($this->Registry);
+		d('cp');
 		$res = $Editor->delete($id);
 		Responder::sendJSON(array('deleted' => $id, 'res' => $res));
 	}
@@ -161,6 +163,7 @@ class Editcategory extends WebPage
 				$Editor = new \Lampcms\Category\Editor($this->Registry);
 				$aRes = $Editor->saveCategory(new \Lampcms\Category\SubmittedWWW($this->Registry->Request));
 				$aRes = array_diff_key($aRes, array('i_parent' => 1, 'a_subs' => 1));
+				d('aRes: '.print_r($aRes, 1));
 					
 				Responder::sendJSON(array('category' => $aRes));
 			}

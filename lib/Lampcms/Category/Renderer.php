@@ -78,7 +78,16 @@ class Renderer
 	 */
 	protected $Registry;
 
-	protected $aCategories;
+	/**
+	 * Array of categories
+	 * rekeyd by 'id'
+	 * and ordered by i_parent, i_weight
+	 * so root categories are first
+	 * in array, then ordering by i_weight, lowest weight first
+	 *
+	 * @var array
+	 */
+	protected $aCategories = array();
 
 	protected $ul = '';
 
@@ -92,21 +101,23 @@ class Renderer
 	protected $selectedId;
 
 	/**
+	 * Separator string used
+	 * for separating links
+	 * inside the breadcrumb
+	 * The value is defined in the
+	 * !config.ini as CATEGORY_SEPARATOR
+	 * @var string
+	 */
+	protected $sep;
+
+	/**
 	 * Constructor
 	 * @param Registry $Registry
 	 */
 	public function __construct(Registry $Registry){
 		$this->Registry = $Registry;
-		$cur = $Registry->Mongo->CATEGORY->find(array())->sort(array('i_parent' => 1, 'i_weight' => 1));
-		/**
-		 * Rekey the array so that array keys
-		 * are category id
-		 */
-		foreach($cur as $item){
-			//echo "\n<br>id: ".$item['_id'];
-			$this->aCategories[$item['_id']] = $item;
-		}
-		
+		$this->aCategories = $this->Registry->Cache->categories;
+
 		d('$this->aCategories: '.print_r($this->aCategories, 1));
 
 	}
@@ -149,18 +160,6 @@ class Renderer
 		return $ret;
 	}
 
-	protected function getTopLevel(){
-		echo 'getting top level ';
-		$ret = array();
-		foreach($this->aCategories as $id => $c){
-			if(empty($c['i_parent'])){
-				echo ' got one '.$id.' ';
-				$ret[$id] = $c;
-			}
-		}
-
-		return $ret;
-	}
 
 
 	public function getByFilter($func){
@@ -170,14 +169,14 @@ class Renderer
 	}
 
 	/**
-	 * Get Array of Categories by array of categori ids
+	 * Get Array of Categories by array of category ids
 	 *
 	 * @param array $ids
 	 */
 	protected function getByIds(array $ids){
 		$ret = array();
 		foreach($this->aCategories as $id => $c){
-			if(in_array($c['_id'], $ids)) {
+			if(in_array($c['id'], $ids)) {
 				$ret[$id] = $c;
 			}
 		}
@@ -185,13 +184,13 @@ class Renderer
 		return $ret;
 	}
 
+	
 	/**
 	 * HTML for the nested sortable
 	 * page
 	 *
-	 * @param array $ids
 	 *
-	 * @todo pass function as input. The function will be used
+	 * @param $func The function will be used
 	 * as array_filter function. It will be passed to array_filter
 	 * on the $this->aCategories and will return array
 	 * of categories to iterate over "this time"
@@ -216,22 +215,24 @@ class Renderer
 
 		$a = array_filter($this->aCategories, $func);
 
+
 		$ret = "\n$olStart";
+		if(!empty($a)){
+			foreach($a as $cat){
+				$subList = '';
+				if(!empty($cat['a_sub'])){
+					$subs = $cat['a_sub'];
+					$pid = 	$cat['id'];
+					d('pid: '.var_export($pid, true).' has subs: '.print_r($subs, 1));
+					$func = function($var) use($subs, $pid) {
+						return (in_array($var['id'], $subs) && (array_key_exists('i_parent', $var))  &&  ($var['i_parent'] === $pid)); //&& (array_key_exists('i_parent', $var))  &&  ($var['i_parent'] === $pid)
+					};
 
-		foreach($a as $cat){
-			$subList = '';
-			if(!empty($cat['a_sub'])){
-				$subs = $cat['a_sub'];
-				$pid = 	$cat['_id'];
-				d('pid: '.var_export($pid, true).' has subs: '.print_r($subs, 1));
-				$func = function($var) use($subs, $pid) {
-					return (in_array($var['_id'], $subs) && (array_key_exists('i_parent', $var))  &&  ($var['i_parent'] === $pid)); //&& (array_key_exists('i_parent', $var))  &&  ($var['i_parent'] === $pid)
-				};
+					$cat['subs'] = $this->getSortableList($func);
+				}
 
-				$cat['subs'] = $this->getSortableList($func);
+				$ret .= "\n".\tplSortedCategory::parse($cat);
 			}
-
-			$ret .= "\n".\tplSortedCategory::parse($cat);
 		}
 
 		$ret .= "\n$olEnd";
@@ -239,30 +240,87 @@ class Renderer
 		return $ret;
 	}
 
+	
 	/**
 	 * Get HTML for the breadcrumn of the category
+	 * Bread crumb is
+	 * Category > SubCategory > This category
+	 * Where This category is passed as $categoryID
+	 * and Category and Subcategory are
+	 * parents of this category and they will both
+	 * be links, while This category is not always
+	 * a link.
 	 *
-	 * @param int $categoryId
+	 * @param int $id id of current category
+	 * @param bool $isLink if true then the category
+	 * with $categoryId is also a link, otherwise not a link.
+	 * @param string $prev do not pass anything here yourself
+	 * it's used only when function recursively calls itself
+	 *
 	 */
-	public function getBreadCrumb($categoryId){
+	public function getBreadCrumb($id, $isLink = true, $prev = ''){
+		if(!isset($this->sep)){
+			$this->sep = $this->Registry->Ini->CATEGORY_SEPARATOR;
+		}
+		
+		/**
+		 * If the category has been deleted, the 
+		 * old questions may still have category_id
+		 * of deleted category.
+		 * This is why we must check if category with this id exists,
+		 * if not then just return empty string - otherwise we would
+		 * be php error 'undefined offset'
+		 */
+		if(!array_key_exists($id, $this->aCategories)){
+			return '';
+		}
 
+		$categ = $this->aCategories[$id];
+
+		$tpl = '<a href="/category/%s/" class="bc_categ">%s</a>';
+		$home = '<a href="%s" class="bc_categ bc_home">%s</a>';
+		
+		if($isLink){
+			$res = \sprintf($tpl, $categ['slug'], $categ['title'] );
+		} else {
+			$res = '<span class="bc_current">'.$categ['title'].'</span>';
+		}
+
+		$res = $res.$prev;
+		if(!empty($categ['i_parent'])){
+			$parent = $this->aCategories[$categ['i_parent']];
+				
+			return $this->getBreadCrumb($parent['id'], true, $this->sep.$res);
+		} else {
+			$home = \sprintf($home, $this->Registry->Ini->SITE_URL, $this->Registry->Tr->get('Home'));
+				
+			return '<div class="bcnav">'.$home.$this->sep.$res.'</div>';
+		}
 	}
 
+	
 	/**
 	 * Get HTML of the select menu
 	 * with categories
 	 *
 	 * @return html of the select input
 	 */
-	public function getSelectMenu($selected = 0, $id = "categories_menu"){
+	public function getSelectMenu($selected = 0, $addEmptyItem = null, $required = true){
 		if(!is_int($selected)){
 			throw new \InvalidArgumentException('Invalid type of $selected param. Must be int, was: '.gettype($selected));
 		}
-
+		$id = "categories_menu";
 		$this->selectedId = $selected;
-		$ul = "\n<select id=\"$id\" class=\"csmenu\">";
+		if($addEmptyItem && $required && 0 === $selected){
+			$required =  ' required';
+		}
+		$ul = "\n<select id=\"$id\" name=\"category\" class=\"csmenu\" $required>";
+		if(is_string($addEmptyItem)){
+			$ul .= '<option value="">'.$addEmptyItem.'</option>';
+		}
+		
 		foreach($this->aCategories as $category){
-			if(0 === $category['i_parent']){
+			if(0 === $category['i_parent'] && $category['b_active']){
 				$ul .= $this->getSelectOption($category);
 			}
 		}
@@ -274,20 +332,32 @@ class Renderer
 
 
 	public function getSelectOption(array $category, $level = 0){
-		$tpl = "\n".'<option value="%s"%s>%s</option>';
+		if(!$category['b_active']){
+			return '';
+		}
+		
+		$tpl = "\n".'<option value="%s"%s %s>%s</option>';
 		$selected = '';
 		$title = $category['title'];
 
-		if($this->selectedId === $category['_id']){
+		if($this->selectedId === $category['id']){
 			$selected = ' selected="selected"';
 		}
 
-		$title = str_repeat("&nbsp;&nbsp;&nbsp;", $level).$title;
+		$disabled = ('true' != $category['b_catonly']) ? '' : 'disabled';
+		$title = \str_repeat("&nbsp;&nbsp;&nbsp;", $level).$title;
 
-		$ret = \sprintf($tpl, $category['_id'], $selected, $title);
+		$ret = \sprintf($tpl, $category['id'], $selected, $disabled, $title);
 		if(!empty($category['a_sub'])){
 			foreach($category['a_sub'] as $id){
-				$ret .= $this->getSelectOption($this->aCategories[$id], ($level + 1));
+				/**
+				 * Extra check just in case the parent category
+				 * has been deleted but the item not removed
+				 * from a_sub array (normally this does not happend, but just in case must check)
+				 */
+				if(array_key_exists($id, $this->aCategories)){
+					$ret .= $this->getSelectOption($this->aCategories[$id], ($level + 1));
+				}
 			}
 		}
 

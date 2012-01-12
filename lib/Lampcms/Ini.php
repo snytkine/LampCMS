@@ -190,6 +190,14 @@ class Ini extends LampcmsArray
 				}
 
 				$ret = \trim($aConstants[$name], "\"'");
+				/**
+				 * Always lower-case admin email
+				 * otherwise it may cause problems during
+				 * the registration of the first account
+				 */
+				if('EMAIL_ADMIN' === $name){
+					$ret = \mb_strtolower($ret);
+				}
 				break;
 
 			case 'LOG_FILE_PATH':

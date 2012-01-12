@@ -60,7 +60,7 @@
  */
 class tplQuestion extends Lampcms\Template\Fast
 {
-	
+
 	protected static function func(&$a){
 		if(array_key_exists('a_edited', $a)){
 			/**
@@ -70,22 +70,18 @@ class tplQuestion extends Lampcms\Template\Fast
 			 */
 			$aEdited = end($a['a_edited']);
 			$aEdited['edited'] = $a['edited'];
-			
+				
 			$a['edits'] = \tplEditedby::parse($aEdited, false);
 		}
-		
+
 		if(!empty($a['i_sticky'])){
 			$a['sticky'] = ' sticky';
 		}
-		
-		if(!empty($a['cc'])){
-		$a['cc'] = strtolower($a['cc']);
-		}
-		
+
 		if(!empty($a['a_comments'])){
 			/**
 			 * Closure function
-			 * to pass resource_id 
+			 * to pass resource_id
 			 * and author id of this
 			 * Question to the tplComments
 			 * This way we don't have to store
@@ -96,24 +92,24 @@ class tplQuestion extends Lampcms\Template\Fast
 			 * We going to need id or resource owner
 			 * in order to add it to the "reply" link
 			 * in the form of class uid-$uid
-			 * 
+			 *
 			 */
 			$rid     = $a['_id'];
 			$uid     = $a['i_uid'];
 			$reply   = $a['reply'];
 			$reply_t = $a['reply_t'];
-			
+				
 			$f = function(&$data) use ($rid, $uid, $reply, $reply_t){
 				$data['resource_id'] = $rid;
 				$data['owner_id']    = $uid;
 				$data['reply']       = $reply;
 				$data['reply_t']     = $reply_t;
 			};
-			
+				
 			$a['comments_html'] = tplComment::loop($a['a_comments'], true, $f); //
 		}
 	}
-	
+
 	protected static $vars = array(
 	'_id' => '', // 1
 	'b' => '', // 2

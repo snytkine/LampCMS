@@ -88,13 +88,13 @@ if (true !== session_start()) {
 		header('Content-Type: text/html; charset=utf-8');
 		echo new $class($Registry);
 		/**
-		 * 
+		 *
 		 * Commenting out the session_write_close()
 		 * may improve performance since all session writes
 		 * will be done after the browser connection
 		 * is closed.
 		 * The downside is that if any of the registered shutdown
-		 * functions cause fatar error the session
+		 * functions cause fatal error the session
 		 * may never be saved. It's worth trying commenting this out
 		 * and running the site for awhile. If noticing any problems
 		 * with sessions (like user suddenly logged out
@@ -104,7 +104,7 @@ if (true !== session_start()) {
 		fastcgi_finish_request();
 
 	} catch(\OutOfBoundsException $e){
-		session_write_close();
+		//session_write_close();
 		/**
 		 * Special case is OutOfBoundsException which
 		 * is our special way of saying exit(); but do it
@@ -114,7 +114,7 @@ if (true !== session_start()) {
 		 * stopping this one script
 		 */
 		$errMessage = trim($e->getMessage());
-		
+
 		if(!empty($errMessage)){
 			echo '<div class="exit_error">'.$errMessage.'</div>';
 			d('Got exit signal from '.$e->getTraceAsString());
@@ -125,23 +125,33 @@ if (true !== session_start()) {
 		session_write_close();
 		header("HTTP/1.0 500 Exception");
 		try {
-			$sHtml = \Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
-			$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no server';
-			$extra .= 'file: '.$e->getFile(). ' line: '.$e->getLine().' trace: '.$e->getTraceAsString();
+			/**
+			 * @mail must be here before the Lampcms\Exception::formatException
+			 * because Lampcms\Exception::formatException in case of ajax request will
+			 * send out ajax and then throw \OutOfBoundsException in order to finish request (better than exit())
+			 */
 			if(defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7){
 				@mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $sHtml.$extra);
 			}
+			$sHtml = \Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
+			$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no server';
+			$extra .= 'file: '.$e->getFile(). ' line: '.$e->getLine().' trace: '.$e->getTraceAsString();
+
 			echo $sHtml;
 
-		}catch(\Exception $e2) {
+		} catch (\OutOfBoundsException $e2){
+			// do nothing, this was a way to exit() from Responder::sendJSON()
+		} catch(\Exception $e2) {
 			$sHtml = \Lampcms\Responder::makeErrorPage('<strong>Exception:</strong> '.strip_tags($e2->getMessage())."\nIn file:".$e2->getFile()."\nLine: ".$e2->getLine());
 			$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';
 			if(defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7){
+
 				@mail(LAMPCMS_DEVELOPER_EMAIL, 'Error in index.php on line '.__LINE__, $sHtml.$extra);
+
 			}
-			echo $sHtml;			
+			echo $sHtml;
 		}
-		
+
 		fastcgi_finish_request();
 	}
 }

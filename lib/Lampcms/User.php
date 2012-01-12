@@ -70,7 +70,7 @@ Interfaces\BloggerUser,
 Interfaces\LinkedinUser
 {
 	const COLLECTION = 'USERS';
-	
+
 	/**
 	 * Special flag indicates that user has
 	 * just registered.
@@ -237,6 +237,7 @@ Interfaces\LinkedinUser
 		 * is not considered empty.
 		 */
 		$ret = \trim($ret);
+		
 		return (!empty($ret)) ? $ret : $this->offsetGet('username');
 	}
 
@@ -244,13 +245,15 @@ Interfaces\LinkedinUser
 	public function __set($name, $val){
 
 		throw new DevException('Should not set property of User as object property');
-		//$this->offsetSet($name, $val);
+		
 	}
 
 
 	/**
 	 * Return HTML code for avatar image (with full path)
+	 *
 	 * @param string $sSize type of avatar: large, medium, tiny
+	 *
 	 * @param bool $boolNoCache if true, then add a timestamp to url, making
 	 * browser not to use cached version and to get a fresh new one
 	 *
@@ -266,7 +269,7 @@ Interfaces\LinkedinUser
 
 	/**
 	 * Get only the http path to avatar without
-	 * any of the img tag.
+	 * the html img tag.
 	 *
 	 * @return string path to avatar image medium size
 	 */
@@ -280,24 +283,32 @@ Interfaces\LinkedinUser
 			}
 
 			/**
-			 *
+			 * If no own avatar and no avatar_external
+			 * then try to get gravatar IF gravatar support
+			 * is enabled in !config.ini [GRAVATAR] section
 			 */
 			if(empty($srcAvatar)){
 				$email = $this->offsetGet('email');
 				$aGravatar = array();
 				try{
 					$aGravatar = $this->getRegistry()->Ini->getSection('GRAVATAR');
+					if(!empty($email) && (count($aGravatar) > 0)){
+
+						return $aGravatar['url'].hash('md5', $email).'?s='.$aGravatar['size'].'&d='.$aGravatar['fallback'].'&r='.$aGravatar['rating'];
+					}
+						
 				} catch (\Exception $e){
 					e('exception: '.$e->getMessage());
 				}
 
-				if(!empty($email) && (count($aGravatar) > 0)){
-					d('cp');
-
-					return $aGravatar['url'].hash('md5', $email).'?s='.$aGravatar['size'].'&d='.$aGravatar['fallback'].'&r='.$aGravatar['rating'];
-				}
-				d('cp');
-
+			}
+				
+			/**
+			 * If still no avatar (no gravatar support
+			 * of gravatar failed)
+			 * then return default image
+			 */
+			if(empty($srcAvatar)){
 				return LAMPCMS_IMAGE_SITE.'/images/avatar.png';
 			}
 
@@ -310,7 +321,7 @@ Interfaces\LinkedinUser
 			 */
 			$this->avtrSrc = (0 === \strncmp($srcAvatar, 'http', 4)) ? $srcAvatar : LAMPCMS_AVATAR_IMG_SITE.PATH_WWW_IMG_AVATAR_SQUARE.$srcAvatar;
 
-			if (true === $noCache) {
+			if ($noCache) {
 				$this->avtrSrc .= '?id=' . microtime(true); // helps browser to NOT cache this image
 			}
 
@@ -376,6 +387,8 @@ Interfaces\LinkedinUser
 		 * run out of memory
 		 */
 		parent::offsetSet('role', $role);
+
+		return $this;
 	}
 
 
@@ -673,11 +686,29 @@ Interfaces\LinkedinUser
 	public function activate(){
 		$role = $this->offsetGet('role');
 
-		if(('unactivated' === $role) || ('unactivated_external' === $role)){
+		d('activating user '.$this->getUid().' role: '.$role);
+		if( \strstr($role, 'unactivated')){
 			$this->setRoleId('registered');
+		} else {
+			d('Cannot activate this user because the current role is: '.$role);
 		}
 
+
 		return $this;
+	}
+
+	/**
+	 * Check if this user has same userID
+	 * as user object passed to this method
+	 *
+	 * @param User $user another User object
+	 *
+	 * @return bool true if User object passed here has the same user id
+	 *
+	 */
+	public function equals(User $User){
+
+		return ($User->getUid() === $this->getUid());
 	}
 
 

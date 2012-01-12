@@ -104,8 +104,13 @@ class Settings extends WebPage
 	protected function makeConfirmBlock(){
 		$role = $this->Registry->Viewer->getRoleId();
 		$email = $this->Registry->Viewer->email;
-		if( strstr($role, 'unactivated')){
-			return \tplConfirmemail::parse(array('email' => $email));
+		if( \strstr($role, 'unactivated')){
+			/**
+			 * @todo Translate strings
+			 */
+			return \tplConfirmemail::parse(array('email' => $email, 
+			'notConfirmed' => $this->_('not validated'),
+			'sendLink' => $this->_('send me validation link') ));
 		}
 
 		return '';

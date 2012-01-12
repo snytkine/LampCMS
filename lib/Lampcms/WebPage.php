@@ -167,7 +167,7 @@ abstract class WebPage extends Base
 	 * @var mixed string (path to .css file) or
 	 * array of such strings
 	 */
-	protected $extraCss;
+	protected $extraCss = array();
 
 
 	/**
@@ -537,7 +537,7 @@ abstract class WebPage extends Base
 		try {
 			$oCheckLogin = new CookieAuth($this->Registry);
 			$User = $oCheckLogin->authByCookie();
-			//d('aResult: '.print_r($User->getArrayCopy(), 1));
+			d('aResult: '.print_r($User->getArrayCopy(), 1));
 
 		} catch(CookieAuthException $e) {
 			d('LampcmsError: login by sid failed with message: '.$e->getMessage());
@@ -631,6 +631,13 @@ abstract class WebPage extends Base
 		return $this;
 	}
 
+	/**
+	 * 
+	 * Enter description here ...
+	 * @param User $User
+	 * @param bool $bResetSession
+	 * @throws LoginException
+	 */
 	protected function processLogin(User $User, $bResetSession = false){
 
 		/**
@@ -741,9 +748,13 @@ abstract class WebPage extends Base
 	 * @return object $this
 	 */
 	protected function addExtraCss(){
+		if($this->Registry->Ini->SHOW_FLAGS){
+			$this->extraCss[] = $this->Registry->Ini->CSS_SITE.'/css/flags.css';
+		}
+
 		if(!empty($this->extraCss)){
 			d('got extra css to add');
-			foreach ((array)$this->extraCss as $val) {
+			foreach ($this->extraCss as $val) {
 				$this->aPageVars['extra_css'] .= CRLF.sprintf('<link rel="stylesheet" type="text/css" href="%s">', $val);
 			}
 		}
@@ -771,7 +782,7 @@ abstract class WebPage extends Base
 		if($a['ENABLE_CODE_EDITOR']){
 			d('enabling code highlighter');
 			$this->lastJs = array('/js/min/shCoreMin.js', '/js/min/dsBrushes.js');
-			$this->extraCss = '/js/min/sh.css';
+			$this->extraCss[] = '/js/min/sh.css';
 		}
 
 		if($a['ENABLE_YOUTUBE']){
@@ -800,14 +811,13 @@ abstract class WebPage extends Base
 	 * Formats the exception, adding
 	 * additional exception data like backtrace
 	 * if running in debug mode
-	 * then adds the 'error' under oXS main element
+	 * then adds the 'error' to a page
 	 *
 	 * @return
 	 * @param object $e Exception object
 	 */
 	public function handleException(\Lampcms\Exception $le){
 		try {
-			d('cp');
 
 			if($le instanceof RedirectException){
 				session_write_close();
@@ -850,7 +860,12 @@ abstract class WebPage extends Base
 				$this->httpCode = 404;
 			}
 
-			if(!($le instanceof Lampcms404Exception) && !($le instanceof AuthException)  && !($le instanceof LoginException) && !($le instanceof MustLoginException)){
+			if(
+			!($le instanceof Lampcms404Exception) &&
+			!($le instanceof AuthException)  &&
+			!($le instanceof LoginException) &&
+			!($le instanceof MustLoginException) &&
+			!($le instanceof \OutOfBoundsException)){
 				e('Exception caught in: '.$le->getFile().' on line: '.$le->getLine().' '.$le->getMessage());
 			}
 
@@ -871,7 +886,7 @@ abstract class WebPage extends Base
 
 		} catch(\OutOfBoundsException $e){
 			throw $e;
-		} catch(\Exception $e) {		
+		} catch(\Exception $e) {
 			e('Exception object '.$e->getMessage());
 			$err = Responder::makeErrorPage($le->getMessage().' in '.$e->getFile());
 			echo $err;

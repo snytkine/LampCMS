@@ -136,13 +136,13 @@ class tplEditcats extends Lampcms\Template\Simple
 		<div class="yui3-u-2-3">
 			<div class="cb catlist">
 				<h3>{categories}</h3>
-				<div class="info hidden_item">{sort_manual}</div>
+				<div class="info hide">{sort_manual}</div>
 				<div class="cb fl cateditor">
-				<ol class="sortable hidden_item">
+				<ol class="sortable">
 				{cat_list}
 				</ol>
 				</div>
-				<div id="save_order"><input type="button" class="btn_comment hidden_item" id="save_nested" value="{save}"></div>
+				<div id="save_order"><input type="button" class="btn_comment hide" id="save_nested" value="{save}"></div>
 			</div>
 		</div>
 	</div>';

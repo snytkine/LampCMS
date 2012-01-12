@@ -15,8 +15,9 @@ YUI.add('cateditor', function(Y) {
 			
 			Y.log('jQuery is ' + jQuery + 'jQuery(\'ol.sortable\')' + jQuery('div'));
 			listItems = Y.all("ol.sortable > li");
-			if(listItems){
-				Y.all(".hidden_item").removeClass('hidden_item');
+			Y.log('listItems: ' + listItems + ' ' + listItems.size());
+			if(0 !== listItems.size()){
+				Y.all(".hide").removeClass('hide');
 			}
 			
 			if(jQuery('ol.sortable').length > 0){
@@ -46,7 +47,9 @@ YUI.add('cateditor', function(Y) {
 						// reset hidden input	
 						Y.one('#id_edit_category').one('input[name=category_id]').set('value', '');
 						// reset description
-							Y.one("#id_catdesc").set('text', '');
+						Y.log('Reseting id_catdesc: ' + Y.one("textarea[name=catdesc]").get('text'));
+							Y.one('textarea[name=catdesc]').set('value', '');
+							Y.one('textarea[name=catdesc]').set('text', '');
 							// set submit button text to Add New Category
 							Y.one('#cat_submit').set('value', 'Add New Category');
 							// Remove errors
@@ -148,7 +151,7 @@ YUI.add('cateditor', function(Y) {
 						Y.log('got responseText');
 						oCat = data['category'];
 						Y.log('Got category object' + oCat);
-						li = Y.one('#cat_' + oCat['_id']);
+						li = Y.one('#cat_' + oCat['id']);
 						// li can be null if not found
 						Y.log('li: ' + li);
 						if(li){
@@ -160,7 +163,7 @@ YUI.add('cateditor', function(Y) {
 							 * Must create 
 							 * 
 							 */
-							li = Y.Node.create('<li id="cat_'+ oCat['_id'] +'" style="opacity: 0; display: none;"></li>');
+							li = Y.Node.create('<li id="cat_'+ oCat['id'] +'" style="opacity: 0; display: none;"></li>');
 							div = Y.Node.create('<div class="booy">'+oCat['title']+'</div>');
 							div.append(span);
 							li.append(div);
@@ -231,7 +234,7 @@ YUI.add('cateditor', function(Y) {
 					Y.log('subs: ' + subs);
 					if(subs){
 						alert("Cannot remove category that has one or more sub-categories.\n<br>" +
-								"You must move or delete all sub-categories before you can delete this category ");
+								"You must remove all sub-categories before you can delete this category ");
 						return;
 					}
 					if(!confirm("Are you sure? If this category have any posts, it may result in broken links. It is safer to just make category inactive")){
@@ -281,7 +284,7 @@ YUI.add('cateditor', function(Y) {
 				 * on the <li> element
 				 */
 				loadEditorForm = function(e){
-					var isCategory, isActive, id, el = e.currentTarget;
+					var isCategory, description, isActive, id, el = e.currentTarget;
 					
 					Y.log('title in el: ' + el.get('text'));
 					
@@ -291,16 +294,21 @@ YUI.add('cateditor', function(Y) {
 					Y.all("div.edited").removeClass('edited');
 					Y.log('el: ' + el + ' slug: ' + el.getAttribute('lampcms:slug'));
 					id = Y.one(el).ancestor('li').get('id').substr(4);
-					Y.log('id: ' + id);
+					Y.log('295 value of id: ' + id);
 					isCategory = el.getAttribute('lampcms:catonly');
 					isCategory = (isCategory && "false" !== isCategory);
 					isActive = el.getAttribute('lampcms:active');
 					isActive = (isActive && "false" !== isActive);
 					Y.log('isActive: ' + isActive);
 					
-					Y.one('#id_cattitle').set('value', el.get('text'));
-					Y.one('#id_catslug').set('value', el.getAttribute('lampcms:slug'));
-					Y.one('#id_catdesc').set('text', el.getAttribute('lampcms:desc'));
+					Y.one('#id_cattitle').set('value', Y.Lang.trim(el.get('text')));
+					Y.one('#id_catslug').set('value', Y.Lang.trim(el.getAttribute('lampcms:slug')) );
+					description = el.getAttribute('lampcms:desc');
+					Y.log('description: ' + description);
+					
+					Y.one('textarea[name=catdesc]').set('text', description);
+					Y.one('textarea[name=catdesc]').set('value', description);
+					
 					Y.one('#id_edit_category').one('input[name=category_id]').set('value', id);
 					Y.one('#cat_submit').set('value', 'Edit Category');
 					

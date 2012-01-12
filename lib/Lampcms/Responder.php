@@ -109,6 +109,7 @@ class Responder
 
 		if ( Request::isIframe() || !empty($addJSTags)) {
 			self::sendJsonPage($aJSON);
+			session_write_close();
 			throw new \OutOfBoundsException;
 		}
 
@@ -121,6 +122,7 @@ class Responder
 		echo($res);
 		session_write_close();
 		fastcgi_finish_request();
+		//exit();
 		throw new \OutOfBoundsException;
 	}
 

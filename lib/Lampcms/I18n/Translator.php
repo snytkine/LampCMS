@@ -112,7 +112,7 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
 
 		$fallback = null;
 		
-		if (strlen($locale) > 3) {
+		if (\strlen($locale) > 3) {
 			d('going to also use lang fallback for $locale: '.$locale);
 			
 			$fallback = substr($locale, 0, -strlen(strrchr($locale, '_')));

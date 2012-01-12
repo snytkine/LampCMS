@@ -111,7 +111,8 @@ class SubmittedQuestionWWW extends SubmittedQuestion
 	}
 
 	/**
-	 * (non-PHPdoc)
+	 * Adds Geo-data array
+	 * 
 	 * @see Lampcms.SubmittedQuestion::getExtraData()
 	 */
 	public function getExtraData(){
@@ -126,5 +127,13 @@ class SubmittedQuestionWWW extends SubmittedQuestion
 	 */
 	public function getApp(){
 		return 'web';
+	}
+	
+	public function getCategoryId(){
+		if(array_key_exists('category', $this->aData)){
+			return (int)$this->aData['category'];
+		}
+		
+		return 0;
 	}
 }

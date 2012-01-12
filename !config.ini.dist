@@ -242,6 +242,26 @@ GFC_ID =
 ;
 DISABLE_AUTOCOMPLETE = false
 ;
+; When Geo Location has been enabled
+; by running geo_import.php
+; then if this is set to true
+; a country flag will be added
+; to Questions, Answers, Comments
+SHOW_FLAGS = true
+;
+; CATEGORIES SUPPORT
+; leave empty to not use categories at all
+; If you don't need categories
+; and fine with just using tags, then
+; leave this blank
+; or set to 1 to make categories optional
+; or set to 2 to make categories required
+CATEGORIES = 2
+; SEPARATOR TO BE USED IN BREADCRUMN 
+; OF CATEGORYIES. 
+; LEAVE INSIDE DOUBLE QUOTES TO PRESERVE SPACES
+CATEGORY_SEPARATOR = " &gt; "
+;
 ; Options of RTE Editor
 [EDITOR]
 ;

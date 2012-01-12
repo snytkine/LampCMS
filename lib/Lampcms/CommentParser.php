@@ -203,7 +203,7 @@ class CommentParser extends LampcmsObject
 		}
 
 		$aParent = null;
-		
+
 		/**
 		 * In case this is a reply to a comment
 		 * get array of parent comment
@@ -213,13 +213,13 @@ class CommentParser extends LampcmsObject
 		 */
 		if(!empty($this->aComment['i_prnt']) && (false !== $aParent = $this->Resource->getComment((int)$this->aComment['i_prnt']))){
 			$reply = sprintf('<span id="replyto_%s" class="inreply mo ajax">@%s</span>', $this->aComment['i_prnt'], $aParent['username']);
-			
+				
 			/**
 			 * inreply_uid is userID of parent comment author
 			 * it is needed by observer(s)
 			 * in order to notify the parent comment
 			 * owner about a reply!
-			 * 
+			 *
 			 */
 			$this->aComment['inreply_uid']  = $aParent['i_uid'];
 			$this->aComment['inreplyto'] 	= $aParent['username'];
@@ -230,7 +230,7 @@ class CommentParser extends LampcmsObject
 			 * in template
 			 */
 			$this->aComment['s_inreply']    = $reply;
-			
+				
 			/**
 			 * parent_body is the body of the parent comment
 			 * for which this is a reply
@@ -239,9 +239,9 @@ class CommentParser extends LampcmsObject
 			 * body in the email notifications
 			 * so that a user will have a good idea
 			 * for which comment the new reply was added
-			 * 
+			 *
 			 */
-			
+				
 			$this->aComment['parent_body'] = $aParent['b'];
 		}
 
@@ -252,7 +252,22 @@ class CommentParser extends LampcmsObject
 		 * that was used for submitting comment
 		 * We add extra data to array here
 		 */
-		$this->aComments = array_merge($this->aComment, $this->Comment->getExtraData());
+		$aGeo = $this->Comment->getExtraData();
+		d('aGeo: '.print_r($aGeo, 1));
+		if(!empty($aGeo)){
+			d('cp');
+			$this->aComment = array_merge($this->aComment, $aGeo);
+		}
+		
+		/**
+		 * If country code cc was not added then
+		 * just add empty string, so that 
+		 * we can still use the value of cc
+		 * To add flag icons
+		 */
+		if(!array_key_exists('cc', $this->aComment)){
+			$this->aComment['cc'] = '';
+		}
 
 		d('$aComment '.print_r($this->aComment, 1));
 
@@ -276,9 +291,10 @@ class CommentParser extends LampcmsObject
 			throw new \Lampcms\Exception('It looks like you have already posted this comment');
 		}
 
-		$this->Resource->addComment($this)->save();
+		$this->Resource->addComment($this);
 		$this->followQuestion();
 		$this->touchQuestion();
+		$this->Resource->save();
 
 		$this->Registry->Dispatcher->post($this->Comment, 'onNewComment', $this->aComment);
 
@@ -551,6 +567,7 @@ class CommentParser extends LampcmsObject
 		}
 
 		$this->touchQuestion();
+		$this->Resource->save();
 
 		$this->Registry->Dispatcher->post($this->Resource, 'onDeleteComment', $this->aComment);
 
@@ -713,7 +730,6 @@ class CommentParser extends LampcmsObject
 	 * also serves as a check for duplicate likes
 	 * since uid,i_res is unique
 	 *
-	 *
 	 * @param int $id id of comment
 	 *
 	 * @return object $this
@@ -725,13 +741,24 @@ class CommentParser extends LampcmsObject
 		$ownerID = $this->aComment['i_uid'];
 
 		if($uid == $ownerID){
-			throw new \LogicException('Likes of own comment do not cound');
+			/**
+			 * @todo Translate string
+			 */
+			
+			throw new \LogicException('Likes of own comment do not count');
 		}
 
 		$coll = $this->Registry->Mongo->getCollection('COMMENTS_LIKES');
 		$coll->ensureIndex(array('i_uid' => 1));
 		$coll->ensureIndex(array('i_owner' => 1));
 
+		/**
+		 * The value of _id is compasite of userId.resourceId, making
+		 * it unique to per user per resource, this makes
+		 * it impossible to "Like" the same resource more than once
+		 * but the same user
+		 * 
+		 */
 		$id = $uid.'.'.$resID;
 
 		$aData = array(
@@ -748,6 +775,7 @@ class CommentParser extends LampcmsObject
 			$coll->insert($aData, array('safe' => true));
 		} catch(\MongoException $e){
 			d('Unable to add record to COMMENTS_LIKES collection: '.$e->getMessage());
+			
 			throw new \LogicException('Duplicate Like detected');
 		}
 
