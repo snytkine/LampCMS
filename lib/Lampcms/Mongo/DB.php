@@ -209,8 +209,12 @@ class DB extends \Lampcms\LampcmsObject
 	 * By default mongo generates the unique value and it's an object
 	 * of type MongoId
 	 */
-	public function insertData($collName, array $aValues, $option = true){
+	public function insertData($collName, array $aValues, $option = array('safe' => true)){
 		d('$option: '.var_export($option, true));
+		
+		if(!is_array($option)){
+			e('Second param passed to insertData must now be an array!. Was: '.var_export($option, true));
+		}
 
 		if(!is_string($collName)){
 			throw new \InvalidArgumentException('$name must be a string. Was: '.gettype($collName));
@@ -229,8 +233,6 @@ class DB extends \Lampcms\LampcmsObject
 
 			return false;
 		}
-
-		//d('$ret: '.$ret. ' $aValues: '.print_r($aValues, 1));
 
 		return (!empty($aValues['_id'])) ? $aValues['_id'] : false;
 
