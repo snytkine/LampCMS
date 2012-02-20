@@ -476,7 +476,7 @@ class Client
 		$sid = (false === ($sid = Cookie::getSidCookie())) ? String::makeSid() : $sid;
 
 		$displayName = (!empty($this->aFbUserData['name'])) ? $this->aFbUserData['name'] : $this->aFbUserData['first_name'].' '.$this->aFbUserData['last_name'];
-		$username = $extAuth->makeUsername($displayName);
+		$username = $extAuth->makeUsername($displayName, true);
 
 
 		if(!array_key_exists('email', $this->aFbUserData)){

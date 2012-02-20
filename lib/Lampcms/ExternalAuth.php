@@ -132,13 +132,19 @@ class ExternalAuth extends LampcmsObject
 	 * be used as our own username
 	 *
 	 */
-	public function makeUsername($displayName){
+	public function makeUsername($displayName, $isUtf8 = false){
 		d('going to auto_create username based on displayName: '.$displayName);
 
 		/**
 		 * Make 100% sure that displayName is in UTF8 encoding
+		 * Commenting this out for now since it was causing
+		 * a problem once.
+		 * So for now we going to trust that Facebook give us results
+		 * as a valid UTF-8 String
 		 */
-		$displayName = Utf8String::factory($displayName)->valueOf();
+		if(!$isUtf8){
+			$displayName = Utf8String::factory($displayName)->valueOf();
+		}
 
 		$coll = $this->Registry->Mongo->USERS;
 		$res = null;
