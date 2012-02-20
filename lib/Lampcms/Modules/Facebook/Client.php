@@ -478,6 +478,19 @@ class Client
 		$displayName = (!empty($this->aFbUserData['name'])) ? $this->aFbUserData['name'] : $this->aFbUserData['first_name'].' '.$this->aFbUserData['last_name'];
 		$username = $extAuth->makeUsername($displayName);
 
+
+		if(!array_key_exists('email', $this->aFbUserData)){
+			/**
+			 * @todo if this becomes a common problem
+			 * then we need to ask user for an email address
+			 * at step 2 of registration, just like for Twitter users
+			 * And the 'role' will then be different like 'unactivated_external'
+			 */
+			e('No email in Facebook data: '.print_r($this->aFbUserData, 1));
+			$email = '';
+		} else {
+			$email = \mb_strtolower($this->aFbUserData['email']);
+		}
 		/**
 		 * Create new record in USERS table
 		 * do this first because we need uid from
@@ -489,7 +502,7 @@ class Client
 		'fn' => $this->aFbUserData['first_name'],
 		'ln' => $this->aFbUserData['last_name'],
 		'rs' => $sid,
-		'email' => Utf8String::factory($this->aFbUserData['email'])->toLowerCase()->valueOf(),
+		'email' => $email, //Utf8String::factory($this->aFbUserData['email'])->toLowerCase()->valueOf(),
 		'fb_id' => (string)$this->aFbUserData['id'], 
 		'fb_token' => $this->aFbUserData['token'],
 		'pwd' => String::hashPassword($this->tempPassword),
