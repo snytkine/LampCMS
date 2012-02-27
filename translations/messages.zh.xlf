@@ -344,7 +344,7 @@
             </trans-unit>
             <trans-unit id="87">
                 <source>Asked</source>
-                <target>發問數量</target>
+                <target>發問時間</target>
             </trans-unit>
             <trans-unit id="88">
                 <source>Latest answer by</source>
