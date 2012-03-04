@@ -160,6 +160,7 @@ class Delete extends WebPage
 		->checkPermission()
 		->setDeleted()
 		->updateQuestion()
+		//->updateCategory()
 		->getUserData()
 		->banUser()
 		->returnResult();
@@ -310,14 +311,31 @@ class Delete extends WebPage
 		 *
 		 */
 		$this->updateTags();
+		$this->updateCategory();
 		$this->removeFromIndex();
 		$this->Resource->setDeleted($this->Registry->Viewer, $this->Request['note'])
-		->touch();
+		->touch()->save();
 
 		d('new resource data: '.print_r($this->Resource->getArrayCopy(), 1));
 
 		$this->Registry->Dispatcher->post($this->Resource, 'onResourceDelete');
 
+		return $this;
+	}
+	
+	/**
+	 * Update count of questions or answers
+	 * in the category
+	 * 
+	 */
+	protected function updateCategory(){
+		$Updator = new \Lampcms\Category\Updator($this->Registry->Mongo);
+		if('QUESTIONS' === $this->collection){
+			$Updator->removeQuestion($this->Resource);
+		} else {
+			$Updator->removeAnswer($this->Resource);
+		}
+		
 		return $this;
 	}
 

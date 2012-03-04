@@ -125,19 +125,19 @@ if (true !== session_start()) {
 		session_write_close();
 		header("HTTP/1.0 500 Exception");
 		try {
+			$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no server';
+			$extra .= 'file: '.$e->getFile(). ' line: '.$e->getLine().' trace: '.$e->getTraceAsString();
 			/**
 			 * @mail must be here before the Lampcms\Exception::formatException
 			 * because Lampcms\Exception::formatException in case of ajax request will
 			 * send out ajax and then throw \OutOfBoundsException in order to finish request (better than exit())
 			 */
 			if(defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7){
-				@mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $sHtml.$extra);
+				@mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $extra);
 			}
-			$sHtml = \Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
-			$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no server';
-			$extra .= 'file: '.$e->getFile(). ' line: '.$e->getLine().' trace: '.$e->getTraceAsString();
+			$html = \Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
 
-			echo $sHtml;
+			echo $html;
 
 		} catch (\OutOfBoundsException $e2){
 			// do nothing, this was a way to exit() from Responder::sendJSON()

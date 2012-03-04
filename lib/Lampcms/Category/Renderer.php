@@ -110,6 +110,24 @@ class Renderer
 	 */
 	protected $sep;
 
+	protected $maxDetailedLevel;
+
+	protected $latestQuestion;
+
+	/**
+	 * Translated work "Question"
+	 *
+	 * @var string
+	 */
+	protected $labelQuestion;
+
+	/**
+	 * Translated work "Answers"
+	 *
+	 * @var string
+	 */
+	protected $labelAnswer;
+
 	/**
 	 * Constructor
 	 * @param Registry $Registry
@@ -117,6 +135,10 @@ class Renderer
 	public function __construct(Registry $Registry){
 		$this->Registry = $Registry;
 		$this->aCategories = $this->Registry->Cache->categories;
+		$this->maxDetailedLevel = $this->Registry->Ini->CATEGORY_DETAILED_LEVEL;
+		$this->latestQuestion = $this->Registry->Tr->get('Latest Question');
+		$this->labelQuestion = $this->Registry->Tr->get('Question');
+		$this->labelAnswer = $this->Registry->Tr->get('Answer');
 
 		d('$this->aCategories: '.print_r($this->aCategories, 1));
 
@@ -168,23 +190,7 @@ class Renderer
 		return $a;
 	}
 
-	/**
-	 * Get Array of Categories by array of category ids
-	 *
-	 * @param array $ids
-	 */
-	protected function getByIds(array $ids){
-		$ret = array();
-		foreach($this->aCategories as $id => $c){
-			if(in_array($c['id'], $ids)) {
-				$ret[$id] = $c;
-			}
-		}
 
-		return $ret;
-	}
-
-	
 	/**
 	 * HTML for the nested sortable
 	 * page
@@ -240,7 +246,7 @@ class Renderer
 		return $ret;
 	}
 
-	
+
 	/**
 	 * Get HTML for the breadcrumn of the category
 	 * Bread crumb is
@@ -262,9 +268,9 @@ class Renderer
 		if(!isset($this->sep)){
 			$this->sep = $this->Registry->Ini->CATEGORY_SEPARATOR;
 		}
-		
+
 		/**
-		 * If the category has been deleted, the 
+		 * If the category has been deleted, the
 		 * old questions may still have category_id
 		 * of deleted category.
 		 * This is why we must check if category with this id exists,
@@ -279,7 +285,7 @@ class Renderer
 
 		$tpl = '<a href="/category/%s/" class="bc_categ">%s</a>';
 		$home = '<a href="%s" class="bc_categ bc_home">%s</a>';
-		
+
 		if($isLink){
 			$res = \sprintf($tpl, $categ['slug'], $categ['title'] );
 		} else {
@@ -289,16 +295,16 @@ class Renderer
 		$res = $res.$prev;
 		if(!empty($categ['i_parent'])){
 			$parent = $this->aCategories[$categ['i_parent']];
-				
+
 			return $this->getBreadCrumb($parent['id'], true, $this->sep.$res);
 		} else {
 			$home = \sprintf($home, $this->Registry->Ini->SITE_URL, $this->Registry->Tr->get('Home'));
-				
+
 			return '<div class="bcnav">'.$home.$this->sep.$res.'</div>';
 		}
 	}
 
-	
+
 	/**
 	 * Get HTML of the select menu
 	 * with categories
@@ -318,7 +324,7 @@ class Renderer
 		if(is_string($addEmptyItem)){
 			$ul .= '<option value="">'.$addEmptyItem.'</option>';
 		}
-		
+
 		foreach($this->aCategories as $category){
 			if(0 === $category['i_parent'] && $category['b_active']){
 				$ul .= $this->getSelectOption($category);
@@ -335,7 +341,7 @@ class Renderer
 		if(!$category['b_active']){
 			return '';
 		}
-		
+
 		$tpl = "\n".'<option value="%s"%s %s>%s</option>';
 		$selected = '';
 		$title = $category['title'];
@@ -367,21 +373,103 @@ class Renderer
 	/**
 	 * Get array of categories whose parent id is
 	 * $id and also sort then by 'weight'
+	 * actually the subs are already sorted by weight.
 	 *
 	 *
-	 * @param unknown_type $id
+	 * @param int $id id of category for which
+	 * we want to find array of sub-categories
+	 *
+	 * @param bool $activeOnly if true (default) then remores
+	 * non-active categories from result array
+	 *
+	 * @return mixed null | array of sub-categories result may also
+	 * be an empty array if all sub-categories are not active
 	 */
-	public function getSubCategoriesOf($id){
-		$ret = array();
-		$tmp = array();
-		foreach($this->aCategories as $cat){
-			if($cat['i_parent'] == $id){
-				$tmp[] = $cat;
+	public function getSubCategoriesOf($id, $activeOnly = true){
+		if(!empty($this->aCategories[$id]) && !empty($this->aCategories[$id]['a_sub'])){
+
+			$subKeys = array_flip($this->aCategories[$id]['a_sub']);
+
+			$ret = array_intersect_key($this->aCategories, $subKeys);
+			if($activeOnly){
+				return array_filter($ret, function($var){
+					return $var['b_active'];
+				});
+			}
+
+			return $ret;
+		}
+
+		return null;
+	}
+
+
+	public function _getNestedDivs(array $categories = null){
+
+		$categories = ($categories) ? $categories : $this->aCategories;
+
+		$ret = '<div class="cats2">';
+		foreach($categories as $c){
+			if($c['b_active']){
+				if(!empty($c['a_sub'])){
+					$subs = array_intersect_key($this->aCategories, array_flip($c['a_sub']));
+					$ret .= $this->getNestedDivs($subs);
+				} else {
+					$ret .= \tplCategoryDiv::parse($c);
+				}
 			}
 		}
 
+		$ret .= "\n</div>";
+
+		return $ret;
 	}
 
+	/**
+	 *
+	 * Create html for showing div with categories
+	 * where each category may have own nested group
+	 * of sub-categories.
+	 *
+	 * @param array $categories
+	 * @param int $parentId parent_id do not pass this manually, used during recursion
+	 * @param int $level level of nesting of groups
+	 * of sub-categories currentlyl being parsed.
+	 * Do not pass this manually, used only during recursion
+	 */
+	public function getNestedDivs(array $categories = null, $parentId = 0, $level = 0){
+
+		$categories = ($categories) ? $categories : $this->aCategories;
+
+		$ret = '<div class="cats_w" id="parent'.$parentId.'">';
+		foreach($categories as $c){
+			if($c['b_active'] && $c['i_parent'] === $parentId){
+				$c['level'] = $level;
+				$c['latest_label'] = $this->latestQuestion;
+
+				if(!empty($c['a_sub'])){
+					$level+=1;
+					$subs = \array_intersect_key($this->aCategories, array_flip($c['a_sub']));
+					$c['subs'] = $this->getNestedDivs($subs, $c['id'], $level);
+				}
+
+				/**
+				 * Here can use value of $level
+				 * to use different template when level > some preset
+				 * level after which we just want a very basic template
+				 * with just a link to sub category
+				 */
+				$tpl = ($level <= $this->maxDetailedLevel) ? 'tplCategoryDiv' : 'tplCategoryMinDiv';
+
+				$ret .= $tpl::parse($c, true);
+
+			}
+		}
+
+		$ret .= "\n</div> <!-- // div parent $parentId -->\n";
+
+		return $ret;
+	}
 
 }
 

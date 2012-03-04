@@ -731,6 +731,7 @@ Interfaces\LinkedinUser
 	 * @return object $this
 	 */
 	public function setReputation($iPoints){
+		d('iPoints: '.$iPoints);
 		if(!\is_numeric($iPoints)){
 			throw new DevException('value of $iPoints must be numeric, was: '.$iPoints);
 		}
@@ -738,6 +739,7 @@ Interfaces\LinkedinUser
 		$iRep = $this->offsetGet('i_rep');
 		$iNew = max(1, ($iRep + (int)$iPoints));
 
+		d('setting reputation for user: '.$this->offsetGet('_id').' value: '.$iNew);
 		/**
 		 * @todo investigate where reputation is set directly
 		 * using assignment operator $User['i_rep'] = $x

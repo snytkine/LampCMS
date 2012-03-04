@@ -85,7 +85,7 @@ function exception_handler($e){
 			echo 'Error in Exception handler: : '.$e->getMessage().' line '.$e->getLine().$e->getTraceAsString();
 		}
 	} else {
-		d('Got exit signal in error_handler from '.$e->getTraceAtString());
+		echo('Got exit signal in error_handler from '.$e->getTraceAsString());
 	}
 }
 

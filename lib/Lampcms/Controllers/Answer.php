@@ -108,7 +108,7 @@ class Answer extends Viewquestion
 
 	/**
 	 * Process submitted Answer
-	 * 
+	 *
 	 * @return void
 	 */
 	protected function process(){
@@ -129,7 +129,9 @@ class Answer extends Viewquestion
 			 * hopefull the new answer will show up there too
 			 */
 			if(Request::isAjax()){
+				
 				$aAnswer = $Answer->getArrayCopy();
+
 				/**
 				 * Add edit and delete tools because
 				 * Viewer already owns this comment and is
@@ -140,16 +142,19 @@ class Answer extends Viewquestion
 				 *
 				 */
 				$aAnswer['edit_delete'] = ' <span class="ico del ajax" title="Delete">delete</span>  <span class="ico edit ajax" title="Edit">edit</span>';
+				
 				$a = array('answer' => \tplAnswer::parse($aAnswer));
 				d('before sending out $a: '.print_r($a, 1));
 
 				Responder::sendJSON($a);
 
 			} else {
+				
 				Responder::redirectToPage($this->Question->getUrl());
 			}
 
 		} catch (\Lampcms\AnswerParserException $e){
+			d('cp');
 			/**
 			 * The setFormError in Form sends our json in
 			 * case of Ajax request, so we don't have to

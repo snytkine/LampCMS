@@ -261,6 +261,12 @@ CATEGORIES = 2
 ; OF CATEGORYIES. 
 ; LEAVE INSIDE DOUBLE QUOTES TO PRESERVE SPACES
 CATEGORY_SEPARATOR = " &gt; "
+; Maximin nesting level of category
+; to show in detailed template
+; categories deeper that this level
+; will be shown in minimal details template
+; REMEMBER that level starts at 0 not at 1!
+CATEGORY_DETAILED_LEVEL = 2
 ;
 ; Options of RTE Editor
 [EDITOR]

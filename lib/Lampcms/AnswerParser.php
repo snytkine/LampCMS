@@ -103,7 +103,7 @@ class Answerparser extends LampcmsObject
 	 */
 	protected $Answer = null;
 
-	
+
 	public function __construct(Registry $Registry){
 		$this->Registry = $Registry;
 		/**
@@ -155,11 +155,11 @@ class Answerparser extends LampcmsObject
 
 		$this->SubmittedAnswer = $o;
 		$this->Question = (null !== $q) ? $q : $this->getQuestion();
-
-		$this->makeAnswer()
-		->followQuestion()
-		->updateQuestion();
-
+		$this->makeAnswer();
+		$this->followQuestion();
+		$this->updateQuestion();		
+		$this->updateCategory();
+		
 		return $this->Answer;
 	}
 
@@ -197,7 +197,7 @@ class Answerparser extends LampcmsObject
 		$hash = hash('md5', \mb_strtolower($htmlBody.$qid));
 
 		/**
-		 * 
+		 *
 		 * We need to copy the title
 		 * here too because Answer by itself does not have own
 		 * title but we need a title when displaying links
@@ -222,6 +222,7 @@ class Answerparser extends LampcmsObject
 		'i_up' => 0,
 		'i_down' => 0,
 		'i_votes' => 0,
+		'i_cat' => $this->Question->getCategoryId(),
 		'b' => $htmlBody,
 		'i_ts' => time(),
 		'i_lm_ts' => time(),
@@ -231,8 +232,6 @@ class Answerparser extends LampcmsObject
 		'ip' => $this->SubmittedAnswer->getIP(),
 		'app' => 'web'
 		);
-
-		d('cp');
 
 		/**
 		 * Submitted answer object may provide
@@ -282,15 +281,16 @@ class Answerparser extends LampcmsObject
 		$this->ensureIndexes();
 
 		$this->Answer->insert();
-
+		d('cp');
 		$this->Registry->Dispatcher->post($this->Answer, 'onNewAnswer', array('question' => $this->Question));
-
+		d('cp');
 		/**
 		 * Reuse $uid since we already resolved it here,
 		 * so no need to go through the same
 		 * $this->SubmittedAnswer->getUserObject()->getUid() again
 		 */
 		$this->addUserTags($uid);
+		d('cp');
 
 		return $this;
 	}
@@ -360,15 +360,23 @@ class Answerparser extends LampcmsObject
 	 * @return object $this
 	 */
 	protected function updateQuestion(){
-
+		d('cp');
 		$User = $this->SubmittedAnswer->getUserObject();
+		d('cp');
+		$this->Question->updateAnswerCount();
+		$this->Question->addContributor($User);
+		$this->Question->setLatestAnswer($User, $this->Answer);
+		$this->Question->touch();
+		$this->Question->save();
 
-		$this->Question->updateAnswerCount()
-		->addContributor($User)
-		->setLatestAnswer($User, $this->Answer)
-		->touch()
-		->save();
+		return $this;
+	}
 
+	protected function updateCategory(){
+
+		$Updator = new \Lampcms\Category\Updator($this->Registry->Mongo);
+		$Updator->addAnswer($this->Answer);
+		
 		return $this;
 	}
 
@@ -382,7 +390,6 @@ class Answerparser extends LampcmsObject
 	protected function followQuestion(){
 		$FollowManager = new FollowManager($this->Registry);
 		$FollowManager->followQuestion($this->Registry->Viewer, $this->Question);
-
 		return $this;
 	}
 
@@ -397,10 +404,11 @@ class Answerparser extends LampcmsObject
 	 * @return object $this
 	 */
 	protected function addUserTags($uid){
-
+		d('cp');
 		$Tags = UserTags::factory($this->Registry);
+		d('cp');
 		$Question = $this->Question;
-
+		d('cp');
 		$func = function() use ($Tags, $uid, $Question){
 			$Tags->addTags($uid, $Question);
 		};

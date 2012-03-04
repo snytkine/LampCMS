@@ -117,7 +117,7 @@ class Unanswered extends Viewquestions
 		 * @todo translate this title later
 		 *
 		 */
-		$this->title = 'Questions with no accepted answer';
+		$this->title = $this->_('Questions with no accepted answer');
 
 		switch($cond){
 

@@ -395,7 +395,7 @@ class Accept extends WebPage
 		d('$this->Answer->getOwnerId():. '.$uid);
 
 		if(!empty($uid) && ($this->Question['i_uid'] == $uid) ){
-			d('Answered own question, this does not count');
+			d('Answered own question, this does not count towards reputation');
 
 			return $this;
 		}

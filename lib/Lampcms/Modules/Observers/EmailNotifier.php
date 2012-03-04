@@ -347,6 +347,7 @@ site %5$s and navigating to Settings > Email preferences
 				break;
 		}
 
+		d('cp');
 	}
 
 

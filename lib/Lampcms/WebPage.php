@@ -265,7 +265,7 @@ abstract class WebPage extends Base
 		->addLangForm();
 
 		Cookie::sendFirstVisitCookie();
-
+		d('cp');
 		try {
 			$this->checkLoginStatus()
 			->checkAccessPermission()
@@ -274,6 +274,7 @@ abstract class WebPage extends Base
 			$this->handleException($e);
 		}
 
+		d('cp');
 
 		/**
 		 * Observer will be able to
@@ -391,7 +392,7 @@ abstract class WebPage extends Base
 		$Ini = $this->Registry->Ini;
 		$this->aPageVars['site_title'] = $Ini->SITE_TITLE;
 		$this->aPageVars['site_url'] = $Ini->SITE_URL;
-		$this->aPageVars['site_description'] = $Ini->SITE_NAME;
+		$this->aPageVars['description'] = $this->aPageVars['site_description'] = $Ini->SITE_NAME;
 		$this->aPageVars['show_comments'] = $Ini->SHOW_COMMENTS;
 		$this->aPageVars['max_comments'] = $Ini->MAX_COMMENTS;
 		$this->aPageVars['comments_timeout'] = $Ini->COMMENT_EDIT_TIME;
@@ -632,7 +633,7 @@ abstract class WebPage extends Base
 	}
 
 	/**
-	 * 
+	 *
 	 * Enter description here ...
 	 * @param User $User
 	 * @param bool $bResetSession
@@ -709,9 +710,15 @@ abstract class WebPage extends Base
 			header("HTTP/1.0 404 Not Found");
 		}
 
-		$this->addLoginBlock()->addLastJs()->addExtraCss();
-
+		d('cp');
+		$this->addLoginBlock();
+		d('cp');
+		$this->addLastJs();
+		d('cp');
+		$this->addExtraCss();
+		d('cp');
 		$tpl = \tplMain::parse($this->aPageVars);
+		d('cp');
 		/**
 		 * @todo Translate string
 		 */
@@ -748,8 +755,14 @@ abstract class WebPage extends Base
 	 * @return object $this
 	 */
 	protected function addExtraCss(){
-		if($this->Registry->Ini->SHOW_FLAGS){
-			$this->extraCss[] = $this->Registry->Ini->CSS_SITE.'/css/flags.css';
+		
+		try{
+			if($this->Registry->Ini->SHOW_FLAGS){
+
+				$this->extraCss[] = $this->Registry->Ini->CSS_SITE.'/css/flags.css';
+			}
+		} catch(\Lampcms\IniException $e){
+			e($e->getMessage());
 		}
 
 		if(!empty($this->extraCss)){
@@ -1039,6 +1052,7 @@ abstract class WebPage extends Base
 	 * @return $this
 	 */
 	protected function addLangForm(){
+		d('cp');
 		$this->aPageVars['langsForm'] = $this->Registry->Locale->getOptions();
 
 		return $this;

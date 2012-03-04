@@ -192,6 +192,11 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 	public function getTitle(){
 		return $this->offsetGet('title');
 	}
+	
+	
+	public function getCategoryId(){
+		return $this->offsetGet('i_cat');
+	}
 
 
 	/**

@@ -384,7 +384,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 
 		$aComments = $this->getComments();
 		d('aComments: '.print_r($aComments, 1));
-		
+
 		/**
 		 * Only keep the keys that we need
 		 * get rid of keys like hash, i_res
@@ -481,6 +481,10 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 		return $this;
 	}
 
+
+	public function getCategoryId(){
+		return $this->offsetGet('i_cat');
+	}
 
 	/**
 	 * Getter for 'comments' element

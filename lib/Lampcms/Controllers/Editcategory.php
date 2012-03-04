@@ -101,7 +101,7 @@ class Editcategory extends WebPage
 		'/js/jquery.ui.nestedSortable.js', 
 		'/js/cateditor.js'
 		);
-		$this->extraCss = '/css/cateditor.css';
+		$this->extraCss[] = '/css/cateditor.css';
 		$this->setBody();
 
 	}

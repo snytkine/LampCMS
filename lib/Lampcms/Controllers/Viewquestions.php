@@ -115,7 +115,6 @@ class Viewquestions extends WebPage
 	 */
 	protected $aFields = array(
 		'a_title' => 0,
-		'a_flwrs' => 0,
 		'sim_q' => 0,
 		'a_comments' => 0
 	);
@@ -137,11 +136,11 @@ class Viewquestions extends WebPage
 		->sendCacheHeaders();
 
 		$this->aPageVars['title'] = $this->title;
+		$this->aPageVars['description'] = $this->_('My cool site');
 		$this->makeTopTabs()
 		->makeQlistHeader()
 		->makeCounterBlock()
 		->makeQlistBody()
-		//->makeCounterBlock()
 		->makeFollowedTags()
 		->makeRecentTags();
 
@@ -154,8 +153,6 @@ class Viewquestions extends WebPage
 	 */
 	protected function getCursor(){
 		$this->PER_PAGE = $this->Registry->Ini->PER_PAGE_QUESTIONS;
-
-		//$aFields = array();
 
 
 		$cond = $this->Request->get('cond', 's', 'recent');
@@ -175,7 +172,7 @@ class Viewquestions extends WebPage
 			 * Hot is strictly per views
 			 */
 			case 'hot':
-				//$where = array('')
+				
 				break;
 
 
@@ -228,9 +225,8 @@ class Viewquestions extends WebPage
 		$where['i_del_ts'] = null;
 
 
-
 		/**
-		 * @todo for effecienty explicitely specify which
+		 * For effecienty explicitely specify which
 		 * doc fields to select or at least tell
 		 * which NOT to select, for example we don't need
 		 * a_edited and a_title
@@ -252,11 +248,11 @@ class Viewquestions extends WebPage
 	 */
 	protected function paginate(){
 		d('paginating with $this->pagerPath: '.$this->pagerPath);
-		$oPaginator = Paginator::factory($this->Registry);
-		$oPaginator->paginate($this->Cursor, $this->PER_PAGE,
+		$Paginator = Paginator::factory($this->Registry);
+		$Paginator->paginate($this->Cursor, $this->PER_PAGE,
 		array('path' => $this->pagerPath));
 
-		$this->pagerLinks = $oPaginator->getLinks();
+		$this->pagerLinks = $Paginator->getLinks();
 
 		d('$this->pagerLinks: '.$this->pagerLinks);
 
@@ -332,7 +328,8 @@ class Viewquestions extends WebPage
 	protected function makeQlistBody(){
 
 		$uid = $this->Registry->Viewer->getUid();
-
+		$in = '';
+		$categories = null;
 		$aUserTags 		= $this->Registry->Viewer['a_f_t'];
 		$showDeleted 	= $this->Registry->Viewer->isModerator();
 		$contributed	= $this->_('You have contributed to this question');
@@ -340,15 +337,25 @@ class Viewquestions extends WebPage
 		$asked			= $this->_('Asked');
 		$latestBy		= $this->_('Latest answer by');
 		$toggle			= $this->_('Toggle Unread/Read Status');
+		
+		if($this->Registry->Ini->CATEGORIES > 0){
+			$categories = $this->Registry->Cache->categories;
+			$in = $this->_('In');
+		}
 			
-		$func = function(&$a) use($uid, $aUserTags, $showDeleted, $following, $contributed, $asked, $latestBy, $toggle){
+		$func = function(&$a) use($uid, $aUserTags, $showDeleted, $following, $contributed, $asked, $latestBy, $toggle, $categories, $in){
 
 			if($uid == $a['i_uid'] || (!empty($a['a_uids']) && in_array($uid, $a['a_uids'])) ){
 				$a['dot'] = '<div class="fr pad2"><span class="ico person ttt" title="'.$contributed.'">&nbsp;</span></div>';
 			}
 
 			if(!empty($a['a_flwrs']) && in_array($uid, $a['a_flwrs']) ){
+				
 				$a['following_q'] = '<div class="fr pad2"><span class="icoc check ttt" title="'.$following.'">&nbsp;</span></div>';
+			}
+				
+			if($categories && !empty($a['i_cat'])  && !empty($categories[$a['i_cat']]) ){
+				$a['category'] = '<br><span class="categ">'.$in.' <a href="/category/'.$categories[$a['i_cat']]['slug'].'">'.$categories[$a['i_cat']]['title'].'</a></span>';
 			}
 
 			/**

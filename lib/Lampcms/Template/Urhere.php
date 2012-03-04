@@ -123,7 +123,7 @@ class Urhere extends LampcmsObject
 			$aVars[$current.'_c'] = '_current';
 		}
 
-		if(null !== $vars){
+		if($vars){
 			$aVars = array_merge($aVars, $vars);
 		}
 		

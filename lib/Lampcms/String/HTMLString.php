@@ -98,8 +98,8 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
 	 */
 	public static function factory($s){
 
-		$oDom = new static();
-		$oDom->preserveWhiteSpace = true;
+		$Dom = new static();
+		$Dom->preserveWhiteSpace = true;
 		if(\is_string($s)){
 			$sHtml = $s;
 		} elseif($s instanceof \Lampcms\Utf8String){
@@ -109,13 +109,13 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
 		}
 
 		$ER = error_reporting(0);
-		if(false === @$oDom->loadHTMLString($sHtml)){
+		if(false === @$Dom->loadHTMLString($sHtml)){
 			throw new \Lampcms\DevException('Error. Unable to load html string: '.$sHtml);
 		}
 		error_reporting($ER);
 		\mb_regex_encoding('UTF-8');
 
-		return $oDom;
+		return $Dom;
 	}
 
 
@@ -125,10 +125,9 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
 	 *
 	 * @param \Lampcms\Utf8String $oHtml
 	 */
-	public function loadUTF8String(\Lampcms\Utf8String $oHtml){
-		$s = $oHtml->valueOf();
+	public function loadUTF8String(\Lampcms\Utf8String $Html){
+		$s = $Html->valueOf();
 
-		echo __LINE__.' '.$s;
 		return $this->loadHTMLString($s);
 	}
 
