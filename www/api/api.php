@@ -63,6 +63,7 @@ try{
 
 	d('a: '.$a.' $Request: '.print_r($Request->getArray(), 1));
 	$controller = ucfirst($a);
+	
 	include($lampcmsClasses.'Api'.DIRECTORY_SEPARATOR.'v'.$v.DIRECTORY_SEPARATOR.$controller.'.php');
 	$class = '\Lampcms\\Api\\v'.$v.'\\'.$controller;
 	d('class: '.$class);
@@ -83,7 +84,8 @@ try{
 	 */
 	$errMessage = $e->getMessage();
 	d('Got exit signal from '.$e->getTraceAtString());
-	if(!empty(trim($errMessage))){
+	$errMessage = trim($errMessage);
+	if(!empty($errMessage)){
 		echo '<div class="exit_error">'.$errMessage.'</div>';
 	}
 	fastcgi_finish_request();

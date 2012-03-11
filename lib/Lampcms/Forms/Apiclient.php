@@ -191,13 +191,13 @@ class Apiclient extends Form
 			if(UPLOAD_ERR_OK !== $errCode = $a['error']){
 				e('Upload of avatar failed with error code '.$a['error']);
 				if(UPLOAD_ERR_FORM_SIZE === $errCode){
-					$this->setError('profile_image', 'Uploaded file exceeds maximum allowed size');
+					$this->setError('icon', 'Uploaded file exceeds maximum allowed size');
 					return $this;
 				} elseif(UPLOAD_ERR_INI_SIZE === $errCode){
-					$this->setError('profile_image', 'Uploaded file exceeds maximum upload size');
+					$this->setError('icon', 'Uploaded file exceeds maximum upload size');
 					return $this;
 				} else {
-					$this->setError('profile_image', 'There was an error uploading the avatar file');
+					$this->setError('icon', 'There was an error uploading the avatar file');
 					return $this;
 				}
 			} else {
@@ -211,13 +211,13 @@ class Apiclient extends Form
 				 */
 				if(!empty($a['type'])){
 					if('image' !== substr($a['type'], 0, 5)){
-						$this->setError('profile_image', 'Uploaded file was not an image');
+						$this->setError('icon', 'Uploaded file was not an image');
 						return $this;
 					}elseif('image/gif' === $a['type'] && !\function_exists('imagecreatefromgif')){
-						$this->setError('profile_image', 'Gif image format is not supported at this time. Please upload an image in JPEG format');
+						$this->setError('icon', 'Gif image format is not supported at this time. Please upload an image in JPEG format');
 						return $this;
 					} elseif('image/png' === $a['type'] && !\function_exists('imagecreatefrompng')){
-						$this->setError('profile_image', 'PNG image format is not supported at this time. Please upload an image in JPEG format');
+						$this->setError('icon', 'PNG image format is not supported at this time. Please upload an image in JPEG format');
 						return $this;
 					}
 				}
@@ -228,7 +228,7 @@ class Apiclient extends Form
 				 */
 				if(!empty($a['tmp_name'])){
 					if(false === $size = @\filesize($a['tmp_name'])){
-						$this->setError('profile_image', 'There was an error uploading the avatar file');
+						$this->setError('icon', 'There was an error uploading the avatar file');
 						return $this;
 					}
 
@@ -236,7 +236,7 @@ class Apiclient extends Form
 
 					if(($size / $maxSize) > 1.1){
 						d('$size / $maxSize: '.$size / $maxSize);
-						$this->setError('profile_image', 'File too large. It must be under '.($maxSize/1024000).'MB');
+						$this->setError('icon', 'File too large. It must be under '.($maxSize/1024000).'MB');
 					}
 				}
 			}
@@ -248,12 +248,14 @@ class Apiclient extends Form
 
 
 	/**
-	 *
+	 * Compare submitted captch string
+	 * to actual captcha string
+	 * 
 	 */
 	protected function validateCaptcha(){
 
-		$oCaptcha = Captcha::factory($this->Registry->Ini);
-		$res = $oCaptcha->validate_submit();
+		$Captcha = Captcha::factory($this->Registry->Ini);
+		$res = $Captcha->validate_submit();
 
 		/**
 		 * If validation good then

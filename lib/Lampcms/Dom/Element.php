@@ -320,7 +320,7 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
 
 			if(is_string($val) || is_int($val) || is_bool($val) || is_null($val)){
 				$t = gettype($val);
-				$e = $this->addChild($name, htmlspecialchars((string)$val, ENT_NOQUOTES, 'UTF-8'));
+				$e = $this->addChild($name, \htmlspecialchars((string)$val, ENT_NOQUOTES, 'UTF-8'));
 				if('string' !== $t){
 					$e->setAttribute('type', $t);
 				}

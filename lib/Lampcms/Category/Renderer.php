@@ -315,6 +315,11 @@ class Renderer
 		if(!is_int($selected)){
 			throw new \InvalidArgumentException('Invalid type of $selected param. Must be int, was: '.gettype($selected));
 		}
+		
+		if(empty($this->aCategories)){
+			return '';
+		}
+		
 		$id = "categories_menu";
 		$this->selectedId = $selected;
 		if($addEmptyItem && $required && 0 === $selected){

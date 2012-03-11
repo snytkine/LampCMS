@@ -214,7 +214,7 @@ class Questions extends Api
 		$where = array('i_del_ts' => null);
 
 		if($this->type){
-			$where['status'] = $type;
+			$where['status'] = $this->type;
 		}
 
 		if(!empty($this->aTags)){

@@ -300,7 +300,7 @@ abstract class Api extends \Lampcms\Base
 	 */
 	protected function setClientAppId(){
 		/**
-		 * In case use has already authenticated
+		 * In case user has already authenticated
 		 * via OAuth2, we already know the clientAppId,
 		 * then skip this step
 		 */
