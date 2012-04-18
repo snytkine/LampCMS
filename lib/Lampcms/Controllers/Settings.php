@@ -73,30 +73,50 @@ class Settings extends WebPage
 	protected function main(){
 
 		$this->aPageVars['title'] = $this->_('Edit settings');
-		
+
 		$vals = array(
-		
+
 		'confirmation' => $this->makeConfirmBlock(),
 		'change_password' => $this->_('Change Password'),
 		'profile' => $this->_('Edit Profile'),
 		'profileUrl' => '/editprofile/',
 		'emailPrefs' => $this->_('Email Preferences'),
-		'clearCache' => ''
+		'clearCache' => '',
+		'editCategories' => ''
 		);
+
+		try{
+			$this->checkAccessPermission('edit_category');
+			$canEdit = true;
+		} catch(\Exception $e){
+			$canEdit = false;
+		}
 
 		if($this->Registry->Viewer->isAdmin()){
 			$vals['clearCache'] = $this->makeClearCache();
 		}
-		
+
+		if($canEdit){
+			$vals['editCategories'] = $this->makeEditCategory();
+		}
+
 		$this->aPageVars['body'] = \tplSettings::parse($vals);
 
 	}
-	
-	
+
+
 	protected function makeClearCache(){
-		return '<div class="tool"> 
+		return '<div class="tool">
 			<div class="icn sweep">&nbsp;</div> 
 			<div class="tool_link"><a href="/clearcache/" class="ajax clearcache">'.$this->_('Clear Cache').'</a></div> 
+		</div>';
+	}
+
+
+	protected function makeEditCategory(){
+		return '<div class="tool">
+			<div class="icn edit">&nbsp;</div> 
+			<div class="tool_link"><a href="/editcategory/" class="ajax editcategories">'.$this->_('Edit Categories').'</a></div> 
 		</div>';
 	}
 
@@ -108,7 +128,7 @@ class Settings extends WebPage
 			/**
 			 * @todo Translate strings
 			 */
-			return \tplConfirmemail::parse(array('email' => $email, 
+			return \tplConfirmemail::parse(array('email' => $email,
 			'notConfirmed' => $this->_('not validated'),
 			'sendLink' => $this->_('send me validation link') ));
 		}

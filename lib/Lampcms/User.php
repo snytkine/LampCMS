@@ -785,7 +785,7 @@ Interfaces\LinkedinUser
 			$ret .= $city;
 		}
 
-		if(!empty($state) && ('US' === $cc || 'CA' === $cc)){
+		if(!empty($state) && ('us' === $cc || 'ca' === $cc)){
 			$ret .= (!empty($city) ) ? ', '.$state : $state;
 		}
 

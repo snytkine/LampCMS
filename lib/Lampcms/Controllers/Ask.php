@@ -71,8 +71,8 @@ class Ask extends Askform
 	protected function main(){
 		$this->aPageVars['title'] = $this->_('Ask a question');
 
-		$a = $this->Registry->Request->getArray();
-		d('request: '.print_r($a, 1).' POST: '.print_r($_POST, 1));
+		//$a = $this->Registry->Request->getArray();
+		//d('request: '.print_r($a, 1).' POST: '.print_r($_POST, 1));
 
 		$this->makeForm();
 
@@ -99,9 +99,9 @@ class Ask extends Askform
 
 		$formVals = $this->Form->getSubmittedValues();
 		d('formVals: '.print_r($formVals, 1));
-		$oAdapter = new QuestionParser($this->Registry);
+		$Adapter = new QuestionParser($this->Registry);
 		try{
-			$Question = $oAdapter->parse(new SubmittedQuestionWWW($this->Registry, $formVals));
+			$Question = $Adapter->parse(new SubmittedQuestionWWW($this->Registry, $formVals));
 			d('cp created new question');
 			d('title: '.$Question['title']);
 			

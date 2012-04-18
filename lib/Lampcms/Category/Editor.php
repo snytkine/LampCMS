@@ -98,13 +98,49 @@ class Editor
 		if(!$this->Registry->Viewer->isAdmin() && !$this->Registry->Acl->isAllowed($role, null, 'edit_category')){
 			throw new \Lampcms\AccessException('Not allowed to edit category');
 		}
-		
+
 		$this->Registry->Cache->__unset('categories');
 	}
 
-	public function saveCategory(Submitted $Category){
+	/**
+	 *
+	 * Save Category data in database
+	 * either as new category or update existing category
+	 *
+	 * @param Submitted $Category
+	 * @param bool $saveData if false then do not actually save into DB
+	 * Using this option makes possible to simulate saving data but not
+	 * really saving to DB. This is useful for making the demo of the category
+	 * editor
+	 *
+	 * @throws \Lampcms\Exception
+	 * @throws MongoException
+	 */
+	public function saveCategory(Submitted $Category, $saveData = false){
 
 		$id = $Category->getId();
+		$data = array(
+			'title' => \filter_var(\trim($Category->getTitle()), FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW),
+			'slug' => \trim(\mb_strtolower(preg_replace('/[\s]+/', '_', $Category->getSlug()))),
+			'desc' => \filter_var(\trim($Category->getDescription()), FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW),
+			'b_active' => (bool)$Category->isActive(),
+			'b_catonly' => (bool)$Category->isCategory()
+		);
+
+		/**
+		 * If $saveData was not passed here
+		 * then don't actually do any "Saving" of data
+		 * 
+		 */
+		if(true || !$saveData){
+			if(empty($id)){
+				$id = microtime(true);
+			}
+			$data['id'] = $id;
+			
+			return $data;
+		}
+
 		$Coll = $this->Registry->Mongo->{self::COLLECTION};
 		/**
 		 * Need to ensure that slug is unique index
@@ -113,13 +149,6 @@ class Editor
 		 */
 		$Coll->ensureIndex(array('slug' => 1), array('unique' => true));
 		$Coll->ensureIndex(array('id' => 1), array('unique' => true));
-		$data = array(
-			'title' => \filter_var(\trim($Category->getTitle()), FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW),
-			'slug' => \trim(\mb_strtolower(preg_replace('/[\s]+/', '_', $Category->getSlug()))),
-			'desc' => \filter_var(\trim($Category->getDescription()), FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW),
-			'b_active' => (bool)$Category->isActive(),
-			'b_catonly' => (bool)$Category->isCategory()
-		);
 
 		d('data: '. print_r($data, 1));
 
@@ -176,7 +205,7 @@ class Editor
 		'b_catonly' => true,
 		'_id' => false)
 		);
-		
+
 		return $ret;
 	}
 
@@ -228,7 +257,7 @@ class Editor
 		foreach($cur as $item){
 			$this->aCategories[$item['id']] = $item;
 		}
-		
+
 
 		return $this;
 	}
@@ -260,6 +289,8 @@ class Editor
 			 * It must exist, otherwise it could not be sorted
 			 */
 			if(array_key_exists($id, $this->aCategories)){
+
+				$this->aCategories[$id]['i_level'] = $this->getLevel($id);
 				/**
 				 * Add value of 'i_weight' wich is the order
 				 * in which the category was sorted by sortable
@@ -309,5 +340,26 @@ class Editor
 		$this->Registry->Mongo->flush();
 
 		return $j;
+	}
+
+	/**
+	 * Get level of nesting of this category id
+	 * based on submitted $_POST['cat'] array
+	 *
+	 * @param int $id category id for which we getting result
+	 * @param int $prev used for recursion, do not pass anything here yourself!
+	 *
+	 * @return int level of nesting 0 means this category is top-level
+	 */
+	protected function getLevel($id, $prev = 0){
+		$c = $_POST['cat'];
+
+		if(empty($c[$id]) || 'root' == $c[$id]){
+
+			return (0 + $prev);
+		}
+
+		return $this->getLevel($c[$id], $prev + 1);
+
 	}
 }

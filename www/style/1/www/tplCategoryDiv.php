@@ -62,20 +62,15 @@
 class tplCategoryDiv extends Lampcms\Template\Fast
 {
 	protected static function func(&$a){
-		//if(!empty($a['a_latest'])){
-		//	$a['latest'] = '';
-		//}
 
 		if(!empty($a['hts'])){
 			$reltime = \Lampcms\TimeAgo::format(new \DateTime($a['hts']));
-			$a['time_ago'] = '<div class="fl timeago">'.$a['latest_label'].' '.$reltime.'</div>';
+			$a['time_ago'] = '<div class="cb fl timeago">'.$a['latest_label'].' '.$reltime.'</div>';
 		}
-
-		if($a['b_catonly']){
-			$a['title'] = $a['title'];
-		} else {
-			$a['title'] = '<a href="/category/'.$a['slug'].'">'.$a['title'].'</a>';
-		}
+		
+		if(!empty($a['i_qcount'])){
+			$a['counters'] = '<div class="counts cb1 fl">['.$a['i_qcount'].' / '.$a['i_acount'].']</div>';
+		}		
 	}
 
 	protected static $vars = array(
@@ -89,14 +84,15 @@ class tplCategoryDiv extends Lampcms\Template\Fast
 	'subs' => '', // 8
 	'latest_label' => 'Latest Question', // 9
 	'img' => '', //10
-	'level' => '', //11
+	'i_level' => '', //11
 	'b_catonly' => '', //12
-	'time_ago' => '' // 13
+	'time_ago' => '', // 13
+	'counters' => '' // 14
 	);
 
-	protected static $tpl = '<div class="category_info level%11$s" id="category_%1$s">
-	<div class="categ_title">%2$s</div>
-	<div class="counts">[%6$s / %7$s]</div>
+	protected static $tpl = '<div class="category_info level_%11$s cb1 fl" id="category_%1$s">
+	<div class="categ_title cb1 fl"><a href="/category/%4$s">%2$s</a></div>
+	%14$s
 	%13$s
 	%8$s
 	</div> <!-- // div category%1$s -->

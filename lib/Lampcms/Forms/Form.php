@@ -356,10 +356,10 @@ class Form extends LampcmsObject
 	 */
 	public function getSubmittedValue($field){
 		if(!$this->fieldExists($field)){
-			throw new \Lampcms\DevException('field '.$field.' does not exist');
+			throw new \Lampcms\DevException('Field '.$field.' does not exist');
 		}
 
-		return $this->Registry->Request[$field];
+		return $this->Registry->Request->get($field);
 	}
 
 
@@ -419,7 +419,7 @@ class Form extends LampcmsObject
 		d('$temp_file: '.$temp_file);
 
 		if(false === \move_uploaded_file($this->aUploads[$field]['tmp_name'], $temp_file) ){
-			d('no go with move_uploaded_file to '.$temp_file.' $this->aUploads: '.print_r($this->aUploads, 1));
+			d('No go with move_uploaded_file to '.$temp_file.' $this->aUploads: '.print_r($this->aUploads, 1));
 			throw new \Lampcms\DevException('Unable to copy uploaded file');
 		}
 

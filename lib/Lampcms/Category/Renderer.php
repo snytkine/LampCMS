@@ -110,6 +110,18 @@ class Renderer
 	 */
 	protected $sep;
 
+	/**
+	 *
+	 * Maximum level of nesting
+	 * after this level the tplCategoryMinDiv template
+	 * is used for rendering nested category.
+	 * This template has fewer details to render, usually used
+	 * to render deep nested categories.
+	 * This comes from the settings in !config.ini file
+	 * CATEGORY_DETAILED_LEVEL
+	 *
+	 * @var int
+	 */
 	protected $maxDetailedLevel;
 
 	protected $latestQuestion;
@@ -134,7 +146,10 @@ class Renderer
 	 */
 	public function __construct(Registry $Registry){
 		$this->Registry = $Registry;
-		$this->aCategories = $this->Registry->Cache->categories;
+		$c = $this->Registry->Cache->categories;
+		if(is_array($c)){
+			$this->aCategories = $c;
+		}
 		$this->maxDetailedLevel = $this->Registry->Ini->CATEGORY_DETAILED_LEVEL;
 		$this->latestQuestion = $this->Registry->Tr->get('Latest Question');
 		$this->labelQuestion = $this->Registry->Tr->get('Question');
@@ -315,11 +330,11 @@ class Renderer
 		if(!is_int($selected)){
 			throw new \InvalidArgumentException('Invalid type of $selected param. Must be int, was: '.gettype($selected));
 		}
-		
+
 		if(empty($this->aCategories)){
 			return '';
 		}
-		
+
 		$id = "categories_menu";
 		$this->selectedId = $selected;
 		if($addEmptyItem && $required && 0 === $selected){
@@ -446,17 +461,18 @@ class Renderer
 
 		$categories = ($categories) ? $categories : $this->aCategories;
 
-		$ret = '<div class="cats_w" id="parent'.$parentId.'">';
+		//print_r($categories);
+		//exit;
+
+		$ret = '<div class="cats_w fl cb" id="parent_'.$parentId.'">';
 		foreach($categories as $c){
 			if($c['b_active'] && $c['i_parent'] === $parentId){
-				$c['level'] = $level;
 				$c['latest_label'] = $this->latestQuestion;
-
+				
 				if(!empty($c['a_sub'])){
-					$level+=1;
-					$subs = \array_intersect_key($this->aCategories, array_flip($c['a_sub']));
-					$c['subs'] = $this->getNestedDivs($subs, $c['id'], $level);
-				}
+					$subs = \array_intersect_key($this->aCategories, \array_flip($c['a_sub']));
+					$c['subs'] = $this->getNestedDivs($subs, $c['id']);
+				} 
 
 				/**
 				 * Here can use value of $level
@@ -464,9 +480,10 @@ class Renderer
 				 * level after which we just want a very basic template
 				 * with just a link to sub category
 				 */
-				$tpl = ($level <= $this->maxDetailedLevel) ? 'tplCategoryDiv' : 'tplCategoryMinDiv';
+				$tpl = ($c['i_level'] < $this->maxDetailedLevel) ? 'tplCategoryDiv' : 'tplCategoryMinDiv';
 
 				$ret .= $tpl::parse($c, true);
+				
 
 			}
 		}

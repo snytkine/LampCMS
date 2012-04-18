@@ -64,8 +64,8 @@
  */
 class tplCategoryMinDiv extends tplCategoryDiv
 {
-	protected static $tpl = '<div class="subcategory level%11$s" id="category_%1$s">
-	<div class="subcat_title">%2$s</div>
+	protected static $tpl = '<div class="subcategory level_%11$s cb1 fl" id="category_%1$s">
+	<div class="subcat_title cb1 fl"><a href="/category/%4$s">%2$s</a></div>
 	%8$s
 	</div>
 	';

@@ -218,8 +218,6 @@ class Base extends LampcmsObject
 	 */
 	public function checkAccessPermission($privilege = null, RoleInterface $role = null, $resource = null){
 
-		//d('$privilege: '.$privilege.' '.var_export($privilege, true));
-
 		if(null === $privilege){
 			d('$privilege is null');
 

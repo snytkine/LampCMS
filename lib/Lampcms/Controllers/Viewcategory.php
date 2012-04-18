@@ -134,7 +134,7 @@ class Viewcategory extends Unanswered
 		$Renderer = new \Lampcms\Category\Renderer($this->Registry);
 		$breadCrumb = $Renderer->getBreadCrumb($this->aCategory['id'], false);
 		$subs = '';
-		$subCategories = $Renderer->getSubCategoriesOf(53);//$this->aCategory['id']
+		$subCategories = $Renderer->getSubCategoriesOf($this->aCategory['id']);
 		if(!empty($subCategories)){
 			$subs = \tplSubcategories::parse(array($this->_('Sub categories'), \tplSubcategory::loop($subCategories)), false);
 		}

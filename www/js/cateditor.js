@@ -112,7 +112,7 @@ YUI.add('cateditor', function(Y) {
 				 * from the server in ajax response.
 				 */
 				setupEditedDiv = function(div, oCat, li){
-					var span;
+					var span, listItems;
 					Y.all('div.edited').removeClass('edited');
 					div.set('text', oCat['title']);
 					span = Y.Node.create('<span class="icoc del fr" title="Delete">&nbsp;</span>');
@@ -127,6 +127,20 @@ YUI.add('cateditor', function(Y) {
 					if(li){
 						li.show(true);
 					}
+
+					/**
+					 * Remive the "hide"
+					 * class from "save order" button
+					 * and possibly from other buttons
+					 * This is necessary to do in the case when the very 
+					 * first category was just added, otherwise
+					 * the "Save order" button will still remain hidden
+					 */
+					listItems = Y.all("ol.sortable > li");
+					if(listItems.size() > 1){
+						Y.one("#save_nested").removeClass('hide');
+					}
+					
 				};
 				
 				/**

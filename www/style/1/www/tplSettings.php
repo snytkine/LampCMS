@@ -45,7 +45,8 @@ class tplSettings extends \Lampcms\Template\Fast
 	'profile' => 'Profile', //3
 	'profileUrl' => '/editprofile/', //4
 	'emailPrefs' => 'Email stuff', // 5
-	'clearCache' => '' //6
+	'clearCache' => '', //6
+	'editCategories' => '' //7
 	);
 
 
@@ -65,5 +66,6 @@ class tplSettings extends \Lampcms\Template\Fast
 			<div class="tool_link"><a href="/changepwd/">%2$s</a></div> 
 		</div> 
 		%6$s
+		%7$s
 	</div>';
 }

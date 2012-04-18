@@ -38,7 +38,7 @@ collection = "C_Cache"
 
 [CONSTANTS]
 ; set to true when debugging to enable
-; debug log and raize error reporting level
+; debug log and raise error reporting level
 DEBUG = true
 ;
 ; Directory where translations files
@@ -256,7 +256,14 @@ SHOW_FLAGS = true
 ; leave this blank
 ; or set to 1 to make categories optional
 ; or set to 2 to make categories required
-CATEGORIES = 2
+;
+; Important: make sure to actually
+; add some categories 
+; (using /editcategory/ url) first otherwise
+; you may end up requiring user to select category
+; but there will be no drop-down menu and 
+; user will not be able to post a question at all
+CATEGORIES = 
 ; SEPARATOR TO BE USED IN BREADCRUMN 
 ; OF CATEGORYIES. 
 ; LEAVE INSIDE DOUBLE QUOTES TO PRESERVE SPACES

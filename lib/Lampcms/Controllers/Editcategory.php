@@ -113,9 +113,19 @@ class Editcategory extends WebPage
 	 */
 	protected function delete($id){
 		d('cp');
-		$Editor = new \Lampcms\Category\Editor($this->Registry);
-		d('cp');
-		$res = $Editor->delete($id);
+		try{
+			$this->checkAccessPermission('edit_category');
+			$canEdit = true;
+		} catch(\Exception $e){
+			$canEdit = false;
+			$res = true;
+		}
+
+		if($canEdit){
+			$Editor = new \Lampcms\Category\Editor($this->Registry);
+			$res = $Editor->delete($id);
+		}
+
 		Responder::sendJSON(array('deleted' => $id, 'res' => $res));
 	}
 
@@ -132,9 +142,18 @@ class Editcategory extends WebPage
 
 		d('cat array: '.print_r($_POST['cat'], 1));
 
-		$Editor = new \Lampcms\Category\Editor($this->Registry);
-		$res = $Editor->saveOrder($_POST['cat']);
-		d('saved '.$res.' categories');
+		try{
+			$this->checkAccessPermission('edit_category');
+			$canEdit = true;
+		} catch(\Exception $e){
+			$canEdit = false;
+		}
+			
+		if($canEdit){
+			$Editor = new \Lampcms\Category\Editor($this->Registry);
+			$res = $Editor->saveOrder($_POST['cat']);
+			d('saved '.$res.' categories');
+		}
 		/**
 		 * @todo
 		 * Translate String
@@ -151,6 +170,14 @@ class Editcategory extends WebPage
 
 		$Notification = $this->Registry->Dispatcher->post($this, 'onBeforeCategoryEdit', array('data' => $formData));
 		if(!$Notification->isNotificationCancelled()){
+
+			try{
+				$this->checkAccessPermission('edit_category');
+				$canEdit = true;
+			} catch(\Exception $e){
+				$canEdit = false;
+			}
+
 			/**
 			 * @todo when YUI 3.5.0 is released with fixed
 			 * upload-iframe or even better with XHR2 with upload support
@@ -161,8 +188,8 @@ class Editcategory extends WebPage
 			if(Request::isAjax()){
 				d('sending out ajax');
 				$Editor = new \Lampcms\Category\Editor($this->Registry);
-				$aRes = $Editor->saveCategory(new \Lampcms\Category\SubmittedWWW($this->Registry->Request));
-				$aRes = array_diff_key($aRes, array('i_parent' => 1, 'a_subs' => 1));
+				$aRes = $Editor->saveCategory(new \Lampcms\Category\SubmittedWWW($this->Registry->Request), $canEdit);
+				$aRes = \array_diff_key($aRes, array('i_parent' => 1, 'a_subs' => 1));
 				d('aRes: '.print_r($aRes, 1));
 					
 				Responder::sendJSON(array('category' => $aRes));
