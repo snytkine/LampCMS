@@ -6,43 +6,44 @@
 # these rules:
 # RewriteEngine on
 #
-RewriteRule ^/questions([\/]{0,1})$ /index.php?a=viewquestions
-RewriteRule ^/questions/page([0-9]+)\.html /index.php?a=viewquestions&pageID=$1
+RewriteEngine On
+RewriteRule ^questions([\/]{0,1})$ index.php?a=viewquestions
+RewriteRule ^questions/page([0-9]+)\.html index.php?a=viewquestions&pageID=$1
 # This condition must be first
-RewriteRule ^/q([0-9]+)/([^\/]+)/([a-zA-Z_]+)/page([0-9]+)\.html /index.php?a=viewquestion&qid=$1&urltext=$2&sort=$3&pageID=$4
+RewriteRule ^q([0-9]+)/([^\/]+)/([a-zA-Z_]+)/page([0-9]+)\.html index.php?a=viewquestion&qid=$1&urltext=$2&sort=$3&pageID=$4
 # And this is second!
-RewriteRule ^/q([0-9]+)/(.*) /index.php?a=viewquestion&qid=$1&urltext=$2
-RewriteRule ^/questions/([0-9]+)/(.*) /index.php?a=viewquestion&qid=$1&urltext=$2
+RewriteRule ^q([0-9]+)/(.*) index.php?a=viewquestion&qid=$1&urltext=$2
+RewriteRule ^questions/([0-9]+)/(.*) index.php?a=viewquestion&qid=$1&urltext=$2
 
-RewriteRule ^/ask([\/]{0,1})$ /index.php?a=askform
-RewriteRule ^/voted([\/]{0,1})$ /index.php?a=viewquestions&cond=voted
-RewriteRule ^/voted/page([0-9]+)\.htm([l]{0,1})$ /index.php?a=viewquestions&cond=voted&pageID=$1
-RewriteRule ^/active([\/]{0,1})$ /index.php?a=viewquestions&cond=active
-RewriteRule ^/active/page([0-9]+)\.htm([l]{0,1})$ /index.php?a=viewquestions&cond=active&pageID=$1
-RewriteRule ^/unanswered([\/]{0,1})$ /index.php?a=unanswered
-RewriteRule ^/unanswered/noanswers([\/]{0,1})$ /index.php?a=unanswered&cond=noanswer
-RewriteRule ^/unanswered/noanswers/page([0-9]+)\.html$ /index.php?a=unanswered&cond=noanswer&pageID=$1
-RewriteRule ^/unanswered/tagged/([^\/]*)([\/]{0,1})$ /index.php?a=unanswered&cond=tagged&tags=$1
-RewriteRule ^/unanswered/tagged/([^\/]*)/page([0-9]+)\.html$ /index.php?a=unanswered&cond=tagged&tags=$1&pageID=$2
-RewriteRule ^/unanswered/page([0-9]+)\.html$ /index.php?a=unanswered&pageID=$1
-RewriteRule ^/tags([\/]{0,1})$ /index.php?a=viewqtags
-RewriteRule ^/tags/page([0-9]+)\.htm([l]{0,1})$ /index.php?a=viewqtags&pageID=$1
-RewriteRule ^/tags/name([\/]{0,1})$ /index.php?a=viewqtags&cond=name
-RewriteRule ^/tags/recent([\/]{0,1})$ /index.php?a=viewqtags&cond=recent
-RewriteRule ^/tags/popular([\/]{0,1})$ /index.php?a=viewqtags&cond=popular
-RewriteRule ^/tags/(name|recent|popular)/page([0-9]+)\.html$ /index.php?a=viewqtags&cond=$1&pageID=$2
-RewriteRule ^/tagged/(.*)/$ /index.php?a=tagged&tags=$1
-RewriteRule ^/tagged/(.*)/page([0-9]+)\.html$ /index.php?a=tagged&tags=$1&pageID=$2
-RewriteRule ^/vote/([0-9]+)/(up|down)$ /index.php?a=vote&resid=$1&res=q&type=$2
-RewriteRule ^/ansvote/([0-9]+)/(up|down)$ /index.php?a=vote&resid=$1&res=a&type=$2
-RewriteRule ^/accept/([0-9]+)$ /index.php?a=accept&aid=$1
-RewriteRule ^/users/([0-9]+)/(.*) /index.php?a=userinfo&uid=$1&username=$2
-RewriteRule ^/users/([a-zA-Z]+)/page([0-9]+)\.html /index.php?a=users&sort=$1&pageID=$2
-RewriteRule ^/users/([a-zA-Z]+)/ /index.php?a=users&sort=$1
-RewriteRule ^/register /index.php?a=register
-RewriteRule ^/([a-zA-Z\-]+)/page([0-9]+)\.html$ /index.php?a=$1&pageID=$2
-RewriteRule ^/aa/([0-9]+)/([a-f0-9]+)$ /index.php?a=activate&eid=$1&hash=$2
-RewriteRule ^/([a-zA-Z\-]+)/$ /index.php?a=$1
-RewriteRule ^/search/(m|r)/(.*)/page([0-9]+)\.html$ /index.php?a=search&ord=$1&q=$2&pageID=$3
-RewriteRule ^/tab/(a|q)/([0-9]+)/([a-zA-Z]+)/page([0-9]+)\.html$ /index.php?a=userinfotab&tab=$1&uid=$2&sort=$3&pageID=$4 [L]
-RewriteRule ^/editprofile/([0-9]+) /index.php?a=editprofile&uid=$1 [L]
+RewriteRule ^ask([\/]{0,1})$ index.php?a=askform
+RewriteRule ^voted([\/]{0,1})$ index.php?a=viewquestions&cond=voted
+RewriteRule ^voted/page([0-9]+)\.htm([l]{0,1})$ index.php?a=viewquestions&cond=voted&pageID=$1
+RewriteRule ^active([\/]{0,1})$ index.php?a=viewquestions&cond=active
+RewriteRule ^active/page([0-9]+)\.htm([l]{0,1})$ index.php?a=viewquestions&cond=active&pageID=$1
+RewriteRule ^unanswered([\/]{0,1})$ index.php?a=unanswered
+RewriteRule ^unanswered/noanswers([\/]{0,1})$ index.php?a=unanswered&cond=noanswer
+RewriteRule ^unanswered/noanswers/page([0-9]+)\.html$ index.php?a=unanswered&cond=noanswer&pageID=$1
+RewriteRule ^unanswered/tagged/([^\/]*)([\/]{0,1})$ index.php?a=unanswered&cond=tagged&tags=$1
+RewriteRule ^unanswered/tagged/([^\/]*)/page([0-9]+)\.html$ index.php?a=unanswered&cond=tagged&tags=$1&pageID=$2
+RewriteRule ^unanswered/page([0-9]+)\.html$ index.php?a=unanswered&pageID=$1
+RewriteRule ^tags([\/]{0,1})$ index.php?a=viewqtags
+RewriteRule ^tags/page([0-9]+)\.htm([l]{0,1})$ index.php?a=viewqtags&pageID=$1
+RewriteRule ^tags/name([\/]{0,1})$ index.php?a=viewqtags&cond=name
+RewriteRule ^tags/recent([\/]{0,1})$ index.php?a=viewqtags&cond=recent
+RewriteRule ^tags/popular([\/]{0,1})$ index.php?a=viewqtags&cond=popular
+RewriteRule ^tags/(name|recent|popular)/page([0-9]+)\.html$ index.php?a=viewqtags&cond=$1&pageID=$2
+RewriteRule ^tagged/(.*)/$ index.php?a=tagged&tags=$1
+RewriteRule ^tagged/(.*)/page([0-9]+)\.html$ index.php?a=tagged&tags=$1&pageID=$2
+RewriteRule ^vote/([0-9]+)/(up|down)$ index.php?a=vote&resid=$1&res=q&type=$2
+RewriteRule ^ansvote/([0-9]+)/(up|down)$ index.php?a=vote&resid=$1&res=a&type=$2
+RewriteRule ^accept/([0-9]+)$ index.php?a=accept&aid=$1
+RewriteRule ^users/([0-9]+)/(.*) index.php?a=userinfo&uid=$1&username=$2
+RewriteRule ^users/([a-zA-Z]+)/page([0-9]+)\.html index.php?a=users&sort=$1&pageID=$2
+RewriteRule ^users/([a-zA-Z]+)/ index.php?a=users&sort=$1
+RewriteRule ^register index.php?a=register
+RewriteRule ^([a-zA-Z\-]+)/page([0-9]+)\.html$ index.php?a=$1&pageID=$2
+RewriteRule ^aa/([0-9]+)/([a-f0-9]+)$ index.php?a=activate&eid=$1&hash=$2
+RewriteRule ^([a-zA-Z\-]+)/$ index.php?a=$1
+RewriteRule ^search/(m|r)/(.*)/page([0-9]+)\.html$ index.php?a=search&ord=$1&q=$2&pageID=$3
+RewriteRule ^tab/(a|q)/([0-9]+)/([a-zA-Z]+)/page([0-9]+)\.html$ index.php?a=userinfotab&tab=$1&uid=$2&sort=$3&pageID=$4 [L]
+RewriteRule ^editprofile/([0-9]+) index.php?a=editprofile&uid=$1 [L]

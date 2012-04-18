@@ -1,0 +1,371 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
+    <file source-language="en" datatype="plaintext" original="file.ext">
+        <body>
+            <trans-unit id="1">
+                <source>Questions</source>
+                <target>所有發問</target>
+            </trans-unit>
+            <trans-unit id="2">
+                <source>Unanswered</source>
+                <target>待回答</target>
+            </trans-unit>
+            <trans-unit id="3">
+                <source>Tags</source>
+                <target>標籤</target>
+            </trans-unit>
+            <trans-unit id="4">
+                <source>Members</source>
+                <target>會員</target>
+            </trans-unit>
+            <trans-unit id="5">
+                <source>Ask Question</source>
+                <target>發問</target>
+            </trans-unit>
+            <trans-unit id="6">
+                <source>Search</source>
+                <target>搜尋</target>
+            </trans-unit>
+            <trans-unit id="7">
+                <source>All questions</source>
+                <target>所有發問</target>
+            </trans-unit>
+            <trans-unit id="8">
+                <source>Recent Tags</source>
+                <target>最新標籤</target>
+            </trans-unit>
+            <trans-unit id="9">
+                <source>Similar questions</source>
+                <target>類似發問</target>
+            </trans-unit>
+            <trans-unit id="10">
+                <source>Home</source>
+                <target>首頁</target>
+            </trans-unit>
+            <trans-unit id="11">
+                <source>Log in</source>
+                <target>登入</target>
+            </trans-unit>
+            <trans-unit id="12">
+                <source>Remember me</source>
+                <target>記住我</target>
+            </trans-unit>
+            <trans-unit id="13">
+                <source>Username</source>
+                <target>帳號</target>
+            </trans-unit>
+            <trans-unit id="14">
+                <source>Password</source>
+                <target>密碼</target>
+            </trans-unit>
+            <trans-unit id="15">
+                <source>Forgot password?</source>
+                <target>忘記密碼？</target>
+            </trans-unit>
+            <trans-unit id="16">
+                <source>Welcome!</source>
+                <target>歡迎！</target>
+            </trans-unit>
+            <trans-unit id="17">
+                <source>Sign up</source>
+                <target>註冊</target>
+            </trans-unit>
+            <trans-unit id="18">
+                <source>Logout</source>
+                <target>登出</target>
+            </trans-unit>
+            <trans-unit id="19">
+                <source>Settings</source>
+                <target>設定</target>
+            </trans-unit>
+             <trans-unit id="20">
+                <source>Forgotten password</source>
+                <target>忘記密碼</target>
+            </trans-unit>
+             <trans-unit id="21">
+                <source>forgot_help</source>
+                <target>請輸入您的帳號或信箱，系統會將密碼重新設定後寄到您的信箱</target>
+            </trans-unit>
+             <trans-unit id="22">
+                <source>Username OR Email Address</source>
+                <target>帳號或信箱</target>
+            </trans-unit>
+            <trans-unit id="23">
+                <source>Username OR Email Address</source>
+                <target>帳號或信箱</target>
+            </trans-unit>
+            <trans-unit id="24">
+                <source>Get Password</source>
+                <target>取得密碼</target>
+            </trans-unit>
+            <trans-unit id="25">
+                <source>Required field</source>
+                <target>必填欄位</target>
+            </trans-unit>
+            <trans-unit id="26">
+                <source>Username will appear alongside your posts</source>
+                <target>帳號會出現在文章旁邊</target>
+            </trans-unit>
+            <trans-unit id="27">
+                <source>Question tags</source>
+                <target>發問標籤</target>
+            </trans-unit>
+            <trans-unit id="28">
+                <source>Asked</source>
+                <target>已發問</target>
+            </trans-unit>
+            <trans-unit id="29">
+                <source>Last updated</source>
+                <target>最後更新</target>
+            </trans-unit>
+             <trans-unit id="30">
+                <source>Number of Answers</source>
+                <target>答案數量</target>
+            </trans-unit>
+            <trans-unit id="31">
+                <source>Number of Views</source>
+                <target>點閱數量</target>
+            </trans-unit>
+            <trans-unit id="32">
+                <source>Reply</source>
+                <target>回覆</target>
+            </trans-unit>
+            <trans-unit id="33">
+                <source>Your answer</source>
+                <target>你的答案</target>
+            </trans-unit>
+            <trans-unit id="34">
+                <source>Be the first to answer this question</source>
+                <target>做第一個回答發問的人</target>
+            </trans-unit>
+             <trans-unit id="35">
+                <source>Alert</source>
+                <target>警告</target>
+            </trans-unit>
+             <trans-unit id="36">
+                <source>Please Register or Login to perform this action</source>
+                <target>請註冊或是登入來執行這個操作</target>
+            </trans-unit>
+             <trans-unit id="37">
+                <source>Be the first to answer this question</source>
+                <target>做第一個回答發問的人</target>
+            </trans-unit>
+            <trans-unit id="38">
+                <source>add comment</source>
+                <target>加入評論</target>
+            </trans-unit>
+            <trans-unit id="39">
+                <source>Reply</source>
+                <target>回覆</target>
+            </trans-unit>
+            <trans-unit id="40">
+                <source>Reply to this comment</source>
+                <target>回覆這個評論</target>
+            </trans-unit>
+            <trans-unit id="41">
+                <source>Submit answer</source>
+                <target>送出答案</target>
+            </trans-unit>
+            <trans-unit id="42">
+                <source>Follow this question</source>
+                <target>訂閱這個發問</target>
+            </trans-unit>
+            <trans-unit id="43">
+                <source>Follow this question to be notified of new answers, comments and edits</source>
+                <target>訂閱這個發問後，文章有了新的答案、評論或異動都會發出通知</target>
+            </trans-unit>
+            <trans-unit id="44">
+                <source>Follow this question to be notified of new answers, comments and edits</source>
+                <target>訂閱這個發問後，文章有了新的答案、評論或異動都會發出通知</target>
+            </trans-unit>
+            <trans-unit id="45">
+                <source>Questions with no accepted answer</source>
+                <target>沒有滿意答案的發問</target>
+            </trans-unit>
+            <trans-unit id="46">
+                <source>Questions with no answers</source>
+                <target>沒有答案的發問</target>
+            </trans-unit>
+            <trans-unit id="47">
+                <source>Unanswered tags</source>
+                <target>沒有答案的標籤</target>
+            </trans-unit>
+            <trans-unit id="48">
+                <source>Follow this tag</source>
+                <target>訂閱這個標籤</target>
+            </trans-unit>
+            <trans-unit id="49">
+                <source>Follow this tag to be notified when new questions are added</source>
+                <target>訂閱這個標籤後，新的發問建立後會發出通知</target>
+            </trans-unit>
+            <trans-unit id="50">
+                <source>Unanswered tags</source>
+                <target>沒有答案的標籤</target>
+            </trans-unit>
+            <trans-unit id="51">
+                <source>Related Tags</source>
+                <target>相關標籤</target>
+            </trans-unit>
+            <trans-unit id="52">
+                <source>Tagged</source>
+                <target>標籤</target>
+            </trans-unit>
+            <trans-unit id="53">
+                <source>Edited</source>
+                <target>編輯時間</target>
+            </trans-unit>
+            <trans-unit id="54">
+                <source>Please enter between {min_tags} and {max_tags} tags, separated by spaces</source>
+                <target>請輸入 {min_tags} 到 {max_tags} 個標籤，已半形空白分隔</target>
+            </trans-unit>
+            <trans-unit id="55">
+                <source>Preview</source>
+                <target>預覽</target>
+            </trans-unit>
+            <trans-unit id="56">
+                <source>Enter a descriptive title</source>
+                <target>輸入一個適合的標題</target>
+            </trans-unit>
+            <trans-unit id="57">
+                <source>Title</source>
+                <target>標題</target>
+            </trans-unit>
+            <trans-unit id="58">
+                <source>Submit Question</source>
+                <target>發出問題</target>
+            </trans-unit>
+            <trans-unit id="59">
+                <source>Ask a question</source>
+                <target>發問</target>
+            </trans-unit>
+            <trans-unit id="60">
+                <source>Edit Profile</source>
+                <target>編輯個人檔案</target>
+            </trans-unit>
+            <trans-unit id="61">
+                <source>Change Password</source>
+                <target>修改密碼</target>
+            </trans-unit>
+             <trans-unit id="62">
+                <source>Email Preferences</source>
+                <target>提醒偏好</target>
+            </trans-unit>
+            <trans-unit id="63">
+                <source>Your Email Subscription Preferences</source>
+                <target>您的信件訂閱偏好</target>
+            </trans-unit>
+            <trans-unit id="64">
+                <source>Password updated successfully</source>
+                <target>密碼更新成功</target>
+            </trans-unit>
+            <trans-unit id="65">
+                <source>Save</source>
+                <target>儲存</target>
+            </trans-unit>
+            <trans-unit id="66">
+                <source>Current Password</source>
+                <target>目前密碼</target>
+            </trans-unit>
+            <trans-unit id="67">
+                <source>Enter new password</source>
+                <target>輸入新密碼</target>
+            </trans-unit>
+            <trans-unit id="68">
+                <source>Confirm new password</source>
+                <target>確認新密碼</target>
+            </trans-unit>
+            <trans-unit id="69">
+                <source>Enter your current password</source>
+                <target>輸入目前密碼</target>
+            </trans-unit>
+            <trans-unit id="70">
+                <source>This is not the correct password</source>
+                <target>密碼錯誤</target>
+            </trans-unit>
+            <trans-unit id="71">
+                <source>Password must be at least 6 characters long and contain at least one number</source>
+                <target>密碼必須包含至少 6 個字元以及至少 1 位數字</target>
+            </trans-unit>
+            <trans-unit id="72">
+                <source>"New password" and "Confirm new password" do not match</source>
+                <target>新密碼與確認密碼不一致</target>
+            </trans-unit>
+             <trans-unit id="73">
+                <source>Newest</source>
+                <target>最新</target>
+            </trans-unit>
+             <trans-unit id="74">
+                <source>Most Voted</source>
+                <target>最多推</target>
+            </trans-unit>
+             <trans-unit id="75">
+                <source>Most Active</source>
+                <target>最熱門</target>
+            </trans-unit>
+             <trans-unit id="76">
+                <source>Most recent questions</source>
+                <target>最新發問</target>
+            </trans-unit>
+             <trans-unit id="77">
+                <source>Questions with most votes</source>
+                <target>最多人推的問題</target>
+            </trans-unit>
+             <trans-unit id="78">
+                <source>Questions with most activity</source>
+                <target>最多回應的問題</target>
+            </trans-unit>
+            <trans-unit id="79">
+                <source>Questions with highest votes in past 7 days</source>
+                <target>最近七天有最多人推的問題</target>
+            </trans-unit>
+            <trans-unit id="80">
+                <source>Active Questions</source>
+                <target>熱門問題</target>
+            </trans-unit>
+            <trans-unit id="81">
+                <source>You have contributed to this question</source>
+                <target>您已經貢獻了這個發問</target>
+            </trans-unit>
+            <trans-unit id="82">
+                <source>Tags you follow</source>
+                <target>訂閱的標籤</target>
+            </trans-unit>
+            <trans-unit id="83">
+                <source>You are following this question</source>
+                <target>您已經訂閱了這個發問</target>
+            </trans-unit>
+             <trans-unit id="85">
+                <source>Number of Questions</source>
+                <target>發問數量</target>
+            </trans-unit>
+            <trans-unit id="86">
+                <source>Toggle Unread/Read Status</source>
+                <target>切換 已讀/未讀 狀態</target>
+            </trans-unit>
+            <trans-unit id="87">
+                <source>Asked</source>
+                <target>發問時間</target>
+            </trans-unit>
+            <trans-unit id="88">
+                <source>Latest answer by</source>
+                <target>最新回應作者</target>
+            </trans-unit>
+            <trans-unit id="89">
+                <source>Cache Cleared</source>
+                <target>快取已經清除</target>
+            </trans-unit>
+            <trans-unit id="90">
+                <source>Register</source>
+                <target>註冊</target>
+            </trans-unit>
+            <trans-unit id="91">
+                <source>Create New Account</source>
+                <target>建立新帳號</target>
+            </trans-unit>
+            <trans-unit id="92">
+                <source>Clear Cache</source>
+                <target>清除快取</target>
+            </trans-unit>
+        </body>
+    </file>
+</xliff>

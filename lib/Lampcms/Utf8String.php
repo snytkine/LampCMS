@@ -153,9 +153,9 @@ class Utf8String extends String
 		 * If $charset is not supplied we will try to guess it
 		 *
 		 */
-		$charset = (empty($charset)) ? \strtolower(self::guessCharset($string)) : \strtolower($charset);
+		//$charset = (empty($charset)) ? \strtolower(self::guessCharset($string)) : \strtolower($charset);
+                $charset = 'utf8';
 
-		d('charset: '.$charset);
 		//d('$className: '.$className);
 
 		if(('us-ascii' === $charset) || ('ascii' === $charset) || ('utf-8' === $charset)){
