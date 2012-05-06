@@ -147,7 +147,9 @@ abstract class SubmittedQuestion extends LampcmsObject
 	public final function getTagsArray(){
 		if(!isset($this->aTags)){
 			$Tags = $this->getUtf8Tags();
+			d('$Tags: '.$Tags);
 			$this->aTags = TagsTokenizer::factory($Tags)->getArrayCopy();
+			d('$this->aTags: '.print_r($this->aTags, 1));
 		}
 
 		return $this->aTags;

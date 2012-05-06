@@ -68,7 +68,7 @@ if (true !== session_start()) {
 	 * @todo
 	 * Translate String
 	 */
-	echo ('Session start error');
+	echo ('Unable to start the program due to the session start error');
 } else {
 
 	try {
@@ -104,6 +104,7 @@ if (true !== session_start()) {
 		fastcgi_finish_request();
 
 	} catch(\OutOfBoundsException $e){
+		
 		//session_write_close();
 		/**
 		 * Special case is OutOfBoundsException which
@@ -122,34 +123,37 @@ if (true !== session_start()) {
 		fastcgi_finish_request();
 
 	} catch(\Exception $e) {
+		
+		$code = $e->getCode();
 		session_write_close();
 		header("HTTP/1.0 500 Exception");
 		try {
 			$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no server';
-			$extra .= 'file: '.$e->getFile(). ' line: '.$e->getLine().' trace: '.$e->getTraceAsString();
+			$extra .= 'Exception in file: '.$e->getFile(). "\n line: ".$e->getLine()."\n trace: ".$e->getTraceAsString();
 			/**
 			 * @mail must be here before the Lampcms\Exception::formatException
 			 * because Lampcms\Exception::formatException in case of ajax request will
 			 * send out ajax and then throw \OutOfBoundsException in order to finish request (better than exit())
 			 */
-			if(defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7){
+			if( ($code >=0) && defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7){
 				@mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $extra);
 			}
 			$html = \Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
 
-			echo $html;
+			echo nl2br($html);
 
 		} catch (\OutOfBoundsException $e2){
 			// do nothing, this was a way to exit() from Responder::sendJSON()
 		} catch(\Exception $e2) {
+			$code = $e->getCode();
 			$sHtml = \Lampcms\Responder::makeErrorPage('<strong>Exception:</strong> '.strip_tags($e2->getMessage())."\nIn file:".$e2->getFile()."\nLine: ".$e2->getLine());
 			$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';
-			if(defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7){
+			if(($code >=0) && defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7){
 
 				@mail(LAMPCMS_DEVELOPER_EMAIL, 'Error in index.php on line '.__LINE__, $sHtml.$extra);
 
 			}
-			echo $sHtml;
+			echo nl2br($sHtml);
 		}
 
 		fastcgi_finish_request();

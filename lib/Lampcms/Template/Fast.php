@@ -76,7 +76,7 @@ class Fast
 {
 	/**
 	 * Can override this static method in concrete template
-	 * In accepts array of $vars by reference
+	 * It accepts array of $vars by reference
 	 * This method can modify actual values
 	 * or template variables
 	 * before the variables are actually used
@@ -178,7 +178,7 @@ class Fast
 
 			static::func($aVars);
 		}
-
+		
 		if($merge){
 
 			$aVars = \array_merge(static::$vars, $aVars);

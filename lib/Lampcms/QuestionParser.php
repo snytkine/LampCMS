@@ -137,7 +137,7 @@ class QuestionParser extends LampcmsObject
 		->updateCategory()
 		->addUserTags();
 
-		d('cp parsing done, returning question');
+		d('Parsing done, returning question');
 
 		return $this->Question;
 	}
@@ -340,11 +340,11 @@ class QuestionParser extends LampcmsObject
 		 * Need ip index to use flood filter by ip
 		 * and to quickly find all posts by ip
 		 * in case of deleting a spam.
-		 * 
+		 *
 		 * @todo should store ip as LONG
 		 * using ip2long and don't worry
 		 * about "sign" problem on 32 bit php
-		 * 
+		 *
 		 *
 		 */
 		$quest->ensureIndex(array('ip' => 1));
@@ -406,7 +406,11 @@ class QuestionParser extends LampcmsObject
 		$Question = $this->Question;
 		if(count($Question['a_tags']) > 0){
 			$callable = function() use($o, $Question){
-				$o->parse($Question);
+				try{
+					$o->parse($Question);
+				} catch(\Exception $e){
+						// @todo error_log()
+				}
 			};
 			d('cp');
 			runLater($callable);
@@ -424,12 +428,17 @@ class QuestionParser extends LampcmsObject
 	 */
 	protected function addRelatedTags(){
 
-		$oRelated = Relatedtags::factory($this->Registry);
+		$Related = Relatedtags::factory($this->Registry);
 		$Question = $this->Question;
 		if(count($Question['a_tags']) > 0){
 			d('cp');
-			$callable = function() use ($oRelated, $Question){
-				$oRelated->addTags($Question);
+			$callable = function() use ($Related, $Question){
+				try{
+					$Related->addTags($Question);
+				} catch(\Exception $e){
+					// cannot do much here, only error_log may be
+					// safe to use
+				}
 			};
 			runLater($callable);
 		}
@@ -478,22 +487,22 @@ class QuestionParser extends LampcmsObject
 			$callable = function() use ($UserTags, $uid, $Question){
 				$UserTags->addTags($uid, $Question);
 			};
-			
+
 			d('cp');
 			runLater($callable);
 		}
 
 		return $this;
 	}
-	
+
 	/**
 	 * Update count of answers in a category
-	 * 
+	 *
 	 */
 	protected function updateCategory(){
 		$Updator = new \Lampcms\Category\Updator($this->Registry->Mongo);
 		$Updator->addQuestion($this->Question);
-		
+
 		return $this;
 	}
 

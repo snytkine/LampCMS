@@ -208,6 +208,7 @@ class Ini extends LampcmsArray
 				}
 				break;
 
+
 			default:
 				$ret = $aConstants[$name];
 				break;

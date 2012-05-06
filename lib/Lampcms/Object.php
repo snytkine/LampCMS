@@ -147,7 +147,7 @@ const DIR_XXX = 'xxx';
  */
 function runLater($callable){
 	if(!is_callable($callable)){
-		throw new Exception('param passed to runLater must be a callable function. Was: '.\gettype($callable));
+		throw new Exception('Param passed to runLater must be a callable function. Was: '.\gettype($callable));
 	}
 
 	register_shutdown_function($callable);

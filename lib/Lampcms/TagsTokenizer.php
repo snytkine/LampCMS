@@ -127,16 +127,18 @@ class TagsTokenizer extends \Lampcms\String\Tokenizer
 		 */
 		array_walk($aTokens, function(&$val) use($aStopwords){
 			$val = trim($val);
-			$val = ((strlen($val) > 1) && !in_array($val, $aStopwords)) ? htmlspecialchars($val, ENT_QUOTES, 'UTF-8') : false;
+			$val = ((strlen($val) > 1) && !in_array($val, $aStopwords)) ? \htmlspecialchars($val, ENT_QUOTES, 'UTF-8') : false;
 		});
 		
 		
 		/**
-		 * One more time
-		 * just to be 101% sure to Remove empty values
+		 * Since tags that match bad words are removed from array
+		 * we need to filter empty values one more time
+		 * just to be 100% sure to Remove empty values
 		 * because empty values in tags are really
 		 * bad news for many other functions
 		 * of this program
+		 * 
 		 *
 		 */
 		$aTokens = \array_filter($aTokens);

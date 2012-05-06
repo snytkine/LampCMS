@@ -51,7 +51,9 @@
 
 namespace Lampcms\Controllers;
 
+use \Lampcms\RedirectException;
 use \Lampcms\Relatedtags;
+
 
 /**
  * Controller for rendering page
@@ -63,7 +65,6 @@ use \Lampcms\Relatedtags;
  */
 class Tagged extends Unanswered
 {
-	protected $aRequired = array('tags');
 
 	/**
 	 * Indicates the current tab
@@ -87,22 +88,38 @@ class Tagged extends Unanswered
 		 *
 		 */
 		$this->aTags = $this->getTags();
+
+		if(!isset($this->aTags)){
+			d('Tags not found in request: '.$_SERVER['REQUEST_URI']);
+			/**
+			 * No tags passed in url
+			 * just redirect to view all tags
+			 * 
+			 */
+
+			throw new RedirectException("/tags/");
+		}
+
 		$this->pagerPath = '/tagged/'.$this->rawTags;
 		d('aTags: '.print_r($this->aTags, 1));
 
 		$cond = $this->Request->get('cond', 's', 'recent');
-		
+
 		/**
 		 * Default sort is by timestamp Descending
 		 * meaning most recent should be on top
 		 *
 		 */
 		$sort = array('i_ts' => -1);
-
+			
 		$where = array('a_tags' => array('$all' => $this->aTags) );
 		$where['i_del_ts'] = null;
+		$replaced = array(
+		'tags' => \str_replace(' ', ' + ', $this->tags),
+		'text' => $this->_('Tagged')
+		);
 
-		$this->counterTaggedText = \tplCounterblocksub::parse(array(str_replace(' ', ' + ', $this->tags), $this->_('Tagged')), false);
+		$this->counterTaggedText = \tplCounterblocksub::parse($replaced, false);
 
 		$this->Cursor = $this->Registry->Mongo->QUESTIONS->find($where, $this->aFields);
 		$this->count = $this->Cursor->count(true);

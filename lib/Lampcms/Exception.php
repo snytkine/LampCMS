@@ -92,8 +92,8 @@ class Exception extends \Exception
 
 	protected $bHtml = false;
 
-	public function __construct($sMessage = null, array $aArgs = null, $intCode = 0, $bHTML = false){
-		parent::__construct($sMessage, $intCode);
+	public function __construct($message = null, array $aArgs = null, $intCode = 0, $bHTML = false){
+		parent::__construct($message, $intCode);
 		$this->aArgs = $aArgs;
 		$this->bHTML = $bHTML;
 	}
@@ -211,51 +211,60 @@ class Exception extends \Exception
 
 
 
-	public static function formatException(\Exception $e, $sMessage = '', \Lampcms\I18n\Translator $Tr = null){
-		$sMessage = (!empty($sMessage)) ? $sMessage : $e->getMessage();
-		//$sMessage = $e->getMessage();
-		//$bHtml = ($e instanceof \Lampcms\Exception) ? $e->getHtmlFlag() : false;
+	public static function formatException(\Exception $e, $message = '', \Lampcms\I18n\Translator $Tr = null){
+		$message = (!empty($message)) ? $message : $e->getMessage();
 
-		if ($e instanceof Lampcms\DevException) {
-			$sMessage = ( (defined('LAMPCMS_DEBUG')) &&  true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occured';//$oTr->get('generic_error', 'exceptions');
+		if ($e instanceof \Lampcms\DevException) {
+			
+			/**
+			 * @todo if Tr was passed here
+			 * then we can translate string
+			 */
+			$message = ( (defined('LAMPCMS_DEBUG')) &&  true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occured. Administrator has been notified or the error. We will fix this as soon as possible';//$oTr->get('generic_error', 'exceptions');
+		
 		}
-		// not sure why strip_tags was here
-		//$sMessage = strip_tags($sMessage);
-
+		/**
+		 * htmlspecialchars is for safety to prevent XSS injection in case
+		 * part of the error message comes from any type of user input
+		 * For example a string containing script injection (HTML tags) is passed in GET request
+		 * the error is then generated and the original string may before part of that 
+		 * error message
+		 */
+		$message = \htmlspecialchars($message);
+		
 		$aArgs = ($e instanceof \Lampcms\Exception) ? $e->getArgs() : null;
-		$sMessage = (!empty($aArgs)) ? vsprintf($sMessage, $aArgs) : $sMessage;
+		$message = (!empty($aArgs)) ? vsprintf($message, $aArgs) : $message;
 
 		if($Tr){
 				
-			$sMessage = $Tr[$sMessage];
+			$message = $Tr[$message];
 		}
 
 		$sError = '';
-		$sTrace = nl2br(self::getExceptionTraceAsString($e)).'<hr>';
+		$sTrace = self::getExceptionTraceAsString($e)."\n";
 
 		$strFile = $e->getFile();
 		$intLine = $e->getLine();
 		$intCode = ($e instanceof \ErrorException) ? $e->getSeverity() : $e->getCode();
 
-		$sLogMessage = 'LampcmsError exception caught: '.$sMessage."\n".'error code: '.$intCode."\n".'file: '.$strFile."\n".'line: '.$intLine."\n".'stack: '.$sTrace."\n";
+		$sLogMessage = 'Exception caught: '.get_class($e)."\n" .$message."\n".'error code: '.$intCode."\n".'file: '.$strFile."\n".'line: '.$intLine."\n".'stack: '.$sTrace."\n";
 		d($sLogMessage."\n".'$_REQUEST: '.print_r($_REQUEST, true));
 		if(!empty($_SESSION)){
 			d('$_SESSION: '.print_r($_SESSION, 1));
 		}
 
-		$sError .= $sMessage."\n";
+		$sError .= $message."\n";
 
 		if ( (defined('LAMPCMS_DEBUG')) && true === LAMPCMS_DEBUG) {
-			$sError .= 'error code: '.$intCode."\n";
-			$sError .= 'file: '.$strFile."\n";
-			$sError .= 'line: '.$intLine."\n";
+			$sError .= "\nException Class: ".get_class($e).BR;
+			$sError .= "\nError code: $intCode\n";
+			$sError .= "\nFile: $strFile\n";
+			$sError .= "\nLine: $intLine\n";
 
 			if (!empty($sTrace)) {
-				$sError .= "\n<br><strong>Trace</strong>: \n<br>$sTrace\n<br>";
+				$sError .= "\nTrace: \n$sTrace\n";
 			}
 		}
-
-		d('cp');
 
 		/**
 		 * If this exception has E_USER_WARNING error code
@@ -278,15 +287,13 @@ class Exception extends \Exception
 			'errHeader' => 'Error',/*$oTr->get('errHeader', 'qf'),*/
 			'type' => get_class($e));
 
-			if($e instanceof Lampcms\FormException){
+			if($e instanceof \Lampcms\FormException){
 				$a['fields'] = $e->getFormFields();
 			}
 			d('json array of exception: '.print_r($a, 1));
 
 			Responder::sendJSON($a);
 		}
-
-		d('$sError: '.$sError);
 
 		return $sError;
 	}
@@ -558,7 +565,7 @@ class FormException extends DevException{
 
 	/**
 	 * Constructor
-	 * @param string $sMessage error message
+	 * @param string $message error message
 	 * @param array $aFormFields regular array with names of form fields
 	 * that caused validation error
 	 *
@@ -566,8 +573,8 @@ class FormException extends DevException{
 	 * vsprintf. This is in case we need to translate the error message
 	 * and then apply the replacement vars.
 	 */
-	public function __construct($sMessage, $formFields = null, array $aArgs = null){
-		parent::__construct($sMessage, $aArgs);
+	public function __construct($message, $formFields = null, array $aArgs = null){
+		parent::__construct($message, $aArgs);
 
 		if(is_string($formFields)){
 			$formFields = array($formFields);
@@ -798,5 +805,27 @@ class FilterException extends Exception {}
 class HTML2TextException extends Exception{}
 
 class AlertException extends Exception{}
+/**
+ * Special type of exteption
+ * The purpose of this exception is to only
+ * show error message to user (Viewer) but
+ * NOT email an error to site admin
+ * Many errors are very minor and
+ * do not warrant notifying the admin
+ * 
+ * It's also possible to pass the -1 as error
+ * code with any exception to prevent
+ * sending email to admin but throwing 
+ * this exception is just more convenient and 
+ * the intent is more clear
+ * 
+ *
+ */
+class NoticeException extends Exception{
+
+	public function __construct($message = null, array $aArgs = null, $intCode = 0, $bHTML = false){
+		parent::__construct($message, $aArgs, -1);
+	}
+}
 
 

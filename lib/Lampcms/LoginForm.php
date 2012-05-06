@@ -204,7 +204,7 @@ class LoginForm
 			$Ini = $Registry->Ini;
 			$html = '';
 			$socialBtns = '';
-			$gfcButton = $twitterButton = $fbButton = '';
+			$twitterButton = $fbButton = '';
 
 			/**
 			 * Facebook
@@ -242,16 +242,7 @@ class LoginForm
 					$socialBtns .= '<img class="ajax add_linkedin hand ttt" src='.LAMPCMS_IMAGE_SITE.'"/images/linkedin_32.png" width="32" height="32" alt="T" title="Sign in with LinkedIn Account">';
 				}
 			}
-
-			/**
-			 * Google Friend Connect
-			 */
-			$GfcSiteID = $Ini->GFC_ID;
-			if(extension_loaded('curl') && !empty($GfcSiteID)){
-				d('cp '.strlen($gfcButton));
-
-				$socialBtns .= '<img class="ajax gfcsignin hand ttt" src='.LAMPCMS_IMAGE_SITE.'"/images/google_32.png" width="32" height="32" alt="Google" title="Sign in with Google"><img class="ajax gfcsignin hand ttt" src='.LAMPCMS_IMAGE_SITE.'"/images/openid_32.png" width="32" height="32" alt="Open ID" title="Sign in with OpenID"><img class="ajax gfcsignin hand ttt" src='.LAMPCMS_IMAGE_SITE.'"/images/aim_32.png" width="32" height="32" alt="AIM" title="Sign in with AOL"><img class="ajax gfcsignin hand ttt" src='.LAMPCMS_IMAGE_SITE.'"/images/yahoo_32.png" width="32" height="32" alt="Yahoo" title="Sign in with Yahoo">';
-			}
+			
 
 			$_SESSION['social_buttons'] = $socialBtns;
 		}
@@ -298,10 +289,7 @@ class LoginForm
 	 */
 	protected static function makeInviteLink(User $User){
 		switch(true){
-			case ($User instanceof UserGfc):
-				d('cp');
-				$ret = '<div class="gfclinks"><a href="#" id="gfcset" class="ajax">FriendConnect settings</a> | <a href="#" class="ajax" id="gfcinvite">Invite friends</a></div>';
-				break;
+
 			case ($User instanceof UserFacebook):
 				d('cp');
 				$ret = '<div class="gfclinks"><a href="#" class="ajax" id="fbinvite" title="I\'ve registered at this site, and think you will enjoy your stay here too! Please check it out!">Invite your facebook friends</a></div>';

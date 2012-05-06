@@ -52,9 +52,13 @@
 
 namespace Lampcms\Controllers;
 
+use Lampcms\TagsTokenizer;
+
 use Lampcms\WebPage;
 use Lampcms\Paginator;
 use Lampcms\Template\Urhere;
+use Lampcms\Utf8String;
+use Lampcms\TagsTagsTokenizer;
 
 /**
  * Controller to view unanswered questions
@@ -93,6 +97,17 @@ class Unanswered extends Viewquestions
 
 	/**
 	 * Tags
+	 * rawTags is the string value of tags 
+	 * passed in url without applying urlencode 
+	 * or any of the escaping of the html tags.
+	 * This is a very dangerous string
+	 * It is used only as a value of 
+	 * pager path because pager class
+	 * applies urlencode to the string
+	 * before generating urls of pagination
+	 * 
+	 * 
+	 * @var string
 	 */
 	protected $rawTags = '';
 
@@ -143,8 +158,13 @@ class Unanswered extends Viewquestions
 				$this->pagerPath = '/unanswered/tagged/'.$this->rawTags;
 				$this->typeDiv = Urhere::factory($this->Registry)->get('tplQuntypes', 'newest');
 				$this->makeFollowTagButton();
-				$replaced = \str_replace(' ', ' + ', $this->tags);
-				$this->counterTaggedText = \tplCounterblocksub::parse(array($replaced, $this->_('Tagged')), false);
+
+				$replaced = array(
+				'tags' => \str_replace(' ', ' + ', $this->tags),
+				'text' => $this->_('Tagged')
+				);
+
+				$this->counterTaggedText = \tplCounterblocksub::parse($replaced, false);
 				break;
 
 				/**
@@ -190,6 +210,7 @@ class Unanswered extends Viewquestions
 	 * @return array of tags passed in query string
 	 */
 	protected function getTags(){
+
 		if(empty($this->aTags)){
 
 			/**
@@ -221,8 +242,10 @@ class Unanswered extends Viewquestions
 				d('matches: '.print_r($matches, 1));
 				if($matches && !empty($matches[1])){
 					$tags = $matches[1];
+
 					d('tags: '.$tags);
 					$this->tags = \urldecode($tags);
+
 				}
 
 			} else {
@@ -237,17 +260,40 @@ class Unanswered extends Viewquestions
 				$tags = $this->Request['tags'];
 				$this->tags = \urldecode($tags);
 			}
-
-			$this->rawTags = $tags;
-			$this->title = $this->tags;
-			d('this->title: '.$this->title);
 				
+				 	
+			/**
+			 * Important step to prevent
+			 * script or html injection in url GET string
+			 * Cannot use htmlspecialchars because we don't want to
+			 * also encode the &
+			 *
+			 */
+			$this->tags = \str_replace(array('<', '>'), array('&lt;', '&gt;'), $this->tags);
+
+			$this->rawTags = $tags;//TagsTokenizer::factory($Utf8Tags)->getArrayCopy();
+			$this->title = $this->tags;
+
 			if(empty($this->tags)){
 				return array();
 			}
 				
-			$this->aTags = \explode(' ', $this->tags);
-			$this->aTags = \array_filter($this->aTags);
+			/**
+			 * $this->tags are now urldecoded
+			 * If this does not work well them try
+			 * to use $tags instead
+			 */
+			$Utf8Tags = Utf8String::factory($this->tags);
+
+			/**
+			 * @todo the this->tags now have htmlspecialchars
+			 * which may not be what we want in this->aTags
+			 * We probably want this->aTags to be raw tags just like
+			 * they were submitted in request.
+			 *
+			 */
+			$this->aTags = TagsTokenizer::factory($Utf8Tags)->getArrayCopy();
+
 			d('aTags: '.\print_r($this->aTags, 1));
 		}
 

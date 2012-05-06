@@ -120,7 +120,7 @@ class DB extends \Lampcms\LampcmsObject
 
 		$aOptions = array('connect' => true);
 		$aConfig = $Ini->getSection('MONGO');
-		//d('$aConfig: '.print_r($aConfig, 1));
+		
 
 		$server = $aConfig['server'];
 		/**
@@ -130,15 +130,29 @@ class DB extends \Lampcms\LampcmsObject
 		 *
 		 */
 		$this->dbname = (defined('MONGO_DBNAME')) ? constant('MONGO_DBNAME') : $aConfig['db'];
-
+		
 		try{
 			$this->conn = new \Mongo($server, $aOptions);
 
-		} catch (\MongoException $e){
-			$err = 'LampcmsError unable to connect to Mongo: '.$e->getMessage();
+		} catch (\Exception $e){
+			/**
+			 * This will not be a MongoException
+			 * because mongo connection process will not throw exception,
+			 * it will raise php error or warning which is then 
+			 * processed by out error handler and turned into DevException
+			 * So we are getting DevException here but may also 
+			 * get MongoException 
+			 */
+			
+			$err = 'Unable to connect to Mongo: '.$e->getMessage();
 			e($err);
 			throw new DevException($err);
+		} 
+		
+		if(null === $this->conn){
+			throw new DevException('No connection to MongoDB');
 		}
+		
 
 		if(!empty($aConfig['prefix'])){
 			$this->prefix = (string)$aConfig['prefix'];
@@ -294,8 +308,8 @@ class DB extends \Lampcms\LampcmsObject
 	/**
 	 * Flush (comming) all changes to disk
 	 * Usually you would run this method
-	 * after perfirming multiple save() or insert
-	 * operations without the fsync = true option
+	 * after performing multiple save() or insert
+	 * operations without the fsync => true option
 	 * 
 	 */
 	public function flush(){

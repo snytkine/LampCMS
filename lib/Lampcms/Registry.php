@@ -114,10 +114,28 @@ class Registry implements Interfaces\LampcmsObject
 	 * the i_im_ts value of Viewer
 	 */
 	public function __destruct(){
-		$Viewer = $this->__get('Viewer');
-		if(is_object($Viewer)){
-			$Viewer->setLastActive();
-			$Viewer->saveIfChanged();
+		/**
+		 * Since __destruct should not throw own
+		 * exceptions we 
+		 * must catch any exception and for now 
+		 * just ignore it
+		 */
+		try{
+			$Viewer = $this->__get('Viewer');
+			if(is_object($Viewer)){
+				$Viewer->setLastActive();
+				$Viewer->saveIfChanged();
+			}
+		} catch (\Exception $e){
+			/**
+			 * @todo
+			 * Right now we will ignore exception
+			 * 
+			 * We can attempt to email error to admin
+			 * but it should also be done
+			 * from try/catch block and
+			 * catch should be ignored
+			 */	
 		}
 	}
 
@@ -228,10 +246,10 @@ class Registry implements Interfaces\LampcmsObject
 				if(!empty($a)){
 					$User = new $u['class']($c, 'USERS', $a);
 					$User->setTime();
-						
+
 					return $User;
 				}
-				
+
 				/**
 				 * Unsetting 'viewer' from $_SESSION
 				 * IF were not able to find

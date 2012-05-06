@@ -90,7 +90,7 @@ function templateLoader($className){
 	 * and in mobile dir, then it will raise an error
 	 * beause we using require this time instead in include  && ('www' !== $dir)
 	 */
-	if( ( false === include($file)) && ('www' !== $dir) ){
+	if( ( false === @include($file)) && ('www' !== $dir) ){
 		
 		require LAMPCMS_WWW_DIR.'style'.DIRECTORY_SEPARATOR.$styleId.DIRECTORY_SEPARATOR.'www'.DIRECTORY_SEPARATOR.$className.'.php';
 	}
@@ -99,6 +99,6 @@ function templateLoader($className){
 }
 
 
-$oLoader = new Lampcms\SplClassLoader(null, $libDir);
+$oLoader = new Lampcms\SplClassLoader(); 
 $oLoader->register();
 spl_autoload_register('templateLoader', false, true);

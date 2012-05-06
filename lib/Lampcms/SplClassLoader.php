@@ -80,10 +80,12 @@ class SplClassLoader
 	/**
 	 * Creates a new <tt>SplClassLoader</tt> that loads classes of the
 	 * specified namespace.
+	 * 
+	 * @todo use constant LAMPCMS_LIB_DIR if $includePath not passed
 	 *
 	 * @param string $ns The namespace to use.
 	 */
-	public function __construct($ns = null, $includePath = null){
+	public function __construct($ns = null, $includePath = LAMPCMS_LIB_DIR){
 		$this->_namespace = $ns;
 		$this->_includePath = $includePath;
 	}
@@ -183,7 +185,7 @@ class SplClassLoader
 
 			$fileName .= \str_replace('_', DIRECTORY_SEPARATOR, $className) . $this->_fileExtension;
 
-			d('looking for class: '.$className);
+			//d('looking for class: '.$className);
 
 			$reqfile = ($this->_includePath !== null ? $this->_includePath . DIRECTORY_SEPARATOR : '') . $fileName;
 

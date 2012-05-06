@@ -137,7 +137,7 @@ class Mongo implements \Lampcms\Interfaces\Cache
 
 		if(true === $compress){
 			if(!function_exists('gzdeflate')){
-				throw new \LogicException('gzdeflate function not available. Purhaps you php was compiled without the gzip support');
+				throw new \LogicException('gzdeflate function not available. You need to enagle gzip extension in your php');
 			}
 
 			$this->bCompress = (bool)$compress;

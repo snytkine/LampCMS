@@ -87,16 +87,18 @@ class Editor
 	 */
 	protected $aSubs = array();
 
+	protected $canEdit = true;
+
 	public function __construct(\Lampcms\Registry $Registry){
 		$this->Registry = $Registry;
 		/**
 		 * Need to check permission here for extra security
-		 * Check permission or Registry->Viewer to be able to edit_category
+		 * Check permission of Registry->Viewer to be able to edit_category
 		 */
 		$role = $Registry->Viewer->getRoleId();
 
 		if(!$this->Registry->Viewer->isAdmin() && !$this->Registry->Acl->isAllowed($role, null, 'edit_category')){
-			throw new \Lampcms\AccessException('Not allowed to edit category');
+			$this->canEdit = false;
 		}
 
 		$this->Registry->Cache->__unset('categories');
@@ -130,14 +132,14 @@ class Editor
 		/**
 		 * If $saveData was not passed here
 		 * then don't actually do any "Saving" of data
-		 * 
+		 *
 		 */
-		if(true || !$saveData){
+		if(!$this->canEdit || !$saveData){
 			if(empty($id)){
 				$id = microtime(true);
 			}
 			$data['id'] = $id;
-			
+
 			return $data;
 		}
 
@@ -166,6 +168,7 @@ class Editor
 			$data['i_weight'] = 1;
 			$data['i_qcount'] = 0;
 			$data['i_acount'] = 0;
+			$data['i_level'] = 0;
 			$data['a_latest'] = null;
 			$data['i_ts'] = 0;
 			d('inserting category data: '.print_r($data, 1));
@@ -194,6 +197,13 @@ class Editor
 			$Coll->update(array('id' => $id), array('$set' => $data), array('fsync' => true) );
 
 		}
+
+
+		/**
+		 * Post event to categories
+		 * data is removed from cache
+		 */
+		$this->Registry->Dispatcher->post($this, 'onCategoryUpdate', $data);
 
 		$ret =  $Coll->findOne(array('id' => $id),
 		array(
@@ -224,7 +234,9 @@ class Editor
 			throw new \InvalidArgumentException('Value of param $id must be numeric');
 		}
 
-		d('before deleting: '.$id);
+		if(!$this->canEdit){
+			return;
+		}
 
 		$id = (int)$id;
 		$coll = $this->Registry->Mongo->{self::COLLECTION};
@@ -236,7 +248,14 @@ class Editor
 			$coll->update(array('id' => $a['i_parent']), array('$pull' => array('a_sub' => $id)));
 		}
 
-		return $coll->remove(array('id' => $id), array('fsync' => true));
+		$ret = $coll->remove(array('id' => $id), array('fsync' => true));
+
+		/**
+		 * Post event to categories
+		 * data is removed from cache
+		 */
+		$this->Registry->Dispatcher->post($this, 'onCategoryUpdate', $data);
+
 	}
 
 
@@ -271,6 +290,11 @@ class Editor
 	 * @param array $categories
 	 */
 	public function saveOrder(array $categories){
+
+		if(!$this->canEdit){
+			return;
+		}
+		
 		$this->setCategories();
 		$i = 1;
 		foreach($categories as $id => $parent_id){
@@ -338,6 +362,12 @@ class Editor
 		 * Commit mongo data to disk
 		 */
 		$this->Registry->Mongo->flush();
+
+		/**
+		 * Post event to categories
+		 * data is removed from cache
+		 */
+		$this->Registry->Dispatcher->post($this, 'onCategoryUpdate', $data);
 
 		return $j;
 	}

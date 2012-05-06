@@ -258,7 +258,6 @@ abstract class WebPage extends Base
 		->setTemplateDir()
 		->setLocale()
 		->loginByFacebookCookie()
-		->loginByGfcCookie()
 		->loginBySid()
 		->initPageVars()
 		->addJoinForm()
@@ -271,6 +270,12 @@ abstract class WebPage extends Base
 			->checkAccessPermission()
 			->main();
 		} catch(Exception $e) {
+			/**
+			 * Only Exceptions in the Lampcms Namespace
+			 * (the ones that extend Lampcms\Exception)
+			 * will be handled here, others bubble up to
+			 * index.php
+			 */
 			$this->handleException($e);
 		}
 
@@ -318,12 +323,19 @@ abstract class WebPage extends Base
 
 	/**
 	 * Magic method
+	 * Must use try/catch here
+	 * because php turns uncaught exception in __toString
+	 * into a nasty error message
 	 *
 	 * @return
 	 */
 	public function __toString(){
-
-		return $this->getResult();
+		try{
+			return $this->getResult();
+		} catch(\Exception $e){
+			e('Exception in '.__METHOD__.' '.$e->getMessage());
+			return \Lampcms\Responder::makeErrorPage(Exception::formatException($e));
+		}
 	}
 
 
@@ -409,11 +421,6 @@ abstract class WebPage extends Base
 		$css = (true === LAMPCMS_DEBUG) ? '/_main.css' : '/main.css';
 		$this->aPageVars['main_css'] = $Ini->CSS_SITE.'/style/'.STYLE_ID.'/'.VTEMPLATES_DIR.$css;
 
-
-		if('' !== $gfcID = $Ini->GFC_ID){
-			$this->addGFCCode($gfcID);
-		}
-
 		$aFacebookConf = $Ini->getSection('FACEBOOK');
 
 		if(!empty($aFacebookConf)){
@@ -453,20 +460,6 @@ abstract class WebPage extends Base
 		 *  Also we can ask use to add Twitter account
 		 *  if we know he does not have one connected yet
 		 */
-
-		return $this;
-	}
-
-
-	/**
-	 * Add Google FriendConnect JavaScript to page
-	 *
-	 * @param unknown_type $gfcID
-	 */
-	protected function addGFCCode($gfcID){
-
-		$this->addMetaTag('gfcid', $gfcID);
-		$this->aPageVars['gfc_js'] = \tplGfcCode::parse(array($gfcID), false);
 
 		return $this;
 	}
@@ -562,44 +555,6 @@ abstract class WebPage extends Base
 
 
 	/**
-	 * Login with Google Friend Connect cookie
-	 * fcauth
-	 *
-	 * @return $this
-	 */
-	protected function loginByGfcCookie(){
-		if ($this->isLoggedIn()
-		|| 'logout' === $this->action
-		|| 'login' === $this->action) {
-			d('cp');
-			return $this;
-		}
-
-		$GfcSiteID = $this->Registry->Ini->GFC_ID;
-		if(empty($GfcSiteID)){
-			d('not using friend connect');
-			return $this;
-		}
-
-		try{
-			$oGfc = new ExternalAuthGfc($this->Registry, $GfcSiteID);
-			$oViewer = $oGfc->getUserObject();
-		} catch(GFCAuthException $e){
-
-			d('Auth by GFC cookie failed '.$e->getMessage().' '.$e->getFile().' '.$e->getLine());
-
-			return $this;
-		}
-
-		$this->processLogin($oViewer);
-		$this->Registry->Dispatcher->post( $this, 'onGfcLogin' );
-
-		return $this;
-
-	}
-
-
-	/**
 	 * Authenticate user if user has fbc_ cookie
 	 * This cookie is set right after user clicks
 	 * on login with facebook button
@@ -620,7 +575,7 @@ abstract class WebPage extends Base
 
 		try{
 			$oViewer = $this->Registry->Facebook->getFacebookUser();
-			//d('got $oViewer: '.print_r($oViewer->getArrayCopy(), 1));
+
 			$this->processLogin($oViewer);
 			d('logged in facebook user: '.$this->Registry->Viewer->getUid());
 			$this->Registry->Dispatcher->post( $this, 'onFacebookLogin' );
@@ -755,7 +710,7 @@ abstract class WebPage extends Base
 	 * @return object $this
 	 */
 	protected function addExtraCss(){
-		
+
 		try{
 			if($this->Registry->Ini->SHOW_FLAGS){
 
@@ -873,13 +828,24 @@ abstract class WebPage extends Base
 				$this->httpCode = 404;
 			}
 
+			/**
+			 * e() will also email error to developer
+			 * In case of Login and OutOfBoundsException we don't want
+			 * to email developers
+			 * We also don't want to email developers
+			 * in special types of exceptions that have
+			 * code set to -1
+			 * which is a way to say
+			 * "This exception is not severe enought for email to be sent out"
+			 */
 			if(
+			($errCode >= 0) &&
 			!($le instanceof Lampcms404Exception) &&
 			!($le instanceof AuthException)  &&
 			!($le instanceof LoginException) &&
 			!($le instanceof MustLoginException) &&
 			!($le instanceof \OutOfBoundsException)){
-				e('Exception caught in: '.$le->getFile().' on line: '.$le->getLine().' '.$le->getMessage());
+				e('Exception caught in: '.$le->getFile().' on line: '.$le->getLine().' '.$le->getMessage().' trace: '.$le->getTraceAsString());
 			}
 
 			/**
@@ -895,7 +861,7 @@ abstract class WebPage extends Base
 			 *
 			 */
 			$this->aPageVars['layoutID'] = 1;
-			$this->aPageVars['body'] = \tplException::parse(array('message' => $err, 'class' => $class, 'title' => $this->_('Alert')));
+			$this->aPageVars['body'] = \tplException::parse(array('message' => \nl2br($err), 'class' => $class, 'title' => $this->_('Alert')));
 
 		} catch(\OutOfBoundsException $e){
 			throw $e;

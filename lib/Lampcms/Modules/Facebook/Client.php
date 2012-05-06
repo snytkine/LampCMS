@@ -310,6 +310,7 @@ class Client
 
 		try{
 			$this->aFbUserData = $Facebook->api('/me');
+			d('$this->aFbUserData: '.print_r($this->aFbUserData, 1));
 			$token = $Facebook->getAccessToken();
 		} catch(FacebookApiException $e){
 			$details = $e->getResult();
@@ -321,7 +322,7 @@ class Client
 			throw new FacebookAuthException('Could not get access token from Facebook object');
 		}
 		$this->aFbUserData['token'] = $token;
-		d('$this->aFbUserData: '.print_r($this->aFbUserData, 1));
+		
 
 		return $this;
 	}

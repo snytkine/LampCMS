@@ -6,6 +6,9 @@
 # these rules:
 # RewriteEngine on
 #
+RewriteRule ^/category/([a-zA-Z0-9_]+)([\/]{0,1})$ /index.php?a=viewcategory&slug=$1
+RewriteRule ^/category/([a-zA-Z0-9_]+)/page([0-9]+)\.html$ /index.php?a=viewcategory&slug=$1&pageID=$2
+RewriteRule ^/categories([\/]{0,1})$ /index.php?a=viewcategories
 RewriteRule ^/questions([\/]{0,1})$ /index.php?a=viewquestions
 RewriteRule ^/questions/page([0-9]+)\.html /index.php?a=viewquestions&pageID=$1
 # This condition must be first

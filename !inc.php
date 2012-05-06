@@ -38,6 +38,18 @@
 
 error_reporting(E_ALL | E_DEPRECATED);
 
+/**
+ * If you want to run multi-site installation of Lampcms
+ * and want to reuse the single instance of the Lampcms library
+ * you must uncomment the line below to define the full
+ * path to your 'lib' directory of the lampcms (without trailing slash)
+ * The lib directory must contain the Lampcms and Pear folders
+ * (same folders that are included in the Lampcms distribution)
+ * for example something like this "/var/lampcms/lib" on Linux
+ * or something like this 'C:\eclipse\workspace\QA\lib' on Windows
+ */
+// define('LAMPCMS_LIB_DIR', 'C:\eclipse\workspace\QA\lib');
+
 
 /**
  * For those unfortunate souls
@@ -73,14 +85,15 @@ if(function_exists('mb_internal_encoding')){
 }
 
 function exception_handler($e){
+	$code = $e->getCode();
 	if(!($e instanceof \OutOfBoundsException)){
 		try {
 			$err =  Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));
 			$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no extra';
-			if(defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 1){
+			if(($code >=0) && defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7){
 				@mail(LAMPCMS_DEVELOPER_EMAIL, 'ErrorHandle in inc.php', $err.$extra);
 			}
-			echo ($err);
+			echo nl2br($err);
 		} catch(\Exception $e) {
 			echo 'Error in Exception handler: : '.$e->getMessage().' line '.$e->getLine().$e->getTraceAsString();
 		}
@@ -102,7 +115,10 @@ if(!function_exists('fastcgi_finish_request')){
 set_exception_handler('exception_handler');
 
 define('LAMPCMS_PATH', realpath(dirname(__FILE__)));
-$libDir = LAMPCMS_PATH.DIRECTORY_SEPARATOR.'lib';
+if(!defined('LAMPCMS_LIB_DIR')){
+	define('LAMPCMS_LIB_DIR', LAMPCMS_PATH.DIRECTORY_SEPARATOR.'lib');
+}
+$libDir = LAMPCMS_LIB_DIR;
 $lampcmsClasses = $libDir.DIRECTORY_SEPARATOR.'Lampcms'.DIRECTORY_SEPARATOR;
 
 require $lampcmsClasses.'Interfaces'.DIRECTORY_SEPARATOR.'All.php';
@@ -160,8 +176,8 @@ require LAMPCMS_PATH.DIRECTORY_SEPARATOR.'Points.php';
  */
 function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
 {
+
 	$errLevel = error_reporting();
-	//echo 'Booooooooo ' .$errLevel. ' '.$errno.' '. $errstr.' '. $errfile.' '. $errline.'<br>';
 
 	if ($errno === E_RECOVERABLE_ERROR) {
 
@@ -188,7 +204,7 @@ function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
 		 */
 		if ($errLevel & $errno) {
 
-			throw new \ErrorException($errstr, 0, $errno, $errfile, $errline);
+			throw new \Lampcms\DevException($errstr, NULL, $errno, $errfile, $errline);
 		}
 	}
 
@@ -216,7 +232,6 @@ try{
 	define('LAMPCMS_TR_DIR', $oINI->TRANSLATIONS_DIR);
 	define('LAMPCMS_COOKIE_DOMAIN', $oINI->COOKIE_DOMAIN );
 	define('LAMPCMS_IMAGE_SITE', $oINI->IMAGE_SITE);
-
 	define('LAMPCMS_AVATAR_IMG_SITE', $oINI->AVATAR_IMG_SITE);
 
 	if (!empty($dataDir)) {

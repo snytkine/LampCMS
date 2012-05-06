@@ -63,15 +63,15 @@ namespace Lampcms;
  */
 class Log
 {
-	
+
 	protected static $aLog = array();
-	
-	
+
+
 	public static function dump(){
 		$s = implode("\n<br>", self::$aLog);
 		echo $s;
 	}
-	
+
 	/**
 	 * Location of log file
 	 * it must point to actual file
@@ -82,7 +82,16 @@ class Log
 	 */
 	const LOG_FILE_PATH = '';
 
-
+	/**
+	 *
+	 * You may hard-code the email of developer
+	 * then you don't need to define the same value in !config.ini
+	 * This way even if email is not defined in !config.ini
+	 * developers will still receive notifications
+	 * of all errors logged via the e() function
+	 * 
+	 * @var string
+	 */
 	const LAMPCMS_DEVELOPER_EMAIL = '';
 
 
@@ -118,7 +127,7 @@ class Log
 		$logPath = self::getLogPath();
 
 		if(empty($logPath)){
-			
+				
 			return;
 		}
 
@@ -192,9 +201,9 @@ class Log
 		$sMessage = PHP_EOL.self::getTimeStamp().$string;
 
 		self::$aLog[] = $sMessage;
-		
+
 		$ret = \file_put_contents($logPath, $sMessage, FILE_APPEND | LOCK_EX);
-		
+
 		return $sMessage;
 
 	}
@@ -287,7 +296,7 @@ class Log
 			$msg .= "\n".'HTTP_REFERER: '.self::getServerVar('HTTP_REFERER');
 			$msg .= "\n".'-----------------------------------------------------';
 			$msg .= "\n".'REMOTE_ADDR/IP: '.self::getServerVar('REMOTE_ADDR');
-			
+				
 			if(Request::isPost()){
 				$msg .= "\n".'-----------------------------------------------------';
 				$msg .= "\n".'POST: '.print_r($_POST, true);
@@ -300,7 +309,7 @@ class Log
 		 */
 		$headers = 'X-Mailer: LogObserver'."\n".'X-Priority: 1'."\n".'Importance: High'."\n".'X-MSMail-Priority: High';
 
-		mail($devEmail, self::EMAIL_SUBJECT, $msg, $headers);
+		@mail($devEmail, self::EMAIL_SUBJECT, $msg, $headers);
 
 		return;
 	}

@@ -181,11 +181,12 @@ LOG_FILE_PATH = php.log
 ;/usr/local/apache/sites/lampcms.com/logs/cgiphp.log
 LOG_FILE_PATH_CGI = cgiphp.log
 ;
-; base url of your main website. Required value!
+; base url of your main website. Required value! Leading slash not required.
 SITE_URL="http://localhost"
-; system path to root directory (the one that contains this file)
+; system path to root directory (the directory that contains this file)
 LAMPCMS_PATH ="/"
 ; system path to directory that is accessable via browser as /w/
+; This is optional value. Leave blank to use default data dir (recommended)
 LAMPCMS_DATA_DIR =
 ;
 POSTFIX_PATH = /usr/sbin/sendmail
