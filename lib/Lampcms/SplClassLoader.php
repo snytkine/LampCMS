@@ -185,8 +185,6 @@ class SplClassLoader
 
 			$fileName .= \str_replace('_', DIRECTORY_SEPARATOR, $className) . $this->_fileExtension;
 
-			//d('looking for class: '.$className);
-
 			$reqfile = ($this->_includePath !== null ? $this->_includePath . DIRECTORY_SEPARATOR : '') . $fileName;
 
 			if(defined('LAMPCMS_DEBUG') &&  true === constant('LAMPCMS_DEBUG')){

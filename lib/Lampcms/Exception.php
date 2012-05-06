@@ -803,7 +803,15 @@ class FilterException extends Exception {}
 
 
 class HTML2TextException extends Exception{}
-
+/**
+ * 
+ * Use this to display some important "Alerts" to user
+ * This should be more important than notices
+ * but they still do not generate email to admin
+ * 
+ * @author Dmitri Snytkine
+ *
+ */
 class AlertException extends Exception{}
 /**
  * Special type of exteption

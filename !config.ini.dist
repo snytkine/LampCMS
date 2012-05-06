@@ -222,14 +222,6 @@ COOKIE_SALT = 'abcde1234512345'
 ; set to true to have "Page generated in .... seconds
 ; added to bottom of pages
 SHOW_TIMER = false;
-; If using Google friend connect, then you need to have the site id
-; sing up with Google Friend Connect first and get your site id
-; Create account here http://www.google.com/friendconnect/
-; After you signup and reviewing your site's settings,
-; the id will be in url of the browser, for example:
-; http://www.google.com/friendconnect/admin/site/overview?id=231123423423
-; 
-GFC_ID =
 ;
 ; disable autocomplete widget
 ; in search form and in Title in "Ask" form

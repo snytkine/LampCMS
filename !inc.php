@@ -219,20 +219,21 @@ $Registry = \Lampcms\Registry::getInstance();
 
 try{
 
-	$oINI = $Registry->Ini;
-	$dataDir = $oINI->LAMPCMS_DATA_DIR;
+	$Ini = $Registry->Ini;
+	$dataDir = $Ini->LAMPCMS_DATA_DIR;
 	$dataDir = rtrim($dataDir, '/');
 
 	define('LAMPCMS_WWW_DIR', LAMPCMS_PATH.DIRECTORY_SEPARATOR.\Lampcms\WWW_DIR.DIRECTORY_SEPARATOR);
-	define('LAMPCMS_DEVELOPER_EMAIL', $oINI->EMAIL_DEVELOPER);
-	define('LAMPCMS_SALT', $oINI->SALT);
-	define('LAMPCMS_COOKIE_SALT', $oINI->COOKIE_SALT);
-	define('LAMPCMS_DEFAULT_LANG', $oINI->DEFAULT_LANG);
-	define('LAMPCMS_DEFAULT_LOCALE', $oINI->DEFAULT_LOCALE);
-	define('LAMPCMS_TR_DIR', $oINI->TRANSLATIONS_DIR);
-	define('LAMPCMS_COOKIE_DOMAIN', $oINI->COOKIE_DOMAIN );
-	define('LAMPCMS_IMAGE_SITE', $oINI->IMAGE_SITE);
-	define('LAMPCMS_AVATAR_IMG_SITE', $oINI->AVATAR_IMG_SITE);
+	define('LAMPCMS_DEVELOPER_EMAIL', $Ini->EMAIL_DEVELOPER);
+	define('LAMPCMS_SALT', $Ini->SALT);
+	define('LAMPCMS_COOKIE_SALT', $Ini->COOKIE_SALT);
+	define('LAMPCMS_DEFAULT_LANG', $Ini->DEFAULT_LANG);
+	define('LAMPCMS_DEFAULT_LOCALE', $Ini->DEFAULT_LOCALE);
+	define('LAMPCMS_TR_DIR', $Ini->TRANSLATIONS_DIR);
+	define('LAMPCMS_COOKIE_DOMAIN', $Ini->COOKIE_DOMAIN );
+	define('LAMPCMS_IMAGE_SITE', $Ini->IMAGE_SITE);
+	define('LAMPCMS_AVATAR_IMG_SITE', $Ini->AVATAR_IMG_SITE);
+	define('LAMPCMS_CATEGORIES', 'C'.(int)$Ini->CATEGORIES);
 
 	if (!empty($dataDir)) {
 		define('LAMPCMS_DATA_DIR', $dataDir.DIRECTORY_SEPARATOR);
@@ -248,7 +249,7 @@ try{
 /**
  * First thing is to set our timezone
  */
-if (false === date_default_timezone_set($oINI->SERVER_TIMEZONE)) {
+if (false === date_default_timezone_set($Ini->SERVER_TIMEZONE)) {
 	throw new \Lampcms\DevException('Invalid name of  "SERVER_TIMEZONE" in !config.ini constant. The list of valid timezone names can be found here: http://us.php.net/manual/en/timezones.php');
 }
 
@@ -260,8 +261,8 @@ if (false === date_default_timezone_set($oINI->SERVER_TIMEZONE)) {
  */
 $myIP = \Lampcms\Request::getIP();
 
-$aMyIPs = $oINI->offsetGet('MY_IP');
-$debug = $oINI->DEBUG;
+$aMyIPs = $Ini->offsetGet('MY_IP');
+$debug = $Ini->DEBUG;
 
 if ($debug || isset($aMyIPs[$myIP]) || defined('SPECIAL_LOG_FILE')) {
 	define('LAMPCMS_DEBUG', true);
@@ -295,7 +296,7 @@ if ($debug || isset($aMyIPs[$myIP]) || defined('SPECIAL_LOG_FILE')) {
 	ini_set('warn_plus_overloading', 0);
 }
 
-define('LOG_FILE_PATH', $oINI->LOG_FILE_PATH);
+define('LOG_FILE_PATH', $Ini->LOG_FILE_PATH);
 
 /**
  * Empty the log file if
@@ -306,7 +307,7 @@ define('LOG_FILE_PATH', $oINI->LOG_FILE_PATH);
  * will return string '1' for true
  * or empty string for false
  */
-if((true === LAMPCMS_DEBUG) && ('' !== LOG_FILE_PATH) && (true === (bool)$oINI->LOG_PER_SCRIPT) && !\Lampcms\Request::isAjax()){
+if((true === LAMPCMS_DEBUG) && ('' !== LOG_FILE_PATH) && (true === (bool)$Ini->LOG_PER_SCRIPT) && !\Lampcms\Request::isAjax()){
 
 	file_put_contents(LOG_FILE_PATH, PHP_SAPI.' '.print_r($_SERVER, 1), LOCK_EX);
 }
@@ -317,7 +318,7 @@ if((true === LAMPCMS_DEBUG) && ('' !== LOG_FILE_PATH) && (true === (bool)$oINI->
  * has been defined
  */
 function d($message){
-	if(defined('LAMPCMS_DEBUG') && true === LAMPCMS_DEBUG){
+	if(true === LAMPCMS_DEBUG){
 		\Lampcms\Log::d($message, 2);
 	}
 }
