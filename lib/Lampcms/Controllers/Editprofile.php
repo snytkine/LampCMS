@@ -177,6 +177,7 @@ class Editprofile extends WebPage
 		$this->Form->width = $this->Registry->Ini->AVATAR_SQUARE_SIZE;
 		$this->Form->uid = $this->User->getUid();
 		$this->Form->maxAvatarSize = $this->Registry->Ini->MAX_AVATAR_UPLOAD_SIZE;
+		$this->Form->timezone = \Lampcms\TimeZone::getMenu($this->User->getTimezone());
 		/**
 		 * @todo translate string
 		 */

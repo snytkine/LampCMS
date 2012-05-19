@@ -100,7 +100,9 @@
  	'maxAvatarSize' => '2000000', //41
  	'profile_image_e' => '', //42
  	'username' => '', //43
- 	'usernameLabel' => '' //44
+ 	'usernameLabel' => '', //44
+ 	'timezone' => '', // 45
+ 	'timezone_l' => 'Time Zone' // 46
  	);
  	
  	
@@ -146,6 +148,7 @@
 <tr><td>%15$s</td><td><input tabindex="16" type="text" size="35" id="id_state" name="state" value="%14$s"></td></tr>
 <tr><td>%17$s</td><td><input tabindex="17" type="text" size="35" id="id_city" name="city" value="%16$s"></td></tr>
 <tr><td>%19$s</td><td><input tabindex="18" type="text" size="7" id="id_zip" name="zip" value="%18$s"></td></tr>
+<tr><td>%46$s</td><td><select name="timezone" id="id_timezone">%45$s</select></td></tr>
 <tr><td>%21$s</td><td><input  tabindex="19" type="text" size="50" id="id_url" name="url" value="%20$s"></td></tr>
 <tr><td>%23$s</td><td><textarea  tabindex="20" id="id_description" rows="8" cols="50" class="com_body9" name="description">%22$s</textarea>
 <br><span class="fl cb caption">%31$s</span></td></tr>

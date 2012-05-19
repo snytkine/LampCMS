@@ -241,10 +241,6 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 	 */
 	public function offsetGet($offset){
 
-		//echo "\n".__METHOD__.' looking for '.$offset.' exists: '.$this->offsetExists($offset);
-		$arrBacktrace = debug_backtrace(false);
-		//echo "\nbacktrace: ".print_r($arrBacktrace, 1);
-
 		/**
 		 * Offset (param in url or in post)
 		 * can only be ASCII char
@@ -267,7 +263,6 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 			throw new \Lampcms\DevException('Request param '.$offset.' does not exist');
 		}
 
-		//echo ' value of '.$offset.' '.parent::offsetGet($offset);
 		return $this->getFiltered($offset);
 	}
 

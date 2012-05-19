@@ -288,7 +288,7 @@ class CommentParser extends LampcmsObject
 			$coll->insert($aData, array('fsync' => true));
 		} catch(\MongoException $e){
 			e('unable to created record in COMMENTS collection '.$e->getMessage());
-			throw new \Lampcms\Exception('It looks like you have already posted this comment');
+			throw new AlertException('It looks like you have already posted this comment');
 		}
 
 		$this->Resource->addComment($this);
@@ -317,11 +317,11 @@ class CommentParser extends LampcmsObject
 			 * @todo
 			 * Translate String
 			 */
-			throw new Exception('Ooopsy... Comment must be at least 10 characters long');
+			throw new AlertException('Comment must be at least 10 characters long');
 		}
 
 		if($len > 600){
-			throw new Exception('Oopsy... Comment must be at limited to 600 characters. Your comment is '.$len.' characters-long');
+			throw new AlertException('Comment must be at limited to 600 characters. Your comment is '.$len.' characters-long');
 		}
 
 		return $this;
@@ -359,10 +359,10 @@ class CommentParser extends LampcmsObject
 	protected function checkCommentsLimit(){
 		if(0 !== $limit = (int)$this->Registry->Ini->MAX_COMMENTS){
 			if($this->Resource->getCommentsCount() > $limit){
-				throw new \Lampcms\Exception('Unable to add comment because the limit of '.$limit.' comments per item has been reached.<br>Consider adding another answer instead');
+				throw new AlertException('Unable to add comment because the limit of '.$limit.' comments per item has been reached.<br>Consider adding another answer instead');
 			}
 		} else {
-			throw new \Lampcms\Exception('Comments feature has been disabled by administrator');
+			throw new AlertException('Comments feature has been disabled by administrator');
 		}
 
 		return $this;
@@ -481,7 +481,7 @@ class CommentParser extends LampcmsObject
 
 
 		if((time() -  $this->aComment['i_ts']) > ($timeout * 60)){
-			throw new \Lampcms\Exception('You cannot edit comments that are older than '.$timeout.' minutes');
+			throw new AlertException('You cannot edit comments that are older than '.$timeout.' minutes');
 		}
 
 		return $this;

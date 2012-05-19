@@ -147,12 +147,12 @@ IMPORTANT: You Must use the link below to activate your account
 	protected function makeActivationCode(){
 
 		if((!empty($this->oEmail['i_vts'])) && $this->oEmail['i_vts'] > 0){
-			e('Account already activated. i_vts in aEmail: '.$this->oEmail['i_vts'].' $this->oEmail: '.print_r($this->oEmail->getArrayCopy(), 1));
+			
 			/**
 			 * @todo
 			 * Translate String
 			 */
-			throw new \Lampcms\Exception($this->_('This account has already been activated') );
+			throw new \Lampcms\NoticeException($this->_('This account has already been activated') );
 		}
 
 		$code = $this->oEmail['code'];

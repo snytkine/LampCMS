@@ -110,9 +110,10 @@ class ProfileParser extends LampcmsObject
 		$User['dob'] 	= $this->getDob($o->getDob());
 		$User['gender'] = $this->getGender($o->getGender());
 		$User['description'] = \wordwrap($this->getClean($o->getDescription())->substr(0, 2000)->valueOf(), 50);
-		
+		$User->setTimezone($this->getClean($o->getTimeZone())->valueOf());
+
 		$this->makeAvatar();
-		
+
 		$User->save();
 
 		return true;
@@ -159,7 +160,7 @@ class ProfileParser extends LampcmsObject
 		if($str->length() < 4){
 			return '';
 		}
-		
+
 		$str = $str->substr(0, 250)->trim()->valueOf();
 		if('http' !== \substr($str, 0, 4)){
 			return 'http://'.$str;

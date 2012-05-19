@@ -120,7 +120,7 @@ class DB extends \Lampcms\LampcmsObject
 
 		$aOptions = array('connect' => true);
 		$aConfig = $Ini->getSection('MONGO');
-		
+
 
 		$server = $aConfig['server'];
 		/**
@@ -130,7 +130,7 @@ class DB extends \Lampcms\LampcmsObject
 		 *
 		 */
 		$this->dbname = (defined('MONGO_DBNAME')) ? constant('MONGO_DBNAME') : $aConfig['db'];
-		
+
 		try{
 			$this->conn = new \Mongo($server, $aOptions);
 
@@ -138,21 +138,21 @@ class DB extends \Lampcms\LampcmsObject
 			/**
 			 * This will not be a MongoException
 			 * because mongo connection process will not throw exception,
-			 * it will raise php error or warning which is then 
+			 * it will raise php error or warning which is then
 			 * processed by out error handler and turned into DevException
-			 * So we are getting DevException here but may also 
-			 * get MongoException 
+			 * So we are getting DevException here but may also
+			 * get MongoException
 			 */
-			
+
 			$err = 'Unable to connect to Mongo: '.$e->getMessage();
 			e($err);
 			throw new DevException($err);
-		} 
-		
+		}
+
 		if(null === $this->conn){
 			throw new DevException('No connection to MongoDB');
 		}
-		
+
 
 		if(!empty($aConfig['prefix'])){
 			$this->prefix = (string)$aConfig['prefix'];
@@ -225,7 +225,7 @@ class DB extends \Lampcms\LampcmsObject
 	 */
 	public function insertData($collName, array $aValues, $option = array('safe' => true)){
 		d('$option: '.var_export($option, true));
-		
+
 		if(!is_array($option)){
 			e('Second param passed to insertData must now be an array!. Was: '.var_export($option, true));
 		}
@@ -243,7 +243,7 @@ class DB extends \Lampcms\LampcmsObject
 
 			$ret = $coll->insert($aValues, $option);
 		} catch (\MongoException $e){
-			e('LampcmsError insert() failed: '.$e->getMessage().' values: '.print_r($aValues, 1). ' backtrace: '.$e->getTraceAsString());
+			e('Insert() failed: '.$e->getMessage().' values: '.print_r($aValues, 1). ' backtrace: '.$e->getTraceAsString());
 
 			return false;
 		}
@@ -275,7 +275,7 @@ class DB extends \Lampcms\LampcmsObject
 			throw new \InvalidArgumentException('$name must be a string. Was: '.gettype($collName));
 		}
 
-		if(!preg_match('/^[A-Za-z0-9_]+$/', $collName)){
+		if(!preg_match('/^[a-zA-Z0-9_]+$/', $collName)){
 			throw new \InvalidArgumentException('Invalid collection name: '.$collName. ' Colletion name can only contain alphanumeric chars and underscores');
 		}
 
@@ -297,6 +297,68 @@ class DB extends \Lampcms\LampcmsObject
 
 
 	/**
+	 *
+	 * Update collection but do not replace
+	 * entire document, instead
+	 * only update the columns
+	 * that are present in $values
+	 *
+	 * @param string $collName
+	 * @param array $values
+	 * @param array $cond the condition to match on
+	 * @param array $options
+	 * @throws \InvalidArgumentException
+	 */
+	public function update($collName, array $values, array $cond, array $options = array()){
+		if(!is_string($collName)){
+			throw new \InvalidArgumentException('$name must be a string. Was: '.gettype($collName));
+		}
+
+		if(!preg_match('/^[a-zA-Z0-9_]+$/', $collName)){
+			throw new \InvalidArgumentException('Invalid collection name: '.$collName. ' Colletion name can only contain alphanumeric chars and underscores');
+		}
+
+		$ret = false;
+
+		if(empty($options['fsync']) && empty($options['safe'])){
+			$options['fsync'] = true;
+		}
+
+		$options['multiple'] = true;
+
+		$coll = $this->getDb()->selectCollection($collName);
+		try{
+			$ret = $coll->update($cond, array('$set' => $values), $options);
+		} catch(\MongoCursorException $e){
+			e('Unable to update mongo collection '.$collName.' '.$e->getMessage());
+		}
+
+		return $ret;
+	}
+
+
+	/**
+	 *
+	 * Update collection but do not replace
+	 * entire document, instead
+	 * only update the columns
+	 * that are present in $values
+	 *
+	 * @param string $collName
+	 * @param array $values
+	 * @param array $cond the condition to match on
+	 * @param array $options
+	 * @throws \InvalidArgumentException
+	 */
+	public function upsert($collName, array $values, array $cond){
+		
+		return $this->update($collName, $values, $cond, array('fsync' => true, 'upsert' => true));
+
+		return $ret;
+	}
+
+
+	/**
 	 * Getter for $this->db
 	 *
 	 * @return object of type \MongoDB
@@ -304,13 +366,13 @@ class DB extends \Lampcms\LampcmsObject
 	public function getDb(){
 		return $this->conn->selectDB($this->dbname);
 	}
-	
+
 	/**
 	 * Flush (comming) all changes to disk
 	 * Usually you would run this method
 	 * after performing multiple save() or insert
 	 * operations without the fsync => true option
-	 * 
+	 *
 	 */
 	public function flush(){
 		return $this->getDb()->command( array( "getlasterror" => 1 , "fsync" => 1 ) );

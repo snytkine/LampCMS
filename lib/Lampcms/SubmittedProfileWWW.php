@@ -57,7 +57,7 @@ class SubmittedProfileWWW extends SubmittedProfile
 	protected $Form;
 
 	public function __construct(\Lampcms\Forms\Profile $Form){
-		$this->Form = $Form;	
+		$this->Form = $Form;
 	}
 
 	public function getFirstName(){
@@ -88,6 +88,10 @@ class SubmittedProfileWWW extends SubmittedProfile
 		return $this->Form->getSubmittedValue('zip');
 	}
 
+	public function getTimezone(){
+		return $this->Form->getSubmittedValue('timezone');
+	}
+
 	public function getDob(){
 		return $this->Form->getSubmittedValue('dob');
 	}
@@ -95,7 +99,7 @@ class SubmittedProfileWWW extends SubmittedProfile
 	public function getGender(){
 		$val =  $this->Form->getSubmittedValue('gender');
 		$val = strtoupper($val);
-		
+
 		return (('M' !== $val) && ('F' !== $val)) ? '' : $val;
 	}
 
@@ -106,12 +110,12 @@ class SubmittedProfileWWW extends SubmittedProfile
 	public function getDescription(){
 		return $this->Form->getSubmittedValue('description');
 	}
-	
+
 	public function getUploadedAvatar(){
 		if(!$this->Form->hasUploads()){
 			return null;
 		}
-		
+
 		return $this->Form->getUploadedFile('profile_image');
 	}
 }

@@ -237,7 +237,7 @@ Interfaces\LinkedinUser
 		 * is not considered empty.
 		 */
 		$ret = \trim($ret);
-		
+
 		return (!empty($ret)) ? $ret : $this->offsetGet('username');
 	}
 
@@ -245,7 +245,7 @@ Interfaces\LinkedinUser
 	public function __set($name, $val){
 
 		throw new DevException('Should not set property of User as object property');
-		
+
 	}
 
 
@@ -296,13 +296,13 @@ Interfaces\LinkedinUser
 
 						return $aGravatar['url'].hash('md5', $email).'?s='.$aGravatar['size'].'&d='.$aGravatar['fallback'].'&r='.$aGravatar['rating'];
 					}
-						
+
 				} catch (\Exception $e){
 					e('exception: '.$e->getMessage());
 				}
 
 			}
-				
+
 			/**
 			 * If still no avatar (no gravatar support
 			 * of gravatar failed)
@@ -629,6 +629,8 @@ Interfaces\LinkedinUser
 		if (false !== @\date_default_timezone_set( $tz )) {
 			parent::offsetSet('tz', $tz);
 		} else {
+			e('Unable to set '.$tz.' as user timezone');
+				
 			@\date_default_timezone_set($currentTz);
 		}
 
@@ -639,7 +641,7 @@ Interfaces\LinkedinUser
 	/**
 	 * Getter for value of 'tz' (timezone) value
 	 *
-	 * @return string valid value of Timezone name or string
+	 * @return string valid value of PHP Timezone name or empty string
 	 * if no value was previously set
 	 */
 	public function getTimezone(){

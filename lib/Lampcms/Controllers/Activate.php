@@ -129,7 +129,7 @@ class Activate extends WebPage
 			/**
 			 * @todo translate string
 			 */
-			throw new \Lampcms\Exception($this->_('Activation code no longer valid') );
+			throw new \Lampcms\NoticeException($this->_('Activation code no longer valid') );
 		}
 
 		return $this;
@@ -161,12 +161,12 @@ class Activate extends WebPage
 		 * throw an exception
 		 */
 		if( false === \strstr($role, 'unactivated')){
-			e('Account already activated. '.$role.' $aUser: '.print_r($aUser, 1)."\n this->aEmail".print_r($this->aEmail, 1));
+			
 			/**
 			 * @todo
 			 * Translate string
 			 */
-			throw new \Lampcms\Exception($this->_('This account has already been activated') );
+			throw new \Lampcms\NoticeException($this->_('This account has already been activated') );
 		}
 		
 		$this->oActivatedUser->activate()->save();

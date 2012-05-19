@@ -46,9 +46,9 @@ error_reporting(E_ALL | E_DEPRECATED);
  * The lib directory must contain the Lampcms and Pear folders
  * (same folders that are included in the Lampcms distribution)
  * for example something like this "/var/lampcms/lib" on Linux
- * or something like this 'C:\eclipse\workspace\QA\lib' on Windows
+ * or something like this 'C:\lampcms\lib' on Windows
  */
-// define('LAMPCMS_LIB_DIR', 'C:\eclipse\workspace\QA\lib');
+//define('LAMPCMS_LIB_DIR', '/var/lampcms/lib'); 
 
 
 /**
@@ -103,7 +103,7 @@ function exception_handler($e){
 }
 
 /**
- * if php NOT running as fastcgi
+ * If php NOT running as fastcgi
  * then we need to create a dummy function
  *
  */
@@ -118,8 +118,8 @@ define('LAMPCMS_PATH', realpath(dirname(__FILE__)));
 if(!defined('LAMPCMS_LIB_DIR')){
 	define('LAMPCMS_LIB_DIR', LAMPCMS_PATH.DIRECTORY_SEPARATOR.'lib');
 }
-$libDir = LAMPCMS_LIB_DIR;
-$lampcmsClasses = $libDir.DIRECTORY_SEPARATOR.'Lampcms'.DIRECTORY_SEPARATOR;
+
+$lampcmsClasses = LAMPCMS_LIB_DIR.DIRECTORY_SEPARATOR.'Lampcms'.DIRECTORY_SEPARATOR;
 
 require $lampcmsClasses.'Interfaces'.DIRECTORY_SEPARATOR.'All.php';
 require $lampcmsClasses.'Exception.php';
@@ -213,7 +213,7 @@ function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
 
 $old_error_handler = set_error_handler("LampcmsErrorHandler");
 // autoloader here
-require 'autoload.php';
+require LAMPCMS_LIB_DIR.DIRECTORY_SEPARATOR.'autoload.php';
 
 $Registry = \Lampcms\Registry::getInstance();
 

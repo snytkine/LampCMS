@@ -136,6 +136,8 @@ class Curl extends LampcmsObject
 	 */
 	protected $url;
 
+	protected $requestMethod;
+
 	/**
 	 * Set the file that will be used
 	 * for cookies storage
@@ -239,7 +241,7 @@ class Curl extends LampcmsObject
 	 *
 	 * @reset bool if true then will reinitialize $this->request
 	 * even if it's already set.
-	 * 
+	 *
 	 * @return object $this
 	 */
 	public function initCurl($reset = false){
@@ -370,6 +372,16 @@ class Curl extends LampcmsObject
 		$this->__destruct();
 
 		return $this;
+	}
+	
+	/**
+	 * Send DELETE request method to a given url
+	 * This is useful for certain REST APIs that use DELETE HTTP method
+	 * @param string $url
+	 * @return object $this
+	 */
+	public function delete($url){
+		return $this->getDocument($url, null, null, array('method' => 'delete'));
 	}
 
 
@@ -538,14 +550,24 @@ class Curl extends LampcmsObject
 			\curl_setopt($this->request,  CURLOPT_USERPWD, $this->aOptions['login'].':'.$this->aOptions['password']);
 		}
 
-		if(!empty($this->aOptions['method']) && 'POST' === strtoupper($this->aOptions['method'])){
-			curl_setopt($this->request, CURLOPT_POST, true);
+		if(!empty($this->aOptions['method']) && 'POST' === \strtoupper($this->aOptions['method'])){
+			\curl_setopt($this->request, CURLOPT_POST, true);
 		}
+
+
 
 		if(!empty($this->aOptions['formVars'])){
 			$r1 = \curl_setopt($this->request, CURLOPT_POST, true);
 			$r2 = \curl_setopt($this->request, CURLOPT_POSTFIELDS, $this->aOptions['formVars']);
 			d('set CURLOPT_POSTFIELDS: '.print_r($this->aOptions['formVars'], 1). ' ret: '.$r2);
+		}
+
+		if(!empty($this->aOptions['method']) && 'DELETE' === \strtoupper($this->aOptions['method'])){
+			\curl_setopt($this->request, CURLOPT_CUSTOMREQUEST, 'DELETE');
+		}
+
+		if(!empty($this->aOptions['method']) && 'PUT' === \strtoupper($this->aOptions['method'])){
+			\curl_setopt($this->request, CURLOPT_CUSTOMREQUEST, 'PUT');
 		}
 
 		if(!empty($this->aOptions['gzip'])){
@@ -558,6 +580,8 @@ class Curl extends LampcmsObject
 		if(!empty($this->aOptions['ip'])){
 			\curl_setopt($this->request, CURLOPT_INTERFACE, $this->aOptions['ip']);
 		}
+
+
 
 		return $this;
 	}

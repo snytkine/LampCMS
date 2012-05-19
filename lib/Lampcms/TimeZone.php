@@ -72,6 +72,8 @@ class TimeZone extends \DateTimeZone
 	 * followed by timezone name.
 	 * This array is sorted by keys
 	 * (by timezone names)
+	 * 
+	 * @deprecated
 	 */
 	public static function getSelectArray(){
 		$arrResult = array ();
@@ -79,15 +81,16 @@ class TimeZone extends \DateTimeZone
 
 		foreach ($arr as $abbr) {
 			foreach ($abbr as $aTz) {
+
 				$sign = ($aTz['offset'] < 0) ? '-' : (($aTz['offset'] > 0) ? '+' : '');
 				$gmt = abs($aTz['offset']) / 3600;
-				$hh = floor($gmt);
+				$hh = $gmt;//floor($gmt);
 				$mm = $gmt - $hh;
-				$mm = floor($mm * 60);
+				$mm = ($mm * 60);//floor($mm * 60);
 				$key = $aTz['timezone_id'];
 				$val = '(GMT'.$sign.sprintf("%02s", $hh).':'.sprintf("%02s", $mm).') '.$aTz['timezone_id'];
 				if (! empty($key) && ! empty($val)) {
-					$arrResult[$key] = $val;
+					$arrResult[$key] = $aTz['offset'].' '.$val;
 				}
 			}
 		}
@@ -95,6 +98,31 @@ class TimeZone extends \DateTimeZone
 		ksort($arrResult);
 
 		return $arrResult;
+	}
+
+
+	/**
+	 *
+	 * Get HTML for the select menu options (without the <select></select> tags)
+	 * to select
+	 * a timezone
+	 *
+	 * @param string $current current timezone to be set as "selected" in the menu
+	 *
+	 * @return string html code for the <option> element
+	 */
+	public static function getMenu($current = null){
+
+		$a = \DateTimeZone::listIdentifiers(\DateTimeZone::ALL ^ \DateTimeZone::UTC);
+		$res = '';
+		foreach($a as $zone){
+
+			$selected = ($zone === $current) ? " selected" : '';
+			$val = str_replace('_', ' ', $zone);
+			$res .= "\n<option value=\"$zone\"$selected>$val</option>";
+		}
+
+		return $res;
 	}
 
 

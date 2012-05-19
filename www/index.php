@@ -125,17 +125,19 @@ if (true !== session_start()) {
 	} catch(\Exception $e) {
 		
 		$code = $e->getCode();
+		
 		session_write_close();
 		header("HTTP/1.0 500 Exception");
 		try {
+			
 			$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no server';
-			$extra .= 'Exception in file: '.$e->getFile(). "\n line: ".$e->getLine()."\n trace: ".$e->getTraceAsString();
+			$extra .= "\nException class: ". get_class($e)."\nMessage:". $e->getMessage()."\n in file: ".$e->getFile(). "\n line: ".$e->getLine()."\n trace: ".$e->getTraceAsString();
 			/**
 			 * @mail must be here before the Lampcms\Exception::formatException
 			 * because Lampcms\Exception::formatException in case of ajax request will
 			 * send out ajax and then throw \OutOfBoundsException in order to finish request (better than exit())
 			 */
-			if( ($code >=0) && defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7){
+			if( !($e instanceof \LogicException) && ($code >=0) && defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7){
 				@mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $extra);
 			}
 			$html = \Lampcms\Responder::makeErrorPage('<strong>Error:</strong> '.Lampcms\Exception::formatException($e));

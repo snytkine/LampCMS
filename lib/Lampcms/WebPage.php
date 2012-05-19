@@ -415,7 +415,7 @@ abstract class WebPage extends Base
 
 		/**
 		 * @todo later can change to something like
-		 * $this->oRegistrty->Viewer->getStyleID()
+		 * $this->Registrty->Viewer->getStyleID()
 		 *
 		 */
 		$css = (true === LAMPCMS_DEBUG) ? '/_main.css' : '/main.css';
@@ -843,6 +843,7 @@ abstract class WebPage extends Base
 			!($le instanceof Lampcms404Exception) &&
 			!($le instanceof AuthException)  &&
 			!($le instanceof LoginException) &&
+			!($le instanceof NoticeException) &&
 			!($le instanceof MustLoginException) &&
 			!($le instanceof \OutOfBoundsException)){
 				e('Exception caught in: '.$le->getFile().' on line: '.$le->getLine().' '.$le->getMessage().' trace: '.$le->getTraceAsString());
