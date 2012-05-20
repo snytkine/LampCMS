@@ -50,32 +50,46 @@
  */
 
 
-namespace Lampcms\My;
+namespace Lampcms\Config;
 
-/**
- * This is not a class!
- *
- * The purpose of this file
- * is to define custom
- * Mongo Collections YOU may have created for your custom modules
- * By default there are no values here but this file is still required!
- *
- * Look in lib/Lampcms/Mongo/Collections for actual file and how
- * the actual entries look like.
- * 
- * @author Dmitri Snytkine
- *
- */
+class Section{
 
+	/**
+	 * Throw exception if value not found
+	 * in $values array
+	 * Default is false - which means if value
+	 * not found for a requested key then a default
+	 * value is returned
+	 *
+	 * @var bool
+	 */
+	protected $exceptionIfNotExist = false;
 
+	protected $default = null;
 
-/**
- * Example: If you create custom module
- * and it requires Mongo collection named MYSTUFF
- * then you would have an entry like the one below
- * (but it would not be commented out of cause)
- *
- *
- */
-// const MYSTUFF = 'MYSTUFF';
+	protected $name;
 
+	protected $values = array();
+
+	public function __construct(array $values, $name = '', $default = null){
+		$this->name = $name;
+		$this->values = $values;
+		$this->default = $default;
+	}
+
+	public function getArray(){
+		return $this->values;
+	}
+
+	public function __get($name){
+		if(!array_key_exists($name, $this->values)){
+			if($this->exceptionIfNotExist){
+				throw new SectionException('Configuration parameter '.$name.' not found in section '.$this->name);
+			}
+				
+			return $this->default;
+		}
+		
+		return $this->values[$name];
+	}
+}

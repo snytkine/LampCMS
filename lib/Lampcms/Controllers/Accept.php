@@ -369,7 +369,7 @@ class Accept extends WebPage
 			$uid = $this->aOldAnswer['i_uid'];
 			if(!empty($uid)){
 				try{
-					\Lampcms\User::factory($this->Registry)->by_id($uid)->setReputation((0 - \Lampcms\Points::BEST_ANSWER))->save();
+					\Lampcms\User::factory($this->Registry)->by_id($uid)->setReputation((0 - $this->Registry->Ini->POINTS->BEST_ANSWER))->save();
 
 				} catch(\MongoException $e ){
 					e('unable to update reputation for old answerer '.$e->getMessage());
@@ -401,7 +401,7 @@ class Accept extends WebPage
 		}
 
 		try{
-			$this->Registry->Mongo->USERS->update(array('_id' => $uid), array('$inc' => array("i_rep" => \Lampcms\Points::BEST_ANSWER)));
+			$this->Registry->Mongo->USERS->update(array('_id' => $uid), array('$inc' => array("i_rep" => $this->Registry->Ini->POINTS->BEST_ANSWER)));
 		} catch(\MongoException $e ){
 			e('unable to increase reputation for answerer '.$e->getMessage());
 		}
@@ -427,7 +427,7 @@ class Accept extends WebPage
 		 * the answer for someone else's question
 		 */
 		if($this->Question->getOwnerId() == $this->Registry->Viewer->getUid()){
-			$this->Registry->Viewer->setReputation(\Lampcms\Points::ACCEPT_ANSWER)->save();
+			$this->Registry->Viewer->setReputation($this->Registry->Ini->POINTS->ACCEPT_ANSWER)->save();
 		}
 
 		return $this;

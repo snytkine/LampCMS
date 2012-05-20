@@ -38,18 +38,6 @@
 
 error_reporting(E_ALL | E_DEPRECATED);
 
-/**
- * If you want to run multi-site installation of Lampcms
- * and want to reuse the single instance of the Lampcms library
- * you must uncomment the line below to define the full
- * path to your 'lib' directory of the lampcms (without trailing slash)
- * The lib directory must contain the Lampcms and Pear folders
- * (same folders that are included in the Lampcms distribution)
- * for example something like this "/var/lampcms/lib" on Linux
- * or something like this 'C:\lampcms\lib' on Windows
- */
-//define('LAMPCMS_LIB_DIR', '/var/lampcms/lib'); 
-
 
 /**
  * For those unfortunate souls
@@ -114,10 +102,6 @@ if(!function_exists('fastcgi_finish_request')){
 
 set_exception_handler('exception_handler');
 
-define('LAMPCMS_PATH', realpath(dirname(__FILE__)));
-if(!defined('LAMPCMS_LIB_DIR')){
-	define('LAMPCMS_LIB_DIR', LAMPCMS_PATH.DIRECTORY_SEPARATOR.'lib');
-}
 
 $lampcmsClasses = LAMPCMS_LIB_DIR.DIRECTORY_SEPARATOR.'Lampcms'.DIRECTORY_SEPARATOR;
 
@@ -126,8 +110,7 @@ require $lampcmsClasses.'Exception.php';
 require $lampcmsClasses.'Object.php';
 require $lampcmsClasses.'Responder.php';
 require $lampcmsClasses.'Mongo'.DIRECTORY_SEPARATOR.'Collections.php';
-require LAMPCMS_PATH.DIRECTORY_SEPARATOR.'Mycollections.php';
-require $lampcmsClasses.'Ini.php';
+require $lampcmsClasses.'Config'.DIRECTORY_SEPARATOR.'Ini.php';
 require $lampcmsClasses.'Log.php';
 require $lampcmsClasses.'Request.php';
 require $lampcmsClasses.DIRECTORY_SEPARATOR.'Mongo'.DIRECTORY_SEPARATOR.'DB.php';
@@ -136,20 +119,6 @@ require $lampcmsClasses.'User.php'; // User is always used
 require $lampcmsClasses.'SplClassLoader.php';
 require $lampcmsClasses.'Registry.php';
 require $lampcmsClasses.'Template'.DIRECTORY_SEPARATOR.'Fast.php';
-
-/**
- * Points.php is in non-standard directory,
- * in fact this file is not even included in distro
- * User must rename Points.php.dist to Points.php
- * That's why we should manually included it
- * because autoloader will not be able to find it.
- * This file only contains a few constants - it's cheap
- * to include it every time, and with APC cache it will
- * be cached.
- */
-require LAMPCMS_PATH.DIRECTORY_SEPARATOR.'Points.php';
-
-
 
 /**
  * Custom error handle
@@ -223,7 +192,6 @@ try{
 	$dataDir = $Ini->LAMPCMS_DATA_DIR;
 	$dataDir = rtrim($dataDir, '/');
 
-	define('LAMPCMS_WWW_DIR', LAMPCMS_PATH.DIRECTORY_SEPARATOR.\Lampcms\WWW_DIR.DIRECTORY_SEPARATOR);
 	define('LAMPCMS_DEVELOPER_EMAIL', $Ini->EMAIL_DEVELOPER);
 	define('LAMPCMS_SALT', $Ini->SALT);
 	define('LAMPCMS_COOKIE_SALT', $Ini->COOKIE_SALT);
@@ -318,7 +286,7 @@ if((true === LAMPCMS_DEBUG) && ('' !== LOG_FILE_PATH) && (true === (bool)$Ini->L
  * has been defined
  */
 function d($message){
-	if(true === LAMPCMS_DEBUG){
+	if(defined('LAMPCMS_DEBUG') && true === LAMPCMS_DEBUG){
 		\Lampcms\Log::d($message, 2);
 	}
 }

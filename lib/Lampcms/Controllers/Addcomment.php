@@ -191,7 +191,7 @@ class Addcomment extends WebPage
 		if(
 		($this->Resource->getQuestionOwnerId() !== $viewerID) &&
 		($this->Resource->getOwnerId() !== $viewerID) &&
-		($this->Registry->Viewer->getReputation() < \Lampcms\Points::COMMENT)){
+		($this->Registry->Viewer->getReputation() < $this->Registry->Ini->POINTS->COMMENT)){
 			try{
 				$this->checkAccessPermission('comment');
 			} catch(\Exception $e){
@@ -207,7 +207,7 @@ class Addcomment extends WebPage
 				 */
 				if($e instanceof \Lampcms\AccessException){
 					
-					throw new \Lampcms\Exception('A minimum reputation score of '.\Lampcms\Points::COMMENT.
+					throw new \Lampcms\Exception('A minimum reputation score of '.$this->Registry->Ini->POINTS->COMMENT.
 					' is required to comment on someone else\'s question or answer. 
 					Your current reputation score is '.$this->Registry->Viewer->getReputation());
 				}else {

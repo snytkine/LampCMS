@@ -677,7 +677,7 @@ class Cache extends \Lampcms\Event\Observer
 	protected function xliff($key){
 		d('$key: '.$key);
 
-		$file = LAMPCMS_PATH.DIRECTORY_SEPARATOR.LAMPCMS_TR_DIR.DIRECTORY_SEPARATOR.'messages.'.$key.'.xlf';
+		$file = LAMPCMS_CONFIG_DIR.DIRECTORY_SEPARATOR.LAMPCMS_TR_DIR.DIRECTORY_SEPARATOR.'messages.'.$key.'.xlf';
 		d('$file: '.$file);
 
 		$this->aTags = array('tr');

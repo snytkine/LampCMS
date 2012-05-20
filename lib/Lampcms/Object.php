@@ -74,8 +74,9 @@ const LB = "\n<br/>";
  * to be named 'htdocs' or something else, then you would
  * copy everything from 'www' to this 'htdocs' and then
  * put 'htdocs' as a value of WWW_DIR here
+ * @deprecated
  */
-const WWW_DIR = 'www';
+//const WWW_DIR = 'www';
 
 
 /**
@@ -200,8 +201,6 @@ function getReservedNames(){
 'save',
 'www2',
 'dev',
-'titan',
-'starfire',
 'ftp',
 'webdav',
 'webmail',
@@ -209,8 +208,6 @@ function getReservedNames(){
 'pear',
 'abuse',
 'tos',
-'stream',
-'helix',
 'mail');
 }
 

@@ -259,7 +259,7 @@ class Viewquestion extends WebPage
 		$this->addMetaTag('qid', $this->Question['_id']);
 		$this->addMetaTag('asker_id', $this->Question->getOwnerId());
 		$this->addMetaTag('etag', $this->Question['i_etag']);
-		$this->addMetaTag('min_com_rep', \Lampcms\Points::COMMENT);
+		$this->addMetaTag('min_com_rep', $this->Registry->Ini->POINTS->COMMENT);
 		$this->addMetaTag('comment', $this->Registry->Viewer->isAllowed('comment'));
 
 		return $this;

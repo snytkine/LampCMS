@@ -632,9 +632,9 @@ class HtmlSafe
          */
         public function parse($doc)
         {
-        	require_once(LAMPCMS_PATH.DS.'lib'.DS.'Pear'.DS.'XML'.DS.'HTMLSax3.php');
-        	require_once(LAMPCMS_PATH.DS.'lib'.DS.'Pear'.DS.'XML'.DS.'HTMLSax3'.DS.'States.php');
-        	require_once(LAMPCMS_PATH.DS.'lib'.DS.'Pear'.DS.'XML'.DS.'HTMLSax3'.DS.'Decorators.php');
+        	require_once(LAMPCMS_LIB_DIR.DIRECTORY_SEPARATOR.'Pear'.DIRECTORY_SEPARATOR.'XML'.DIRECTORY_SEPARATOR.'HTMLSax3.php');
+        	require_once(LAMPCMS_LIB_DIR.DIRECTORY_SEPARATOR.'Pear'.DIRECTORY_SEPARATOR.'XML'.DIRECTORY_SEPARATOR.'HTMLSax3'.DIRECTORY_SEPARATOR.'States.php');
+        	require_once(LAMPCMS_LIB_DIR.DIRECTORY_SEPARATOR.'Pear'.DIRECTORY_SEPARATOR.'XML'.DIRECTORY_SEPARATOR.'HTMLSax3'.DIRECTORY_SEPARATOR.'Decorators.php');
         	// Save all '<' symbols
         	/**
         	 * @todo this will replace

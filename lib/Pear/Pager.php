@@ -69,7 +69,7 @@ class Pager
 		$classfile = DIRECTORY_SEPARATOR.'Pager' .DIRECTORY_SEPARATOR. $mode . '.php';
 		$common = DIRECTORY_SEPARATOR.'Pager' .DIRECTORY_SEPARATOR. 'Common.php';
 
-		include_once(LAMPCMS_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'Pear'.$classfile);
+		include_once(LAMPCMS_LIB_DIR.DIRECTORY_SEPARATOR.'Pear'.$classfile);
 		$pager = new $classname($options);
 
 		return $pager;

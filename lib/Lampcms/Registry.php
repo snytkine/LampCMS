@@ -165,7 +165,7 @@ class Registry implements Interfaces\LampcmsObject
 		});
 
 		$this->values['Ini'] = $this->asShared(function ($c) {
-			return new Ini();
+			return new \Lampcms\Config\Ini();
 		});
 
 		$this->values['Mongo'] = $this->asShared(function ($c) {

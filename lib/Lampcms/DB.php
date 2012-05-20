@@ -107,7 +107,7 @@ class DB
 	 *
 	 * @return object
 	 */
-	public function __construct(Ini $Ini){
+	public function __construct(\Lampcms\Config\Ini $Ini){
 		$this->Ini = $Ini;
 	}
 
@@ -596,10 +596,9 @@ class DB
 
 			$this->logQuery($strSql);
 			d('$aRes: '.print_r($aRes, true));
-		}
-		catch(\PDOException $e) {
-			$message = 'Line: '.$e->getLine().' PDO Error: '.$e->getMessage().' ERROR: '.print_r($e->errorInfo,
-			true)."\nSQL Error code: ".$e->getCode().' called from '.$strErr2;
+		} catch(\PDOException $e) {
+			$message = 'Line: '.$e->getLine().' PDO Error: '.$e->getMessage().' ERROR: '.print_r($e->errorInfo, true).
+			"\nSQL Error code: ".$e->getCode().' called from '.$strErr2;
 			e($message);
 
 			return false;

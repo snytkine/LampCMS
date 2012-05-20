@@ -136,8 +136,8 @@ class Paginator
 				$arrParams = array_merge($arrParams, $arrExtraParams); // this way we can pass extra parameters here
 			}
 
-			include_once(LAMPCMS_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'Pear'.DIRECTORY_SEPARATOR.'Pager.php');
-			include_once(LAMPCMS_PATH.DIRECTORY_SEPARATOR.'lib'.DIRECTORY_SEPARATOR.'Pear'.DIRECTORY_SEPARATOR.'Pager'.DIRECTORY_SEPARATOR.'Common.php');
+			include_once(LAMPCMS_LIB_DIR.DIRECTORY_SEPARATOR.'Pear'.DIRECTORY_SEPARATOR.'Pager.php');
+			include_once(LAMPCMS_LIB_DIR.DIRECTORY_SEPARATOR.'Pear'.DIRECTORY_SEPARATOR.'Pager'.DIRECTORY_SEPARATOR.'Common.php');
 
 			$this->oPager = \Pager::factory($arrParams);
 

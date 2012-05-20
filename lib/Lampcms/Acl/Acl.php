@@ -128,9 +128,9 @@ class Acl implements \Serializable
 	 */
 	public function __construct(){
 
-		$iniFile = LAMPCMS_PATH.DIRECTORY_SEPARATOR.'acl.ini';
+		$iniFile = LAMPCMS_CONFIG_DIR.DIRECTORY_SEPARATOR.'acl.ini';
 
-		$aAcl = parse_ini_file($iniFile, true);
+		$aAcl = \parse_ini_file($iniFile, true);
 		if(false === $aAcl){
 			throw new \Lampcms\Exception('Unable to parse acl.ini file');
 		}
@@ -157,8 +157,6 @@ class Acl implements \Serializable
 				$aGroupPermissions[$roleName]['deny'] = $deny;
 			}
 				
-			//d('$aGroupPermissions: '.print_r($aGroupPermissions, 1));
-				
 		} catch (\Exception $e){
 			throw new \Lampcms\DevException('Unable to add role to ACL. Original file: '.$e->getFile().' orig line: '.$e->getLine().' original message: '.$e->getMessage());
 		}
@@ -176,7 +174,7 @@ class Acl implements \Serializable
 					
 			}
 		} catch (\Exception $e){
-			throw new \Lampcms\DevException('Trying to add permissions to ACL. Original file: '.$e->getFile().' orig line: '.$e->getLine().' original message: '.$e->getMessage());
+			throw new \Lampcms\DevException('Error while trying to add permissions to ACL. Original file: '.$e->getFile().' orig line: '.$e->getLine().' original message: '.$e->getMessage());
 		}
 	}
 

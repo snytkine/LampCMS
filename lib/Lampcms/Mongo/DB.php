@@ -90,6 +90,13 @@ class DB extends \Lampcms\LampcmsObject
 	 */
 	protected $dbname;
 
+	/**
+	 *
+	 * Config/Ini object
+	 * @var object Lampcms\Config\Ini
+	 */
+	protected $Ini;
+
 
 	/**
 	 * Extra options used during insert and save
@@ -112,12 +119,13 @@ class DB extends \Lampcms\LampcmsObject
 	protected $prefix = "";
 
 
-	public function __construct(\Lampcms\Ini $Ini){
+	public function __construct(\Lampcms\Config\Ini $Ini){
 
 		if(!\extension_loaded('mongo')){
 			throw new \OutOfBoundsException('Unable to use this program because PHP mongo extension not loaded. Make sure your php has mongo extension enabled. Exiting');
 		}
 
+		$this->Ini = $Ini;
 		$aOptions = array('connect' => true);
 		$aConfig = $Ini->getSection('MONGO');
 
@@ -351,7 +359,7 @@ class DB extends \Lampcms\LampcmsObject
 	 * @throws \InvalidArgumentException
 	 */
 	public function upsert($collName, array $values, array $cond){
-		
+
 		return $this->update($collName, $values, $cond, array('fsync' => true, 'upsert' => true));
 
 		return $ret;
@@ -395,7 +403,7 @@ class DB extends \Lampcms\LampcmsObject
 
 		d('$collName: '.$collName);
 
-		$coll = defined('Lampcms\Mongo\\'.$collName) ? \constant('Lampcms\Mongo\\'.$collName) : \constant('Lampcms\My\\'.$collName);
+		$coll = defined('Lampcms\Mongo\\'.$collName) ? \constant('Lampcms\Mongo\\'.$collName) : $this->Ini->MYCOLLECTIONS->{$collName};
 
 		return $this->conn->selectCollection($this->dbname, $this->prefix.$coll);
 	}

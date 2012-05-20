@@ -105,7 +105,7 @@ class SocialCheckboxes
 			$isConnected = ('' !== (string)$oViewer->getTwitterSecret());
 			$checked = ( $isConnected && (true === $oViewer['b_tw'])) ? ' checked' : '';
 			d('$checked: '.$checked);
-			$label = sprintf($tpl, 'Twitter', \Lampcms\Points::SHARED_CONTENT);
+			$label = \sprintf($tpl, 'Twitter', $Registry->Ini->POINTS->SHARED_CONTENT);
 			$vars = array('tweet', $label, $checked);
 			$ret .= \tplSocialPost::parse($vars, false);
 		}
@@ -116,7 +116,7 @@ class SocialCheckboxes
 		if(array_key_exists('facebook', $aFilters)){
 			$isFbConnected = (1 < \strlen((string)$oViewer->getFacebookToken()));
 			$checked = ($isFbConnected && true === $oViewer['b_fb']) ? ' checked' : '';
-			$label = sprintf($tpl, 'Facebook', \Lampcms\Points::SHARED_CONTENT);
+			$label = \sprintf($tpl, 'Facebook', $Registry->Ini->POINTS->SHARED_CONTENT);
 			$vars = array('facebook', $label, $checked);
 			$ret .= \tplSocialPost::parse($vars, false);
 		}
@@ -127,7 +127,7 @@ class SocialCheckboxes
 		if(array_key_exists('tumblr', $aFilters)){
 			$isTmConnected = (null !== $oViewer->getTumblrToken());
 			$checked = ($isTmConnected && true === $oViewer['b_tm']) ? ' checked' : '';
-			$label = sprintf($tpl, 'Tumblr', \Lampcms\Points::SHARED_CONTENT);
+			$label = \sprintf($tpl, 'Tumblr', $Registry->Ini->POINTS->SHARED_CONTENT);
 			$vars = array('tumblr', $label, $checked);
 			$ret .= \tplSocialPost::parse($vars, false);
 		}
@@ -138,7 +138,7 @@ class SocialCheckboxes
 		if(array_key_exists('blogger', $aFilters)){
 			$isBConnected = (null !== $oViewer->getBloggerToken());
 			$checked = ($isBConnected && true === $oViewer['b_bg']) ? ' checked' : '';
-			$label = sprintf($tpl, 'Blogger', \Lampcms\Points::SHARED_CONTENT);
+			$label = \sprintf($tpl, 'Blogger', $Registry->Ini->POINTS->SHARED_CONTENT);
 			$vars = array('blogger', $label, $checked);
 			$ret .= \tplSocialPost::parse($vars, false);
 		}
@@ -147,10 +147,10 @@ class SocialCheckboxes
 		/**
 		 * Is has LinkedIn observer module
 		 */
-		if(true || array_key_exists('linkedin', $aFilters)){
+		if(array_key_exists('linkedin', $aFilters)){
 			$isLConnected = (null !== $oViewer->getLinkedInToken());
 			$checked = ($isLConnected && true === $oViewer['b_li']) ? ' checked' : '';
-			$label = sprintf($tpl, 'LinkedIn', \Lampcms\Points::SHARED_CONTENT);
+			$label = \sprintf($tpl, 'LinkedIn', $Registry->Ini->POINTS->SHARED_CONTENT);
 			$vars = array('linkedin', $label, $checked);
 			$ret .= \tplSocialPost::parse($vars, false);
 		}

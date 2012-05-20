@@ -50,122 +50,22 @@
  */
 
 
-namespace Lampcms;
+
+namespace Lampcms\Config;
 
 /**
- * Constants of reputation points per action performed
- * as well as points required to perform certain actions
- *
+ * Class represents data from the
+ * [MYCOLLECTIONS] section in !config.ini
  *
  * @author Dmitri Snytkine
  *
  */
-class Points
+class MycollectionsSection extends Section
 {
-	/**
-	 *
-	 * Someone voted for your question
-	 * @var int
-	 */
-	const UPVOTE_Q = 5;
 
+	protected $exceptionIfNotExist = true;
 
-	/**
-	 *
-	 * Someone voted for your answer
-	 * @var int
-	 */
-	const UPVOTE_A = 10;
-
-
-	/**
-	 *
-	 * Someone accepted your answer as best answer
-	 * @var int
-	 */
-	const BEST_ANSWER = 15;
-
-
-	/**
-	 *
-	 * You accepted someones answer to your question
-	 * @var int
-	 */
-	const ACCEPT_ANSWER = 2;
-
-
-	/**
-	 *
-	 * You down voted someone's question or answer
-	 * @var int
-	 */
-	const CAST_DOWNVOTE = -1;
-
-
-	/**
-	 *
-	 * Someone voted down your answer or question
-	 * @var int
-	 */
-	const DOWNVOTE = -2;
-
-
-	/**
-	 * Your Q or A received marked as offensive 5 times
-	 * @var int
-	 */
-	const OFFENSIVE = -100;
-
-
-	/**
-	 * User shared (posted)
-	 * Question or Answer to external site
-	 * via API (like Twitter or Facebook)
-	 * Enter description here ...
-	 * @var unknown_type
-	 */
-	const SHARED_CONTENT = 5;
-
-
-	/**
-	 * REPUTATION ACL LEVELS BELOW!
-	 */
-
-	/**
-	 * need this many points to retag other
-	 * user's question
-	 *
-	 * @var int
-	 */
-	const RETAG = 500;
-
-	/**
-	 * Need this many points to upvote
-	 *
-	 * @var int
-	 */
-	const VOTE_UP = 15;
-
-	/**
-	 * Need this many points to downvote
-	 *
-	 * @var int
-	 */
-	const VOTE_DOWN = 125;
-	/**
-	 * Need this many point to edit
-	 * Other user's content
-	 * Enter description here ...
-	 * @var int
-	 */
-	const EDIT = 2000;
-
-	/**
-	 * Need this many points to
-	 * Comment of other user's Question or Answer
-	 *
-	 * @var int
-	 */
-	const COMMENT = 25;
-
+	public function __construct(array $values){
+		parent::__construct($values, 'MYCOLLECTIONS');
+	}
 }

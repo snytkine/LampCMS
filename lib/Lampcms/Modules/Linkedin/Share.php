@@ -151,7 +151,7 @@ class Share extends \Lampcms\Event\Observer
 		
 		d('$comment: '.$comment.' label: '.$label.' $url: '.$url);
 
-		$reward = \Lampcms\Points::SHARED_CONTENT;
+		$reward = $this->Registry->Ini->POINTS->SHARED_CONTENT;
 		$User = $this->Registry->Viewer;
 
 		$token  = $User->getLinkedinToken();

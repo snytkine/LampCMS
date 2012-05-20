@@ -160,7 +160,7 @@ class PostBlogger extends \Lampcms\Event\Observer
 				return;
 			}
 			d('cp');
-			$reward = \Lampcms\Points::SHARED_CONTENT;
+			$reward = $this->Registry->Ini->POINTS->SHARED_CONTENT;
 			$Resource = $this->obj;
 			d('cp');
 			$oAdapter = new BloggerPostAdapter($this->Registry);

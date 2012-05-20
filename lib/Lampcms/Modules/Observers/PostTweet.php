@@ -152,7 +152,7 @@ class PostTweet extends \Lampcms\Event\Observer
 	protected function tweet(){
 
 		try{
-			$reward = \Lampcms\Points::SHARED_CONTENT;
+			$reward = $this->Registry->Ini->POINTS->SHARED_CONTENT;
 			$User = $this->Registry->Viewer;
 			$oTweet = new Tweet();
 			$oBitly = new Bitly($this->Registry->Ini->getSection('BITLY'));

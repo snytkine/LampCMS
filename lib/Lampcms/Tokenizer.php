@@ -67,8 +67,8 @@ class Tokenizer
 	protected $aStopwords;
 
 	public function __construct(){
-		$stopwords = LAMPCMS_PATH.DIRECTORY_SEPARATOR.'stopwords.txt';
-		$this->aStopwords = explode(PHP_EOL, file_get_contents($stopwords));
+
+		$this->aStopwords = getStopwords();
 	}
 
 	/**

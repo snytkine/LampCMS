@@ -292,11 +292,11 @@ class Vote extends WebPage
 	 */
 	protected function calculatePoints(){
 		if('down' === $this->voteType){
-			$points = \Lampcms\Points::DOWNVOTE;
+			$points = $this->Registry->Ini->POINTS->DOWNVOTE;
 		} elseif('QUESTION' === $this->resType){
-			$points = \Lampcms\Points::UPVOTE_Q;
+			$points = $this->Registry->Ini->POINTS->UPVOTE_Q;
 		} else {
-			$points = \Lampcms\Points::UPVOTE_A;
+			$points = $this->Registry->Ini->POINTS->UPVOTE_A;
 		}
 
 		$points = ($this->inc * $points);

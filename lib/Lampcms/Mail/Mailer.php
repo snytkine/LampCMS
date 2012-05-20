@@ -76,7 +76,7 @@ class Mailer
 	 */
 	protected $Ini;
 
-	public function __construct(\Lampcms\Ini $Ini){
+	public function __construct(\Lampcms\Config\Ini $Ini){
 		$this->Ini = $Ini;
 		$this->adminEmail = $Ini->EMAIL_ADMIN;
 		$this->siteName = $Ini->SITE_NAME;

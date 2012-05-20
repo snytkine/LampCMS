@@ -87,7 +87,7 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
 	 * @param string $locale
 	 */
 	public function __construct($file, $locale){
-		//echo "\n".__METHOD__.' xliff file: '.$file;
+		
 		$this->locale = $locale;
 		d('$this->locale: '.$this->locale);
 
@@ -99,10 +99,10 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
 		 * array of $this->aMessages;
 		 */
 		if(is_readable($file)){
-			//echo ' '.__METHOD__.' file is readable ';
+			
 			$this->parseFile($file);
 		} else {
-			//echo ' '.__METHOD__.' file '.$file.' is not readable ';
+			
 			d('XLIFF file '.$file.' does not exist or not readable');
 		}
 	}

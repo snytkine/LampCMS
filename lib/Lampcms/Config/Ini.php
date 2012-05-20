@@ -51,8 +51,9 @@
 
 
 
-namespace Lampcms;
+namespace Lampcms\Config;
 
+use Lampcms\IniException;
 
 /**
  * Object represents the parsed !config.ini file
@@ -65,24 +66,34 @@ namespace Lampcms;
  * @author admin
  *
  */
-class Ini extends LampcmsArray
+class Ini extends \Lampcms\LampcmsArray
 {
 
 	protected $iniFile;
-	
+
+	/**
+	 * Array of Config\Section objects
+	 * key is section name
+	 * value of object
+	 *
+	 * @var array
+	 */
+	protected $sections = array();
+
 	/**
 	 * Constructor
 	 *
 	 * @param string $iniFile
 	 * @throws IniException if unable to parse ini file
-	 * 
+	 *
 	 */
 	public function __construct($iniFile = null){
 		if(null === $iniFile && defined('CONFIG_FILE_PATH')){
 			$iniFile = CONFIG_FILE_PATH;
 		}
-		
-		$this->iniFile = (!empty($iniFile)) ? $iniFile : LAMPCMS_PATH.DIRECTORY_SEPARATOR.'!config.ini';
+
+
+		$this->iniFile = (!empty($iniFile)) ? $iniFile : \rtrim(constant('LAMPCMS_CONFIG_DIR'), ' /\\').DIRECTORY_SEPARATOR.'!config.ini';
 
 		$aIni = \parse_ini_file($this->iniFile, true);
 
@@ -92,17 +103,17 @@ class Ini extends LampcmsArray
 
 		parent::__construct($aIni);
 	}
-	
-	
+
+
 	/**
 	 * Get value of config var from
 	 * object
-	 * 
+	 *
 	 * @param string $name
 	 * @throws IniException if CONSTANTS key
-	 * does not exist OR if var 
+	 * does not exist OR if var
 	 * does not exist and is a required var
-	 * 
+	 *
 	 * @return string value of $name
 	 */
 	public function getVar($name){
@@ -128,12 +139,12 @@ class Ini extends LampcmsArray
 				return $tmpDir;
 			}
 
-			return \sys_get_temp_dir();			
+			return \sys_get_temp_dir();
 		}
 
 
 
-		if (!array_key_exists($name, $aConstants)) {
+		if (!array_key_exists($name, $aConstants) && !$this->offsetExists($name)) {
 
 			throw new IniException('Error: configuration param: '.$name.' does not exist in config file '.$this->iniFile);
 		}
@@ -208,6 +219,20 @@ class Ini extends LampcmsArray
 				}
 				break;
 
+			case 'POINTS':
+				if(!array_key_exists('POINTS', $this->sections)){
+					$this->sections['POINTS'] = new PointsSection($this->getSection('POINTS'));
+				}
+				$ret = $this->sections['POINTS'];
+				break;
+
+			case 'MYCOLLECTIONS':
+				if(!array_key_exists('MYCOLLECTIONS', $this->sections)){
+					$this->sections['MYCOLLECTIONS'] = new MycollectionsSection($this->getSection('MYCOLLECTIONS'));
+				}
+				$ret = $this->sections['MYCOLLECTIONS'];
+				break;
+
 
 			default:
 				$ret = $aConstants[$name];
@@ -222,9 +247,9 @@ class Ini extends LampcmsArray
 	 * Magic method to get
 	 * a value of config param
 	 * from ini array's CONSTANTS section
-	 * 
+	 *
 	 * This is how other objects get values
-	 * from this object 
+	 * from this object
 	 * most of the times
 	 *
 	 * @return string a value of $name
@@ -241,8 +266,8 @@ class Ini extends LampcmsArray
 	public function __set($name, $val){
 		throw new IniException('Not allowed to set value this way');
 	}
-	
-	
+
+
 	/**
 	 *
 	 * @param string $name name of section in !config.ini file

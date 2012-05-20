@@ -206,7 +206,7 @@ class Retag extends WebPage
 	protected function checkPermission(){
 
 		if(!\Lampcms\isOwner($this->Registry->Viewer, $this->Question)
-		&& ($this->Registry->Viewer->getReputation() < \Lampcms\Points::RETAG)){
+		&& ($this->Registry->Viewer->getReputation() < $this->Registry->Ini->POINTS->RETAG)){
 
 			$this->checkAccessPermission('retag');
 		}

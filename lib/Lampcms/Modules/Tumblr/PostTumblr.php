@@ -158,7 +158,7 @@ class PostTumblr extends \Lampcms\Event\Observer
 				return;
 			}
 				
-			$reward = \Lampcms\Points::SHARED_CONTENT;
+			$reward = $this->Registry->Ini->POINTS->SHARED_CONTENT;
 			$Resource = $this->obj;
 			$oAdapter = new TumblrPostAdapter($this->Registry);
 

@@ -1,0 +1,637 @@
+;
+; IMPORTANT: 
+; If a value in the ini file contains any non-alphanumeric characters 
+; it needs to be enclosed in double-quotes (")
+;
+; Only simple values like a number 
+; or one-word can be entered with no quotes
+; but it's best to use double-quotes
+; around all values to avoid potential errors
+;
+[DB]
+Database_name=LAMPCMS
+Database_host=localhost
+TCP_Port_number=
+Database_type=mysql
+Database_username=
+Database_password=
+Persistent = 0
+
+[MONGO]
+server = "mongodb://127.0.0.2:27017"
+db = "LAMPCMS"
+; If you already have existing
+; Mongo Database with existing collections
+; you may want to set the prefix
+; all collections used by this program will
+; be prefixed with this word. 
+; For example you may set prefix to "Lampcms"
+; then collection USERS will become LampcmsUSERS
+; This will take care of possible name collisions with
+; existing collections
+prefix = ""
+
+[CACHE_MONGO]
+; good option to use the same db as in "MONGO" section
+db = "LAMPCMS"
+collection = "C_Cache"
+
+[CONSTANTS]
+; set to true when debugging to enable
+; debug log and raise error reporting level
+DEBUG = true
+;
+; Directory where translations files
+; are going to be stored
+; You can rename the directory
+; and change the value here
+; if you want to prevent the upgrade
+; process overriding you custom
+; translation files
+; Directory still has to be a sub-directory of the root directory
+; of the project (where this file is located)
+TRANSLATIONS_DIR = "translations"
+;
+; Minimum number of tags question must have
+; set to 0 to make tags optional
+;
+MIN_QUESTION_TAGS = 1
+;
+; Maximum number of tags Question can have
+; This will be enforced when question is submitted
+; and when question is retagged
+MAX_QUESTION_TAGS = 5
+;
+; Minimun length of question in chars
+MIN_QUESTION_CHARS = 10
+;
+; Minimum required length of question title
+MIN_TITLE_CHARS = 10
+;
+; Minimum number of words required in question
+MIN_QUESTION_WORDS = 3
+;
+; Minimum length of answer in chars
+MIN_ANSWER_CHARS = 10
+;
+; Minimum number of words required for answer
+MIN_ANSWER_WORDS = 3
+; maximum commets per item
+; set to 0 to disable comments feature
+MAX_COMMENTS = 20
+; max comments to show per item
+SHOW_COMMENTS = 5
+;
+; Time interval in minutes in which poster can edit
+; the comment. After this time editing
+; is no longer allowed
+; set to 0 to disable edit timeout
+COMMENT_EDIT_TIME = 5
+; time to wait between comments
+; in seconds
+COMMENTS_FLOOD_TIME = 30
+;
+; time to wait between posting
+; questions and answers in minutes
+;
+FLOOD_CHECK_TIME = 2
+; number of items per page
+; on search results page
+PER_PAGE_SEARCH = 10
+; number of answers per page
+; on the question page page
+PER_PAGE_ANSWERS = 20
+; number of questions per page
+; on pages like home page or unanswered
+PER_PAGE_QUESTIONS = 20
+; number of questions per page
+; on pages like home page or unanswered
+PER_PAGE_USERS = 15
+; This will be used in some page as title as well as in some emails as 'From' name
+SITE_TITLE = "LampCms Q and A site"
+SITE_NAME ="LampCMS project"
+;Default language
+DEFAULT_LANG = en
+; Default locale
+; Must be a valid locale string!
+; Also a translation file for this locale
+; must exist in translations directory and contain
+; complete catalog of all messages used on this site
+; For example, if you set DEFAULT_LOCALE to 'en_US'
+; then a file messages.en_US.xliff should already
+; exist in /translations/ directory
+; 
+DEFAULT_LOCALE = en_US
+;set timezone of the server.
+;Must be correct name,
+;see names here: http://us2.php.net/manual/en/timezones.php
+SERVER_TIMEZONE = America/Chicago
+;
+;Set this to true if you dont want to use cache
+;or if you think cache is causing problems
+;or if you are developing new feature
+;of if you dont have memcache at all
+;
+SKIP_CACHE = false
+;
+;Leave blank unless
+;you need to set cookie under some
+;global domain.
+;For example if your Q and A site is on
+;qa.oursite.com
+;but you want to be able to access cookie
+;of oursite.com, then you
+;should set this value
+;
+COOKIE_DOMAIN = 
+;
+; system path to temporary directory. Must we writable to php
+; if not sure - leave blank
+; 
+;
+TEMP_DIR = 
+;
+;Some configuration constants
+;Leave blank if you host images, css and js
+;on the same server as this program,
+;otherwise defile the full path to domain + dir
+;where the files reside, without the '/' at the end
+;
+IMAGE_SITE = ""
+CSS_SITE = ""
+JS_SITE = ""
+AVATAR_IMG_SITE = ""
+;size of square avatar in pixels
+AVATAR_SQUARE_SIZE= 40
+;maximum allowed file size of
+; uploaded avatar in bytes.
+; default 1000000 means 1MB
+MAX_AVATAR_UPLOAD_SIZE = 1024000
+;
+;
+; Set the LOG_PER_SCRIPT to true (default)
+; to always reset log fine for
+; each new script
+; Logging is enabled in debugging mode only
+;
+LOG_PER_SCRIPT = true
+; set LOG_FILE_PATH to point to your writable log file to enable logging
+; for example: /usr/local/apache/sites/qa.lampcms.com/logs/php.log
+LOG_FILE_PATH = php.log
+;/usr/local/apache/sites/lampcms.com/logs/cgiphp.log
+LOG_FILE_PATH_CGI = cgiphp.log
+;
+; base url of your main website. Required value! Leading slash not required.
+SITE_URL="http://localhost"
+; system path to root directory (the directory that contains this file)
+LAMPCMS_PATH ="/"
+; system path to directory that is accessable via browser as /w/
+; This is optional value. Leave blank to use default data dir (recommended)
+LAMPCMS_DATA_DIR =
+;
+POSTFIX_PATH = /usr/sbin/sendmail
+;
+; email address of developer. 
+; Developer will be notified of php errors and various bad situations on the site //message@ptd.net
+EMAIL_DEVELOPER = "me@me.me"
+; email address of admin. Required value!
+; Admin will also be notified on important events and errors
+EMAIL_ADMIN = "me@me.me"
+;
+;
+; Emails to new registrations sent from this domain
+; Required value!
+EMAIL_DOMAIN = 
+;
+; SALT is Required value!
+; Make sure to set the value of SALT to a random string of about 40 chars
+; then write it down and store it like gold!
+; and never change it again!
+; if it's lost, you will not be able to authenticate
+; any existing users - users will never be able to login!
+SALT = 'abcdefg';
+;
+; COOKIE_SALT is Required value
+;Enter some random string BEFORE launching your site
+;but DONT EVER CHANGE IT AFTER
+;you launched your site, otherwise users will not be
+;able to auto-login to site using the 'remember me' cookie
+COOKIE_SALT = 'abcde1234512345'
+;
+; Show page render time in footer? 
+; set to true to have "Page generated in .... seconds
+; added to bottom of pages
+SHOW_TIMER = false;
+;
+; disable autocomplete widget
+; in search form and in Title in "Ask" form
+; Autocomplete does send request to server
+; on every key press, and search by title tags
+; is run on server. 
+; This is fast process and does
+; not add much load to server but if you 
+; still don't want it then set this to true 
+; to disable autocomplete
+;
+DISABLE_AUTOCOMPLETE = false
+;
+; When Geo Location has been enabled
+; by running geo_import.php
+; then if this is set to true
+; a country flag will be added
+; to Questions, Answers, Comments
+SHOW_FLAGS = true
+;
+; CATEGORIES SUPPORT
+; leave empty to not use categories at all
+; If you don't need categories
+; and fine with just using tags, then
+; leave this blank
+; or set to 1 to make categories optional
+; or set to 2 to make categories required
+;
+; Important: make sure to actually
+; add some categories 
+; (using /editcategory/ url) first otherwise
+; you may end up requiring user to select category
+; but there will be no drop-down menu and 
+; user will not be able to post a question at all
+CATEGORIES = 
+; SEPARATOR TO BE USED IN BREADCRUMN 
+; OF CATEGORYIES. 
+; LEAVE INSIDE DOUBLE QUOTES TO PRESERVE SPACES
+CATEGORY_SEPARATOR = " &gt; "
+; Maximin nesting level of category
+; to show in detailed template
+; categories deeper that this level
+; will be shown in minimal details template
+; REMEMBER that level starts at 0 not at 1!
+CATEGORY_DETAILED_LEVEL = 2
+;
+; Options of RTE Editor
+[EDITOR]
+;
+; Add "Code editor" tools to RTE Editor
+; This is very useful for programming - related Q&A Sites
+; but totally unnecessary for non-programming sites,
+; so it's disabled by default
+ENABLE_CODE_EDITOR = false;
+;
+; Add "YouTube" button to editor
+; to allow adding youtube videos
+; to Questions and Answers
+ENABLE_YOUTUBE = true;
+
+[CAPTCHA]
+; to disable captcha for any reason
+; set disabled = true
+; When disabled, captcha will
+; not be added to forms
+disabled = false
+; change this to something between 3 and 25
+secretposition = 15
+; Change this to any random string. CHANGE it to something unique!
+secretstring = "Stuff for captcha"
+; maximum captcha errors. After this ip will be blocked for awhile
+maxtry = 5
+
+; GRAVATAR SUPPORT
+; to Disable automatic
+; use of gravatar for new user's avatars
+; remove the every value of just comment
+; our every value in this section by prefixing the line
+; with the semicolon ;
+; DO NOT REMOVE OR COMMENT OUT this section though!
+[GRAVATAR]
+; base url to gravatar site
+; must have trailing slash (its a directory)
+url = http://www.gravatar.com/avatar/
+
+; default size of avatars
+; we will slightly resize this image
+; from between 32 and 50, so 45 is a good size
+; also when we display the 40x40 avatar some
+; browsers that are not able to resize the 
+; background image will just cut-off the excess from
+; bottom and from right, so setting it close to 40 px
+; is good way to avoid having too much cut off the image
+size = 44
+
+; fallback when user does not have actual 
+; image of gravatar. This can be identicon or monsterid
+; Check with gravatar.com documentation for fallback options
+fallback = identicon
+
+; rating  defaults to PG
+rating = PG
+
+
+[LOGIN_ERROR_LOCK]
+;in what number of seconds login errors occured.
+interval = 360
+;how many seconds since latest login error user must wait before allowed to try again
+wait = 300
+;number of login failures. After this many login failures withing interval
+max_errors = 4
+
+
+
+[MY_IP]
+; list values of ip addresses of developers
+; access from these ips will result in extra debugging console for javascript
+; as well as sql debugging data added to the pages
+; values should be added like this (one per line): 192.168.1.1=office
+; here the word office if for your own info, you can add another ip for 
+; your home and add it on another line: 192.168.1.2=home
+; You can add as many as you like
+127.0.0.1=home
+127.0.0.2=home1
+
+[TWITTER]
+; API_KEY is needed for the @anywhere JS library only
+; get api key and secret from here http://dev.twitter.com/apps/new
+; When creating new application on Twitter Website MAKE SURE 
+; to select READ AND WRITE access (not just READ, else it would not work)
+;
+API_KEY = 
+; twitter consumer key and consumer secret for oauth
+TWITTER_OAUTH_KEY = 
+TWITTER_OAUTH_SECRET = 
+; account name that we use on twitter. We may tweet from it
+; we may also add new user to follow this account when they
+; join
+TWITTER_USERNAME = 
+
+[TUMBLR]
+; You must register your app
+; with Tumblr and get OAUTH_KEY and OAUTH_SECRET
+; Go to this url to get yours: http://www.tumblr.com/oauth/apps
+;
+OAUTH_KEY = 
+OAUTH_SECRET = 
+
+[FACEBOOK]
+; Get your APP_ID and API_SECRET here: 
+; http://developers.facebook.com/setup/
+; To setup new application and get API_KEY
+; go here: http://www.facebook.com/developers/
+;
+; IMPORTANT! when settin up your Facebook APP,
+; DO NOT SET value for "Site Domain" - leave it blank
+; otherwise Facebook will be setting cookie using
+; .yourdomain.com and it will be very difficult to delete
+; this cookie unless you also set the exact same value
+; like .yourdomain.com in site file's COOKIE_DOMAIN setting
+;
+; user picture is not in any json, its simply this:
+; http://graph.facebook.com/$UID/picture
+API_KEY = 
+APP_ID = 
+APP_SECRET = 
+; YOU MUST at least require the email in EXTENDED_PERMS
+; so that you can create email record for facebook user
+; You should require publish_stream also if
+; you want to post something to user 'wall'
+EXTENDED_PERMS = "email,publish_stream,offline_access"
+; Enter full url of your site's logo image
+; This should be fairly small image (about 50x50 or so)
+; If set, it will appear on posts to Facebook as an icon
+SITE_LOGO =
+
+; Custom classes that extend LampcmsObserver
+; can be listed here and they will be automatically
+; registered as observers
+; see clsFloodCheck for an example on how to use it
+[OBSERVERS]
+; To keep track of all login actions
+logins = "\\Lampcms\\Modules\\Observers\\LoginHistory"
+; To activate "whos online" feature
+online = "\\Lampcms\\Modules\\Observers\\Online"
+
+;
+; Order is important
+; since each observer can halt the processing
+; of script, make sure to put most important ones first
+; and most resource-intensive last
+; Make sure Names are Unique - cannot use same filter name twice!
+[INPUT_FILTERS]
+ipFilter= "\\Lampcms\\Modules\\Observers\\IpFilter"
+floodCheck = "\\Lampcms\\Modules\\Observers\\FloodCheck"
+questionSimilar = "\\Lampcms\\Modules\\Observers\\Similars"
+
+; If twitter filter is enabled (not commented out here)
+; then a checkbox to "Post to Twitter" will be
+; added to "Ask" and "Answer" forms
+; Make sure you actually enabled Twitter API integration
+; before enabling this filter otherwise it will not work
+; Check the [TWITTER] section of this file for enabling 
+; the Twitter API
+;
+;twitter = "\\Lampcms\\Modules\\Observers\\PostTweet"
+
+; If facebook filter is enabled (not commented out here)
+; then a checkbox to "Post to Twitter" will be
+; added to "Ask" and "Answer" forms
+; Make sure you actually enabled Facebook API integration
+; before enabling this filter otherwise it will not work
+; Check the [FACEBOOK] section of this file for enabling 
+; the FACEBOOK API
+;
+;facebook = "\\Lampcms\\Modules\\Observers\\PostFacebook"
+
+; If tumblr filter is enabled (not commented out here)
+; then a checkbox to "Post to Tumblr" will be
+; added to "Ask" and "Answer" forms
+; Make sure you actually enabled Tumblr API integration
+; before enabling this filter otherwise it will not work
+; Check the [TUMBLR] section of this file for enabling 
+; the Tumblr API
+;
+;tumblr = "\\Lampcms\\Modules\\Tumblr\\PostTumblr"
+
+; If blogger filter is enabled (not commented out here)
+; then a checkbox to "Post to Blogger" will be
+; added to "Ask" and "Answer" forms
+; Make sure you actually enabled Blogger API integration
+; before enabling this filter otherwise it will not work
+; Check the [BLOGGER] section of this file for enabling 
+; the Blogger API
+;
+;blogger = "\\Lampcms\\Modules\\Blogger\\PostBlogger"
+;
+; If linkedin filter is enabled (not commented out here)
+; then a checkbox to "Post to linkedin" will be
+; added to "Ask" and "Answer" forms
+; Make sure you actually enabled linkedin API integration
+; before enabling this filter otherwise it will not work
+; Check the [LINKEDIN] section of this file for enabling 
+; the LinkedIn API
+;linkedin = "\\Lampcms\\Modules\\Linkedin\\Share"
+
+; EmailNotifier can take long to run
+; it's best to put this filter as the last filter
+; 
+EmailNotifier = "\\Lampcms\\Modules\\Observers\\EmailNotifier"
+
+; bit.ly use used for shortening urls
+; this is useful when posting questions/answers
+; to Twitter.
+; if you not using the Twitter Module then
+; you not going to need this
+; 
+; Signup for bit.ly account to get
+; your username and api key
+; go here to get started: http://bit.ly/a/your_api_key
+; 
+[BITLY]
+user=
+api_key =
+
+[CURL]
+; primary ip address from which curl will connect
+ip = "127.0.0.1"
+; secondary ip address
+ip2 = "127.0.0.2"
+
+[BLOGGER]
+; You must do these steps while logged in to Google with you
+; Google account - this is usually the same as your Gmail account
+;
+; To get your blogger API KEY and Secret start here:
+; http://code.google.com/apis/accounts/docs/RegistrationForWebAppsAuto.html
+;
+; You will need to register your domain with Google. 
+; This included downloading some html file from Google 
+; then uploading it to root dir of your site and then clicking "verify" button, 
+; proving to Google that you are the admin of that domain.
+;
+; Once that is done you need to go here: https://www.google.com/accounts/UpdateDomain
+; and enter some string that you must create yourself - 
+; some type of long secret string, into the
+; "Target URL path prefix"
+; That will become your app's OAuth Consumer Key 
+; and Google will generate the OAuth Consumer Secret value for you. 
+; Then enter the values here
+;
+OAUTH_KEY =
+OAUTH_SECRET =
+
+
+
+[API]
+; Maximum results an API can return per page
+MAX_RESULTS = 100
+; Dalily access limit for not logged in users
+DAILY_LIMIT_ANON = 150
+; Daily access limit for logged in users
+DAILY_LIMIT_APP = 3000
+; Daily limit for authenticated user
+DAILY_LIMIT_USER = 10000
+; Max file size for the app icon upload
+; defaults to 700Kb (my be in bytes)
+MAX_ICON_UPLOAD_SIZE = 700000;
+
+
+;
+; Oauth token and secret
+; for Linkedin API
+; Get them here (register your app there)
+; https://www.linkedin.com/secure/developer
+;
+[LINKEDIN]
+;OAUTH_KEY = 
+;OAUTH_SECRET = 
+
+; List supported Language/Locales
+; You should have translation .xlt files
+; made for these languages in
+; translations directory
+[LOCALES]
+en_US = "English (United States)"
+ru_RU = "Russian"
+
+
+;
+; Point to award user for cetain actions
+; as well as points required to perform certain actions
+[POINTS]
+;
+;Someone voted for your question
+;  
+UPVOTE_Q = 5
+
+;
+;Someone voted for your answer
+;	 
+UPVOTE_A = 10
+
+;
+;Someone accepted your answer as best answer
+;
+BEST_ANSWER = 15
+
+;
+; You accepted someones answer to your question
+;
+ACCEPT_ANSWER = 2
+
+;
+;You down voted someone's question or answer
+;
+CAST_DOWNVOTE = -1
+
+;
+;Someone voted down your answer or question
+;
+DOWNVOTE = -2
+
+;
+;Your Q or A received marked as offensive 5 times
+;
+OFFENSIVE = -100
+
+;
+; User shared (posted)
+; Question or Answer to external site
+; via API (like Twitter or Facebook)
+; 
+SHARED_CONTENT = 5
+
+;
+;REPUTATION ACL LEVELS BELOW!
+;	
+
+; Need this many points to retag other
+; user's question
+;
+RETAG = 500
+
+; Need this many points to upvote
+;
+VOTE_UP = 15
+
+; Need this many points to downvote
+;
+VOTE_DOWN = 125
+
+; Need this many point to edit
+; Other user's content
+; 
+EDIT = 2000
+
+; Need this many points to
+; Comment of other user's Question or Answer
+;
+COMMENT = 25
+
+
+; The purpose of this section
+; is to define custom
+; Mongo Collections YOU may have created for your custom modules
+; By default there are no values here
+; Example entry would be like this:
+; MY_FRIENDS = "MY_FRIENDS"
+;
+; Look in lib/Lampcms/Mongo/Collections for actual file and how
+; the actual entries look like.
+[MYCOLLECTIONS]

@@ -142,7 +142,7 @@ class PostFacebook extends \Lampcms\Event\Observer
 	protected function post(){
 
 		try{
-			$reward = \Lampcms\Points::SHARED_CONTENT;
+			$reward = $this->Registry->Ini->POINTS->SHARED_CONTENT;
 			$User = $this->Registry->Viewer;
 			$oFB = $this->Registry->Facebook;
 			$Resource = $this->obj;

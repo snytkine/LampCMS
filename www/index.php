@@ -52,9 +52,9 @@ ini_set('session.use_trans_sid', false);
 ini_set('session.use_only_cookies', true);
 
 define('INIT_TIMESTAMP', microtime());
+require 'bootstrap.php';
 
-
-include '../!inc.php';
+require LAMPCMS_LIB_DIR.DIRECTORY_SEPARATOR.'!inc.php';
 
 require($lampcmsClasses.'Base.php');
 require($lampcmsClasses.'WebPage.php');

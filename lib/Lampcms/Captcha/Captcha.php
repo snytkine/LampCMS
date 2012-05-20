@@ -298,7 +298,7 @@ class Captcha
 	 * Extracts the config array and generate needed params.
 	 *
 	 **/
-	public function __construct(\Lampcms\Ini $Ini, array $config = array(), $secure=true, $debug=false ){
+	public function __construct(\Lampcms\Config\Ini $Ini, array $config = array(), $secure=true, $debug=false ){
 
 		$this->Ini = $Ini;
 
