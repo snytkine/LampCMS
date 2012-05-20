@@ -35,7 +35,7 @@
  *
  *
  * @author     Dmitri Snytkine <cms@lampcms.com>
- * @copyright  2005-2011 (or current year) ExamNotes.net inc.
+ * @copyright  2005-2012 (or current year) Dmitri Snytkine
  * @license    http://www.gnu.org/licenses/gpl-3.0.txt The GNU General Public License (GPL) version 3
  * @link       http://cms.lampcms.com   Lampcms.com project
  * @version    Release: @package_version@
