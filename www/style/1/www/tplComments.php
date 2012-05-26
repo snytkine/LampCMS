@@ -42,29 +42,29 @@
  * for the currenct Question/Answer comments feature
  * This can be useful if we add some other types
  * of content like blog posts or articles or videos
- * 
+ *
  * @author admin
  *
  */
 class tplComments extends Lampcms\Template\Fast
 {
-	protected static $vars = array(
-	'_id' => 0,
-	'av' => '',
-	'usr' => '',
-	'ts' => '',
-	'dt' => '',
-	'b' => '',
-	'replies' => '',
-	'reply' => 'Reply',
-	'replyLink' => '' // id of parent if this is a reply set only for replies
-	);
+    protected static $vars = array(
+        '_id' => 0,
+        'av' => '',
+        'usr' => '',
+        'ts' => '',
+        'dt' => '',
+        'b' => '',
+        'replies' => '',
+        'reply' => 'Reply',
+        'replyLink' => '' // id of parent if this is a reply set only for replies
+    );
 
-	/**
-	 * <a href="/index.php?a=reply&amp;comid=%1$s&amp;parentid=%9$s"><span class="reply">%8$s</span></a>
-	 * @var unknown_type
-	 */
-	protected static $tpl = '
+    /**
+     * <a href="/index.php?a=reply&amp;comid=%1$s&amp;parentid=%9$s"><span class="reply">%8$s</span></a>
+     * @var unknown_type
+     */
+    protected static $tpl = '
 	<div class="comment" id="com_%1$s">
 		<div class="comdiv">
 			<div class="poster">

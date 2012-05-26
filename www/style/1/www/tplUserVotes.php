@@ -35,32 +35,33 @@
  *
  *
  */
- 
+
 /**
- * 
+ *
  * Div with user votes stats
  * shows total votes and per up/down count
  * for one user
- * 
+ *
  *
  */
 class tplUserVotes extends Lampcms\Template\Fast
 {
-	protected static function func(&$a){
-		if($a['count'] != 1){
-			$a['s'] = 's';
-		}
-	}
-	
-	protected static $vars = array(
-	'count' => '', //1
-	'label' => 'vote', //2
-	'stats' => '', //3
-	's' => '', //4
-	'username' => '' //5
-	);
-	
-	protected static $tpl = '
+    protected static function func(&$a)
+    {
+        if ($a['count'] != 1) {
+            $a['s'] = 's';
+        }
+    }
+
+    protected static $vars = array(
+        'count' => '', //1
+        'label' => 'vote', //2
+        'stats' => '', //3
+        's' => '', //4
+        'username' => '' //5
+    );
+
+    protected static $tpl = '
 	<div class="user_tags">
 	<h3>%5$s casted <span class="counter">%1$s</span> %2$s%4$s</h3>
 		<div id="uvotes">

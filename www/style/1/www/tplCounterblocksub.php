@@ -48,24 +48,25 @@
  */
 class tplCounterblocksub extends Lampcms\Template\Fast
 {
-	protected static function func(&$a){
-		/**
-		 * If more than one tag
-		 * then turn each tag into a link
-		 */
-		if(array_key_exists('tags', $a) && \strstr($a['tags'], ' + ')){
-			$a['tags'] =  preg_replace_callback('/(\S+)/u', function($matches){
-				return "<a href=\"{WWW_BASE_DIR}/tagged/". urlencode($matches[0])."/\">".$matches[0]."</a>";
-			}, $a['tags']);
-		}
-	}
+    protected static function func(&$a)
+    {
+        /**
+         * If more than one tag
+         * then turn each tag into a link
+         */
+        if (array_key_exists('tags', $a) && \strstr($a['tags'], ' + ')) {
+            $a['tags'] = preg_replace_callback('/(\S+)/u', function($matches)
+            {
+                return "<a href=\"{WWW_BASE_DIR}/tagged/" . urlencode($matches[0]) . "/\">" . $matches[0] . "</a>";
+            }, $a['tags']);
+        }
+    }
 
-	protected static $vars = array(
-	'tags' => '',
-	'text' => 'Tagged'
-	);
+    protected static $vars = array(
+        'tags' => '',
+        'text' => 'Tagged'
+    );
 
 
-
-	protected static $tpl = '<div class="countersub">%2$s: <strong>%1$s</strong></div>';
+    protected static $tpl = '<div class="countersub">%2$s: <strong>%1$s</strong></div>';
 }

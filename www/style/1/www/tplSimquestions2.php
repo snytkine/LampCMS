@@ -35,7 +35,7 @@
  *
  *
  */
- 
+
 /**
  * This template is used when generating
  * div with similar questions while
@@ -54,13 +54,13 @@
 class tplSimquestions2 extends Lampcms\Template\Fast
 {
 
-	protected static $vars = array(
-	'qid' => '',
-	'q_url' => '',
-	'q_intro' => '',
-	'q_title' => '',
-	'q_date' => '');
+    protected static $vars = array(
+        'qid' => '',
+        'q_url' => '',
+        'q_intro' => '',
+        'q_title' => '',
+        'q_date' => '');
 
-	protected static $tpl = '<div class="simq"><a href="/q%1$s/%2$s">%4$s</a><br>
+    protected static $tpl = '<div class="simq"><a href="/q%1$s/%2$s">%4$s</a><br>
 	<span class="ts" title="%5$s">%5$s</span><br>%3$s</div>';
 }

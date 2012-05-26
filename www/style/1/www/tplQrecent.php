@@ -39,51 +39,52 @@
 class tplQrecent extends Lampcms\Template\Fast
 {
 
-	protected static function func(&$a){
-			
-		if(!empty($a['a_closed'])){
-			$a['closed'] = ' closed';
-		}
+    protected static function func(&$a)
+    {
 
-		if(!empty($a['a_latest'])){
-			$reltime = \Lampcms\TimeAgo::format(new \DateTime($a['a_latest'][0]['t']));
-			$a['last_poster'] = '<div class="lastposter fl cb">'.$a['latest_by'].': '.$a['a_latest'][0]['u'].'<br>
-			<span title="'.$a['a_latest'][0]['t'].'" class="ts">'.$reltime.'</span></div>';
-		}
-	}
+        if (!empty($a['a_closed'])) {
+            $a['closed'] = ' closed';
+        }
 
-	protected static $vars = array(
-	'_id' => '0', //1
-	'i_votes' => '0', //2
-	'i_ans' => '0', //3
-	'i_views' => '0', //4
-	'url' => '', //5
-	'intro' => '', //6
-	'title' => '', //7
-	'tags_c' => '', //8
-	'tags_html' => '', //9
-	'status' => 'un', //10
-	'username' => '', //11
-	'avtr' => '/images/avatar.png',//12
-	'hts' => '',//13
-	'i_ts' => '',//14
-	'vw_s' => 's',//15
-	'v_s' => '',//16
-	'ans_s' => '',//17
-	'deleted' => '', //18
-	'closed' => '', //19
-	'asked' => 'asked', //20
-	'i_sticky' => '', //21
-	'dot' => '', //22
-	'last_poster' => '', //23
-	'i_etag' => '0', //24
-	'following_tag' => '', //25
-	'following_q' => '', //26
-	'toggle' => '', // 27
-	'category' => '' //28
-	);
+        if (!empty($a['a_latest'])) {
+            $reltime = \Lampcms\TimeAgo::format(new \DateTime($a['a_latest'][0]['t']));
+            $a['last_poster'] = '<div class="lastposter fl cb">' . $a['latest_by'] . ': ' . $a['a_latest'][0]['u'] . '<br>
+			<span title="' . $a['a_latest'][0]['t'] . '" class="ts">' . $reltime . '</span></div>';
+        }
+    }
 
-	protected static $tpl = '
+    protected static $vars = array(
+        '_id' => '0', //1
+        'i_votes' => '0', //2
+        'i_ans' => '0', //3
+        'i_views' => '0', //4
+        'url' => '', //5
+        'intro' => '', //6
+        'title' => '', //7
+        'tags_c' => '', //8
+        'tags_html' => '', //9
+        'status' => 'un', //10
+        'username' => '', //11
+        'avtr' => '/images/avatar.png', //12
+        'hts' => '', //13
+        'i_ts' => '', //14
+        'vw_s' => 's', //15
+        'v_s' => '', //16
+        'ans_s' => '', //17
+        'deleted' => '', //18
+        'closed' => '', //19
+        'asked' => 'asked', //20
+        'i_sticky' => '', //21
+        'dot' => '', //22
+        'last_poster' => '', //23
+        'i_etag' => '0', //24
+        'following_tag' => '', //25
+        'following_q' => '', //26
+        'toggle' => '', // 27
+        'category' => '' //28
+    );
+
+    protected static $tpl = '
 	<div class="qs%18$s%25$s" id="q-%1$s" lampcms:i_etag="%24$s">  
     <div class="qstats">
         <div class="arrow1"></div>

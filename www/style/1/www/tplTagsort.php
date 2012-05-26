@@ -45,19 +45,19 @@
  */
 class tplTagsort extends Lampcms\Template\Fast
 {
-	protected static $vars = array(
-	'popular_c' => '', //1
-	'name_c' => '', //2
-	'recent_c' => '', //3
-	'popular' => 'Popular', //4
-	'popular_t' => 'Most popular tags', //5
-	'name' => 'Name', //6
-	'name_t' => 'Sort by name', //7
-	'recent' => 'Latest', //8
-	'recent_t' => 'Tags with most recent questions' //9
-	);
+    protected static $vars = array(
+        'popular_c' => '', //1
+        'name_c' => '', //2
+        'recent_c' => '', //3
+        'popular' => 'Popular', //4
+        'popular_t' => 'Most popular tags', //5
+        'name' => 'Name', //6
+        'name_t' => 'Sort by name', //7
+        'recent' => 'Latest', //8
+        'recent_t' => 'Tags with most recent questions' //9
+    );
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<div id="qtypes" class="cb fl reveal hidden">
 	<a href="/tags/popular/" class="ajax sortans ttt2 qtype%1$s" title="%5$s"><span rel="in">%4$s</span></a>
 	<a href="/tags/name/" class="ajax sortans ttt2 qtype%2$s" title="%7$s"><span rel="in">%6$s</span></a>

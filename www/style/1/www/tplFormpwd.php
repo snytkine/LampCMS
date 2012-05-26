@@ -39,25 +39,25 @@
 class tplFormpwd extends Lampcms\Template\Fast
 {
 
-	protected static $vars = array(
-	'token' => '', //1
-	'required' => 'Required field', //2
-	'title' => 'Forgotten password', //3
-	'login_l' => 'Username OR Email Address', // 4
-	'login_d' => 'If you have forgotten your
+    protected static $vars = array(
+        'token' => '', //1
+        'required' => 'Required field', //2
+        'title' => 'Forgotten password', //3
+        'login_l' => 'Username OR Email Address', // 4
+        'login_d' => 'If you have forgotten your
 		username or password, you can request to have your username emailed to
 		you and to reset your password. When you fill in your registered email
 		address, you will be sent instructions on how to reset your password.',
-	'login_e' => '', // 6
-	'login_c' => 'login_title', // 7
-	'formError' => '', // 8
-	'submit' => 'Get Password', //9
-	'reset' => 'Reset', // 10
-	'login' => '' // 11
-	);
+        'login_e' => '', // 6
+        'login_c' => 'login_title', // 7
+        'formError' => '', // 8
+        'submit' => 'Get Password', //9
+        'reset' => 'Reset', // 10
+        'login' => '' // 11
+    );
 
 
-	protected static $tpl = '<div id="userForm" class="frm1">
+    protected static $tpl = '<div id="userForm" class="frm1">
 <div class="frmtitle">%3$s</div>
 <form id="frm1" name="frm1" method="post" action="/index.php"
 	enctype="application/x-www-form-urlencoded" accept-charset="utf-8">

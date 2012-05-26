@@ -47,13 +47,13 @@
  */
 class tplAnswersheader extends Lampcms\Template\Fast
 {
-	protected static $vars = array(
-	'count' => '', //1
-	'answers' => 'Answers', // 2
-	'tabs' => '' //3
-	);
+    protected static $vars = array(
+        'count' => '', //1
+        'answers' => 'Answers', // 2
+        'tabs' => '' //3
+    );
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<a name="answers-block"></a>
     <div id="answers_hdr">
         <div class="answers_sub">

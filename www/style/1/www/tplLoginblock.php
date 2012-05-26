@@ -47,9 +47,9 @@
  */
 class tplLoginblock extends Lampcms\Template\Fast
 {
-	protected static $vars = array('Already a member?<br>Please login');
+    protected static $vars = array('Already a member?<br>Please login');
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<div class="loginBlock">
 	<form accept-charset="utf-8" action="/index.php" method="post" enctype="application/x-www-form-urlencoded" name="mLogin" id="mLogin">
 	<input name="a" type="hidden" value="login">

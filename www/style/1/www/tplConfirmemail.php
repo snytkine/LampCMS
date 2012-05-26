@@ -37,23 +37,23 @@
  */
 
 /**
- * 
+ *
  * Template for small block
  * on settings page that informs user that email
  * address has not yet been confirmed
- * 
+ *
  * @author admin
  *
  */
 class tplConfirmemail extends \Lampcms\Template\Fast
 {
 
-	protected static $vars = array(
-	'email' => '',
-	'notConfirmed' => 'not validated',
-	'sendLink' => 'send me validation link' );
-	
-	protected static $tpl = '<div class="fl cb warn">
+    protected static $vars = array(
+        'email' => '',
+        'notConfirmed' => 'not validated',
+        'sendLink' => 'send me validation link');
+
+    protected static $tpl = '<div class="fl cb warn">
 	(%1$s) %2$s<br>
 	<a href="/requestactivation/">%3$s</a>
 	</div>';

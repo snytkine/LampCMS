@@ -41,15 +41,15 @@ require 'www/bootstrap.php';
 /**
  * Run this from command line
  * or better from cron daily
- * 
+ *
  */
 
-require LAMPCMS_LIB_DIR.DIRECTORY_SEPARATOR.'!inc.php';
-try{
-	$o = \Lampcms\SiteMap::factory($Registry);
-	$o->run();
-} catch(Exception $e){
-	echo "\nError: ".$e->getFile().' on '.$e->getLine().' '.$e->getMessage();
+require LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . '!inc.php';
+try {
+    $o = \Lampcms\SiteMap::factory($Registry);
+    $o->run();
+} catch (Exception $e) {
+    echo "\nError: " . $e->getFile() . ' on ' . $e->getLine() . ' ' . $e->getMessage();
 }
 
 echo 'Done';

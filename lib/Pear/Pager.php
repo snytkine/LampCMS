@@ -35,7 +35,7 @@
  *
  *
  */
- 
+
 //namespace Pear;
 
 
@@ -53,26 +53,26 @@
  */
 class Pager
 {
-	/**
-	 * Return a pager based on $mode and $options
-	 *
-	 * @param array $options Optional parameters for the storage class
-	 *
-	 * @return object Storage object
-	 * @static
-	 * @access public
-	 */
-	public static function factory($options = array())
-	{
-		$mode = (isset($options['mode']) ? ucfirst($options['mode']) : 'Jumping');
-		$classname = 'Pager_' . $mode;
-		$classfile = DIRECTORY_SEPARATOR.'Pager' .DIRECTORY_SEPARATOR. $mode . '.php';
-		$common = DIRECTORY_SEPARATOR.'Pager' .DIRECTORY_SEPARATOR. 'Common.php';
+    /**
+     * Return a pager based on $mode and $options
+     *
+     * @param array $options Optional parameters for the storage class
+     *
+     * @return object Storage object
+     * @static
+     * @access public
+     */
+    public static function factory($options = array())
+    {
+        $mode = (isset($options['mode']) ? ucfirst($options['mode']) : 'Jumping');
+        $classname = 'Pager_' . $mode;
+        $classfile = DIRECTORY_SEPARATOR . 'Pager' . DIRECTORY_SEPARATOR . $mode . '.php';
+        $common = DIRECTORY_SEPARATOR . 'Pager' . DIRECTORY_SEPARATOR . 'Common.php';
 
-		include_once(LAMPCMS_LIB_DIR.DIRECTORY_SEPARATOR.'Pear'.$classfile);
-		$pager = new $classname($options);
+        include_once(LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . 'Pear' . $classfile);
+        $pager = new $classname($options);
 
-		return $pager;
-	}
+        return $pager;
+    }
 
 }

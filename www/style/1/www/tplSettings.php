@@ -39,18 +39,18 @@
 class tplSettings extends \Lampcms\Template\Fast
 {
 
-	protected static $vars = array(
-	'confirmation' => '', // 1
-	'change_password' => 'Change password', // 2
-	'profile' => 'Profile', //3
-	'profileUrl' => '/editprofile/', //4
-	'emailPrefs' => 'Email stuff', // 5
-	'clearCache' => '', //6
-	'editCategories' => '' //7
-	);
+    protected static $vars = array(
+        'confirmation' => '', // 1
+        'change_password' => 'Change password', // 2
+        'profile' => 'Profile', //3
+        'profileUrl' => '/editprofile/', //4
+        'emailPrefs' => 'Email stuff', // 5
+        'clearCache' => '', //6
+        'editCategories' => '' //7
+    );
 
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<div id="tools"> 
 	%1$s
 		<div class="tool"> 

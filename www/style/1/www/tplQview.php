@@ -44,15 +44,15 @@
  * Qview is the main template to
  * view just about any page
  * in questions module
- * 
+ *
  * In default view it has 2 columns,
  * in mobile view it will have just one
  * column.
- * 
+ *
  * Header has something like breadcrumb,
- * body has the parsed view of oneQuestion 
+ * body has the parsed view of oneQuestion
  * or List view template
- * 
+ *
  * and the right column (or somewhere at the bottom
  * or not all all in mobile view) is the block with
  * tags like 'recent tags' or 'unanswered tags' or
@@ -62,23 +62,24 @@
  * @author Dmitri Snytkine
  *
  */
-class tplQview extends Lampcms\Template\Fast{
+class tplQview extends Lampcms\Template\Fast
+{
 
-	protected static $vars = array(
-	'header' => '', //1
-	'body' => '', //2
-	'footer' => '', //3
-	'tags' => '', // 4
-	'toptabs' => '', // 5
-	'topright' => '', // 6
-	'right2' => '', // 7
-	'right3' => '', // 8
-	'right4' => '', // 9
-	'right5' => '' // 10
-	);
+    protected static $vars = array(
+        'header' => '', //1
+        'body' => '', //2
+        'footer' => '', //3
+        'tags' => '', // 4
+        'toptabs' => '', // 5
+        'topright' => '', // 6
+        'right2' => '', // 7
+        'right3' => '', // 8
+        'right4' => '', // 9
+        'right5' => '' // 10
+    );
 
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<div id="qview">
 	<div class="yui-ge">
          <div class="yui-u first">

@@ -40,24 +40,24 @@
 class tplComform extends Lampcms\Template\Fast
 {
 
-	protected static $vars = array(
-	'token' => '1',
-	'rid' => '',
-	'qs' => '',
-	'pageID' => '0',
-	'label' => '', //5
-	'avatar' => '',
-	'text' => '',
-	'btn' => 'Post comment',
-	'header' => '',
-	'connectBlock' => '', //10
-	'readonly' => 'no', //11
-	'hand' => '', //12
-	'disabled' => '' //13
-	);
+    protected static $vars = array(
+        'token' => '1',
+        'rid' => '',
+        'qs' => '',
+        'pageID' => '0',
+        'label' => '', //5
+        'avatar' => '',
+        'text' => '',
+        'btn' => 'Post comment',
+        'header' => '',
+        'connectBlock' => '', //10
+        'readonly' => 'no', //11
+        'hand' => '', //12
+        'disabled' => '' //13
+    );
 
 
-	protected static $tpl = '<div id="comformdiv">
+    protected static $tpl = '<div id="comformdiv">
 	%9$s
 	<a name="com_label"></a>
 	<span class="com_label rounded">%5$s</span>
@@ -87,6 +87,6 @@ class tplComform extends Lampcms\Template\Fast
 </tr> 
 </table> 
 </form></div>';
-	
+
 }
 

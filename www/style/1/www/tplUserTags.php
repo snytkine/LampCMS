@@ -35,34 +35,35 @@
  *
  *
  */
- 
+
 
 /**
  * This template renders block
  * with "User tags" on user profile page
  * and "User following these tags" block
  * on the profile page
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
 class tplUserTags extends Lampcms\Template\Fast
 {
-	protected static function func(&$a){
-		if($a['count'] != 1){
-			$a['s'] = 's';
-		}
-	}
-	
-	protected static $vars = array(
-	'count' => '', //1
-	'label' => '', //2
-	'tags' => '', //3
-	's' => ''
-	);
-	
-	// %2$s%4$s
-	protected static $tpl = '
+    protected static function func(&$a)
+    {
+        if ($a['count'] != 1) {
+            $a['s'] = 's';
+        }
+    }
+
+    protected static $vars = array(
+        'count' => '', //1
+        'label' => '', //2
+        'tags' => '', //3
+        's' => ''
+    );
+
+    // %2$s%4$s
+    protected static $tpl = '
 	<div class="user_tags cb fl">
 	<h3><span class="counter">%1$s</span></h3>
 		<div id="utags2">

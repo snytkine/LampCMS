@@ -47,20 +47,20 @@
  */
 class tplRelatedlink extends Lampcms\Template\Fast
 {
-	/**
-	 * 'tag' and 'link' are not always the same
-	 * in 'Related tags' block the link would be like this:
-	 * php+mysql while the 'tag' is just 'mysql'
-	 *
-	 * @var array
-	 */
-	protected static $vars = array(
-	'tag' => '', 
-	'title' => '',
-	'link' => '',
-	'i_count' => '');
+    /**
+     * 'tag' and 'link' are not always the same
+     * in 'Related tags' block the link would be like this:
+     * php+mysql while the 'tag' is just 'mysql'
+     *
+     * @var array
+     */
+    protected static $vars = array(
+        'tag' => '',
+        'title' => '',
+        'link' => '',
+        'i_count' => '');
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<div class="t2 t-%1$s">
 	<a href="/tagged/%3$s/" title="View questions tagged \'%2$s\'">%1$s</a>
 	<span>&times;&nbsp;%4$s</span></div>';

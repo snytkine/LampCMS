@@ -35,7 +35,7 @@
  *
  *
  */
- 
+
 /**
  * Template to generate one div with
  * recent question link
@@ -49,21 +49,21 @@
  */
 class tplRecentquestions extends Lampcms\Template\Fast
 {
-	protected static $vars = array(
-	'_id' => '0', // 1
-	'i_ans' => '0', // 2
-	'url' => '', // 3
-	'intro' => '', //4
-	'title' => '', // 5
-	'status' => 'un', // 6
-	'avtr' => '', // 7
-	'hts' => '', // 8
-	'vw_s' => 's', // 9
-	'ans_s' => '' // 10
-	);
-	
-	
-	protected static $tpl = '
+    protected static $vars = array(
+        '_id' => '0', // 1
+        'i_ans' => '0', // 2
+        'url' => '', // 3
+        'intro' => '', //4
+        'title' => '', // 5
+        'status' => 'un', // 6
+        'avtr' => '', // 7
+        'hts' => '', // 8
+        'vw_s' => 's', // 9
+        'ans_s' => '' // 10
+    );
+
+
+    protected static $tpl = '
 	<div class="rq">
 		<div class="avtr32"><img src="%7$s" height="40" width="40" alt=""></div>
 		<div class="fl a2">

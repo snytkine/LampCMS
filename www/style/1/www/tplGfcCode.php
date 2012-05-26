@@ -44,9 +44,9 @@
  */
 class tplGfcCode extends Lampcms\Template\Fast
 {
-	protected static $vars = array('id' => '');
+    protected static $vars = array('id' => '');
 
-	protected static $tpl = '
+    protected static $tpl = '
 <script src="http://www.google.com/jsapi"></script>
 <script type="text/javascript">
   google.load(\'friendconnect\', \'0.8\');

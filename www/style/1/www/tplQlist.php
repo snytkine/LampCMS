@@ -43,28 +43,28 @@
  * for example 'all questions' or by tag or 'hot questions'
  * it has 3 parts;
  * title, body and pagination block
- * 
+ *
  * The reason that pagination is included
  * in this template is because we can send this parsed
- * 
+ *
  * template as ajax response, and it will be complete
  * with pagination.
- * 
+ *
  *
  * @author Dmitri Snytkine
  *
  */
 class tplQlist extends Lampcms\Template\Fast
 {
-	protected static $vars = array(
-	'qtypes' => '', 
-	'qlist' => '', 
-	'pages' => '',
-	'notAjaxPaginatable' => '');
+    protected static $vars = array(
+        'qtypes' => '',
+        'qlist' => '',
+        'pages' => '',
+        'notAjaxPaginatable' => '');
 
-	protected static $tpl = '
+    protected static $tpl = '
 	%1$s
 	<div class="sortable paginated%4$s qlist">%2$s</div>
 	%3$s';
-	
+
 }

@@ -39,7 +39,7 @@
 
 /**
  *
- * Generates block with 
+ * Generates block with
  * details about User Questions
  * This block will contain a list
  * of questions which is parsed by the
@@ -50,20 +50,21 @@
  */
 class tplUserQuestions extends Lampcms\Template\Simple
 {
-	protected static function func(&$a){
-		if($a['{count}'] != 1){
-			$a['{s}'] = 's';
-		}
-	}
+    protected static function func(&$a)
+    {
+        if ($a['{count}'] != 1) {
+            $a['{s}'] = 's';
+        }
+    }
 
-	protected static $vars = array(
-	'{count}' => '',
-	'{label}' => 'Question',
-	'{questions}' => '',
-	'{s}' => '',
-	'{pagination}' => '');
+    protected static $vars = array(
+        '{count}' => '',
+        '{label}' => 'Question',
+        '{questions}' => '',
+        '{s}' => '',
+        '{pagination}' => '');
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<div class="user_questions mt10">
 	<span class="counter cb fl larger bold">{count} {label}{s}</span>
 		<div class="cb fl">

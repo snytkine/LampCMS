@@ -39,8 +39,8 @@
 /**
  * This is the main html template
  * for the whole page
- * 
- * 
+ *
+ *
  * @author Dmitri Snytkine
  *
  */
@@ -48,54 +48,54 @@ class tplMain extends Lampcms\Template\Fast
 {
 
 
-	protected static $vars = array(
-	'title' => 'title', //1
-	'site_url' => '', //2
-	'site_title' => '', // 3
-	'site_description' => '', //4
-	'version_id' => '', //5
-	'session_uid' => '', //6
-	'description' => '', //7
-	'extra_metas' => '', //8
-	'css1' => '', // 9
-	'main_css' => '/css/main.css', //10
-	'extra_css' => '', //11
-	'js' => '<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.9.0/build/utilities/utilities.js&2.9.0/build/button/button-min.js&2.9.0/build/container/container-min.js&2.9.0/build/cookie/cookie-min.js&2.9.0/build/json/json-min.js"></script>',
-	'gfc_js' => '', //13
-	'fb_js' => '', //14
-	'template_id' => 'yui-t6', //15
-	'header' => '', //16
-	'body' => '', //17
-	'side' => '', //18
-	'footer' => '', //19
-	'extra_html' => '', //20
-	'last_js' => '', //21
-	'ads_js' => '', //22
-	'analytics_js' => '', // 23
-	'topTabs' => '', //24
-	'topRight' => '', //25
-	'right2' => '', // 26
-	'right3' => '', // 27
-	'right4' => '', // 28
-	'right5' => '', // 29
-	'qheader' => '', // 30
-	'tags' => '', // 31
-	'layoutID' => '1', // 32
-	'role' => 'guest', // 33
-	'rep' => '1', // 34
-	'JS' => '', //35
-	'show_comments' => '5', //36
-	'comments_timeout' => '5',//37
-	'max_comments' => '0', // 38
-	'JS_MIN_ID' => '', // 39
-	'DISABLE_AUTOCOMPLETE' => '', // 40
-	'langsForm' => '', //41
-	'home' => 'Home', // 42
-	'category' => '', //43
-	'keywords' => '' //44
-	);
+    protected static $vars = array(
+        'title' => 'title', //1
+        'site_url' => '', //2
+        'site_title' => '', // 3
+        'site_description' => '', //4
+        'version_id' => '', //5
+        'session_uid' => '', //6
+        'description' => '', //7
+        'extra_metas' => '', //8
+        'css1' => '', // 9
+        'main_css' => '/css/main.css', //10
+        'extra_css' => '', //11
+        'js' => '<script type="text/javascript" src="http://yui.yahooapis.com/combo?2.9.0/build/utilities/utilities.js&2.9.0/build/button/button-min.js&2.9.0/build/container/container-min.js&2.9.0/build/cookie/cookie-min.js&2.9.0/build/json/json-min.js"></script>',
+        'gfc_js' => '', //13
+        'fb_js' => '', //14
+        'template_id' => 'yui-t6', //15
+        'header' => '', //16
+        'body' => '', //17
+        'side' => '', //18
+        'footer' => '', //19
+        'extra_html' => '', //20
+        'last_js' => '', //21
+        'ads_js' => '', //22
+        'analytics_js' => '', // 23
+        'topTabs' => '', //24
+        'topRight' => '', //25
+        'right2' => '', // 26
+        'right3' => '', // 27
+        'right4' => '', // 28
+        'right5' => '', // 29
+        'qheader' => '', // 30
+        'tags' => '', // 31
+        'layoutID' => '1', // 32
+        'role' => 'guest', // 33
+        'rep' => '1', // 34
+        'JS' => '', //35
+        'show_comments' => '5', //36
+        'comments_timeout' => '5', //37
+        'max_comments' => '0', // 38
+        'JS_MIN_ID' => '', // 39
+        'DISABLE_AUTOCOMPLETE' => '', // 40
+        'langsForm' => '', //41
+        'home' => 'Home', // 42
+        'category' => '', //43
+        'keywords' => '' //44
+    );
 
-	protected static $tpl = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+    protected static $tpl = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html xmlns:fb="http://www.facebook.com/2008/fbml" xmlns:lampcms="http://www.lampcms.com/xml">
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">

@@ -39,9 +39,9 @@
 
 class tplCaptcha extends Lampcms\Template\Fast
 {
-	protected static $vars = array();
+    protected static $vars = array();
 
-	protected static $tpl = '
+    protected static $tpl = '
 		<div class="captcha">
 			<span class="red"> * </span><span class="label2">Are you human? (sorry, we have to verify)</span><br>
 			<div id="imgcaptcha">%1$s</div>

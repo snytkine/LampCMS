@@ -49,12 +49,12 @@
 class tplCounterblock extends Lampcms\Template\Fast
 {
 
-	protected static $vars = array(
-	'count' => '',
-	'text' => '',
-	'subtext' => '');
+    protected static $vars = array(
+        'count' => '',
+        'text' => '',
+        'subtext' => '');
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<div class="block" id="q-count">
       <div class="q-counter">%1$s</div>
       <p>%2$s</p>

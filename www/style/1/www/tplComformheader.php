@@ -38,11 +38,11 @@
 
 class tplComformheader extends Lampcms\Template\Fast
 {
-	protected static $vars = array(
-	'label' => 'Comments',
-	'count' => '0');
+    protected static $vars = array(
+        'label' => 'Comments',
+        'count' => '0');
 
-	protected static $tpl = '<div class="com_header rounded">
+    protected static $tpl = '<div class="com_header rounded">
 	<div class="com_head_label">%1$s</div>
 	<div class="com_head_count rounded">%2$s</div>
 	</div>';

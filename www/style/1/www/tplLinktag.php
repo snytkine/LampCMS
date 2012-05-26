@@ -50,38 +50,39 @@
  */
 class tplLinktag extends Lampcms\Template\Fast
 {
-	
-	/**
-	 * For this template we don't 
-	 * want to add html debug code
-	 * even when in debug mode
-	 * because result of this parsed
-	 * question is stored with the
-	 * question.
-	 * 
-	 * @var bool
-	 */
-	protected static $debug = false;
-	
-	/**
-	 * This is important!
-	 * Since tags can be any combination of cars, even
-	 * brackets and + sign, we should always urlencode tag's value
-	 * for the link!
-	 * 
-	 * @param array $a
-	 */
-	protected static function func(&$a){
-		$a['encoded'] = urlencode($a['tag']);
-	}
-	
-	protected static $vars = array(
-	'tag' => '', 
-	'i_count' => '',
-	'encoded' => ''
-	);
 
-	protected static $tpl = '
+    /**
+     * For this template we don't
+     * want to add html debug code
+     * even when in debug mode
+     * because result of this parsed
+     * question is stored with the
+     * question.
+     *
+     * @var bool
+     */
+    protected static $debug = false;
+
+    /**
+     * This is important!
+     * Since tags can be any combination of cars, even
+     * brackets and + sign, we should always urlencode tag's value
+     * for the link!
+     *
+     * @param array $a
+     */
+    protected static function func(&$a)
+    {
+        $a['encoded'] = urlencode($a['tag']);
+    }
+
+    protected static $vars = array(
+        'tag' => '',
+        'i_count' => '',
+        'encoded' => ''
+    );
+
+    protected static $tpl = '
 	<div class="t2 t-%1$s">
 	<a href="/tagged/%3$s/" title="Questions tagged \'%1$s\'">%1$s</a>
 	<span>&times;&nbsp;%2$s</span>

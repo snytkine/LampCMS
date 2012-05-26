@@ -39,12 +39,12 @@
 class tplSimitemdiv extends Lampcms\Template\Fast
 {
 
-	protected static $vars = array(
-	'sim_mid' => '',
-	'sim_elm_url' => '',
-	'sim_elm_body' => '',
-	'sim_elm_subj' => '',
-	'sim_elm_lpt' => '');
+    protected static $vars = array(
+        'sim_mid' => '',
+        'sim_elm_url' => '',
+        'sim_elm_body' => '',
+        'sim_elm_subj' => '',
+        'sim_elm_lpt' => '');
 
-	protected static $tpl = '<div class="sim1"><a href="/%2$s-at%1$s.htm">%4$s</a><br><span class="ts" title="%5$s AMT">%5$s</span><br>%3$s</div>';
+    protected static $tpl = '<div class="sim1"><a href="/%2$s-at%1$s.htm">%4$s</a><br><span class="ts" title="%5$s AMT">%5$s</span><br>%3$s</div>';
 }

@@ -35,7 +35,7 @@
  *
  *
  */
- 
+
 /**
  * Template for a block on
  * user profile page
@@ -44,53 +44,53 @@
  * user profile page like
  * Block with all user questions, another one
  * with user answers, etc.
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
 class tplUserInfo extends Lampcms\Template\Fast
 {
-	
-	protected static $vars = array(
-	'username' => '', // 1
-	'avatar' => '', //2
-	'reputation' => '', // 3
-    'reputationLabel' => 'reputation', // 4
-	'name' => '', // 5
-	'nameLabel' => 'Name', // 6
-	'since' => '', // 7
-	'sinceLabel' => 'Member since', // 8
-	'lastActivity' => '', // 9
-	'lastLabel' => 'Last seen', // 10
-	'website' => '',// 11
-	'websiteLabel' => 'Website', //12
-	'twitter' => '', // 13
-	'twitterLabel' => 'Twitter', //14
-	'facebook' => '', //15
-	'facebookLabel' => 'Facebook', // 16
-	'location' => '', // 17
-	'locationLabel' => 'Location', //18
-	'age' => '', //19
-	'ageLabel' => 'Age', //20
-	'description' => '', //21
-	'editRole' => '', // 22
-	'followButton' => '', // 23
-	'followers' => '', //24
-	'following' => '', //25
-	'gender' => '', //26
-	'genderLabel' => 'Gender', //27
-	'editLink' => '', //28
-	'usernameLabel' => 'Username', //29
-	'tumblr' => '', //30
-	'tumblrLabel' => 'Tumblr', //31
-	'blogger' => '', //32
-	'bloggerLabel' => 'Blogger', //33
-	'linkedin' => '', //34
-	'linkedinLabel' => 'LinkedIn', //35
-	);
-	
-	
-	protected static $tpl = '
+
+    protected static $vars = array(
+        'username' => '', // 1
+        'avatar' => '', //2
+        'reputation' => '', // 3
+        'reputationLabel' => 'reputation', // 4
+        'name' => '', // 5
+        'nameLabel' => 'Name', // 6
+        'since' => '', // 7
+        'sinceLabel' => 'Member since', // 8
+        'lastActivity' => '', // 9
+        'lastLabel' => 'Last seen', // 10
+        'website' => '', // 11
+        'websiteLabel' => 'Website', //12
+        'twitter' => '', // 13
+        'twitterLabel' => 'Twitter', //14
+        'facebook' => '', //15
+        'facebookLabel' => 'Facebook', // 16
+        'location' => '', // 17
+        'locationLabel' => 'Location', //18
+        'age' => '', //19
+        'ageLabel' => 'Age', //20
+        'description' => '', //21
+        'editRole' => '', // 22
+        'followButton' => '', // 23
+        'followers' => '', //24
+        'following' => '', //25
+        'gender' => '', //26
+        'genderLabel' => 'Gender', //27
+        'editLink' => '', //28
+        'usernameLabel' => 'Username', //29
+        'tumblr' => '', //30
+        'tumblrLabel' => 'Tumblr', //31
+        'blogger' => '', //32
+        'bloggerLabel' => 'Blogger', //33
+        'linkedin' => '', //34
+        'linkedinLabel' => 'LinkedIn', //35
+    );
+
+
+    protected static $tpl = '
 <div class="yui3-g mb10" id="view_profile">
 	
 <div class="yui3-u-1-2" id="profileMiddle">
@@ -167,6 +167,6 @@ class tplUserInfo extends Lampcms\Template\Fast
 		%22$s
 	</div>
 </div>';
-	
-	
+
+
 }

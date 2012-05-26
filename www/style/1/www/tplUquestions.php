@@ -50,33 +50,34 @@
 class tplUquestions extends \Lampcms\Template\Fast
 {
 
-	protected static function func(&$a){
-		if(!empty($a['a_closed'])){
-			$a['title'] = $a['title'].' [closed]';
-		}
-	}
+    protected static function func(&$a)
+    {
+        if (!empty($a['a_closed'])) {
+            $a['title'] = $a['title'] . ' [closed]';
+        }
+    }
 
-	protected static $vars = array(
-	'_id' => '0', //1
-	'i_votes' => '0', //2
-	'i_ans' => '0', //3
-	'i_views' => '0', //4
-	'url' => '', //5
-	'intro' => '', //6
-	'title' => '', //7
-	'tags_c' => '', //8
-	'tags_html' => '', //9
-	'status' => 'un', //10
-	'username' => '', //11
-	'avtr' => '',//12
-	'hts' => '',//13
-	'i_ts' => '',//14
-	'vw_s' => 's',//15
-	'v_s' => '',//16
-	'ans_s' => ''//17
-	);
+    protected static $vars = array(
+        '_id' => '0', //1
+        'i_votes' => '0', //2
+        'i_ans' => '0', //3
+        'i_views' => '0', //4
+        'url' => '', //5
+        'intro' => '', //6
+        'title' => '', //7
+        'tags_c' => '', //8
+        'tags_html' => '', //9
+        'status' => 'un', //10
+        'username' => '', //11
+        'avtr' => '', //12
+        'hts' => '', //13
+        'i_ts' => '', //14
+        'vw_s' => 's', //15
+        'v_s' => '', //16
+        'ans_s' => '' //17
+    );
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<div class="qrow" id="q-%1$s">  
 	    <div class="qstats2">        
 	       <div class="sqr1 vc2">

@@ -38,24 +38,24 @@
 
 /**
  * Template of the login form
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
 class tplLoginform extends Lampcms\Template\Fast
 {
 
-	protected static $vars = array(
-	'username' => 'Username', //1
-	'password' => 'Password', //2
-	'remember' => 'Remember', //3
-	'usernameRequired' => 'Username is required', //4
-	'forgot' => 'Forgot password?', //5
-	'login' => 'Log in', //6
-	'error' => '' //7
-	);
+    protected static $vars = array(
+        'username' => 'Username', //1
+        'password' => 'Password', //2
+        'remember' => 'Remember', //3
+        'usernameRequired' => 'Username is required', //4
+        'forgot' => 'Forgot password?', //5
+        'login' => 'Log in', //6
+        'error' => '' //7
+    );
 
-	protected static $tpl = '<div class="fl uwelcome"><form action="/index.php" method="post" name="frmLogin" id="frmLogin">
+    protected static $tpl = '<div class="fl uwelcome"><form action="/index.php" method="post" name="frmLogin" id="frmLogin">
 <input name="_qf__frmLogin" type="hidden" value="">
 <input name="a" type="hidden" value="login">
 <input name="r" type="hidden" value="%1$s">

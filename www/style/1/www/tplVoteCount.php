@@ -35,19 +35,19 @@
  *
  *
  */
- 
+
 /**
- * 
+ *
  * One div with numer of times user voted up or down
  * It is used inside the tplUserVotes template
  *
  */
 class tplVoteCount extends Lampcms\Template\Fast
 {
-	
-	protected static $vars = array(
-	'type' => '',
-	'count' => '');
-	
-	protected static $tpl = '<div class="vote vote%1$s">%2$s</div>';
+
+    protected static $vars = array(
+        'type' => '',
+        'count' => '');
+
+    protected static $tpl = '<div class="vote vote%1$s">%2$s</div>';
 }

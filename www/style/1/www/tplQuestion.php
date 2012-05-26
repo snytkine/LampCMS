@@ -61,85 +61,87 @@
 class tplQuestion extends Lampcms\Template\Fast
 {
 
-	protected static function func(&$a){
-		if(array_key_exists('a_edited', $a)){
-			/**
-			 * A way to pass "translated"
-			 * version of "Edited" word
-			 * to the tplEditedby template
-			 */
-			$aEdited = end($a['a_edited']);
-			$aEdited['edited'] = $a['edited'];
-				
-			$a['edits'] = \tplEditedby::parse($aEdited, false);
-		}
+    protected static function func(&$a)
+    {
+        if (array_key_exists('a_edited', $a)) {
+            /**
+             * A way to pass "translated"
+             * version of "Edited" word
+             * to the tplEditedby template
+             */
+            $aEdited = end($a['a_edited']);
+            $aEdited['edited'] = $a['edited'];
 
-		if(!empty($a['i_sticky'])){
-			$a['sticky'] = ' sticky';
-		}
+            $a['edits'] = \tplEditedby::parse($aEdited, false);
+        }
 
-		if(!empty($a['a_comments'])){
-			/**
-			 * Closure function
-			 * to pass resource_id
-			 * and author id of this
-			 * Question to the tplComments
-			 * This way we don't have to store
-			 * duplicate data in each comment
-			 * element and still be able to
-			 * have access to these 2 important
-			 * fields in the tplComments template
-			 * We going to need id or resource owner
-			 * in order to add it to the "reply" link
-			 * in the form of class uid-$uid
-			 *
-			 */
-			$rid     = $a['_id'];
-			$uid     = $a['i_uid'];
-			$reply   = $a['reply'];
-			$reply_t = $a['reply_t'];
-				
-			$f = function(&$data) use ($rid, $uid, $reply, $reply_t){
-				$data['resource_id'] = $rid;
-				$data['owner_id']    = $uid;
-				$data['reply']       = $reply;
-				$data['reply_t']     = $reply_t;
-			};
-				
-			$a['comments_html'] = tplComment::loop($a['a_comments'], true, $f); //
-		}
-	}
+        if (!empty($a['i_sticky'])) {
+            $a['sticky'] = ' sticky';
+        }
 
-	protected static $vars = array(
-	'_id' => '', // 1
-	'b' => '', // 2
-	'ulink' => '', // 3
-	'avtr' => '', // 4
-	'tags_html' => '', // 5
-	'credits' => '', // 6
-	'hts' => '', // 7
-	'i_votes' => '', // 8
-	'i_favs' => '', // 9
-	'i_uid' => '0', // 10 Question author id
-	'i_views' => '0', // 11
-	'vw_s' => 's',  // 12
-	'vote_up' => "\xE2\x87\xA7", // 13 \xE2\x87\xA7
-	'vote_down' => "\xE2\x87\xA9", // 14
-	'i_flags' => '', //15
-	'deleted' => '', // 16
-	'deletedby' => '', //17
-	'edits' => '', //18
-	'sticky' => '', //19
-	'comments_html' => '', //20
-	'i_comments' => '0', //21
-	'nocomments' => '', //22
-	'add_comment' => 'add comment', //23
-	'cc' => '', // 24
-	'cn' => '', //25
-	'city' => '' //26
-	);
+        if (!empty($a['a_comments'])) {
+            /**
+             * Closure function
+             * to pass resource_id
+             * and author id of this
+             * Question to the tplComments
+             * This way we don't have to store
+             * duplicate data in each comment
+             * element and still be able to
+             * have access to these 2 important
+             * fields in the tplComments template
+             * We going to need id or resource owner
+             * in order to add it to the "reply" link
+             * in the form of class uid-$uid
+             *
+             */
+            $rid = $a['_id'];
+            $uid = $a['i_uid'];
+            $reply = $a['reply'];
+            $reply_t = $a['reply_t'];
 
-	protected static $tpl = '
+            $f = function(&$data) use ($rid, $uid, $reply, $reply_t)
+            {
+                $data['resource_id'] = $rid;
+                $data['owner_id'] = $uid;
+                $data['reply'] = $reply;
+                $data['reply_t'] = $reply_t;
+            };
+
+            $a['comments_html'] = tplComment::loop($a['a_comments'], true, $f); //
+        }
+    }
+
+    protected static $vars = array(
+        '_id' => '', // 1
+        'b' => '', // 2
+        'ulink' => '', // 3
+        'avtr' => '', // 4
+        'tags_html' => '', // 5
+        'credits' => '', // 6
+        'hts' => '', // 7
+        'i_votes' => '', // 8
+        'i_favs' => '', // 9
+        'i_uid' => '0', // 10 Question author id
+        'i_views' => '0', // 11
+        'vw_s' => 's', // 12
+        'vote_up' => "\xE2\x87\xA7", // 13 \xE2\x87\xA7
+        'vote_down' => "\xE2\x87\xA9", // 14
+        'i_flags' => '', //15
+        'deleted' => '', // 16
+        'deletedby' => '', //17
+        'edits' => '', //18
+        'sticky' => '', //19
+        'comments_html' => '', //20
+        'i_comments' => '0', //21
+        'nocomments' => '', //22
+        'add_comment' => 'add comment', //23
+        'cc' => '', // 24
+        'cn' => '', //25
+        'city' => '' //26
+    );
+
+    protected static $tpl = '
 	<table class="question_table%16$s">
 	<tr>
 		<td class="td_votes" align="center" width="90px">

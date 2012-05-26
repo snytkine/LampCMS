@@ -38,44 +38,43 @@
 
 class tplSimtabs extends Lampcms\Template\Fast
 {
-	/**
-	 * $aData will be submitted in format:
-	 *
-	 *  $aData = array(
-	 *	array('Similar Threads', 'div contents'),
-	 *	array('Similar Questions', 'div contents'));
-	 *
-	 * Data array will be prepared and ready
-	 * to be used in this template
-	 * 
-	 * Don NOT Change this if you don't understand
-	 * it!
-	 * 
-	 * @param array $a
-	 */
-	protected static function func(&$a){
-		$aTmp = $a;
-		$lis = '';
-		$divs = '';
-		for($i = 0; $i < count($aTmp); $i += 1){
-			$class = (0 === $i) ? 'selected' : 'atab';
-			$lis .= sprintf('<li class="%s"><a href="#simtab%d"><span class="i18n">%s</span></a></li>', $class, ($i+1), $aTmp[$i][0]);
-			$divs .= sprintf('<div id="simtab%d">%s</div>', ($i+1), $aTmp[$i][1]);
-		}
+    /**
+     * $aData will be submitted in format:
+     *
+     *  $aData = array(
+     *    array('Similar Threads', 'div contents'),
+     *    array('Similar Questions', 'div contents'));
+     *
+     * Data array will be prepared and ready
+     * to be used in this template
+     *
+     * Don NOT Change this if you don't understand
+     * it!
+     *
+     * @param array $a
+     */
+    protected static function func(&$a)
+    {
+        $aTmp = $a;
+        $lis = '';
+        $divs = '';
+        for ($i = 0; $i < count($aTmp); $i += 1) {
+            $class = (0 === $i) ? 'selected' : 'atab';
+            $lis .= sprintf('<li class="%s"><a href="#simtab%d"><span class="i18n">%s</span></a></li>', $class, ($i + 1), $aTmp[$i][0]);
+            $divs .= sprintf('<div id="simtab%d">%s</div>', ($i + 1), $aTmp[$i][1]);
+        }
 
-		$a['lis'] = $lis;
-		$a['divs'] = $divs;
-	}
+        $a['lis'] = $lis;
+        $a['divs'] = $divs;
+    }
 
 
+    protected static $vars = array(
+        'lis' => '',
+        'divs' => ''
+    );
 
-
-	protected static $vars = array(
-	'lis' => '',
-	'divs' => ''
-	);
-
-	protected static $tpl = '
+    protected static $tpl = '
 	<div id="sims">
     	<ul class="yui-nav">%1$s</ul>
     	<div class="yui-content">%2$s</div>

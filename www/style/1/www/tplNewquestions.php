@@ -45,13 +45,13 @@
 class tplNewquestions extends Lampcms\Template\Fast
 {
 
-	protected static $vars = array(
-	'body' => '',
-	'title' => 'Latest Questions',
-	'block_url' => '/questions/'
-	);
+    protected static $vars = array(
+        'body' => '',
+        'title' => 'Latest Questions',
+        'block_url' => '/questions/'
+    );
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<div class="gblock">
 		<div class="hd"><a href="%3$s">%2$s</a></div> 
 		<div class="bd">%1$s</div>

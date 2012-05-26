@@ -35,22 +35,22 @@
  *
  *
  */
- 
+
 
 class tplRecentvideos extends Lampcms\Template\Fast
 {
-	protected static $vars = array(
-	'_id' => '0', // 1
-	'title' => '', // 2
-	'url_text' => '', // 3
-	'intro' => '', //4
-	'duration' => '0', // 5
-	'thumb_small' => '', // 6
-	'label_duration' => 'Duration' // 7
-	);
-	
-	
-	protected static $tpl = '
+    protected static $vars = array(
+        '_id' => '0', // 1
+        'title' => '', // 2
+        'url_text' => '', // 3
+        'intro' => '', //4
+        'duration' => '0', // 5
+        'thumb_small' => '', // 6
+        'label_duration' => 'Duration' // 7
+    );
+
+
+    protected static $tpl = '
 	<div class="rv">
 		<div class="vthumb"><img src="%6$s" width="108" height="81" alt="%2$s"></div>
 		<div class="fl a2">

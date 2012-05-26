@@ -35,31 +35,31 @@
  *
  *
  */
- 
+
 class tplToptabs extends Lampcms\Template\Fast
 {
-	
-	protected static function func(&$a){
-		$a['search'] = \tplSearchForm::parse(array('q' => '', 'search_label' => $a['search_label']));
-	}
-	
-	protected static $vars = array(
-		'questions_c' => '',
-		'unanswered_c' => '',
-		'tags_c' => '',
-		'ask_c' => '',
-		'questions' => 'Questions',
-		'unanswered' => 'Unanswered',
-		'tags' => 'Tags',
-		'ask' => 'Ask Question',
-		'search' => '', //9
-		'users_c' => '', //10
-		'users' => 'Members' //11
-	);
 
-	
-	
-	protected static $tpl = '<div id="navtabs" class="doc3">
+    protected static function func(&$a)
+    {
+        $a['search'] = \tplSearchForm::parse(array('q' => '', 'search_label' => $a['search_label']));
+    }
+
+    protected static $vars = array(
+        'questions_c' => '',
+        'unanswered_c' => '',
+        'tags_c' => '',
+        'ask_c' => '',
+        'questions' => 'Questions',
+        'unanswered' => 'Unanswered',
+        'tags' => 'Tags',
+        'ask' => 'Ask Question',
+        'search' => '', //9
+        'users_c' => '', //10
+        'users' => 'Members' //11
+    );
+
+
+    protected static $tpl = '<div id="navtabs" class="doc3">
                     <ul>
                         <li class="ttab%1$s"><a id="tab-q" href="/questions/">%5$s</a></li>
                         <li class="ttab%2$s"><a id="tab-un" href="/unanswered/">%6$s</a></li>

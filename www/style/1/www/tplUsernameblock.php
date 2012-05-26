@@ -45,12 +45,12 @@
  */
 class tplUsernameblock_ extends Lampcms\Template\Fast
 {
-	protected static $vars = array(
-	'usernameLabel' => 'Username',
-	'usernameVal' => '',
-	'usernameNote' => 'Username will appear alongside your posts');
+    protected static $vars = array(
+        'usernameLabel' => 'Username',
+        'usernameVal' => '',
+        'usernameNote' => 'Username will appear alongside your posts');
 
-	protected static $tpl = '<tr>
+    protected static $tpl = '<tr>
 	<td>
 	<div class="tr">
 	<span class="red"> * </span><span class="label2">%1$s</span><br/>

@@ -69,12 +69,12 @@
  */
 class tplBoxrecent extends Lampcms\Template\Fast
 {
-	protected static $vars = array(
-	'title' => 'Recent Tags', 
-	'id' => 'recent-tags', 
-	'tags' => '');
+    protected static $vars = array(
+        'title' => 'Recent Tags',
+        'id' => 'recent-tags',
+        'tags' => '');
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<div class="box fl cb" id="%2$s">
     	<div class="title">%1$s</div>
     		%3$s	

@@ -39,27 +39,27 @@
 class tplFormchangepwd extends \Lampcms\Template\Fast
 {
 
-	protected static $vars = array(
-	'token' => '', //1
-	'required' => 'required', //2
-	'current' => '', //3
-	'current_l' => 'Current Password', // 4
-	'current_d' => 'Enter your current password',
-	'current_e' => '', // 6
-	'pwd1' => '', //7
-	'pwd1_e' => '', //8
-	'pwd1_l' => 'Enter new password', //9
-	'pwd2' => '', //10
-	'pwd2_l' => 'Confirm new password', //11
-	'pwd2_e' => '', //12
-	'submit' => 'Save', //13
-	'formTitle' => '', // 14
-    'formError' => '', //15
-	'forgot' => 'Forgot password?' //16
-	); 
-	
-	
-	protected static $tpl = '
+    protected static $vars = array(
+        'token' => '', //1
+        'required' => 'required', //2
+        'current' => '', //3
+        'current_l' => 'Current Password', // 4
+        'current_d' => 'Enter your current password',
+        'current_e' => '', // 6
+        'pwd1' => '', //7
+        'pwd1_e' => '', //8
+        'pwd1_l' => 'Enter new password', //9
+        'pwd2' => '', //10
+        'pwd2_l' => 'Confirm new password', //11
+        'pwd2_e' => '', //12
+        'submit' => 'Save', //13
+        'formTitle' => '', // 14
+        'formError' => '', //15
+        'forgot' => 'Forgot password?' //16
+    );
+
+
+    protected static $tpl = '
 	<form name="pwdForm" method="POST" action="/index.php" accept-charset="utf-8">
 	<div id="tools" class="frm">
 	<div class="frmtitle">%14$s</div>

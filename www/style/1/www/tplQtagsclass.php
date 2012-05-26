@@ -52,20 +52,21 @@
  */
 class tplQtagsclass extends Lampcms\Template\Fast
 {
-	/**
-	 * This is important!
-	 * Since tags can be any combination of chars, even
-	 * brackets and + sign, we should always urlencode tag's value
-	 * for the link!
-	 *
-	 * @param array $a
-	 */
-	protected static function func(&$a){
-		$a[] = urlencode($a[0]);
-	}
+    /**
+     * This is important!
+     * Since tags can be any combination of chars, even
+     * brackets and + sign, we should always urlencode tag's value
+     * for the link!
+     *
+     * @param array $a
+     */
+    protected static function func(&$a)
+    {
+        $a[] = urlencode($a[0]);
+    }
 
-	protected static $vars = array(0 => '');
+    protected static $vars = array(0 => '');
 
-	protected static $tpl = 't-%2$s ';
+    protected static $tpl = 't-%2$s ';
 
 }

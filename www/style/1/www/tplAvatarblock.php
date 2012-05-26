@@ -39,9 +39,9 @@
 
 class tplAvatarblock extends Lampcms\Template\Fast
 {
-	protected static $vars = array('', '', '');
+    protected static $vars = array('', '', '');
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<tr>
 	<td>
 	<div id="regext">

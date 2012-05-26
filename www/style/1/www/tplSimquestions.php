@@ -53,28 +53,29 @@
  */
 class tplSimquestions extends Lampcms\Template\Fast
 {
-	/**
-	 * For this template we don't
-	 * want to add html debug code
-	 * even when in debug mode
-	 * because result of this parsed
-	 * question is stored with the
-	 * question.
-	 *
-	 * @var bool
-	 */
-	protected static $debug = false;
+    /**
+     * For this template we don't
+     * want to add html debug code
+     * even when in debug mode
+     * because result of this parsed
+     * question is stored with the
+     * question.
+     *
+     * @var bool
+     */
+    protected static $debug = false;
 
-	protected static function func(&$a){
-		$a['intro'] = trim($a['intro']);
-	}
+    protected static function func(&$a)
+    {
+        $a['intro'] = trim($a['intro']);
+    }
 
-	protected static $vars = array(
-	'qid' => '',
-	'url' => '',
-	'intro' => '',
-	'title' => '',
-	'hts' => '');
+    protected static $vars = array(
+        'qid' => '',
+        'url' => '',
+        'intro' => '',
+        'title' => '',
+        'hts' => '');
 
-	protected static $tpl = '<div class="simq"><a href="/q%1$s/%2$s" title="%3$s">%4$s</a><br><span class="ts" title="%5$s">%5$s</span><br></div>';
+    protected static $tpl = '<div class="simq"><a href="/q%1$s/%2$s" title="%3$s">%4$s</a><br><span class="ts" title="%5$s">%5$s</span><br></div>';
 }

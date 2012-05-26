@@ -46,12 +46,12 @@
  */
 class tplYuigrid2 extends Lampcms\Template\Fast
 {
-	protected static $vars = array(
-	'left' => '',
-	'right' => ''
-	);
+    protected static $vars = array(
+        'left' => '',
+        'right' => ''
+    );
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<div class="yui-g">
 		<div class="yui-u first">%1$s</div>
 		<div class="yui-u">%2$s</div>

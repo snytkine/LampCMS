@@ -38,39 +38,40 @@
 
 
 /**
- * 
- * Generates block with list of 
+ *
+ * Generates block with list of
  * links to questions in which user posted answer(s).
- * 
+ *
  * This block is shown or user details page
  * when viewing user profile
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
 class tplUserAnswers extends Lampcms\Template\Fast
 {
-	/**
-	 * Template pre-parse function
-	 * Append the 's' if count is plural
-	 * 
-	 * @param array $a
-	 */
-	protected static function func(&$a){
-		if($a['count'] != 1){
-			$a['s'] = 's';
-		}
-	}
+    /**
+     * Template pre-parse function
+     * Append the 's' if count is plural
+     *
+     * @param array $a
+     */
+    protected static function func(&$a)
+    {
+        if ($a['count'] != 1) {
+            $a['s'] = 's';
+        }
+    }
 
-	protected static $vars = array(
-	'count' => '',
-	'label' => 'Answer',
-	'answers' => '',
-	's' => '',
-	'pagination' => '');
-	
+    protected static $vars = array(
+        'count' => '',
+        'label' => 'Answer',
+        'answers' => '',
+        's' => '',
+        'pagination' => '');
 
-	protected static $tpl = '
+
+    protected static $tpl = '
 	<div class="user_answers mt10">
 	<span class="counter cb fl larger bold">%1$s %2$s%4$s</span> 
 		<div id="uanswers">

@@ -40,31 +40,31 @@
  * Template generates tabs
  * for sorting answers in the Question view
  * by Recent, Oldest or Voted
- * 
+ *
  * @author admin
  *
  */
 class tplAnstypes extends Lampcms\Template\Fast
 {
-	protected static $vars = array(
-	
-	'i_lm_ts_c' => '', // 1
-	'i_votes_c' => '', //2
-	
-	'i_lm_ts' => 'Active', //3 
-	'i_lm_ts_t' => 'Most recenty active', //4
-	
-	'i_votes' => 'Most Voted', //5
-	'i_votes_t' => 'Answers with highest votes', //6
+    protected static $vars = array(
 
-	'i_ts_c' => '', //7
-	'i_ts' => 'Oldest', // 8
-	'i_ts_t' => 'Oldest to recent' // 9
+        'i_lm_ts_c' => '', // 1
+        'i_votes_c' => '', //2
 
-	
-	);
+        'i_lm_ts' => 'Active', //3
+        'i_lm_ts_t' => 'Most recenty active', //4
 
-	protected static $tpl = '
+        'i_votes' => 'Most Voted', //5
+        'i_votes_t' => 'Answers with highest votes', //6
+
+        'i_ts_c' => '', //7
+        'i_ts' => 'Oldest', // 8
+        'i_ts_t' => 'Oldest to recent' // 9
+
+
+    );
+
+    protected static $tpl = '
 	<div id="qtypes" class="sorttab cb fl reveal hidden">
 		<a id="i_lm_ts" href="#" class="ajax sortans qtype%1$s ttt2" title="%4$s"><span rel="in">%3$s</span></a>
 		<a id="i_ts" href="#" class="ajax sortans qtype%7$s ttt2" title="%9$s"><span rel="in">%8$s</span></a>

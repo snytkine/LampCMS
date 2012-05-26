@@ -39,9 +39,9 @@
 class tplWelcome extends Lampcms\Template\Fast
 {
 
-	protected static $vars = array();
+    protected static $vars = array();
 
-	protected static $_tpl = '<table class="tblwelcome">
+    protected static $_tpl = '<table class="tblwelcome">
 					<tr>
 					<td width="64px" class="avatar">
 					%1$s
@@ -56,7 +56,7 @@ class tplWelcome extends Lampcms\Template\Fast
 					</tr>
 					</table>';
 
-	protected static $tpl = '<div class="fl uwelcome">
+    protected static $tpl = '<div class="fl uwelcome">
 					<table class="tblwelcome">
 					  <tr>
 						<td width="58px" class="avatar">

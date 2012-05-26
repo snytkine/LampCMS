@@ -38,45 +38,45 @@
 
 class tplFormask extends Lampcms\Template\Simple
 {
-	/**
-	 * Important: names of form fields
-	 * must match the keys in this array
-	 * for example 'title', 'body', 'tags'
-	 * must be names of form fields
-	 *
-	 * @var array
-	 */
-	protected static $vars = array(
-	'token' => '', 
-	'required' => 'required', 
-	'title' => '', 
-	'title_l' => 'Title', 
-	'title_d' => 'Enter a descriptive title',
-	'title_e' => '', 
-	'title_c' => 'ask_title', 
-	'qbody' => '', 
-	'qbody_e' => '',
-	'tags' => '', 
-	'tags_l' => 'Tags', 
-	'tags_d' => 'At least one tag, max 5 tags separated by spaces',
-	'tags_e' => '',
-	'category' => '', 
-	'category_class' => 'category',
-	'category_l' => 'Category', 
-	'category_e' => '',
-	'category_menu' => '',
-	'submit' => 'Submit',
-	'com_hand' => '',
-	'readonly' => '', 
-	'disabled' => '', 
-	'connectBlock' => '',
-	'formError' => '',
-	'tags_required' => '', 
-	'socials' => '', 
-	'Preview' => 'Preview' 
-	); 
+    /**
+     * Important: names of form fields
+     * must match the keys in this array
+     * for example 'title', 'body', 'tags'
+     * must be names of form fields
+     *
+     * @var array
+     */
+    protected static $vars = array(
+        'token' => '',
+        'required' => 'required',
+        'title' => '',
+        'title_l' => 'Title',
+        'title_d' => 'Enter a descriptive title',
+        'title_e' => '',
+        'title_c' => 'ask_title',
+        'qbody' => '',
+        'qbody_e' => '',
+        'tags' => '',
+        'tags_l' => 'Tags',
+        'tags_d' => 'At least one tag, max 5 tags separated by spaces',
+        'tags_e' => '',
+        'category' => '',
+        'category_class' => 'category',
+        'category_l' => 'Category',
+        'category_e' => '',
+        'category_menu' => '',
+        'submit' => 'Submit',
+        'com_hand' => '',
+        'readonly' => '',
+        'disabled' => '',
+        'connectBlock' => '',
+        'formError' => '',
+        'tags_required' => '',
+        'socials' => '',
+        'Preview' => 'Preview'
+    );
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<div id="ask_form"  class="form_wrap">
 	<div class="form_error">{formError}</div>
 		<form class="qa_form" name="qaForm" method="POST" action="/index.php" accept-charset="utf-8">

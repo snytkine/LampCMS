@@ -35,25 +35,25 @@
  *
  *
  */
- 
+
 
 class tplUanswers extends \Lampcms\Template\Fast
 {
-	
-	protected static $vars = array(
-	'_id' => '0', //1
-	'i_qid' => '', //2
-	'title' => '', //3
-	'accepted' => '', //4
-	'hts' => '',//5
-	'i_ts' => '',//6
-	'i_votes' => '0',//7
-	'v_s' => '',//8
-	'ans_s' => '',//9
-	'answered' => 'answered' // 10
-	);
-	
-	protected static$tpl = '
+
+    protected static $vars = array(
+        '_id' => '0', //1
+        'i_qid' => '', //2
+        'title' => '', //3
+        'accepted' => '', //4
+        'hts' => '', //5
+        'i_ts' => '', //6
+        'i_votes' => '0', //7
+        'v_s' => '', //8
+        'ans_s' => '', //9
+        'answered' => 'answered' // 10
+    );
+
+    protected static $tpl = '
 	<div class="qrow" id="q-%2$s">  
 	    <div class="qstats2">        
 	       <div class="sqr1 ansvotes%4$s">

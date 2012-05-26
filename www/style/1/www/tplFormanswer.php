@@ -45,24 +45,24 @@
 class tplFormanswer extends Lampcms\Template\Fast
 {
 
-	protected static $vars = array(
-	'token' => '', //1
-	'required' => 'required', //2
-	'qbody' => '', //3
-	'qbody_e' => '', //4
-	'submit' => 'Submit answer', //5
-	'com_hand' => '', // 6
-	'readonly' => '', // 7
-	'disabled' => '', // 8
-	'connectBlock' => '', // 9
- 	'formError' => '', // 10
-	'title' => 'Your answer', //11
-	'qid' => '', //12
-	'socials' => '', //13
-	'preview' => 'Preview' //14
-	);
+    protected static $vars = array(
+        'token' => '', //1
+        'required' => 'required', //2
+        'qbody' => '', //3
+        'qbody_e' => '', //4
+        'submit' => 'Submit answer', //5
+        'com_hand' => '', // 6
+        'readonly' => '', // 7
+        'disabled' => '', // 8
+        'connectBlock' => '', // 9
+        'formError' => '', // 10
+        'title' => 'Your answer', //11
+        'qid' => '', //12
+        'socials' => '', //13
+        'preview' => 'Preview' //14
+    );
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<div id="answer_form" class="form_wrap">
 	<h4 class="form_title">%11$s</h4>
 	<div class="form_error">%10$s</div>

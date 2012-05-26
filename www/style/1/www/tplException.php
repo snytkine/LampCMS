@@ -39,10 +39,10 @@
 class tplException extends Lampcms\Template\Fast
 {
 
-	protected static $vars = array('message' => '', 'class' => 'excsl', 'title' => 'Error occured');
-	
-	protected static $tpl = '<div id="excsl" class="%2$s">
+    protected static $vars = array('message' => '', 'class' => 'excsl', 'title' => 'Error occured');
+
+    protected static $tpl = '<div id="excsl" class="%2$s">
 					<h1>%3$s</h1>
 					%1$s</div>';
-	
+
 }

@@ -46,7 +46,7 @@
  */
 class tplReplies extends Lampcms\Template\Fast
 {
-	protected static $tpl = '<div class="replies">
+    protected static $tpl = '<div class="replies">
 	%1$s
 	</div>';
 }

@@ -41,7 +41,7 @@
  * This link appears in the Questions list block
  * under a question or on the question block
  * under a question.
- * 
+ *
  * This template is used only during parsing/inserting of question
  * NOT used during rendering of page
  *
@@ -50,32 +50,33 @@
  */
 class tplQtags extends Lampcms\Template\Fast
 {
-	/**
-	 * For this template we don't 
-	 * want to add html debug code
-	 * even when in debug mode
-	 * because result of this parsed
-	 * question is stored with the
-	 * question.
-	 * 
-	 * @var bool
-	 */
-	protected static $debug = false;
-	
-	/**
-	 * This is important!
-	 * Since tags can be any combination of chars, even
-	 * brackets and + sign, we should always urlencode tag's value
-	 * for the link!
-	 * 
-	 * @param array $a
-	 */
-	protected static function func(&$a){
-		$a[] = urlencode($a[0]);
-	}
-	
-	protected static $vars = array(0 => '');
+    /**
+     * For this template we don't
+     * want to add html debug code
+     * even when in debug mode
+     * because result of this parsed
+     * question is stored with the
+     * question.
+     *
+     * @var bool
+     */
+    protected static $debug = false;
 
-	protected static $tpl = '<a href="/tagged/%2$s/" title="Questions tagged \'%1$s\'">%1$s</a> ';
+    /**
+     * This is important!
+     * Since tags can be any combination of chars, even
+     * brackets and + sign, we should always urlencode tag's value
+     * for the link!
+     *
+     * @param array $a
+     */
+    protected static function func(&$a)
+    {
+        $a[] = urlencode($a[0]);
+    }
+
+    protected static $vars = array(0 => '');
+
+    protected static $tpl = '<a href="/tagged/%2$s/" title="Questions tagged \'%1$s\'">%1$s</a> ';
 
 }

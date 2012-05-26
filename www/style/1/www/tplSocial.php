@@ -45,19 +45,19 @@
  * and label "Join with account you already have"
  * if there is at least one external login option
  * enabled
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
 class tplSocial extends Lampcms\Template\Fast
 {
-	// %3$s was <h3>Join with account you already have</h3>
-	protected static $vars = array(
-	'', 
-	'',
-	'');
+    // %3$s was <h3>Join with account you already have</h3>
+    protected static $vars = array(
+        '',
+        '',
+        '');
 
-	protected static $tpl ='%2$s
+    protected static $tpl = '%2$s
 	%3$s
 	%1$s';
 }

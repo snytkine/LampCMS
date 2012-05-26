@@ -40,33 +40,33 @@
 class tplRegform extends Lampcms\Template\Fast
 {
 
-	protected static $vars = array(
-	'titleBar' => 'Step 2 :: Please provide email address', // 1
-	'title' => 'Welcome!', //2
-	'header2' => '', //3
-	'token' => '', //4
-	'externalAccount' => '', //5
-	'username' => '', // 6
-	'email_l' => 'Email:', // 7
-	'email' => '', // 8
-	'email_d' => "<strong>Please provide a valid email address<br/>Your password and account activation link will be send to there</strong><br/>Don't worry, your email is never shown anywhere on our site and we never share it.\nWe also never send spam",
-	'captcha' => '', //10
-	'optinBox' => '', //11
-	'button' => '', //12
-	'action' => 'join', //13
-	'td1width' => '0', //14
-	'td2' => '', //15
-	'loginBlock' => '', //16
-	'email_e' => '', //17
-	'username_l' => 'Username', //18
-	'username_e' => '', //19
-	'username_d' => 'Username will appear alongside your posts', //20
-	'formError' => '', // 21
-	'divID' => 'regdiv', // 22
-	'className' => 'yui-pe-content' // 23
-	);
+    protected static $vars = array(
+        'titleBar' => 'Step 2 :: Please provide email address', // 1
+        'title' => 'Welcome!', //2
+        'header2' => '', //3
+        'token' => '', //4
+        'externalAccount' => '', //5
+        'username' => '', // 6
+        'email_l' => 'Email:', // 7
+        'email' => '', // 8
+        'email_d' => "<strong>Please provide a valid email address<br/>Your password and account activation link will be send to there</strong><br/>Don't worry, your email is never shown anywhere on our site and we never share it.\nWe also never send spam",
+        'captcha' => '', //10
+        'optinBox' => '', //11
+        'button' => '', //12
+        'action' => 'join', //13
+        'td1width' => '0', //14
+        'td2' => '', //15
+        'loginBlock' => '', //16
+        'email_e' => '', //17
+        'username_l' => 'Username', //18
+        'username_e' => '', //19
+        'username_d' => 'Username will appear alongside your posts', //20
+        'formError' => '', // 21
+        'divID' => 'regdiv', // 22
+        'className' => 'yui-pe-content' // 23
+    );
 
-	protected static $tpl = '
+    protected static $tpl = '
 	<div id="%22$s" class="%23$s">
 	<div class="hd">%1$s</div> 
 	<div class="bd"> 

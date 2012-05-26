@@ -42,16 +42,16 @@
  * or other type of resource
  * this is left over template from previous project
  * and not yet implemented here
- * 
+ *
  * @author admin
  *
  */
 class tplComdiv extends Lampcms\Template\Fast
 {
 
-	protected static $vars = array('', 'Add new comment');
+    protected static $vars = array('', 'Add new comment');
 
-	protected static $tpl = '<div class="b_comments">
+    protected static $tpl = '<div class="b_comments">
 	%1$s
 	<div class="clear">
 	<a href="#com_label"><span class="com_label rounded">%2$s</span></a>
