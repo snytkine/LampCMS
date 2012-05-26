@@ -175,6 +175,10 @@ class Registry implements Interfaces\LampcmsObject
 		$this->values['Mailer'] = $this->asShared(function ($c) {
 			return new \Lampcms\Mail\Mailer($c->Ini);
 		});
+		
+		$this->values['UrlParts'] = $this->asShared(function ($c) {
+			return new \Lampcms\Url\Parts($c->Ini);
+		});
 
 		$this->values['Facebook'] = $this->asShared(function ($c) {
 			return new \Lampcms\Modules\Facebook\Client($c);

@@ -126,6 +126,7 @@ class Exception extends \Exception
 	 * formats the error string, depending of debug
 	 * option, will include extra backtrace of exception
 	 *
+	 * @deprecated
 	 *
 	 * @param object $e Exception
 	 *
@@ -155,7 +156,7 @@ class Exception extends \Exception
 		$intLine = $e->getLine();
 		$intCode = ($e instanceof \ErrorException) ? $e->getSeverity() : $e->getCode();
 
-		$strLogMessage = 'LampcmsError exception caught: '.$sMessage."\n".'error code: '.$intCode."\n".'file: '.$strFile."\n".'line: '.$intLine."\n".'stack: '.$sTrace."\n";
+		$strLogMessage = 'Lampcms Exception caught: '.$sMessage."\n".'error code: '.$intCode."\n".'file: '.$strFile."\n".'line: '.$intLine."\n".'stack: '.$sTrace."\n";
 		d('vars: '.print_r($_REQUEST, true)."\n".$strLogMessage);
 		if(!empty($_SESSION)){
 			d('$_SESSION: '.print_r($_SESSION, 1));
@@ -215,28 +216,28 @@ class Exception extends \Exception
 		$message = (!empty($message)) ? $message : $e->getMessage();
 
 		if ($e instanceof \Lampcms\DevException) {
-			
+				
 			/**
 			 * @todo if Tr was passed here
 			 * then we can translate string
 			 */
 			$message = ( (defined('LAMPCMS_DEBUG')) &&  true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occured. Administrator has been notified or the error. We will fix this as soon as possible';//$oTr->get('generic_error', 'exceptions');
-		
+
 		}
 		/**
 		 * htmlspecialchars is for safety to prevent XSS injection in case
 		 * part of the error message comes from any type of user input
 		 * For example a string containing script injection (HTML tags) is passed in GET request
-		 * the error is then generated and the original string may before part of that 
+		 * the error is then generated and the original string may before part of that
 		 * error message
 		 */
 		$message = \htmlspecialchars($message);
-		
+
 		$aArgs = ($e instanceof \Lampcms\Exception) ? $e->getArgs() : null;
 		$message = (!empty($aArgs)) ? vsprintf($message, $aArgs) : $message;
 
 		if($Tr){
-				
+
 			$message = $Tr[$message];
 		}
 
@@ -548,47 +549,6 @@ class RedirectException extends Exception
 	}
 }
 
-/**
- * Special exception for Form Field validations
- * it has extra param sFormField
- * which can be used when setting form error
- * so that in addition to the error message
- * we know which form field(s) caused the
- * form validation error
- *
- * @author Dmitri Snytkine
- *
- */
-class FormException extends DevException{
-
-	protected $aFields = null;
-
-	/**
-	 * Constructor
-	 * @param string $message error message
-	 * @param array $aFormFields regular array with names of form fields
-	 * that caused validation error
-	 *
-	 * @param array $aArgs additional optional array of args for
-	 * vsprintf. This is in case we need to translate the error message
-	 * and then apply the replacement vars.
-	 */
-	public function __construct($message, $formFields = null, array $aArgs = null){
-		parent::__construct($message, $aArgs);
-
-		if(is_string($formFields)){
-			$formFields = array($formFields);
-		}
-
-		$this->aFields = $formFields;
-	}
-
-
-	public function getFormFields(){
-		return $this->aFields;
-	}
-}
-
 class FacebookApiException extends Exception{}
 
 class ImageException extends DevException{}
@@ -811,13 +771,13 @@ class HTML2TextException extends Exception{}
  * NOT email an error to site admin
  * Many errors are very minor and
  * do not warrant notifying the admin
- * 
+ *
  * It's also possible to pass the -1 as error
  * code with any exception to prevent
- * sending email to admin but throwing 
- * this exception is just more convenient and 
+ * sending email to admin but throwing
+ * this exception is just more convenient and
  * the intent is more clear
- * 
+ *
  *
  */
 class NoticeException extends Exception{
@@ -828,14 +788,57 @@ class NoticeException extends Exception{
 }
 
 /**
- * 
+ *
  * Use this to display some important "Alerts" to user
  * This should be more important than notices
  * but they still do not generate email to admin
- * 
+ *
  * @author Dmitri Snytkine
  *
  */
 class AlertException extends NoticeException{}
+
+
+/**
+ * Special exception for Form Field validations
+ * it has extra param sFormField
+ * which can be used when setting form error
+ * so that in addition to the error message
+ * we know which form field(s) caused the
+ * form validation error
+ *
+ * @author Dmitri Snytkine
+ *
+ */
+class FormException extends NoticeException{
+
+	protected $aFields = null;
+
+	/**
+	 * Constructor
+	 * @param string $message error message
+	 * @param array $aFormFields regular array with names of form fields
+	 * that caused validation error
+	 *
+	 * @param array $aArgs additional optional array of args for
+	 * vsprintf. This is in case we need to translate the error message
+	 * and then apply the replacement vars.
+	 */
+	public function __construct($message, $formFields = null, array $aArgs = null){
+		parent::__construct($message, $aArgs);
+
+		if(is_string($formFields)){
+			$formFields = array($formFields);
+		}
+
+		$this->aFields = $formFields;
+	}
+
+
+	public function getFormFields(){
+		return $this->aFields;
+	}
+}
+
 
 

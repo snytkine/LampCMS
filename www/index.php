@@ -61,6 +61,7 @@ require($lampcmsClasses.'WebPage.php');
 require($lampcmsClasses.'Forms'.DIRECTORY_SEPARATOR.'Form.php');
 require($lampcmsClasses.'Cookie.php');
 require($lampcmsClasses.'LoginForm.php');
+require($lampcmsClasses.'Url'.DIRECTORY_SEPARATOR.'Parts.php');
 
 
 if (true !== session_start()) {
@@ -80,6 +81,8 @@ if (true !== session_start()) {
 
 		$Request = $Registry->Request;
 		$a = $Request['a'];
+		
+		ob_start($Registry->UrlParts->getMapper());
 
 		$controller = ucfirst($a);
 		include($lampcmsClasses.'Controllers'.DIRECTORY_SEPARATOR.$controller.'.php');
@@ -101,10 +104,11 @@ if (true !== session_start()) {
 		 * while browsing beteen pages) then uncomment this
 		 */
 		// session_write_close();
+		//ob_end_flush();
 		fastcgi_finish_request();
 
 	} catch(\OutOfBoundsException $e){
-		
+
 		//session_write_close();
 		/**
 		 * Special case is OutOfBoundsException which
@@ -123,13 +127,13 @@ if (true !== session_start()) {
 		fastcgi_finish_request();
 
 	} catch(\Exception $e) {
-		
+
 		$code = $e->getCode();
-		
+
 		session_write_close();
 		header("HTTP/1.0 500 Exception");
 		try {
-			
+				
 			$extra = (isset($_SERVER)) ? ' $_SERVER: '.print_r($_SERVER, 1) : ' no server';
 			$extra .= "\nException class: ". get_class($e)."\nMessage:". $e->getMessage()."\n in file: ".$e->getFile(). "\n line: ".$e->getLine()."\n trace: ".$e->getTraceAsString();
 			/**

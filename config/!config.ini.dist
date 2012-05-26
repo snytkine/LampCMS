@@ -183,8 +183,8 @@ LOG_FILE_PATH_CGI = cgiphp.log
 ;
 ; base url of your main website. Required value! Leading slash not required.
 SITE_URL="http://localhost"
-; system path to root directory (the directory that contains this file)
-LAMPCMS_PATH ="/"
+
+
 ; system path to directory that is accessable via browser as /w/
 ; This is optional value. Leave blank to use default data dir (recommended)
 LAMPCMS_DATA_DIR =
@@ -267,6 +267,40 @@ CATEGORY_SEPARATOR = " &gt; "
 ; will be shown in minimal details template
 ; REMEMBER that level starts at 0 not at 1!
 CATEGORY_DETAILED_LEVEL = 2
+
+;
+;
+; Url parts placeholders in templates
+; will be replaced with these values
+; during page rendering
+[URL_PARTS]
+; 
+; Leave {_WEB_ROOT_} blank for default setup (lampcms in root web directory)
+; If setting up Lampcms in web directory then start path with slash
+; and no leading slash at the end
+; For example to setup Lampcms in the yoursite.com/community/forum directory
+; set the value of {_WEB_ROOT_} to /community/forum
+; to setup in the yoursite.com/forum directory
+; point {_WEB_ROOT_} to /forum
+;
+WEB_ROOT = 
+;
+; This is identifier of page number (example page2.html)
+PAGER_PREFIX = page
+;
+; This will be added to pagination links (example: page2.html)
+PAGER_EXT = .html
+QID = q
+NEW = new
+ACTIVE = active
+VOTED = voted
+POPULAR = popular
+TAG_NAME = name
+RECENT = recent
+OLDEST = oldest
+BEST = best
+VIEWS = views
+
 ;
 ; Options of RTE Editor
 [EDITOR]
