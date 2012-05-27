@@ -283,7 +283,17 @@ CATEGORY_DETAILED_LEVEL = 2
 ; to setup in the yoursite.com/forum directory
 ; point {_WEB_ROOT_} to /forum
 ;
-WEB_ROOT = 
+WEB_ROOT =
+;Some configuration constants
+;Leave blank if you host images, css and js
+;on the same server as this program,
+;otherwise defile the full path to domain + dir
+;where the files reside, without the '/' at the end
+;
+IMAGE_SITE =
+CSS_SITE =
+JS_SITE =
+AVATAR_IMG_SITE =
 ;
 ; This is identifier of page number (example page2.html)
 PAGER_PREFIX = page
