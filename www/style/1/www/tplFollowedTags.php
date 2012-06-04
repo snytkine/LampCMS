@@ -54,7 +54,7 @@ class tplFollowedTags extends \Lampcms\Template\Fast
 {
     /**
      * This is important!
-     * Since tags can be any combination of cars, even
+     * Since tags can be any combination of chars, even
      * brackets and + sign, we should always urlencode tag's value
      * for the link!
      *
@@ -67,5 +67,5 @@ class tplFollowedTags extends \Lampcms\Template\Fast
 
     protected static $vars = array('');
 
-    protected static $tpl = '<span><a href="/tagged/%2$s/">%1$s</a></span>';
+    protected static $tpl = '<span><a href="{_WEB_ROOT_}/{_tagged_}/%2$s/">%1$s</a></span>';
 }

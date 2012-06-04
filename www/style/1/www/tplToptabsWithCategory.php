@@ -23,7 +23,7 @@
  *    the website\'s Questions/Answers functionality is powered by lampcms.com
  *    An example of acceptable link would be "Powered by <a href="http://www.lampcms.com">LampCMS</a>"
  *    The location of the link is not important, it can be in the footer of the page
- *    but it must not be hidden by style attibutes
+ *    but it must not be hidden by style attributes
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -40,7 +40,7 @@
  *  available from http://www.maxmind.com/
  *
  *
- * @author     Dmitri Snytkine <cms@lampcms.com>
+ * @author     Dmitri Snytkine
  * @copyright  2005-2012 (or current year) Dmitri Snytkine
  * @license    http://www.gnu.org/licenses/lgpl-3.0.txt GNU LESSER GENERAL PUBLIC LICENSE (LGPL) version 3
  * @link       http://www.lampcms.com   Lampcms.com project
@@ -49,49 +49,42 @@
  *
  */
 
-
-namespace Lampcms;
-
-use Lampcms\Utf8String;
-
-class MockSubmittedQuestion extends \Lampcms\SubmittedQuestion
+/**
+ * This template is used in place of tplToptabs when
+ * category usage is enabled in !config.ini
+ * by setting CATEGORIES to 1 or 2
+ * The Urhere class will automatically use
+ * this template instead of tplToptabs in such cases
+ */
+class tplToptabsWithCategory extends tplToptabs
 {
 
-    /**
-     * Get object of type User of user
-     * who posted the question
-     *
-     * @return object of type User
-     */
-    public function getUserObject()
-    {
+    protected static $vars = array(
+        'questions_c'  => '', //1
+        'unanswered_c' => '', //2
+        'tags_c'       => '', //3
+        'ask_c'        => '', //4
+        'questions'    => 'Questions', //5
+        'unanswered'   => 'Unanswered', //6
+        'tags'         => 'Tags', //7
+        'ask'          => 'Ask Question', //8
+        'search'       => '', //9
+        'users_c'      => '', //10
+        'users'        => 'Members', //11
+        'categories'   => 'Categories', //12
+        'categories_c' => '' //13
+    );
 
-    }
 
-    /**
-     * @return object of type Utf8String representing
-     * the body of the question
-     */
-    public function getBody()
-    {
-        return Utf8String::stringFactory('<p>Cool monkey climbed up the tree</p>');
-    }
-
-    /**
-     * @return object of type Utf8string representing
-     * the title string of question
-     */
-    public function getTitle()
-    {
-        return Utf8String::stringFactory('Quick brown fox');
-    }
-
-    /**
-     * @return string ip address from where question
-     * was posted
-     */
-    public function getIP()
-    {
-        return '127.0.0.10';
-    }
+    protected static $tpl = '<div id="navtabs" class="doc3">
+                    <ul>
+                        <li class="ttab%1$s"><a id="tab-q" href="{_WEB_ROOT_}/{_viewquestions_}/">%5$s</a></li>
+                        <li class="ttab%2$s"><a id="tab-un" href="{_WEB_ROOT_}/{_unanswered_}/">%6$s</a></li>
+                        <li class="ttab%13$s"><a id="tab-ask" href="{_WEB_ROOT_}/{_viewcategories_}/">@@Categories@@</a></li>
+                        <li class="ttab%3$s"><a id="tab-t" href="{_WEB_ROOT_}/{_viewqtags_}/">%7$s</a></li>
+                        <li class="ttab%10$s"><a id="tab-m" href="{_WEB_ROOT_}/{_users_}/">%11$s</a></li>
+                        <li class="ttab%4$s"><a id="tab-ask" href="{_WEB_ROOT_}/{_askform_}/">%8$s</a></li>
+                        <li class="tsearch">%9$s</li>
+                    </ul>
+                </div>';
 }

@@ -171,7 +171,7 @@ class Answerform extends Form
         $minChars = $this->Registry->Ini->MIN_ANSWER_CHARS;
         $minWords = $this->Registry->Ini->MIN_ANSWER_WORDS;
         $body = $this->Registry->Request->getUTF8('qbody');
-        $oHtmlString = HTMLString::factory($body);
+        $oHtmlString = HTMLString::stringFactory($body);
         $wordCount = $oHtmlString->getWordsCount();
         $len = $oHtmlString->length();
 

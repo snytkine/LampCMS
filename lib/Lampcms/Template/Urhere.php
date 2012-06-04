@@ -58,7 +58,7 @@ use Lampcms\Registry;
 /**
  * Class for handling creation of tabbed navigation
  * and passing the name of the 'currently active' tab.
- * This will greate the "You are here" effect - the current
+ * This will create the "You are here" effect - the current
  * 'active' tab will be styled as "active" while other like
  * regular tags.
  *
@@ -100,32 +100,35 @@ class Urhere extends LampcmsObject
 
     /**
      *
-     * @param string $tpl name of template class file
+     * @param string $tpl     name of template class file
      *
      * @param string $current name of tab that should
-     * be set as current
+     *                        be set as current
      *
-     * @param array $vars this can be used to pass array of replacement
-     * vars to template. Values from this array will be merged
-     * with template's own array and if same keys exist then values
-     * from this $vars array will override the template's default vars
+     * @param array  $vars    this can be used to pass array of replacement
+     *                        vars to template. Values from this array will be merged
+     *                        with template's own array and if same keys exist then values
+     *                        from this $vars array will override the template's default vars
      *
-     * @param Callable function $func if passed will be used
-     * by template as callback function. If you need to pass callback
-     * but not passing any array $vars then the right way to call
-     * this method is $obj->get('tmpSomeTemplate', 'someparam', null, $func)
+     * @param null   $func
+     *
+     * @return
+     * @internal param \Lampcms\Template\function $Callable $func if passed will be used
+     *           by template as callback function. If you need to pass callback
+     *           but not passing any array $vars then the right way to call
+     *           this method is $obj->get('tmpSomeTemplate', 'someparam', null, $func)
      */
     public function get($tpl, $current = '', array $vars = null, $func = null)
     {
         $Tr = $this->Registry->Tr;
-        $template = $tpl;
+        $template = ('tplToptabs' === $tpl && (LAMPCMS_CATEGORIES & 3) ) ? 'tplToptabsWithCategory': $tpl;
         $aVars = $template::getVars();
-        if (array_key_exists($current . '_c', $aVars)) {
+        if (\array_key_exists($current . '_c', $aVars)) {
             $aVars[$current . '_c'] = '_current';
         }
 
         if ($vars) {
-            $aVars = array_merge($aVars, $vars);
+            $aVars = \array_merge($aVars, $vars);
         }
 
         d('template: ' . $template . ' $aVars: ' . print_r($aVars, 1));
@@ -149,6 +152,7 @@ class Urhere extends LampcmsObject
         $Translator = $this->Registry->Tr;
         switch ($template) {
             case 'tplToptabs':
+            case 'tplToptabsWithCategory':
                 $vars['questions'] = $Translator['Questions'];
                 $vars['unanswered'] = $Translator['Unanswered'];
                 $vars['tags'] = $Translator['Tags'];

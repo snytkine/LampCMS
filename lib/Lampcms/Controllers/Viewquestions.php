@@ -68,7 +68,7 @@ use Lampcms\Template\Urhere;
 class Viewquestions extends WebPage
 {
 
-    protected $pagerPath = '/questions';
+    protected $pagerPath = '{_viewquestions_}';
 
     /**
      * Indicates the current tab
@@ -79,6 +79,7 @@ class Viewquestions extends WebPage
 
     /**
      * Object MongoCursor
+     *
      * @var Object MongoCursor
      */
     protected $Cursor = null;
@@ -109,13 +110,13 @@ class Viewquestions extends WebPage
 
     /**
      * Exclude these fields from
-     * select for effeciency
+     * select for efficiency
      *
      * @var array
      */
     protected $aFields = array(
-        'a_title' => 0,
-        'sim_q' => 0,
+        'a_title'    => 0,
+        'sim_q'      => 0,
         'a_comments' => 0
     );
 
@@ -130,13 +131,13 @@ class Viewquestions extends WebPage
     protected function main()
     {
 
-        $this->pageID = (int)$this->Request->get('pageID', 'i', 1);
+        $this->pageID = (int)$this->Request->getPageID();
 
         $this->getCursor()
             ->paginate()
             ->sendCacheHeaders();
 
-        $this->aPageVars['title'] = $this->title;
+        $this->aPageVars['title']       = $this->title;
         $this->aPageVars['description'] = $this->_('My cool site');
         $this->makeTopTabs()
             ->makeQlistHeader()
@@ -151,6 +152,7 @@ class Viewquestions extends WebPage
     /**
      * Select items according to conditions passed in GET
      * Conditions can be == 'unanswered', 'hot', 'recent' (default)
+     * @return \Lampcms\Controllers\Viewquestions
      */
     protected function getCursor()
     {
@@ -165,11 +167,12 @@ class Viewquestions extends WebPage
          * meaning most recent should be on top
          *
          */
-        $sort = array('i_sticky' => -1, 'i_lm_ts' => -1);
+        $sort = array('i_sticky' => -1,
+                      'i_lm_ts'  => -1);
 
         $this->title;
 
-        switch ($cond) {
+        switch ( $cond ) {
             /**
              * Hot is strictly per views
              */
@@ -188,11 +191,11 @@ class Viewquestions extends WebPage
              * uncache onQuestionVote, onQuestionComment
              */
             case 'active':
-                $this->title = $this->_('Active Questions');
+                $this->title     = $this->_('Active Questions');
                 $this->pagerPath = '/active';
-                $this->typeDiv = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'active');
-                $where = array('i_ts' => array('$gt' => (time() - 604800)));
-                $sort = array('i_ans' => -1);
+                $this->typeDiv   = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'active');
+                $where           = array('i_ts' => array('$gt' => (time() - 604800)));
+                $sort            = array('i_ans' => -1);
                 break;
             /**
              * Most votes but still
@@ -205,10 +208,10 @@ class Viewquestions extends WebPage
             case 'voted':
                 $this->pagerPath = '/voted';
                 d('cp');
-                $this->title = $this->_('Questions with highest votes in past 7 days');
+                $this->title   = $this->_('Questions with highest votes in past 7 days');
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'voted');
-                $where = array('i_ts' => array('$gt' => (time() - 604800)));
-                $sort = array('i_votes' => -1);
+                $where         = array('i_ts' => array('$gt' => (time() - 604800)));
+                $sort          = array('i_votes' => -1);
                 break;
 
             /**
@@ -217,7 +220,7 @@ class Viewquestions extends WebPage
              * uncache qrecent onNewQuestion only!
              */
             default:
-                $this->title = $this->_('All questions');
+                $this->title   = $this->_('All questions');
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'newest');
         }
 
@@ -228,7 +231,7 @@ class Viewquestions extends WebPage
 
 
         /**
-         * For effecienty explicitely specify which
+         * For efficiently explicitly specify which
          * doc fields to select or at least tell
          * which NOT to select, for example we don't need
          * a_edited and a_title
@@ -253,7 +256,7 @@ class Viewquestions extends WebPage
         d('paginating with $this->pagerPath: ' . $this->pagerPath);
         $Paginator = Paginator::factory($this->Registry);
         $Paginator->paginate($this->Cursor, $this->PER_PAGE,
-            array('path' => $this->pagerPath));
+            array('currentPage' => $this->pageID, 'path' => '{_WEB_ROOT_}/' . $this->pagerPath));
 
         $this->pagerLinks = $Paginator->getLinks();
 
@@ -289,7 +292,8 @@ class Viewquestions extends WebPage
             $s = $this->Registry->Cache->get('qrecent');
         }
 
-        $tags = \tplBoxrecent::parse(array('tags' => $s, 'title' => $this->_('Recent Tags')));
+        $tags = \tplBoxrecent::parse(array('tags'  => $s,
+                                           'title' => $this->_('Recent Tags')));
         d('cp');
         $this->aPageVars['tags'] = $tags;
 
@@ -304,6 +308,7 @@ class Viewquestions extends WebPage
      * its' timestamp, then rewind cursor back
      * Use usual uid, usergroup, pageID, lang for etag
      * maybe also use reputation score now
+     * @return \Lampcms\Controllers\Viewquestions
      */
     protected function sendCacheHeaders()
     {
@@ -316,7 +321,7 @@ class Viewquestions extends WebPage
     protected function makeTopTabs()
     {
 
-        $tabs = Urhere::factory($this->Registry)->get('tplToptabs', $this->qtab);
+        $tabs                       = Urhere::factory($this->Registry)->get('tplToptabs', $this->qtab);
         $this->aPageVars['topTabs'] = $tabs;
 
         return $this;
@@ -335,20 +340,20 @@ class Viewquestions extends WebPage
     protected function makeQlistBody()
     {
 
-        $uid = $this->Registry->Viewer->getUid();
-        $in = '';
-        $categories = null;
-        $aUserTags = $this->Registry->Viewer['a_f_t'];
+        $uid         = $this->Registry->Viewer->getUid();
+        $in          = '';
+        $categories  = null;
+        $aUserTags   = $this->Registry->Viewer['a_f_t'];
         $showDeleted = $this->Registry->Viewer->isModerator();
         $contributed = $this->_('You have contributed to this question');
-        $following = $this->_('You are following this question');
-        $asked = $this->_('Asked');
-        $latestBy = $this->_('Latest answer by');
-        $toggle = $this->_('Toggle Unread/Read Status');
+        $following   = $this->_('You are following this question');
+        $asked       = $this->_('Asked');
+        $latestBy    = $this->_('Latest answer by');
+        $toggle      = $this->_('Toggle Unread/Read Status');
 
         if ($this->Registry->Ini->CATEGORIES > 0) {
             $categories = $this->Registry->Cache->categories;
-            $in = $this->_('In');
+            $in         = $this->_('In');
         }
 
         $func = function(&$a) use($uid, $aUserTags, $showDeleted, $following, $contributed, $asked, $latestBy, $toggle, $categories, $in)
@@ -364,7 +369,7 @@ class Viewquestions extends WebPage
             }
 
             if ($categories && !empty($a['i_cat']) && !empty($categories[$a['i_cat']])) {
-                $a['category'] = '<br><span class="categ">' . $in . ' <a href="/category/' . $categories[$a['i_cat']]['slug'] . '">' . $categories[$a['i_cat']]['title'] . '</a></span>';
+                $a['category'] = '<br><span class="categ">' . $in . ' <a href="{_WEB_ROOT_}/{_viewcategory_}/' . $categories[$a['i_cat']]['slug'] . '">' . $categories[$a['i_cat']]['title'] . '</a></span>';
             }
 
             /**
@@ -375,15 +380,15 @@ class Viewquestions extends WebPage
                 $a['following_tag'] = '  followed_tag';
             }
 
-            $a['asked'] = $asked;
-            $a['toggle'] = $toggle;
+            $a['asked']     = $asked;
+            $a['toggle']    = $toggle;
             $a['latest_by'] = $latestBy;
         };
 
 
         $sQdivs = \tplQrecent::loop($this->Cursor, true, $func);
 
-        $sQlist = \tplQlist::parse(array($this->typeDiv, $sQdivs, $this->pagerLinks, $this->notAjaxPaginatable), false);
+        $sQlist                  = \tplQlist::parse(array($this->typeDiv, $sQdivs, $this->pagerLinks, $this->notAjaxPaginatable), false);
         $this->aPageVars['body'] = $sQlist;
         d('cp');
         /**
@@ -439,7 +444,9 @@ class Viewquestions extends WebPage
      * on top
      *
      *
-     * @param array $aUserTags array of tags user follows
+     * @param array  $aUserTags array of tags user follows
+     *
+     * @param string $type
      *
      * @return string html with parsed tags links
      */
@@ -482,8 +489,6 @@ class Viewquestions extends WebPage
 
         d('$aTags now: ' . print_r($aTags, 1));
         $html = ('unanswered' === $type) ? \tplUnanstags::loop($aTags) : \tplLinktag::loop($aTags);
-
-        d('html recent tags: ' . $html);
 
         return '<div class="tags-list">' . $html . '</div>';
     }

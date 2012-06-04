@@ -57,6 +57,21 @@ use \Lampcms\Registry;
 
 class MySQL implements Search
 {
+
+
+    /**
+     * Search condition
+     * possible: title, body, both
+     *
+     * @var string
+     */
+
+    const BY_TITLE = 'MATCH (title) AGAINST (:subj)';
+
+
+    const BY_TITLE_BODY = 'MATCH (title, q_body) AGAINST (:subj)';
+
+
     protected $Question;
 
     protected $qid;
@@ -80,7 +95,7 @@ class MySQL implements Search
 
     protected $order = '';
 
-    protected $pagerPath = '/search';
+    protected $pagerPath = '{_search_}';
 
 
     protected $aRes = array();
@@ -88,23 +103,20 @@ class MySQL implements Search
 
     protected $pagerLinks = '';
 
+    protected $pageID = 1;
+
     /**
-     * Search condition
-     * possible: title, body, both
-     * @var string
+     * @todo the 'order by recent' has not been implemented yet
+     *       Currently it's a simple search
+     *
+     * @param \Lampcms\Registry $Registry
      */
-
-    const BY_TITLE = 'MATCH (title) AGAINST (:subj)';
-
-
-    const BY_TITLE_BODY = 'MATCH (title, q_body) AGAINST (:subj)';
-
-
     public function __construct(Registry $Registry)
     {
 
         $this->Registry = $Registry;
-        $this->perPage = $perPage = $this->Registry->Ini->PER_PAGE_SEARCH;
+        $this->pageID = $this->Registry->Router->getPageID();
+        $this->perPage  = $perPage = $this->Registry->Ini->PER_PAGE_SEARCH;
         if ('recent' == $this->Registry->Request->get('ord', 's', '')) {
             $this->order = 'ORDER by ts DESC';
         }
@@ -128,6 +140,7 @@ class MySQL implements Search
      * then check the value(s) for title and body
      * if both present then use 'both'
      *
+     * @return \Lampcms\Modules\Search\MySQL
      */
     protected function getCondition()
     {
@@ -152,7 +165,7 @@ class MySQL implements Search
             $sth = $this->Registry->Db->makePrepared($sql);
             $sth->bindParam(':subj', $this->term, \PDO::PARAM_STR);
             $sth->execute();
-        } catch (\Exception $e) {
+        } catch ( \Exception $e ) {
             $err = ('Exception: ' . get_class($e) . ' Unable to select mysql because: ' . $e->getMessage() . ' Err Code: ' . $e->getCode() . ' trace: ' . $e->getTraceAsString());
             d('mysql error: ' . $err);
 
@@ -178,20 +191,22 @@ class MySQL implements Search
 
     /**
      * (non-PHPdoc)
-     * @see Lampcms\Interfaces.Search::getResults()
+     *
+     * @see  Lampcms\Interfaces.Search::getResults()
      *
      * @todo if request is ajax we may return result
-     * via Respoder::sendAjax() - just return html block
-     * it includes pagination is necessary
-     * or we may return array or results if it's feasable
+     *       via Respoder::sendAjax() - just return html block
+     *       it includes pagination is necessary
+     *       or we may return array or results if it's feasable
      *
+     * @throws \Lampcms\DevException
      * @return string html of search results
-     * with pagination
+     *       with pagination
      */
     protected function getResults()
     {
         if (!isset($this->countResults)) {
-            throw new \Lampcms\DevException('count not available. You must run search() before running getCount()');
+            throw new \Lampcms\DevException('Count not available. You must run search() before running getCount()');
         }
 
 
@@ -207,7 +222,7 @@ class MySQL implements Search
         }
 
         $offset = 0;
-        $sql = "SELECT
+        $sql    = "SELECT
 					qid as _id, 
 					title, 
 					url, 
@@ -233,14 +248,14 @@ class MySQL implements Search
             d('cp');
             $Paginator = \Lampcms\Paginator::factory($this->Registry);
             $Paginator->paginate($this->countResults, $this->perPage,
-                array('path' => $this->getPagerPath()));
+                array('path' => $this->getPagerPath(), 'currentPage' => $this->pageID) );
 
             $offset = ($Paginator->getPager()->getCurrentPageID() - 1) * $this->perPage;
             d('$offset: ' . $offset);
             $this->pagerLinks = $Paginator->getLinks();
         }
 
-        $sql = sprintf($sql, $this->condition, $this->order, $this->perPage);
+        $sql = \sprintf($sql, $this->condition, $this->order, $this->perPage);
         d('sql: ' . $sql);
         $sth = $this->Registry->Db->makePrepared($sql);
         $sth->bindParam(':subj', $this->term, \PDO::PARAM_STR);
@@ -255,7 +270,6 @@ class MySQL implements Search
     public function getSimilarTitles($title, $bBoolMode = true)
     {
 
-
     }
 
 
@@ -265,24 +279,24 @@ class MySQL implements Search
             throw new \Lampcms\DevException('search results not set. You must run search() before calling getHtml()');
         }
 
-        $aTerms = array();
+        $aTerms     = array();
         $aHighlight = array();
 
         $func = null;
         if (!empty($this->aRes)) {
             $aTerms = explode(' ', $this->term);
-            d('$aTerms: ' . print_r($aTerms, 1));
+            d('$aTerms: ' . \print_r($aTerms, 1));
 
             foreach ($aTerms as $term) {
-                $aHighlight[] = '<span class="match">' . trim($term) . '</span>';
+                $aHighlight[] = '<span class="match">' . \trim($term) . '</span>';
             }
 
             d('aTerms: ' . print_r($aTerms, 1) . ' aHightlight: ' . print_r($aHighlight, 1));
 
             $func = function(&$a) use ($aTerms, $aHighlight)
             {
-                $a['title'] = str_replace($aTerms, $aHighlight, $a['title']);
-                $a['intro'] = str_replace($aTerms, $aHighlight, $a['intro']);
+                $a['title'] = \str_replace($aTerms, $aHighlight, $a['title']);
+                $a['intro'] = \str_replace($aTerms, $aHighlight, $a['intro']);
             };
         }
 
@@ -294,7 +308,10 @@ class MySQL implements Search
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.Search::count()
+     * @throws \Lampcms\DevException
+     * @return
      */
     public function count()
     {
@@ -312,12 +329,14 @@ class MySQL implements Search
      * these questions and save in Question
      * under the sim_q key
      *
-     * @param bool $ret indicats that this is a retry
-     * and prevents against retrying calling itself
-     * more than once
+     * @param \Lampcms\Question $Question
+     *
+     * @throws \Exception
+     * @internal param bool $ret indicats that this is a retry
+     *           and prevents against retrying calling itself
+     *           more than once
      *
      * @return object $this
-     *
      */
     public function getSimilarQuestions(\Lampcms\Question $Question)
     {
@@ -328,7 +347,7 @@ class MySQL implements Search
             return $this;
         }
 
-        $qid = (int)$this->Question['_id'];
+        $qid  = (int)$this->Question['_id'];
         $term = $Question['title'];
         $html = '';
         $aRes = array();
@@ -358,13 +377,13 @@ class MySQL implements Search
 
             if (!empty($aRes)) {
                 $html = \tplSimquestions::loop($aRes);
-                $s = '<div id="sim_questions" class="similars">' . $html . '</div>';
+                $s    = '<div id="sim_questions" class="similars">' . $html . '</div>';
                 d('html: ' . $s);
                 $Question->offsetSet('sim_q', $s);
                 $Question->save();
             }
 
-        } catch (\Exception $e) {
+        } catch ( \Exception $e ) {
             $err = ('Exception: ' . get_class($e) . ' Unable to select mysql because: ' . $e->getMessage() . ' Err Code: ' . $e->getCode() . ' trace: ' . $e->getTraceAsString());
             d('mysql error: ' . $err);
 
@@ -385,7 +404,7 @@ class MySQL implements Search
 
     protected function getPagerPath()
     {
-        return $this->pagerPath . '/' . $this->Registry->Request->get('ord', 's', 'm') . '/' . urlencode($this->term);
+        return '{_WEB_ROOT_}/' . $this->pagerPath . '/' . $this->Registry->Router->getSegment(1, 's', 'm') . '/' . \urlencode($this->term);
     }
 
 

@@ -114,6 +114,7 @@ class tplMain extends Lampcms\Template\Fast
 <meta name="comments_timeout" content="%37$s">
 <meta name="max_comments" content="%38$s">
 <meta name="noac" content="%40$s">
+<meta name="web_root" content="{_WEB_ROOT_}">
 %8$s
 %9$s
 <link href="%10$s" rel="stylesheet" type="text/css">
@@ -129,7 +130,7 @@ class tplMain extends Lampcms\Template\Fast
 	 <div id="loginHead" class="doc3">
 	 	<div class="fl w40">
 	 	<div class="icn home"></div>
-	 		<a href="/">%42$s</a>
+	 		<a href="{_WEB_ROOT_}">@@Home@@</a>
 	 	</div>
 	 	%16$s
 	 </div>

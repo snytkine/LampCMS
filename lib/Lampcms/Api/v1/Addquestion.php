@@ -135,7 +135,7 @@ class Addquestion extends Api
         $minChars = $this->Registry->Ini->MIN_QUESTION_CHARS;
         $minWords = $this->Registry->Ini->MIN_QUESTION_WORDS;
         $body = $this->Submitted->getBody();
-        $oHtmlString = HTMLString::factory($body);
+        $oHtmlString = HTMLString::stringFactory($body);
         $wordCount = $oHtmlString->getWordsCount();
         $len = $oHtmlString->length();
 

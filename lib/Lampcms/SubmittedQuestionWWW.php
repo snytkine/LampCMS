@@ -84,7 +84,7 @@ class SubmittedQuestionWWW extends SubmittedQuestion
     public function getBody()
     {
         if (!isset($this->Body)) {
-            $this->Body = Utf8String::factory($this->aData['qbody']);
+            $this->Body = Utf8String::stringFactory($this->aData['qbody']);
         }
 
         return $this->Body;
@@ -93,7 +93,7 @@ class SubmittedQuestionWWW extends SubmittedQuestion
     public function getTitle()
     {
         if (!isset($this->oTitle)) {
-            $this->oTitle = Utf8String::factory($this->aData['title']);
+            $this->oTitle = Utf8String::stringFactory($this->aData['title']);
         }
 
         return $this->oTitle;
@@ -110,7 +110,7 @@ class SubmittedQuestionWWW extends SubmittedQuestion
     public function getUtf8Tags()
     {
         if (!isset($this->Tags)) {
-            $this->Tags = Utf8String::factory($this->aData['tags']);
+            $this->Tags = Utf8String::stringFactory($this->aData['tags']);
         }
 
         return $this->Tags;

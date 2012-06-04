@@ -41,20 +41,6 @@ class tplWelcome extends Lampcms\Template\Fast
 
     protected static $vars = array();
 
-    protected static $_tpl = '<table class="tblwelcome">
-					<tr>
-					<td width="64px" class="avatar">
-					%1$s
-					</td>
-					<td>
-					<div class="greetings">%2$s <strong>%3$s</strong></div>
-					<div class="settings">
-					<a href="/settings/">%4$s</a> %5$s | <a href="%8$s" id="logout" class="ajax">%6$s</a>
-					</div>
-					%7$s
-					</td>
-					</tr>
-					</table>';
 
     protected static $tpl = '<div class="fl uwelcome">
 					<table class="tblwelcome">
@@ -64,7 +50,7 @@ class tplWelcome extends Lampcms\Template\Fast
 						</td>
 						<td>
 							<div class="greetings">
-								<a href="%6$s">%2$s</a> | <a href="/settings/">%5$s</a> | <a href="/logout/" id="logout" class="ajax">%3$s</a>
+								<a href="%6$s">%2$s</a> | <a href="{_WEB_ROOT_}/{_settings_}/">%5$s</a> | <a href="{_WEB_ROOT_}/{_logout_}/" id="logout" class="ajax">%3$s</a>
 							</div>
 							%4$s
 						</td>

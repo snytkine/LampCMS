@@ -93,6 +93,7 @@ class Relatedtags extends LampcmsObject
      * all the removed tags
      *
      * @param Question $Question
+     * @return \Lampcms\Relatedtags
      */
     public function removeTags(Question $Question)
     {
@@ -121,7 +122,11 @@ class Relatedtags extends LampcmsObject
      * just create new record in QUESTION then runLater
      * and pass anonymous callback
      *
-     * @param array $aTags
+     * @param \Lampcms\Question $Question
+     * @param int               $inc
+     *
+     * @internal param array $aTags
+     * @return \Lampcms\Relatedtags
      */
     public function addTags(Question $Question, $inc = 1)
     {
@@ -140,7 +145,7 @@ class Relatedtags extends LampcmsObject
         foreach ($aTags as $tag) {
             $aTemp = $aTags;
             unset($aTemp[array_search($tag, $aTemp)]);
-            // d('aTemp: '.print_r($aTemp, 1));
+
             $this->addRelated($tag, $aTemp, $inc);
         }
 
@@ -207,6 +212,7 @@ class Relatedtags extends LampcmsObject
      *
      * @param string $tag
      * @param array $aTemp
+     * @return \Lampcms\Relatedtags
      */
     protected function parseAndSave($tag, array $aTemp)
     {

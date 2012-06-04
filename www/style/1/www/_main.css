@@ -7737,10 +7737,10 @@ li.ttab, li.ttab_current {
     position: relative;
     float: left;
     display: block;
-    margin-right: 7px;
+    margin-right: 5px;
     color: #ffffff;
     cursor: pointer;
-    padding: 12px;
+    padding: 0.5em;
 }
 
 li.tsearch {

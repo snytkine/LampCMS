@@ -93,6 +93,15 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
      */
     protected $locale;
 
+    /**
+     * Callback function to translate
+     * placeholder strings to their translated values
+     * This function is used in the output buffer
+     *
+     * @var function
+     */
+    protected $callback;
+
 
     /**
      * Factory method
@@ -103,7 +112,12 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
      * with fallback language locale merged
      * with default catalog
      *
-     * @param \Lampcms\Registry $Registry
+     * @param \Lampcms\Cache\Cache  $Cache
+     * @param  string               $locale
+     *
+     * @throws \Lampcms\DevException
+     * @internal param \Lampcms\Registry $Registry
+     * @return \Lampcms\I18n\Translator
      */
     public static function factory(\Lampcms\Cache\Cache $Cache, $locale)
     {
@@ -116,7 +130,7 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
         if (\strlen($locale) > 3) {
             d('going to also use lang fallback for $locale: ' . $locale);
 
-            $fallback = substr($locale, 0, -strlen(strrchr($locale, '_')));
+            $fallback = \substr($locale, 0, -\strlen(\strrchr($locale, '_')));
         }
 
         $default = LAMPCMS_DEFAULT_LOCALE;
@@ -146,9 +160,12 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
 
 
     /**
+     * Setter for $this->locale value
      *
-     * Enter description here ...
-     * @param unknown_type $locale
+     * @param string $locale
+     *
+     * @throws \Lampcms\DevException
+     * @return \Lampcms\I18n\Translator
      */
     public function setLocale($locale)
     {
@@ -168,8 +185,10 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
 
 
     /**
-     * (non-PHPdoc)
+     * Getter for $this->locale string
+     *
      * @see Lampcms\Interfaces.Translator::getLocale()
+     * @return string
      */
     public function getLocale()
     {
@@ -178,14 +197,47 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
 
 
     /**
-     * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.Translator::translate()
+     *
+     * @param            $string
+     * @param array|null $vars
+     * @param null       $default
+     *
+     * @return null|string
      */
     public function get($string, array $vars = null, $default = null)
     {
-        $str = (!empty($this->aMessages[$string])) ? $this->aMessages[$string] : (is_string($default) ? $default : $string);
+        $str = (!empty($this->aMessages[$string])) ? $this->aMessages[$string] : (\is_string($default) ? $default : $string);
 
-        return (!$vars) ? $str : strtr($str, $vars);
+        return (!$vars) ? $str : \strtr($str, $vars);
+    }
+
+
+    /**
+     * Getter of the callback function
+     *
+     *
+     * @return function
+     */
+    public function getCallback()
+    {
+        if (!isset($this->callback)) {
+            $search = $replace = array();
+            foreach ($this->aMessages as $k => $v) {
+                $search[]  = '@@' . $k . '@@';
+                $replace[] = $v;
+            }
+
+            $this->callback = function($s) use ($search, $replace)
+            {
+                return \str_replace($search, $replace, $s);
+
+            };
+
+        }
+
+        return $this->callback;
     }
 
 
@@ -198,19 +250,21 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
      * for same keys as $this->aMessages
      *
      * @param array $a
+     *
+     * @return \Lampcms\I18n\Translator
      */
     public function addArray(array $a)
     {
-        $this->aMessages = array_merge($this->aMessages, $a);
+        $this->aMessages = \array_merge($this->aMessages, $a);
 
         return $this;
     }
 
 
     /**
+     * @param \Lampcms\Interfaces\Translator $o
      *
-     * Enter description here ...
-     * @param \Lampcms\Interfaces\TranslatorCatalog $o
+     * @return \Lampcms\I18n\Translator
      */
     public function addCatalog(\Lampcms\Interfaces\Translator $o)
     {
@@ -224,32 +278,39 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
 
     /**
      * (non-PHPdoc)
+     *
      * @see Serializable::serialize()
+     * @return string json encoded string
      */
     public function serialize()
     {
         return \json_encode(array(
                 'aMessages' => $this->aMessages,
-                'locale' => $this->locale)
+                'locale'    => $this->locale)
         );
     }
 
 
     /**
      * (non-PHPdoc)
+     *
      * @see Serializable::unserialize()
+     *
+     * @param $serialized
      */
     public function unserialize($serialized)
     {
-        $a = \json_decode($serialized, true);
+        $a               = \json_decode($serialized, true);
         $this->aMessages = $a['aMessages'];
-        $this->locale = $a['locale'];
+        $this->locale    = $a['locale'];
     }
 
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.Translator::getMessages()
+     * @return array
      */
     public function getMessages()
     {
@@ -259,11 +320,16 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.Translator::has()
+     *
+     * @param $string
+     *
+     * @return bool
      */
     public function has($string)
     {
-        return array_key_exists($string, $this->aMessages);
+        return \array_key_exists($string, $this->aMessages);
     }
 
     public function offsetExists($offset)

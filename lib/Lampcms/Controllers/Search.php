@@ -54,6 +54,7 @@ namespace Lampcms\Controllers;
 
 use \Lampcms\WebPage;
 use \Lampcms\Template\Urhere;
+use \Lampcms\Utf8String;
 use \Lampcms\Modules\Search\Factory as SearchFactory;
 
 class Search extends WebPage
@@ -67,6 +68,13 @@ class Search extends WebPage
      * @var string
      */
     protected $term;
+
+    /**
+     * Search term with html brackets replaced by their html entities
+     *
+     * @var string
+     */
+    protected $safeTerm;
 
     /**
      * Pagination links on the page
@@ -83,22 +91,34 @@ class Search extends WebPage
      */
     protected $Search;
 
+    protected $pageID = 1;
+
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms.WebPage::main()
      */
     protected function main()
     {
+
         /**
          * Do NOT run urldecode() on request string
          * as it's already decoded because it uses
          *  $_GET as underlying array, and php
          *  already decodes $_GET or $_POST vars
          */
-        $this->term = $this->Registry->Request->getUTF8('q')->stripTags();
-        $this->aPageVars['qheader'] = '<h1>Search results for: ' . $this->term . '</h1>';
+        try {
+            $term       = $this->Registry->Router->getSegment(2);
+            $this->term = Utf8String::stringFactory(\urldecode($term));
 
-        $this->aPageVars['title'] = 'Questions matching &#39;' . $this->term . '&#39;';
+        } catch ( \Lampcms\Uri\SegmentNotFoundException $e ) {
+            $this->term = $this->Registry->Request->getUTF8('q');
+        }
+
+        $this->safeTerm             = \str_replace(array('<', '>'), array('&lt;', '&gt'), $this->term->valueOf());
+        $this->aPageVars['qheader'] = '<h1>Search results for: ' . $this->safeTerm . '</h1>';
+
+        $this->aPageVars['title'] = 'Questions matching &#39;' . $this->safeTerm . '&#39;';
         d('$this->term: ' . $this->term);
 
         $this->Search = SearchFactory::get($this->Registry);
@@ -113,7 +133,7 @@ class Search extends WebPage
     protected function makeTopTabs()
     {
 
-        $tabs = Urhere::factory($this->Registry)->get('tplToptabs', 'questions');
+        $tabs                       = Urhere::factory($this->Registry)->get('tplToptabs', 'questions');
         $this->aPageVars['topTabs'] = $tabs;
 
         return $this;
@@ -131,7 +151,7 @@ class Search extends WebPage
     protected function makeInfo()
     {
 
-        $this->aPageVars['side'] = \tplSearchInfo::parse(array($this->Search->count(), $this->term, 'questions matching'), false);
+        $this->aPageVars['side'] = \tplSearchInfo::parse(array($this->Search->count(), $this->safeTerm, 'questions matching'), false);
 
 
         return $this;
@@ -146,6 +166,5 @@ class Search extends WebPage
 
         return $this;
     }
-
 
 }

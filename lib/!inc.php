@@ -111,6 +111,8 @@ $lampcmsClasses = LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . 'Lampcms' . DIRECTORY_
 require $lampcmsClasses . 'Interfaces' . DIRECTORY_SEPARATOR . 'All.php';
 require $lampcmsClasses . 'Exception.php';
 require $lampcmsClasses . 'Object.php';
+require $lampcmsClasses . 'String.php';
+require $lampcmsClasses . 'Utf8String.php';
 require $lampcmsClasses . 'Responder.php';
 require $lampcmsClasses . 'Mongo' . DIRECTORY_SEPARATOR . 'Collections.php';
 require $lampcmsClasses . 'Config' . DIRECTORY_SEPARATOR . 'Ini.php';
@@ -204,7 +206,8 @@ try {
     define('LAMPCMS_COOKIE_DOMAIN', $Ini->COOKIE_DOMAIN);
     define('LAMPCMS_IMAGE_SITE', $Ini->IMAGE_SITE);
     define('LAMPCMS_AVATAR_IMG_SITE', $Ini->AVATAR_IMG_SITE);
-    define('LAMPCMS_CATEGORIES', 'C' . (int)$Ini->CATEGORIES);
+    define('LAMPCMS_CATEGORIES', (int)$Ini->CATEGORIES);
+    define('LAMPCMS_SHOW_RENDER_TIME', (bool)$Ini->SHOW_TIMER);
 
     if (!empty($dataDir)) {
         define('LAMPCMS_DATA_DIR', $dataDir . DIRECTORY_SEPARATOR);
@@ -233,7 +236,8 @@ if (false === date_default_timezone_set($Ini->SERVER_TIMEZONE)) {
 $myIP = \Lampcms\Request::getIP();
 
 $aMyIPs = $Ini->offsetGet('MY_IP');
-$debug = $Ini->DEBUG;
+$debug = $Ini->DEBUG; // string '1' in case of true, empty string of false
+
 
 if ($debug || isset($aMyIPs[$myIP]) || defined('SPECIAL_LOG_FILE')) {
     define('LAMPCMS_DEBUG', true);

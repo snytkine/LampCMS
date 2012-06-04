@@ -92,7 +92,7 @@ class tplCategoryDiv extends Lampcms\Template\Fast
     );
 
     protected static $tpl = '<div class="category_info level_%11$s cb1 fl" id="category_%1$s">
-	<div class="categ_title cb1 fl"><a href="/category/%4$s">%2$s</a></div>
+	<div class="categ_title cb1 fl"><a href="{_WEB_ROOT_}/{_viewcategory_}/%4$s">%2$s</a></div>
 	%14$s
 	%13$s
 	%8$s

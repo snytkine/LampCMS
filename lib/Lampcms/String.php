@@ -93,8 +93,11 @@ class String extends LampcmsObject implements \Serializable
 
     /**
      * Constructor
+     *
      * @param string $string
      * @param string $returnMode if set to StringBuilder will set the StringBuilder return mode
+     *
+     * @throws \InvalidArgumentException
      */
     public function __construct($string, $returnMode = 'default')
     {
@@ -118,9 +121,8 @@ class String extends LampcmsObject implements \Serializable
         d('cp');
 
         $this->string = (string)$string;
-        //d('cp');
+
         $this->returnMode = $returnMode;
-        //d('cp');
 
     }
 
@@ -132,6 +134,8 @@ class String extends LampcmsObject implements \Serializable
      * mode to default, making this an immutable object
      *
      * @param $mode
+     *
+     * @throws InvalidArgumentException
      * @return object $this
      */
     public function setReturnMode($mode)
@@ -156,14 +160,15 @@ class String extends LampcmsObject implements \Serializable
     }
 
     /**
-     *
-     * factory method but cannot call it factory
+     * Factory method but cannot call it factory
      * due to some bug in certain php versions
-     * that raize error if static method signature
+     * that raise error if static method signature
      * is not the same as in parent class
+     *
      * @param string $string
+     * @return \Lampcms\String
      */
-    public static function factory($string)
+    public static function stringFactory($string)
     {
 
         $o = new \Lampcms\String($string);

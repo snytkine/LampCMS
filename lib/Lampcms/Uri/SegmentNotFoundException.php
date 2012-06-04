@@ -23,7 +23,7 @@
  *    the website\'s Questions/Answers functionality is powered by lampcms.com
  *    An example of acceptable link would be "Powered by <a href="http://www.lampcms.com">LampCMS</a>"
  *    The location of the link is not important, it can be in the footer of the page
- *    but it must not be hidden by style attibutes
+ *    but it must not be hidden by style attributes
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -40,7 +40,7 @@
  *  available from http://www.maxmind.com/
  *
  *
- * @author     Dmitri Snytkine <cms@lampcms.com>
+ * @author     Dmitri Snytkine
  * @copyright  2005-2012 (or current year) Dmitri Snytkine
  * @license    http://www.gnu.org/licenses/lgpl-3.0.txt GNU LESSER GENERAL PUBLIC LICENSE (LGPL) version 3
  * @link       http://www.lampcms.com   Lampcms.com project
@@ -49,49 +49,11 @@
  *
  */
 
-
-namespace Lampcms;
-
-use Lampcms\Utf8String;
-
-class MockSubmittedQuestion extends \Lampcms\SubmittedQuestion
-{
-
-    /**
-     * Get object of type User of user
-     * who posted the question
-     *
-     * @return object of type User
-     */
-    public function getUserObject()
-    {
-
-    }
-
-    /**
-     * @return object of type Utf8String representing
-     * the body of the question
-     */
-    public function getBody()
-    {
-        return Utf8String::stringFactory('<p>Cool monkey climbed up the tree</p>');
-    }
-
-    /**
-     * @return object of type Utf8string representing
-     * the title string of question
-     */
-    public function getTitle()
-    {
-        return Utf8String::stringFactory('Quick brown fox');
-    }
-
-    /**
-     * @return string ip address from where question
-     * was posted
-     */
-    public function getIP()
-    {
-        return '127.0.0.10';
-    }
-}
+namespace Lampcms\Uri;
+/**
+ * This exception is thrown when segment is not found
+ * by offset in segments array.
+ * For example when uri contains only 3 segments
+ * but calling method was looking for 4th segment
+ */
+class SegmentNotFoundException extends SegmentException{}

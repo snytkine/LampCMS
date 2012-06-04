@@ -56,7 +56,7 @@ class tplQuntypes extends Lampcms\Template\Fast
 
     protected static $tpl = '
 	<div id="qtypes">
-	<a href="/unanswered/" class="ttt2 qtype%1$s" title="%4$s"><span rel="in">%3$s</span></a>
-	<a href="/unanswered/noanswers/" class="ttt2 qtype%2$s" title="%6$s"><span rel="in">%5$s</span></a>
+	<a href="{_WEB_ROOT_}/{_unanswered_}/" class="ttt2 qtype%1$s" title="%4$s"><span rel="in">%3$s</span></a>
+	<a href="{_WEB_ROOT_}/{_unanswered_}/{_COND_NOANSWERS_}" class="ttt2 qtype%2$s" title="%6$s"><span rel="in">%5$s</span></a>
 	</div>';
 }

@@ -42,17 +42,18 @@ class tplToptabs extends Lampcms\Template\Fast
     protected static function func(&$a)
     {
         $a['search'] = \tplSearchForm::parse(array('q' => '', 'search_label' => $a['search_label']));
+
     }
 
     protected static $vars = array(
-        'questions_c' => '',
-        'unanswered_c' => '',
-        'tags_c' => '',
-        'ask_c' => '',
-        'questions' => 'Questions',
-        'unanswered' => 'Unanswered',
-        'tags' => 'Tags',
-        'ask' => 'Ask Question',
+        'questions_c' => '', //1
+        'unanswered_c' => '', //2
+        'tags_c' => '', //3
+        'ask_c' => '', //4
+        'questions' => 'Questions', //5
+        'unanswered' => 'Unanswered', //6
+        'tags' => 'Tags', //7
+        'ask' => 'Ask Question', //8
         'search' => '', //9
         'users_c' => '', //10
         'users' => 'Members' //11
@@ -61,11 +62,11 @@ class tplToptabs extends Lampcms\Template\Fast
 
     protected static $tpl = '<div id="navtabs" class="doc3">
                     <ul>
-                        <li class="ttab%1$s"><a id="tab-q" href="/questions/">%5$s</a></li>
-                        <li class="ttab%2$s"><a id="tab-un" href="/unanswered/">%6$s</a></li>
-                        <li class="ttab%3$s"><a id="tab-t" href="/tags/">%7$s</a></li>
-                        <li class="ttab%10$s"><a id="tab-m" href="/users/">%11$s</a></li>
-                        <li class="ttab%4$s"><a id="tab-ask" href="/ask/">%8$s</a></li>
+                        <li class="ttab%1$s"><a id="tab-q" href="{_WEB_ROOT_}/{_viewquestions_}/">%5$s</a></li>
+                        <li class="ttab%2$s"><a id="tab-un" href="{_WEB_ROOT_}/{_unanswered_}/">%6$s</a></li>
+                        <li class="ttab%3$s"><a id="tab-t" href="{_WEB_ROOT_}/{_viewqtags_}/">%7$s</a></li>
+                        <li class="ttab%10$s"><a id="tab-m" href="{_WEB_ROOT_}/{_users_}/">%11$s</a></li>
+                        <li class="ttab%4$s"><a id="tab-ask" href="{_WEB_ROOT_}/{_askform_}/">%8$s</a></li>
                         <li class="tsearch">%9$s</li>
                     </ul>
                 </div>';

@@ -77,6 +77,9 @@ class Tagged extends Unanswered
     /**
      * Select items according to conditions passed in GET
      * Conditions can be == 'unanswered', 'hot', 'recent' (default)
+     *
+     * @throws \Lampcms\RedirectException
+     * @return \Lampcms\Controllers\Tagged
      */
     protected function getCursor()
     {
@@ -101,7 +104,7 @@ class Tagged extends Unanswered
             throw new RedirectException("/tags/");
         }
 
-        $this->pagerPath = '/tagged/' . $this->rawTags;
+        $this->pagerPath = '{_tagged_}/' . $this->rawTags;
         d('aTags: ' . print_r($this->aTags, 1));
 
         $cond = $this->Request->get('cond', 's', 'recent');

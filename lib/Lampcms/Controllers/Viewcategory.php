@@ -66,6 +66,13 @@ use Lampcms\Template\Urhere;
  */
 class Viewcategory extends Unanswered
 {
+    /**
+     * Indicates the current tab
+     *
+     * @var string
+     */
+    protected $qtab = 'categories';
+
 
     protected $slug;
 
@@ -74,9 +81,9 @@ class Viewcategory extends Unanswered
 
     protected function main()
     {
-        $this->slug = $this->Request['slug'];
-        $this->pageID = (int)$this->Request->get('pageID', 'i', 1);
-        $this->pagerPath = '/category/' . $this->slug;
+        $this->slug = $this->Registry->Router->getSegment(1, 's');
+        $this->pageID = (int)$this->Request->getPageID();
+        $this->pagerPath = '{_viewcategory_}/' . $this->slug;
         $this->counterTaggedText = $this->_('Questions in this category');
 
         $this->getCategory()
@@ -98,6 +105,8 @@ class Viewcategory extends Unanswered
     /**
      * Get category data by the value of 'slug'
      *
+     * @throws \Lampcms\Lampcms404Exception if category does not exist
+     * @return \Lampcms\Controllers\Viewcategory
      */
     protected function getCategory()
     {
@@ -130,6 +139,7 @@ class Viewcategory extends Unanswered
     /**
      * (non-PHPdoc)
      * @see Lampcms\Controllers.Viewquestions::makeQlistHeader()
+     * @return \Lampcms\Controllers\Viewcategory
      */
     protected function makeQlistHeader()
     {

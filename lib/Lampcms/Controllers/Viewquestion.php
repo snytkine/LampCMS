@@ -81,6 +81,11 @@ class Viewquestion extends WebPage
 
     protected $aRequired = array('qid');
 
+    /**
+     * Question id
+     * @var int
+     */
+    protected $qid;
 
     /**
      * Array with question data
@@ -157,10 +162,12 @@ class Viewquestion extends WebPage
     /**
      * Main entry point
      * (non-PHPdoc)
+     *
      * @see WebPage::main()
      */
     protected function main()
     {
+        $this->qid = $this->Registry->Router->getSegment(1, 'i');
         if (Request::isAjax()) {
             $this->getQuestion()->getAnswers();
             Responder::sendJSON(array('paginated' => $this->answers));
@@ -168,7 +175,7 @@ class Viewquestion extends WebPage
 
 
         $this->pageID = $this->Registry->Request->get('pageID', 'i', 1);
-        $this->tab = $this->Registry->Request->get('sort', 's', 'i_lm_ts');
+        $this->tab    = $this->Registry->Request->get('sort', 's', 'i_lm_ts');
         $this->Registry->registerObservers();
 
         $this->getQuestion()
@@ -236,7 +243,7 @@ class Viewquestion extends WebPage
     protected function setFollowersBlock()
     {
         $aFlwrs = $this->Question['a_flwrs'];
-        $count = count($aFlwrs);
+        $count  = count($aFlwrs);
         if ($count > 0) {
             $s = \Lampcms\ShowFollowers::factory($this->Registry)->getQuestionFollowers($aFlwrs, $count);
             d('followers: ' . $s);
@@ -276,19 +283,17 @@ class Viewquestion extends WebPage
      * and also set $this->aTplVars['body']
      * with parsed tplQuestion block
      *
-     *
-     * @throws Lampcms404Exception if question not found
-     *
+     * @throws \Lampcms\Lampcms404Exception is question not found
      * @return object $this
      */
     protected function getQuestion()
     {
-        $isModerator = $this->Registry->Viewer->isModerator();
+        $isModerator      = $this->Registry->Viewer->isModerator();
         $this->noComments = (false === (bool)$this->Registry->Ini->MAX_COMMENTS);
         d('no comments: ' . $this->noComments);
         $aFields = ($this->noComments || false === (bool)$this->Registry->Ini->SHOW_COMMENTS) ? array('comments' => 0) : array();
 
-        $this->aQuestion = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => (int)$this->Request['qid']), $aFields);
+        $this->aQuestion = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => (int)$this->qid), $aFields);
 
         /**
          * @todo Translate string
@@ -343,9 +348,9 @@ class Viewquestion extends WebPage
         }
 
         $this->aQuestion['add_comment'] = $this->_('add comment');
-        $this->aQuestion['reply'] = $this->_('Reply');
-        $this->aQuestion['reply_t'] = $this->_('Reply to this comment');
-        $this->aQuestion['edited'] = $this->_('Edited');
+        $this->aQuestion['reply']       = $this->_('Reply');
+        $this->aQuestion['reply_t']     = $this->_('Reply to this comment');
+        $this->aQuestion['edited']      = $this->_('Edited');
 
         $breadcrumb = (empty($this->aQuestion['i_cat'])) ? '' : $this->getBreadcrumb($this->aQuestion['i_cat']);
 
@@ -355,9 +360,10 @@ class Viewquestion extends WebPage
     }
 
     /**
-     * Get breakcrumb links
+     * Get breadcrumb links
      *
      * @param int $id
+     *
      * @return string html of breadcrumb
      */
     protected function getBreadcrumb($id)
@@ -374,7 +380,7 @@ class Viewquestion extends WebPage
 
     /**
      * Create header div for answers block.
-     * This div is independant of answers
+     * This div is independent of answers
      * block and contains word "Answers",
      * count of answers and some 'sort by'
      * tabs
@@ -425,7 +431,7 @@ class Viewquestion extends WebPage
         if (!empty($this->aQuestion['a_closed'])) {
             $title .= ' [closed]';
         }
-        $this->aPageVars['title'] = $title;
+        $this->aPageVars['title']   = $title;
         $this->aPageVars['qheader'] = '<h1>' . $title . '</h1>';
 
         return $this;
@@ -435,6 +441,7 @@ class Viewquestion extends WebPage
     /**
      * Send out HTTP Cache control Headers
      *
+     * @return \Lampcms\Controllers\Viewquestion
      */
     protected function sendCacheHeaders()
     {
@@ -452,9 +459,9 @@ class Viewquestion extends WebPage
         }
 
         $latestReplyTime = $this->Question->getEtag();
-        $userHash = $this->Registry->Viewer->hashCode();
+        $userHash        = $this->Registry->Viewer->hashCode();
         d('user Hash: ' . $userHash);
-        $etag = '"' . hash('md5', $this->Request['qid'] . '-' . $this->pageID . $this->tab . '-' . $latestReplyTime . '-' . $userHash) . '"';
+        $etag = '"' . hash('md5', $this->qid . '-' . $this->pageID . $this->tab . '-' . $latestReplyTime . '-' . $userHash) . '"';
         //$lastModified = gmdate("D, d M Y H:i:s", $latestReplyTime)." GMT";
 
         CacheHeaders::processCacheHeaders($etag); //, $lastModified
@@ -504,7 +511,7 @@ class Viewquestion extends WebPage
      */
     protected function getAnswers()
     {
-        $this->answers = '';
+        $this->answers    = '';
         $this->numAnswers = $this->Question['i_ans'];
         if ($this->numAnswers > 0 || $this->Registry->Viewer->isModerator()) {
             $this->answers = Answers::factory($this->Registry)->getAnswers($this->Question);
@@ -534,7 +541,7 @@ class Viewquestion extends WebPage
 
 
     /**
-     * Set similars:
+     * Set similar questions:
      * similar questions block in
      * right column
      *
@@ -544,7 +551,7 @@ class Viewquestion extends WebPage
     {
 
         if (!empty($this->aQuestion['sim_q'])) {
-            $sim = \tplBoxrecent::parse(array($this->_('Similar questions'), 'recent-tags', $this->aQuestion['sim_q']), false);
+            $sim                     = \tplBoxrecent::parse(array($this->_('Similar questions'), 'recent-tags', $this->aQuestion['sim_q']), false);
             $this->aPageVars['tags'] = $sim;
         }
 
@@ -578,7 +585,7 @@ class Viewquestion extends WebPage
      */
     protected function makeForm()
     {
-        $this->Form = Answerform::factory($this->Registry);
+        $this->Form          = Answerform::factory($this->Registry);
         $this->Form->socials = SocialCheckboxes::get($this->Registry);
 
         return $this;
@@ -618,6 +625,7 @@ class Viewquestion extends WebPage
      * This way even if user not logged in, then loggs in
      * the view will still count only once!
      *
+     * @return \Lampcms\Controllers\Viewquestion
      */
     protected function increaseView()
     {
@@ -630,7 +638,7 @@ class Viewquestion extends WebPage
     protected function makeTopTabs()
     {
 
-        $tabs = Urhere::factory($this->Registry)->get('tplToptabs', 'questions');
+        $tabs                       = Urhere::factory($this->Registry)->get('tplToptabs', 'questions');
         $this->aPageVars['topTabs'] = $tabs;
 
         return $this;
@@ -650,11 +658,11 @@ class Viewquestion extends WebPage
         $qid = $this->Question->getResourceId();
 
         $aVars = array(
-            'id' => $qid,
-            'icon' => 'cplus',
+            'id'    => $qid,
+            'icon'  => 'cplus',
             'label' => $this->_('Follow this question'),
             'class' => 'follow',
-            'type' => 'q',
+            'type'  => 'q',
             'title' => $this->_('Follow this question to be notified of new answers, comments and edits')
         );
 
@@ -662,7 +670,7 @@ class Viewquestion extends WebPage
         if (in_array($this->Registry->Viewer->getUid(), $this->Question['a_flwrs'])) {
             $aVars['label'] = $this->_('Following');
             $aVars['class'] = 'following';
-            $aVars['icon'] = 'check';
+            $aVars['icon']  = 'check';
             $aVars['title'] = $this->_('You are following this question');
         }
 

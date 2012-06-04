@@ -120,7 +120,7 @@ class Tweet
         $testLength = \mb_strlen($url . ' ' . $title, 'utf-8');
         if ($testLength > 140) {
             d('need to shorten title');
-            $title = Utf8String::factory($title, 'utf-8', true)->truncate(139 - \mb_strlen($url, 'utf-8'))->valueOf();
+            $title = Utf8String::stringFactory($title, 'utf-8', true)->truncate(139 - \mb_strlen($url, 'utf-8'))->valueOf();
             $text = $title . ' ' . $url;
         } else {
             $text = $title . ' ' . $url;

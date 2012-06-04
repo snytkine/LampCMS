@@ -469,7 +469,7 @@ class Cache extends \Lampcms\Event\Observer
 
                 /**
                  * @todo must ensure $val is utf-8 by
-                 * running it through Utf8String::factory()!
+                 * running it through Utf8String::stringFactory()!
                  * or better yet make setValue() that requires
                  * Utf8string as value!
                  *

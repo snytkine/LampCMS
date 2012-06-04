@@ -120,7 +120,7 @@ class ProfileDiv extends LampcmsObject
         }
 
         $desc = \trim($this->User['description']);
-        $desc = (empty($desc)) ? '' : Utf8String::factory($desc, 'utf-8', true)->linkify()->valueOf();
+        $desc = (empty($desc)) ? '' : Utf8String::stringFactory($desc, 'utf-8', true)->linkify()->valueOf();
 
         $vars = array(
             'editLink' => $edit,

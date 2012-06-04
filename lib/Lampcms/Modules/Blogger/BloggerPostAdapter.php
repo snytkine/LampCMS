@@ -150,7 +150,7 @@ class BloggerPostAdapter
         $body = sprintf($tpl1, $qUrl, $this->Registry->Ini->SITE_NAME);
         $body .= $o->getBody();
         $body .= sprintf($tpl2, $qUrl);
-        $body = HtmlString::factory($body);
+        $body = HtmlString::stringFactory($body);
 
         $this->oEntry->setBody($body)->setTitle($o->getTitle());
 
@@ -187,7 +187,7 @@ class BloggerPostAdapter
         $body .= $o->getBody();
         d('body: ' . $body);
 
-        $body = HtmlString::factory($body);
+        $body = HtmlString::stringFactory($body);
         $title = 'My answer to "' . $o->getTitle() . '"';
 
         $this->oEntry->setBody($body)->setTitle($title);

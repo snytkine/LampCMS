@@ -351,7 +351,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
     public function getProfileUrl()
     {
 
-        return '/users/' . $this->getUid() . '/' . $this->offsetGet('username');
+        return '{_WEB_ROOT_}/{_users_}/' . $this->getUid() . '/' . $this->offsetGet('username');
     }
 
 

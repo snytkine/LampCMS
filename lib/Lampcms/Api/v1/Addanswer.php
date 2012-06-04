@@ -156,7 +156,7 @@ class Addanswer extends Api
         $minChars = $this->Registry->Ini->MIN_ANSWER_CHARS;
         $minWords = $this->Registry->Ini->MIN_ANSWER_WORDS;
         $body = $this->Submitted->getBody();
-        $oHtmlString = HTMLString::factory($body);
+        $oHtmlString = HTMLString::stringFactory($body);
         $wordCount = $oHtmlString->getWordsCount();
         $len = $oHtmlString->length();
 

@@ -61,36 +61,11 @@ use Lampcms\UserGfc;
 class Logout extends WebPage
 {
 
-    const GFC_SIGNOUT = '
-	<script src="http://www.google.com/jsapi"></script>
-<script type="text/javascript">
-  google.load("friendconnect", "0.8");
-</script>
-<div id="tools"><p class="larger">Logging out. Please wait...</p></div>
-	<script>
-	google.friendconnect.container.loadOpenSocialApi({
-  site: "%s",
-  onload: function(securityToken) {
-    if (!window.timesloaded) {
-      window.timesloaded = 1;
-      google.friendconnect.requestSignOut();
-    } else {
-      window.timesloaded++;
-    }
-    if (window.timesloaded > 1) {
-      window.top.location.href = "/";
-    }
-  }
-});
-	</script>
-	
-	';
-
     /**
-     * Unsets all session variables and unsets some cookies
+     * Unset all session variables and unsets some cookies
      * This is all that is needed to logout
      *
-     * @param array $arrParams array or GET or POST parameters
+     * @internal param array $arrParams array or GET or POST parameters
      */
     public function main()
     {
@@ -113,28 +88,6 @@ class Logout extends WebPage
          */
         $aDelete = array('uid', 'dnd');
 
-        /**
-         * If current viewer is logged in
-         * with Google Friend Connect
-         * then the logout process is somewhat
-         * different: we need to delete user's fcauth cookie(s)
-         *
-         */
-        if ($this->Registry->Viewer instanceof UserGfc) {
-
-            $GfcSiteID = $this->Registry->Ini->GFC_ID;
-            if (!empty($GfcSiteID)) {
-                $gfc = sprintf(self::GFC_SIGNOUT, $GfcSiteID);
-                $gfc = Responder::PAGE_OPEN . $gfc . Responder::PAGE_CLOSE;
-                d('sending out GFC Logout page: ' . $gfc);
-
-                $fcauthSession = 'fcauth' . $GfcSiteID . '-s';
-                $fcauthRegular = 'fcauth' . $GfcSiteID;
-                $aDelete[] = $fcauthSession;
-                $aDelete[] = $fcauthRegular;
-            }
-        }
-
         //d('logging out Facebook User');
         //$aFB = $this->Registry->Ini->getSection('FACEBOOK');
         //if(!empty($aFB) && !empty($aFB['APP_ID'])){
@@ -156,12 +109,12 @@ class Logout extends WebPage
         $aUser = $this->Registry->Viewer->getArrayCopy();
         $this->Registry->Viewer = null;
 
-        session_destroy();
+        \session_destroy();
         $_SESSION = array();
 
         $this->Registry->Dispatcher->post($this, 'onUserLogout', $aUser);
 
-        d('Logged out SESSION: ' . print_r($_SESSION, 1));
+        d('Logged out SESSION: ' . \print_r($_SESSION, 1));
 
         /*if (Request::isAjax()) {
               $sLoginForm = \Lampcms\LoginForm::makeLoginForm($this->Registry);
@@ -170,16 +123,15 @@ class Logout extends WebPage
               Responder::sendJSON($arrJSON);
               }*/
 
-        /**
-         * For Google Friend Connect sendout
-         * the html with logout JavaScript - that's
-         * the only right way to logout
-         */
-        if (isset($gfc)) {
-            exit($gfc);
-        }
 
-        Responder::redirectToPage('/index.php?logout=1');
+
+        $Ini = $this->Registry->Ini;
+        $map = $Ini->getSection('URI_PARTS');
+
+        $fullUrl = $Ini->SITE_URL . $map['DIR'] . $map['FILE'];
+        $redirect = \trim($fullUrl, '?').'?logout=1'; // .'?logout=1'
+
+        Responder::redirectToPage($redirect);
     }
 
 }

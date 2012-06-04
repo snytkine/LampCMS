@@ -61,7 +61,8 @@ require($lampcmsClasses . 'WebPage.php');
 require($lampcmsClasses . 'Forms' . DIRECTORY_SEPARATOR . 'Form.php');
 require($lampcmsClasses . 'Cookie.php');
 require($lampcmsClasses . 'LoginForm.php');
-require($lampcmsClasses . 'Url' . DIRECTORY_SEPARATOR . 'Parts.php');
+require($lampcmsClasses . 'Uri' . DIRECTORY_SEPARATOR . 'UriString.php');
+require($lampcmsClasses . 'Uri' . DIRECTORY_SEPARATOR . 'Router.php');
 
 
 if (true !== session_start()) {
@@ -80,9 +81,57 @@ if (true !== session_start()) {
         }
 
         $Request = $Registry->Request;
-        $a = $Request['a'];
+        $Tr      = $Registry->Tr;
+        $a       = $Request->getController();
 
-        ob_start($Registry->UrlParts->getMapper());
+        $mapper           = $Registry->Router->getCallback();
+        $translator       = $Tr->getCallback();
+        $renderTimeString = $Tr->get('Page rendering time');
+
+        $callback = function($output) use ($mapper, $translator, $renderTimeString)
+        {
+            $scriptTime = '';
+
+            /**
+             * Translate URL placeholders
+             * These are routes and various url parts like {_WEB_ROOT_} for example
+             */
+            $output = $mapper($output);
+
+            /**
+             * Now replace translation strings
+             * identified as @
+             * @somestring@@
+             *
+             */
+            $output = $translator($output);
+
+            /**
+             * Any placeholders that have not been replaced with
+             * values from URI_PARTS or from ROUTES
+             * AND has not been translated with $translator
+             *
+             * will be replaced with their placeholder names
+             * with this single preg_replace call (profiler reports this to take about 0.3 - 1ms - really fast)
+             */
+            $output = preg_replace('/({_|@@)([a-zA-Z0-9_\-!?.\'\s]+)(@@|_})/', '\\2', $output);
+
+            /**
+             * Timer calculation should be the last replacement
+             * in order to count all other replacements
+             */
+            if (true == constant('LAMPCMS_SHOW_RENDER_TIME')) {
+                /**
+                 * @todo Translate string
+                 */
+                $scriptTime = $renderTimeString . ' ' . abs((microtime() - INIT_TIMESTAMP));
+            }
+            $output = \str_replace('{timer}', $scriptTime, $output);
+
+            return $output;
+        };
+
+        ob_start($callback);
 
         $controller = ucfirst($a);
         include($lampcmsClasses . 'Controllers' . DIRECTORY_SEPARATOR . $controller . '.php');
@@ -107,7 +156,7 @@ if (true !== session_start()) {
         //ob_end_flush();
         fastcgi_finish_request();
 
-    } catch (\OutOfBoundsException $e) {
+    } catch ( \OutOfBoundsException $e ) {
 
         //session_write_close();
         /**
@@ -126,7 +175,7 @@ if (true !== session_start()) {
         }
         fastcgi_finish_request();
 
-    } catch (\Exception $e) {
+    } catch ( \Exception $e ) {
 
         $code = $e->getCode();
 
@@ -138,8 +187,8 @@ if (true !== session_start()) {
             $extra .= "\nException class: " . get_class($e) . "\nMessage:" . $e->getMessage() . "\n in file: " . $e->getFile() . "\n line: " . $e->getLine() . "\n trace: " . $e->getTraceAsString();
             /**
              * @mail must be here before the Lampcms\Exception::formatException
-             * because Lampcms\Exception::formatException in case of ajax request will
-             * send out ajax and then throw \OutOfBoundsException in order to finish request (better than exit())
+             *       because Lampcms\Exception::formatException in case of ajax request will
+             *       send out ajax and then throw \OutOfBoundsException in order to finish request (better than exit())
              */
             if (!($e instanceof \LogicException) && ($code >= 0) && defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7) {
                 @mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $extra);
@@ -148,10 +197,10 @@ if (true !== session_start()) {
 
             echo nl2br($html);
 
-        } catch (\OutOfBoundsException $e2) {
+        } catch ( \OutOfBoundsException $e2 ) {
             // do nothing, this was a way to exit() from Responder::sendJSON()
-        } catch (\Exception $e2) {
-            $code = $e->getCode();
+        } catch ( \Exception $e2 ) {
+            $code  = $e->getCode();
             $sHtml = \Lampcms\Responder::makeErrorPage('<strong>Exception:</strong> ' . strip_tags($e2->getMessage()) . "\nIn file:" . $e2->getFile() . "\nLine: " . $e2->getLine());
             $extra = (isset($_SERVER)) ? ' $_SERVER: ' . print_r($_SERVER, 1) : ' no extra';
             if (($code >= 0) && defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7) {

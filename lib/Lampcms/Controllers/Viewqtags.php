@@ -94,6 +94,8 @@ class Viewqtags extends Viewquestions
     /**
      * Select items according to conditions passed in GET
      * Conditions can be == 'unanswered', 'hot', 'recent' (default)
+     *
+     * @return \Lampcms\Controllers\Viewqtags
      */
     protected function getCursor()
     {
@@ -171,6 +173,7 @@ class Viewqtags extends Viewquestions
      * sense to process any further methods
      *
      * @see wwwViewquestions::sendCacheHeaders()
+     * @return \Lampcms\Controllers\Viewqtags
      */
     protected function sendCacheHeaders()
     {
@@ -193,6 +196,7 @@ class Viewqtags extends Viewquestions
      *
      * (non-PHPdoc)
      * @see Lampcms\Controllers.Viewquestions::makeCounterBlock()
+     * @return \Lampcms\Controllers\Viewqtags
      */
     protected function makeCounterBlock()
     {
@@ -213,6 +217,7 @@ class Viewqtags extends Viewquestions
     /**
      * (non-PHPdoc)
      * @see Lampcms\Controllers.Viewquestions::makeQlistBody()
+     * @return \Lampcms\Controllers\Viewqtags
      */
     protected function makeQlistBody()
     {

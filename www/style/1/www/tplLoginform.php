@@ -46,47 +46,41 @@ class tplLoginform extends Lampcms\Template\Fast
 {
 
     protected static $vars = array(
-        'username' => 'Username', //1
-        'password' => 'Password', //2
-        'remember' => 'Remember', //3
-        'usernameRequired' => 'Username is required', //4
-        'forgot' => 'Forgot password?', //5
-        'login' => 'Log in', //6
-        'error' => '' //7
+        'error' => ''
     );
 
-    protected static $tpl = '<div class="fl uwelcome"><form action="/index.php" method="post" name="frmLogin" id="frmLogin">
+    protected static $tpl = '<div class="fl uwelcome"><form action="{_WEB_ROOT_}" method="post" name="frmLogin" id="frmLogin">
 <input name="_qf__frmLogin" type="hidden" value="">
 <input name="a" type="hidden" value="login">
-<input name="r" type="hidden" value="%1$s">
+<input name="r" type="hidden" value="@@Username@@">
 <table id="toplogin" cellspacing="2" cellpadding="2">
 <tr>
 	<td colspan="3" align="center">
-		<div class="titleWarning" id="titleWarning">%7$s</div>
+		<div class="titleWarning" id="titleWarning">%1$s</div>
 	</td>
 </tr>
 <tr>
-	<td>%1$s</td>
+	<td>@@Username@@</td>
 	<td>
 		<input type="text" class="inlogin" name="login" id="login" size="15" accesskey="u" tabindex="1">
 	</td>
 	<td align="left" nowrap="nowrap"><label for="chkRemember">
-		<input name="chkRemember" type="checkbox" value="3" id="chkRemember">%3$s&nbsp;</label>
+		<input name="chkRemember" type="checkbox" value="3" id="chkRemember">@@Remember@@&nbsp;</label>
 	</td>
 </tr>
 <tr>
-	<td><label for="pwd">%2$s</label></td>
+	<td><label for="pwd">@@Password@@</label></td>
 	<td>
 	  <input type="password" name="pwd" class="inpwd" id="pwd" size="10" tabindex="4">
 	</td>
     <td align="left"> 
-      <input class="dologin" value="%6$s" type="submit">
+      <input class="dologin" value="@@Log in@@" type="submit">
     </td>
 </tr>
 <tr>
   <td></td>
   <td colspan="2" align="left" class="tdforgot">
-     <a href="/remindpwd/" class="forgot">%5$s</a></td>
+     <a href="{_WEB_ROOT_}/{_remindpwd_}/" class="forgot">@@Forgot password?@@</a></td>
 </tr>
 </table>
 </form>

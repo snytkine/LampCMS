@@ -67,7 +67,7 @@ class Pager
         $mode = (isset($options['mode']) ? ucfirst($options['mode']) : 'Jumping');
         $classname = 'Pager_' . $mode;
         $classfile = DIRECTORY_SEPARATOR . 'Pager' . DIRECTORY_SEPARATOR . $mode . '.php';
-        $common = DIRECTORY_SEPARATOR . 'Pager' . DIRECTORY_SEPARATOR . 'Common.php';
+        //$common = DIRECTORY_SEPARATOR . 'Pager' . DIRECTORY_SEPARATOR . 'Common.php';
 
         include_once(LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . 'Pear' . $classfile);
         $pager = new $classname($options);

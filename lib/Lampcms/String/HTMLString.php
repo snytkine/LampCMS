@@ -96,7 +96,7 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
      *
      * @throws \Lampcms\DevException if unable to load the string
      */
-    public static function factory($s)
+    public static function stringFactory($s)
     {
 
         $Dom = new static();
@@ -292,7 +292,7 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
         }
 
         for ($i = 0; $i < $len; $i += 1) {
-            $UTF8String = Utf8String::factory($Nodes->item($i)->data, 'utf-8', true);
+            $UTF8String = Utf8String::stringFactory($Nodes->item($i)->data, 'utf-8', true);
             $count += $UTF8String->getWordsCount();
         }
 

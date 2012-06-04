@@ -58,7 +58,7 @@ class tplSearchresults extends tplQrecent
     protected static $tpl = '
 	<div class="qs%18$s" id="q-%1$s">  
      <div class="smmry">
-        <h2><a href="/q%1$s/%5$s" class="ql%19$s">%7$s</a></h2>
+        <h2><a href="{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}%1$s/%5$s" class="ql%19$s">%7$s</a></h2>
         <div class="intro">%6$s</div>
         <div class="tgs %8$s">%9$s</div>
         <div class="pstr">

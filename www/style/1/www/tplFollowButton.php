@@ -77,7 +77,7 @@ class tplFollowButton extends \Lampcms\Template\Fast
         'type' => '', //5
         'title' => '' // 6
     );
-    // id="%5$s_%1$s"
+
     protected static $tpl = '<div lampcms:ftype="%5$s" lampcms:follow="%1$s" class="mo btnfollow ajax ttt rounded4 %4$s" title="%6$s"><span class="icoc %2$s">&nbsp;</span><span class="flabel">%3$s</span></div>';
 
 }

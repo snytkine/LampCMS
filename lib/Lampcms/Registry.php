@@ -160,13 +160,14 @@ class Registry implements Interfaces\LampcmsObject
      * it will be using oMongo, no Cache, so... you know...
      * maybe we don't even need Langs anymore?
      *
+     * @return \Lampcms\Registry
      */
     protected function init()
     {
 
         $this->values['Request'] = $this->asShared(function ($c)
         {
-            return Request::factory();
+            return new Request($c->Router, $c->Ini);
         });
 
         $this->values['Ini'] = $this->asShared(function ($c)
@@ -184,9 +185,9 @@ class Registry implements Interfaces\LampcmsObject
             return new \Lampcms\Mail\Mailer($c->Ini);
         });
 
-        $this->values['UrlParts'] = $this->asShared(function ($c)
+        $this->values['Router'] = $this->asShared(function ($c)
         {
-            return new \Lampcms\Url\Parts($c->Ini);
+            return new \Lampcms\Uri\Router($c->Ini);
         });
 
         $this->values['Facebook'] = $this->asShared(function ($c)

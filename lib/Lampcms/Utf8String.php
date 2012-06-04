@@ -101,18 +101,19 @@ class Utf8String extends String
      * to guess charset
      *
      *
-     * @param $string
-     * @param $charset
+     * @param      $string
+     * @param      $charset
      * @param bool $isClean indicates that string is already
-     * guaranteed clean utf8 string and does not have to pass
-     * through our validation and sanitization routines
+     *                      guaranteed clean utf8 string and does not have to pass
+     *                      through our validation and sanitization routines
      *
-     * @param string $className the name of child class that we
-     * actually need to instantiate. Because we don't have support
-     * for late static binding if we call this factory
-     * from a child class, the self keyword will refer to
-     * this class, even though it was called from a child class,
-     * therefore this class will be instantiated, which is not what we want.
+     * @throws \InvalidArgumentException
+     * @internal param string $className the name of child class that we
+     *           actually need to instantiate. Because we don't have support
+     *           for late static binding if we call this factory
+     *           from a child class, the self keyword will refer to
+     *           this class, even though it was called from a child class,
+     *           therefore this class will be instantiated, which is not what we want.
      *
      * So if we want to call a child's factory, we must have a factory
      * method in child and from there call parent::factory() (this class)
@@ -120,7 +121,7 @@ class Utf8String extends String
      *
      * @return object of this class
      */
-    public static function factory($string, $charset = null, $isClean = false)
+    public static function stringFactory($string, $charset = null, $isClean = false)
     {
 
         /**
@@ -195,14 +196,15 @@ class Utf8String extends String
      * usually pretty close to 97% accuracy
      * this is still better than just rejecting unknown string
      *
-     * @param string $string input string
+     * @param string $string      input string
      * @param string $charsetHint sometimes we already have an idea
-     * of what the charset it, but instead of trusting this idea
-     * we still would rather guessCharset first, and only use
-     * the 'hint' in case we can't guess the charset
-     * this may be helpful only where this 'hint' charset is some
-     * exotic charset that our guesser does not support
+     *                            of what the charset it, but instead of trusting this idea
+     *                            we still would rather guessCharset first, and only use
+     *                            the 'hint' in case we can't guess the charset
+     *                            this may be helpful only where this 'hint' charset is some
+     *                            exotic charset that our guesser does not support
      *
+     * @throws \RuntimeException
      * @return string name of charset
      */
     public static function guessCharset($string, $charsetHint = '')
@@ -259,9 +261,13 @@ class Utf8String extends String
      * if necessary, recodes in using iconv,
      * strips low bytes except for tab, space, \n
      *
-     * @param string $string utf8 string
+     * @param      $utf8string
+     * @param bool $bIsAscii
+     *
+     * @throws \RuntimeException
+     * @internal param string $string utf8 string
      * @return string sanitized string which
-     * is fairly safe to use
+     *           is fairly safe to use
      */
     public static function sanitizeUtf8($utf8string, $bIsAscii = false)
     {
@@ -320,13 +326,15 @@ class Utf8String extends String
     /**
      * Checks that string is a valid utf8
      *
-     * @todo test the mb_check_encoding() to see if
-     * it even works. The manual is screwy says that
-     * it inspects the byte stream, but the function
-     * says argument is a string. Must check for yourselves how
-     * this works.
+     * @todo     test the mb_check_encoding() to see if
+     *           it even works. The manual is screwy says that
+     *           it inspects the byte stream, but the function
+     *           says argument is a string. Must check for yourselves how
+     *           this works.
      *
-     * @param string $string utf8 string
+     * @param $utf8string
+     *
+     * @internal param string $string utf8 string
      * @return bool true if string is valid, false if not valid
      */
     public static function validateUtf8($utf8string)
@@ -353,10 +361,10 @@ class Utf8String extends String
     /**
      * Takes an UTF-8 string and returns an array of ints representing the
      * Unicode characters. Astral planes are supported ie. the ints in the
-     * output can be > 0xFFFF. Occurrances of the BOM are ignored. Surrogates
+     * output can be > 0xFFFF. Occurrences of the BOM are ignored. Surrogates
      * are not allowed.
      *
-     * This function is primaraly used to validate
+     * This function is primarily used to validate
      * the utf8 string
      *
      *  The Original Code is Mozilla Communicator client code.
@@ -364,6 +372,8 @@ class Utf8String extends String
      *  UTF-8 to Code Point Array Converter in PHP
      *
      *  http://hsivonen.iki.fi/php-utf8/
+     *
+     * @param $str
      *
      * @return mixed array | false if the input string
      * isn't a valid UTF-8 octet sequence.
@@ -622,11 +632,13 @@ class Utf8String extends String
      * This way illegal chars are stripped from
      * the string
      *
-     * @param string $string utf8 string
+     * @param $utf8string
+     *
+     * @throws \RuntimeException if iconv function
+     *           is not available on the server.
+     * @internal param string $string utf8 string
      * @return string fixed utf8 string
      *
-     * @throws RuntimeException if iconv function
-     * is not available on the server.
      */
     public static function recodeUtf8($utf8string)
     {
@@ -676,15 +688,17 @@ class Utf8String extends String
 
 
     /**
-     * strips low bytes except for return (\r),
-     * tab and newline (\n)
+     * Strips low bytes except for return (\r),
+     * tab \t and newline (\n)
      *
-     * @param string $string utf8 string
+     * @param $utf8string
+     *
+     * @internal param string $string utf8 string
      * @return string string with low bytes removed
      */
     public static function stripLow($utf8string)
     {
-        $ret = preg_replace("/[^\x9\xA\xD\x20-\xFFFFFF]/", "", $utf8string);
+        $ret = \preg_replace("/[^\x9\xA\xD\x20-\xFFFFFF]/", "", $utf8string);
 
         return $ret;
     }
@@ -706,7 +720,7 @@ class Utf8String extends String
      */
     public static function sanitizeAscii($asciistring)
     {
-        $ret = preg_replace("/[^\x9\xA\xD\x20-\x7F]/", "", $asciistring);
+        $ret = \preg_replace("/[^\x9\xA\xD\x20-\x7F]/", "", $asciistring);
 
         return $ret;
     }
@@ -723,12 +737,15 @@ class Utf8String extends String
      * very little chance that some character cannot be
      * found in UTF-8 and need transliteration.
      *
-     * @param string $string original string
+     * @param string $string      original string
      * @param string $fromCharset name of charset
+     *
+     * @throws \UnexpectedValueException
+     * @throws \InvalidArgumentException
      * @return string converted string in UTF8 charset
      *
      * @todo either wrap some conversion inside try/catch
-     * or at least switch error reporting to suppress warnings for now
+     *       or at least switch error reporting to suppress warnings for now
      */
     public static function convertToUtf8($string, $fromCharset)
     {
@@ -805,8 +822,9 @@ class Utf8String extends String
 
     /**
      * Returns number of chars in a string
-     * this is not necessaraly the number of bytes
+     * this is not necessarily the number of bytes
      * because string of this class may be multibyte
+     * @return int
      */
     public function length()
     {
@@ -1041,6 +1059,8 @@ class Utf8String extends String
      * html are added to allowed tags)
      * but will also work if there is no body tag at all.
      *
+     * @param array $aAllowedTags
+     *
      * @return object of this class
      */
     public function safeHtml(array $aAllowedTags = array())
@@ -1064,6 +1084,7 @@ class Utf8String extends String
      * Get the plaintext version of this string
      * in case it's an html
      *
+     * @throws \Exception|Exception
      * @return object of this class
      */
     public function getPlainText()
@@ -1346,6 +1367,7 @@ class Utf8String extends String
      *
      * @param $hexcp must be in hex forat, for example : 269D (outline star)
      *
+     * @throws \InvalidArgumentException
      * @return actual utf8 character - it can be printed
      * on the page, as long as the page is set to utf-8
      * Page header must be already sent like this:
@@ -1406,6 +1428,8 @@ class Utf8String extends String
      * then be used to populate some type of codepoint table
      *
      * @param $hexcp
+     *
+     * @throws \RuntimeException
      * @return unknown_type
      */
     public static function findChar($hexcp)
@@ -1505,7 +1529,13 @@ class Utf8String extends String
      * UTF-8 safe version of substr
      *
      * (non-PHPdoc)
+     *
      * @see Lampcms.String::substr()
+     *
+     * @param      $start
+     * @param null $len
+     *
+     * @return
      */
     public function substr($start, $len = null)
     {

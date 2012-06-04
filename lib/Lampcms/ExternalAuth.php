@@ -145,7 +145,7 @@ class ExternalAuth extends LampcmsObject
          * as a valid UTF-8 String
          */
         if (!$isUtf8) {
-            $displayName = Utf8String::factory($displayName)->valueOf();
+            $displayName = Utf8String::stringFactory($displayName)->valueOf();
         }
 
         $coll = $this->Registry->Mongo->USERS;

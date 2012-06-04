@@ -62,16 +62,15 @@ class tplSearchForm extends \Lampcms\Template\Fast
     }
 
     protected static $vars = array(
-        'q' => '',
-        'search_label' => 'Search'
+        'q' => ''
     );
 
     protected static $tpl = '
-	<form name="search" id="id_search" accept-charset="utf-8" action="/index.php" method="GET">
+	<form name="search" id="id_search" accept-charset="utf-8" action="{_WEB_ROOT_}/{_search_}" method="GET">
 		<div class="row">
-			<input type="hidden" name="a" value="search"> 
+			<!-- <input type="hidden" name="a" value="search"> //-->
 			<input type="text" id="id_q" name="q" value="%1$s">
-			<input id="btnsearch" type="submit" size="24" value="%2$s"></div>
+			<input id="btnsearch" type="submit" size="24" value="@@Search@@"></div>
 	</form>';
 
 }

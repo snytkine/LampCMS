@@ -676,8 +676,7 @@ abstract class Pager_Common
      */
     public function getNextPageID()
     {
-        return ($this->getCurrentPageID() == $this->numPages() ? false : $this->getCurrentPageID() +
-            1);
+        return ($this->getCurrentPageID() == $this->numPages() ? false : $this->getCurrentPageID() + 1);
     }
 
     /**
@@ -1507,7 +1506,7 @@ abstract class Pager_Common
         $this->_spacesBefore = str_repeat(' ', $this->_spacesBeforeSeparator);
         $this->_spacesAfter = str_repeat(' ', $this->_spacesAfterSeparator);
 
-        if (isset($_REQUEST[$this->_urlVar]) && empty ($options['currentPage'])) {
+        if (empty ($options['currentPage']) && isset($_REQUEST[$this->_urlVar])) {
             $this->_currentPage = (int)$_REQUEST[$this->_urlVar];
         }
         $this->_currentPage = max($this->_currentPage, 1);

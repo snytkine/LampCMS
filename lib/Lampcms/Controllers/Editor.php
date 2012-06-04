@@ -189,7 +189,7 @@ class Editor extends Edit
         $aEditorConfig = $this->Registry->Ini->getSection('EDITOR');
         $tidyConfig = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
 
-        $this->Body = Utf8String::factory($body)
+        $this->Body = Utf8String::stringFactory($body)
             ->tidy($tidyConfig)
             ->safeHtml()
             ->asHtml();
@@ -217,7 +217,7 @@ class Editor extends Edit
      */
     protected function makeTitle($title)
     {
-        $oTitle = Utf8String::factory($title)->htmlentities()->trim();
+        $oTitle = Utf8String::stringFactory($title)->htmlentities()->trim();
         d('$oTitle ' . $oTitle);
 
         return $oTitle;

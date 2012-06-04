@@ -77,9 +77,9 @@ class Responder
     /**
      * Flag indicates that
      * request came to the iframe
-     * This usually happends when form
+     * This usually happens when form
      * is submitted via hijaxForm javascript
-     * The puprose of this flag is to allow
+     * The purpose of this flag is to allow
      * the sending of response json to be sent
      * out via sendJSON in a special way
      *
@@ -94,16 +94,19 @@ class Responder
     /**
      * Send the string to a browser and exit
      *
-     * @param array $arrJSON
-     * @param int httpCode default is 200
-     * @param array $headers
+     * @param array   $aJSON
+     * @param array   $headers
+     * @param int     $httpCode  httpCode default is 200
      * @param boolean $addJSTags if true, then
-     * string will be sent as an HTML page that contains
-     * javascript
-     * Javascript will pass the json object to
-     * the parent window's function fParseResponse
-     * but only if parent object exists and contains
-     * fParseQfJson script
+     *                           string will be sent as an HTML page that contains
+     *                           javascript
+     *                           Javascript will pass the json object to
+     *                           the parent window's function fParseResponse
+     *                           but only if parent object exists and contains
+     *                           fParseQfJson script
+     *
+     * @throws \OutOfBoundsException
+     * @internal param array $arrJSON
      */
     public static function sendJSON(array $aJSON, array $headers = null, $httpCode = 200, $addJSTags = false)
     {
@@ -115,13 +118,13 @@ class Responder
         }
 
         $contentType = "Content-Type: text/json; charset=UTF-8";
-        $res = json_encode($aJSON);
+        $res = \json_encode($aJSON);
 
         d('Sending json: ' . $res);
         header("HTTP/1.1 " . $httpCode . " OK");
         header($contentType);
         echo($res);
-        session_write_close();
+        \session_write_close();
         fastcgi_finish_request();
         //exit();
         throw new \OutOfBoundsException;
@@ -131,13 +134,15 @@ class Responder
     /**
      * Send out response to JSONP Request
      * by sending out application/javascript Content-Type header
-     * and then string: callbackfunction with
+     * and then string: callback function with
      * JSON-encoded data as callback's argument
      * and then calling fastcgi_finish_request();
      * and exit;
      *
-     * @param array $aJSON
+     * @param array  $aJSON
      * @param string $callback
+     *
+     * @throws \OutOfBoundsException
      * @throws \InvalidArgumentException
      */
     public static function sendJSONP(array $aJSON, $callback)
@@ -149,8 +154,8 @@ class Responder
         header("HTTP/1.1 200 OK");
         header("Content-Type: application/javascript; charset=UTF-8");
 
-        echo $callback . '(' . json_encode($aJSON) . ')';
-        session_write_close();
+        echo $callback . '(' . \json_encode($aJSON) . ')';
+        \session_write_close();
         fastcgi_finish_request();
         throw new \OutOfBoundsException;
     }
@@ -161,8 +166,10 @@ class Responder
      * that includes ONLY javascript
      * that contains json encoded array or data
      *
-     * @param string $aJson
-     * @return
+     * @param array|string $aJson
+     *
+     * @throws \OutOfBoundsException
+     * @return void
      */
     public static function sendJsonPage(array $aJson)
     {
@@ -208,6 +215,8 @@ class Responder
      * using the header "Location" value
      *
      * @param string $url url where to redirect. Default is '/' meaning to www root
+     *
+     * @throws \OutOfBoundsException
      */
     public static function redirectToPage($url = null)
     {
@@ -220,7 +229,7 @@ class Responder
             self::sendJSON(array('redirect' => $url));
         }
 
-        session_write_close();
+        \session_write_close();
         header("Location: " . $url);
         fastcgi_finish_request();
         throw new \OutOfBoundsException;
@@ -241,7 +250,7 @@ class Responder
             !empty($_SESSION['LOCATION']['H']) &&
             !empty($_SESSION['LOCATION']['a'])
         ) {
-            $sUrl = self::makeUri('', array_merge($_SESSION['LOCATION']['H'], array('a' => $_SESSION['LOCATION']['a'])));
+            $sUrl = self::makeUri('', \array_merge($_SESSION['LOCATION']['H'], array('a' => $_SESSION['LOCATION']['a'])));
         }
 
         return $sUrl;

@@ -65,6 +65,7 @@ use Lampcms\Responder;
  * Controller to show
  * list of all categories with
  * nested sub-categories
+ *
  * @author Dmitri Snytkine
  *
  */
@@ -72,6 +73,9 @@ class Viewcategories extends Viewquestions
 {
 
     protected $latest;
+
+    protected $qtab = 'categories';
+
     protected $aCategories = array();
 
     protected function main()
@@ -90,8 +94,8 @@ class Viewcategories extends Viewquestions
 
     protected function makeQlistBody()
     {
-        $this->title = $this->_('Categories');
-        $Renderer = new Renderer($this->Registry);
+        $this->title             = $this->_('Categories');
+        $Renderer                = new Renderer($this->Registry);
         $this->aPageVars['body'] = $Renderer->getNestedDivs();
 
         return $this;

@@ -84,7 +84,7 @@ class tplLinktag extends Lampcms\Template\Fast
 
     protected static $tpl = '
 	<div class="t2 t-%1$s">
-	<a href="/tagged/%3$s/" title="Questions tagged \'%1$s\'">%1$s</a>
+	<a href="{_WEB_ROOT_}/{_tagged_}/%3$s/" title="Questions tagged \'%1$s\'">%1$s</a>
 	<span>&times;&nbsp;%2$s</span>
 	</div>';
 

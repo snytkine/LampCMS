@@ -52,9 +52,10 @@
 
 /**
  * All Exceptions defined here
+ *
  * @important Allways include this file!
  *
- * @author Dmitri Snytkine
+ * @author    Dmitri Snytkine
  *
  */
 namespace Lampcms;
@@ -131,9 +132,9 @@ class Exception extends \Exception
      *
      * @deprecated
      *
-     * @param object $e Exception
+     * @param \Exception|object $e        Exception
      *
-     * @param string $sMessage [optional]
+     * @param string            $sMessage [optional]
      *
      * @return string formatted error message made
      *
@@ -145,17 +146,17 @@ class Exception extends \Exception
         //$sMessage = $e->getMessage();
         //$bHtml = ($e instanceof \Lampcms\Exception) ? $e->getHtmlFlag() : false;
 
-        if ($e instanceof Lampcms\DevException) {
+        if ($e instanceof \Lampcms\DevException) {
             $sMessage = ((defined('LAMPCMS_DEBUG')) && true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occured'; //$oTr->get('generic_error', 'exceptions');
         }
 
         $sMessage = strip_tags($sMessage);
 
-        $aArgs = ($e instanceof \Lampcms\Exception) ? $e->getArgs() : null;
+        $aArgs    = ($e instanceof \Lampcms\Exception) ? $e->getArgs() : null;
         $sMessage = (!empty($aArgs)) ? vsprintf($sMessage, $aArgs) : $sMessage;
 
-        $sError = '';
-        $sTrace = $e->getTraceAsString();
+        $sError  = '';
+        $sTrace  = $e->getTraceAsString();
         $strFile = $e->getFile();
         $intLine = $e->getLine();
         $intCode = ($e instanceof \ErrorException) ? $e->getSeverity() : $e->getCode();
@@ -199,9 +200,9 @@ class Exception extends \Exception
             $a = array(
                 'exception' => $sError,
                 'errHeader' => 'Error', /*$oTr->get('errHeader', 'qf'),*/
-                'type' => get_class($e));
+                'type'      => get_class($e));
 
-            if ($e instanceof Lampcms\FormException) {
+            if ($e instanceof \Lampcms\FormException) {
                 $a['fields'] = $e->getFormFields();
             }
             d('json array of exception: ' . print_r($a, 1));
@@ -223,9 +224,9 @@ class Exception extends \Exception
 
             /**
              * @todo if Tr was passed here
-             * then we can translate string
+             *       then we can translate string
              */
-            $message = ((defined('LAMPCMS_DEBUG')) && true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occured. Administrator has been notified or the error. We will fix this as soon as possible'; //$oTr->get('generic_error', 'exceptions');
+            $message = (true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occured. Administrator has been notified or the error. We will fix this as soon as possible'; //$oTr->get('generic_error', 'exceptions');
 
         }
         /**
@@ -237,7 +238,7 @@ class Exception extends \Exception
          */
         $message = \htmlspecialchars($message);
 
-        $aArgs = ($e instanceof \Lampcms\Exception) ? $e->getArgs() : null;
+        $aArgs   = ($e instanceof \Lampcms\Exception) ? $e->getArgs() : null;
         $message = (!empty($aArgs)) ? vsprintf($message, $aArgs) : $message;
 
         if ($Tr) {
@@ -290,7 +291,7 @@ class Exception extends \Exception
             $a = array(
                 'exception' => $sError,
                 'errHeader' => 'Error', /*$oTr->get('errHeader', 'qf'),*/
-                'type' => get_class($e));
+                'type'      => get_class($e));
 
             if ($e instanceof \Lampcms\FormException) {
                 $a['fields'] = $e->getFormFields();
@@ -311,12 +312,14 @@ class Exception extends \Exception
      * Thanks to Steve for posting this fix here:
      * http://stackoverflow.com/questions/1949345/
      *
-     * @param object $exception instance of php Exception or any
-     * sub-class
+     * @param \Exception|object $exception instance of php Exception or any
+     *                                     sub-class
+     *
+     * @return string
      */
     public static function getExceptionTraceAsString(\Exception $exception)
     {
-        $rtn = "";
+        $rtn   = "";
         $count = 0;
         foreach ($exception->getTrace() as $frame) {
             $args = "";
@@ -357,7 +360,7 @@ class Exception extends \Exception
      * Helper function to get value of array offset (key)
      * if offset exists, else get empty string
      *
-     * @param array $a
+     * @param array  $a
      * @param string $key array key
      *
      * @return string
@@ -379,11 +382,13 @@ class Exception extends \Exception
  */
 class NoemailException extends Exception
 {
+
 }
 
 
 class LoginException extends Exception
 {
+
 }
 
 
@@ -392,11 +397,13 @@ class LoginException extends Exception
  * user must login in order
  * to view or use the page
  * The HTTP code
+ *
  * @author Dmitri Snytkine
  *
  */
 class AuthException extends Exception
 {
+
 }
 
 /**
@@ -404,7 +411,7 @@ class AuthException extends Exception
  * only developer should see the actual error message,
  * a regular user will see a generic error message.
  *
- * A good canditate for throwing this exception is from the
+ * A good candidate for throwing this exception is from the
  * class constructors when we check that a valid data or objects
  * are passed to constructor.
  * A regular user does not heed to see these technical messages
@@ -426,6 +433,7 @@ class AuthException extends Exception
  */
 class DevException extends Exception
 {
+
     public function __construct($message = null, array $aArgs = null, $intCode = 0, $boolHTML = false)
     {
         /**
@@ -439,11 +447,13 @@ class DevException extends Exception
 
 class IniException extends DevException
 {
+
 }
 
 
 class DBException extends DevException
 {
+
     protected $sqlState;
 
     public function __construct($message, $mysqlErrCode = 0, $sqlState = 0)
@@ -463,6 +473,7 @@ class DBException extends DevException
  */
 class PDODuplicateException extends DBException
 {
+
     /**
      * This will be the value that caused the duplicate
      * constraints violation
@@ -470,6 +481,7 @@ class PDODuplicateException extends DBException
      * the preg_match fails to extract it. This can happened if
      * mysql changes the format of error message in some
      * future releases
+     *
      * @var string
      */
     protected $dupValue = '';
@@ -477,6 +489,7 @@ class PDODuplicateException extends DBException
     /**
      * Numeric index key
      * of index in which the uniquness violation occured
+     *
      * @var int
      */
     protected $dupKey;
@@ -485,7 +498,7 @@ class PDODuplicateException extends DBException
     {
         parent::__construct($message, 1062, 23000);
         $this->dupValue = $dupValue;
-        $this->dupKey = $key;
+        $this->dupKey   = $key;
     }
 
     public function getDupValue()
@@ -499,7 +512,6 @@ class PDODuplicateException extends DBException
     }
 }
 
-//class PagerException extends Exception{}
 /**
  * Custom exception class
  * used in admin classes
@@ -516,26 +528,32 @@ class PDODuplicateException extends DBException
  */
 class AccessException extends AuthException
 {
+
 }
 
 class AdminException extends Exception
 {
+
 }
 
 class Lampcms404Exception extends Exception
 {
+
 }
 
 class CookieAuthException extends AuthException
 {
+
 }
 
 class AclException extends AccessException
 {
+
 }
 
 class AclRoleRegistryException extends AclException
 {
+
 }
 
 
@@ -544,11 +562,13 @@ class AclRoleRegistryException extends AclException
  * Exception indicates that user is
  * not logged in but the action is only
  * available to logged in users
+ *
  * @author Dmitri Snytkine
  *
  */
 class MustLoginException extends LoginException
 {
+
 }
 
 
@@ -560,6 +580,7 @@ class MustLoginException extends LoginException
  */
 class UnactivatedException extends AuthException
 {
+
 }
 
 /**
@@ -571,13 +592,15 @@ class UnactivatedException extends AuthException
  */
 class RedirectException extends Exception
 {
+
     /**
      * Constructor
      *
      * @param string $newLocation must be a full url where
-     * the page can be found
+     *                            the page can be found
      *
-     * @param int $httpCode HTTP response code
+     * @param int    $httpCode    HTTP response code
+     * @param bool   $boolHTML
      */
     public function __construct($newLocation, $httpCode = 301, $boolHTML = true)
     {
@@ -587,26 +610,32 @@ class RedirectException extends Exception
 
 class FacebookApiException extends Exception
 {
+
 }
 
 class ImageException extends DevException
 {
+
 }
 
 class ExternalAuthException extends AuthException
 {
+
 }
 
 class GFCAuthException extends ExternalAuthException
 {
+
 }
 
 class TwitterAuthException extends ExternalAuthException
 {
+
 }
 
 class FacebookAuthException extends ExternalAuthException
 {
+
 }
 
 /**
@@ -619,44 +648,54 @@ class FacebookAuthException extends ExternalAuthException
  */
 class FacebookAuthUserException extends FacebookAuthException
 {
+
 }
 
 class CaptchaLimitException extends AccessException
 {
+
 }
 
 class TokenException extends Exception
 {
+
 }
 
 class TrException extends Exception
 {
+
 }
 
 class TwitterException extends Exception
 {
+
 }
 
 class WrongUserException extends LoginException
 {
+
 }
 
 class WrongPasswordException extends LoginException
 {
+
 }
 
 class MultiLoginException extends LoginException
 {
+
 }
 
 /**
  * Base Exception class for the \Lampcms\Curl class
  * used to extend HttpException
+ *
  * @author Dmitri Snytkine <cms@lampcms.com>
  *
  */
 class HttpResponseErrorException extends Exception
 {
+
 }
 
 /**
@@ -691,10 +730,10 @@ class HttpResponseCodeException extends HttpResponseErrorException
      * Constructor
      *
      * @param Exception $message
-     * @param int $httpCode http response code as received from http server
-     * @param int $code arbitrary code, usually used to indicate the level of error
-     * @param object $prevException object of type Exception containing the
-     * previous (inner) Exception
+     * @param int       $httpCode      http response code as received from http server
+     * @param int       $code          arbitrary code, usually used to indicate the level of error
+     * @param object    $prevException object of type Exception containing the
+     *                                 previous (inner) Exception
      *
      * @return void
      */
@@ -709,7 +748,7 @@ class HttpResponseCodeException extends HttpResponseErrorException
         parent::__construct($message, null, $code);
 
         $this->httpResponseCode = $httpCode;
-        $this->innerException = $prevException;
+        $this->innerException   = $prevException;
     }
 
     /**
@@ -737,26 +776,32 @@ class HttpResponseCodeException extends HttpResponseErrorException
  */
 class HttpTimeoutException extends HttpResponseErrorException
 {
+
 }
 
 class Http304Exception extends HttpResponseErrorException
 {
+
 }
 
 class Http401Exception extends HttpResponseErrorException
 {
+
 }
 
 class Http404Exception extends HttpResponseErrorException
 {
+
 }
 
 class Http400Exception extends HttpResponseCodeException
 {
+
 }
 
 class Http500Exception extends HttpResponseCodeException
 {
+
 }
 
 /**
@@ -770,6 +815,7 @@ class Http500Exception extends HttpResponseCodeException
  */
 class HttpEmptyBodyException extends HttpResponseErrorException
 {
+
 }
 
 /**
@@ -781,6 +827,7 @@ class HttpEmptyBodyException extends HttpResponseErrorException
  */
 class HttpRedirectException extends HttpResponseCodeException
 {
+
     /**
      * value of the new uri where the redirect leads
      * This is the value of the Location: header
@@ -827,6 +874,7 @@ class HttpRedirectException extends HttpResponseCodeException
  */
 class QuestionParserException extends Exception
 {
+
 }
 
 /**
@@ -843,6 +891,7 @@ class QuestionParserException extends Exception
  */
 class AnswerParserException extends Exception
 {
+
 }
 
 /**
@@ -856,11 +905,13 @@ class AnswerParserException extends Exception
  */
 class FilterException extends Exception
 {
+
 }
 
 
 class HTML2TextException extends Exception
 {
+
 }
 
 /**
@@ -899,6 +950,7 @@ class NoticeException extends Exception
  */
 class AlertException extends NoticeException
 {
+
 }
 
 
@@ -920,13 +972,14 @@ class FormException extends NoticeException
 
     /**
      * Constructor
-     * @param string $message error message
-     * @param array $aFormFields regular array with names of form fields
-     * that caused validation error
      *
-     * @param array $aArgs additional optional array of args for
-     * vsprintf. This is in case we need to translate the error message
-     * and then apply the replacement vars.
+     * @param string $message     error message
+     * @param array  $aFormFields regular array with names of form fields
+     *                            that caused validation error
+     *
+     * @param array  $aArgs       additional optional array of args for
+     *                            vsprintf. This is in case we need to translate the error message
+     *                            and then apply the replacement vars.
      */
     public function __construct($message, $formFields = null, array $aArgs = null)
     {

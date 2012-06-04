@@ -60,7 +60,7 @@ use Lampcms\Registry;
  * from array of categories.
  * Used for making drop-down menu
  * with categories,
- * breadcrumb naviations,
+ * breadcrumb navigation,
  * html for nested <ul><li> for the
  * HTML of sub-categories
  * for one category for the
@@ -224,6 +224,7 @@ class Renderer
      * (usually child nodes of the currently processed category)
      * That callback function will be a closure, encapsulating
      * the value of a_sub array of the currently processed category
+     * @return string
      */
     public function getSortableList($func = null)
     {
@@ -270,7 +271,7 @@ class Renderer
 
 
     /**
-     * Get HTML for the breadcrumn of the category
+     * Get HTML for the breadcrumb of the category
      * Bread crumb is
      * Category > SubCategory > This category
      * Where This category is passed as $categoryID
@@ -285,6 +286,7 @@ class Renderer
      * @param string $prev do not pass anything here yourself
      * it's used only when function recursively calls itself
      *
+     * @return string
      */
     public function getBreadCrumb($id, $isLink = true, $prev = '')
     {
@@ -306,7 +308,7 @@ class Renderer
 
         $categ = $this->aCategories[$id];
 
-        $tpl = '<a href="/category/%s/" class="bc_categ">%s</a>';
+        $tpl = '<a href="{_WEB_ROOT_}/{_viewcategory_}/%s/" class="bc_categ">%s</a>';
         $home = '<a href="%s" class="bc_categ bc_home">%s</a>';
 
         if ($isLink) {
@@ -321,7 +323,7 @@ class Renderer
 
             return $this->getBreadCrumb($parent['id'], true, $this->sep . $res);
         } else {
-            $home = \sprintf($home, $this->Registry->Ini->SITE_URL, $this->Registry->Tr->get('Home'));
+            $home = \sprintf($home, $this->Registry->Ini->SITE_URL.'{_WEB_ROOT_}', $this->Registry->Tr->get('Home'));
 
             return '<div class="bcnav">' . $home . $this->sep . $res . '</div>';
         }
@@ -332,6 +334,11 @@ class Renderer
      * Get HTML of the select menu
      * with categories
      *
+     * @param int  $selected
+     * @param null $addEmptyItem
+     * @param bool $required
+     *
+     * @throws \InvalidArgumentException
      * @return html of the select input
      */
     public function getSelectMenu($selected = 0, $addEmptyItem = null, $required = true)
@@ -445,7 +452,7 @@ class Renderer
         foreach ($categories as $c) {
             if ($c['b_active']) {
                 if (!empty($c['a_sub'])) {
-                    $subs = array_intersect_key($this->aCategories, array_flip($c['a_sub']));
+                    $subs = \array_intersect_key($this->aCategories, array_flip($c['a_sub']));
                     $ret .= $this->getNestedDivs($subs);
                 } else {
                     $ret .= \tplCategoryDiv::parse($c);
@@ -469,14 +476,12 @@ class Renderer
      * @param int $level level of nesting of groups
      * of sub-categories currentlyl being parsed.
      * Do not pass this manually, used only during recursion
+     * @return string
      */
     public function getNestedDivs(array $categories = null, $parentId = 0, $level = 0)
     {
 
         $categories = ($categories) ? $categories : $this->aCategories;
-
-        //print_r($categories);
-        //exit;
 
         $ret = '<div class="cats_w fl cb" id="parent_' . $parentId . '">';
         foreach ($categories as $c) {

@@ -123,17 +123,17 @@ class Utf8StringTest extends LampcmsUnitTestCase
 
     public function testLength()
     {
-        $this->assertEquals(24, Utf8String::factory(self::UTF8_RUSSIAN)->length());
-        $this->assertEquals(24, Utf8String::factory(self::UTF8_RUSSIAN_UP)->length());
+        $this->assertEquals(24, Utf8String::stringFactory(self::UTF8_RUSSIAN)->length());
+        $this->assertEquals(24, Utf8String::stringFactory(self::UTF8_RUSSIAN_UP)->length());
     }
 
 
     public function testSubstr()
     {
-        $o = Utf8String::factory(self::UTF8_RUSSIAN, 'utf-8', true);
+        $o = Utf8String::stringFactory(self::UTF8_RUSSIAN, 'utf-8', true);
         $sub = (string)$o->substr(4, 3);
 
-        $o2 = Utf8String::factory(self::UTF8_RUSSIAN_UP, 'utf-8', true);
+        $o2 = Utf8String::stringFactory(self::UTF8_RUSSIAN_UP, 'utf-8', true);
         $sub2 = (string)$o2->substr(4, 3);
 
         $this->assertEquals("\xD0\xB7\xD0\xB0\xD0\xBB", $sub);
@@ -143,7 +143,7 @@ class Utf8StringTest extends LampcmsUnitTestCase
 
     public function testUcWords()
     {
-        $o = Utf8String::factory(self::UTF8_RUSSIAN, 'utf-8', true);
+        $o = Utf8String::stringFactory(self::UTF8_RUSSIAN, 'utf-8', true);
         $uc = "\xD0\x9E\xD1\x82\xD0\xBA\xD0\xB0\xD0\xB7\xD0\xB0\xD0\xBB\xD0\xB0\xD1\x81\xD1\x8C\x20\xD0\x9E\xD1\x82\x20\xD0\xA0\xD0\xB0\xD0\xB7\xD1\x80\xD0\xB0\xD0\xB1\xD0\xBE\xD1\x82\xD0\xBA\xD0\xB8";
         $ucf = (string)$o->ucwords();
         $this->assertEquals($uc, $ucf);
@@ -152,7 +152,7 @@ class Utf8StringTest extends LampcmsUnitTestCase
 
     public function testUcFirst()
     {
-        $o = Utf8String::factory(self::UTF8_RUSSIAN, 'utf-8', true);
+        $o = Utf8String::stringFactory(self::UTF8_RUSSIAN, 'utf-8', true);
         $ucf = (string)$o->ucfirst();
         $uc = "\xD0\x9E\xD1\x82\xD0\xBA\xD0\xB0\xD0\xB7\xD0\xB0\xD0\xBB\xD0\xB0\xD1\x81\xD1\x8C\x20\xD0\xBE\xD1\x82\x20\xD1\x80\xD0\xB0\xD0\xB7\xD1\x80\xD0\xB0\xD0\xB1\xD0\xBE\xD1\x82\xD0\xBA\xD0\xB8";
         $this->assertEquals($uc, $ucf);
@@ -160,7 +160,7 @@ class Utf8StringTest extends LampcmsUnitTestCase
 
     public function testGetWordsCount()
     {
-        $o = Utf8String::factory(self::UTF8_RUSSIAN);
+        $o = Utf8String::stringFactory(self::UTF8_RUSSIAN);
         $this->assertEquals(3, $o->getWordsCount());
     }
 

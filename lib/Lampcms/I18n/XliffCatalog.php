@@ -62,6 +62,7 @@ namespace Lampcms\I18n;
  */
 class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
 {
+
     /**
      * Name of locate for which
      * the messages are translated
@@ -83,6 +84,7 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
     /**
      *
      * Constructor
+     *
      * @param string $file
      * @param string $locale
      */
@@ -99,7 +101,7 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
          * the object will have only the default empty
          * array of $this->aMessages;
          */
-        if (is_readable($file)) {
+        if (\is_readable($file)) {
 
             $this->parseFile($file);
         } else {
@@ -114,26 +116,27 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
      * and create DOMDocument object from it
      *
      * @param string $file full path to XLIFF xml file
+     *
      * @throws \Lampcms\DevException
      * @throws \Exception
      */
     protected function parseFile($file)
     {
         d('parsing $file: ' . $file);
-        $oDom = new \DOMDocument();
-        $current = libxml_use_internal_errors(true);
+        $oDom    = new \DOMDocument();
+        $current = \libxml_use_internal_errors(true);
         if (!@$oDom->load($file, LIBXML_COMPACT)) {
-            $err = implode("\n", $this->getXmlErrors());
+            $err = \implode("\n", $this->getXmlErrors());
             throw new \Lampcms\DevException($err);
         }
 
         $location = \str_replace('\\', '/', __DIR__) . '/schema/xml.xsd';
         d('$location: ' . $location);
 
-        $parts = explode('/', $location);
+        $parts = \explode('/', $location);
 
-        $drive = '\\' === DIRECTORY_SEPARATOR ? array_shift($parts) . '/' : '';
-        $location = 'file:///' . $drive . implode('/', array_map('rawurlencode', $parts));
+        $drive    = '\\' === DIRECTORY_SEPARATOR ? \array_shift($parts) . '/' : '';
+        $location = 'file:///' . $drive . implode('/', \array_map('rawurlencode', $parts));
         d('$location: ' . $location);
 
         $source = \file_get_contents(__DIR__ . '/schema/xliff-core-1.2-strict.xsd');
@@ -148,7 +151,7 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
         $oDom->validateOnParse = true;
         $oDom->normalizeDocument();
         d('cp');
-        libxml_use_internal_errors($current);
+        \libxml_use_internal_errors($current);
 
         $this->xml2array($oDom);
     }
@@ -163,6 +166,8 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
      * $this->aMessages array
      *
      * @param \DOMDocument $o
+     *
+     * @return \Lampcms\I18n\XliffCatalog
      */
     protected function xml2array(\DOMDocument $o)
     {
@@ -172,8 +177,8 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
         $elements = $xp->query('//xliff:trans-unit');
 
         foreach ($elements as $element) {
-            $s = $element->getElementsByTagName('source')->item(0)->nodeValue;
-            $v = $element->getElementsByTagName('target')->item(0)->nodeValue;
+            $s                   = $element->getElementsByTagName('source')->item(0)->nodeValue;
+            $v                   = $element->getElementsByTagName('target')->item(0)->nodeValue;
             $this->aMessages[$s] = $v;
         }
 
@@ -191,8 +196,8 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
     protected function getXmlErrors()
     {
         $errors = array();
-        foreach (libxml_get_errors() as $error) {
-            $errors[] = sprintf('[%s %s] %s (in %s - line %d, column %d)',
+        foreach (\libxml_get_errors() as $error) {
+            $errors[] = \sprintf('[%s %s] %s (in %s - line %d, column %d)',
                 LIBXML_ERR_WARNING == $error->level ? 'WARNING' : 'ERROR',
                 $error->code,
                 trim($error->message),
@@ -210,8 +215,10 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
 
 
     /**
-     * (non-PHPdoc)
+     * Getter for $this->aMessages array
+     *
      * @see Lampcms\Interfaces.Translator::getMessages()
+     * @return array
      */
     public function getMessages()
     {
@@ -221,7 +228,9 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.Translator::getLocale()
+     * @return null|string
      */
     public function getLocale()
     {
@@ -231,45 +240,63 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.Translator::get()
+     *
+     * @param            $string
+     * @param array|null $vars
+     * @param null       $default
+     *
+     * @return null|string
      */
     public function get($string, array $vars = null, $default = null)
     {
-        $str = (!empty($this->aMessages[$string])) ? $this->aMessages[$string] : (is_string($default) ? $default : $string);
+        $str = (!empty($this->aMessages[$string])) ? $this->aMessages[$string] : (\is_string($default) ? $default : $string);
 
-        return (null === $vars) ? $str : strtr($str, $vars);
+        return (null === $vars) ? $str : \strtr($str, $vars);
     }
 
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.Translator::has()
+     *
+     * @param $string
+     *
+     * @return bool
      */
     public function has($string)
     {
-        return array_key_exists($string, $this->aMessages);
+        return \array_key_exists($string, $this->aMessages);
     }
 
 
     /**
      * (non-PHPdoc)
+     *
      * @see Serializable::serialize()
+     * @return string
      */
     public function serialize()
     {
-        return \json_encode(array('messages' => $this->aMessages, 'locale' => $this->locale));
+        return \json_encode(array('messages' => $this->aMessages,
+                                  'locale'   => $this->locale));
     }
 
 
     /**
      * (non-PHPdoc)
+     *
      * @see Serializable::unserialize()
+     *
+     * @param $serialized
      */
     public function unserialize($serialized)
     {
-        $a = \json_decode($serialized, true);
+        $a               = \json_decode($serialized, true);
         $this->aMessages = $a['messages'];
-        $this->locale = $a['locale'];
+        $this->locale    = $a['locale'];
     }
 
 }

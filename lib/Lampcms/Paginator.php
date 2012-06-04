@@ -77,6 +77,7 @@ class Paginator
      * @param mixed $r this param is ignored, traditionally
      * Registry object used to be passed here but not
      * it is unnecessary
+     * @return \Lampcms\Paginator
      */
     public static function factory($r = null)
     {
@@ -99,13 +100,14 @@ class Paginator
      * if mongo cursor is passed, it will
      * also set offset and limit on the cursor itself
      *
-     * @param mixed int|array|object MongoCursor $arrData
-     * @param int $perPage
+     * @param null  $arrData
+     * @param int   $perPage
      * @param array $arrExtraParams
      *
+     * @throws DevException
+     * @internal param array|int|object $mixed MongoCursor $arrData
      * @return array paged data
      *
-     * @throws LampcmsDevException
      */
     public function paginate($arrData = null, $perPage, $arrExtraParams = array())
     {
@@ -113,7 +115,7 @@ class Paginator
         $mongoCursor = null;
         // was: FALSE == MOBILE_BROWSER_SETTINGS
         if (true) {
-            $arrParams = array('mode' => 'Sliding', 'fileName' => 'page%d.html', 'path' => '', 'append' => false, 'perPage' => $perPage, 'delta' => 2, 'urlVar' => 'pageID');
+            $arrParams = array('mode' => 'Sliding', 'fileName' => '{_PAGER_PREFIX_}%d{_PAGER_EXT_}', 'path' => '', 'append' => false, 'perPage' => $perPage, 'delta' => 2, 'urlVar' => 'pageID');
 
             if (!empty($arrData)) {
                 if (is_array($arrData)) {
@@ -130,7 +132,7 @@ class Paginator
                 }
 
                 else {
-                    throw new DevException('wrong type for $arrData param. It must be array or numeric value. Passed: ' . gettype($arrData) . ' ' . get_class($addData));
+                    throw new DevException('Wrong type for $arrData param. It must be array or numeric value. Passed: ' . gettype($arrData) . ' ' . \get_class($arrData));
                 }
             }
 

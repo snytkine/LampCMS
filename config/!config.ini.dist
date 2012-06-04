@@ -52,6 +52,12 @@ DEBUG = true
 ; of the project (where this file is located)
 TRANSLATIONS_DIR = "translations"
 ;
+; Name of default controller
+; this controller is used when site is accessed without any arguments
+; It is highly recommended to leave the default value
+;
+DEFAULT_CONTROLLER = viewquestions
+;
 ; Minimum number of tags question must have
 ; set to 0 to make tags optional
 ;
@@ -209,19 +215,19 @@ EMAIL_DOMAIN =
 ; and never change it again!
 ; if it's lost, you will not be able to authenticate
 ; any existing users - users will never be able to login!
-SALT = 'abcdefg';
+SALT = "abcdefg"
 ;
 ; COOKIE_SALT is Required value
 ;Enter some random string BEFORE launching your site
 ;but DONT EVER CHANGE IT AFTER
 ;you launched your site, otherwise users will not be
 ;able to auto-login to site using the 'remember me' cookie
-COOKIE_SALT = 'abcde1234512345'
+COOKIE_SALT = "abcde1234512345"
 ;
 ; Show page render time in footer? 
 ; set to true to have "Page generated in .... seconds
 ; added to bottom of pages
-SHOW_TIMER = false;
+SHOW_TIMER = false
 ;
 ; disable autocomplete widget
 ; in search form and in Title in "Ask" form
@@ -273,17 +279,29 @@ CATEGORY_DETAILED_LEVEL = 2
 ; Url parts placeholders in templates
 ; will be replaced with these values
 ; during page rendering
-[URL_PARTS]
-; 
-; Leave {_WEB_ROOT_} blank for default setup (lampcms in root web directory)
+[URI_PARTS]
+;
+; Leave DIR blank for default setup (lampcms in root web directory)
 ; If setting up Lampcms in web directory then start path with slash
 ; and no leading slash at the end
 ; For example to setup Lampcms in the yoursite.com/community/forum directory
-; set the value of {_WEB_ROOT_} to /community/forum
+; set the value of DIR to /community/forum
 ; to setup in the yoursite.com/forum directory
-; point {_WEB_ROOT_} to /forum
+; point DIR to /forum
 ;
-WEB_ROOT =
+DIR =
+;
+; If you are not using any rewrite rules
+; then this should be set to /index.php - with the left slash
+; If you have setup the rewrite rule then this must be left blank
+; IMPORTANT = do no remove this setting.
+; In order to leave this blank you should just point it to an empty value
+; like this:
+; FILE =
+;
+FILE = /index.php
+
+;
 ;Some configuration constants
 ;Leave blank if you host images, css and js
 ;on the same server as this program,
@@ -300,16 +318,18 @@ PAGER_PREFIX = page
 ;
 ; This will be added to pagination links (example: page2.html)
 PAGER_EXT = .html
-QID = q
-NEW = new
-ACTIVE = active
-VOTED = voted
-POPULAR = popular
+;
+; Url parts for the "sort by"
+;
+SORT_NEW = new
+SORT_ACTIVE = active
+SORT_VOTED = voted
+SORT_POPULAR = popular
 TAG_NAME = name
-RECENT = recent
-OLDEST = oldest
-BEST = best
-VIEWS = views
+SORT_RECENT = recent
+SORT_OLDEST = oldest
+SORT_BEST = best
+SORT_VIEWS = views
 
 ;
 ; Options of RTE Editor

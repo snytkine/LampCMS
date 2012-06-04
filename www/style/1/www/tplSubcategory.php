@@ -61,5 +61,5 @@ class tplSubcategory extends Lampcms\Template\Fast
 {
     protected static $vars = array('slug' => '', 'title' => '');
 
-    protected static $tpl = '<div class="fl onesub"><a href="/category/%1$s">%2$s</a></div>';
+    protected static $tpl = '<div class="fl onesub"><a href="{_WEB_ROOT_}/{_viewcategory_}/%1$s">%2$s</a></div>';
 }

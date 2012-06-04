@@ -54,22 +54,20 @@ class tplWelcomeGuest extends \Lampcms\Template\Fast
 {
 
     protected static $vars = array(
-        'welcome' => 'Welcome to out site!', //1
-        'register' => 'Sign up', // 2
-        'socialButtons' => '' //3
+        'socialButtons' => ''
     );
 
 
     protected static $tpl = '
 	<div class="fl wlcmguest">
 	 	<div class="fl cb hello">
-	 		%1$s	 
+	 		@@Welcome to our site!@@
 	 	</div>
 		<div class="fl cb">
 			<div class="fl btnjoin" id="joinus">
-				<a id="asignup" href="/register/">%2$s</a>
+				<a id="asignup" href="{_WEB_ROOT_}/{_register_}/">@@Sign up@@</a>
 			</div>
-			%3$s
+			%1$s
 		</div>
 	</div>';
 

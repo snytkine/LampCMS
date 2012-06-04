@@ -110,7 +110,7 @@ class SubmittedAnswerWWW extends SubmittedAnswer
     public function getBody()
     {
         if (!isset($this->Body)) {
-            $this->Body = Utf8String::factory($this->aData['qbody']);
+            $this->Body = Utf8String::stringFactory($this->aData['qbody']);
         }
 
         return $this->Body;

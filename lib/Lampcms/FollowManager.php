@@ -244,7 +244,7 @@ class FollowManager extends LampcmsObject
             throw new \InvalidArgumentException('$tag must be a string');
         }
 
-        $tag = Utf8String::factory($tag)->toLowerCase()->stripTags()->trim()->valueOf();
+        $tag = Utf8String::stringFactory($tag)->toLowerCase()->stripTags()->trim()->valueOf();
 
         $aFollowed = $User['a_f_t'];
         d('$aFollowed: ' . print_r($aFollowed, 1));
@@ -287,7 +287,7 @@ class FollowManager extends LampcmsObject
             throw new \InvalidArgumentException('$tag must be a string');
         }
 
-        $tag = Utf8String::factory($tag)->toLowerCase()->stripTags()->trim()->valueOf();
+        $tag = Utf8String::stringFactory($tag)->toLowerCase()->stripTags()->trim()->valueOf();
 
 
         $aFollowed = $User['a_f_t'];

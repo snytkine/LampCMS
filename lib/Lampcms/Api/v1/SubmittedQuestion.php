@@ -115,7 +115,7 @@ class SubmittedQuestion extends SubmittedQuestionWWW
         if (!isset($this->Tags)) {
 
             $tags = $this->Registry->Request->get('tags', 's', '');
-            $this->Tags = Utf8String::factory($tags);
+            $this->Tags = Utf8String::stringFactory($tags);
         }
 
         return $this->Tags;

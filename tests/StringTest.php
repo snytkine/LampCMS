@@ -104,7 +104,7 @@ class StringTest extends \PHPUnit_Framework_TestCase
      */
     public function testFactory()
     {
-        $o = String::factory(self::MY_STRING);
+        $o = String::stringFactory(self::MY_STRING);
         $this->assertTrue($o instanceof \Lampcms\String);
     }
 
@@ -115,7 +115,7 @@ class StringTest extends \PHPUnit_Framework_TestCase
      */
     public function testToString()
     {
-        $o = String::factory(self::MY_STRING);
+        $o = String::stringFactory(self::MY_STRING);
         $this->assertEquals(self::MY_STRING, (string)$o);
     }
 

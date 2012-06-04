@@ -215,7 +215,7 @@ class Askform extends Form
         $minChars = $this->Registry->Ini->MIN_QUESTION_CHARS;
         $minWords = $this->Registry->Ini->MIN_QUESTION_WORDS;
         $body = $this->Registry->Request->getUTF8('qbody');
-        $oHtmlString = HTMLString::factory($body);
+        $oHtmlString = HTMLString::stringFactory($body);
         $wordCount = $oHtmlString->getWordsCount();
         $len = $oHtmlString->length();
 

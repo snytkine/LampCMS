@@ -74,7 +74,7 @@ class Factory
     {
 
 
-        if (extension_loaded('pdo_mysql')) {
+        if (\extension_loaded('pdo_mysql')) {
             $o = new \Lampcms\Modules\Search\MySQL($Registry);
         }
 

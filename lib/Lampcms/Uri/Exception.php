@@ -23,7 +23,7 @@
  *    the website\'s Questions/Answers functionality is powered by lampcms.com
  *    An example of acceptable link would be "Powered by <a href="http://www.lampcms.com">LampCMS</a>"
  *    The location of the link is not important, it can be in the footer of the page
- *    but it must not be hidden by style attibutes
+ *    but it must not be hidden by style attributes
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -40,8 +40,8 @@
  *  available from http://www.maxmind.com/
  *
  *
- * @author     Dmitri Snytkine <cms@lampcms.com>
- * @copyright  2005-2011 (or current year) ExamNotes.net inc.
+ * @author     Dmitri Snytkine
+ * @copyright  2005-2012 (or current year) Dmitri Snytkine
  * @license    http://www.gnu.org/licenses/lgpl-3.0.txt GNU LESSER GENERAL PUBLIC LICENSE (LGPL) version 3
  * @link       http://www.lampcms.com   Lampcms.com project
  * @version    Release: @package_version@
@@ -49,56 +49,6 @@
  *
  */
 
+namespace Lampcms\Uri;
 
-namespace Lampcms\Url;
-
-/**
- * Class for mapping URL parts to their values
- * Mapping is set in the !config.ini in the [URL_PARTS] section
- *
- * @author Dmitri Snytkine
- *
- */
-class Parts
-{
-    /**
-     * @var array
-     */
-    protected $map;
-
-    protected $callback;
-
-    public function __construct(\Lampcms\Config\Ini $Ini)
-    {
-        $this->map = $Ini->getSection('URL_PARTS');
-    }
-
-    public function getMap()
-    {
-        return $this->map;
-    }
-
-    /**
-     *
-     * @return function a function that will replace
-     * placeholders in string with the values from URL_PARTS
-     * section
-     */
-    public function getMapper()
-    {
-        if (!isset($this->callback)) {
-            $search = $replace = array();
-            foreach ($this->map as $k => $v) {
-                $search[] = '{_' . $k . '_}';
-                $replace[] = $v;
-            }
-
-            $this->callback = function($s) use ($search, $replace)
-            {
-                return str_replace($search, $replace, $s);
-            };
-        }
-
-        return $this->callback;
-    }
-}
+class Exception extends \Lampcms\DevException{}

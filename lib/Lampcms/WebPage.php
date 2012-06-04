@@ -196,6 +196,7 @@ abstract class WebPage extends Base
      * This is for skinning/styling support
      * right now we only have 1 style,
      * it has id = 1
+     *
      * @var mixed int | numeric string
      */
     protected $styleID = '1';
@@ -243,9 +244,11 @@ abstract class WebPage extends Base
 
     /**
      * Constructor
-     * @return
-     * @param object $Registry
-     * @param object $Request
+     *
+     * @return \Lampcms\WebPage
+     *
+     * @param \Lampcms\Registry|object     $Registry
+     * @param \Lampcms\Request|null|object $Request
      */
     public function __construct(Registry $Registry, Request $Request = null)
     {
@@ -253,7 +256,7 @@ abstract class WebPage extends Base
         parent::__construct($Registry);
 
         $this->Request = (null !== $Request) ? $Request : $Registry->Request;
-        $this->action = $this->Request['a'];
+        $this->action  = $this->Request['a'];
 
         $this->initParams()
             ->setTemplateDir()
@@ -270,7 +273,7 @@ abstract class WebPage extends Base
             $this->checkLoginStatus()
                 ->checkAccessPermission()
                 ->main();
-        } catch (Exception $e) {
+        } catch ( Exception $e ) {
             /**
              * Only Exceptions in the Lampcms Namespace
              * (the ones that extend Lampcms\Exception)
@@ -312,8 +315,8 @@ abstract class WebPage extends Base
      *
      * @param string $string string to translate
      *
-     * @param array $vars optional array of replacement vars for
-     * translation
+     * @param array  $vars   optional array of replacement vars for
+     *                       translation
      *
      * @return string translated string
      */
@@ -330,13 +333,13 @@ abstract class WebPage extends Base
      * because php turns uncaught exception in __toString
      * into a nasty error message
      *
-     * @return
+     * @return string
      */
     public function __toString()
     {
         try {
             return $this->getResult();
-        } catch (\Exception $e) {
+        } catch ( \Exception $e ) {
             e('Exception in ' . __METHOD__ . ' ' . $e->getMessage());
             return \Lampcms\Responder::makeErrorPage(Exception::formatException($e));
         }
@@ -361,6 +364,7 @@ abstract class WebPage extends Base
      * Check Request object for required params
      * as well as for required form token
      *
+     * @throws Exception
      * @return object $this
      */
     protected function initParams()
@@ -405,27 +409,27 @@ abstract class WebPage extends Base
             return $this;
         }
 
-        $Viewer = $this->Registry->Viewer;
+        $Viewer          = $this->Registry->Viewer;
         $this->aPageVars = \tplMain::getVars();
 
-        $Ini = $this->Registry->Ini;
-        $this->aPageVars['site_title'] = $Ini->SITE_TITLE;
-        $this->aPageVars['site_url'] = $Ini->SITE_URL;
-        $this->aPageVars['description'] = $this->aPageVars['site_description'] = $Ini->SITE_NAME;
-        $this->aPageVars['show_comments'] = $Ini->SHOW_COMMENTS;
-        $this->aPageVars['max_comments'] = $Ini->MAX_COMMENTS;
-        $this->aPageVars['comments_timeout'] = $Ini->COMMENT_EDIT_TIME;
-        $this->aPageVars['layoutID'] = $this->layoutID;
+        $Ini                                     = $this->Registry->Ini;
+        $this->aPageVars['site_title']           = $Ini->SITE_TITLE;
+        $this->aPageVars['site_url']             = $Ini->SITE_URL;
+        $this->aPageVars['description']          = $this->aPageVars['site_description'] = $Ini->SITE_NAME;
+        $this->aPageVars['show_comments']        = $Ini->SHOW_COMMENTS;
+        $this->aPageVars['max_comments']         = $Ini->MAX_COMMENTS;
+        $this->aPageVars['comments_timeout']     = $Ini->COMMENT_EDIT_TIME;
+        $this->aPageVars['layoutID']             = $this->layoutID;
         $this->aPageVars['DISABLE_AUTOCOMPLETE'] = $Ini->DISABLE_AUTOCOMPLETE;
-        $this->aPageVars['JS_MIN_ID'] = JS_MIN_ID;
-        $this->aPageVars['home'] = $this->_('Home');
+        $this->aPageVars['JS_MIN_ID']            = JS_MIN_ID;
+        $this->aPageVars['home']                 = $this->_('Home');
 
         /**
          * @todo later can change to something like
          * $this->Registrty->Viewer->getStyleID()
          *
          */
-        $css = (true === LAMPCMS_DEBUG) ? '/_main.css' : '/main.css';
+        $css                         = (true === LAMPCMS_DEBUG) ? '/_main.css' : '/main.css';
         $this->aPageVars['main_css'] = $Ini->CSS_SITE . '/style/' . STYLE_ID . '/' . VTEMPLATES_DIR . $css;
 
         $aFacebookConf = $Ini->getSection('FACEBOOK');
@@ -442,9 +446,9 @@ abstract class WebPage extends Base
         }
 
         $this->aPageVars['session_uid'] = $Viewer->getUid();
-        $this->aPageVars['role'] = $Viewer->getRoleId();
-        $this->aPageVars['rep'] = $Viewer->getReputation();
-        $this->aPageVars['version_id'] = Form::generateToken();
+        $this->aPageVars['role']        = $Viewer->getRoleId();
+        $this->aPageVars['rep']         = $Viewer->getReputation();
+        $this->aPageVars['version_id']  = Form::generateToken();
         /**
          * meta 'tw' will be set to string "1" if user has conneted Twitter
          */
@@ -495,6 +499,7 @@ abstract class WebPage extends Base
 
     /**
      * Add extra meta tag to the page
+     *
      * @param string $tag name of tag
      * @param string $val value of tag
      *
@@ -540,10 +545,10 @@ abstract class WebPage extends Base
 
         try {
             $oCheckLogin = new CookieAuth($this->Registry);
-            $User = $oCheckLogin->authByCookie();
+            $User        = $oCheckLogin->authByCookie();
             d('aResult: ' . print_r($User->getArrayCopy(), 1));
 
-        } catch (CookieAuthException $e) {
+        } catch ( CookieAuthException $e ) {
             d('LampcmsError: login by sid failed with message: ' . $e->getMessage());
             Cookie::delete(array('uid'));
 
@@ -592,7 +597,7 @@ abstract class WebPage extends Base
             d('logged in facebook user: ' . $this->Registry->Viewer->getUid());
             $this->Registry->Dispatcher->post($this, 'onFacebookLogin');
 
-        } catch (FacebookAuthException $e) {
+        } catch ( FacebookAuthException $e ) {
             d('Facebook login failed. ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
         }
 
@@ -602,8 +607,10 @@ abstract class WebPage extends Base
     /**
      *
      * Enter description here ...
+     *
      * @param User $User
      * @param bool $bResetSession
+     *
      * @throws LoginException
      */
     protected function processLogin(User $User, $bResetSession = false)
@@ -635,7 +642,8 @@ abstract class WebPage extends Base
         }
 
         $this->Registry->Viewer = $User;
-        $_SESSION['viewer'] = array('id' => $User->getUid(), 'class' => $User->getClass());
+        $_SESSION['viewer']     = array('id'    => $User->getUid(),
+                                        'class' => $User->getClass());
 
         /**
          * This is important otherwise
@@ -653,10 +661,10 @@ abstract class WebPage extends Base
          * different links block
          */
         if (!empty($_SESSION)) {
-            $_SESSION['navlinks'] = array();
-            $_SESSION['login_form'] = null;
+            $_SESSION['navlinks']    = array();
+            $_SESSION['login_form']  = null;
             $_SESSION['login_error'] = null;
-            $_SESSION['langs'] = null;
+            $_SESSION['langs']       = null;
         }
 
         return $this;
@@ -688,12 +696,9 @@ abstract class WebPage extends Base
         d('cp');
         $tpl = \tplMain::parse($this->aPageVars);
         d('cp');
-        /**
-         * @todo Translate string
-         */
-        $scriptTime = ($this->Registry->Ini->SHOW_TIMER) ? 'Page generated in ' . abs((microtime() - INIT_TIMESTAMP)) . ' seconds' : '';
 
-        return \str_replace('{timer}', $scriptTime, $tpl);
+        return $tpl;
+
     }
 
 
@@ -701,8 +706,8 @@ abstract class WebPage extends Base
      * Adds (appends) value to last_js element of page
      *
      * @todo check if relavite path of src
-     * then also take into account
-     * config option JS
+     *       then also take into account
+     *       config option JS
      *
      * @return object $this
      */
@@ -732,14 +737,15 @@ abstract class WebPage extends Base
 
                 $this->extraCss[] = $this->Registry->Ini->CSS_SITE . '/css/flags.css';
             }
-        } catch (\Lampcms\IniException $e) {
+        } catch ( \Lampcms\IniException $e ) {
             e($e->getMessage());
         }
 
         if (!empty($this->extraCss)) {
-            d('got extra css to add');
+            d('Got extra css to add');
+            $this->aPageVars['extra_css'] = '';
             foreach ($this->extraCss as $val) {
-                $this->aPageVars['extra_css'] .= CRLF . sprintf('<link rel="stylesheet" type="text/css" href="%s">', $val);
+                $this->aPageVars['extra_css'] .= CRLF . \sprintf('<link rel="stylesheet" type="text/css" href="%s">', $val);
             }
         }
 
@@ -766,7 +772,7 @@ abstract class WebPage extends Base
         $a = $this->Registry->Ini->getSection('EDITOR');
         if ($a['ENABLE_CODE_EDITOR']) {
             d('enabling code highlighter');
-            $this->lastJs = array('/js/min/shCoreMin.js', '/js/min/dsBrushes.js');
+            $this->lastJs     = array('/js/min/shCoreMin.js', '/js/min/dsBrushes.js');
             $this->extraCss[] = '/js/min/sh.css';
         }
 
@@ -799,8 +805,13 @@ abstract class WebPage extends Base
      * if running in debug mode
      * then adds the 'error' to a page
      *
-     * @return
-     * @param object $e Exception object
+     * @return void
+     *
+     * @param \Lampcms\Exception $le
+     *
+     * @throws \OutOfBoundsException
+     * @throws \Exception|\OutOfBoundsException
+     * @internal param object $e Exception object
      */
     public function handleException(\Lampcms\Exception $le)
     {
@@ -809,7 +820,6 @@ abstract class WebPage extends Base
             if ($le instanceof RedirectException) {
                 session_write_close();
                 header("Location: " . $le->getMessage(), true, $le->getCode());
-                fastcgi_finish_request();
                 throw new \OutOfBoundsException;
             }
 
@@ -882,11 +892,13 @@ abstract class WebPage extends Base
              *
              */
             $this->aPageVars['layoutID'] = 1;
-            $this->aPageVars['body'] = \tplException::parse(array('message' => \nl2br($err), 'class' => $class, 'title' => $this->_('Alert')));
+            $this->aPageVars['body']     = \tplException::parse(array('message' => \nl2br($err),
+                                                                      'class'   => $class,
+                                                                      'title'   => $this->_('Alert')));
 
-        } catch (\OutOfBoundsException $e) {
+        } catch ( \OutOfBoundsException $e ) {
             throw $e;
-        } catch (\Exception $e) {
+        } catch ( \Exception $e ) {
             e('Exception object ' . $e->getMessage());
             $err = Responder::makeErrorPage($le->getMessage() . ' in ' . $e->getFile());
             echo $err;
@@ -909,7 +921,7 @@ abstract class WebPage extends Base
         $a = array();
         d('cp');
         if ($this->isLoggedIn()) {
-            $welcome = LoginForm::makeWelcomeMenu($this->Registry);
+            $welcome      = LoginForm::makeWelcomeMenu($this->Registry);
             $a['welcome'] = $welcome;
         }
 
@@ -925,11 +937,12 @@ abstract class WebPage extends Base
      * passed in form against the one stored in SESSION
      *
      * @todo validate (store it first) IP address
-     * of request that it must match ip when token is validate
-     * and throw special type of Exception so that a user will
-     * get explanation that IP address has changed
+     *       of request that it must match ip when token is validate
+     *       and throw special type of Exception so that a user will
+     *       get explanation that IP address has changed
      *
      * @param string $token value as passed in the submitted form
+     *
      * @return true of success
      * @throws LampcmsException if validation fails
      */
@@ -937,7 +950,7 @@ abstract class WebPage extends Base
     {
 
         $message = '';
-        $token = ((null === $token) && !empty($this->Request['token'])) ? $this->Request['token'] : $token;
+        $token   = ((null === $token) && !empty($this->Request['token'])) ? $this->Request['token'] : $token;
 
         if (empty($_SESSION['secret'])) {
             d("No token in SESSION ");
@@ -982,14 +995,15 @@ abstract class WebPage extends Base
              * nagging prompt again
              *
              * This cookie is deleted on Logout
+             *
              * @todo set ttl for this cookie to last only a couple of days
-             * so we can keep nagging user again after awhile until user
-             * finally enters email address
-             * Also do not have to check if user is UserExternal - if user
-             * does not have email address then keep nagging the user
-             * The thing is - only external user can possibly be logged in without
-             * any email address because normal user will not know their password
-             * since temp passwords are sent to email.
+             *       so we can keep nagging user again after awhile until user
+             *       finally enters email address
+             *       Also do not have to check if user is UserExternal - if user
+             *       does not have email address then keep nagging the user
+             *       The thing is - only external user can possibly be logged in without
+             *       any email address because normal user will not know their password
+             *       since temp passwords are sent to email.
              */
             $cookie = Cookie::get('dnd');
             d('dnd: ' . $cookie);
@@ -1018,9 +1032,9 @@ abstract class WebPage extends Base
      * we need to serve mobile pages
      *
      * @todo something like this:
-     * Registry->Viewer->getStyleId().DS.$this->tplDir
-     * where getStyleId will return whatever user
-     * has selected with fallback to default '1'
+     *       Registry->Viewer->getStyleId().DS.$this->tplDir
+     *       where getStyleId will return whatever user
+     *       has selected with fallback to default '1'
      *
      * @return object $this
      */

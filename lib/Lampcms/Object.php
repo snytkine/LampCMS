@@ -289,6 +289,7 @@ class LampcmsObject implements Interfaces\LampcmsObject
      * or constructor
      *
      * @param Registry $Registry
+     * @return \Lampcms\LampcmsObject
      */
     public static function factory(Registry $Registry)
     {

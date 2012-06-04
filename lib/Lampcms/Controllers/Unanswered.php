@@ -82,7 +82,7 @@ class Unanswered extends Viewquestions
      */
     protected $qtab = 'unanswered';
 
-    protected $pagerPath = '/unanswered';
+    protected $pagerPath = '{_unanswered_}';
 
 
     protected $aTags;
@@ -115,12 +115,15 @@ class Unanswered extends Viewquestions
     /**
      * Select items according to conditions passed in GET
      * Conditions can be == 'unanswered', 'hot', 'recent' (default)
+     *
+     * @return \Lampcms\Controllers\Unanswered
      */
     protected function getCursor()
     {
 
+        $urlParts = $this->Registry->Ini->getSection('URI_PARTS');
 
-        $cond = $this->Request->get('cond', 's', 'recent');
+        $cond = $this->Registry->Router->getSegment(1, 's', 'recent');
         d('cond: ' . $cond);
 
         /**
@@ -135,7 +138,7 @@ class Unanswered extends Viewquestions
          */
         $this->title = $this->_('Questions with no accepted answer');
 
-        switch ($cond) {
+        switch ( $cond ) {
 
 
             /**
@@ -147,16 +150,17 @@ class Unanswered extends Viewquestions
              * Cache Tags for 1 day only
              * uncache onQuestionVote, onQuestionComment
              */
-            case 'noanswer':
+            case $urlParts['COND_NOANSWERS']:
                 $this->title = $this->_('Questions with no answers');
-                $this->pagerPath = '/unanswered/noanswers';
-                $where = array('i_ans' => 0);
+                $this->pagerPath .= '/{_COND_NOANSWERS_}';
+                $where         = array('i_ans' => 0);
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQuntypes', 'noanswer');
                 break;
 
-            case 'tagged':
-                $where = array('i_sel_ans' => null, 'a_tags' => array('$all' => $this->getTags()));
-                $this->pagerPath = '/unanswered/tagged/' . $this->rawTags;
+            case $urlParts['COND_TAGGED']:
+                $where = array('i_sel_ans' => null,
+                               'a_tags'    => array('$all' => $this->getTags()));
+                $this->pagerPath .= '/{_COND_TAGGED_}' . $this->rawTags;
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQuntypes', 'newest');
                 $this->makeFollowTagButton();
 
@@ -173,8 +177,8 @@ class Unanswered extends Viewquestions
              * with no selected answer!
              */
             default:
-                $this->title = $this->_('Questions with no accepted answer');
-                $where = array('i_sel_ans' => null);
+                $this->title   = $this->_('Questions with no accepted answer');
+                $where         = array('i_sel_ans' => null);
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQuntypes', 'newest');
         }
 
@@ -184,7 +188,7 @@ class Unanswered extends Viewquestions
         $where['i_del_ts'] = null;
 
         $this->Cursor = $this->Registry->Mongo->QUESTIONS->find($where, $this->aFields);
-        $this->count = $this->Cursor->count(true);
+        $this->count  = $this->Cursor->count(true);
         d('$this->Cursor: ' . gettype($this->Cursor) . ' $this->count: ' . $this->count);
         $this->Cursor->sort($sort);
 
@@ -259,7 +263,7 @@ class Unanswered extends Viewquestions
                  * and it's possible the rewrite worked without this bug
                  */
                 d('no REQUEST_URI available');
-                $tags = $this->Request['tags'];
+                $tags       = $this->Request['tags'];
                 $this->tags = \urldecode($tags);
             }
 
@@ -274,7 +278,7 @@ class Unanswered extends Viewquestions
             $this->tags = \str_replace(array('<', '>'), array('&lt;', '&gt;'), $this->tags);
 
             $this->rawTags = $tags; //TagsTokenizer::factory($Utf8Tags)->getArrayCopy();
-            $this->title = $this->tags;
+            $this->title   = $this->tags;
 
             if (empty($this->tags)) {
                 return array();
@@ -285,13 +289,13 @@ class Unanswered extends Viewquestions
              * If this does not work well them try
              * to use $tags instead
              */
-            $Utf8Tags = Utf8String::factory($this->tags);
+            $Utf8Tags = Utf8String::stringFactory($this->tags);
 
             /**
              * @todo the this->tags now have htmlspecialchars
-             * which may not be what we want in this->aTags
-             * We probably want this->aTags to be raw tags just like
-             * they were submitted in request.
+             *       which may not be what we want in this->aTags
+             *       We probably want this->aTags to be raw tags just like
+             *       they were submitted in request.
              *
              */
             $this->aTags = TagsTokenizer::factory($Utf8Tags)->getArrayCopy();
@@ -304,9 +308,10 @@ class Unanswered extends Viewquestions
 
 
     /**
-     * @todo translate word "Unanswered"
+     *
      *
      * @see wwwViewquestions::makeRecentTags()
+     * @return \Lampcms\Controllers\Unanswered
      */
     protected function makeRecentTags()
     {
@@ -329,7 +334,8 @@ class Unanswered extends Viewquestions
             $s = $this->Registry->Cache->qunanswered;
         }
 
-        $tags = \tplBoxrecent::parse(array('tags' => $s, 'title' => $this->_('Unanswered tags')));
+        $tags                    = \tplBoxrecent::parse(array('tags'  => $s,
+                                                              'title' => $this->_('Unanswered tags')));
         $this->aPageVars['tags'] = $tags;
 
         return $this;
@@ -365,26 +371,26 @@ class Unanswered extends Viewquestions
          * it's not clear which tag to follow
          *
          */
-        if (1 === count($this->aTags)) {
+        if (1 === \count($this->aTags)) {
             $tag = $this->aTags[0];
             d('tag: ' . $tag);
 
             $aFollowed = $this->Registry->Viewer['a_f_t'];
-            d('$aFollowed: ' . print_r($aFollowed, 1));
+            d('$aFollowed: ' . \print_r($aFollowed, 1));
 
             $aVars = array(
-                'id' => $tag,
-                'icon' => 'cplus',
+                'id'    => $tag,
+                'icon'  => 'cplus',
                 'label' => $this->_('Follow this tag'),
                 'class' => 'follow',
-                'type' => 't',
+                'type'  => 't',
                 'title' => $this->_('Follow this tag to be notified when new questions are added')
             );
 
             if (in_array($tag, $aFollowed)) {
                 $aVars['label'] = $this->_('Following');
                 $aVars['class'] = 'following';
-                $aVars['icon'] = 'check';
+                $aVars['icon']  = 'check';
                 $aVars['title'] = $this->_('You are following this tag');
             }
 

@@ -59,7 +59,7 @@ class tplFormpwd extends Lampcms\Template\Fast
 
     protected static $tpl = '<div id="userForm" class="frm1">
 <div class="frmtitle">%3$s</div>
-<form id="frm1" name="frm1" method="post" action="/index.php"
+<form id="frm1" name="frm1" method="post" action="{_WEB_ROOT_}"
 	enctype="application/x-www-form-urlencoded" accept-charset="utf-8">
 <input name="token" type="hidden" value="%1$s"> <input name="a"
 	type="hidden" value="remindpwd">

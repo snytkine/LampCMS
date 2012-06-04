@@ -62,7 +62,7 @@ namespace Lampcms;
  * the same process of resolving  and filtering
  * Must first examine to possibilities of when user
  * sets the value of Request var by simply
- * doing somehting like $Request['myvar'] = 'new value'
+ * doing something like $Request['myvar'] = 'new value'
  * It will just set the value into the underlying array object
  * but no way we can also put it into cache. This means if
  * user does this and then requests this var again, the cached
@@ -85,6 +85,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
     /**
      * Array of filtered params
+     *
      * @var array but initially set to null
      */
     protected $aFiltered = array();
@@ -98,12 +99,61 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
      */
     protected $aUTF8 = array();
 
+    /**
+     * @var object Uri\Router
+     */
+    protected $router;
 
-    public function __construct(array $a = null)
+    /**
+     * @var object Config\Ini
+     */
+    protected $ini;
+
+    /**
+     * Constructor
+     *
+     * @param Uri\Router $router
+     * @param Config\Ini $ini
+     * @param array|null $a
+     */
+    public function __construct(\Lampcms\Uri\Router $router, \Lampcms\Config\Ini $ini, array $a = null)
     {
 
-        $a = (null === $a) ? array() : $a;
+        $this->router = $router;
+        $this->ini    = $ini;
+        //$a            = (null === $a) ? array() : $a;
+        if(!$a){
+            if(self::isPost()){
+                $a = $_POST;
+            } else {
+                /**
+                 *
+                 */
+                $a = &$_GET;
+            }
+        }
+
         parent::__construct($a);
+    }
+
+
+    /**
+     * @param bool $useRouter by default will use Uri\Router class
+     *                        for all get requests.
+     *                        This may not be desirable for the API calls, so can pass false to
+     *                        keep using this class
+     *
+     * @return string name of controller based on the
+     * request, always falls back to default controller
+     * defined in !config.ini in [ROUTES] section as _DEFAULT_
+     */
+    public function getController($useRouter = true)
+    {
+        if (!$useRouter || self::isPost()) {
+            return $this->get('a');
+        }
+
+        return $this->router->getController();
     }
 
 
@@ -112,61 +162,35 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
      * Mimics the HttpQueryString::get() method
      *
      * @param string $name
-     * @param string $type 's' for string, 'i' for 'int', 'b' for bool
-     * will accept other values but only understands these 3 and will default
-     * to 's' (string) if unknown value is used
+     * @param string $type    's' for string, 'i' for 'int', 'b' for bool
+     *                        will accept other values but only understands these 3 and will default
+     *                        to 's' (string) if unknown value is used
      *
      * @param string $default default value to return in
-     * case param $name is not found
+     *                        case param $name is not found
+     *
+     * @return bool|int|mixed|null|string
      */
     public function get($name, $type = 's', $default = null)
     {
 
         $val = (!$this->offsetExists($name)) ? $default : $this->offsetGet($name);
 
-        switch (true) {
+        switch ($type) {
 
-            case ('b' === $type):
+            case 'b':
                 $val = (bool)$val;
                 break;
 
-            case ('i' === $type):
+            case 'i':
                 $val = (int)$val;
                 break;
 
             default:
                 $val = (string)$val;
-                break;
         }
 
         return $val;
-    }
-
-
-    /**
-     * Factory method
-     *
-     * @param array $aRequired array of required
-     * params
-     *
-     * @return object of this class
-     */
-    public static function factory(array $aRequired = array())
-    {
-
-        $a = null;
-        $req = self::getRequestMethod();
-        if ('POST' === $req) {
-            $a = $_POST;
-        } elseif ('GET' === $req) {
-            $a = $_GET;
-        }
-
-        $o = new self($a);
-        $o->setRequired($aRequired);
-        $o->checkRequired();
-
-        return $o;
     }
 
 
@@ -175,10 +199,21 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
      * to be in request
      *
      * @param array $aRequired array of param names
+     *
+     * @return \Lampcms\Request
      */
     public function setRequired(array $aRequired = array())
     {
-        $this->aRequired = $aRequired;
+        /**
+         * Since started using Url\Router it is problematic
+         * to set required parameters for get requests
+         * will keep using this only for post requests
+         * The handling of required GET parameters will
+         * now be done in individual controllers (GET parameters are now value if $this->Registry->Router->getUriSegments())
+         */
+        if (self::isPost()) {
+            $this->aRequired = $aRequired;
+        }
 
         return $this;
     }
@@ -201,6 +236,8 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
      * values run through filter first
      * and result is also memoized
      *
+     * @param bool $resetFiltered
+     *
      * @return array $this->aFiltered
      */
     public function getArray($resetFiltered = true)
@@ -222,9 +259,9 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
      * Initial check to see if request contains
      * all required parameterns
      *
-     * @throws LogicException if at least
-     * one required param is missing
      *
+     * @throws \LogicException if at least
+     * one required param is missing
      * @return object $this
      */
     public function checkRequired()
@@ -244,7 +281,15 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
     /**
      * Changing offsetGet does not affect get()
      *
+     * @todo if requesting 'a' then use getController()
+     * which will use Router for GET request OR will
+     * use getFiltered('a')
+     * do the same for pageID
+     *
      * @param string $offset
+     *
+     * @throws DevException
+     * @return int|mixed|string
      */
     public function offsetGet($offset)
     {
@@ -263,7 +308,9 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
          */
         if (!$this->offsetExists($offset)) {
             if ('a' === $offset) {
-                return 'viewquestions';
+
+                return  $this->ini->DEFAULT_CONTROLLER;
+
             } elseif ('pageID' === $offset) {
                 return 1;
             }
@@ -272,6 +319,23 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
         }
 
         return $this->getFiltered($offset);
+    }
+
+    /**
+     * Get value of page id extracted from request
+     * if request is GET then will use Uri\Router::getPageID method
+     *
+     * @param bool $useRouter
+     *
+     * @return int value of page id (defaults to 1 is pageID not present in request)
+     */
+    public function getPageID($useRouter = true)
+    {
+        if (!$useRouter || self::isPost()) {
+            return $this->get('pageID');
+        }
+
+        return $this->router->getPageID();
     }
 
 
@@ -303,8 +367,8 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
      *
      * @param string $name name of query string param
      *
+     * @throws \InvalidArgumentException
      * @return mixed string|bool|int depending on param type
-     *
      */
     protected function getFiltered($name)
     {
@@ -317,12 +381,8 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
             $val = parent::offsetGet($name);
 
             if ('a' === $name && !empty($val)) {
-                $expression = '/^[[:alpha:]\-]{1,20}$/';
-                if (!\filter_var($val, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $expression)))) {
-                    throw new \InvalidArgumentException('Invalid value of "a" it can only contain letters and a hyphen and be limited to 20 characters in total was: ' . \htmlentities($val));
-                }
 
-                $ret = $val;
+                $ret = self::getCleanControllerName($val);
 
             } elseif (
                 ('i_' === \substr(\strtolower($name), 0, 2)) ||
@@ -386,8 +446,8 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
      * to Utf8String object
      *
      * @param string $name
-     * @param mixed $default fallback value in case
-     * the param $name does not exist if Request
+     * @param mixed  $default fallback value in case
+     *                        the param $name does not exist if Request
      *
      * @return object of type Utf8String representing the value
      * of requested param
@@ -395,8 +455,8 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
     public function getUTF8($name, $default = null)
     {
         if (empty($this->aUTF8[$name])) {
-            $res = $this->get($name, 's', $default);
-            $ret = Utf8String::factory($res);
+            $res                = $this->get($name, 's', $default);
+            $ret                = Utf8String::stringFactory($res);
             $this->aUTF8[$name] = $ret;
         }
 
@@ -420,6 +480,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
      * Get value of specific request header
      *
      * @param string $strHeader
+     *
      * @return mixed string value of header or null
      * if header not found
      */
@@ -438,7 +499,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
          *
          */
         if (\function_exists('apache_request_headers')) {
-            $strHeader = (\str_replace(" ", "-", (\ucwords(\str_replace("-", " ", \strtolower($strHeader))))));
+            $strHeader  = (\str_replace(" ", "-", (\ucwords(\str_replace("-", " ", \strtolower($strHeader))))));
             $arrHeaders = \apache_request_headers();
 
             if (!empty($arrHeaders[$strHeader])) {
@@ -527,6 +588,27 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
     public static function isPost()
     {
         return self::getRequestMethod() === 'POST';
+    }
+
+
+    /**
+     * Validation of controller name
+     * Controller name can contain only letters
+     * and be up to 32 chars long
+     *
+     * @param $name name of controller
+     *
+     * @throws \InvalidArgumentException
+     * @return string controller name in lower case
+     */
+    public static function getCleanControllerName($name)
+    {
+        $expression = '/^[[:alpha:]\-]{1,32}$/';
+        if (!\filter_var($name, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $expression)))) {
+            throw new \InvalidArgumentException('Invalid value of controller name. It can only contain letters and a hyphen and be limited to 20 characters in total was: ' . \htmlentities($name));
+        }
+
+        return \strtolower($name);
     }
 
 }

@@ -156,7 +156,7 @@ class PostFacebook extends \Lampcms\Event\Observer
              * @var string
              */
             $caption = ($this->obj instanceof \Lampcms\Question) ? 'Please click if you can answer this question' : 'I answered this question';
-            $description = Utf8String::factory($this->obj['b'], 'utf-8', true)->asPlainText()->valueOf();
+            $description = Utf8String::stringFactory($this->obj['b'], 'utf-8', true)->asPlainText()->valueOf();
 
         } catch (\Exception $e) {
             d('Unable to post to facebook because of this exception: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());

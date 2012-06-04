@@ -371,7 +371,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
         $b = $this->offsetGet('b');
         d('b: ' . $b);
 
-        $oHtmlParser = \Lampcms\String\HTMLStringParser::factory(Utf8String::factory($b, 'utf-8', true));
+        $oHtmlParser = \Lampcms\String\HTMLStringParser::factory(Utf8String::stringFactory($b, 'utf-8', true));
         $body = $oHtmlParser->unhilight()->hilightWords($tags)->valueOf();
 
         $this->offsetSet('b', $body);

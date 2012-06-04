@@ -66,10 +66,10 @@ class LoginForm
         if (empty($_SESSION['welcome'])) {
             $Translator = $Registry->Tr;
 
-            $oViewer = $Registry->Viewer;
-            $invite = self::makeInviteLink($oViewer);
-            $url = $oViewer->getProfileUrl();
-            $avatar = $oViewer->getAvatarImgSrc();
+            $oViewer     = $Registry->Viewer;
+            $invite      = self::makeInviteLink($oViewer);
+            $url         = $oViewer->getProfileUrl();
+            $avatar      = $oViewer->getAvatarImgSrc();
             $displayName = $oViewer->getDisplayName();
 
             $a = array(
@@ -78,7 +78,7 @@ class LoginForm
                 $Translator['Logout'],
                 $invite,
                 'settings' => $Translator['Settings'],
-                'url' => $url
+                'url'      => $url
             );
 
             d('cp aVals: ' . print_r($a, 1));
@@ -175,15 +175,14 @@ class LoginForm
     {
 
         if (empty($_SESSION['welcome_guest'])) {
-            $Translator = $Registry->Tr;
 
             $socialBtns = self::makeSocialButtons($Registry);
 
             if (!empty($socialBtns)) {
-                $socialBtns = '<div class="fl" id="socialbtns"><span>' . $Translator['Or Join with'] . ' </span>' . $socialBtns . '</div>';
+                $socialBtns = '<div class="fl" id="socialbtns"><span>@@Or Join with@@ </span>' . $socialBtns . '</div>';
             }
 
-            $html = \tplWelcomeGuest::parse(array($Translator['Welcome!'], $Translator['Sign up'], $socialBtns), false);
+            $html = \tplWelcomeGuest::parse(array($socialBtns), false);
 
             $_SESSION['welcome_guest'] = $html;
         }
@@ -204,9 +203,9 @@ class LoginForm
     public static function makeSocialButtons(Registry $Registry)
     {
         if (empty($_SESSION['social_buttons'])) {
-            $Ini = $Registry->Ini;
-            $html = '';
-            $socialBtns = '';
+            $Ini           = $Registry->Ini;
+            $html          = '';
+            $socialBtns    = '';
             $twitterButton = $fbButton = '';
 
             /**
@@ -260,22 +259,15 @@ class LoginForm
      * it will also add that error to the form
      *
      * @param Registry $Registry
+     *
      * @return string html
      */
     protected static function makeLoginBlock(Registry $Registry)
     {
-        $Translator = $Registry->Tr;
-
         $error = (!empty($_SESSION['login_error'])) ? $_SESSION['login_error'] : '';
         d('$error: ' . $error);
 
         $aVals = array(
-            $Translator['Username'],
-            $Translator['Password'],
-            $Translator['Remember me'],
-            $Translator['Username required'],
-            $Translator['Forgot password?'],
-            $Translator['Log in'],
             $error
         );
 
@@ -293,16 +285,16 @@ class LoginForm
      */
     protected static function makeInviteLink(User $User)
     {
-        switch (true) {
+        switch ( true ) {
 
             case ($User instanceof UserFacebook):
                 d('cp');
-                $ret = '<div class="gfclinks"><a href="#" class="ajax" id="fbinvite" title="I\'ve registered at this site, and think you will enjoy your stay here too! Please check it out!">Invite your facebook friends</a></div>';
+                $ret = '<div class="gfclinks"><a href="#" class="ajax" id="fbinvite" title="I\'ve registered at this site, and think you will enjoy your stay here too! Please check it out!">@@Invite your facebook friends@@</a></div>';
                 break;
 
             case ($User instanceof UserTwitter):
                 d('cp');
-                $ret = '<div class="gfclinks"><a href="#" class="ajax" id="twinvite" title="Hey everyone! Join me at this site (Use the *Sign in with Twitter* button) ">Invite your Twitter friends</a></div>';
+                $ret = '<div class="gfclinks"><a href="#" class="ajax" id="twinvite" title="Hey everyone! Join me at this site (Use the *Sign in with Twitter* button) ">@@Invite your Twitter friends@@</a></div>';
                 break;
             default:
                 d('cp');
