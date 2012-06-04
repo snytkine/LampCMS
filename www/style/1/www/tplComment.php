@@ -85,7 +85,7 @@ class tplComment extends \Lampcms\Template\Fast
 		<div class="com_1 fl cb1">
 			<div class="fl com_left">
 				<div class="fr com_like votebtns">
-					<a id="c_like_%1$s" title="I Like this comment!" class="ajax ttt thumbup c_like" href="#">Good</a>
+					<a id="c_like_%1$s" title="I Like this comment!" class="ajax ttt thumbup c_like" href="#">@@Good@@</a>
 				</div>
 				<div class="c_likes fr">%10$s</div>
 			</div>
@@ -96,15 +96,15 @@ class tplComment extends \Lampcms\Template\Fast
 		</div>
 		<div class="com_i fl cb1">
 			<div class="fl mt10 com_flag">
-				<span class="ico ttt flag ajax" id="cflag_%1$s" title="Flag this comment as inappropriate">flag</span>
+				<span class="ico ttt flag ajax" id="cflag_%1$s" title="@@Flag this comment as inappropriate@@">flag</span>
 			</div>
 			<div class="com_tools controls uid-%5$s" id="res_%1$s">
-				<div class="com_auth usr usr_%5$s fl"><a href="/users/%5$s/" class="iu usr-%5$s commentor%8$s">%4$s</a></div>	
+				<div class="com_auth usr usr_%5$s fl"><a href="{_WEB_ROOT_}/{_users_}/%5$s/" class="iu usr-%5$s commentor%8$s">%4$s</a></div>
 				<div title="%3$s" class="com_ts ts fl">%6$s</div>
 				%11$s
 				%9$s		
 			</div>	
-			<div class="fr mt10 com_reply"><span class="ico comment fl">&nbsp;</span><a href="#" title="%16$s" class="ttt com_reply_link ajax uid-%12$s" id="comrepl_%1$s">%15$s</a></div>
+			<div class="fr mt10 com_reply"><span class="ico comment fl">&nbsp;</span><a href="#" title="@@Reply to this comment@@" class="ttt com_reply_link ajax uid-%12$s" id="comrepl_%1$s">@@Reply@@</a></div>
 		</div>
 	</div>';
 }

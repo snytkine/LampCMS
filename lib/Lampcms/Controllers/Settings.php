@@ -80,7 +80,7 @@ class Settings extends WebPage
             'confirmation' => $this->makeConfirmBlock(),
             'change_password' => $this->_('Change Password'),
             'profile' => $this->_('Edit Profile'),
-            'profileUrl' => '/editprofile/',
+            'profileUrl' => '{_WEB_ROOT_}/{_editprofile_}/',
             'emailPrefs' => $this->_('Email Preferences'),
             'clearCache' => '',
             'editCategories' => ''
@@ -110,7 +110,7 @@ class Settings extends WebPage
     {
         return '<div class="tool">
 			<div class="icn sweep">&nbsp;</div> 
-			<div class="tool_link"><a href="/clearcache/" class="ajax clearcache">' . $this->_('Clear Cache') . '</a></div>
+			<div class="tool_link"><a href="{_WEB_ROOT_}/{_clearcache_}/" class="ajax clearcache">@@Clear Cache@@</a></div>
 		</div>';
     }
 
@@ -119,7 +119,7 @@ class Settings extends WebPage
     {
         return '<div class="tool">
 			<div class="icn edit">&nbsp;</div> 
-			<div class="tool_link"><a href="/editcategory/" class="ajax editcategories">' . $this->_('Edit Categories') . '</a></div>
+			<div class="tool_link"><a href="{_WEB_ROOT_}/{_editcategory_}/" class="ajax editcategories">@@Edit Categories@@</a></div>
 		</div>';
     }
 
@@ -129,12 +129,8 @@ class Settings extends WebPage
         $role = $this->Registry->Viewer->getRoleId();
         $email = $this->Registry->Viewer->email;
         if (\strstr($role, 'unactivated')) {
-            /**
-             * @todo Translate strings
-             */
-            return \tplConfirmemail::parse(array('email' => $email,
-                'notConfirmed' => $this->_('not validated'),
-                'sendLink' => $this->_('send me validation link')));
+
+            return \tplConfirmemail::parse(array('email' => $email), false);
         }
 
         return '';

@@ -147,13 +147,13 @@ class tplQuestion extends Lampcms\Template\Fast
 		<td class="td_votes" align="center" width="90px">
 		<div class="votebtns" id="vote%1$s">
 		<a id="upvote-%1$s"
-			title="I like this post (click again to cancel)"
-			class="ajax ttt vote thumbup" href="/vote/%1$s/up" rel="nofollow">%13$s</a>
+			title="@@I like this post (click again to cancel)@@"
+			class="ajax ttt vote thumbup" href="{_WEB_ROOT_}/{_vote_}/%1$s/up" rel="nofollow">%13$s</a>
 		<div id="score%1$s" class="qscore">%8$s</div>
 
 		<a id="downvote-%1$s"
-			title="I dont like this post (click again to cancel)"
-			class="ajax ttt vote thumbdown" href="/vote/%1$s/down" rel="nofollow">%14$s</a> 
+			title="@@I dont like this post (click again to cancel)@@"
+			class="ajax ttt vote thumbdown" href="{_WEB_ROOT_}/{_vote_}/%1$s/down" rel="nofollow">%14$s</a>
 		<br>
 			<!--
 			<a id="favorite-%1$s"
@@ -179,7 +179,7 @@ class tplQuestion extends Lampcms\Template\Fast
 		<div class="question-body" id="qbody-%1$s">%2$s</div>
 		<div class="fl cb tgs">%5$s</div>
 		<div class="question%19$s controls%16$s uid-%10$s cb" id="res_%1$s">
-		     <span class="icoc stub fr">&nbsp;</span><span class="ico ttt flag ajax" title="Flag this question as inappropriate"> </span>
+		     <span class="icoc stub fr">&nbsp;</span><span class="ico ttt flag ajax" title="@@Flag this question as inappropriate@@"> </span>
 		</div>
 		<!-- // -->
 		<table class="foot">
@@ -192,14 +192,14 @@ class tplQuestion extends Lampcms\Template\Fast
             <td class="td_poster owner">
             
             <div class="usr_info">
-            <div class="qtime">asked <span title="%7$s" class="ts">%7$s</span></div>
+            <div class="qtime">@@asked@@ <span title="%7$s" class="ts">%7$s</span></div>
           
             <div class="avtr32">
              <img src="%4$s" height="32" width="32" alt="">
             </div>
             	<div class="usr_details">
             	%3$s<br>
-            	<span class="reputation" title="reputation score"></span>
+            	<span class="reputation" title="@@Reputation score@@"></span>
 				</div>
 				  <br>
 			&nbsp;<img src="/images/blank.gif" class="flag flag-%24$s" alt="%24$s" title="%25$s">

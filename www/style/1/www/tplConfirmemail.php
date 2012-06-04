@@ -49,12 +49,11 @@ class tplConfirmemail extends \Lampcms\Template\Fast
 {
 
     protected static $vars = array(
-        'email' => '',
-        'notConfirmed' => 'not validated',
-        'sendLink' => 'send me validation link');
+        'email' => ''
+        );
 
     protected static $tpl = '<div class="fl cb warn">
-	(%1$s) %2$s<br>
-	<a href="/requestactivation/">%3$s</a>
+	(%1$s) @@not validated@@<br>
+	<a href="{_WEB_ROOT_}/{_requestactivation_}/">@@Send me validation link@@</a>
 	</div>';
 }

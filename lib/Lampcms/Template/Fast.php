@@ -141,6 +141,7 @@ class Fast
      * to input array. The callback anonymous function MUST
      * accept input array by reference and perform some
      * operations on the actual array.
+     * @return string
      */
     public static function parse(array $aVars, $merge = true, $func = null)
     {
@@ -221,15 +222,16 @@ class Fast
 
     /**
      * @todo template may contain $loop static
-     * function, if it does then use it on
-     * passed array
+     *       function, if it does then use it on
+     *       passed array
      *
-     * @param mixed $a could be array or object of type Iterator
-     * @param bool $merge
+     * @param mixed   $a    could be array or object of type Iterator
+     * @param bool    $merge
      * @param Closure $func if passed, this callback function
-     * will be passed to each element's parse() function
+     *                      will be passed to each element's parse() function
      *
-     * @throws InvalidArgumentException if $a is not array and not Iterator
+     * @throws \InvalidArgumentException if $a is not array and not Iterator
+     * @return string
      */
     public static function loop($a, $merge = true, $func = null)
     {
@@ -277,12 +279,14 @@ class Fast
      * Static getter for vars array
      *
      * @asKeys bool if true then return array of
-     * placeholder names. This type of array is useful for
-     * passing it to mongocollection->find() 2nd param
-     * to hint which field we need to select.
+     *         placeholder names. This type of array is useful for
+     *         passing it to mongocollection->find() 2nd param
+     *         to hint which field we need to select.
+     *
+     * @param bool $asKeys
      *
      * @return array of $vars from template OR if
-     * asKeys is true then returns array of placeholder names
+     *         asKeys is true then returns array of placeholder names
      */
     public static function getVars($asKeys = false)
     {

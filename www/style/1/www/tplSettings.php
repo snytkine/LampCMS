@@ -59,11 +59,11 @@ class tplSettings extends \Lampcms\Template\Fast
 		</div>
 		<div class="tool"> 
 			<div class="icn emailprefs">&nbsp;</div> 
-			<div class="tool_link"><a href="/emailoptions/">%5$s</a></div> 
+			<div class="tool_link"><a href="{_WEB_ROOT_}/{_emailoptions_}/">%5$s</a></div>
 		</div>  
 		<div class="tool"> 
 			<div class="icn changepass">&nbsp;</div> 
-			<div class="tool_link"><a href="/changepwd/">%2$s</a></div> 
+			<div class="tool_link"><a href="{_WEB_ROOT_}/{_changepwd_}/">%2$s</a></div>
 		</div> 
 		%6$s
 		%7$s

@@ -82,7 +82,7 @@ class Answerform extends Form
      * and also setting the 'mustLogin' related elements
      * if user not logged in
      *
-     * @param Question $Question
+     * @param \Lampcms\Question $Question
      *
      * @return string html of form or message block
      */
@@ -143,7 +143,7 @@ class Answerform extends Form
              * @todo Translate string
              */
             if (!empty($socialButtons)) {
-                $this->connectBlock = '<div class="com_connect"><h3>Join with account you already have</h3>' . $socialButtons . '</div>';
+                $this->connectBlock = '<div class="com_connect"><h3>@@Join with account you already have@@</h3>' . $socialButtons . '</div>';
             }
         }
         d('cp');

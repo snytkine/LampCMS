@@ -70,7 +70,7 @@ class tplEditedby extends \Lampcms\Template\Fast
             	 <img src="%3$s" height="32" width="32" alt="">
             </div>
             <div class="usr_details"> 
-            	 <a href="/users/%2$s/%1$s">%1$s</a><br>
+            	 <a href="{_WEB_ROOT_}/{_users_}/%2$s/%1$s">%1$s</a><br>
 			</div>
 			<div class="reason cb fl">%4$s</div>
 	</div>';
