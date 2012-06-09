@@ -63,6 +63,7 @@ namespace Lampcms;
  */
 class ProfileDiv extends LampcmsObject
 {
+
     /**
      * Flag indicates that oauth extension
      * is available
@@ -75,6 +76,7 @@ class ProfileDiv extends LampcmsObject
     /**
      *
      * User whose profile page being created
+     *
      * @var object of type User
      */
     protected $User;
@@ -96,6 +98,7 @@ class ProfileDiv extends LampcmsObject
      * Setter for $this->User
      *
      * @param User $User
+     * @return \Lampcms\ProfileDiv
      */
     public function setUser(User $User)
     {
@@ -107,44 +110,44 @@ class ProfileDiv extends LampcmsObject
 
     public function getHtml()
     {
-        $edit = '';
+        $edit       = '';
         $lastActive = $this->User['i_lm_ts'];
         $lastActive = (!empty($lastActive)) ? $lastActive : $this->User['i_reg_ts'];
-        $rep = $this->User->getReputation();
+        $rep        = $this->User->getReputation();
 
         d('rep: ' . $rep);
-        $uid = $this->User->getUid();
+        $uid        = $this->User->getUid();
         $isSameUser = ($this->Registry->Viewer->getUid() === $uid);
         if ($isSameUser || $this->Registry->Viewer->isModerator()) {
-            $edit = '<div class="fl middle"><span class="icoc key">&nbsp;</span><a href="/editprofile/' . $uid . '" class="edit middle">Edit profile</a></div>';
+            $edit = '<div class="fl middle"><span class="icoc key">&nbsp;</span><a href="{_WEB_ROOT_}/{_editprofile_}/' . $uid . '" class="edit middle">@@Edit profile@@</a></div>';
         }
 
         $desc = \trim($this->User['description']);
         $desc = (empty($desc)) ? '' : Utf8String::stringFactory($desc, 'utf-8', true)->linkify()->valueOf();
 
         $vars = array(
-            'editLink' => $edit,
-            'username' => $this->User->username,
-            'avatar' => $this->User->getAvatarImgSrc(),
-            'reputation' => $rep,
-            'name' => $this->User->getDisplayName(),
-            'genderLabel' => 'Gender',
-            'gender' => $this->getGender(),
-            'since' => date('F j, Y', $this->User->i_reg_ts),
+            'editLink'     => $edit,
+            'username'     => $this->User->username,
+            'avatar'       => $this->User->getAvatarImgSrc(),
+            'reputation'   => $rep,
+            'name'         => $this->User->getDisplayName(),
+            'genderLabel'  => '@@Gender@@',
+            'gender'       => $this->getGender(),
+            'since'        => date('F j, Y', $this->User->i_reg_ts),
             'lastActivity' => TimeAgo::format(new \DateTime(date('r', $lastActive))),
-            'website' => $this->User->getUrl(),
-            'twitter' => '<div id="my_tw">' . $this->getTwitterAccount($isSameUser) . '</div>',
-            'age' => $this->User->getAge(),
-            'facebook' => '<div id="my_fb">' . $this->getFacebookAccount($isSameUser) . '</div>',
-            'tumblr' => '<div id="my_tm">' . $this->getTumblrAccount($isSameUser) . '</div>',
-            'blogger' => '<div id="my_bg">' . $this->getBloggerAccount($isSameUser) . '</div>',
-            'linkedin' => '<div id="my_li">' . $this->getLinkedInAccount($isSameUser) . '</div>',
-            'location' => $this->User->getLocation(),
-            'description' => \wordwrap($desc, 50), // @todo this is not unicode-safe! Must update it!
-            'editRole' => Usertools::getHtml($this->Registry, $this->User),
+            'website'      => $this->User->getUrl(),
+            'twitter'      => '<div id="my_tw">' . $this->getTwitterAccount($isSameUser) . '</div>',
+            'age'          => $this->User->getAge(),
+            'facebook'     => '<div id="my_fb">' . $this->getFacebookAccount($isSameUser) . '</div>',
+            'tumblr'       => '<div id="my_tm">' . $this->getTumblrAccount($isSameUser) . '</div>',
+            'blogger'      => '<div id="my_bg">' . $this->getBloggerAccount($isSameUser) . '</div>',
+            'linkedin'     => '<div id="my_li">' . $this->getLinkedInAccount($isSameUser) . '</div>',
+            'location'     => $this->User->getLocation(),
+            'description'  => \wordwrap($desc, 50), // @todo this is not unicode-safe! Must update it!
+            'editRole'     => Usertools::getHtml($this->Registry, $this->User),
             'followButton' => $this->makeFollowButton(),
-            'followers' => ShowFollowers::factory($this->Registry)->getUserFollowers($this->User),
-            'following' => ShowFollowers::factory($this->Registry)->getUserFollowing($this->User)
+            'followers'    => ShowFollowers::factory($this->Registry)->getUserFollowers($this->User),
+            'following'    => ShowFollowers::factory($this->Registry)->getUserFollowing($this->User)
         );
 
         return \tplUserInfo::parse($vars);
@@ -152,17 +155,19 @@ class ProfileDiv extends LampcmsObject
 
 
     /**
-     * Get either the link to @username of Twitter account if user has one
-     * OR html for the button to connect Twitter account
-     * to Existing Account
+     * Get either the link to
+     * username of Twitter account if user has one
+     *           OR html for the button to connect Twitter account
+     *           to Existing Account
      *
      *
-     * @param object $Registry
-     * @param object $User
+     * @param $isSameUser
+     *
+     * @internal param object $Registry
+     * @internal param object $User
      *
      * @return string html html of Connect button
-     * or just plain text string with @username
-     *
+     *           or just plain text string with @username
      */
     public function getTwitterAccount($isSameUser)
     {
@@ -175,11 +180,8 @@ class ProfileDiv extends LampcmsObject
         if ($this->hasOauth && $isSameUser) {
             $aTwitter = $this->Registry->Ini->getSection('TWITTER');
             if (!empty($aTwitter['TWITTER_OAUTH_KEY']) && !empty($aTwitter['TWITTER_OAUTH_SECRET'])) {
-                /**
-                 * @todo
-                 * Translate String
-                 */
-                return '<div id="connect_twtr" class="twsignin ajax ttt btn_connect rounded4" title="Connect Twitter Account"><img src="/images/tw-user.png" width="16" height="16"><span class="_bg_tw">Connect Twitter</span></div>';
+
+                return '<div id="connect_twtr" class="twsignin ajax ttt btn_connect rounded4" title="@@Connect Twitter Account@@"><img src="/images/tw-user.png" width="16" height="16"><span class="_bg_tw">@@Connect Twitter@@</span></div>';
             }
         }
 
@@ -194,12 +196,13 @@ class ProfileDiv extends LampcmsObject
      * to Existing Account
      *
      *
-     * @param object $Registry
-     * @param object $User
+     * @param $isSameUser
+     *
+     * @internal param object $Registry
+     * @internal param object $User
      *
      * @return string html of Connect button
-     * or link to user's Tumblr blog
-     *
+     *           or link to user's Tumblr blog
      */
     public function getTumblrAccount($isSameUser)
     {
@@ -213,11 +216,8 @@ class ProfileDiv extends LampcmsObject
         if ($this->hasOauth && $isSameUser) {
             $a = $this->Registry->Ini->getSection('TUMBLR');
             if (!empty($a) && !empty($a['OAUTH_KEY']) && !empty($a['OAUTH_SECRET'])) {
-                /**
-                 * @todo
-                 * Translate string
-                 */
-                return '<div id="connect_tumblr" class="add_tumblr ajax ttt btn_connect rounded4" title="Connect Tumblr Blog"><img src="/images/tumblr_16.png" width="16" height="16"><span class="_bg_tw">Connect Tumblr Blog</span></div>';
+
+                return '<div id="connect_tumblr" class="add_tumblr ajax ttt btn_connect rounded4" title="@@Connect Tumblr Blog@@"><img src="/images/tumblr_16.png" width="16" height="16"><span class="_bg_tw">@@Connect Tumblr Blog@@</span></div>';
             }
         }
 
@@ -226,18 +226,19 @@ class ProfileDiv extends LampcmsObject
 
 
     /**
-     * Get either the link to Tumblr blog
+     * Get either the link to Blogger blog
      * if user has one
-     * OR html for the button to connect Tumblr account
+     * OR html for the button to connect Blogger account
      * to Existing Account
      *
      *
-     * @param object $Registry
-     * @param object $User
+     * @param $isSameUser
+     *
+     * @internal param object $Registry
+     * @internal param object $User
      *
      * @return string html of Connect button
-     * or link to user's Tumblr blog
-     *
+     *           or link to user's Blogger blog
      */
     public function getBloggerAccount($isSameUser)
     {
@@ -251,11 +252,8 @@ class ProfileDiv extends LampcmsObject
         if ($this->hasOauth && $isSameUser) {
             $a = $this->Registry->Ini->getSection('BLOGGER');
             if (!empty($a) && !empty($a['OAUTH_KEY']) && !empty($a['OAUTH_SECRET'])) {
-                /**
-                 * @todo
-                 * Translate string
-                 */
-                return '<div id="connect_blogger" class="add_blogger ajax ttt btn_connect rounded4" title="Connect Blogger.com Blog"><img src="/images/blogger_16.png" width="16" height="16"><span class="_bg_tw">Connect Blogger Blog</span></div>';
+
+                return '<div id="connect_blogger" class="add_blogger ajax ttt btn_connect rounded4" title="Connect Blogger.com Blog"><img src="/images/blogger_16.png" width="16" height="16"><span class="_bg_tw">@@Connect Blogger Blog@@</span></div>';
             }
         }
 
@@ -264,18 +262,19 @@ class ProfileDiv extends LampcmsObject
 
 
     /**
-     * Get either the link to Tumblr blog
+     * Get either the link to Linked-In
      * if user has one
-     * OR html for the button to connect Tumblr account
+     * OR html for the button to connect Linked-In account
      * to Existing Account
      *
      *
-     * @param object $Registry
-     * @param object $User
+     * @param $isSameUser
+     *
+     * @internal param object $Registry
+     * @internal param object $User
      *
      * @return string html of Connect button
-     * or link to user's Tumblr blog
-     *
+     *           or link to user's Linked-In
      */
     public function getLinkedInAccount($isSameUser)
     {
@@ -289,11 +288,8 @@ class ProfileDiv extends LampcmsObject
         if ($this->hasOauth && $isSameUser) {
             $a = $this->Registry->Ini->getSection('LINKEDIN');
             if (!empty($a) && !empty($a['OAUTH_KEY']) && !empty($a['OAUTH_SECRET'])) {
-                /**
-                 * @todo
-                 * Translate string
-                 */
-                return '<div id="connect_linkedin" class="add_linkedin ajax ttt btn_connect rounded4" title="Connect LinkedIn Account"><img src="/images/linkedin_16.png" width="16" height="16"><span class="_bg_tw">Connect LinkedIn</span></div>';
+
+                return '<div id="connect_linkedin" class="add_linkedin ajax ttt btn_connect rounded4" title="@@Connect LinkedIn Account@@"><img src="/images/linkedin_16.png" width="16" height="16"><span class="_bg_tw">@@Connect LinkedIn Account@@</span></div>';
             }
         }
 
@@ -308,12 +304,13 @@ class ProfileDiv extends LampcmsObject
      * to Existing Account
      *
      *
-     * @param object $Registry
-     * @param object $User
+     * @param $isSameUser
+     *
+     * @internal param object $Registry
+     * @internal param object $User
      *
      * @return string html of Connect button
-     * or link to Facebook profile page
-     *
+     *           or link to Facebook profile page
      */
     public function getFacebookAccount($isSameUser)
     {
@@ -326,11 +323,8 @@ class ProfileDiv extends LampcmsObject
         if ($this->hasOauth && $isSameUser) {
             $aFB = $this->Registry->Ini->getSection('FACEBOOK');
             if (!empty($aFB) && !empty($aFB['APP_ID'])) {
-                /**
-                 * @todo
-                 * Translate string
-                 */
-                return '<div id="connect_fb" class="fbsignup ajax ttt btn_connect rounded4" title="Connect Facebook Account"><img src="/images/facebook_16.png" width="16" height="16"><span class="_bg_tw">Connect Facebook</span></div>';
+
+                return '<div id="connect_fb" class="fbsignup ajax ttt btn_connect rounded4" title="@@Connect Facebook Account@@"><img src="/images/facebook_16.png" width="16" height="16"><span class="_bg_tw">@@Connect Facebook Account@@</span></div>';
             }
         }
 
@@ -341,21 +335,23 @@ class ProfileDiv extends LampcmsObject
     /**
      * Get textual value of "Gender" M/F
      *
-     * @todo translate string Male/Female
-     * @param string $gender
+     *
+     *
+     * @internal param string $gender
+     *
      * @return string
      */
     protected function getGender()
     {
         $gender = $this->User['gender'];
-        switch ($gender) {
+        switch ( $gender ) {
             case 'M':
                 /**
                  * @todo
                  * Translate string
                  *
                  */
-                $ret = 'Male';
+                $ret = '@@Male@@';
                 break;
 
             case 'F':
@@ -364,7 +360,7 @@ class ProfileDiv extends LampcmsObject
                  * Translate string
                  *
                  */
-                $ret = 'Female';
+                $ret = '@@Female@@';
                 break;
 
             default:
@@ -382,41 +378,35 @@ class ProfileDiv extends LampcmsObject
      * empty string
      *
      *
-     * @param Registry $Registry
-     * @param User $User use who to follow
-     * @return string html of "Follow" button
-     * of empty string if Viewer is same as User
+     * @internal param \Lampcms\Registry $Registry
+     * @internal param \Lampcms\User $User use who to follow
      *
+     * @return string html of "Follow" button
+     *           of empty string if Viewer is same as User
      */
     public function makeFollowButton()
     {
 
-        $button = '';
+        $button  = '';
         $oViewer = $this->Registry->Viewer;
-        $uid = $this->User->getUid();
+        $uid     = $this->User->getUid();
 
         if ($uid !== $oViewer->getUid()) {
-            /**
-             * @todo
-             * Translate strings
-             */
+
             $aVars = array(
-                'id' => $uid,
-                'icon' => 'cplus',
-                'label' => 'Follow',
+                'id'    => $uid,
+                'icon'  => 'cplus',
+                'label' => '@@Follow@@',
                 'class' => 'follow',
-                'type' => 'u',
-                'title' => 'Follow this user'
+                'type'  => 'u',
+                'title' => '@@Follow this user@@'
             );
-            /**
-             * @todo
-             * Translate strings
-             */
+
             if (in_array($uid, $oViewer['a_f_u'])) {
-                $aVars['label'] = 'Following';
+                $aVars['label'] = '@@Following@@';
                 $aVars['class'] = 'following';
-                $aVars['icon'] = 'check';
-                $aVars['title'] = 'You are following this user';
+                $aVars['icon']  = 'check';
+                $aVars['title'] = '@@You are following this user@@';
             }
 
             $button = '<div class="fl mt10 mb10"><div class="follow_wrap">' . \tplFollowButton::parse($aVars, false) . '</div></div>';

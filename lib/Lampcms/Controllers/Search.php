@@ -116,9 +116,9 @@ class Search extends WebPage
         }
 
         $this->safeTerm             = \str_replace(array('<', '>'), array('&lt;', '&gt'), $this->term->valueOf());
-        $this->aPageVars['qheader'] = '<h1>Search results for: ' . $this->safeTerm . '</h1>';
+        $this->aPageVars['qheader'] = '<h1>@@Search results for@@: ' . $this->safeTerm . '</h1>';
 
-        $this->aPageVars['title'] = 'Questions matching &#39;' . $this->safeTerm . '&#39;';
+        $this->aPageVars['title'] = '@@Questions matching@@ &#39;' . $this->safeTerm . '&#39;';
         d('$this->term: ' . $this->term);
 
         $this->Search = SearchFactory::get($this->Registry);

@@ -78,7 +78,7 @@ class tplTagLink extends Lampcms\Template\Fast
 
     protected static $tpl = '
 	<div class="utag2">
-	<a href="/tagged/%2$s/">%1$s</a>
+	<a href="{_WEB_ROOT_}/{_tagged_}/%2$s/">%1$s</a>
 	</div>
 	';
 

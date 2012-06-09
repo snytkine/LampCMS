@@ -305,8 +305,11 @@ FILE = /index.php
 ;Some configuration constants
 ;Leave blank if you host images, css and js
 ;on the same server as this program,
-;otherwise defile the full path to domain + dir
-;where the files reside, without the '/' at the end
+;otherwise define the full path to domain + dir
+;where the files reside, without the trailing '/' at the end
+;Important: if you hosting image, avatars, js, css of separate server
+;then make sure the directory structure on those servers is the same
+;as on Lampcms.
 ;
 IMAGE_SITE =
 CSS_SITE =

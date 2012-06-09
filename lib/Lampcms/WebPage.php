@@ -241,6 +241,11 @@ abstract class WebPage extends Base
 
     protected $action;
 
+    /**
+     * @var object \Lampcms\Uri\Router
+     */
+    protected $Router;
+
 
     /**
      * Constructor
@@ -256,6 +261,7 @@ abstract class WebPage extends Base
         parent::__construct($Registry);
 
         $this->Request = (null !== $Request) ? $Request : $Registry->Request;
+        $this->Router = $this->Registry->Router;
         $this->action  = $this->Request['a'];
 
         $this->initParams()
@@ -818,8 +824,29 @@ abstract class WebPage extends Base
         try {
 
             if ($le instanceof RedirectException) {
-                session_write_close();
-                header("Location: " . $le->getMessage(), true, $le->getCode());
+                \session_write_close();
+                $newUrl = $le->getMessage();
+                /**
+                 * If redirect url contains any URI placeholders
+                 * (like {_WEB_ROOT_} for example)
+                 * then use mapper callback function
+                 * to replace those placeholders
+                 */
+                if(\strstr($newUrl, '{_')){
+                    $mapper = $this->Router->getCallback();
+                    $newUrl = $mapper($newUrl);
+                }
+
+                /**
+                 * If a relative url then turn into
+                 * full url to comply with w3c standard that says
+                 * redirect headers must point to complete url
+                 */
+                if(0 !== \strncasecmp('http', $newUrl, 4)){
+                    $newUrl = $this->Registry->Ini->SITE_URL.$newUrl;
+                }
+
+                header("Location: " . $newUrl, true, $le->getCode());
                 throw new \OutOfBoundsException;
             }
 
@@ -943,8 +970,8 @@ abstract class WebPage extends Base
      *
      * @param string $token value as passed in the submitted form
      *
+     * @throws TokenException
      * @return true of success
-     * @throws LampcmsException if validation fails
      */
     protected function validateToken($token = null)
     {
@@ -1043,8 +1070,8 @@ abstract class WebPage extends Base
 
         d('setting template dir');
 
-        define('STYLE_ID', $this->styleID);
-        define('VTEMPLATES_DIR', $this->tplDir);
+        \define('STYLE_ID', $this->styleID);
+        \define('VTEMPLATES_DIR', $this->tplDir);
 
         return $this;
     }

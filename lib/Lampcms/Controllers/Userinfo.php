@@ -63,7 +63,7 @@ use Lampcms\UserQuestions;
 use Lampcms\UserAnswers;
 
 /**
- * Controller for the /users/$uid/$username page
+ * Controller for the /userinfo/$uid/$username page
  *
  * @author Dmitri Snytkine
  *
@@ -72,8 +72,6 @@ class Userinfo extends WebPage
 {
 
     protected $layoutID = 1;
-
-    protected $aRequired = array('uid');
 
     protected $aAllowedVars = array('username', 'mode', 'sort');
 
@@ -104,20 +102,18 @@ class Userinfo extends WebPage
      * that represents User whose profile
      * is being viewed currently
      *
-     * @throws \Lampcms\Exception if user could not be
-     * found by user id passed in request
      *
+     * @throws \Lampcms\Lampcms404Exception
      * @return object $this
      */
     protected function getUser()
     {
-        $a = $this->Registry->Mongo->USERS->findOne(array('_id' => $this->Request['uid']));
+        $uid = $this->Registry->Router->getSegment(1, 'i');
+        $a = $this->Registry->Mongo->USERS->findOne(array('_id' => $uid));
 
         if (empty($a)) {
-            /**
-             * @todo translate string
-             */
-            throw new \Lampcms\Lampcms404Exception($this->_('User not found'));
+
+            throw new \Lampcms\Lampcms404Exception('@@User not found@@');
         }
 
         $this->User = User::factory($this->Registry, $a);
@@ -141,14 +137,14 @@ class Userinfo extends WebPage
      */
     protected function checkUsername()
     {
-        $supplied = $this->Request->get('username', 's', '');
+        $supplied = $this->Registry->Router->getSegment(2, 's', 'a');
 
         if (!empty($supplied)) {
             $username = $this->User->username;
             if (!empty($username) && (strtolower($username) !== strtolower($supplied))) {
                 d('supplied username ' . $supplied . ' is not the same as actual username: ' . $username);
 
-                throw new \Lampcms\RedirectException('/users/' . $this->Request['uid'] . '/' . $username);
+                throw new \Lampcms\RedirectException('{_WEB_ROOT_}/{_userinfo_}/' . $this->User->getUid() . '/' . $username);
             }
         }
 

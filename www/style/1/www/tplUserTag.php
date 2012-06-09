@@ -66,7 +66,7 @@ class tplUserTag extends Lampcms\Template\Fast
 
     protected static $tpl = '
 	<div class="utag2">
-	<a href="/tagged/%3$s/">%1$s</a><span>&times;&nbsp;%2$s</span>
+	<a href="{_WEB_ROOT_}/{_tagged_}/%3$s/">%1$s</a><span>&times;&nbsp;%2$s</span>
 	</div>
 	';
 

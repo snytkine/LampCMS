@@ -62,12 +62,9 @@ class tplUanswers extends \Lampcms\Template\Fast
 	          vote%8$s
 	       </div>
 	    </div>
-    <!-- //statsdiv -->
     <div class="smmry2">
-        <a href="/q%2$s/#ans%1$s" class="ql" title="%3$s">%3$s</a><br>
-        <div class="asked2"><span rel="in">%10$s </span><span title="%6$s" class="ts" rel="time">%5$s</span></div>           
+        <a href="{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}%2$s/#ans%1$s" class="ql" title="%3$s">%3$s</a><br>
+        <div class="asked2"><span rel="in">@@answered@@ </span><span title="%6$s" class="ts" rel="time">%5$s</span></div>
     </div>
-    <!-- //smmry -->
-	</div>
-	<!-- //qs -->';
+	</div>';
 }

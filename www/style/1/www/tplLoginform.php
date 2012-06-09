@@ -49,7 +49,7 @@ class tplLoginform extends Lampcms\Template\Fast
         'error' => ''
     );
 
-    protected static $tpl = '<div class="fl uwelcome"><form action="{_WEB_ROOT_}" method="post" name="frmLogin" id="frmLogin">
+    protected static $tpl = '<div class="fl uwelcome"><form action="{_WEB_ROOT_}/" method="post" name="frmLogin" id="frmLogin">
 <input name="_qf__frmLogin" type="hidden" value="">
 <input name="a" type="hidden" value="login">
 <input name="r" type="hidden" value="@@Username@@">

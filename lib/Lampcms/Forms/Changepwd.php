@@ -80,18 +80,7 @@ class Changepwd extends Form
     }
 
 
-    protected function init()
-    {
-
-        $this->setVar('submit', $this->Tr['Save']);
-        $this->setVar('forgot', $this->Tr['Forgot password?']);
-
-        $this->setVar('current_l', $this->Tr['Current Password']);
-        $this->setVar('pwd1_l', $this->Tr['Enter new password']);
-        $this->setVar('pwd2_l', $this->Tr['Confirm new password']);
-        $this->setVar('current_d', $this->Tr['Enter your current password']);
-
-    }
+    protected function init(){}
 
 
     /**

@@ -71,7 +71,6 @@ use Lampcms\Responder;
 class Viewqtags extends Viewquestions
 {
 
-
     /**
      * Indicates the current tab
      *
@@ -79,7 +78,7 @@ class Viewqtags extends Viewquestions
      */
     protected $qtab = 'tags';
 
-    protected $pagerPath = '/tags/name';
+    protected $pagerPath = '{_viewqtags_}/{_SORT_TAG_NAME_}';
 
     protected $PER_PAGE = 60;
 
@@ -91,6 +90,7 @@ class Viewqtags extends Viewquestions
      */
     protected $notAjaxPaginatable = false;
 
+
     /**
      * Select items according to conditions passed in GET
      * Conditions can be == 'unanswered', 'hot', 'recent' (default)
@@ -99,10 +99,10 @@ class Viewqtags extends Viewquestions
      */
     protected function getCursor()
     {
+        $uriParts = $this->Registry->Ini->getSection('URI_PARTS');
+        $aFields  = array('tag', 'i_count', 'hts');
 
-        $aFields = array('tag', 'i_count', 'hts');
-
-        $cond = $this->Request->get('cond', 's', 'popular');
+        $cond = $this->Router->getSegment(1, 's', $uriParts['SORT_POPULAR']);
         d('cond: ' . $cond);
 
         /**
@@ -111,20 +111,17 @@ class Viewqtags extends Viewquestions
          *
          */
         $sort = array('tag' => 1);
-        /**
-         * @todo translate this title later
-         *
-         */
-        $this->title = 'Tags';
 
-        switch ($cond) {
+        $this->title = '@@Tags@@';
+
+        switch ( $cond ) {
             /**
              * Hot is strictly per views
              */
-            case 'popular':
-                $sort = array('i_count' => -1);
-                $this->title = 'Popular tags';
-                $this->pagerPath = '/tags/popular';
+            case $uriParts['SORT_POPULAR']:
+                $sort            = array('i_count' => -1);
+                $this->title     = '@@Popular tags@@';
+                $this->pagerPath = '{_viewqtags_}/{_SORT_POPULAR_}';
                 d('cp');
                 break;
 
@@ -138,10 +135,10 @@ class Viewqtags extends Viewquestions
              * Cache Tags for 1 day only
              * uncache onQuestionVote, onQuestionComment
              */
-            case 'recent':
-                $this->title = 'Recent tags';
-                $sort = array('i_ts' => -1);
-                $this->pagerPath = '/tags/recent';
+            case $uriParts['SORT_RECENT']:
+                $this->title     = '@@Recent tags@@';
+                $sort            = array('i_ts' => -1);
+                $this->pagerPath = '{_viewqtags_}/{_SORT_RECENT_}';
                 d('cp');
                 break;
 
@@ -158,7 +155,7 @@ class Viewqtags extends Viewquestions
         $this->typeDiv = Urhere::factory($this->Registry)->get('tplTagsort', $cond);
 
         $this->Cursor = $this->Registry->Mongo->QUESTION_TAGS->find(array('i_count' => array('$gt' => 0)), $aFields);
-        $this->count = $this->Cursor->count(true);
+        $this->count  = $this->Cursor->count(true);
         d('$this->Cursor: ' . gettype($this->Cursor) . ' $this->count: ' . $this->count);
         $this->Cursor->sort($sort);
 
@@ -195,6 +192,7 @@ class Viewqtags extends Viewquestions
      * an informative text message
      *
      * (non-PHPdoc)
+     *
      * @see Lampcms\Controllers.Viewquestions::makeCounterBlock()
      * @return \Lampcms\Controllers\Viewqtags
      */
@@ -216,6 +214,7 @@ class Viewqtags extends Viewquestions
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Controllers.Viewquestions::makeQlistBody()
      * @return \Lampcms\Controllers\Viewqtags
      */
@@ -224,15 +223,15 @@ class Viewqtags extends Viewquestions
 
         /**
          * @todo pass false to loop
-         * but we MUST be sure that we have consistent
-         * field names in QUESTION_TAGS collection and that
-         * they are always in the same order, which would be
-         * the case normally as long as they are inserted using
-         * the same class
+         *       but we MUST be sure that we have consistent
+         *       field names in QUESTION_TAGS collection and that
+         *       they are always in the same order, which would be
+         *       the case normally as long as they are inserted using
+         *       the same class
          *
          */
-        $sQdivs = \tplTagslist::loop($this->Cursor);
-        $sQlist = \tplQlist::parse(array($this->typeDiv, $sQdivs . $this->pagerLinks, '', $this->notAjaxPaginatable), false);
+        $sQdivs                  = \tplTagslist::loop($this->Cursor);
+        $sQlist                  = \tplQlist::parse(array($this->typeDiv, $sQdivs . $this->pagerLinks, '', $this->notAjaxPaginatable), false);
         $this->aPageVars['body'] = $sQlist;
         /**
          * In case of Ajax can just send out sQlist as result

@@ -114,7 +114,7 @@ if (true !== session_start()) {
              * will be replaced with their placeholder names
              * with this single preg_replace call (profiler reports this to take about 0.3 - 1ms - really fast)
              */
-            $output = preg_replace('/({_|@@)([a-zA-Z0-9_\-!?\().\'\s]+)(@@|_})/', '\\2', $output);
+            $output = preg_replace('/@@([a-zA-Z0-9_\-!?\().,\'\s]+)@@/', '\\1', $output);
 
             /**
              * Timer calculation should be the last replacement

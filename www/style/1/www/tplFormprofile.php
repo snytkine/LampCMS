@@ -58,43 +58,43 @@ class tplFormprofile extends Lampcms\Template\Fast
 
     protected static $vars = array(
         'token' => '', // 1
-        'formTitle' => 'Edit Profile', //2
+        'formTitle' => '@@Edit Profile@@', //2
         'fn' => '', //3
-        'fn_l' => 'First Name', // 4
+        'fn_l' => '@@First Name@@', // 4
         'mn' => '', // 5
-        'mn_l' => 'Middle Name', //6
+        'mn_l' => '@@Middle Name@@', //6
         'ln' => '', // 7
-        'ln_l' => 'Last Name', // 8
+        'ln_l' => '@@Last Name@@', // 8
         'dob' => '', //9
-        'dob_l' => 'Date of Birth', //10
+        'dob_l' => '@@Date of Birth@@', //10
         'dob_d' => 'YYYY/MM/DD, only used for displaying age', //11
         'cc' => '', // 12
         'cc_l' => 'Country', //13
         'state' => '', //14
         'state_l' => 'State or Region', // 15
         'city' => '', //16
-        'city_l' => 'City', //17
+        'city_l' => '@@City@@', //17
         'zip' => '', //18
         'zip_l' => 'Postal code (zip)', //19
         'url' => '', // 20
-        'url_l' => 'Website', //21
+        'url_l' => '@@Website@@', //21
         'description' => '', //22
-        'description_l' => 'About me', //23
+        'description_l' => '@@About me@@', //23
         'description_e' => '', //24
-        'submit' => 'Save', //25
+        'submit' => '@@Save@@', //25
         'formError' => '', //26
-        'preview' => 'Preview', //27
+        'preview' => '@@Preview@@', //27
         'gender' => '', //28
-        'gender_l' => 'Gender', //29
+        'gender_l' => '@@Gender@@', //29
         'dob_e' => '', //30
-        'description_d' => 'Plain text only, no html', //31
-        'pictureLabel' => 'Profile picture', //32
+        'description_d' => '@@Plain text only, no html@@', //31
+        'pictureLabel' => '@@Profile picture@@', //32
         'avatarSrc' => '', //33
         'width' => '40', //34
         'profile_image' => '', //35
-        'changeImage' => 'Change image', //36
+        'changeImage' => '@@Change image@@', //36
         'avatarTos' => 'Upload Avatar Image. Maximum size of 1Mb<br><span class="smaller">By uploading a file you certify that you have the right to distribute this picture and that it does not violate the Terms of Service.</span>', //37
-        'deleteLabel' => 'Delete this image', //38
+        'deleteLabel' => '@@Delete this image@@', //38
         'uid' => '', //39
         'hideAvatar' => '', //40
         'maxAvatarSize' => '2000000', //41
@@ -102,12 +102,12 @@ class tplFormprofile extends Lampcms\Template\Fast
         'username' => '', //43
         'usernameLabel' => '', //44
         'timezone' => '', // 45
-        'timezone_l' => 'Time Zone' // 46
+        'timezone_l' => '@@Time Zone@@' // 46
     );
 
 
     protected static $tpl = '
- 	<form name="epForm" method="POST" action="/index.php" enctype="multipart/form-data" accept-charset="utf-8">
+ 	<form name="epForm" method="POST" action="{_WEB_ROOT_}" enctype="multipart/form-data" accept-charset="utf-8">
 		<input type="hidden" name="a" value="editprofile">
 		<input type="hidden" name="uid" value="%39$s">	
 		<input type="hidden" name="token" value="%1$s">
@@ -160,4 +160,3 @@ class tplFormprofile extends Lampcms\Template\Fast
 </form>';
 
 }
- 

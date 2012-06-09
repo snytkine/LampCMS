@@ -73,6 +73,19 @@ class Tagged extends Unanswered
      */
     protected $qtab = 'questions';
 
+    /**
+     * Overrides the use of $this->Router->getRealPageID
+     * because we don't want a possibility of
+     * extracting pageID from a tag name when a tag contains number
+     *
+     * @return object $this
+     */
+    public function setPageID()
+    {
+        $this->pageID = (int)$this->Router->getPageID();
+
+        return $this;
+    }
 
     /**
      * Select items according to conditions passed in GET
@@ -101,7 +114,7 @@ class Tagged extends Unanswered
              *
              */
 
-            throw new RedirectException("/tags/");
+            throw new RedirectException("{_WEB_ROOT_}/{_viewqtags_}/");
         }
 
         $this->pagerPath = '{_tagged_}/' . $this->rawTags;
@@ -120,7 +133,7 @@ class Tagged extends Unanswered
         $where['i_del_ts'] = null;
         $replaced = array(
             'tags' => \str_replace(' ', ' + ', $this->tags),
-            'text' => $this->_('Tagged')
+            'text' => '@@Tagged@@'
         );
 
         $this->counterTaggedText = \tplCounterblocksub::parse($replaced, false);
@@ -167,7 +180,7 @@ class Tagged extends Unanswered
         $s = Relatedtags::factory($this->Registry)->getHtml($tag);
 
         if (!empty($s)) {
-            $tags = \tplBoxrecent::parse(array('tags' => $s, 'title' => $this->_('Related Tags')));
+            $tags = \tplBoxrecent::parse(array('tags' => $s, 'title' => '@@Related Tags@@'));
             $this->aPageVars['tags'] = $tags;
         }
 

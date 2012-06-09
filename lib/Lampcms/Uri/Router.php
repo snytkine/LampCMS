@@ -70,8 +70,7 @@ class Router
     protected $filterReplace = array('&#123;_', '&#64;@');
 
     /**
-     * URI string after filter is applied
-     * and filterSearch chars replaced with filterReplace chars
+     * URI string
      *
      * @var string
      */
@@ -133,7 +132,6 @@ class Router
     }
 
 
-
     /**
      * Getter for $this->uriSegments
      *
@@ -146,22 +144,69 @@ class Router
 
 
     /**
-     * Extract pageID
-     * page id is always the last segment in the url
-     * Will extract the integer value of page id which is a
-     * number between PAGE_PREFIX and PAGER_EXT
-     * Defaults to 1 is page number not in url
+     * Different from getPageID
+     * In the prefix and postfix
+     * of last segment do not match pagination
+     * prefix and postfix then it will generate
+     * a rewrite exception.
+     * This is safe to use ONLY of viewquestions, unanswered, etc
+     * Do no use this to extract page id
+     * on pages that may contain tag names
+     * because if tag name contains number (my25cents), then this function
+     * will decide that 25 is a page number and will redirect
+     * to the page25.html
      *
      * @return int
      */
-    public function getPageID()
+    public function getRealPageID()
     {
         if (!isset($this->pageID)) {
-            $segments    = $this->getUriSegments();
-            $lastSegment = end($segments);
-            preg_match('/' . $this->map['PAGER_PREFIX'] . '(\d+)' . $this->map['PAGER_EXT'] . '/i', $lastSegment, $matches);
 
-            $this->pageID = (!empty($matches[1])) ? (int)$matches[1] : 1;
+            $segmentId = count($this->uriSegments);
+            /**
+             * Special case
+             * no segments - this is home page
+             * in this case pageID is always 1
+             */
+            if (0 === $segmentId) {
+                return 1;
+            }
+
+            $this->pageID = $this->getNumber($segmentId, 1, $this->map['PAGER_PREFIX'], $this->map['PAGER_EXT']);
+        }
+
+        return $this->pageID;
+    }
+
+
+    /**
+     * Extract page id from the segments
+     *
+     * @param int $segmentId if supplied then will look
+     *                       for pageID in this segment number. Otherwise looks for page
+     *                       id in the last segment
+     *
+     * @return int page id, always defaults to 1
+     */
+    public function getPageID($segmentId = null)
+    {
+        if (!isset($this->pageID)) {
+            $segmentId = (is_numeric($segmentId)) ? $segmentId : count($this->uriSegments);
+            /**
+             * Special case
+             * no segments - this is home page
+             * in this case pageID is always 1
+             */
+            if (0 === $segmentId) {
+                return 1;
+            }
+
+
+            $lastSegment = $this->getSegment($segmentId, 's');
+
+            \preg_match('/' . $this->map['PAGER_PREFIX'] . '(\d+)' . $this->map['PAGER_EXT'] . '/i', $lastSegment, $matches);
+
+            $this->pageID = (is_array($matches) && !empty($matches[1])) ? (int)$matches[1] : 1;
         }
 
         return $this->pageID;
@@ -191,7 +236,7 @@ class Router
         $id = $id - 1;
 
         if (!isset($this->controller)) {
-            $this->getController();
+            $this->init();
         }
 
         if (!\array_key_exists($id, $this->uriSegments)) {
@@ -204,6 +249,16 @@ class Router
             $val = $this->uriSegments[$id];
         }
 
+        /**
+         * We can't allow {_ and @@ in the input because we use them as our
+         * placeholder opening strings. If we allow these then anyone could
+         * inject placeholder into the input by simply passing something
+         * like {_WEB_ROOT_}
+         * This could be a legitimate case when someone wants to search
+         * for {_WEB_ROOT_} string.
+         *
+         */
+        $val = \str_replace($this->filterSearch, $this->filterReplace, $val);
 
         switch ( $type ) {
 
@@ -221,7 +276,11 @@ class Router
                 if ($val !== $default) {
                     $val = \preg_replace("/\D/", "", $val);
                 }
-                if (empty($val)) {
+                if (0 !== $val && empty($val)) {
+                    if (null !== $default) {
+                        return (int)$default;
+                    }
+
                     throw new SegmentException('Segment ' . $id . ' does not contain a number. Segments: ' . print_r($this->uriSegments, 1));
                 }
                 $val = (int)$val;
@@ -232,6 +291,68 @@ class Router
         }
 
         return $val;
+    }
+
+
+    /**
+     * @param int     $id      segment number
+     * @param null    $default default value to return if segment does not exist or number not in segment
+     * @param null    $prefix  optional prefix before the number in the segment
+     * @param null    $postfix optional postfix before the number in the segment
+     *
+     * @throws \Lampcms\RedirectException
+     * @throws SegmentException
+     * @return int
+     */
+    public function getNumber($id, $default = null, $prefix = null, $postfix = null)
+    {
+        $segment = $this->getSegment($id, 's', $default);
+
+        \preg_match('/(\D*)(\d+)(\D*)/u', $segment, $matches);
+
+        if (empty($matches) || !\array_key_exists(2, $matches)) {
+            if (is_int($default)) {
+                return $default;
+            }
+
+            throw new SegmentException('Number not found in segment ' . $id . ' uri: ' . $this->uri);
+        }
+
+        $int = $matches[2];
+
+        if ($segment !== $prefix . $int . $postfix) {
+            $segments            = $this->uriSegments;
+            $segments[($id - 1)] = $prefix . $int . $postfix;
+            $uri                 = implode('/', $segments);
+            $uri                 = $this->map['DIR'] . '/' . $this->getControllerSegment() . '/' . $uri;
+
+            if (!empty($_SERVER['QUERY_STRING'])) {
+                $uri .= '?' . $_SERVER['QUERY_STRING'];
+            }
+
+            throw new \Lampcms\RedirectException($uri);
+        }
+
+        return (int)$int;
+    }
+
+
+    /**
+     * Get the name of controller that should be used
+     * as the 1st uri segment.
+     * If the rule is defined in [ROUTES] then it will be the alias
+     * of the controller, othewise the $this->controller
+     *
+     *
+     * @return string string that can be used as first section of the uri
+     */
+    public function getControllerSegment()
+    {
+        if (\in_array($this->controller, $this->routes)) {
+            return \array_search($this->controller, $this->routes);
+        }
+
+        return $this->controller;
     }
 
 
@@ -274,23 +395,15 @@ class Router
         }
 
         if ('' !== $uri) {
-            /**
-             * We can't allow {_ and @@ in the input because we use them as our
-             * placeholder opening strings. If we allow these then anyone could
-             * inject placeholder into the input by simply passing something
-             * like {_WEB_ROOT_}
-             * This could be a legitimate case when someone wants to search
-             * for {_WEB_ROOT_} string.
-             *
-             */
-            $this->uri = \str_replace($this->filterSearch, $this->filterReplace, $uri);
+
+            $this->uri = $uri;
 
             foreach ($this->routes as $route => $controller) {
                 $strlen = \strlen($route);
                 /**
                  * Do case-insensitive search for a matching route
                  */
-                if (($route === \strtolower($this->uri)) || (0 === \strncasecmp($route.'/', $this->uri, ($strlen + 1) ) ) )  {
+                if (($route === \strtolower($this->uri)) || (0 === \strncasecmp($route . '/', $this->uri, ($strlen + 1)))) {
 
                     $this->controller = $controller;
 
@@ -405,7 +518,17 @@ class Router
 
             $this->callback = function($s) use ($search, $replace)
             {
-                return \str_replace($search, $replace, $s);
+                /**
+                 * First replace all alias values
+                 * with their real values
+                 */
+                $res = \str_replace($search, $replace, $s);
+
+                /**
+                 * Now replace all controller and uri based placeholders
+                 * with their own values (from between {_ and _}
+                 */
+                return preg_replace('/{_([a-zA-Z0-9_\-]+)_}/', '\\1', $res);
 
             };
         }

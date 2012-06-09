@@ -204,13 +204,14 @@ class Editcategory extends WebPage
             Responder::sendJSON(array('alert' => $message));
         }
 
-        return 'Category data saved';
+        return '@@Category data saved@@';
     }
 
     /**
      * Set the variables for the 'body' or main template
      * Using the tplEditcats template
      *
+     * @return \Lampcms\Controllers\Editcategory
      */
     protected function setBody()
     {

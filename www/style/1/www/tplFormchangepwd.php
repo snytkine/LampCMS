@@ -41,26 +41,26 @@ class tplFormchangepwd extends \Lampcms\Template\Fast
 
     protected static $vars = array(
         'token' => '', //1
-        'required' => 'required', //2
+        'required' => '@@Required@@', //2
         'current' => '', //3
-        'current_l' => 'Current Password', // 4
-        'current_d' => 'Enter your current password',
+        'current_l' => '@@Current Password@@', // 4
+        'current_d' => '@@Enter your current password@@',
         'current_e' => '', // 6
         'pwd1' => '', //7
         'pwd1_e' => '', //8
-        'pwd1_l' => 'Enter new password', //9
+        'pwd1_l' => '@@Enter new password@@', //9
         'pwd2' => '', //10
-        'pwd2_l' => 'Confirm new password', //11
+        'pwd2_l' => '@@Confirm new password@@', //11
         'pwd2_e' => '', //12
-        'submit' => 'Save', //13
+        'submit' => '@@Save@@', //13
         'formTitle' => '', // 14
         'formError' => '', //15
-        'forgot' => 'Forgot password?' //16
+        'forgot' => '@@Forgot password?@@' //16
     );
 
 
     protected static $tpl = '
-	<form name="pwdForm" method="POST" action="/index.php" accept-charset="utf-8">
+	<form name="pwdForm" method="POST" action="{_WEB_ROOT_}/" accept-charset="utf-8">
 	<div id="tools" class="frm">
 	<div class="frmtitle">%14$s</div>
 	<div class="form_error">%15$s</div>
@@ -69,7 +69,7 @@ class tplFormchangepwd extends \Lampcms\Template\Fast
 		<div class="form_el1"> 
                 <label for="id_current">%4$s</label>: <span class="f_err">%6$s</span><br> 
                 <input autocomplete="off" id="id_current" class="current_c" type="text" name="current" size="20" value="%3$s"> 
-       		  	<div id="current_d" class="caption">%5$s<br><a href="/remindpwd/">%16$s</a></div><hr>
+       		  	<div id="current_d" class="caption">%5$s<br><a href="{_WEB_ROOT_}/{_remindpwd_}/">%16$s</a></div><hr>
         </div>
        <!-- // el current -->
             

@@ -64,6 +64,6 @@ class EmailOptions extends Form
 
     protected function init()
     {
-        $this->setVar('save_l', $this->_('Save'));
+        $this->setVar('save_l', '@@Save@@');
     }
 }

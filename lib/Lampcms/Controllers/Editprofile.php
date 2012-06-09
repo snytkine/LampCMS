@@ -105,14 +105,14 @@ class Editprofile extends WebPage
     {
         $this->getUser();
         $this->Form = new \Lampcms\Forms\Profile($this->Registry);
-		$this->Form->formTitle = $this->aPageVars['title'] = $this->_('Edit Profile');
+		$this->Form->formTitle = $this->aPageVars['title'] = '@@Edit Profile@@';
 
 		if ($this->Form->isSubmitted() && $this->Form->validate()) {
             $this->Registry->Dispatcher->post($this->Form, 'onBeforeProfileUpdate');
             //try{
             $this->saveProfile();
             $this->Registry->Dispatcher->post($this->Form, 'onProfileUpdate');
-            $this->aPageVars['body'] = \tplProfileSuccess::parse(array('Profile has been updated', $this->User->getProfileUrl(), 'View the new profile'), false);
+            $this->aPageVars['body'] = \tplProfileSuccess::parse(array('@@Profile has been updated@@', $this->User->getProfileUrl(), '@@View the new profile@@'), false);
             /*} catch (\Lampcms\Exception $e){
                    $this->Form->setFormError($e->getMessage());
                    $this->setForm();
@@ -129,16 +129,11 @@ class Editprofile extends WebPage
      * Create $this->User User object for user whose
      * profile is being edited
      *
-     * @todo unfinished. IT will be possible to
-     * edit user other than Viewer when Viewer has
-     * permission to edit_other_profile
-     * For now this is a Viewe object
-     *
      * @return object $this
      */
     protected function getUser()
     {
-        $uid = $this->Request->get('uid', 'i', null);
+        $uid = (!\Lampcms\Request::isPost()) ? $this->Router->getSegment(1, 'i', 0) : $this->Request->get('uid', 'i', null);
         if ($uid && ($uid !== $this->Registry->Viewer->getUid())) {
             /**
              * This is edit profile for another user
@@ -184,7 +179,7 @@ class Editprofile extends WebPage
         /**
          * @todo translate string
          */
-        $this->Form->avatarTos = sprintf('Upload Image. Maximum size of %sMb<br><span class="smaller">By uploading a file you certify that you have the right to distribute this picture and that it does not violate the Terms of Service.</span>', floor($this->Registry->Ini->MAX_AVATAR_UPLOAD_SIZE / 1000000));
+        $this->Form->avatarTos = \sprintf('Upload Image. Maximum size of %sMb<br><span class="smaller">@@By uploading a file you certify that you have the right to distribute this picture and that it does not violate the Terms of Service@@</span>', \floor($this->Registry->Ini->MAX_AVATAR_UPLOAD_SIZE / 1000000));
 
         /**
          * Add '  hide' class to avatar upload
@@ -244,7 +239,7 @@ class Editprofile extends WebPage
 
         foreach ($aCountries as $key => $val) {
             $selected = ($current == $key) ? ' selected' : '';
-            $name = (empty($val)) ? 'Select country' : $val;
+            $name = (empty($val)) ? '@@Select country@@' : $val;
 
             $s .= \vsprintf($tpl, array($key, $selected, $name));
         }
@@ -259,7 +254,6 @@ class Editprofile extends WebPage
      * it also sets the "selected" value of an option
      * that matches the current value in Viewer object
      *
-     * @todo translate string Male and Female but not the values "M" and "F"
      *
      * @return string html string
      */
@@ -267,11 +261,11 @@ class Editprofile extends WebPage
     {
         $current = $this->Registry->Viewer['gender'];
         $s = '';
-        $a = array('' => 'Select Gender', 'M' => 'Male', 'F' => 'Female');
+        $a = array('' => 'Select Gender', 'M' => '@@Male@@', 'F' => '@@Female@@');
         $tpl = '<option value="%1$s"%2$s>%3$s</option>';
         foreach ($a as $key => $val) {
             $selected = ($key === $current) ? ' selected' : '';
-            $s .= vsprintf($tpl, array($key, $selected, $val));
+            $s .= \vsprintf($tpl, array($key, $selected, $val));
         }
 
         return $s;

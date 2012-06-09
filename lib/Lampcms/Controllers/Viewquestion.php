@@ -167,14 +167,16 @@ class Viewquestion extends WebPage
      */
     protected function main()
     {
-        $this->qid = $this->Registry->Router->getSegment(1, 'i');
+
+        //$this->qid = $this->Registry->Router->getSegment(1, 'i');
+        $this->qid = $this->Router->getNumber(1, null, $this->Registry->Ini['URI_PARTS']['QID_PREFIX']);
         if (Request::isAjax()) {
             $this->getQuestion()->getAnswers();
             Responder::sendJSON(array('paginated' => $this->answers));
         }
 
 
-        $this->pageID = $this->Registry->Request->get('pageID', 'i', 1);
+        $this->pageID = $this->Router->getPageID();
         $this->tab    = $this->Registry->Request->get('sort', 's', 'i_lm_ts');
         $this->Registry->registerObservers();
 

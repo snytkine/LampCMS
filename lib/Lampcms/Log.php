@@ -117,7 +117,7 @@ class Log
      *
      * @param string $message message to log
      * @param int $traceLevel this is useful
-     * for extractint correct line from debug backtrace
+     * for extracting correct line from debug backtrace
      * you should normally not worry about this
      * This is useful in only some cases where you notice that
      * line number/method name is not logged correctly
@@ -219,6 +219,9 @@ class Log
      *
      *
      * @param string $message message to log
+     * @param int    $level
+     *
+     * @return string
      */
     public static function d($message, $level = 1)
     {
@@ -239,6 +242,9 @@ class Log
      * is that email will also be sent to admin
      *
      * @param string $message message to log
+     * @param int    $level debug backtrace offset level
+     *
+     * @return string
      */
     public static function e($message, $level = 1)
     {
@@ -277,6 +283,10 @@ class Log
     /**
      * Sends email message to developer
      * if message contains error pattern
+     *
+     * @param $message message to send to developers
+     *
+     * @return
      */
     protected static function notifyDeveloper($message)
     {
@@ -310,7 +320,7 @@ class Log
         }
 
         /**
-         * Add hight priority to email headers
+         * Add high priority to email headers
          * for error messages of certain types (real errors, no notices)
          */
         $headers = 'X-Mailer: LogObserver' . "\n" . 'X-Priority: 1' . "\n" . 'Importance: High' . "\n" . 'X-MSMail-Priority: High';

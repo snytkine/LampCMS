@@ -78,12 +78,7 @@ class Settings extends WebPage
         $vals = array(
 
             'confirmation' => $this->makeConfirmBlock(),
-            'change_password' => $this->_('Change Password'),
-            'profile' => $this->_('Edit Profile'),
             'profileUrl' => '{_WEB_ROOT_}/{_editprofile_}/',
-            'emailPrefs' => $this->_('Email Preferences'),
-            'clearCache' => '',
-            'editCategories' => ''
         );
 
         try {

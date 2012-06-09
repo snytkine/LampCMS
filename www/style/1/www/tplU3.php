@@ -58,13 +58,13 @@ class tplU3 extends Lampcms\Template\Fast
     protected static function func(&$a)
     {
         if (!empty($a['avatar'])) {
-            $a['avatar'] = LAMPCMS_AVATAR_IMG_SITE . '/w/img/avatar/sqr/' . $a['avatar'];
+            $a['avatar'] = '{_AVATAR_IMG_SITE_}{_DIR_}/w/img/avatar/sqr/' . $a['avatar'];
         } elseif (!empty($a['avatar_external'])) {
             $a['avatar'] = $a['avatar_external'];
         } elseif (!empty($a['gravatar']) && !empty($a['email'])) {
             $a['avatar'] = $a['gravatar']['url'] . hash('md5', $a['email']) . '?s=36' . '&d=' . $a['gravatar']['fallback'] . '&r=' . $a['gravatar']['rating'];
         } else {
-            $a['avatar'] = LAMPCMS_IMAGE_SITE . '/images/avatar.png';
+            $a['avatar'] = '{_IMAGE_SITE_}{_DIR_}/images/avatar.png';
         }
 
         $fn = (!empty($a['fn'])) ? $a['fn'] : '';
@@ -93,10 +93,10 @@ class tplU3 extends Lampcms\Template\Fast
         'avatar' => '', //4
         'username' => '', //5
         'since' => '', //6
-        'registered_l' => 'Registered', //7
-        'last_seen_l' => 'Last seen', //8
+        'registered_l' => '@@Registered@@', //7
+        'last_seen_l' => '@@Last seen@@', //8
         'last_seen' => '', //9
-        'reputation_l' => 'Current User Reputation score', //10
+        'reputation_l' => '@@Current User Reputation score@@', //10
         'deleted' => '' //11
     );
 
@@ -106,7 +106,7 @@ class tplU3 extends Lampcms\Template\Fast
 		<div title="%10$s %3$s" class="fl cb rounded3 i_rep ttt">%3$s</div>
 		<div class="avtr_bg fl mt-12 cb imgloader" style=\'background-image:url("%4$s");\'>&nbsp;</div>
 		<div class="u4 mt-12">
-			<a href="/users/%1$s/%5$s">%2$s</a><br>		    
+			<a href="{_WEB_ROOT_}/{_userinfo_}/%1$s/%5$s">%2$s</a><br>
 		    <span class="reg_time">%7$s<br>%6$s</span><br>
 		    <span class="seen">%8$s<br>%9$s</span>
 		</div>

@@ -57,13 +57,13 @@ class tplOneFollower extends Lampcms\Template\Fast
     {
 
         if (!empty($a['avatar'])) {
-            $a['avatar'] = LAMPCMS_AVATAR_IMG_SITE . '/w/img/avatar/sqr/' . $a['avatar'];
+            $a['avatar'] = '{_AVATAR_IMG_SITE_}{_DIR_}/w/img/avatar/sqr/' . $a['avatar'];
         } elseif (!empty($a['avatar_external'])) {
             $a['avatar'] = $a['avatar_external'];
         } elseif (!empty($a['gravatar']) && !empty($a['email'])) {
             $a['avatar'] = $a['gravatar']['url'] . hash('md5', $a['email']) . '?s=36' . '&d=' . $a['gravatar']['fallback'] . '&r=' . $a['gravatar']['rating'];
         } else {
-            $a['avatar'] = LAMPCMS_IMAGE_SITE . '/images/avatar.png';
+            $a['avatar'] = '{_IMAGE_SITE_}{_DIR_}/images/avatar.png';
         }
 
         $fn = (!empty($a['fn'])) ? $a['fn'] : '';
@@ -87,7 +87,7 @@ class tplOneFollower extends Lampcms\Template\Fast
 
     protected static $tpl = '
 	<div class="fl f2" id="%7$s_%1$s">
-		<a href="/users/%1s/%5$s" class="ttt" title="%2$s **%3$s**"><span class="avtr_bg imgloader" style=\'background-image:url("%4$s");\'>&nbsp;</span></a>
+		<a href="{_WEB_ROOT_}/{_userinfo_}/%1s/%5$s" class="ttt" title="%2$s **%3$s**"><span class="avtr_bg imgloader" style=\'background-image:url("%4$s");\'>&nbsp;</span></a>
 	</div>';
 
 }

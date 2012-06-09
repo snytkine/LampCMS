@@ -54,42 +54,42 @@ class tplFormEmailOptions extends \Lampcms\Template\Fast
 {
     protected static $vars = array(
         'token' => '', // 1
-        'formTitle' => 'Current Email Subscription Preferences', //2
+        'formTitle' => '@@Current Email Subscription Preferences@@', //2
         'e_fu' => '', //3
-        'e_fu_t' => 'New posts by users I follow', //4
-        'e_fu_d' => 'Email me when a new post is made by a user I follow', //5
+        'e_fu_t' => '@@New posts by users I follow@@', //4
+        'e_fu_d' => '@@Email me when a new post is made by a user I follow@@', //5
 
         'e_fq' => '', //6
-        'e_fq_t' => 'New activity in questions I follow', // 7
-        'e_fq_d' => 'Email me when the new answer is added to questions I follow', //8
+        'e_fq_t' => '@@New activity in questions I follow@@', // 7
+        'e_fq_d' => '@@Email me when the new answer is added to questions I follow@@', //8
 
         'e_ft' => '', //9
-        'e_ft_t' => 'New question with a tag I follow', //10
-        'e_ft_d' => 'Email me when the a new question is posted and is tagged with one of the tags I follow', //11
+        'e_ft_t' => '@@New question with a tag I follow@@', //10
+        'e_ft_d' => '@@Email me when the a new question is posted and is tagged with one of the tags I follow@@', //11
 
         'e_ok' => '', //12
-        'e_ok_t' => 'Site updates', //13
-        'e_ok_d' => 'Receive news and updates from this site\'s administrator', //14
+        'e_ok_t' => '@@Site updates@@', //13
+        'e_ok_d' => '@@Receive news and updates from this site\'s administrator@@', //14
 
 
         'your_email' => '', //15
-        'your_email_t' => 'Your Email Address', //16
-        'your_email_d' => "The address at which you've chosen to receive messages is:", //17
+        'your_email_t' => '@@Your Email Address@@', //16
+        'your_email_d' => '@@The address at which you\'ve chosen to receive messages is@@:', //17
 
-        'save_l' => 'Save', //18
+        'save_l' => '@@Save@@', //18
 
         'e_fc' => '', //19
-        'e_fc_t' => 'Reply to my comment', //20
-        'e_fc_d' => 'Email me when someone replies to a comment I made', //21
+        'e_fc_t' => '@@Reply to my comment@@', //20
+        'e_fc_d' => '@@Email me when someone replies to a comment I made@@', //21
 
         'e_fa' => '', //22
-        'e_fa_t' => 'New comment on my answer', //23
-        'e_fa_d' => 'Email me when someone comments on the answer I made' //24
+        'e_fa_t' => '@@New comment on my answer@@', //23
+        'e_fa_d' => '@@Email me when someone comments on the answer I made@@' //24
 
     );
 
 
-    protected static $tpl = '<form name="epForm" method="POST" action="/index.php" accept-charset="utf-8">
+    protected static $tpl = '<form name="epForm" method="POST" action="{_WEB_ROOT_}/" accept-charset="utf-8">
 		<input type="hidden" name="a" value="emailoptions">	
 		<input type="hidden" name="token" value="%1$s">
 	<div id="tools" class="email_options">

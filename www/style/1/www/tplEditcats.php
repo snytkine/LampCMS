@@ -78,12 +78,12 @@ class tplEditcats extends Lampcms\Template\Simple
         'cat_list' => '',
         'upload' => '',
         'save' => '',
-        'sort_manual' => 'Double click on category to edit. Drag and drop to sort. When done click "Save Sort order"'
+        'sort_manual' => '@@Double click on category to edit. Drag and drop to sort. When done click@@ "@@Save Sort order@@"'
     );
 
     protected static $tpl = '<div class="yui3-g">
 		<div class="yui3-u-1-3">
-			<form name="edit_category" method="POST" id="id_edit_category" enctype="multipart/form-data" action="/index.php"
+			<form name="edit_category" method="POST" id="id_edit_category" enctype="multipart/form-data" action="{_WEB_ROOT_}/"
 				accept-charset="utf-8">
 				<div id="add_category">
 					<h3>{manage_category}</h3>

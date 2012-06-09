@@ -67,23 +67,16 @@ class Pwd extends Form
 
     protected function init()
     {
-        $Tr = $this->Registry->Tr;
         $this->addValidator('login', function($val)
         {
 
             if (strlen($val) < 3) {
-                d('cp');
 
-                return 'Invalid. Please enter valid email or username';
+                return '@@Invalid. Please enter valid email or username@@';
             }
 
             return true;
         });
 
-        $this->aVars['title'] = $Tr['Forgotten password'];
-        $this->aVars['login_l'] = $Tr['Username OR Email Address'];
-        $this->aVars['login_d'] = $Tr['forgot_help'];
-        $this->aVars['submit'] = $Tr['Get Password'];
-        $this->aVars['required'] = $Tr['Required field'];
     }
 }

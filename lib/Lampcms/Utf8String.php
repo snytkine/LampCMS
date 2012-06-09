@@ -348,7 +348,7 @@ class Utf8String extends String
         // modifier is used, then it's valid UTF-8. If the UTF-8 is somehow
         // invalid, nothing at all will match, even if the string contains
         // some valid sequences
-        return (preg_match('/^.{1}/us', $utf8string, $ar) == 1);
+        return (\preg_match('/^.{1}/us', $utf8string, $ar) == 1);
 
         /**
          * The uti8ToUnicode sometimes crashes the php

@@ -69,6 +69,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
     Interfaces\BloggerUser,
     Interfaces\LinkedinUser
 {
+
     const COLLECTION = 'USERS';
 
     /**
@@ -77,6 +78,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      * This flag stays only during
      * the session, so for the whole duration of the session
      * we know that this is a new user
+     *
      * @var bool
      */
     protected $bNewUser = false;
@@ -108,9 +110,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
     /**
      * Factory method
      *
-     * @param object $Registry Registry object
+     * @param \Lampcms\Registry|object $Registry Registry object
      *
-     * @param array $a
+     * @param array                    $a
      *
      * @return object of this class
      */
@@ -124,7 +126,12 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms.ArrayDefaults::__get()
+     *
+     * @param string $name
+     *
+     * @return array|bool|int|mixed|null
      */
     public function __get($name)
     {
@@ -231,7 +238,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * Get string to display as user name
-     * preferrably it's a full name, but if
+     * preferably it's a full name, but if
      * user has not yet provided it, then
      * user just 'username'
      *
@@ -264,8 +271,10 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      *
      * @param string $sSize type of avatar: large, medium, tiny
      *
-     * @param bool $boolNoCache if true, then add a timestamp to url, making
-     * browser not to use cached version and to get a fresh new one
+     * @param bool   $noCache
+     *
+     * @internal param bool $boolNoCache if true, then add a timestamp to url, making
+     *           browser not to use cached version and to get a fresh new one
      *
      * @return string the HTML code for image src
      */
@@ -274,13 +283,14 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
         $strAvatar = '<img src="' . $this->getAvatarSrc($noCache) . '" class="img_avatar" width="40" height="40" border="0" alt="avatar">';
 
         return $strAvatar;
-
     }
 
 
     /**
      * Get only the http path to avatar without
      * the html img tag.
+     *
+     * @param bool $noCache
      *
      * @return string path to avatar image medium size
      */
@@ -300,7 +310,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
              * is enabled in !config.ini [GRAVATAR] section
              */
             if (empty($srcAvatar)) {
-                $email = $this->offsetGet('email');
+                $email     = $this->offsetGet('email');
                 $aGravatar = array();
                 try {
                     $aGravatar = $this->getRegistry()->Ini->getSection('GRAVATAR');
@@ -309,7 +319,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
                         return $aGravatar['url'] . hash('md5', $email) . '?s=' . $aGravatar['size'] . '&d=' . $aGravatar['fallback'] . '&r=' . $aGravatar['rating'];
                     }
 
-                } catch (\Exception $e) {
+                } catch ( \Exception $e ) {
                     e('exception: ' . $e->getMessage());
                 }
 
@@ -331,7 +341,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
              * like avatar from Twitter or FC or GFC
              *
              */
-            $this->avtrSrc = (0 === \strncmp($srcAvatar, 'http', 4)) ? $srcAvatar : LAMPCMS_AVATAR_IMG_SITE . PATH_WWW_IMG_AVATAR_SQUARE . $srcAvatar;
+            $this->avtrSrc = (0 === \strncmp($srcAvatar, 'http', 4)) ? $srcAvatar : '{_AVATAR_IMG_SITE_}{_DIR_}' . PATH_WWW_IMG_AVATAR_SQUARE . $srcAvatar;
 
             if ($noCache) {
                 $this->avtrSrc .= '?id=' . microtime(true); // helps browser to NOT cache this image
@@ -351,7 +361,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
     public function getProfileUrl()
     {
 
-        return '{_WEB_ROOT_}/{_users_}/' . $this->getUid() . '/' . $this->offsetGet('username');
+        return '{_WEB_ROOT_}/{_userinfo_}/' . $this->getUid() . '/' . $this->offsetGet('username');
     }
 
 
@@ -361,9 +371,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      *
      * @todo check if needs changing
      *
-     * @see classes/Zend/Acl/Role/Zend_Acl_Role_Interface#getRoleId()
+     * @see  classes/Zend/Acl/Role/Zend_Acl_Role_Interface#getRoleId()
      * @return string the value of user_group_id of user which
-     * serves as the role name in Zend_Acl
+     *       serves as the role name in Zend_Acl
      */
     public function getRoleId()
     {
@@ -381,6 +391,10 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      * to be one in the ACL file
      *
      * @param string $role
+     *
+     * @throws DevException
+     * @throws \InvalidArgumentException
+     * @return \Lampcms\User
      */
     public function setRoleId($role)
     {
@@ -409,6 +423,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * Get twitter user_id of user
+     *
      * @return int
      */
     public function getTwitterUid()
@@ -439,6 +454,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
     /**
      * Get oAuth token
      * that we got from Twitter for this user
+     *
      * @return string
      */
     public function getTwitterToken()
@@ -449,6 +465,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * Get oAuth sercret that we got for this user
+     *
      * @return string
      */
     public function getTwitterSecret()
@@ -459,7 +476,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.TwitterUser::getTwitterUsername()
+     * @return array|bool|int|mixed|null
      */
     public function getTwitterUsername()
     {
@@ -487,7 +506,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
          * we actually need to update the USERS_TWITTER Collection
          */
         $this->getRegistry()->Mongo->USERS_TWITTER->remove(array('_id' => $this->getTwitterUid()));
-        d('revoked Twitter token for user: ' . $uid);
+        d('revoked Twitter token for user: ' . $this->getUid());
 
         return $this;
     }
@@ -513,7 +532,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
         $this->save();
 
         $this->getRegistry()->Mongo->USERS_FACEBOOK->update(array('i_uid' => $this->getUid()), array('$set' => array('access_token' => '')));
-        d('revoked FB token for user: ' . $uid);
+        d('revoked FB token for user: ' . $this->getUid());
 
         return $this;
     }
@@ -521,7 +540,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.FacebookUser::getFacebookUid()
+     * @return string
      */
     public function getFacebookUid()
     {
@@ -555,7 +576,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.FacebookUser::getFacebookToken()
+     * @return array|bool|int|mixed|null
      */
     public function getFacebookToken()
     {
@@ -565,7 +588,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms.LampcmsArray::__toString()
+     * @return string
      */
     public function __toString()
     {
@@ -649,6 +674,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      * sure the $tz is a valid timezone name
      *
      * @param string $tz
+     *
+     * @throws DevException
+     * @return \Lampcms\User
      */
     public function setTimezone($tz)
     {
@@ -738,10 +766,11 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      * Check if this user has same userID
      * as user object passed to this method
      *
-     * @param User $user another User object
+     * @param \Lampcms\User $User
+     *
+     * @internal param \Lampcms\User $user another User object
      *
      * @return bool true if User object passed here has the same user id
-     *
      */
     public function equals(User $User)
     {
@@ -754,6 +783,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      * Test to see if this user has permission
      *
      * @param string $permission
+     *
      * @return bool true if User has this permission, false otherwise
      */
     public function isAllowed($permission)
@@ -765,8 +795,10 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
     /**
      * Change reputation score
      * Makes sure new score can never go lower than 1
+     *
      * @param int $iPoints
      *
+     * @throws DevException
      * @return object $this
      */
     public function setReputation($iPoints)
@@ -782,9 +814,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
         d('setting reputation for user: ' . $this->offsetGet('_id') . ' value: ' . $iNew);
         /**
          * @todo investigate where reputation is set directly
-         * using assignment operator $User['i_rep'] = $x
-         * and change it to use proper setReputation method
-         * then stop using parent::offsetSet()
+         *       using assignment operator $User['i_rep'] = $x
+         *       and change it to use proper setReputation method
+         *       then stop using parent::offsetSet()
          */
         parent::offsetSet('i_rep', $iNew);
 
@@ -816,10 +848,10 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      */
     public function getLocation()
     {
-        $cc = $this->offsetGet('cc');
-        $cn = $this->offsetGet('cn');
+        $cc    = $this->offsetGet('cc');
+        $cn    = $this->offsetGet('cn');
         $state = $this->offsetGet('state');
-        $city = $this->offsetGet('city');
+        $city  = $this->offsetGet('city');
 
         $ret = '';
 
@@ -878,7 +910,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
             return '';
         }
 
-        $oDOB = new \DateTime($dob);
+        $oDOB  = new \DateTime($dob);
         $oDiff = $oDOB->diff(new \DateTime(), true);
 
         return $oDiff->format("%y");
@@ -922,6 +954,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * Get array of all user's blogs
+     *
      * @return mixed array of at least one blog | null
      * if user does not have any blogs (not a usual situation)
      *
@@ -939,6 +972,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * Get oAuth sercret that we got for this user
+     *
      * @return string
      */
     public function getTumblrSecret()
@@ -1002,7 +1036,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      * it's automatically is default blog
      *
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.TumblrUser::getTumblrBlogTitle()
+     * @return string
      */
     public function getTumblrBlogTitle()
     {
@@ -1025,7 +1061,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      * it's automatically is default blog
      *
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.TumblrUser::getTumblrBlogUrl()
+     * @return string
      */
     public function getTumblrBlogUrl()
     {
@@ -1042,7 +1080,10 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.TumblrUser::getTumblrBlogId()
+     * @throws DevException
+     * @return null|string
      */
     public function getTumblrBlogId()
     {
@@ -1066,7 +1107,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.BloggerUser::getBloggerToken()
+     * @return null
      */
     public function getBloggerToken()
     {
@@ -1081,7 +1124,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.BloggerUser::getBloggerSecret()
+     * @return mixed null|string
      */
     public function getBloggerSecret()
     {
@@ -1096,7 +1141,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.BloggerUser::revokeBloggerToken()
+     * @return \Lampcms\User
      */
     public function revokeBloggerToken()
     {
@@ -1112,6 +1159,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * Get html for the link to Blogger blog
+     *
      * @return string html of link
      */
     public function getBloggerBlogLink()
@@ -1134,6 +1182,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * Get array of all user's blogs
+     *
      * @return mixed array of at least one blog | null
      * if user does not have any blogs (not a usual situation)
      *
@@ -1151,7 +1200,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.BloggerUser::getBloggerBlogTitle()
+     * @return string
      */
     public function getBloggerBlogTitle()
     {
@@ -1166,7 +1217,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.BloggerUser::getBloggerBlogUrl()
+     * @return string
      */
     public function getBloggerBlogUrl()
     {
@@ -1180,9 +1233,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
 
     /**
+     * @throws DevException
      * @return string value to be used as '<blogid>' param
      * in WRITE API call
-     *
      */
     public function getBloggerBlogId()
     {
@@ -1197,7 +1250,12 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.BloggerUser::setBloggerBlogs()
+     *
+     * @param array $blogs
+     *
+     * @return \Lampcms\User
      */
     public function setBloggerBlogs(array $blogs)
     {
@@ -1216,19 +1274,24 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      * but instead use proper setter methods
      *
      * @todo must go over all classes and see
-     * which classes set values directly using
+     *       which classes set values directly using
      * ->offsetSet or as assignment
-     * and add some of the more important
-     * keys here. For example: language, locale,
+     *       and add some of the more important
+     *       keys here. For example: language, locale,
      * ,username(maybe), pwd(maybe), email,
-     * timezone should go through validation
+     *       timezone should go through validation
      *
      * (non-PHPdoc)
-     * @see ArrayObject::offsetSet()
+     * @see  ArrayObject::offsetSet()
+     *
+     * @param mixed $index
+     * @param mixed $newval
+     *
+     * @throws DevException
      */
     public function offsetSet($index, $newval)
     {
-        switch ($index) {
+        switch ( $index ) {
             case 'role':
                 throw new DevException('User Role cannot be set directly, must be set using setRoleId() method');
                 //$this->setRoleId($newval);
@@ -1302,6 +1365,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * Get html for the link to tumblr blog
+     *
      * @return string html of link
      */
     public function getLinkedinUrl()
@@ -1313,6 +1377,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * Get html for the link to LinedIn Profile
+     *
      * @return string html of link
      */
     public function getLinkedinLink()
@@ -1349,6 +1414,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      *
      *
      * (non-PHPdoc)
+     *
      * @see Lampcms\Mongo.Doc::__destruct()
      */
     public function __destruct()
@@ -1357,9 +1423,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     public function serialize()
     {
-        $a = array('array' => $this->getArrayCopy(),
-            'md5' => $this->md5,
-            'bSaved' => $this->bSaved
+        $a = array('array'  => $this->getArrayCopy(),
+                   'md5'    => $this->md5,
+                   'bSaved' => $this->bSaved
         );
 
         return serialize($a);
@@ -1368,15 +1434,18 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms.ArrayDefaults::unserialize()
+     *
+     * @param string $serialized
      */
     public function unserialize($serialized)
     {
         $a = unserialize($serialized);
         $this->exchangeArray($a['array']);
         $this->collectionName = 'USERS';
-        $this->bSaved = $a['bSaved'];
-        $this->keyColumn = '_id';
-        $this->md5 = $a['md5'];
+        $this->bSaved         = $a['bSaved'];
+        $this->keyColumn      = '_id';
+        $this->md5            = $a['md5'];
     }
 }

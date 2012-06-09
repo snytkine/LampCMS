@@ -111,6 +111,19 @@ class Unanswered extends Viewquestions
      */
     protected $rawTags = '';
 
+    /**
+     * Overrides the use of $this->Router->getRealPageID
+     * because we don't want a possibility of
+     * extracting pageID from a tag name when a tag contains number
+     *
+     * @return object $this
+     */
+    public function setPageID()
+    {
+        $this->pageID = (int)$this->Router->getPageID();
+
+        return $this;
+    }
 
     /**
      * Select items according to conditions passed in GET
@@ -123,7 +136,7 @@ class Unanswered extends Viewquestions
 
         $urlParts = $this->Registry->Ini->getSection('URI_PARTS');
 
-        $cond = $this->Registry->Router->getSegment(1, 's', 'recent');
+        $cond = $this->Router->getSegment(1, 's', $urlParts['SORT_RECENT']);
         d('cond: ' . $cond);
 
         /**
@@ -132,11 +145,8 @@ class Unanswered extends Viewquestions
          *
          */
         $sort = array('i_ts' => -1);
-        /**
-         * @todo translate this title later
-         *
-         */
-        $this->title = $this->_('Questions with no accepted answer');
+
+        $this->title = '@@Questions with no accepted answer@@';
 
         switch ( $cond ) {
 
@@ -151,7 +161,7 @@ class Unanswered extends Viewquestions
              * uncache onQuestionVote, onQuestionComment
              */
             case $urlParts['COND_NOANSWERS']:
-                $this->title = $this->_('Questions with no answers');
+                $this->title = '@@Questions with no answers@@';
                 $this->pagerPath .= '/{_COND_NOANSWERS_}';
                 $where         = array('i_ans' => 0);
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQuntypes', 'noanswer');
@@ -166,7 +176,7 @@ class Unanswered extends Viewquestions
 
                 $replaced = array(
                     'tags' => \str_replace(' ', ' + ', $this->tags),
-                    'text' => $this->_('Tagged')
+                    'text' => '@@Tagged@@'
                 );
 
                 $this->counterTaggedText = \tplCounterblocksub::parse($replaced, false);
@@ -177,7 +187,7 @@ class Unanswered extends Viewquestions
              * with no selected answer!
              */
             default:
-                $this->title   = $this->_('Questions with no accepted answer');
+                $this->title   = '@@Questions with no accepted answer@@';
                 $where         = array('i_sel_ans' => null);
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQuntypes', 'newest');
         }
@@ -267,7 +277,7 @@ class Unanswered extends Viewquestions
                 $this->tags = \urldecode($tags);
             }
 
-
+            $this->rawTags = $this->tags;
             /**
              * Important step to prevent
              * script or html injection in url GET string
@@ -277,7 +287,7 @@ class Unanswered extends Viewquestions
              */
             $this->tags = \str_replace(array('<', '>'), array('&lt;', '&gt;'), $this->tags);
 
-            $this->rawTags = $tags; //TagsTokenizer::factory($Utf8Tags)->getArrayCopy();
+           // $this->rawTags = $tags; //TagsTokenizer::factory($Utf8Tags)->getArrayCopy();
             $this->title   = $this->tags;
 
             if (empty($this->tags)) {
@@ -335,7 +345,7 @@ class Unanswered extends Viewquestions
         }
 
         $tags                    = \tplBoxrecent::parse(array('tags'  => $s,
-                                                              'title' => $this->_('Unanswered tags')));
+                                                              'title' => '@@Unanswered tags@@'));
         $this->aPageVars['tags'] = $tags;
 
         return $this;
@@ -381,17 +391,17 @@ class Unanswered extends Viewquestions
             $aVars = array(
                 'id'    => $tag,
                 'icon'  => 'cplus',
-                'label' => $this->_('Follow this tag'),
+                'label' => '@@Follow this tag@@',
                 'class' => 'follow',
                 'type'  => 't',
-                'title' => $this->_('Follow this tag to be notified when new questions are added')
+                'title' => '@@Follow this tag to be notified when new questions are added@@'
             );
 
             if (in_array($tag, $aFollowed)) {
-                $aVars['label'] = $this->_('Following');
+                $aVars['label'] = '@@Following@@';
                 $aVars['class'] = 'following';
                 $aVars['icon']  = 'check';
-                $aVars['title'] = $this->_('You are following this tag');
+                $aVars['title'] = '@@You are following this tag@@';
             }
 
             $this->aPageVars['side'] = '<div class="fr cb w90 lg rounded3 pl10 mb10"><div class="follow_wrap">' . \tplFollowButton::parse($aVars, false) . '</div></div>';

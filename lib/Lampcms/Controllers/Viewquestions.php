@@ -131,9 +131,8 @@ class Viewquestions extends WebPage
     protected function main()
     {
 
-        $this->pageID = (int)$this->Request->getPageID();
-
-        $this->getCursor()
+        $this->setPageID()
+            ->getCursor()
             ->paginate()
             ->sendCacheHeaders();
 
@@ -149,9 +148,18 @@ class Viewquestions extends WebPage
     }
 
 
+    public function setPageID()
+    {
+        $this->pageID = (int)$this->Router->getRealPageID();
+
+        return $this;
+    }
+
+
     /**
      * Select items according to conditions passed in GET
      * Conditions can be == 'unanswered', 'hot', 'recent' (default)
+     *
      * @return \Lampcms\Controllers\Viewquestions
      */
     protected function getCursor()
@@ -256,7 +264,8 @@ class Viewquestions extends WebPage
         d('paginating with $this->pagerPath: ' . $this->pagerPath);
         $Paginator = Paginator::factory($this->Registry);
         $Paginator->paginate($this->Cursor, $this->PER_PAGE,
-            array('currentPage' => $this->pageID, 'path' => '{_WEB_ROOT_}/' . $this->pagerPath));
+            array('currentPage' => $this->pageID,
+                  'path'        => '{_WEB_ROOT_}/' . $this->pagerPath));
 
         $this->pagerLinks = $Paginator->getLinks();
 

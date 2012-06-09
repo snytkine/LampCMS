@@ -68,7 +68,7 @@ class tplSelectrole extends \Lampcms\Template\Fast
     );
 
     protected static $tpl = '<div class="usr_roles fl cb">
-	<form name="role" method="post" action="/index.php">
+	<form name="role" method="post" action="{_WEB_ROOT_}/">
 	<input type="hidden" name="a" value="usergroup">
 	<input type="hidden" name="token" value="%1$s">
 	<input type="hidden" name="uid" value="%2$s">
@@ -76,7 +76,7 @@ class tplSelectrole extends \Lampcms\Template\Fast
 	%3$s
 	</select>
 	<br>
-	<input type="submit" value="Save">
+	<input type="submit" value="@@Save@@">
 	</form>
 	</div>
 	%4$s

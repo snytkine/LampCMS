@@ -130,7 +130,7 @@ class tplMain extends Lampcms\Template\Fast
 	 <div id="loginHead" class="doc3">
 	 	<div class="fl w40">
 	 	<div class="icn home"></div>
-	 		<a href="{_WEB_ROOT_}">@@Home@@</a>
+	 		<a href="{_WEB_ROOT_}/">@@Home@@</a>
 	 	</div>
 	 	%16$s
 	 </div>

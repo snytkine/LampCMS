@@ -66,7 +66,7 @@ class tplFormanswer extends Lampcms\Template\Fast
 	<div id="answer_form" class="form_wrap">
 	<h4 class="form_title">%11$s</h4>
 	<div class="form_error">%10$s</div>
-		<form class="qa_form" name="ansForm" method="POST" action="{_WEB_ROOT_}" accept-charset="utf-8">
+		<form class="qa_form" name="ansForm" method="POST" action="{_WEB_ROOT_}/" accept-charset="utf-8">
 		<input type="hidden" name="a" value="answer">
 		<input type="hidden" name="qid" value="%12$s">	
 		<input type="hidden" name="token" value="%1$s">

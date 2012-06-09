@@ -54,14 +54,14 @@ namespace Lampcms;
 
 const JS_MIN_ID = '122411';
 
-const LF = "\n";
-const CR = "\r";
+const LF   = "\n";
+const CR   = "\r";
 const CRLF = "\r\n";
-const DS = DIRECTORY_SEPARATOR;
-const HR = '<hr/>';
+const DS   = DIRECTORY_SEPARATOR;
+const HR   = '<hr/>';
 const LINE = "\n---------------------------------------------------------------\n";
-const BR = '<br/>';
-const LB = "\n<br/>";
+const BR   = '<br/>';
+const LB   = "\n<br/>";
 
 
 /**
@@ -73,6 +73,7 @@ const LB = "\n<br/>";
  * to be named 'htdocs' or something else, then you would
  * copy everything from 'www' to this 'htdocs' and then
  * put 'htdocs' as a value of WWW_DIR here
+ *
  * @deprecated
  */
 //const WWW_DIR = 'www';
@@ -89,7 +90,7 @@ const LB = "\n<br/>";
  * LAMPCMS_AVATAR_IMG_SITE and IMG_SITE
  * can changed because they can be hosted on a
  * remote server somewhere, but these relative paths
- * shoud be the same even if avatars and images
+ * should be the same even if avatars and images
  * are hosted on a different remote servers
  *
  */
@@ -144,6 +145,7 @@ const DIR_XXX = 'xxx';
  *
  * @param unknown_type $callable
  *
+ * @throws Exception
  */
 function runLater($callable)
 {
@@ -160,6 +162,7 @@ function runLater($callable)
  * from tokenizer result
  *
  * @var array
+ * @return array
  */
 function getStopwords()
 {
@@ -173,7 +176,9 @@ function getStopwords()
  * Array of reserved accounts
  * User will not be allowed to register with
  * these accounts
+ *
  * @var array
+ * @return array
  */
 function getReservedNames()
 {
@@ -216,7 +221,10 @@ function getReservedNames()
 /**
  *
  * Prepare email headers
+ *
  * @param array $aHeaders in the header name/value format
+ *
+ * @return string
  */
 function prepareHeaders(array $aHeaders)
 {
@@ -230,8 +238,10 @@ function prepareHeaders(array $aHeaders)
 
 /**
  * Check to see if User $user is owner of Resource $resource
- * @param Resource $resource
- * @param User $user
+ *
+ * @param User                                      $user
+ *
+ * @param \Lampcms\Interfaces\LampcmsResource       $resource
  *
  * @return bool true if User is owner of Resource
  */
@@ -249,13 +259,14 @@ function isOwner(User $user, \Lampcms\Interfaces\LampcmsResource $resource)
  * the String and Array objects
  *
  * @Important Always include this file, it contains
- * several classes that we always need
+ *            several classes that we always need
  *
- * @author Dmitri Snytkine
+ * @author    Dmitri Snytkine
  *
  */
 class LampcmsObject implements Interfaces\LampcmsObject
 {
+
     /**
      * Every LampcmsObject has Registry object
      *
@@ -267,15 +278,15 @@ class LampcmsObject implements Interfaces\LampcmsObject
      * Default constructor
      *
      * @todo We really MUST require all LampcmsObjects to
-     * follow the same constructor patters where it only accepts
-     * Registry object.
-     * But requiring it by making this method 'final'
-     * will make this object a lot less flexible.
-     * So, for now it is up to the concrete class to make
-     * their own constructor
-     * BUT, this is IMPORTANT: a concrete class
-     * should alwasy take the Registry as the first param
-     * and make all other params optional (have default values)
+     *       follow the same constructor patters where it only accepts
+     *       Registry object.
+     *       But requiring it by making this method 'final'
+     *       will make this object a lot less flexible.
+     *       So, for now it is up to the concrete class to make
+     *       their own constructor
+     *       BUT, this is IMPORTANT: a concrete class
+     *       should alwasy take the Registry as the first param
+     *       and make all other params optional (have default values)
      *
      * @param object Registry $Registry
      */
@@ -289,6 +300,7 @@ class LampcmsObject implements Interfaces\LampcmsObject
      * or constructor
      *
      * @param Registry $Registry
+     *
      * @return \Lampcms\LampcmsObject
      */
     public static function factory(Registry $Registry)
@@ -314,6 +326,7 @@ class LampcmsObject implements Interfaces\LampcmsObject
 
     /**
      * Getter of the class name
+     *
      * @return string the class name of this object
      */
     public function getClass()
@@ -324,6 +337,7 @@ class LampcmsObject implements Interfaces\LampcmsObject
 
     /**
      * Outputs the name and uniqe code of this object
+     *
      * @return string
      */
     public function __toString()
@@ -346,7 +360,7 @@ class LampcmsObject implements Interfaces\LampcmsObject
 
 /**
  * Array object
- * whith few extra methods
+ * with few extra methods
  *
  * @author Dmitri Snytkine
  *
@@ -367,7 +381,9 @@ class LampcmsArray extends \ArrayObject implements \Serializable, Interfaces\Lam
 
     /**
      * (non-PHPdoc)
+     *
      * @see ArrayObject::serialize()
+     * @return string|void
      */
     public function serialize()
     {
@@ -379,7 +395,10 @@ class LampcmsArray extends \ArrayObject implements \Serializable, Interfaces\Lam
 
     /**
      * (non-PHPdoc)
+     *
      * @see ArrayObject::unserialize()
+     *
+     * @param string $serialized
      */
     public function unserialize($serialized)
     {
@@ -400,6 +419,7 @@ class LampcmsArray extends \ArrayObject implements \Serializable, Interfaces\Lam
      * in existing array if keys are the same.
      *
      * @param array $a
+     *
      * @return object $this
      */
     public function addArray(array $a)
@@ -415,10 +435,12 @@ class LampcmsArray extends \ArrayObject implements \Serializable, Interfaces\Lam
     /**
      * Merge the array represented in the object
      * with the input array and return the result array
+     *
      * @param mixed $arr array or ArrayObject object
+     *
+     * @throws \InvalidArgumentException if argument is not an array and not ArrayObject object
      * @return array a result array
      *
-     * @throws InvalidArgumentException if argument is not an array and not ArrayObject object
      */
     public function getMerged($arr)
     {
@@ -453,6 +475,7 @@ class LampcmsArray extends \ArrayObject implements \Serializable, Interfaces\Lam
 
     /**
      * Getter of the class name
+     *
      * @return string the class name of this object
      */
     public function getClass()
@@ -463,7 +486,9 @@ class LampcmsArray extends \ArrayObject implements \Serializable, Interfaces\Lam
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.LampcmsObject::__toString()
+     * @return string
      */
     public function __toString()
     {
@@ -486,9 +511,9 @@ class ArrayDefaults extends LampcmsArray
     /**
      * Constructor
      *
-     * @param array $a underlying array represented by this object
+     * @param array  $a          underlying array represented by this object
      * @param string $defaultVal value to return in case
-     * the element does not exist in array
+     *                           the element does not exist in array
      */
     public function __construct(array $a = array(), $defaultVal = null)
     {
@@ -515,7 +540,12 @@ class ArrayDefaults extends LampcmsArray
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms.LampcmsArray::__isset()
+     *
+     * @param string $name
+     *
+     * @return bool
      */
     public function __isset($name)
     {
@@ -524,7 +554,7 @@ class ArrayDefaults extends LampcmsArray
 
 
     /**
-     * This checks wheather index really exists
+     * This checks if index really exists
      * since we can no longer rely on the
      * offsetExists() in this object,
      * we are asking a parent object
@@ -538,6 +568,7 @@ class ArrayDefaults extends LampcmsArray
      * Ideally this function should be eliminated
      *
      * @param string $name
+     *
      * @return bool
      */
     public final function checkOffset($name)
@@ -554,6 +585,7 @@ class ArrayDefaults extends LampcmsArray
      * instead of raising error
      *
      * @param string $name
+     *
      * @return unknown
      */
     public function offsetGet($name)
@@ -571,6 +603,7 @@ class ArrayDefaults extends LampcmsArray
      * Setter for $this->defaultValue
      *
      * @param mixed $val
+     *
      * @return object $this
      */
     public function setDefaultValue($val)
@@ -618,6 +651,7 @@ class ArrayDefaults extends LampcmsArray
      * $this->defaultValue
      *
      * @param string $name
+     *
      * @return mixed
      */
     public function __get($name)
@@ -628,17 +662,23 @@ class ArrayDefaults extends LampcmsArray
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms.LampcmsArray::serialize()
+     * @return string|void
      */
     public function serialize()
     {
-        return serialize(array('array' => $this->getArrayCopy(), 'default' => $this->defaultValue));
+        return serialize(array('array'   => $this->getArrayCopy(),
+                               'default' => $this->defaultValue));
     }
 
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms.LampcmsArray::unserialize()
+     *
+     * @param string $serialized
      */
     public function unserialize($serialized)
     {

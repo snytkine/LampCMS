@@ -49,10 +49,10 @@ class tplQuntypes extends Lampcms\Template\Fast
     protected static $vars = array(
         'newest_c' => '',
         'noanswer_c' => '',
-        'newest' => 'Unanswered',
-        'newest_t' => 'Questions with no accepted answer',
-        'noanswer' => 'No Answers',
-        'noanswer_t' => 'Questions with no answers');
+        'newest' => '@@Unanswered@@',
+        'newest_t' => '@@Questions with no accepted answer@@',
+        'noanswer' => '@@No Answers@@',
+        'noanswer_t' => '@@Questions with no answers@@');
 
     protected static $tpl = '
 	<div id="qtypes">

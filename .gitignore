@@ -2,3 +2,7 @@
 /config/!config.ini
 /config/acl.ini
 /www/bootstrap.php
+/www/sandbox/
+/www/img/tmp/
+.idea
+.gitignore

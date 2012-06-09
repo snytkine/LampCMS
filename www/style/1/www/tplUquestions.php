@@ -99,9 +99,9 @@ class tplUquestions extends \Lampcms\Template\Fast
 	    </div>
     <!-- //statsdiv -->
     <div class="smmry2">
-        <a href="/q%1$s/%5$s" class="ql" title="%6$s">%7$s</a><br>
+        <a href="{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}%1$s/%5$s" class="ql" title="%6$s">%7$s</a><br>
         <div class="tgs2 %8$s">%9$s</div>
-        <div class="asked2"><span rel="in">asked </span><span title="%13$s" class="ts" rel="time">%13$s</span></div>
+        <div class="asked2"><span rel="in">@@asked@@ </span><span title="%13$s" class="ts" rel="time">%13$s</span></div>
             
     </div>
     <!-- //smmry -->

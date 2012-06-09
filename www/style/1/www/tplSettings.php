@@ -41,12 +41,9 @@ class tplSettings extends \Lampcms\Template\Fast
 
     protected static $vars = array(
         'confirmation' => '', // 1
-        'change_password' => 'Change password', // 2
-        'profile' => 'Profile', //3
-        'profileUrl' => '/editprofile/', //4
-        'emailPrefs' => 'Email stuff', // 5
-        'clearCache' => '', //6
-        'editCategories' => '' //7
+        'profileUrl' => '{_WEB_ROOT_}/{_editprofile_}/', //2
+        'clearCache' => '', //3
+        'editCategories' => '' //4
     );
 
 
@@ -55,17 +52,17 @@ class tplSettings extends \Lampcms\Template\Fast
 	%1$s
 		<div class="tool"> 
 			<div class="icn profile">&nbsp;</div> 
-			<div class="tool_link"><a href="%4$s">%3$s</a></div> 
+			<div class="tool_link"><a href="{_WEB_ROOT_}/{_editprofile_}/">@@Profile@@</a></div>
 		</div>
 		<div class="tool"> 
 			<div class="icn emailprefs">&nbsp;</div> 
-			<div class="tool_link"><a href="{_WEB_ROOT_}/{_emailoptions_}/">%5$s</a></div>
+			<div class="tool_link"><a href="%2$s">@@Email Preferences@@</a></div>
 		</div>  
 		<div class="tool"> 
 			<div class="icn changepass">&nbsp;</div> 
-			<div class="tool_link"><a href="{_WEB_ROOT_}/{_changepwd_}/">%2$s</a></div>
+			<div class="tool_link"><a href="{_WEB_ROOT_}/{_changepwd_}/">@@Change password@@</a></div>
 		</div> 
-		%6$s
-		%7$s
+		%3$s
+		%4$s
 	</div>';
 }
