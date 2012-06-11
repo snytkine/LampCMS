@@ -332,7 +332,7 @@ class MySQL implements Search
      * @param \Lampcms\Question $Question
      *
      * @throws \Exception
-     * @internal param bool $ret indicats that this is a retry
+     * @internal param bool $ret indicates that this is a retry
      *           and prevents against retrying calling itself
      *           more than once
      *

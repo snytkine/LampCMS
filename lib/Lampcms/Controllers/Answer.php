@@ -58,7 +58,7 @@ use \Lampcms\SubmittedAnswerWWW;
 
 /**
  * Controller for processing the answer form
- * It extends wwwViewquestion because in case of form validation
+ * It extends Viewquestion because in case of form validation
  * we will be able to just return the page with question plus
  * the same form with errors added to it.
  *
@@ -120,7 +120,7 @@ class Answer extends Viewquestion
         $oAdapter = new AnswerParser($this->Registry);
         try {
             $Answer = $oAdapter->parse(new SubmittedAnswerWWW($this->Registry, $formVals));
-            d('cp created new answer: ' . print_r($Answer->getArrayCopy(), 1));
+            d('cp created new answer: ' . \print_r($Answer->getArrayCopy(), 1));
             d('ans id: ' . $Answer->getResourceId());
 
             /**
@@ -144,7 +144,7 @@ class Answer extends Viewquestion
                  * must alreayd be included in the returned html
                  *
                  */
-                $aAnswer['edit_delete'] = ' <span class="ico del ajax" title="Delete">delete</span>  <span class="ico edit ajax" title="Edit">edit</span>';
+                $aAnswer['edit_delete'] = ' <span class="ico del ajax" title="@@Delete@@">@@delete@@</span>  <span class="ico edit ajax" title="@@Edit@@">@@edit@@</span>';
 
                 $a = array('answer' => \tplAnswer::parse($aAnswer));
                 d('before sending out $a: ' . print_r($a, 1));

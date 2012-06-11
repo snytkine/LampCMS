@@ -66,7 +66,7 @@ class tplUnanstags extends Lampcms\Template\Fast
 
     protected static $tpl = '
 	<div class="t2 t-%1$s">
-	<a href="{_WEB_ROOT_}/{_unanswered_}/tagged/%3$s/" title="Unanswered questions tagged \'%1$s\'">%1$s</a>
+	<a href="{_WEB_ROOT_}/{_unanswered_}/tagged/%3$s/" title="@@Unanswered questions tagged@@ \'%1$s\'">%1$s</a>
 	<span>&times;&nbsp;%2$s</span>
 	</div>';
 

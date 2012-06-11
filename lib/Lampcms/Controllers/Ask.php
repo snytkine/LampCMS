@@ -70,7 +70,7 @@ class Ask extends Askform
 
     protected function main()
     {
-        $this->aPageVars['title'] = $this->_('Ask a question');
+        $this->aPageVars['title'] = '@@Ask a question@@';
 
         //$a = $this->Registry->Request->getArray();
         //d('request: '.print_r($a, 1).' POST: '.print_r($_POST, 1));

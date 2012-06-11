@@ -91,6 +91,7 @@ class UserTags extends LampcmsObject
      *
      * @param int $uid
      * @param Question $Question
+     * @return \Lampcms\UserTags
      */
     public function addTags($uid, \Lampcms\Question $Question)
     {
@@ -129,14 +130,14 @@ class UserTags extends LampcmsObject
          * order by count and same to collection
          */
         if (empty($a)) {
-            $aTemp = array_count_values($aTags);
+            $aTemp = \array_count_values($aTags);
 
 
         } else {
             $aTemp = $a['tags'];
             foreach ($aTags as $t) {
                 /**
-                 * Under no cercumstances should we allow
+                 * Under no circumstances should we allow
                  * an empty value to make its way into this array
                  * since this array is indexed and empty values
                  * in index may cause very bad times in Mongo.
@@ -172,6 +173,9 @@ class UserTags extends LampcmsObject
      * for all tags in the removed question
      *
      * @param Question $Question
+     * @param null     $uid
+     *
+     * @return \Lampcms\UserTags
      */
     public function removeTags(Question $Question, $uid = null)
     {
@@ -191,7 +195,7 @@ class UserTags extends LampcmsObject
          * Extra precaution to filter out
          * empty values
          */
-        $aTags = array_filter($aTags);
+        $aTags = \array_filter($aTags);
 
         $coll = $this->Registry->Mongo->getCollection(self::USER_TAGS);
         $a = $coll->findOne(array('_id' => $uid));
@@ -217,7 +221,7 @@ class UserTags extends LampcmsObject
          * Remove empty values
          * in case a count of tags has reached 0
          * in the process.
-         * Otherwise bad times will happend as an empty value
+         * Otherwise bad times will happen as an empty value
          * will make its way into Mongo Index since this
          * array is indexed. Mongo does not allow empty values
          * in index and will throw exception or error
@@ -225,7 +229,7 @@ class UserTags extends LampcmsObject
          */
         $aUserTags = \array_filter($aUserTags);
 
-        arsort($aUserTags, SORT_NUMERIC);
+        \arsort($aUserTags, SORT_NUMERIC);
 
         $coll->save(array('_id' => $uid, 'tags' => $aUserTags, 'i_count' => count($aUserTags)), array('fsync' => true));
 

@@ -76,7 +76,7 @@ class tplUserAnswers extends Lampcms\Template\Fast
 	<span class="counter cb fl larger bold">%1$s %2$s%4$s</span> 
 		<div id="uanswers">
 		%3$s
-		</div> <!-- // uquestions -->
+		</div>
 		<div class="qpages reveal hidden">%5$s</div>
 	</div> 
 	<!-- // user_tags  -->

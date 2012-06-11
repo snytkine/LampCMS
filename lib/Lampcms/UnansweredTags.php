@@ -86,7 +86,9 @@ class UnansweredTags extends LampcmsObject
      * Increases count for each tag
      * in tags from supplied question
      *
-     * @param object $Question
+     * @param \Lampcms\Question|object $Question
+     *
+     * @return \Lampcms\UnansweredTags
      */
     public function set(Question $Question)
     {
@@ -109,7 +111,7 @@ class UnansweredTags extends LampcmsObject
 
 
     /**
-     * Decrseases count of tag for given question
+     * Decreases count of tag for given question
      * or completely removes that tag if count
      * is already at 1 because it does not make
      * sense to keep tag with a count of 0
@@ -119,6 +121,9 @@ class UnansweredTags extends LampcmsObject
      * the question object to it
      *
      * @param Question $Question
+     *
+     * @throws \InvalidArgumentException
+     * @return
      */
     public function remove($Question)
     {

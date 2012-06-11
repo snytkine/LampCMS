@@ -331,7 +331,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
              * then return default image
              */
             if (empty($srcAvatar)) {
-                return LAMPCMS_IMAGE_SITE . '/images/avatar.png';
+                return '{_IMAGE_SITE_}{_DIR_}/images/avatar.png';
             }
 
             /**

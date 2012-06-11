@@ -330,6 +330,7 @@ SORT_VOTED = voted
 SORT_POPULAR = popular
 TAG_NAME = name
 SORT_RECENT = recent
+SORT_UPDATED = updated
 SORT_OLDEST = oldest
 SORT_BEST = best
 SORT_VIEWS = views

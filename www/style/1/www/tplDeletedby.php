@@ -74,12 +74,12 @@ class tplDeletedby extends \Lampcms\Template\Fast
 
     protected static $tpl = '
 	<div class="usr_info deletedby">
-            <div class="qtime">Deleted on %5$s</div>
+            <div class="qtime">@@Deleted on@@ %5$s</div>
             <div class="avtr32">
              <img src="%3$s" height="32" width="32" alt="">
             </div>
             	<div class="usr_details">By: 
-            	 <a href="/users/%2$s/%1$s">%1$s</a><br>
+            	 <a href="{_WEB_ROOT_}/{_userinfo_}/%2$s/%1$s">%1$s</a><br>
 				</div>
 				<div class="reason cb fl">%4$s</div>
 			</div>';

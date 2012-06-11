@@ -120,7 +120,7 @@ class Urhere extends LampcmsObject
      */
     public function get($tpl, $current = '', array $vars = null, $func = null)
     {
-        $Tr = $this->Registry->Tr;
+
         $template = ('tplToptabs' === $tpl && (LAMPCMS_CATEGORIES & 3) ) ? 'tplToptabsWithCategory': $tpl;
         $aVars = $template::getVars();
         if (\array_key_exists($current . '_c', $aVars)) {
@@ -143,6 +143,8 @@ class Urhere extends LampcmsObject
 
     /**
      * Apply Translation to some template strings
+     *
+     * @todo stop doing translation here, just set the placeholders for strings
      *
      * @param string $template
      * @param array $vars passed by reference

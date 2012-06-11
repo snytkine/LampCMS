@@ -150,7 +150,7 @@ class Doc extends LampcmsArray implements \Serializable
 
 
     /**
-     * Array of fileds that should be ignored
+     * Array of fields that should be ignored
      * when saving to DB (unset these before saving array)
      *
      */
@@ -186,20 +186,23 @@ class Doc extends LampcmsArray implements \Serializable
 
     /**
      * Constructor
-     * @param object $Registry registry object
-     * @param string $collectionName name of Mongo Collection in which
-     * data of this document belongs
      *
-     * @param string $default means this value will be returned when
-     * the array key does not exist. Usually this is empty string, but you can
-     * set it to null or false, whatever you want to use for a default (fallback)
-     * value of any array key
+     * @param \Lampcms\Registry|object $Registry       registry object
+     * @param string                   $collectionName name of Mongo Collection in which
+     *                                                 data of this document belongs
      *
-     * @todo instead may try to pass Mongo/DB, Dispatcher, Incrementor
-     * and have getMongo() instead of getRegistry()
-     * the idea is not to have reference to Registry object in here
-     * Must first look into all child classes to see if they may need
-     * access to Registry for any other reasons
+     * @param array                    $a
+     *
+     * @internal param string $default means this value will be returned when
+     *           the array key does not exist. Usually this is empty string, but you can
+     *           set it to null or false, whatever you want to use for a default (fallback)
+     *           value of any array key
+     *
+     * @todo     instead may try to pass Mongo/DB, Dispatcher, Incrementor
+     *           and have getMongo() instead of getRegistry()
+     *           the idea is not to have reference to Registry object in here
+     *           Must first look into all child classes to see if they may need
+     *           access to Registry for any other reasons
      */
     public function __construct(Registry $Registry, $collectionName = null, array $a = array())
     {
@@ -217,8 +220,11 @@ class Doc extends LampcmsArray implements \Serializable
     /**
      * Setter for $this->minAutoIncrement
      *
-     * @param mixed string|int $val if string then must
-     * be numeric string
+     * @param $val
+     *
+     * @internal param int|string $mixed $val if string then must
+     *           be numeric string
+     * @return \Lampcms\Mongo\Doc (this object)
      */
     public function setMinAutoIncrement($val)
     {
@@ -246,14 +252,19 @@ class Doc extends LampcmsArray implements \Serializable
      * or to boolean if key starts with 'b_'
      *
      * (non-PHPdoc)
+     *
      * @see ArrayDefaults::offsetGet()
+     *
+     * @param mixed $name
+     *
+     * @return array|bool|int|mixed|null
      */
     public function offsetGet($name)
     {
 
         $ret = !$this->offsetExists($name) ? null : parent::offsetGet($name);
 
-        d(' looking for ' . $name . ' getting: ' . var_export($ret, true));
+        d(' looking for ' . $name . ' getting: ' . \var_export($ret, true));
         $prefix = \substr($name, 0, 2);
         switch ($prefix) {
             case 'i_':
@@ -322,6 +333,7 @@ class Doc extends LampcmsArray implements \Serializable
      * Setter for $this->collectionName
      *
      * @param string $name
+     * @return \Lampcms\Mongo\Doc (this object)
      */
     public function setCollectionName($name)
     {
@@ -344,8 +356,11 @@ class Doc extends LampcmsArray implements \Serializable
      *
      *
      * @param string $method
-     * @param array $arguments
-     * @throws \InvalidArgimentException if called method does not start with 'by'
+     * @param array  $arguments
+     *
+     * @throws \MongoException
+     * @throws \InvalidArgumentException
+     * @return \Lampcms\Mongo\Doc (this object)
      */
     public function __call($method, $arguments)
     {
@@ -550,6 +565,7 @@ class Doc extends LampcmsArray implements \Serializable
      * new row we have access to it's '_id' value
      * right away.
      *
+     * @throws \Lampcms\DevException
      * @return mixed false on failure or value of _id of inserted doc
      * which can be MongoId Object or string or int, depending if
      * you included value of _id in $aValues or let Mongo generate one
@@ -605,10 +621,10 @@ class Doc extends LampcmsArray implements \Serializable
      *
      * @todo why don't we update the md5 value?
      *
+     * @throws \Lampcms\DevException
      * @return string value of key column on which
-     * the collection was updated
-     * usually this is the value of _id
-     *
+     *       the collection was updated
+     *       usually this is the value of _id
      */
     protected function update()
     {
@@ -626,11 +642,11 @@ class Doc extends LampcmsArray implements \Serializable
         }
 
         /**
-         * Succussfull update should
+         * Successful update should
          * return number of affected rows
          * which should be > 0 but could also be 0
          * which means that no rows were affected but update was still
-         * successfull. This would be the case if update() was run on a table
+         * successful. This would be the case if update() was run on a table
          * row with exactly the same data, thus no rows were technically affected
          *
          * This is why we must test for false and not for empty()
@@ -753,6 +769,7 @@ class Doc extends LampcmsArray implements \Serializable
     /**
      * (non-PHPdoc)
      * @see Lampcms.ArrayDefaults::serialize()
+     * @return string|void
      */
     public function serialize()
     {
@@ -768,7 +785,10 @@ class Doc extends LampcmsArray implements \Serializable
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms.ArrayDefaults::unserialize()
+     *
+     * @param string $serialized
      */
     public function unserialize($serialized)
     {

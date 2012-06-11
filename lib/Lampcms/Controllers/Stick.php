@@ -87,12 +87,13 @@ class Stick extends WebPage
      *
      * @throws \Lampcms\Exception if question not found
      * in database
+     * @return \Lampcms\Controllers\Stick
      */
     protected function getQuestion()
     {
         $a = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => $this->Request['qid']));
         if (empty($a)) {
-            throw new \Lampcms\Exception('Question not found by id: ' . $this->Request['qid']);
+            throw new \Lampcms\Exception('@@Question not found by id@@: ' . $this->Request['qid']);
         }
 
         $this->Question = new Question($this->Registry, $a);

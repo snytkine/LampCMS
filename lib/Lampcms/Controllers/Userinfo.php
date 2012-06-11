@@ -71,18 +71,34 @@ use Lampcms\UserAnswers;
 class Userinfo extends WebPage
 {
 
+    /**
+     * @var int
+     */
     protected $layoutID = 1;
 
     protected $aAllowedVars = array('username', 'mode', 'sort');
 
+    /**
+     * User object
+     *
+     * @var object \Lampcms\User
+     */
     protected $User;
 
+    /**
+     * Number of url segment that represents userID
+     * It may be different in sub-classes
+     *
+     * @var int
+     */
+    protected $uidSegment = 1;
+
     protected $vars = array(
-        'profile' => '',
+        'profile'   => '',
         'questions' => '',
-        'answers' => '',
-        'votes' => '',
-        'tags' => '');
+        'answers'   => '',
+        'votes'     => '',
+        'tags'      => '');
 
     protected function main()
     {
@@ -108,15 +124,15 @@ class Userinfo extends WebPage
      */
     protected function getUser()
     {
-        $uid = $this->Registry->Router->getSegment(1, 'i');
-        $a = $this->Registry->Mongo->USERS->findOne(array('_id' => $uid));
+        $uid = $this->Router->getSegment($this->uidSegment, 'i');
+        $a   = $this->Registry->Mongo->USERS->findOne(array('_id' => $uid));
 
         if (empty($a)) {
 
             throw new \Lampcms\Lampcms404Exception('@@User not found@@');
         }
 
-        $this->User = User::factory($this->Registry, $a);
+        $this->User               = User::factory($this->Registry, $a);
         $this->aPageVars['title'] = $this->User->getDisplayName();
 
         return $this;
@@ -137,11 +153,11 @@ class Userinfo extends WebPage
      */
     protected function checkUsername()
     {
-        $supplied = $this->Registry->Router->getSegment(2, 's', 'a');
+        $supplied = $this->Router->getSegment(2, 's', 'a');
 
         if (!empty($supplied)) {
             $username = $this->User->username;
-            if (!empty($username) && (strtolower($username) !== strtolower($supplied))) {
+            if (!empty($username) && (\strtolower($username) !== \strtolower($supplied))) {
                 d('supplied username ' . $supplied . ' is not the same as actual username: ' . $username);
 
                 throw new \Lampcms\RedirectException('{_WEB_ROOT_}/{_userinfo_}/' . $this->User->getUid() . '/' . $username);
@@ -159,7 +175,7 @@ class Userinfo extends WebPage
      */
     protected function addProfile()
     {
-        $profile = ProfileDiv::factory($this->Registry)->setUser($this->User)->getHtml();
+        $profile                 = ProfileDiv::factory($this->Registry)->setUser($this->User)->getHtml();
         $this->aPageVars['body'] = $profile;
 
         return $this;
@@ -181,6 +197,7 @@ class Userinfo extends WebPage
          *
          * html of parsed questions and pagination links
          * at the bottom all wrapped inside <div class="user_tags">
+         *
          * @var $userQuestions
          */
         $userQuestions = UserQuestions::get($this->Registry, $this->User);
@@ -221,6 +238,7 @@ class Userinfo extends WebPage
          *
          * html of parsed answers and pagination links
          * at the bottom all wrapped inside <div class="user_answers">
+         *
          * @var $userQuestions
          */
         $userQuestions = UserAnswers::get($this->Registry, $this->User);
@@ -235,6 +253,9 @@ class Userinfo extends WebPage
             return $this;
         }
 
+        /**
+         * @todo must user Router now!
+         */
         $cond = $this->Registry->Request->get('sort', 's', 'recent');
         $tabs = Urhere::factory($this->Registry)->get('tplSortuans', $cond, array('uid' => $this->User->getUid()));
 

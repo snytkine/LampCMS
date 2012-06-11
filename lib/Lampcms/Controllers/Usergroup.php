@@ -104,7 +104,7 @@ class Usergroup extends WebPage
     {
         if (Request::isAjax()) {
             $ret = array(
-                'alert' => 'User group updated',
+                'alert' => '@@User group updated@@',
                 'reload' => 1000);
 
             Responder::sendJSON($ret);

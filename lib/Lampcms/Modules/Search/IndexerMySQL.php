@@ -98,7 +98,10 @@ class IndexerMySQL implements Indexer
      * also use this for site search feature
      * to some extent. Cool
      *
-     * @param Question $Question
+     * @param \Lampcms\Question $Question $Question
+     *
+     * @throws \Exception
+     * @return \Lampcms\Modules\Search\IndexerMySQL
      */
     public function indexQuestion(\Lampcms\Question $Question)
     {
@@ -185,7 +188,8 @@ class IndexerMySQL implements Indexer
      * Remove record for one Question from the
      * Index
      *
-     * @param Question $Question
+     * @param \Lampcms\Question $Question $Question
+     *
      * @return object $this
      */
     public function removeQuestion(\Lampcms\Question $Question)
@@ -219,7 +223,10 @@ class IndexerMySQL implements Indexer
      * run this method to also update
      * the index.
      *
-     * @param Question $Question
+     * @param \Lampcms\Question $Question $Question
+     *
+     * @throws \Exception
+     * @return \Lampcms\Modules\Search\IndexerMySQL
      */
     public function updateQuestion(\Lampcms\Question $Question)
     {

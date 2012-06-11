@@ -147,6 +147,7 @@ class Vote extends WebPage
      * Post onBeforeVote event
      * and allow observer to cancel event
      *
+     * @throws \Lampcms\Exception
      * @return object $this
      */
     protected function postBeforeEvent()
@@ -178,6 +179,7 @@ class Vote extends WebPage
     /**
      * Instantiate the resource object
      *
+     * @throws \Lampcms\Exception
      * @return object $this
      */
     protected function getResource()
@@ -186,7 +188,7 @@ class Vote extends WebPage
             ->findOne(array('_id' => $this->resID));
 
         if (empty($a) || empty($a['_id'])) {
-            throw new \Lampcms\Exception('Invalid question or answer id ' . $this->resID);
+            throw new \Lampcms\Exception('@@Invalid question or answer id@@ ' . $this->resID);
         }
 
         $class = ('QUESTIONS' === $this->resType) ? '\\Lampcms\\Question' : '\\Lampcms\\Answer';
@@ -203,13 +205,14 @@ class Vote extends WebPage
      * users not allowed to vote for their own
      * question
      *
+     * @throws \Lampcms\Exception
      * @return object $this
      */
     protected function checkIsOwner()
     {
 
         if (\Lampcms\isOwner($this->Registry->Viewer, $this->Resource)) {
-            throw new \Lampcms\Exception('Cannot rate own questions or answers');
+            throw new \Lampcms\Exception('@@Cannot rate own questions or answers@@');
         }
 
         return $this;

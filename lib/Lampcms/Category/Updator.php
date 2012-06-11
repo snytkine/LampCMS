@@ -85,6 +85,7 @@ class Updator
      * with new question
      *
      * @param \Lampcms\Question $Q
+     * @return \Lampcms\Category\Updator
      */
     public function addQuestion(\Lampcms\Question $Q)
     {
@@ -153,7 +154,9 @@ class Updator
      * of count is currently greater than 0
      * and only if Answer has non-zero category
      *
-     * @param object $A object of type Lampcms\Answer
+     * @param \Lampcms\Answer $A
+     *
+     * @return \Lampcms\Category\Updator
      */
     public function removeAnswer(\Lampcms\Answer $A)
     {

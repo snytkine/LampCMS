@@ -181,7 +181,7 @@ class ProfileDiv extends LampcmsObject
             $aTwitter = $this->Registry->Ini->getSection('TWITTER');
             if (!empty($aTwitter['TWITTER_OAUTH_KEY']) && !empty($aTwitter['TWITTER_OAUTH_SECRET'])) {
 
-                return '<div id="connect_twtr" class="twsignin ajax ttt btn_connect rounded4" title="@@Connect Twitter Account@@"><img src="/images/tw-user.png" width="16" height="16"><span class="_bg_tw">@@Connect Twitter@@</span></div>';
+                return '<div id="connect_twtr" class="twsignin ajax ttt btn_connect rounded4" title="@@Connect Twitter Account@@"><img src="{_IMAGE_SITE_}{_DIR_}/images/tw-user.png" width="16" height="16"><span class="_bg_tw">@@Connect Twitter@@</span></div>';
             }
         }
 
@@ -217,7 +217,7 @@ class ProfileDiv extends LampcmsObject
             $a = $this->Registry->Ini->getSection('TUMBLR');
             if (!empty($a) && !empty($a['OAUTH_KEY']) && !empty($a['OAUTH_SECRET'])) {
 
-                return '<div id="connect_tumblr" class="add_tumblr ajax ttt btn_connect rounded4" title="@@Connect Tumblr Blog@@"><img src="/images/tumblr_16.png" width="16" height="16"><span class="_bg_tw">@@Connect Tumblr Blog@@</span></div>';
+                return '<div id="connect_tumblr" class="add_tumblr ajax ttt btn_connect rounded4" title="@@Connect Tumblr Blog@@"><img src="{_IMAGE_SITE_}{_DIR_}/images/tumblr_16.png" width="16" height="16"><span class="_bg_tw">@@Connect Tumblr Blog@@</span></div>';
             }
         }
 
@@ -244,7 +244,7 @@ class ProfileDiv extends LampcmsObject
     {
 
         $t = $this->User->getBloggerBlogLink();
-        d('blojgger blog url: ' . $t);
+        d('blogger blog url: ' . $t);
         if (!empty($t)) {
             return $t;
         }
@@ -253,7 +253,7 @@ class ProfileDiv extends LampcmsObject
             $a = $this->Registry->Ini->getSection('BLOGGER');
             if (!empty($a) && !empty($a['OAUTH_KEY']) && !empty($a['OAUTH_SECRET'])) {
 
-                return '<div id="connect_blogger" class="add_blogger ajax ttt btn_connect rounded4" title="Connect Blogger.com Blog"><img src="/images/blogger_16.png" width="16" height="16"><span class="_bg_tw">@@Connect Blogger Blog@@</span></div>';
+                return '<div id="connect_blogger" class="add_blogger ajax ttt btn_connect rounded4" title="Connect Blogger.com Blog"><img src="{_IMAGE_SITE_}{_DIR_}/images/blogger_16.png" width="16" height="16"><span class="_bg_tw">@@Connect Blogger Blog@@</span></div>';
             }
         }
 
@@ -289,7 +289,7 @@ class ProfileDiv extends LampcmsObject
             $a = $this->Registry->Ini->getSection('LINKEDIN');
             if (!empty($a) && !empty($a['OAUTH_KEY']) && !empty($a['OAUTH_SECRET'])) {
 
-                return '<div id="connect_linkedin" class="add_linkedin ajax ttt btn_connect rounded4" title="@@Connect LinkedIn Account@@"><img src="/images/linkedin_16.png" width="16" height="16"><span class="_bg_tw">@@Connect LinkedIn Account@@</span></div>';
+                return '<div id="connect_linkedin" class="add_linkedin ajax ttt btn_connect rounded4" title="@@Connect LinkedIn Account@@"><img src="{_IMAGE_SITE_}{_DIR_}/images/linkedin_16.png" width="16" height="16"><span class="_bg_tw">@@Connect LinkedIn Account@@</span></div>';
             }
         }
 
@@ -324,7 +324,7 @@ class ProfileDiv extends LampcmsObject
             $aFB = $this->Registry->Ini->getSection('FACEBOOK');
             if (!empty($aFB) && !empty($aFB['APP_ID'])) {
 
-                return '<div id="connect_fb" class="fbsignup ajax ttt btn_connect rounded4" title="@@Connect Facebook Account@@"><img src="/images/facebook_16.png" width="16" height="16"><span class="_bg_tw">@@Connect Facebook Account@@</span></div>';
+                return '<div id="connect_fb" class="fbsignup ajax ttt btn_connect rounded4" title="@@Connect Facebook Account@@"><img src="{_IMAGE_SITE_}{_DIR_}/images/facebook_16.png" width="16" height="16"><span class="_bg_tw">@@Connect Facebook Account@@</span></div>';
             }
         }
 
@@ -346,20 +346,10 @@ class ProfileDiv extends LampcmsObject
         $gender = $this->User['gender'];
         switch ( $gender ) {
             case 'M':
-                /**
-                 * @todo
-                 * Translate string
-                 *
-                 */
                 $ret = '@@Male@@';
                 break;
 
             case 'F':
-                /**
-                 * @todo
-                 * Translate string
-                 *
-                 */
                 $ret = '@@Female@@';
                 break;
 
@@ -402,7 +392,7 @@ class ProfileDiv extends LampcmsObject
                 'title' => '@@Follow this user@@'
             );
 
-            if (in_array($uid, $oViewer['a_f_u'])) {
+            if (\in_array($uid, $oViewer['a_f_u'])) {
                 $aVars['label'] = '@@Following@@';
                 $aVars['class'] = 'following';
                 $aVars['icon']  = 'check';

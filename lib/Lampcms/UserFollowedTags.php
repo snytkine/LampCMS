@@ -149,7 +149,7 @@ class UserFollowedTags extends LampcmsObject
          * @todo translate string 'You both follow'
          *
          */
-        $vals = array('count' => 'You both follow', 'label' => 'tag', 'tags' => $tags);
+        $vals = array('count' => '@@You both follow@@', 'label' => 'tag', 'tags' => $tags);
 
         return \tplUserTags::parse($vals);
     }

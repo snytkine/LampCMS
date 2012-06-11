@@ -59,7 +59,7 @@ namespace Lampcms;
  * on the profile page
  *
  * This class can also be used when we need to see all
- * user answers like on administation page
+ * user answers like on administration page
  *
  *
  * @author Dmitri Snytkine
@@ -70,6 +70,15 @@ class UserAnswers extends LampcmsObject
 
     const PER_PAGE = 10;
 
+    /**
+     * Get a block with 10 answers by user
+     * sorted and ordered by condition passed in request
+     *
+     * @static
+     * @param Registry $Registry
+     * @param User $User
+     * @return string html string - result of parsed template tplUserAnswers
+     */
     public static function get(Registry $Registry, User $User)
     {
 
@@ -82,35 +91,41 @@ class UserAnswers extends LampcmsObject
 
         $pagerLinks = '';
         /**
-         * Default pager path
+         * @var int
          */
-        $pagerPath = '/tab/a/' . $uid . '/oldest';
+        $pageID = $Registry->Router->getPageID();
+        /**
+         * @var array
+         */
+        $aUriMap = $Registry->Ini->getSection('URI_PARTS');
 
-        $cond = $Registry->Request->get('sort', 's', 'recent');
+
+        $cond = $Registry->Router->getSegment(3, 's', $aUriMap['SORT_RECENT']);
         switch ($cond) {
-            case 'oldest':
-                $sort = array('_id' => 1);
-                $pagerPath = '/tab/a/' . $uid . '/recent';
-                break;
 
-            case 'voted':
-                $sort = array('i_votes' => -1);
-                $pagerPath = '/tab/a/' . $uid . '/voted';
-                break;
-
-            case 'updated':
-                $sort = array('i_lm_ts' => -1);
-                $pagerPath = '/tab/a/' . $uid . '/updated';
-                break;
-
-
-            case 'best':
-                $sort = array('accepted' => -1);
-                $pagerPath = '/tab/a/' . $uid . '/best';
-                break;
-            default:
+            case $aUriMap['SORT_RECENT']:
                 $sort = array('_id' => -1);
-                $pagerPath = '/tab/a/' . $uid . '/oldest';
+                $pagerPath = '{_WEB_ROOT_}/{_userinfotab_}/a/' . $uid . '/{_SORT_RECENT_}';
+                break;
+
+            case $aUriMap['SORT_VOTED']:
+                $sort      = array('i_votes' => -1);
+                $pagerPath = '{_WEB_ROOT_}/{_userinfotab_}/a/' . $uid . '/{_SORT_VOTED_}';
+                break;
+
+            case $aUriMap['SORT_UPDATED']:
+                $sort      = array('i_lm_ts' => -1);
+                $pagerPath = '{_WEB_ROOT_}/{_userinfotab_}/a/' . $uid . '/{_SORT_UPDATED_}';
+                break;
+
+            case $aUriMap['SORT_BEST']:
+                $sort = array('accepted' => -1);
+                $pagerPath = '{_WEB_ROOT_}/{_userinfotab_}/a/' . $uid . '/{_SORT_BEST_}';
+                break;
+
+            default:
+                $sort = array('_id' => 1);
+                $pagerPath = '{_WEB_ROOT_}/{_userinfotab_}/a/' . $uid . '/{_SORT_OLDEST_}';
                 break;
 
         }
@@ -128,19 +143,18 @@ class UserAnswers extends LampcmsObject
             return '';
         }
 
-        $pageID = $Registry->Request->get('pageID', 'i', 1);
+
 
         if ($count > self::PER_PAGE || $pageID > 1) {
             $oPaginator = Paginator::factory($Registry);
             $oPaginator->paginate($cursor, self::PER_PAGE,
-                array('path' => $pagerPath));
+                array('path' => $pagerPath, 'currentPage' => $pageID));
 
             $pagerLinks = $oPaginator->getLinks();
             d('$pagerPath: ' . $pagerPath . ' pagerLinks: ' . $pagerLinks);
         }
 
         $answers = \tplUanswers::loop($cursor);
-        d('$answers: ' . $answers);
 
         $vals = array(
             'count' => $count,
@@ -153,16 +167,15 @@ class UserAnswers extends LampcmsObject
 
     /**
      *
-     * Get result of selectin answers from ANSWERS collection
+     * Get result of selecting answers from ANSWERS collection
      *
      * @param Registry $Registry
-     * @param int $uid
+     * @param int      $uid
+     *
+     * @param array    $sort
      *
      * @return object MongoCursor
      *
-     * @todo use different 'sort' params based on
-     * what's passed in Request: by votes,
-     * or by creation date
      */
     protected static function getCursor(Registry $Registry, $uid, array $sort)
     {

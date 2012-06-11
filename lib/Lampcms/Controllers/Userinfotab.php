@@ -66,11 +66,17 @@ use \Lampcms\Responder;
 class Userinfotab extends Userinfo
 {
 
+    /**
+     * Number of uri segment that holds userID
+     *
+     * @var int
+     */
+    protected $uidSegment = 2;
 
     protected function main()
     {
         $this->getUser();
-        $tab = $this->Request->get('tab');
+        $tab = $this->Router->getSegment(1);
         if ('q' === $tab) {
             return $this->getQuestions();
         }
@@ -86,7 +92,8 @@ class Userinfotab extends Userinfo
     protected function getQuestions()
     {
         $s = \Lampcms\UserQuestions::get($this->Registry, $this->User);
-        Responder::sendJSON(array('replace' => array('target' => 'uquestions', 'content' => $s)));
+        Responder::sendJSON(array('replace' => array('target'  => 'uquestions',
+                                                     'content' => $s)));
     }
 
 
@@ -99,7 +106,8 @@ class Userinfotab extends Userinfo
     {
         d('getting answers block');
         $s = \Lampcms\UserAnswers::get($this->Registry, $this->User);
-        Responder::sendJSON(array('replace' => array('target' => 'useranswers', 'content' => $s)));
+        Responder::sendJSON(array('replace' => array('target'  => 'useranswers',
+                                                     'content' => $s)));
     }
 
 }

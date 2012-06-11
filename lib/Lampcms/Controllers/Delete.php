@@ -331,6 +331,7 @@ class Delete extends WebPage
      * Update count of questions or answers
      * in the category
      *
+     * @return \Lampcms\Controllers\Delete
      */
     protected function updateCategory()
     {
@@ -407,7 +408,7 @@ class Delete extends WebPage
     /**
      * Email request for deleting item
      * to moderators.
-     * This happends if viewer is owner of question
+     * This happens if viewer is owner of question
      * that has at least one answer
      * but not a moderator, therefor does not
      * have permission to delete such question
@@ -463,6 +464,7 @@ class Delete extends WebPage
     /**
      * Create object of type Question or Answer
      *
+     * @throws \Lampcms\Exception if Question or Answer is not found
      * @return object $this
      */
     protected function getResource()
@@ -502,7 +504,7 @@ class Delete extends WebPage
         /**
          * @todo translate string
          */
-        $message = 'Item deleted';
+        $message = '@@Item deleted@@';
         $requested = 'You cannot delete question that already has answers.<br>A request to delete
 		this question has been sent to moderators<br>
 		It will be up to moderators to either delete or edit or close the question';

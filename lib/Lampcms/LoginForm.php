@@ -217,7 +217,7 @@ class LoginForm
                 if (!empty($aFB['APP_ID'])) {
                     //id="fbsignup"
                     d('$aFB: ' . print_r($aFB, 1));
-                    $socialBtns .= '<img class="ajax fbsignup hand ttt" src=' . LAMPCMS_IMAGE_SITE . '"/images/f_32.png" width="32" height="32" alt="F" title="Sign in with your Facebook account">';
+                    $socialBtns .= '<img class="ajax fbsignup hand ttt" src="{_IMAGE_SITE_}{_DIR_}/images/f_32.png" width="32" height="32" alt="F" title="@@Sign in with your Facebook account@@">';
 
                 }
             }
@@ -225,11 +225,11 @@ class LoginForm
             /**
              * Twitter
              */
-            if (extension_loaded('oauth') && isset($Ini->TWITTER)) {
+            if (\extension_loaded('oauth') && isset($Ini->TWITTER)) {
                 $aTW = $Ini['TWITTER'];
                 if (!empty($aTW['TWITTER_OAUTH_KEY']) && !empty($aTW['TWITTER_OAUTH_SECRET'])) {
                     d('$aTW: ' . print_r($aTW, 1));
-                    $socialBtns .= '<img class="ajax twsignin hand ttt" src=' . LAMPCMS_IMAGE_SITE . '"/images/t_32.png" width="32" height="32" alt="T" title="Sign in with Twitter Account">';
+                    $socialBtns .= '<img class="ajax twsignin hand ttt" src="{_IMAGE_SITE_}{_DIR_}/images/t_32.png" width="32" height="32" alt="T" title="@@Sign in with Twitter Account@@">';
                 }
             }
 
@@ -237,11 +237,11 @@ class LoginForm
             /**
              * LinkedIn
              */
-            if (extension_loaded('oauth') && isset($Ini->LINKEDIN)) {
+            if (\extension_loaded('oauth') && isset($Ini->LINKEDIN)) {
                 $aLI = $Ini['LINKEDIN'];
                 if (!empty($aLI['OAUTH_KEY']) && !empty($aLI['OAUTH_SECRET'])) {
                     d('$aLI: ' . print_r($aLI, 1));
-                    $socialBtns .= '<img class="ajax add_linkedin hand ttt" src=' . LAMPCMS_IMAGE_SITE . '"/images/linkedin_32.png" width="32" height="32" alt="T" title="Sign in with LinkedIn Account">';
+                    $socialBtns .= '<img class="ajax add_linkedin hand ttt" src="{_IMAGE_SITE_}{_DIR_}/images/linkedin_32.png" width="32" height="32" alt="T" title="@@Sign in with LinkedIn Account@@">';
                 }
             }
 

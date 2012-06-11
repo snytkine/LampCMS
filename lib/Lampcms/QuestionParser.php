@@ -125,7 +125,9 @@ class QuestionParser extends LampcmsObject
      * Main entry method to start processing
      * the submitted question
      *
-     * @param object $o object SubmittedQuestion
+     * @param \Lampcms\SubmittedQuestion|object $o object SubmittedQuestion
+     *
+     * @return object
      */
     public function parse(SubmittedQuestion $o)
     {
@@ -154,7 +156,7 @@ class QuestionParser extends LampcmsObject
      * @return object $this
      *
      * @throws QuestionParserException in case a filter (which is an observer)
-     * either throws a FilterException (or sub-class of it) OR just cancells event
+     * either throws a FilterException (or sub-class of it) OR just cancels event
      *
      */
     protected function makeQuestion()
@@ -182,7 +184,7 @@ class QuestionParser extends LampcmsObject
          * make sure all links are nofollow
          *
          */
-        $htmlBody = HTMLStringParser::factory($Body)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->hilightWords($aTags)->valueOf();
+        $htmlBody = HTMLStringParser::stringFactory($Body)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->hilightWords($aTags)->valueOf();
         d('after HTMLStringParser: ' . $htmlBody);
 
         $uid = $this->Submitted->getUserObject()->getUid();
@@ -280,7 +282,7 @@ class QuestionParser extends LampcmsObject
         try {
             $oNotification = $this->Registry->Dispatcher->post($this->Question, 'onBeforeNewQuestion');
             if ($oNotification->isNotificationCancelled()) {
-                throw new QuestionParserException('Sorry, we are unable to process your question at this time.');
+                throw new QuestionParserException('@@Sorry, we are unable to process your question at this time@@.');
             }
         } catch (FilterException $e) {
             e('Got filter exteption: ' . $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage() . ' ' . $e->getTraceAsString());
@@ -313,7 +315,7 @@ class QuestionParser extends LampcmsObject
     {
 
         /**
-         * For consistant behaviour it is
+         * For consistent behaviour it is
          * Best is to go through FollowManager and don't
          * do this manually
          */
@@ -371,15 +373,17 @@ class QuestionParser extends LampcmsObject
      *
      * @todo translate the error message
      *
-     * @param int $uid
+     * @param int    $uid
      * @param string $hash hash of question body
+     *
+     * @throws QuestionParserException
      */
     protected function checkForDuplicate($uid, $hash)
     {
         $a = $this->Registry->Mongo->QUESTIONS->findOne(array('i_uid' => $uid, 'hash' => $hash));
         if (!empty($a)) {
             $err = 'You have already asked exact same question  <span title="' . $a['hts'] . '" class="ts" rel="time">on ' . $a['hts'] .
-                '</span><br><a class="link" href="/questions/' . $a['_id'] . '/' . $a['url'] . '">' . $a['title'] . '</a><br>
+                '</span><br><a class="link" href="{_WEB_ROOT_}/{_viewquestion_}/' . $a['_id'] . '/' . $a['url'] . '">' . $a['title'] . '</a><br>
 			You cannot post the same exact question twice';
 
             throw new QuestionParserException($err);
@@ -514,6 +518,7 @@ class QuestionParser extends LampcmsObject
     /**
      * Update count of answers in a category
      *
+     * @return \Lampcms\QuestionParser
      */
     protected function updateCategory()
     {

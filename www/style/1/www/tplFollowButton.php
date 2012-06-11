@@ -72,7 +72,7 @@ class tplFollowButton extends \Lampcms\Template\Fast
     protected static $vars = array(
         'id' => '', // 1
         'icon' => '', //2
-        'label' => 'Follow', //3
+        'label' => '@@Follow@@', //3
         'class' => 'follow', //4
         'type' => '', //5
         'title' => '' // 6

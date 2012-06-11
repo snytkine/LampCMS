@@ -74,25 +74,18 @@ class QuestionInfo extends LampcmsObject
      *
      *
      * @param Question $Question
+     * @return string
      */
     public function getHtml(Question $Question)
     {
         $this->Question = $Question;
-        $Tr = $this->Registry->Tr;
-        /**
-         * @todo translate Title string
-         */
+
         $tagsBlock = \tplBoxrecent::parse(array(
-            'title' => $Tr['Question tags'],
+            'title' => '@@Question tags@@',
             'id' => 'question_tags',
             $this->getTags()), false);
 
 
-        /**
-         * @todo translate labels used
-         * in tplQuestionsInfo template
-         *
-         */
         $ret = \tplQuestionInfo::parse(
             array(
                 'tags' => $tagsBlock,
@@ -100,10 +93,10 @@ class QuestionInfo extends LampcmsObject
                 'updated' => TimeAgo::format(new \DateTime(date('r', $Question['i_lm_ts']))) . ' ago',
                 'views' => $this->Question['i_views'],
                 'ans_count' => $this->Question->getAnswerCount(),
-                'asked_label' => $Tr['Asked'],
-                'updated_label' => $Tr['Last updated'],
-                'ans_count_label' => $Tr['Number of Answers'],
-                'views_label' => $Tr['Number of Views']
+                'asked_label' => '@@Asked@@',
+                'updated_label' => '@@Last updated@@',
+                'ans_count_label' => '@@Number of Answers@@',
+                'views_label' => '@@Number of Views@@'
             )
         );
 

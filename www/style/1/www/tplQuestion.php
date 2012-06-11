@@ -70,7 +70,6 @@ class tplQuestion extends Lampcms\Template\Fast
              * to the tplEditedby template
              */
             $aEdited = end($a['a_edited']);
-            $aEdited['edited'] = $a['edited'];
 
             $a['edits'] = \tplEditedby::parse($aEdited, false);
         }
@@ -97,15 +96,11 @@ class tplQuestion extends Lampcms\Template\Fast
              */
             $rid = $a['_id'];
             $uid = $a['i_uid'];
-            $reply = $a['reply'];
-            $reply_t = $a['reply_t'];
 
-            $f = function(&$data) use ($rid, $uid, $reply, $reply_t)
+            $f = function(&$data) use ($rid, $uid)
             {
                 $data['resource_id'] = $rid;
                 $data['owner_id'] = $uid;
-                $data['reply'] = $reply;
-                $data['reply_t'] = $reply_t;
             };
 
             $a['comments_html'] = tplComment::loop($a['a_comments'], true, $f); //
@@ -135,7 +130,7 @@ class tplQuestion extends Lampcms\Template\Fast
         'comments_html' => '', //20
         'i_comments' => '0', //21
         'nocomments' => '', //22
-        'add_comment' => 'add comment', //23
+        'add_comment' => '@@add comment@@', //23
         'cc' => '', // 24
         'cn' => '', //25
         'city' => '' //26

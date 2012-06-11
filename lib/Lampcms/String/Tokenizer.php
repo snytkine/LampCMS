@@ -82,14 +82,16 @@ class Tokenizer extends \ArrayObject
 
     /**
      * @param string $string Original string to be tokenized
-     * @param string $delim must be a valid PCRE pattern!
-     * It's recommended to add the /u switch to pattern to treat
-     * chars in pattern as UTF-8 chars
+     * @param string $delim  must be a valid PCRE pattern!
+     *                       It's recommended to add the /u switch to pattern to treat
+     *                       chars in pattern as UTF-8 chars
+     *
+     * @throws \InvalidArgumentException
      */
     public function __construct($string, $delim = '/([\s,]+)/u')
     {
         if (!is_string($string) || !is_string($delim)) {
-            throw new \InvalidArgimentException('$string and $delim params must be string');
+            throw new \InvalidArgumentException('$string and $delim params must be string');
         }
 
         parent::__construct(array());
@@ -118,7 +120,7 @@ class Tokenizer extends \ArrayObject
      * Sub-class may override this to
      * tokenize any other way.
      * For example, may also apply a filter
-     * like array_unique or filter agains stopwords list
+     * like array_unique or filter against stopwords list
      *
      * @return array array of tokens (individual parts of string)
      */

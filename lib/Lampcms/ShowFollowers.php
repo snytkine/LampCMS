@@ -90,6 +90,7 @@ class ShowFollowers extends LampcmsObject
      * Setter of maxPerBlock var
      *
      * @param int $max
+     * @return \Lampcms\ShowFollowers
      * @throws \InvalidArgumentException if $max is not numeric
      */
     public function setMaxPerBlock($max)
@@ -111,7 +112,9 @@ class ShowFollowers extends LampcmsObject
      * an avatar and some info in the title of the div
      *
      * @param array $aUids array of userIDs. The divs with
-     * info for these users will be returned
+     *                     info for these users will be returned
+     *
+     * @param null  $total
      *
      * @return string html
      */
@@ -120,7 +123,7 @@ class ShowFollowers extends LampcmsObject
         //d('aUids: '.print_r($aUids, 1));
 
         if (count($aUids) > $this->maxPerBlock) {
-            $aUids = array_splice($aUids, 0, $this->maxPerBlock);
+            $aUids = \array_splice($aUids, 0, $this->maxPerBlock);
         }
 
         $where = array('_id' => array('$in' => $aUids), 'role' => array('$ne' => 'deleted'));
@@ -166,9 +169,6 @@ class ShowFollowers extends LampcmsObject
 
         $followers = \tplOneFollower::loop($this->Cursor, true, $func);
 
-        /**
-         * @todo translate title string
-         */
         return \tplFollowers::parse(array($title, $followers, $total), false);
     }
 
@@ -228,9 +228,6 @@ class ShowFollowers extends LampcmsObject
 
         $followers = \tplOneFollower::loop($this->Cursor, true, $func);
 
-        /**
-         * @todo translate title string
-         */
         return \tplFollowers::parse(array($title, $followers, $total), false);
 
     }
@@ -293,9 +290,6 @@ class ShowFollowers extends LampcmsObject
 
         $followers = \tplOneFollower::loop($this->Cursor, true, $func);
 
-        /**
-         * @todo translate title string
-         */
         return \tplFollowers::parse(array($title, $followers, $total), false);
 
     }
@@ -348,10 +342,6 @@ class ShowFollowers extends LampcmsObject
             return '';
         }
 
-        /**
-         * @todo translate string title
-         *
-         */
         $title = 'Following ' . $total . ' user' . (((1 === $total)) ? '' : 's');
         d('followers title: ' . $title);
 

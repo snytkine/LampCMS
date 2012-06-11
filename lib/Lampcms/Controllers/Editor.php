@@ -124,6 +124,7 @@ class Editor extends Edit
     /**
      *
      * Process submitted form values
+     * @return \Lampcms\Controllers\Editor
      */
     protected function process()
     {

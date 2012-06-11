@@ -102,9 +102,10 @@ class Shred extends WebPage
 
 
     /**
-     * Make sure we don't accidentely delete
+     * Make sure we don't accidentally delete
      * administrator user
      *
+     * @throws \Lampcms\Exception
      * @return object $this
      */
     protected function excludeAdmin()
@@ -206,8 +207,9 @@ class Shred extends WebPage
 
                 $Question = new \Lampcms\Question($this->Registry);
                 try {
-                    $Question->by_id((int)$Answer->getQuestionId());
+
                     $Answer = new Answer($this->Registry, $a);
+                    $Question->by_id((int)$Answer->getQuestionId());
                     $Question->removeAnswer($Answer);
                     $Question->save();
                     /**
@@ -294,8 +296,8 @@ class Shred extends WebPage
 
         if (Request::isAjax()) {
 
-            $message = 'User Shredded<hr>Banned IPs:' . implode('<br>', array_keys($this->aIPs)) .
-                '<hr><br>Countries: ' . implode('<br>', array_keys($this->aCountries));
+            $message = '@@User Shredded@@<hr>@@Banned IPs@@:' . implode('<br>', array_keys($this->aIPs)) .
+                '<hr><br>@@Countries@@: ' . implode('<br>', array_keys($this->aCountries));
 
             Responder::sendJSON(array('alert' => $message));
         }

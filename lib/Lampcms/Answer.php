@@ -74,6 +74,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
     /**
      * (non-PHPdoc)
      * @see LampcmsResourceInterface::getResourceTypeId()
+     * @return string
      */
     public function getResourceTypeId()
     {
@@ -111,6 +112,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
     /**
      * (non-PHPdoc)
      * @see ResourceInterface::getResourceId()
+     * @return int
      */
     public function getResourceId()
     {
@@ -122,6 +124,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
     /**
      * (non-PHPdoc)
      * @see LampcmsResourceInterface::getDeletedTime()
+     * @return int (0 if this answer is not deleted)
      */
     public function getDeletedTime()
     {
@@ -146,10 +149,11 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      * if not already marked as deleted
      *
      *
-     * @param object User $user user marking this
-     * item as deleted
+     * @param \Lampcms\User $user
+     * @param string        $reason optional reason for delete
      *
-     * @param string $reason optional reason for delete
+     * @internal param \Lampcms\User $object $user user marking this
+     *           item as deleted
      *
      * @return object $this
      */
@@ -212,6 +216,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
     /**
      * (non-PHPdoc)
      * @see LampcmsResourceInterface::getOwnerId()
+     * @return int id of user who is the author of this answer
      */
     public function getOwnerId()
     {
@@ -223,6 +228,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
     /**
      * (non-PHPdoc)
      * @see LampcmsResourceInterface::getLastModified()
+     * @return int last modified timestamp
      */
     public function getLastModified()
     {
@@ -247,7 +253,13 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 
     /**
      * (non-PHPdoc)
+     *
      * @see UpDownRatable::addUpVote()
+     *
+     * @param int $inc
+     *
+     * @throws
+     * @return \Lampcms\Answer
      */
     public function addUpVote($inc = 1)
     {
@@ -275,7 +287,13 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 
     /**
      * (non-PHPdoc)
+     *
      * @see UpDownRatable::addDownVote()
+     *
+     * @param int $inc
+     *
+     * @throws
+     * @return \Lampcms\Answer
      */
     public function addDownVote($inc = 1)
     {
@@ -304,6 +322,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
     /**
      * (non-PHPdoc)
      * @see UpDownRatable::getVotesArray()
+     * @return array
      */
     public function getVotesArray()
     {
@@ -320,6 +339,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
     /**
      * (non-PHPdoc)
      * @see UpDownRatable::getScore()
+     * @return array|bool|int|mixed|null
      */
     public function getScore()
     {
@@ -332,24 +352,37 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      * Get full (absolute) url for this question,
      * including the http and our domain
      * add the #answer to the url, but this has challenges
-     * with pagination and some challanges with url rewrite rules
+     * with pagination and some challenges with url rewrite rules
      *
      * For example if this answer is not of the first page of the question
      * then the # anchor will not point to valid answer.
      * It's not easy to determine on which page this answer is (currently)
+     *
+     * @param bool $short
      *
      * @return string url for this question
      */
     public function getUrl($short = false)
     {
 
-        return $this->Registry->Ini->SITE_URL . '/q' . $this->offsetGet('i_qid') . '/#ans' . $this->offsetGet('_id');
+        //return $this->Registry->Ini->SITE_URL . '/q' . $this->offsetGet('i_qid') . '/#ans' . $this->offsetGet('_id');
+
+        $url = '{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}'.$this->offsetGet('_id'). '/#ans' . $this->offsetGet('_id');
+
+
+        $url = $this->getRegistry()->Ini->SITE_URL.$url;
+        $callback = $this->Registry->Router->getCallback();
+
+        $ret = $callback($url);
+
+        return $ret;
     }
 
 
     /**
      * (non-PHPdoc)
      * @see Lampcms\Interfaces.Post::getBody()
+     * @return string body of the answer (may contain html)
      */
     public function getBody()
     {
@@ -360,6 +393,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
     /**
      * (non-PHPdoc)
      * @see Lampcms\Interfaces.Post::getTitle()
+     * @return string
      */
     public function getTitle()
     {
@@ -370,6 +404,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
     /**
      * (non-PHPdoc)
      * @see Lampcms\Interfaces.Post::getSeoUrl()
+     * @return string
      */
     public function getSeoUrl()
     {
@@ -379,7 +414,12 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.CommentedResource::addComment()
+     *
+     * @param \Lampcms\CommentParser $Comment
+     *
+     * @return \Lampcms\Answer (this object)
      */
     public function addComment(CommentParser $Comment)
     {
@@ -426,6 +466,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
     /**
      * (non-PHPdoc)
      * @see Lampcms\Interfaces.CommentedResource::getCommentsCount()
+     * @return int
      */
     public function getCommentsCount()
     {
@@ -440,6 +481,9 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      * Increase value of i_comments by 1
      * The i_comments is a counter
      *
+     * @param int $count
+     *
+     * @throws \InvalidArgumentException
      * @return object $this
      */
     public function increaseCommentsCount($count = 1)
@@ -474,7 +518,12 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      * new count of comments
      *
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.CommentedResource::deleteComment()
+     *
+     * @param $id
+     *
+     * @return \Lampcms\Answer
      */
     public function deleteComment($id)
     {
@@ -602,7 +651,13 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      * values directly
      *
      * (non-PHPdoc)
+     *
      * @see ArrayObject::offsetSet()
+     *
+     * @param mixed $index
+     * @param mixed $newval
+     *
+     * @throws DevException
      */
     public function offsetSet($index, $newval)
     {

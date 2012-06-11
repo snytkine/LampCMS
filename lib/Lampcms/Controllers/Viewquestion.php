@@ -83,6 +83,7 @@ class Viewquestion extends WebPage
 
     /**
      * Question id
+     *
      * @var int
      */
     protected $qid;
@@ -181,6 +182,7 @@ class Viewquestion extends WebPage
         $this->Registry->registerObservers();
 
         $this->getQuestion()
+            ->validateSlug()
             ->addMetas()
             ->sendCacheHeaders()
             ->configureEditor()
@@ -200,6 +202,29 @@ class Viewquestion extends WebPage
             ->makeTopTabs();
 
         $this->Registry->Dispatcher->post($this->Question, 'onQuestionView');
+    }
+
+    /**
+     * Validate value of url slug against the value of 'url'
+     * stored with the question.
+     * The purpose of this function is to redirect
+     * the the url with the correct url slug in case
+     * it the value passed in url does not match
+     * the actual value
+     *
+     * @throws \Lampcms\RedirectException if
+     * @return \Lampcms\Controllers\Viewquestion (this object)
+     */
+    protected function validateSlug()
+    {
+        $urlSlug      = $this->Router->getSegment(2, 's', '');
+        $questionSlug = $this->Question['url'];
+        if (\strtolower($urlSlug) !== \strtolower($questionSlug) ) {
+            $url = $this->Question->getUrl();
+            throw new \Lampcms\RedirectException($url);
+        }
+
+        return $this;
     }
 
 
@@ -297,11 +322,8 @@ class Viewquestion extends WebPage
 
         $this->aQuestion = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => (int)$this->qid), $aFields);
 
-        /**
-         * @todo Translate string
-         */
         if (empty($this->aQuestion)) {
-            throw new \Lampcms\Lampcms404Exception('Question not found');
+            throw new \Lampcms\Lampcms404Exception('@@Question not found@@');
         }
         d('$this->aQuestion: ' . print_r($this->aQuestion, 1));
 
@@ -324,12 +346,9 @@ class Viewquestion extends WebPage
 
         $this->Question = new Question($this->Registry, $this->aQuestion);
 
-        /**
-         * @todo Translate string
-         */
         if ($deleted) {
             if (!$isModerator && !\Lampcms\isOwner($this->Registry->Viewer, $this->Question)) {
-                throw new \Lampcms\Lampcms404Exception('Question was deleted on ' . date('F j Y', $this->aQuestion['i_del_ts']));
+                throw new \Lampcms\Lampcms404Exception('@@Question was deleted on@@ ' . date('F j Y', $this->aQuestion['i_del_ts']));
             }
 
             /**
@@ -349,10 +368,10 @@ class Viewquestion extends WebPage
             $this->aQuestion['nocomments'] = ' nocomments';
         }
 
-        $this->aQuestion['add_comment'] = $this->_('add comment');
-        $this->aQuestion['reply']       = $this->_('Reply');
-        $this->aQuestion['reply_t']     = $this->_('Reply to this comment');
-        $this->aQuestion['edited']      = $this->_('Edited');
+        //$this->aQuestion['add_comment'] = $this->_('add comment');
+        // $this->aQuestion['reply']       = $this->_('Reply');
+        // $this->aQuestion['reply_t']     = $this->_('Reply to this comment');
+
 
         $breadcrumb = (empty($this->aQuestion['i_cat'])) ? '' : $this->getBreadcrumb($this->aQuestion['i_cat']);
 
@@ -493,7 +512,7 @@ class Viewquestion extends WebPage
     {
 
         $tpl = '<div id="answers" class="sortable paginated fl cb w100" lampcms:total="%1$s" lampcms:perpage="%2$s">%3$s</div><!-- // answers -->';
-        $this->aPageVars['body'] .= vsprintf($tpl, array($this->numAnswers, $this->Registry->Ini->PER_PAGE_ANSWERS, $this->answers));
+        $this->aPageVars['body'] .= \vsprintf($tpl, array($this->numAnswers, $this->Registry->Ini->PER_PAGE_ANSWERS, $this->answers));
 
         return $this;
     }

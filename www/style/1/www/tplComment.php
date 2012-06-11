@@ -74,8 +74,8 @@ class tplComment extends \Lampcms\Template\Fast
         'owner_id' => '0', //12
         'resource_id' => '0', //13
         's_inreply' => '', //14
-        'reply' => 'Reply', //15
-        'reply_t' => 'Reply to this comment' //16
+        'reply' => '@@Reply@@', //15
+        'reply_t' => '@@Reply to this comment@@' //16
     );
 
 

@@ -66,7 +66,7 @@ use \Lampcms\Captcha\Captcha;
  * a wrapper class so that it could be called
  * not only as a web page Conroller
  * but also from the API
- * Later it will be easity to reuse if we have the API
+ * Later it will be easy to reuse if we have the API
  *
  * @author Dmitri Snytkine
  *
@@ -171,7 +171,7 @@ You can change your password after you log in.
         $this->Form->setVar('divID', 'registration');
         $this->Form->setVar('className', 'registration');
         $this->Form->setVar('header2', $this->_('Create New Account'));
-        $this->Form->setVar('button', '<input name="submit" value="' . $this->_('Register') . '" type="submit" class="btn btn-m">');
+        $this->Form->setVar('button', '<input name="submit" value="@@Register@@" type="submit" class="btn btn-m">');
         $this->Form->setVar('captcha', Captcha::factory($this->Registry->Ini)->getCaptchaBlock());
         $this->Form->setVar('title', $this->_('Create an Account'));
         $this->Form->setVar('titleBar', '');
@@ -279,7 +279,8 @@ You can change your password after you log in.
      * automatically become an administrator account
      *
      *
-     * @param string $email email address
+     * @internal param string $email email address
+     * @return string
      */
     protected function getRole()
     {

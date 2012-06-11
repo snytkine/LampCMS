@@ -166,8 +166,9 @@ class Viewquestions extends WebPage
     {
         $this->PER_PAGE = $this->Registry->Ini->PER_PAGE_QUESTIONS;
 
+        $urlParts = $this->Registry->Ini->getSection('URI_PARTS');
 
-        $cond = $this->Request->get('cond', 's', 'recent');
+        $cond = $this->Router->getSegment(1, 's', 'recent');
         d('cond: ' . $cond);
         $where = array();
         /**
@@ -178,15 +179,16 @@ class Viewquestions extends WebPage
         $sort = array('i_sticky' => -1,
                       'i_lm_ts'  => -1);
 
-        $this->title;
+        $this->title = '@@Questions@@';
+
 
         switch ( $cond ) {
             /**
              * Hot is strictly per views
              */
-            case 'hot':
+            /*case 'hot':
 
-                break;
+                break;*/
 
 
             /**
@@ -198,9 +200,9 @@ class Viewquestions extends WebPage
              * Cache Tags for 1 day only
              * uncache onQuestionVote, onQuestionComment
              */
-            case 'active':
-                $this->title     = $this->_('Active Questions');
-                $this->pagerPath = '/active';
+            case $urlParts['SORT_ACTIVE']:
+                $this->title     = '@@Active Questions@@';
+                $this->pagerPath .= '/{_SORT_ACTIVE_}';
                 $this->typeDiv   = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'active');
                 $where           = array('i_ts' => array('$gt' => (time() - 604800)));
                 $sort            = array('i_ans' => -1);
@@ -213,10 +215,10 @@ class Viewquestions extends WebPage
              * and uncache when new votes comes in
              * onQuestionVote
              */
-            case 'voted':
-                $this->pagerPath = '/voted';
+            case $urlParts['SORT_VOTED']:
+                $this->pagerPath .= '/{_SORT_VOTED_}';
                 d('cp');
-                $this->title   = $this->_('Questions with highest votes in past 7 days');
+                $this->title   = '@@Questions with highest votes in past 7 days@@';
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'voted');
                 $where         = array('i_ts' => array('$gt' => (time() - 604800)));
                 $sort          = array('i_votes' => -1);
@@ -228,8 +230,12 @@ class Viewquestions extends WebPage
              * uncache qrecent onNewQuestion only!
              */
             default:
-                $this->title   = $this->_('All questions');
+                $this->title   = '@@All questions@@';
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'newest');
+        }
+
+        if($this->pageID > 1){
+            $this->title .= ' @@page@@ '.$this->pageID;
         }
 
         /**
@@ -302,7 +308,7 @@ class Viewquestions extends WebPage
         }
 
         $tags = \tplBoxrecent::parse(array('tags'  => $s,
-                                           'title' => $this->_('Recent Tags')));
+                                           'title' => '@@Recent Tags@@'));
         d('cp');
         $this->aPageVars['tags'] = $tags;
 
@@ -354,27 +360,22 @@ class Viewquestions extends WebPage
         $categories  = null;
         $aUserTags   = $this->Registry->Viewer['a_f_t'];
         $showDeleted = $this->Registry->Viewer->isModerator();
-        $contributed = $this->_('You have contributed to this question');
-        $following   = $this->_('You are following this question');
-        $asked       = $this->_('Asked');
-        $latestBy    = $this->_('Latest answer by');
-        $toggle      = $this->_('Toggle Unread/Read Status');
 
         if ($this->Registry->Ini->CATEGORIES > 0) {
             $categories = $this->Registry->Cache->categories;
             $in         = $this->_('In');
         }
 
-        $func = function(&$a) use($uid, $aUserTags, $showDeleted, $following, $contributed, $asked, $latestBy, $toggle, $categories, $in)
+        $func = function(&$a) use($uid, $aUserTags, $showDeleted, $categories, $in)
         {
 
             if ($uid == $a['i_uid'] || (!empty($a['a_uids']) && in_array($uid, $a['a_uids']))) {
-                $a['dot'] = '<div class="fr pad2"><span class="ico person ttt" title="' . $contributed . '">&nbsp;</span></div>';
+                $a['dot'] = '<div class="fr pad2"><span class="ico person ttt" title="@@You have contributed to this question@@">&nbsp;</span></div>';
             }
 
             if (!empty($a['a_flwrs']) && in_array($uid, $a['a_flwrs'])) {
 
-                $a['following_q'] = '<div class="fr pad2"><span class="icoc check ttt" title="' . $following . '">&nbsp;</span></div>';
+                $a['following_q'] = '<div class="fr pad2"><span class="icoc check ttt" title="@@You are following this question@@">&nbsp;</span></div>';
             }
 
             if ($categories && !empty($a['i_cat']) && !empty($categories[$a['i_cat']])) {
@@ -389,9 +390,6 @@ class Viewquestions extends WebPage
                 $a['following_tag'] = '  followed_tag';
             }
 
-            $a['asked']     = $asked;
-            $a['toggle']    = $toggle;
-            $a['latest_by'] = $latestBy;
         };
 
 
@@ -413,7 +411,7 @@ class Viewquestions extends WebPage
      */
     protected function makeCounterBlock()
     {
-        $this->aPageVars['topRight'] = \tplCounterblock::parse(array($this->Cursor->count(), $this->_('Number of Questions'), ''), false);
+        $this->aPageVars['topRight'] = \tplCounterblock::parse(array($this->Cursor->count(), '@@Number of Questions@@', ''), false);
 
         return $this;
     }
@@ -437,8 +435,7 @@ class Viewquestions extends WebPage
         d('$aFollowed: ' . print_r($aFollowed, 1));
         if (!empty($aFollowed)) {
 
-            $this->aPageVars['side'] = '<div id="usrtags" class="fl cb w90 pl10 mb10"><div class="pad8 lg cb fr rounded3 w90"><h4>' .
-                $this->_('Tags you follow') . '</h4>' .
+            $this->aPageVars['side'] = '<div id="usrtags" class="fl cb w90 pl10 mb10"><div class="pad8 lg cb fr rounded3 w90"><h4>@@Tags you follow@@</h4>' .
                 \tplFollowedTags::loop($aFollowed, false) . '</div></div>';
 
         }

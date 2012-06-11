@@ -48,7 +48,7 @@ class tplQrecent extends Lampcms\Template\Fast
 
         if (!empty($a['a_latest'])) {
             $reltime = \Lampcms\TimeAgo::format(new \DateTime($a['a_latest'][0]['t']));
-            $a['last_poster'] = '<div class="lastposter fl cb">' . $a['latest_by'] . ': ' . $a['a_latest'][0]['u'] . '<br>
+            $a['last_poster'] = '<div class="lastposter fl cb">@@Latest answer by@@: ' . $a['a_latest'][0]['u'] . '<br>
 			<span title="' . $a['a_latest'][0]['t'] . '" class="ts">' . $reltime . '</span></div>';
         }
     }
@@ -65,7 +65,7 @@ class tplQrecent extends Lampcms\Template\Fast
         'tags_html' => '', //9
         'status' => 'un', //10
         'username' => '', //11
-        'avtr' => '/images/avatar.png', //12
+        'avtr' => '{_IMAGE_SITE_}{_DIR_}/images/avatar.png', //12
         'hts' => '', //13
         'i_ts' => '', //14
         'vw_s' => 's', //15
@@ -73,14 +73,14 @@ class tplQrecent extends Lampcms\Template\Fast
         'ans_s' => '', //17
         'deleted' => '', //18
         'closed' => '', //19
-        'asked' => 'asked', //20
+        'asked' => '@@asked@@', //20
         'i_sticky' => '', //21
         'dot' => '', //22
         'last_poster' => '', //23
         'i_etag' => '0', //24
         'following_tag' => '', //25
         'following_q' => '', //26
-        'toggle' => '', // 27
+        'toggle' => '@@Toggle Unread/Read Status@@', // 27
         'category' => '' //28
     );
 

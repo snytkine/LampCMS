@@ -324,7 +324,7 @@ class Router
             $segments            = $this->uriSegments;
             $segments[($id - 1)] = $prefix . $int . $postfix;
             $uri                 = implode('/', $segments);
-            $uri                 = $this->map['DIR'] . '/' . $this->getControllerSegment() . '/' . $uri;
+            $uri                 = $this->map['DIR'] . $this->map['FILE']. '/' . $this->getControllerSegment() . '/' . $uri;
 
             if (!empty($_SERVER['QUERY_STRING'])) {
                 $uri .= '?' . $_SERVER['QUERY_STRING'];

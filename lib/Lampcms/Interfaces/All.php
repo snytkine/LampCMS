@@ -181,21 +181,17 @@ interface Cookie
     /**
      * Sends cookie
      *
-     * @param string $name name of cookie
+     * @param string     $name    name of cookie
      *
-     * @param string $val value of cookie
+     * @param string     $val     value of cookie
      *
-     * @param string $ttl expiration time in seconds
-     * default is 63072000 means 2 years
+     * @param int|string $ttl     expiration time in seconds
+     *                            default is 63072000 means 2 years
      *
-     * @param string $sDomain optional if set the setcookie will use
-     * this value instead of LAMPCMS_COOKIE_DOMAIN constant
+     * @param string     $sDomain optional if set the setcookie will use
+     *                            this value instead of LAMPCMS_COOKIE_DOMAIN constant
      *
-     * @throws LampcmsDevException in case cookie
-     * was not send to browser. Usually this happends when
-     * the output has already been started. The main cause
-     * of this is when the script has an echo() or print_r()
-     * somewhere for debugging purposes.
+     * @return
      */
     public function set($name, $val, $ttl = 63072000, $sDomain = null);
 
@@ -204,11 +200,13 @@ interface Cookie
      * the value of the s cookie is an md5 hash of user password
      * the value of the uid cookie is the userID
      *
-     * @param boolean $boolKeepSigned true if user checked 'remember me' box on login form
      * @param integer $intUserId userID
-     * @param string $strPassword user's password
-     * @return void cookies are sent to browser
+     * @param         $strSID
+     * @param string  $cookieName
      *
+     * @internal param bool $boolKeepSigned true if user checked 'remember me' box on login form
+     * @internal param string $strPassword user's password
+     * @return void cookies are sent to browser
      */
     public function sendLoginCookie($intUserId, $strSID, $cookieName = 'uid');
 
@@ -234,9 +232,12 @@ interface Cache
 
     /**
      * Puts a value of $key into cache for $ttl seconds
-     * @param $key
-     * @param $value
-     * @param $ttl
+     *
+     * @param            $key
+     * @param            $value
+     * @param int        $ttl
+     * @param array|null $tags
+     *
      * @return unknown_type
      */
     public function set($key, $value, $ttl = 0, array $tags = null);
@@ -246,8 +247,11 @@ interface Cache
 
     /**
      * Deletes key from cache
+     *
      * @param string $key
-     * @param integer $ttl time in seconds after which to remove the key
+     * @param int    $exptime
+     *
+     * @internal param int $ttl time in seconds after which to remove the key
      * @return void
      */
     public function delete($key, $exptime = 0);
@@ -337,6 +341,7 @@ interface RoleInterface
  */
 interface Assert
 {
+
     /**
      * Returns true if and only if the assertion conditions are met
      *
@@ -344,10 +349,11 @@ interface Assert
      * $role, $resource, or $privilege parameters are null, it means that the query applies to all Roles, Resources, or
      * privileges, respectively.
      *
-     * @param  Acl  $acl
-     * @param  AclRole     $role
-     * @param  Resource $resource
-     * @param  string  $privilege
+     * @param \Lampcms\Acl\Acl|\Lampcms\Interfaces\Acl                           $acl
+     * @param \Lampcms\Interfaces\AclRole|\Lampcms\Interfaces\RoleInterface|null $role
+     * @param  Resource                                                          $resource
+     * @param  string                                                            $privilege
+     *
      * @return boolean
      */
     public function assert(\Lampcms\Acl\Acl $acl, RoleInterface $role = null, Resource $resource = null, $privilege = null);
@@ -872,20 +878,26 @@ interface Question extends Post
      * has made an answer or a comment
      * to a question
      *
-     * @param mixed int | object $User object of type User
+     * @param $User
+     *
+     * @return
+     * @internal param int|object $mixed $User object of type User
      */
     public function addContributor($User);
 
     /**
      * Remove user as question
      * contributor
-     * This does not necessaraly remove user from
+     * This does not necessarily remove user from
      * array of contributors since that array is not unique
      * in which case it will
      * simply remove one of the elements
      * from that array.
      *
-     * @param mixed int | object $User object of type User
+     * @param $User
+     *
+     * @return
+     * @internal param int|object $mixed $User object of type User
      */
     public function removeContributor($User);
 
@@ -906,16 +918,20 @@ interface Question extends Post
      * Set time, reason for when question was closed
      * as well as username and userid of user who closed it
      *
-     * @param string $reason
-     * @param object $closer user who closed the question
+     * @param \Lampcms\User|object $closer user who closed the question
+     * @param string               $reason
+     *
+     * @return
      */
     public function setClosed(\Lampcms\User $closer, $reason = null);
 
     /**
      * Mark Question as deleted
      *
-     * @param User $user
-     * @param string $reason
+     * @param \Lampcms\Interfaces\User|\Lampcms\User $user
+     * @param string                                 $reason
+     *
+     * @return
      */
     public function setDeleted(\Lampcms\User $user, $reason = null);
 
@@ -923,8 +939,10 @@ interface Question extends Post
      * Must set the id of best_answer,
      * also updates Answer (by side-effect)
      *
-     * @param Answer $Answer object of type Answer
-     * which is being accepted as best answer
+     * @param \Lampcms\Answer|\Lampcms\Interfaces\Answer $Answer $Answer object of type Answer
+     *                                                           which is being accepted as best answer
+     *
+     * @return
      */
     public function setBestAnswer(\Lampcms\Answer $Answer);
 

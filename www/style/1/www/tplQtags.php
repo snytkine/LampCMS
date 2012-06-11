@@ -72,11 +72,10 @@ class tplQtags extends Lampcms\Template\Fast
      */
     protected static function func(&$a)
     {
-        $a[] = urlencode($a[0]);
+        $a[] = \urlencode($a[0]);
     }
 
     protected static $vars = array(0 => '');
 
-    protected static $tpl = '<a href="/tagged/%2$s/" title="Questions tagged \'%1$s\'">%1$s</a> ';
-
+    protected static $tpl = '<a href="{_WEB_ROOT_}/{_tagged_}/%2$s/" title="@@Questions tagged@@ \'%1$s\'">%1$s</a> ';
 }

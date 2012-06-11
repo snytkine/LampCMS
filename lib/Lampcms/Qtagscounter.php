@@ -106,6 +106,8 @@ class Qtagscounter extends LampcmsObject
      * @todo we can use this as post-echo method
      *
      * @param Question $Question
+     * @param array    $aExtra
+     *
      * @return object $this
      */
     public function parse(Question $Question, array $aExtra = array())
@@ -152,6 +154,7 @@ class Qtagscounter extends LampcmsObject
      *
      * @param Question $Question
      *
+     * @throws \InvalidArgumentException
      * @return object $this;
      */
     public function removeTags($Question)

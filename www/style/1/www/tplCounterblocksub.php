@@ -54,17 +54,17 @@ class tplCounterblocksub extends Lampcms\Template\Fast
          * If more than one tag
          * then turn each tag into a link
          */
-        if (array_key_exists('tags', $a) && \strstr($a['tags'], ' + ')) {
-            $a['tags'] = preg_replace_callback('/(\S+)/u', function($matches)
+        if (\array_key_exists('tags', $a) && \strstr($a['tags'], ' + ')) {
+            $a['tags'] = \preg_replace_callback('/(\S+)/u', function($matches)
             {
-                return "<a href=\"{WWW_BASE_DIR}/tagged/" . urlencode($matches[0]) . "/\">" . $matches[0] . "</a>";
+                return "<a href=\"{_WEB_ROOT_}/{_tagged_}/" . \urlencode($matches[0]) . "/\">" . $matches[0] . "</a>";
             }, $a['tags']);
         }
     }
 
     protected static $vars = array(
         'tags' => '',
-        'text' => 'Tagged'
+        'text' => '@@Tagged@@'
     );
 
 

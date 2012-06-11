@@ -231,7 +231,23 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
 
             $this->callback = function($s) use ($search, $replace)
             {
-                return \str_replace($search, $replace, $s);
+                $output = \str_replace($search, $replace, $s);
+
+                /**
+                 * @todo if LAMPCMS_DEBUG then collect all untranslated strings
+                 *       and email to admin or at least log
+                 *       May also automatically add to XLIFF file, at least to default lang
+                 *       But for this to work the XLIFF file must be writable, which is not always a good idea
+                 */
+                /**
+                 * Any placeholders that have not been replaced with
+                 * values from URI_PARTS or from ROUTES
+                 * AND has not been translated with $translator
+                 *
+                 * will be replaced with their placeholder names
+                 * with this single preg_replace call (profiler reports this to take about 0.3 - 1ms - really fast)
+                 */
+                return \preg_replace('/@@([a-zA-Z0-9_\-!?\().,\'\/\s]+)@@/', '\\1', $output);
 
             };
 

@@ -72,9 +72,9 @@ class tplApps extends Lampcms\Template\Fast
     protected static function func(&$a)
     {
         if (empty($a['icon'])) {
-            $a['icon'] = '/images/app2.png';
+            $a['icon'] = '{_IMAGE_SITE_}{_DIR_}/images/app2.png';
         } else {
-            $a['icon'] = LAMPCMS_AVATAR_IMG_SITE . \Lampcms\PATH_WWW_IMG_AVATAR_SQUARE . $a['icon'];
+            $a['icon'] = '{_AVATAR_IMG_SITE_}{_DIR_}' . \Lampcms\PATH_WWW_IMG_AVATAR_SQUARE . $a['icon'];
         }
 
         if (array_key_exists("app_name", $a)) {
@@ -94,15 +94,15 @@ class tplApps extends Lampcms\Template\Fast
     protected static $tpl = '
 	<div class="cb fl mb10 mt10">
 		<div class="fl">
-			<a href="/index.php?a=viewapp&app_id=%1$s">
+			<a href="{_WEB_ROOT_}/{_viewapp_}/%1$s">
 				<img src="%4$s" width="72px" height="72px" class="appicon"></img>
 			</a>
 		</div>
 		<div class="fl ml10">
-			<a href="/index.php?a=viewapp&app_id=%1$s" class="bold">%2$s</a>
+			<a href="{_WEB_ROOT_}/{_viewapp_}/%1$s" class="bold">%2$s</a>
 			<br>
 			<span class="fl mb5 pre">%3$s</span><br>
-			<a href="/index.php?a=editapp&app_id=%1$s">Edit Details &gt;&gt;</a>
+			<a href="{_WEB_ROOT_}/{_editapp_}/%1$s">@@Edit Details@@ &gt;&gt;</a>
 		</div>
 	</div>
 	';

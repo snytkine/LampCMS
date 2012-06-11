@@ -312,7 +312,7 @@ class Relatedtags extends LampcmsObject
      * @return mixed null if no record exists
      * for this $tag or array of all related tags
      * where keys are related tag names and values
-     * are count of occurances
+     * are count of occurrences
      */
     public function getTags($tag)
     {

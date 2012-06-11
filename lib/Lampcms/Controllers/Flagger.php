@@ -128,6 +128,7 @@ class Flagger extends WebPage
     /**
      * Create object of type Question or Answer
      *
+     * @throws \Lampcms\Exception
      * @return object $this
      */
     protected function getResource()
@@ -171,7 +172,8 @@ class Flagger extends WebPage
      * Maximum allowed uses is 5 in 24 hours
      * but this does not apply to moderator
      *
-     * @throws \Lampcms\Exception
+     * @throws \Lampcms\Exception if user flagged too many questions in 24 hours (limit set in self::MAX_FLAGS
+     * @return \Lampcms\Controllers\Flagger
      */
     protected function checkReportFlood()
     {
@@ -196,6 +198,7 @@ class Flagger extends WebPage
      * Insert this flag report into FLAGGED_ITEMS collection
      *
      * Enter description here ...
+     * @return \Lampcms\Controllers\Flagger
      */
     protected function logReport()
     {
@@ -236,9 +239,7 @@ class Flagger extends WebPage
             $this->Request['note']
         );
 
-        d('vars: ' . print_r($vars, 1));
-
-        $body = vsprintf($this->EMAIL_BODY, $vars);
+        $body = \vsprintf($this->EMAIL_BODY, $vars);
 
         d('body ' . $body);
 

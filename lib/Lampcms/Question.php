@@ -55,7 +55,7 @@ namespace Lampcms;
 
 /**
  *
- * Class represeints one question stored
+ * Class represents one question stored
  * in Mongo QUESTIONS collection
  * implements LampcmsResourceInterface
  *
@@ -64,13 +64,14 @@ namespace Lampcms;
  */
 class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interfaces\UpDownRatable, Interfaces\CommentedResource
 {
+
     /**
      * Currently not used, was going to have
      * method to get all answers for this question
-     * by quereing ansCollection
+     * by querying ansCollection
      * but so far this is not required.
      *
-     * It may be required later when implementhing
+     * It may be required later when implementing
      * something like an NNTP server
      *
      * @var string
@@ -87,7 +88,9 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     /**
      * (non-PHPdoc)
+     *
      * @see LampcmsResourceInterface::getResourceTypeId()
+     * @return string
      */
     public function getResourceTypeId()
     {
@@ -97,7 +100,9 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     /**
      * (non-PHPdoc)
+     *
      * @see ResourceInterface::getResourceId()
+     * @return array|bool|int|mixed|null
      */
     public function getResourceId()
     {
@@ -112,10 +117,11 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * if Resource is going to be Question or Answer
      *
      * @todo Add Interface for this and implement it in Question
-     * and Answer
+     *       and Answer
      *
      * (non-PHPdoc)
-     * @see Lampcms\Interfaces.Resource::getResourceId()
+     * @see  Lampcms\Interfaces.Resource::getResourceId()
+     * @return array|bool|int|mixed|null
      */
     public function getQuestionId()
     {
@@ -125,7 +131,9 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     /**
      * (non-PHPdoc)
+     *
      * @see LampcmsResourceInterface::getDeletedTime()
+     * @return array|bool|int|mixed|null
      */
     public function getDeletedTime()
     {
@@ -136,7 +144,9 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     /**
      * (non-PHPdoc)
+     *
      * @see LampcmsResourceInterface::getOwnerId()
+     * @return int
      */
     public function getOwnerId()
     {
@@ -147,7 +157,9 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     /**
      * (non-PHPdoc)
+     *
      * @see LampcmsResourceInterface::getLastModified()
+     * @return array|bool|int|mixed|null
      */
     public function getLastModified()
     {
@@ -174,20 +186,32 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * Get full (absolute) url for this question,
      * including the http and our domain
      *
+     * @param bool $short if true then don't include the title slug in the url
+     *
      * @return string url for this question
      */
     public function getUrl($short = false)
     {
 
-        $url = $this->Registry->Ini->SITE_URL . '/q' . $this->offsetGet('_id') . '/';
+        $url = '{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}'.$this->offsetGet('_id');
+        if(!$short){
+            $url .= '/'.$this->offsetGet('url');
+        }
 
-        return ($short) ? $url : $url . $this->offsetGet('url');
+        $url = $this->getRegistry()->Ini->SITE_URL.$url;
+        $callback = $this->Registry->Router->getCallback();
+
+        $ret = $callback($url);
+
+        return $ret;
     }
 
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.Post::getBody()
+     * @return string body of question
      */
     public function getBody()
     {
@@ -197,14 +221,18 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.Post::getTitle()
+     * @return string
      */
     public function getTitle()
     {
         return $this->offsetGet('title');
     }
 
-
+    /**
+     * @return int id of category
+     */
     public function getCategoryId()
     {
         return $this->offsetGet('i_cat');
@@ -213,7 +241,9 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.Post::getSeoUrl()
+     * @return string the slug for the seo
      */
     public function getSeoUrl()
     {
@@ -252,8 +282,9 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * Set time, reason for when question was closed
      * as well as username and userid of user who closed it
      *
-     * @param string $reason
-     * @param object $closer User who closed the question
+     * @param \Lampcms\User|object $closer User who closed the question
+     *
+     * @param string               $reason
      *
      * @return object $this
      */
@@ -267,10 +298,10 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
         if (!$this->offsetExists('a_closed')) {
             parent::offsetSet('a_closed', array(
                     'username' => $closer->getDisplayName(),
-                    'i_uid' => $closer->getUid(),
-                    'av' => $closer->getAvatarSrc(),
-                    'reason' => $reason,
-                    'hts' => date('F j, Y g:i a T')
+                    'i_uid'    => $closer->getUid(),
+                    'av'       => $closer->getAvatarSrc(),
+                    'reason'   => $reason,
+                    'hts'      => date('F j, Y g:i a T')
                 )
             );
 
@@ -281,14 +312,14 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
 
     /**
-     *
      * Mark this item as deleted but only
      * if not already marked as deleted
      *
-     * @param object User $user user marking this
-     * item as deleted
+     * @param \Lampcms\User                     $user
+     * @param string                            $reason optional reason for delete
      *
-     * @param string $reason optional reason for delete
+     * @internal param \Lampcms\User $object $user user marking this
+     *           item as deleted
      *
      * @return object $this
      */
@@ -305,10 +336,10 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
             parent::offsetSet('a_deleted',
                 array(
                     'username' => $user->getDisplayName(),
-                    'i_uid' => $user->getUid(),
-                    'av' => $user->getAvatarSrc(),
-                    'reason' => $reason,
-                    'hts' => date('F j, Y g:i a T')
+                    'i_uid'    => $user->getUid(),
+                    'av'       => $user->getAvatarSrc(),
+                    'reason'   => $reason,
+                    'hts'      => date('F j, Y g:i a T')
                 )
             );
         }
@@ -321,7 +352,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      *
      * Adds a_edited array of data to Question
      *
-     * @param User $user
+     * @param User   $user
      * @param string $reason reason for editing
      *
      * @return object $this
@@ -340,10 +371,10 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
         $aEdited[] = array(
             'username' => $user->getDisplayName(),
-            'i_uid' => $user->getUid(),
-            'av' => $user->getAvatarSrc(),
-            'reason' => $reason,
-            'hts' => date('F j, Y g:i a T'));
+            'i_uid'    => $user->getUid(),
+            'av'       => $user->getAvatarSrc(),
+            'reason'   => $reason,
+            'hts'      => date('F j, Y g:i a T'));
 
         parent::offsetSet('a_edited', $aEdited);
 
@@ -359,8 +390,10 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * user who retagged, and "Retag" as reason for edit
      * Will also update lastModified
      *
-     * @param User $user object User who retagged this question
+     * @param User  $user object User who retagged this question
      * @param array $tags array of tags
+     *
+     * @return \Lampcms\Question
      */
     public function retag(User $user, array $tags)
     {
@@ -371,8 +404,8 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
         $b = $this->offsetGet('b');
         d('b: ' . $b);
 
-        $oHtmlParser = \Lampcms\String\HTMLStringParser::factory(Utf8String::stringFactory($b, 'utf-8', true));
-        $body = $oHtmlParser->unhilight()->hilightWords($tags)->valueOf();
+        $oHtmlParser = \Lampcms\String\HTMLStringParser::stringFactory(Utf8String::stringFactory($b, 'utf-8', true));
+        $body        = $oHtmlParser->unhilight()->hilightWords($tags)->valueOf();
 
         $this->offsetSet('b', $body);
 
@@ -393,8 +426,9 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * update UNANSWERED_TAGS
      *
      * @param Answer $Answer object of type Answer represents
-     * Answer being accepted as best answer
+     *                       Answer being accepted as best answer
      *
+     * @return \Lampcms\Question
      */
     public function setBestAnswer(Answer $Answer)
     {
@@ -434,9 +468,13 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * passing a negative value
      *
      * (non-PHPdoc)
+     *
      * @see QuestionInterface::increaseAnswerCount()
      *
      * @param int $inc
+     *
+     * @throws \InvalidArgumentException
+     * @return \Lampcms\Question
      */
     public function updateAnswerCount($inc = 1)
     {
@@ -491,6 +529,8 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * Updates last modified timestamp
      * A replacement for updateLastModified() method
      *
+     * @param bool $etagOnly
+     *
      * @return object $this
      */
     public function touch($etagOnly = false)
@@ -515,12 +555,16 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * question
      *
      * @todo try to run this as post-echo method via runLater
-     * callback. This is not really resource intensive, but still...
-     * it checks for duplicate, checks viewer ID, etc...
-     * This also runs on every page view, and also since we use fsync when
-     * updating via MongoDoc object, it does require disk write.
+     *       callback. This is not really resource intensive, but still...
+     *       it checks for duplicate, checks viewer ID, etc...
+     *       This also runs on every page view, and also since we use fsync when
+     *       updating via MongoDoc object, it does require disk write.
      *
      *
+     * @param \Lampcms\User                     $Viewer
+     * @param int                               $inc
+     *
+     * @throws \InvalidArgumentException
      * @return object $this
      */
     public function increaseViews(\Lampcms\User $Viewer, $inc = 1)
@@ -531,7 +575,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
         /**
          * @todo Don't count question owner view
-         * For this we must be able to get Viewer from Registry
+         *       For this we must be able to get Viewer from Registry
          *
          * Filter out duplicate views
          */
@@ -567,10 +611,13 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
         }
 
         $collViews = $this->getRegistry()->Mongo->QUESTION_VIEWS;
-        $collViews->ensureIndex(array('uid' => 1, 'qid' => 1), array('unique' => true));
+        $collViews->ensureIndex(array('uid' => 1,
+                                      'qid' => 1), array('unique' => true));
         $qid = (int)$this->offsetGet('_id');
         try {
-            $collViews->insert(array('qid' => $qid, 'uid' => $viewerId, 'i_ts' => time()), array('safe' => true));
+            $collViews->insert(array('qid'  => $qid,
+                                     'uid'  => $viewerId,
+                                     'i_ts' => time()), array('safe' => true));
             parent::offsetSet('i_views', ($iViews + (int)$inc));
 
             /**
@@ -581,7 +628,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
              */
             $this->offsetSet('vw_s', 's');
 
-        } catch (\MongoException $e) {
+        } catch ( \MongoException $e ) {
             d('duplicate view for qid ' . $qid . ' uid: ' . $viewerId);
         }
 
@@ -593,8 +640,10 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
     /**
      * Process an UP vote for this question
      *
-     *
      * @param int $inc could be 1 or -1
+     *
+     * @throws \InvalidArgumentException
+     * @return \Lampcms\Question
      */
     public function addUpVote($inc = 1)
     {
@@ -603,7 +652,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
             throw new \InvalidArgumentException('$inc can only be 1 or -1. Was: ' . $inc);
         }
 
-        $tmp = (int)$this->offsetGet('i_up');
+        $tmp   = (int)$this->offsetGet('i_up');
         $score = (int)$this->offsetGet('i_votes');
         $total = ($score + $inc);
 
@@ -622,7 +671,13 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.UpDownRatable::addDownVote()
+     *
+     * @param int $inc
+     *
+     * @throws \InvalidArgumentException
+     * @return \Lampcms\Question
      */
     public function addDownVote($inc = 1)
     {
@@ -631,7 +686,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
             throw new \InvalidArgumentException('$inc can only be 1 or -1. Was: ' . $inc);
         }
 
-        $tmp = (int)$this->offsetGet('i_down');
+        $tmp   = (int)$this->offsetGet('i_down');
         $score = (int)$this->offsetGet('i_votes');
         $total = ($score - $inc);
 
@@ -653,14 +708,16 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.UpDownRatable::getVotesArray()
+     * @return array
      */
     public function getVotesArray()
     {
 
         $a = array(
-            'up' => $this->offsetGet('i_up'),
-            'down' => $this->offsetGet('i_down'),
+            'up'    => $this->offsetGet('i_up'),
+            'down'  => $this->offsetGet('i_down'),
             'score' => $this->offsetGet('i_votes'));
 
         return $a;
@@ -669,7 +726,9 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.UpDownRatable::getScore()
+     * @return array|bool|int|mixed|null
      */
     public function getScore()
     {
@@ -679,7 +738,12 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.CommentedResource::addComment()
+     *
+     * @param \Lampcms\CommentParser $Comment
+     *
+     * @return \Lampcms\Question
      */
     public function addComment(CommentParser $Comment)
     {
@@ -732,7 +796,9 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.CommentedResource::getCommentsCount()
+     * @return int
      */
     public function getCommentsCount()
     {
@@ -743,8 +809,11 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
 
     /**
-     *
      * Increase value of i_commets by 1
+     *
+     * @param int $count
+     *
+     * @throws \InvalidArgumentException
      * @return object $this
      */
     public function increaseCommentsCount($count = 1)
@@ -772,7 +841,12 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * new count of comments
      *
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.CommentedResource::deleteComment()
+     *
+     * @param $id
+     *
+     * @return \Lampcms\Question
      */
     public function deleteComment($id)
     {
@@ -820,7 +894,11 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * and user is still considered a contributor
      * as long as the same user has contributed other items
      *
-     * @param mixed int | object $User object of type User
+     * @param $User
+     *
+     * @throws \InvalidArgumentException
+     * @internal param int|object $mixed $User object of type User
+     * @return \Lampcms\Question
      */
     public function addContributor($User)
     {
@@ -829,7 +907,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
         }
 
         $uid = (\is_int($User)) ? $User : $User->getUid();
-        $a = $this->offsetGet('a_uids');
+        $a   = $this->offsetGet('a_uids');
         $a[] = $uid;
 
         parent::offsetSet('a_uids', $a);
@@ -848,7 +926,10 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * and user is still considered a contributor
      * as long as the same user has contributed other items
      *
-     * @param mixed int | User $User
+     * @param $User $User
+     *
+     * @throws \InvalidArgumentException
+     * @return \Lampcms\Question
      */
     public function removeContributor($User)
     {
@@ -858,8 +939,8 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
         }
 
         $changed = false;
-        $uid = (\is_int($User)) ? $User : $User->getUid();
-        $a = $this->offsetGet('a_uids');
+        $uid     = (\is_int($User)) ? $User : $User->getUid();
+        $a       = $this->offsetGet('a_uids');
         for ($i = 0; $i < count($a); $i += 1) {
             if ($uid == $a[$i]) {
                 d('unsetting contributor: ' . $uid . ' at array key: ' . $i);
@@ -882,6 +963,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * of a_flwrs
      *
      * @param mixed $User int|object of type User
+     *
      * @throws \InvalidArgumentException
      * if $User is not int and not a User object
      *
@@ -911,6 +993,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * of a_flwrs
      *
      * @param mixed $User int|object of type User
+     *
      * @throws \InvalidArgumentException
      * if $User is not int and not a User object
      *
@@ -941,21 +1024,23 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * and lp_t a time of last post
      *
      * @todo should make the last answerer an array
-     * and then just push the value there
-     * This way if answer is deleted we can just delete
-     * that one element from array!
+     *       and then just push the value there
+     *       This way if answer is deleted we can just delete
+     *       that one element from array!
      *
-     * @param User $User object of type User who made the last
-     * Answer or Comment to this question
+     * @param User                                  $User object of type User who made the last
+     *                                                    Answer or Comment to this question
+     *
+     * @param \Lampcms\Answer                       $Answer
      *
      * @return object $this
      */
     public function setLatestAnswer(User $User, Answer $Answer)
     {
         $aLatest = $this->offsetGet('a_latest');
-        $a = array(
-            'u' => '<a href="' . $User->getProfileUrl() . '">' . $User->getDisplayName() . '</a>',
-            't' => date('F j, Y g:i a T', $Answer->getLastModified()),
+        $a       = array(
+            'u'  => '<a href="' . $User->getProfileUrl() . '">' . $User->getDisplayName() . '</a>',
+            't'  => date('F j, Y g:i a T', $Answer->getLastModified()),
             'id' => $Answer->getResourceId()
         );
 
@@ -979,13 +1064,13 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * then also unset the whole 'a_latest' key
      * from this object
      *
-     * @param object $Answer object of type Answer
+     * @param \Lampcms\Answer|object $Answer object of type Answer
      *
      * @return object $this
      */
     public function removeAnswer(Answer $Answer)
     {
-        $id = $Answer->getResourceId();
+        $id      = $Answer->getResourceId();
         $aLatest = $this->offsetGet('a_latest');
 
         for ($i = 0; $i < count($aLatest); $i += 1) {
@@ -1034,6 +1119,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     /**
      * Getter for 'comments' element
+     *
      * @return array of comments or empty array if
      * 'comments' element not present in the object
      *
@@ -1049,6 +1135,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * a_comments array
      *
      * @param int $id comment id
+     *
      * @throws DevException if param $id is not an integer
      *
      * @return mixed array of one comment | false if comment not found by $id
@@ -1117,11 +1204,17 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * values directly
      *
      * (non-PHPdoc)
+     *
      * @see ArrayObject::offsetSet()
+     *
+     * @param mixed $index
+     * @param mixed $newval
+     *
+     * @throws DevException
      */
     public function offsetSet($index, $newval)
     {
-        switch ($index) {
+        switch ( $index ) {
 
             case 'i_comments':
                 throw new DevException('value of i_comments cannot be set directly. Use increaseCommentsCount() method');

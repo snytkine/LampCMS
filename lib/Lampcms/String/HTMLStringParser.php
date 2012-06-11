@@ -80,7 +80,7 @@ class HTMLStringParser extends HTMLString
 {
 
     /**
-     * Array of words to hilight in string
+     * Array of words to highlight in string
      *
      * @var array
      */
@@ -90,7 +90,7 @@ class HTMLStringParser extends HTMLString
 
 
     /**
-     * Opening html tag for hilighted word
+     * Opening html tag for highlighted word
      * Should use specific class name so
      * that later these nodes can be easily found
      * in case we need to 'de-hilighted' the string,
@@ -121,7 +121,7 @@ class HTMLStringParser extends HTMLString
      * Array of tag names that
      * should be excluded from all type
      * of text manipulation inside them
-     * This is for the hilight() and
+     * This is for the highlight() and
      * linkify() methods
      *
      * @var array
@@ -167,7 +167,7 @@ class HTMLStringParser extends HTMLString
      *
      *
      * @param array $aWords array of words that should
-     * be hightlighted in this html document
+     * be highlighted in this html document
      *
      * @return object $this
      */
@@ -185,7 +185,7 @@ class HTMLStringParser extends HTMLString
 
             /**
              *
-             * Rign now the highliged strings are NOT
+             * Right now the highlighted strings are NOT
              * in the node tree
              *
              * Call $this->reload()
@@ -203,7 +203,7 @@ class HTMLStringParser extends HTMLString
      * Internal method, which
      * is also called recursively if needed
      * It wraps the text of text nodes into
-     * the special 'highliting' tag (usually 'em')
+     * the special 'highlighting' tag (usually 'em')
      * It skips text inside the elements that should
      * be excluded (like 'i' and 'em' tags)
      *
@@ -220,7 +220,7 @@ class HTMLStringParser extends HTMLString
          * Skip nodes that are already the "a" node (link)
          * and skip tags that are already <em> or <i> tags
          */
-        if (!in_array($nodeName, $this->aExcluded) && !in_array($nodeName, array('em', 'i'))) {
+        if (!\in_array($nodeName, $this->aExcluded) && !\in_array($nodeName, array('em', 'i'))) {
             if (XML_TEXT_NODE == $o->nodeType) {
 
                 d('passing node to hiInNode');
@@ -252,7 +252,7 @@ class HTMLStringParser extends HTMLString
 
     /**
      * Remove tags that were previously
-     * added by the hilightWords() funcion
+     * added by the hilightWords() function
      * of this class
      * It changes the underlying html of this object
      * changed html not returned by this method
@@ -265,7 +265,7 @@ class HTMLStringParser extends HTMLString
         $query = '//' . $this->hlTag . '[@class=\'' . $this->hlClass . '\']';
         $Nodes = $xp->query($query);
 
-        d('found hilighted: ' . $Nodes->length);
+        d('found highlighted: ' . $Nodes->length);
 
         if ($Nodes && $Nodes->length > 0) {
             for ($i = 0; $i < $Nodes->length; $i += 1) {
@@ -295,6 +295,7 @@ class HTMLStringParser extends HTMLString
      * has child node (usually it does)
      *
      * @param \DOMNode $o
+     * @return \Lampcms\String\HTMLStringParser
      */
     public function linkify(\DOMNode $o = null)
     {
@@ -396,7 +397,7 @@ class HTMLStringParser extends HTMLString
      * Add attributes rel="code" class="c"
      * to all 'code' tags
      * this way the html with code tags can be
-     * parsed by syntax hilighter
+     * parsed by syntax highlighter
      *
      * @return object $this
      */

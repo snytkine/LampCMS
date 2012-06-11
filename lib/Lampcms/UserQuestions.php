@@ -70,15 +70,15 @@ class UserQuestions extends LampcmsObject
      * complete with pagination
      *
      * @todo there has to be an extra request param "tab" and ONLY if
-     * it equals to 'questions' then it would mean
-     * that sort and pagination is for this block because it could
-     * be for 'answer' block since they both come to the same controller
-     * OR just make separate controllers and then pagination and sorting
-     * will work ONLY with AJAX  and then just hide pagination from
-     * non-js browsers!
+     *       it equals to 'questions' then it would mean
+     *       that sort and pagination is for this block because it could
+     *       be for 'answer' block since they both come to the same controller
+     *       OR just make separate controllers and then pagination and sorting
+     *       will work ONLY with AJAX  and then just hide pagination from
+     *       non-js browsers!
      *
      * @param Registry $Registry
-     * @param User $User
+     * @param User     $User
      *
      * @return string html of user questions
      */
@@ -91,19 +91,19 @@ class UserQuestions extends LampcmsObject
             return '';
         }
 
-        $pagerLinks = '';
-
-        $pageID = $Registry->Request->get('pageID', 'i', 1);
         /**
-         * Default pager path
+         * @var string
          */
-        $pagerPath = '/tab/q/' . $uid . '/recent';
+        $pagerLinks = '';
         /**
-         * Default sort condition
-         *
+         * @var int
+         */
+        $pageID = $Registry->Router->getPageID();
+        /**
          * @var array
          */
-        $sort = array('i_ts' => 1);
+        $aUriMap = $Registry->Ini->getSection('URI_PARTS');
+
 
         //$mode = $Registry->Request->get('tab', 's', '');
 
@@ -116,7 +116,7 @@ class UserQuestions extends LampcmsObject
          * $mode 'questions' means that user requested
          * either pagination or sorting specifically
          * for the User Questions
-         * This is not necessaraly an ajax request as pagination
+         * This is not necessarily an ajax request as pagination
          * will work without Ajax too.
          *
          * When there is no explicit 'questions' $mode
@@ -126,38 +126,40 @@ class UserQuestions extends LampcmsObject
          */
         //if('q' === $mode){
 
-        $cond = $Registry->Request->get('sort', 's', 'recent');
-        switch ($cond) {
-            case 'recent':
-                $sort = array('i_ts' => -1);
-                $pagerPath = '/tab/q/' . $uid . '/recent';
+        $cond = $Registry->Router->getSegment(3, 's', $aUriMap['SORT_RECENT']);
+        d('$cond: ' . $cond);
+
+        switch ( $cond ) {
+            case $aUriMap['SORT_RECENT']:
+                $sort      = array('i_ts' => -1);
+                $pagerPath = '{_WEB_ROOT_}/{_userinfotab_}/q/' . $uid . '/{_SORT_RECENT_}';
                 break;
 
-            case 'voted':
-                $sort = array('i_votes' => -1);
-                $pagerPath = '/tab/q/' . $uid . '/voted';
+            case $aUriMap['SORT_VOTED']:
+                $sort      = array('i_votes' => -1);
+                $pagerPath = '{_WEB_ROOT_}/{_userinfotab_}/q/' . $uid . '/{_SORT_VOTED_}';
                 break;
 
-            case 'updated':
-                $sort = array('i_etag' => -1);
-                $pagerPath = '/tab/q/' . $uid . '/updated';
+            case $aUriMap['SORT_UPDATED']:
+                $sort      = array('i_etag' => -1);
+                $pagerPath = '{_WEB_ROOT_}/{_userinfotab_}/q/' . $uid . '/{_SORT_UPDATED_}';
                 break;
 
-            case 'views':
-                $sort = array('i_views' => -1);
-                $pagerPath = '/tab/q/' . $uid . '/views';
+            case $aUriMap['SORT_VIEWS']:
+                $sort      = array('i_views' => -1);
+                $pagerPath = '{_WEB_ROOT_}/{_userinfotab_}/q/' . $uid . '/{_SORT_VIEWS_}';
                 break;
 
             default:
-                $sort = array('i_ts' => 1);
-                $pagerPath = '/tab/q/' . $uid . '/oldest';
+                $sort      = array('i_ts' => 1);
+                $pagerPath = '{_WEB_ROOT_}/{_userinfotab_}/q/' . $uid . '/{_SORT_OLDEST_}';
                 break;
 
         }
         //}
 
         $cursor = self::getCursor($Registry, $uid, $sort);
-        $count = $cursor->count(true);
+        $count  = $cursor->count(true);
         d('$count: ' . $count);
 
         /**
@@ -171,28 +173,35 @@ class UserQuestions extends LampcmsObject
 
         if ($count > self::PER_PAGE || $pageID > 1) {
 
-            $oPaginator = Paginator::factory($Registry);
+            $Paginator = Paginator::factory($Registry);
 
-            $oPaginator->paginate($cursor, self::PER_PAGE,
-                array('path' => $pagerPath));
+            $Paginator->paginate($cursor, self::PER_PAGE,
+                array('path'        => $pagerPath,
+                      'currentPage' => $pageID));
 
-            $pagerLinks = $oPaginator->getLinks();
+            $pagerLinks = $Paginator->getLinks();
             d('links: ' . $pagerLinks);
         }
 
 
         $questions = \tplUquestions::loop($cursor);
-        d('questions: ' . $questions);
 
         $vals = array(
-            '{count}' => $count,
-            '{questions}' => $questions,
+            '{count}'      => $count,
+            '{questions}'  => $questions,
             '{pagination}' => $pagerLinks);
 
         return \tplUserQuestions::parse($vals);
     }
 
 
+    /**
+     * @static
+     * @param Registry $Registry
+     * @param $uid
+     * @param array $sort
+     * @return object \MongoCursor
+     */
     protected static function getCursor(Registry $Registry, $uid, array $sort)
     {
 

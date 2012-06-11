@@ -147,6 +147,7 @@ class Close extends WebPage
      * if Not moderator then if owner - request closing
      * of question
      *
+     * @throws \Lampcms\AccessException
      * @return object $this
      */
     protected function setClosed()
@@ -218,7 +219,7 @@ class Close extends WebPage
 
         d('vars: ' . print_r($vars, 1));
 
-        $body = vsprintf(self::EMAIL_BODY, $vars);
+        $body = \vsprintf(self::EMAIL_BODY, $vars);
 
         d('body ' . $body);
 
@@ -231,7 +232,7 @@ class Close extends WebPage
         /**
          * @todo translate string
          */
-        $message = 'Question closed';
+        $message = '@@Question closed@@';
         $requested = 'A request to close
 		this question has been sent to moderators<br>
 		The final decision about closing the question or leaving it open will be up to moderators';

@@ -65,29 +65,30 @@ class tplSortuq extends Lampcms\Template\Fast
         'voted_c' => '', //3
         'updated_c' => '', //4
         'views_c' => '', //5
-
-
-        'oldest_t' => 'Older questions first', // 6
-        'recent_t' => 'Recent questions first', // 7
-        'voted_t' => 'Most voted questions first', // 8
-        'updated_t' => 'Question with most recent activity first', // 9
-        'views_t' => 'Question with most views first', //10
-
-        'oldest' => 'Oldest', //11
-        'recent' => 'Recent', //12
-        'voted' => 'Most voted', //13
-        'updated' => 'Recently active', //14
-        'views' => 'Most views', //15
-
+        'oldest_t' => '@@Older questions first@@', // 6
+        'recent_t' => '@@Recent questions first@@', // 7
+        'voted_t' => '@@Most voted questions first@@', // 8
+        'updated_t' => '@@Question with most recent activity first@@', // 9
+        'views_t' => '@@Question with most views first@@', //10
+        'oldest' => '@@Oldest@@', //11
+        'recent' => '@@Recent@@', //12
+        'voted' => '@@Most voted@@', //13
+        'updated' => '@@Recently active@@', //14
+        'views' => '@@Most views@@', //15
         'uid' => '' //16
     );
 
+    /**
+     * Best to not edit this template!
+     * Placeholders will be replaced by the output buffer callback
+     * @var string
+     */
     protected static $tpl = '
 	<div id="qtypes" class="qtypes cb fl reveal hidden">
-	<a href="/tab/q/%16$s/recent/page1.html" class="ajax sortans ttt2 qtype%2$s" title="%7$s">%12$s</a>
-	<a href="/tab/q/%16$s/oldest/page1.html" class="ajax sortans ttt2 qtype%1$s" title="%6$s">%11$s</a>
-	<a href="/tab/q/%16$s/voted/page1.html" class="ajax sortans ttt2 qtype%3$s" title="%8$s">%13$s</a>
-	<a href="/tab/q/%16$s/updated/page1.html" class="ajax sortans ttt2 qtype%4$s" title="%9$s">%14$s</a>
-	<a href="/tab/q/%16$s/views/page1.html" class="ajax sortans ttt2 qtype%5$s" title="%10$s">%15$s</a>
+	<a href="{_WEB_ROOT_}/{_userinfotab_}/q/%16$s/{_SORT_RECENT_}/{_PAGER_PREFIX_}1{_PAGER_EXT_}" class="ajax sortans ttt2 qtype%2$s" title="%7$s">%12$s</a>
+	<a href="{_WEB_ROOT_}/{_userinfotab_}/q/%16$s/{_SORT_OLDEST_}/{_PAGER_PREFIX_}1{_PAGER_EXT_}" class="ajax sortans ttt2 qtype%1$s" title="%6$s">%11$s</a>
+	<a href="{_WEB_ROOT_}/{_userinfotab_}/q/%16$s/{_SORT_VOTED_}/{_PAGER_PREFIX_}1{_PAGER_EXT_}" class="ajax sortans ttt2 qtype%3$s" title="%8$s">%13$s</a>
+	<a href="{_WEB_ROOT_}/{_userinfotab_}/q/%16$s/{_SORT_UPDATED_}/{_PAGER_PREFIX_}1{_PAGER_EXT_}" class="ajax sortans ttt2 qtype%4$s" title="%9$s">%14$s</a>
+	<a href="{_WEB_ROOT_}/{_userinfotab_}/q/%16$s/{_SORT_VIEWS_}/{_PAGER_PREFIX_}1{_PAGER_EXT_}" class="ajax sortans ttt2 qtype%5$s" title="%10$s">%15$s</a>
 	</div>';
 }

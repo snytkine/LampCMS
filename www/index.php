@@ -100,32 +100,22 @@ if (true !== session_start()) {
 
             /**
              * Now replace translation strings
-             * identified as @
-             * @somestring@@
+             * identified as
+             * @@somestring@@
              *
              */
             $output = $translator($output);
 
-            /**
-             * Any placeholders that have not been replaced with
-             * values from URI_PARTS or from ROUTES
-             * AND has not been translated with $translator
-             *
-             * will be replaced with their placeholder names
-             * with this single preg_replace call (profiler reports this to take about 0.3 - 1ms - really fast)
-             */
-            $output = preg_replace('/@@([a-zA-Z0-9_\-!?\().,\'\s]+)@@/', '\\1', $output);
 
             /**
              * Timer calculation should be the last replacement
              * in order to count all other replacements
              */
             if (true == constant('LAMPCMS_SHOW_RENDER_TIME')) {
-                /**
-                 * @todo Translate string
-                 */
+
                 $scriptTime = $renderTimeString . ' ' . abs((microtime() - INIT_TIMESTAMP));
             }
+
             $output = \str_replace('{timer}', $scriptTime, $output);
 
             return $output;
