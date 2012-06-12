@@ -61,12 +61,12 @@ use \Lampcms\Request;
  * Controller for processing a vote
  * for question or answer
  *
- * @todo require post and token
- * send via Ajax by post only!
- * Otherwise it's too easy to fake a vote
- * by simple script tag on external website
- * at the very least require a token and validate it!
- * This will work even with get request
+ * @todo   require post and token
+ *         send via Ajax by post only!
+ *         Otherwise it's too easy to fake a vote
+ *         by simple script tag on external website
+ *         at the very least require a token and validate it!
+ *         This will work even with get request
  *
  * @author Dmitri Snytkine
  *
@@ -74,12 +74,34 @@ use \Lampcms\Request;
 class Vote extends WebPage
 {
 
+    /**
+     * Flag passed in request indicated up vote
+     */
+    const VOTE_UP = 'up';
+
+    /**
+     * Flag passed in request indicates the down vote
+     */
+    const VOTE_DOWN = 'down';
+
+    /**
+     * Must be logged in in order to vote
+     *
+     * @var bool
+     */
     protected $membersOnly = true;
 
+    /**
+     * Permission required for being able to vote
+     *
+     * @var string
+     */
     protected $permission = 'vote';
 
-    protected $aRequired = array('resid', 'type', 'res');
 
+    /**
+     * @var int id of question or answer being voted on
+     */
     protected $resID;
 
     /**
@@ -92,6 +114,7 @@ class Vote extends WebPage
 
     /**
      * What is the vote for: QUESTION or ANSWER?
+     * Default is QUESTION
      *
      * @var string
      */
@@ -117,11 +140,11 @@ class Vote extends WebPage
     protected function main()
     {
         $this->Registry->registerObservers('INPUT_FILTERS');
-        $this->resID = (int)$this->Request['resid'];
-        $this->voteType = $this->Request['type'];
-        $this->resType = ('a' === $this->Request['res']) ? 'ANSWERS' : 'QUESTIONS';
+        $this->resID    = (int)$this->Router->getNumber(1);
+        $this->voteType = $this->Router->getSegment(2);
+        $this->resType  = ('a' === $this->Router->getSegment(3, 's', 'q')) ? 'ANSWERS' : 'QUESTIONS';
 
-        if (!in_array($this->voteType, array('up', 'down'))) {
+        if (!in_array($this->voteType, array(self::VOTE_UP, self::VOTE_DOWN))) {
             throw new \Lampcms\Exception('Invalid type of vote');
         }
 
@@ -134,7 +157,7 @@ class Vote extends WebPage
                 ->updateQuestion()
                 ->setOwnerReputation()
                 ->postEvent();
-        } catch (\Exception $e) {
+        } catch ( \Exception $e ) {
             d('Vote not counted due to exception: ' . $e->getMessage() . ' in ' . $e->getFile() . ' line: ' . $e->getLine());
         }
 
@@ -170,7 +193,8 @@ class Vote extends WebPage
     protected function postEvent()
     {
 
-        $this->Registry->Dispatcher->post($this->Resource, 'onNewVote', array('type' => $this->voteType, 'isUndo' => (1 === $this->inc)));
+        $this->Registry->Dispatcher->post($this->Resource, 'onNewVote', array('type'   => $this->voteType,
+                                                                              'isUndo' => (1 === $this->inc)));
 
         return $this;
     }
@@ -234,15 +258,15 @@ class Vote extends WebPage
         $coll->ensureIndex(array('i_res' => 1));
 
 
-        $uid = $this->Registry->Viewer->getUid();
+        $uid   = $this->Registry->Viewer->getUid();
         $aData = array(
             'i_uid' => $uid,
             'i_res' => $this->resID,
-            't' => $this->voteType);
+            't'     => $this->voteType);
 
         $aRes = $coll->findOne($aData);
 
-        d('$aRes: ' . print_r($aRes, 1));
+        d('$aRes: ' . \print_r($aRes, 1));
 
         /**
          * If record exists, then this is an 'unvote'
@@ -253,7 +277,7 @@ class Vote extends WebPage
             $this->inc = -1;
             $coll->remove(array('_id' => $aRes['_id']));
         } else {
-            $aData['i_ts'] = time();
+            $aData['i_ts']    = time();
             $aData['i_owner'] = $this->Resource->getOwnerId();
             $coll->insert($aData);
         }
@@ -281,7 +305,7 @@ class Vote extends WebPage
             \Lampcms\User::factory($this->Registry)->by_id($uid)
                 ->setReputation($this->calculatePoints())
                 ->save();
-        } catch (\Exception $e) {
+        } catch ( \Exception $e ) {
             e($e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
         }
 
@@ -301,7 +325,7 @@ class Vote extends WebPage
      */
     protected function calculatePoints()
     {
-        if ('down' === $this->voteType) {
+        if (self::VOTE_DOWN === $this->voteType) {
             $points = $this->Registry->Ini->POINTS->DOWNVOTE;
         } elseif ('QUESTION' === $this->resType) {
             $points = $this->Registry->Ini->POINTS->UPVOTE_Q;
@@ -323,7 +347,7 @@ class Vote extends WebPage
      */
     protected function increaseVoteCount()
     {
-        if ('up' === $this->voteType) {
+        if (self::VOTE_UP === $this->voteType) {
             $this->Resource->addUpVote($this->inc)->touch(true);
         } else {
             $this->Resource->addDownVote($this->inc)->touch(true);
@@ -348,9 +372,9 @@ class Vote extends WebPage
                     ->update(
                     array('_id' => $this->Resource['i_qid']),
                     array('$set' =>
-                    array('i_etag' => time())));
+                          array('i_etag' => time())));
 
-            } catch (\Exception $e) {
+            } catch ( \Exception $e ) {
                 e('unable to update question after vote for answer is received ' . $this->Resource['i_qid']);
             }
         }
@@ -359,6 +383,12 @@ class Vote extends WebPage
     }
 
 
+    /**
+     * Send response to browser
+     * In case of Ajax request send back json encoded array
+     * In case of non-ajax redirect back to Question or Answer page
+     *
+     */
     protected function handleReturn()
     {
         $isAjax = Request::isAjax();
@@ -367,8 +397,8 @@ class Vote extends WebPage
         if ($isAjax) {
             $ret = array(
                 'vote' => array(
-                    'v' => $this->Resource->getScore(),
-                    't' => $this->resType,
+                    'v'   => $this->Resource->getScore(),
+                    't'   => $this->resType,
                     'rid' => $this->resID)
             );
 

@@ -120,7 +120,7 @@ class tplAnswer extends Lampcms\Template\Fast
         'i_votes' => '', // 6
         'i_uid' => '0', // 7 // answer author id
         'accepted_text' => '', //8
-        'accepted_class' => 'accept_answer', // 9
+        'accepted_class' => '@@accept_answer@@', // 9
         'vote_up' => "\xE2\x87\xA7", // 10 \xE2\x87\xA7
         'vote_down' => "\xE2\x87\xA9", //11
         'accept_link' => '&nbsp', // 12,
@@ -134,7 +134,7 @@ class tplAnswer extends Lampcms\Template\Fast
         'i_comments' => '0', // 20
         'nocomments' => '', //21
         'i_lm_ts' => '0', // 22
-        'add_comment' => 'add comment' //23
+        'add_comment' => '@@add comment@@' //23
     );
 
 
@@ -144,12 +144,12 @@ class tplAnswer extends Lampcms\Template\Fast
 		<div class="votebtns cb" id="vote%1$s">
 		<a id="upvote-%1$s"
 			title="I like this answer (click again to cancel)"
-			class="ttt ajax vote thumbup" href="/ansvote/%1$s/up" rel="nofollow">%10$s</a>
+			class="ttt ajax vote thumbup" href="{_WEB_ROOT_}/{_vote_}/%1$s/up/a" rel="nofollow">%10$s</a>
 		<div id="score%1$s" class="qscore">%6$s</div>
 
 		<a id="downvote-%1$s"
 			title="I dont like this answer (click again to cancel)"
-			class="ttt ajax vote thumbdown down" href="/ansvote/%1$s/down" rel="nofollow">%11$s</a>
+			class="ttt ajax vote thumbdown down" href="{_WEB_ROOT_}/{_vote_}/%1$s/down/a" rel="nofollow">%11$s</a>
 		</div>
 		<div class="acceptit anstype">%13$s</div>
 		<div class="acceptit">%12$s</div>
@@ -159,7 +159,7 @@ class tplAnswer extends Lampcms\Template\Fast
 		<div class="ans_body" id="ansbody-%1$s">%2$s</div>
 
 		<div class="answer controls uid-%7$s" id="res_%1$s">
-		   	<span class="ico flag ttt ajax" title="Flag this answer as inappropriate">flag</span>%19$s
+		   	<span class="ico flag ttt ajax" title="@@Flag this answer as inappropriate@@">@@flag@@</span>%19$s
 		</div>
 		<!-- // -->
 		<table class="foot">
@@ -175,7 +175,7 @@ class tplAnswer extends Lampcms\Template\Fast
             </div>
             	<div class="usr_details usr usr_%7$s">
             	%3$s<br>
-            	<span class="reputation" title="reputation score"></span>
+            	<span class="reputation" title="@@reputation score@@"></span>
 				</div>
 			</div>
 			%17$s
