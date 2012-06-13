@@ -71,7 +71,7 @@ class Answers extends LampcmsObject
     /**
      * Mongo cursor
      *
-     * @var oject of type MongoCursor
+     * @var object \MongoCursor
      */
     protected $Cursor;
 
@@ -90,20 +90,21 @@ class Answers extends LampcmsObject
      * of div if there is any pagination necessary!
      *
      * @todo add skip() and limit() to cursor
-     * in order to use pagination.
+     *       in order to use pagination.
      *
      * @param Question $Question
      *
-     * @param string desired format of result. Possible
-     * options are: html, array or json object
-     * This will be useful for when we have an API
+     * @param string   $result desired format of result. Possible
+     *                         options are: html, array or json object
      *
      *
+     *
+     * @throws Exception
      * @return string html block
      */
     public function getAnswers(Question $Question, $result = 'html')
     {
-        $Tr = $this->Registry->Tr;
+
         $qid = $Question['_id'];
         $url = $Question['url'];
         d('url: ' . $url);
@@ -153,24 +154,12 @@ class Answers extends LampcmsObject
 
         $pagerLinks = $oPager->getLinks();
 
-        $func = null;
         $ownerId = $Question['i_uid'];
         $showLink = (($ownerId > 0) && ($this->Registry->Viewer->isModerator() || $ownerId == $this->Registry->Viewer->getUid()));
 
-        d('adding accept link callback function');
-        /**
-         * @todo Translate strings
-         */
-        $accept = $Tr['Accept'];
-        $alt = $Tr['Click to accept this as best answer'];
-        $alt2 = $Tr['Owner of the question accepted this as best answer'];
         $noComments = ($noComments) ? ' nocomments' : '';
-        $addcomment = $Tr['add comment'];
-        $edited = $Tr['Edited'];
-        $reply = $Tr['Reply'];
-        $reply_t = $Tr['Reply to this comment'];
 
-        $func = function(&$a) use ($accept, $alt, $alt2, $addcomment, $reply, $reply_t, $edited, $showLink, $noComments)
+        $func = function(&$a) use ($showLink, $noComments)
         {
             /**
              * Don't show Accept link for
@@ -178,17 +167,14 @@ class Answers extends LampcmsObject
              */
             if (!($a['accepted'])) {
                 if ($showLink) {
-                    $a['accept_link'] = '<a class="accept ttt" title="' . $alt . '" href="/accept/' . $a['_id'] . '">' . $accept . '</a>';
+                    $a['accept_link'] = '<a class="accept ttt" title="@@Click to accept this as best answer@@" href="{_WEB_ROOT_}/{_accept_}/' . $a['_id'] . '">@@Accept@@</a>';
                 }
             } else {
-                $a['accepted'] = '<img src="/images/accepted.png" alt="Best answer" class="ttt" title="' . $alt2 . '">';
+                $a['accepted'] = '<img src="{_IMAGE_SITE_}{_DIR_}/images/accepted.png" alt="@@Best answer@@" class="ttt" title="@@Owner of the question accepted this as best answer@@">';
             }
 
-            $a['add_comment'] = $addcomment;
             $a['nocomments'] = $noComments;
-            $a['reply'] = $reply;
-            $a['reply_t'] = $reply_t;
-            $a['edited'] = $edited;
+            $a['edited'] = '@@Edited@@';
         };
 
         /**

@@ -61,7 +61,7 @@ use \Lampcms\Question;
  * Controller for processing the 'Accept as best answer'
  * vote
  *
- * @author admin
+ * @author Dmitri Snytkine
  *
  */
 class Accept extends WebPage
@@ -165,11 +165,10 @@ class Accept extends WebPage
      * any further
      *
      * @todo move this to external class and make
-     * this method static, accepting only Registry
+     *       this method static, accepting only Registry
      *
-     * @throws Exception if accept action comes from
-     * someone who's been flagged in the past 2 days
      *
+     * @throws \Lampcms\Exception
      * @return object $this
      */
     protected function checkVoteHack()
@@ -228,10 +227,11 @@ class Accept extends WebPage
      * We need object instead of just array because
      * object has getUrl() method which we will need to redirect
      * Also object has an auto-save changes so we can just make changes
-     * to the object and don't worry about explicitely saving to Mongo
+     * to the object and don't worry about explicitly saving to Mongo
      *
-     * @throws InvalidArgumentException
-     * @throws Exception
+     *
+     * @throws \Lampcms\Exception
+     * @return \Lampcms\Controllers\Accept
      */
     protected function getQuestion()
     {
@@ -259,9 +259,9 @@ class Accept extends WebPage
      * This does not apply to moderators as moderators
      * can also accept the best answer
      *
-     * @throws Lampcms\Exception if accept action
-     * came from someone other than question owner or moderator
      *
+     * @throws \Lampcms\Exception if accept action
+     * came from someone other than question owner or moderator
      * @return object $this
      */
     protected function checkViewer()
@@ -290,9 +290,8 @@ class Accept extends WebPage
      * Update the value of i_sel_and and i_lm_ts
      * in the QUESTIONS collection for this question
      *
-     * @throws Exception is the same answer is already the accepted
-     * one. This is just a safety check, should not happend usually
      *
+     * @throws \Lampcms\Exception
      * @return object $this
      */
     protected function updateQuestion()
@@ -450,6 +449,7 @@ class Accept extends WebPage
      *
      * @todo move this to external class and make
      * this method static, accepting only Registry
+     * @return \Lampcms\Controllers\Accept
      */
     protected function recordVoteHack()
     {

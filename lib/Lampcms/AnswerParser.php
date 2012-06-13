@@ -145,14 +145,15 @@ class Answerparser extends LampcmsObject
      * Main entry point to parse
      * submitted answer
      *
-     * @param object SubmittedAnswer $o
-     * @param object Question $q represents the parent question
-     * this is optional, if not passed, this class will
-     * find parent question based on 'qid' from submitted answer
+     * @param                        object SubmittedAnswer $o
+     * @param \Lampcms\Question|null $q
+     *
+     * @internal param \Lampcms\Question $object $q represents the parent question
+     *           this is optional, if not passed, this class will
+     *           find parent question based on 'qid' from submitted answer
      *
      * @return object of type Answer representing the new
-     * answer (which is also MongoDoc ArrayObject)
-     *
+     *           answer (which is also MongoDoc ArrayObject)
      */
     public function parse(SubmittedAnswer $o, Question $q = null)
     {
@@ -180,8 +181,6 @@ class Answerparser extends LampcmsObject
      */
     protected function makeAnswer()
     {
-
-        $username = $this->SubmittedAnswer->getUserObject()->getDisplayName();
 
         /**
          * Must pass array('drop-proprietary-attributes' => false)
@@ -258,7 +257,7 @@ class Answerparser extends LampcmsObject
         /**
          * Post onBeforeNewQuestion event
          * and watch for filter either cancelling the event
-         * or throwing FilterException (prefferred way because
+         * or throwing FilterException (preferred way because
          * a specific error message can be passed in FilterException
          * this way)
          *
@@ -272,7 +271,7 @@ class Answerparser extends LampcmsObject
         try {
             $oNotification = $this->Registry->Dispatcher->post($this->Answer, 'onBeforeNewAnswer');
             if ($oNotification->isNotificationCancelled()) {
-                throw new AnswerParserException('Sorry, we are unable to process your answer at this time.');
+                throw new AnswerParserException('@@Sorry, we are unable to process your answer at this time@@');
             }
         } catch (FilterException $e) {
             e('Got filter exteption: ' . $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage() . ' ' . $e->getTraceAsString());
@@ -340,6 +339,9 @@ class Answerparser extends LampcmsObject
      * Even when submitted by 2 different users, duplicate answers
      * are not allowed
      *
+     * @param $hash hash of the answer text
+     *
+     * @throws AnswerParserException
      * @return object $this
      */
     protected function checkForDuplicate($hash)
@@ -400,6 +402,7 @@ class Answerparser extends LampcmsObject
     {
         $FollowManager = new FollowManager($this->Registry);
         $FollowManager->followQuestion($this->Registry->Viewer, $this->Question);
+
         return $this;
     }
 
@@ -410,6 +413,8 @@ class Answerparser extends LampcmsObject
      * Question for which the user just submitted
      * an answer.
      * This is run via shutdown function
+     *
+     * @param $uid
      *
      * @return object $this
      */
@@ -435,6 +440,7 @@ class Answerparser extends LampcmsObject
     /**
      * Getter for $this->Question
      *
+     * @throws Exception
      * @return object of type Question representing the Question
      * for which we parsing the answer
      */
@@ -446,7 +452,7 @@ class Answerparser extends LampcmsObject
             if (empty($a)) {
                 e('Cannot find question with _id: ' . $this->Answer['qid']);
 
-                throw new Exception('Unable to find parent question for this answer');
+                throw new Exception('@@Unable to find parent question for this answer@@');
             }
 
             $this->Question = new Question($this->Registry, $a);

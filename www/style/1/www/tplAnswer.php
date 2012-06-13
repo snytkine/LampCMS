@@ -53,7 +53,7 @@
  * to pass callback to ::loop method
  * and even if we do, we would need to apply
  * the callback to each iteration, not very
- * effecient.
+ * efficient.
  *
  * @author Dmitri Snytkine
  *
@@ -96,15 +96,15 @@ class tplAnswer extends Lampcms\Template\Fast
              */
             $rid = $a['_id'];
             $uid = $a['i_uid'];
-            $reply = $a['reply'];
-            $reply_t = $a['reply_t'];
+            //$reply = $a['reply'];
+            //$reply_t = $a['reply_t'];
 
-            $f = function(&$data) use ($rid, $uid, $reply, $reply_t)
+            $f = function(&$data) use ($rid, $uid)
             {
                 $data['resource_id'] = $rid;
                 $data['owner_id'] = $uid;
-                $data['reply'] = $reply;
-                $data['reply_t'] = $reply_t;
+                //$data['reply'] = $reply;
+                //$data['reply_t'] = $reply_t;
             };
 
             $a['comments_html'] = tplComment::loop($a['a_comments'], true, $f);

@@ -129,7 +129,7 @@ class Answer extends Viewquestion
              * under the 'answer' key
              *
              * In case of non-ajax redirect back to question page,
-             * hopefull the new answer will show up there too
+             * hopefully the new answer will show up there too
              */
             if (Request::isAjax()) {
 
@@ -141,7 +141,7 @@ class Answer extends Viewquestion
                  * allowed to edit or delete it right away.
                  * Javascript that usually dynamically adds these tools
                  * is not going to be fired, so these tools
-                 * must alreayd be included in the returned html
+                 * must already be included in the returned html
                  *
                  */
                 $aAnswer['edit_delete'] = ' <span class="ico del ajax" title="@@Delete@@">@@delete@@</span>  <span class="ico edit ajax" title="@@Edit@@">@@edit@@</span>';
