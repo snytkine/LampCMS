@@ -323,8 +323,8 @@ class Router
         if ($segment !== $prefix . $int . $postfix) {
             $segments            = $this->uriSegments;
             $segments[($id - 1)] = $prefix . $int . $postfix;
-            $uri                 = implode('/', $segments);
-            $uri                 = $this->map['DIR'] . $this->map['FILE']. '/' . $this->getControllerSegment() . '/' . $uri;
+            $uri                 = \implode('/', $segments);
+            $uri                 = $this->Ini->SITE_URL .$this->map['DIR'] . $this->map['FILE']. '/' . $this->getControllerSegment() . '/' . $uri;
 
             if (!empty($_SERVER['QUERY_STRING'])) {
                 $uri .= '?' . $_SERVER['QUERY_STRING'];

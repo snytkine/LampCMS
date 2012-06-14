@@ -169,7 +169,6 @@ class Viewquestion extends WebPage
     protected function main()
     {
 
-        //$this->qid = $this->Registry->Router->getSegment(1, 'i');
         $this->qid = $this->Router->getNumber(1, null, $this->Registry->Ini['URI_PARTS']['QID_PREFIX']);
         if (Request::isAjax()) {
             $this->getQuestion()->getAnswers();
@@ -367,10 +366,6 @@ class Viewquestion extends WebPage
         if ($this->noComments) {
             $this->aQuestion['nocomments'] = ' nocomments';
         }
-
-        //$this->aQuestion['add_comment'] = $this->_('add comment');
-        // $this->aQuestion['reply']       = $this->_('Reply');
-        // $this->aQuestion['reply_t']     = $this->_('Reply to this comment');
 
 
         $breadcrumb = (empty($this->aQuestion['i_cat'])) ? '' : $this->getBreadcrumb($this->aQuestion['i_cat']);

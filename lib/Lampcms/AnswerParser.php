@@ -190,7 +190,7 @@ class Answerparser extends LampcmsObject
         $tidyConfig = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
         $Body = $this->SubmittedAnswer->getBody()->tidy($tidyConfig)->safeHtml()->asHtml();
 
-        $htmlBody = HTMLStringParser::factory($Body)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->valueOf();
+        $htmlBody = HTMLStringParser::stringFactory($Body)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->valueOf();
 
         d('after HTMLStringParser: ' . $htmlBody);
 
@@ -274,7 +274,7 @@ class Answerparser extends LampcmsObject
                 throw new AnswerParserException('@@Sorry, we are unable to process your answer at this time@@');
             }
         } catch (FilterException $e) {
-            e('Got filter exteption: ' . $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage() . ' ' . $e->getTraceAsString());
+            e('Got filter exception: ' . $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage() . ' ' . $e->getTraceAsString());
             throw new AnswerParserException($e->getMessage());
         }
 
@@ -348,7 +348,7 @@ class Answerparser extends LampcmsObject
     {
         $a = $this->Registry->Mongo->ANSWERS->findOne(array('hash' => $hash));
         if (!empty($a)) {
-            throw new AnswerParserException('Someone (possibly you) has already added exact same answer for this question. Duplicate answers are not allowed');
+            throw new AnswerParserException('@@Someone (possibly you) has already added exact same answer for this question. Duplicate answers are not allowed@@');
         }
 
         return $this;

@@ -66,7 +66,7 @@ use Lampcms\Responder;
  *
  * Results are paginated
  * A search form will also be on the page to allow to find specific tag
- * Later the search will be ajaxified like on Stackoverflow
+ * Later the search will be ajaxified
  */
 class Viewqtags extends Viewquestions
 {

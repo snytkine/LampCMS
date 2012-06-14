@@ -75,10 +75,13 @@ class Answers extends LampcmsObject
      */
     protected $Cursor;
 
+    protected $pagetPath;
+
 
     public function __construct(Registry $Registry)
     {
         $this->Registry = $Registry;
+
     }
 
 
@@ -105,12 +108,18 @@ class Answers extends LampcmsObject
     public function getAnswers(Question $Question, $result = 'html')
     {
 
-        $qid = $Question['_id'];
-        $url = $Question['url'];
-        d('url: ' . $url);
-        d('_GET: ' . print_r($_GET, 1));
+        $qid    = $Question['_id'];
+        $url    = $Question['url'];
+        $pageID = $this->Registry->Router->getPageID();
+        d('url: ' . $url . ' $pageID: ' . $pageID);
 
-        $cond = $this->Registry->Request->get('sort', 's', 'i_lm_ts');
+
+        $this->pagetPath = $Question->getUrl() . '/';
+
+        $urlParts = $this->Registry->Ini->getSection('URI_PARTS');
+
+        $cond = $this->Registry->Router->getSegment(3, 's', $urlParts['SORT_RECENT']);
+
         d('cond: ' . $cond);
         $noComments = (false === (bool)$this->Registry->Ini->MAX_COMMENTS);
         d('no comments: ' . $noComments);
@@ -121,8 +130,8 @@ class Answers extends LampcmsObject
          * anything in Mongo methods directly from
          * user input
          */
-        if (!in_array($cond, array('i_ts', 'i_votes', 'i_lm_ts'))) {
-            throw new Exception('invalid value of param "cond" was: ' . $cond);
+        if (!in_array($cond, array($urlParts['SORT_RECENT'], $urlParts['SORT_VOTED'], $urlParts['SORT_NEW']))) {
+            throw new Exception('Invalid value of param "cond" was: ' . $cond);
         }
 
         $where = array('i_qid' => $qid);
@@ -131,12 +140,12 @@ class Answers extends LampcmsObject
             $where['i_del_ts'] = null;
         }
 
-        switch ($cond) {
-            case 'i_ts':
+        switch ( $cond ) {
+            case $urlParts['SORT_RECENT']:
                 $sort = array('i_ts' => 1);
                 break;
 
-            case 'i_votes':
+            case $urlParts['SORT_VOTED']:
                 $sort = array('i_votes' => -1);
                 break;
 
@@ -149,12 +158,13 @@ class Answers extends LampcmsObject
         $cursor->sort($sort);
         $oPager = Paginator::factory($this->Registry);
         $oPager->paginate($cursor, $this->Registry->Ini->PER_PAGE_ANSWERS,
-            array('path' => $this->Registry->Ini->SITE_URL . '/q' . $qid . '/' . $url . '/' . $cond,
-                'append' => false)); //, 'fileName' => '&pageID=%d'
+            array('path'        => $this->pagetPath . $cond,
+                  'append'      => false,
+                  'currentPage' => $pageID)); //, 'fileName' => '&pageID=%d'
 
         $pagerLinks = $oPager->getLinks();
 
-        $ownerId = $Question['i_uid'];
+        $ownerId  = $Question['i_uid'];
         $showLink = (($ownerId > 0) && ($this->Registry->Viewer->isModerator() || $ownerId == $this->Registry->Viewer->getUid()));
 
         $noComments = ($noComments) ? ' nocomments' : '';
@@ -174,7 +184,7 @@ class Answers extends LampcmsObject
             }
 
             $a['nocomments'] = $noComments;
-            $a['edited'] = '@@Edited@@';
+            $a['edited']     = '@@Edited@@';
         };
 
         /**

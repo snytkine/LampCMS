@@ -68,15 +68,24 @@ use \Lampcms\SubmittedAnswerWWW;
 class Answer extends Viewquestion
 {
 
+    /**
+     * User needs 'answer' permission in order
+     * to use this controller
+     *
+     * @var string
+     */
     protected $permission = 'answer';
 
+    /**
+     * @var bool
+     */
     protected $membersOnly = true;
-
-    //protected $aAllowedVars = array('qbody');
 
 
     protected function main()
     {
+        $this->qid = (int)$this->Request['qid'];
+
         $this->getQuestion()->makeForm();
         if ($this->Form->validate()) {
             /**
@@ -156,8 +165,8 @@ class Answer extends Viewquestion
                 Responder::redirectToPage($this->Question->getUrl());
             }
 
-        } catch (\Lampcms\AnswerParserException $e) {
-            d('cp');
+        } catch ( \Lampcms\AnswerParserException $e ) {
+            d('Got AnswerParserException ' . $e->getMessage());
             /**
              * The setFormError in Form sends our json in
              * case of Ajax request, so we don't have to
