@@ -71,8 +71,6 @@ class Likecomment extends WebPage
 
     protected $permission = 'vote';
 
-    protected $aRequired = array('commentid');
-
 
     protected function main()
     {

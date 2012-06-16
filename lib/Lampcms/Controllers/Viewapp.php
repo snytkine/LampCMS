@@ -70,13 +70,6 @@ use Lampcms\WebPage;
 class Viewapp extends Editapp
 {
 
-    /**
-     * app_id is a required Request param
-     *
-     * @var array
-     */
-    protected $aRequired = array('app_id');
-
 
     protected function main()
     {
@@ -89,7 +82,8 @@ class Viewapp extends Editapp
 
     protected function setTitle()
     {
-		$this->title = $this->aPageVars['title'] = 'Application details';
+        $this->title = '@@Application details@@';
+        $this->aPageVars['title'] = $this->title;
 
 		return $this;
 	}
@@ -99,6 +93,7 @@ class Viewapp extends Editapp
      * Setup the 'body' of $this->aPageVars
      *
      *
+     * @return \Lampcms\Controllers\Viewapp
      */
     protected function setBody()
     {
@@ -127,7 +122,7 @@ class Viewapp extends Editapp
         $ret = '';
         $a = $this->oApi->getData();
         foreach ($a as $key => $val) {
-            $ret .= sprintf($tpl, $key, $val);
+            $ret .= \sprintf($tpl, $key, $val);
         }
 
         return $ret;

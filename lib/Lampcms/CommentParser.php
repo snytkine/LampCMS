@@ -139,6 +139,7 @@ class CommentParser extends LampcmsObject
      * comment is edited
      *
      * @throws \LogicException
+     * @return \Lampcms\CommentParser
      */
     public function touch()
     {
@@ -163,7 +164,9 @@ class CommentParser extends LampcmsObject
      * @todo limit length of body to about 600 chars of plain text
      *
      * @param \Lampcms\Interfaces\SubmittedComment $Comment
-     * @throws \Lampcms\Exception
+     *
+     * @throws AlertException
+     * @return \Lampcms\CommentParser
      */
     public function add(\Lampcms\Interfaces\SubmittedComment $Comment)
     {
@@ -309,9 +312,11 @@ class CommentParser extends LampcmsObject
     /**
      * Enforce min and max length of comment
      *
-     * @todo Translate string
      *
-     * @throws \Lampcms\Exception
+     * @param Utf8String $Body
+     *
+     * @throws AlertException
+     * @return \Lampcms\CommentParser
      */
     protected function validateBody(Utf8String $Body)
     {
@@ -322,11 +327,11 @@ class CommentParser extends LampcmsObject
              * @todo
              * Translate String
              */
-            throw new AlertException('Comment must be at least 10 characters long');
+            throw new AlertException('@@Comment must be at least 10 characters long@@');
         }
 
         if ($len > 600) {
-            throw new AlertException('Comment must be at limited to 600 characters. Your comment is ' . $len . ' characters-long');
+            throw new AlertException('@@Comment must be at limited to 600 characters@@. Your comment is ' . $len . ' characters-long');
         }
 
         return $this;
@@ -357,10 +362,9 @@ class CommentParser extends LampcmsObject
      * Usually there is a limit to how many comments an item
      * can have. This is to prevent run-away discussion
      *
+     * @throws AlertException
      * @return object $this
      *
-     * @throws \Lampcms\Exception if Resource already
-     * has reached the comments limit
      */
     protected function checkCommentsLimit()
     {
@@ -369,7 +373,7 @@ class CommentParser extends LampcmsObject
                 throw new AlertException('Unable to add comment because the limit of ' . $limit . ' comments per item has been reached.<br>Consider adding another answer instead');
             }
         } else {
-            throw new AlertException('Comments feature has been disabled by administrator');
+            throw new AlertException('@@Comments feature has been disabled by administrator@@');
         }
 
         return $this;
@@ -489,7 +493,7 @@ class CommentParser extends LampcmsObject
 
 
         if ((time() - $this->aComment['i_ts']) > ($timeout * 60)) {
-            throw new AlertException('You cannot edit comments that are older than ' . $timeout . ' minutes');
+            throw new AlertException('@@You cannot edit comments that are older than@@ ' . $timeout . ' @@minutes@@');
         }
 
         return $this;
@@ -609,7 +613,7 @@ class CommentParser extends LampcmsObject
             ->findOne(array('_id' => $this->aComment['i_res']));
 
         if (empty($this->aResource)) {
-            throw new \Lampcms\Exception('Unable to delete comment because commented item not found');
+            throw new \Lampcms\Exception('@@Commented resource not found@@');
         }
 
         d('cp');
@@ -633,7 +637,7 @@ class CommentParser extends LampcmsObject
         d('$viewerID: ' . var_export($viewerID, true));
 
         if ((null !== $viewerID) && ((int)$viewerID !== $this->aComment['i_uid'])) {
-            throw new AccessException('Action failed because you are not the author of this comment.');
+            throw new AccessException('@@Action failed because you are not the author of this comment@@.');
         }
 
         return $this;
@@ -655,10 +659,8 @@ class CommentParser extends LampcmsObject
     {
         $this->aComment = $this->Registry->Mongo->COMMENTS->findOne(array('_id' => $id));
         if (empty($this->aComment)) {
-            throw new \Lampcms\Exception('Unable to delete comment because comment not found');
+            throw new \Lampcms\Exception('@@Comment not found@@');
         }
-
-        d('cp');
 
         return $this;
     }
@@ -672,13 +674,14 @@ class CommentParser extends LampcmsObject
      * post onCommentLike
      *
      * @todo this can be done without creating
-     * Resource object by using in-place update
-     * of nested array element right in Mongo
-     * @see http://www.mongodb.org/display/DOCS/Updating#Updating-The%24positionaloperator
+     *       Resource object by using in-place update
+     *       of nested array element right in Mongo
+     * @see  http://www.mongodb.org/display/DOCS/Updating#Updating-The%24positionaloperator
      *
      *
+     * @param \Lampcms\Interfaces\SubmittedComment $Comment
      *
-     * Enter description here ...
+     * @return \Lampcms\CommentParser
      */
     public function addLike(\Lampcms\Interfaces\SubmittedComment $Comment)
     {
@@ -745,10 +748,12 @@ class CommentParser extends LampcmsObject
      * also serves as a check for duplicate likes
      * since uid,i_res is unique
      *
-     * @param int $id id of comment
+     * @param $resID
+     *
+     * @throws \LogicException
+     * @internal param int $id id of comment
      *
      * @return object $this
-     *
      */
     protected function addCommentLike($resID)
     {
@@ -757,11 +762,8 @@ class CommentParser extends LampcmsObject
         $ownerID = $this->aComment['i_uid'];
 
         if ($uid == $ownerID) {
-            /**
-             * @todo Translate string
-             */
 
-            throw new \LogicException('Likes of own comment do not count');
+            throw new \LogicException('@@Likes of own comment do not count@@');
         }
 
         $coll = $this->Registry->Mongo->getCollection('COMMENTS_LIKES');
@@ -769,7 +771,7 @@ class CommentParser extends LampcmsObject
         $coll->ensureIndex(array('i_owner' => 1));
 
         /**
-         * The value of _id is compasite of userId.resourceId, making
+         * The value of _id is composite of userId.resourceId, making
          * it unique to per user per resource, this makes
          * it impossible to "Like" the same resource more than once
          * but the same user
@@ -792,7 +794,7 @@ class CommentParser extends LampcmsObject
         } catch (\MongoException $e) {
             d('Unable to add record to COMMENTS_LIKES collection: ' . $e->getMessage());
 
-            throw new \LogicException('Duplicate Like detected');
+            throw new \LogicException('@@Duplicate Like detected@@');
         }
 
         return $this;

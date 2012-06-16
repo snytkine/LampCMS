@@ -62,6 +62,7 @@ namespace Lampcms\Controllers;
  */
 class Flagcomment extends Flagger
 {
+
     protected $SUBJECT = 'Flagged comment';
 
 
@@ -82,13 +83,17 @@ class Flagcomment extends Flagger
         $this->aComment = $this->Registry->Mongo->COMMENTS->findOne(array('_id' => (int)$this->Request['rid']));
         if (empty($this->aComment)) {
 
-            throw new \Lampcms\Exception('Item not found');
+            throw new \Lampcms\Exception('@@Item not found@@');
         }
 
         return $this;
     }
 
-
+    /**
+     * Generate the body of the email
+     *
+     * @return string
+     */
     protected function makeBody()
     {
         $vars = array(
@@ -103,7 +108,7 @@ class Flagcomment extends Flagger
 
         d('vars: ' . print_r($vars, 1));
 
-        $body = vsprintf($this->EMAIL_BODY, $vars);
+        $body = \vsprintf($this->EMAIL_BODY, $vars);
 
         d('body ' . $body);
 

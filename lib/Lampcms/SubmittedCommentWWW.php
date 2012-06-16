@@ -111,8 +111,8 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
     /**
      * Constructor
      *
-     * @param object \Lampcms\Registry $Registry
-     * @param object \Lampcms\Interfaces\LampcmsResource $Resource
+     * @param \Lampcms\Registry  $Registry
+     * @param \Lampcms\Interfaces\LampcmsResource $Resource
      */
     public function __construct(\Lampcms\Registry $Registry, \Lampcms\Interfaces\LampcmsResource $Resource = null)
     {
@@ -162,7 +162,7 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
     protected function findCollection()
     {
 
-        $commentID = $this->Registry->Request->get('commentid', 'i', 0);
+        $commentID = (Request::isPost()) ? $this->Registry->Request->get('commentid', 'i', 0) : $this->Registry->Router->getNumber(1);
         if (0 !== $commentID) {
             $this->getCollectionByCommentId($commentID);
         } else {
@@ -176,6 +176,7 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
     /**
      * Create object of type Question or Answer
      *
+     * @throws Exception if unable to find Question or Answer by resourceID
      * @return object $this
      */
     protected function initResource()
@@ -267,6 +268,7 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 
 
     /**
+     * @throws DevException
      * @return int id of question for which
      * this comment is submitted
      */
@@ -331,7 +333,7 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
 
 
     /**
-     * Returnes id of user (USERS.id)
+     * Returns id of user (USERS.id)
      * who owns the resource
      * Which is usually the user who created it
      * but doest not have to be.
@@ -350,14 +352,13 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
      * Get unix timestamp of
      * when resource was last modified
      * This includes any type of change made to a
-     *
      * resource, including when new comments were added
      * or new rating added ,etc.
      *
      * It's up to the implementer to decide what changes
      * are significant enough to be considered modified
      * but usually the on update CURRENT TIMESTAMP
-     * is a very good way to mark resouce as modified
+     * is a very good way to mark resource as modified
      *
      * @return int last modified time in unix timestamp
      *
@@ -405,7 +406,7 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
         $a = $this->Registry->Mongo->COMMENTS->findOne(array('_id' => $commentid));
         d('a: ' . print_r($a, 1));
         if (empty($a) || empty($a['coll'])) {
-            throw new \Lampcms\Exception('RESOURCE NOT FOUND by id ' . $commentid);
+            throw new \Lampcms\Exception('@@Resource not found by id@@ ' . $commentid);
         }
 
         $this->collection = $a['coll'];
@@ -428,7 +429,7 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
     public function getResourceId()
     {
 
-        $id = $this->Registry->Request->get('commentid', 'i', 0);
+        $id = $this->getCommentId();
         if (!empty($id)) {
             d('got commentid: ' . $id);
 
@@ -436,6 +437,11 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
         }
 
         return $this->Registry->Resource->create(self::RESOURCE_TYPE);
+    }
+
+
+    protected function getCommentId(){
+        return (Request::isPost()) ? $this->Registry->Request->get('commentid', 'i', 0) : $this->Registry->Router->getNumber(1);
     }
 
 
@@ -490,6 +496,6 @@ class SubmittedCommentWWW implements \Lampcms\Interfaces\SubmittedComment
         $name = $this->getApp();
         $id = $this->getAppId();
 
-        return (!empty($id) && !empty($name)) ? \sprintf('<a href="/app/%s" rel="nofollow" target="_blank">%s</a>', $id, $name) : null;
+        return (!empty($id) && !empty($name)) ? \sprintf('<a href="{_WEB_ROOT_}/{_viewapp_}/%s" rel="nofollow" target="_blank">%s</a>', $id, $name) : null;
     }
 }

@@ -65,7 +65,7 @@ namespace Lampcms;
  *
  * You must manually add the logic for objects that
  * this class will be instantiating in init() method
- * This is the most effecient way to do dependency injection
+ * This is the most efficient way to do dependency injection
  * While not as flexible, it is much faster than using
  * external xml config file
  *
@@ -83,7 +83,7 @@ class Registry implements Interfaces\LampcmsObject
 
     /**
      *
-     * Storate array of callable methods
+     * Storage array of callable methods
      * that know how to instantiate object
      * OR element could be an object
      *
@@ -368,6 +368,10 @@ class Registry implements Interfaces\LampcmsObject
      *
      * Call this method only after the !inc.php has been loaded
      * somewhere at the end of !inc.php is fine.
+     *
+     * @param string $section
+     *
+     * @return \Lampcms\Registry (this object)
      */
     public function registerObservers($section = 'OBSERVERS')
     {
@@ -391,6 +395,7 @@ class Registry implements Interfaces\LampcmsObject
      * for example if(empty($Registry->Viewer)
      *
      * @param string $var name of var to test for
+     * @return bool
      */
     public function __isset($var)
     {
@@ -490,6 +495,7 @@ class Registry implements Interfaces\LampcmsObject
      * when it's called
      *
      * @param function $callable
+     * @return closure
      */
     public function asShared($callable)
     {

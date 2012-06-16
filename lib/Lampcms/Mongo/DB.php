@@ -404,6 +404,7 @@ class DB extends \Lampcms\LampcmsObject
      *
      * @param string $collName name of collection
      *
+     * @throws \InvalidArgumentException
      * @return object of type MongoCollection
      */
     public function getCollection($collName)

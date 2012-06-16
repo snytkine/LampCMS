@@ -202,7 +202,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      * Check if user is moderator, which
      * includes all types of moderator or admin
      *
-     * @return bool true if moderator, falst otherwise
+     * @return bool true if moderator, false otherwise
      */
     public function isModerator()
     {
@@ -226,7 +226,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     /**
      * Get full name of user
-     * by concatinating first name, middle name, last name
+     * by concatenating first name, middle name, last name
      *
      * @return string full name
      */
@@ -1330,7 +1330,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
 
     /**
-     * Get LinkedIn oAuth sercret
+     * Get LinkedIn oAuth secret
      *
      * @return mixed string | null if not found
      */
@@ -1398,7 +1398,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      * in case when user has more than one blog
      * on Linkedin.
      * If user has only one blog we still use this param
-     * for consistancy
+     * for consistency
      *
      * @return string value to be used as 'group' param
      * in WRITE API call

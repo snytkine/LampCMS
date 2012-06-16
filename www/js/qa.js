@@ -456,7 +456,7 @@ oSL.tweet = (function () {
     return {
 
         getInstance:function () {
-            var eRootDiv, oFrm, siteDescription, sForm;
+            var eRootDiv, oFrm, siteDescription, sForm, webRoot;
             if (!oDialog) {
                 if (!$('dialog1')) {
 
@@ -1037,7 +1037,7 @@ YUI({
              * reply-to-comment form
              */
                 tplComform = '<div id="comm_wrap_{divID}" class="fl cb{extraClass}">'
-                + '<form action="/index.php" id="add-comment-{formID}" class="comform" method="post">'
+                + '<form action="{web_root}" id="add-comment-{formID}" class="comform" method="post">'
                 + '<input type="hidden" name="a" value="addcomment">'
                 + '<input type="hidden" name="rid" value="{resID}">'
                 + '<input type="hidden" name="parentid" value="{parentID}">'
@@ -1688,7 +1688,7 @@ YUI({
                 likes = (!likes) ? 0 : parseInt(likes, 10);
                 //Y.log('likes: ' + likes);
                 likesdiv.set("text", (likes + 1));
-                Y.io('/index.php?a=likecomment&commentid=' + id);
+                Y.io(getMeta('web_root') + '/likecomment/' + id);
 
             }, //
             /**
@@ -2217,7 +2217,7 @@ YUI({
                     }
                 }
 
-                form = '<form name="form_f" action="/index.php">'
+                form = '<form name="form_f" action="'+ getMeta('web_root') + '">'
                     + '<input type="hidden" name="a" value="follow">'
                     + '<input type="hidden" name="ftype" value="' + ftype + '">'
                     + '<input type="hidden" name="follow" value="' + follow + '">'
@@ -3219,7 +3219,7 @@ YUI({
                     faction = 'flagcomment';
                 }
                 form = '<div id="div_flag" style="text-align: left">'
-                    + '<form name="form_flag" action="/index.php">'
+                    + '<form name="form_flag" action="'+ getMeta('web_root') + '">'
                     + '<input type="hidden" name="a" value="' + faction + '">'
                     + '<input type="hidden" name="rid" value="{rid}">'
                     + '<input type="hidden" name="token" value="' + getToken() + '">'
@@ -3247,7 +3247,7 @@ YUI({
             var oAlert, form;
             if (ensureLogin()) {
                 form = '<div style="text-align: left">'
-                    + '<form name="form_close" id="id_close" action="/index.php">'
+                    + '<form name="form_close" id="id_close" action="'+ getMeta('web_root') + '">'
                     + '<input type="hidden" name="a" value="close">'
                     + '<input type="hidden" name="token" value="' + getToken() + '">'
                     + '<input type="hidden" name="qid" value="' + qid + '">'
@@ -3282,7 +3282,7 @@ YUI({
                 //Y.log('sTags: ' + sTags);
 
                 form = '<div id="div_flag" style="text-align: left">'
-                    + '<form name="form_flag" id="id_flag" action="/index.php">'
+                    + '<form name="form_flag" id="id_flag" action="'+ getMeta('web_root') + '">'
                     + '<input type="hidden" name="a" value="retag">'
                     + '<input type="hidden" name="token" value="' + getToken() + '">'
                     + '<input type="hidden" name="qid" value="' + getMeta('qid') + '">'
@@ -3308,7 +3308,7 @@ YUI({
             if (confirm('Really delete this comment?')) {
                 comment = Y.one("#comment-" + resID);
                 if (comment) {
-                    myform = '<form name="form_del" action="/index.php">'
+                    myform = '<form name="form_del" action="'+ getMeta('web_root') + '">'
                         + '<input type="hidden" name="a" value="deletecomment">'
                         + '<input type="hidden" name="rid" value="' + resID + '">'
                         + '<input type="hidden" name="token" value="' + getToken() + '">';
@@ -3345,7 +3345,7 @@ YUI({
                     banCheckbox = '<br><input type="checkbox" name="ban"><label> Ban poster</label><br>';
                 }
                 form = '<div id="div_del" style="text-align: left">'
-                    + '<form name="form_del" action="/index.php">'
+                    + '<form name="form_del" action="'+ getMeta('web_root') + '">'
                     + '<input type="hidden" name="a" value="' + a + '">'
                     + '<input type="hidden" name="rid" value="{rid}">'
                     + '<input type="hidden" name="token" value="' + getToken() + '">'
@@ -3405,7 +3405,8 @@ YUI({
                                 token:getToken(),
                                 parentID:'0',
                                 comment:'comment',
-                                commentTip:commentTip
+                                commentTip:commentTip,
+                                web_root: getMeta('web_root')
                             }
                         );
 
@@ -3492,6 +3493,7 @@ YUI({
                             token:getToken(),
                             comment:'reply',
                             commentTip:commentTip,
+                            web_root: getMeta('web_root'),
                             parentID:parentID});
 
                         parentDiv.insert(form, 'after');
@@ -3533,7 +3535,7 @@ YUI({
                 //Y.log('1555 mmdDecoded: ' + content);
 
                 form = '<div id="comm_wrap_' + resID + '" class="fl cb">'
-                    + '<form action="/index.php" id="edit-comment-' + resID + '" class="comform" method="post">'
+                    + '<form action="'+ getMeta('web_root' )+ '" id="edit-comment-' + resID + '" class="comform" method="post">'
                     + '<input type="hidden" name="a" value="editcomment">'
                     + '<input type="hidden" name="commentid" value="' + resID + '">'
                     + '<input type="hidden" name="token" value="' + getToken() + '">'
@@ -3558,7 +3560,7 @@ YUI({
             var id = uid.substr(5);
             //Y.log('uid: ' +id);
             form = '<div id="div_del" style="text-align: left">'
-                + '<form name="form_shred" id="id_shred" action="/index.php">'
+                + '<form name="form_shred" id="id_shred" action="'+ getMeta('web_root') + '">'
                 + '<input type="hidden" name="a" value="shred">'
                 + '<input type="hidden" name="uid" value="' + id + '">'
                 + '<input type="hidden" name="token" value="' + getToken() + '">'

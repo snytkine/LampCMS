@@ -141,7 +141,7 @@ class Flagger extends WebPage
 
         if (empty($a)) {
 
-            throw new \Lampcms\Exception('Item not found');
+            throw new \Lampcms\Exception('@@Item not found@@');
         }
 
         $class = ('QUESTIONS' === $this->collection) ? '\\Lampcms\\Question' : '\\Lampcms\\Answer';
@@ -271,7 +271,7 @@ class Flagger extends WebPage
                 $aTo[] = $row['email'];
             }
 
-            d('aTo: ' . print_r($aTo, 1));
+            d('aTo: ' . \print_r($aTo, 1));
             $this->Registry->Mailer->mail($aTo, $subject, $body);
         }
 
@@ -282,10 +282,7 @@ class Flagger extends WebPage
 
     protected function returnResult()
     {
-        /**
-         * @todo translate string
-         */
-        $message = 'Thank you for caring!<br>Moderators have been notified';
+        $message = '@@Thank you for caring!<br>Moderators have been notified@@';
         if (Request::isAjax()) {
             Responder::sendJSON(array('alert' => $message));
         }

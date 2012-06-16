@@ -91,7 +91,7 @@ class Doc extends LampcmsArray implements \Serializable
      * has already been saved, usually
      * by manually calling save()
      *
-     * The desctuctor checks this flag and will
+     * The destructor checks this flag and will
      * not save data if it was already saved.
      *
      * @var bool
@@ -171,7 +171,7 @@ class Doc extends LampcmsArray implements \Serializable
      * @param Registry $Registry
      * @param string $collectionName
      * @param array $a
-     * @param stirng $default fallback value for element
+     * @param string $default fallback value for element
      * that does not exist in this ArrayObject
      *
      * @return object of this class OR class extending this class
@@ -452,9 +452,9 @@ class Doc extends LampcmsArray implements \Serializable
      *
      * Basically once the delete() in invoked it deletes
      * the row from the database, so this object
-     * is no longer needed and ideally shold just go away
+     * is no longer needed and ideally should just go away
      * but since it will not be destroyed right away we should
-     * at least throw exceptions when any attemp to use this
+     * at least throw exceptions when any attempt to use this
      * object is made
      *
      * @return mixed
