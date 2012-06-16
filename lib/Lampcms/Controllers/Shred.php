@@ -250,7 +250,7 @@ class Shred extends WebPage
      * This is better than actually deleting the user
      * since it's still possible to 'undelete' user
      * if necessary and also it makes it more difficult
-     * for this user to just re-register beause
+     * for this user to just re-register because
      * user will not be able to reuse email address
      *
      * @return object $this

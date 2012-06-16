@@ -89,6 +89,8 @@ class Activate extends WebPage
     protected function main()
     {
 
+        $this->timeLimit = $this->Registry->Ini->VALIDATION_CODE_EXPIRATION;
+
         $this->getEmailRecord()
             ->validateExpiration()
             ->activateUser()
@@ -98,20 +100,21 @@ class Activate extends WebPage
     /**
      * Select one row from EMAILS table
      *
+     * @throws \Lampcms\Exception
      * @return $this
      */
     protected function getEmailRecord()
     {
-        $this->aEmail = $this->Registry->Mongo->EMAILS->findOne(array('_id' => $this->Request['eid'], 'code' => $this->Request['hash']));
+        $eid = $this->Router->getNumber(1);
+        $hash = $this->Router->getSegment(2);
+
+        $this->aEmail = $this->Registry->Mongo->EMAILS->findOne(array('_id' => $eid, 'code' => $hash));
         if (empty($this->aEmail)) {
-            /**
-             * @todo
-             * Translate string
-             */
-            throw new \Lampcms\Exception($this->_('Unable to find user'));
+
+            throw new \Lampcms\Exception('@@Unable to find user@@');
         }
 
-        d('$this->aEmail: ' . print_r($this->aEmail, 1));
+        d('$this->aEmail: ' . \print_r($this->aEmail, 1));
 
         return $this;
     }
@@ -122,17 +125,16 @@ class Activate extends WebPage
      * expired
      *
      * @todo need to generate new validation code and re-email it
-     * to the same user
+     *       to the same user
      *
+     * @throws \Lampcms\NoticeException
      * @return object $this
      */
     protected function validateExpiration()
     {
         if (($this->aEmail['i_code_ts'] + $this->timeLimit) < time()) {
-            /**
-             * @todo translate string
-             */
-            throw new \Lampcms\NoticeException($this->_('Activation code no longer valid'));
+
+            throw new \Lampcms\NoticeException('@@Activation code no longer valid@@');
         }
 
         return $this;
@@ -143,6 +145,8 @@ class Activate extends WebPage
      * Change user's user_group_id to registered
      * and set validation_time to now in EMAILS record
      *
+     * @throws \Lampcms\NoticeException
+     * @throws \Lampcms\Exception
      * @return object $this
      */
     protected function activateUser()
@@ -151,10 +155,8 @@ class Activate extends WebPage
         $aUser = $this->Registry->Mongo->USERS->findOne(array('_id' => (int)$this->aEmail['i_uid']));
 
         if (empty($aUser)) {
-            /**
-             * @todo translate string
-             */
-            throw new \Lampcms\Exception($this->_('Unable to find user, please create a new account'));
+
+            throw new \Lampcms\Exception('@@Unable to find user, please create a new account@@');
         }
 
 
@@ -166,11 +168,7 @@ class Activate extends WebPage
          */
         if (false === \strstr($role, 'unactivated')) {
 
-            /**
-             * @todo
-             * Translate string
-             */
-            throw new \Lampcms\NoticeException($this->_('This account has already been activated'));
+            throw new \Lampcms\NoticeException('@@This account has already been activated@@');
         }
 
         $this->oActivatedUser->activate()->save();
@@ -200,7 +198,7 @@ class Activate extends WebPage
     protected function setReturn()
     {
 
-        $this->aPageVars['title'] = 'Account activation complete';
+        $this->aPageVars['title'] = '@@Account activation complete@@';
 
         $this->aPageVars['body'] = '<div id="tools" class="larger">Account activation complete<br/>The account <b>' . $this->oActivatedUser->username . '</b> now has all the privileges<br/>
 		of a registered user on our website.<br/>

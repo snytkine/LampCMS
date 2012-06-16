@@ -48,26 +48,25 @@ class tplAnstypes extends Lampcms\Template\Fast
 {
     protected static $vars = array(
 
-        'i_lm_ts_c' => '', // 1
-        'i_votes_c' => '', //2
+        'recent_c' => '', // 1
+        'best_c' => '', //2
 
-        'i_lm_ts' => 'Active', //3
-        'i_lm_ts_t' => 'Most recenty active', //4
+        'i_lm_ts' => '@@Active@@', //3
+        'i_lm_ts_t' => '@@Answers with latest activity first@@', //4
 
-        'i_votes' => 'Most Voted', //5
-        'i_votes_t' => 'Answers with highest votes', //6
+        'i_votes' => '@@Best@@', //5
+        'i_votes_t' => '@@Best answers first@@', //6
 
-        'i_ts_c' => '', //7
-        'i_ts' => 'Oldest', // 8
-        'i_ts_t' => 'Oldest to recent' // 9
-
+        'oldest_c' => '', //7
+        'i_ts' => '@@Oldest@@', // 8
+        'i_ts_t' => '@@Answers in the order they were submitted@@' // 9
 
     );
 
     protected static $tpl = '
 	<div id="qtypes" class="sorttab cb fl reveal hidden">
-		<a id="i_lm_ts" href="#" class="ajax sortans qtype%1$s ttt2" title="%4$s"><span rel="in">%3$s</span></a>
-		<a id="i_ts" href="#" class="ajax sortans qtype%7$s ttt2" title="%9$s"><span rel="in">%8$s</span></a>
-		<a id="i_votes" href="#" class="ajax sortans qtype%2$s ttt2" title="%5$s"><span rel="in">%5$s</span></a>
+	    <a id="sort_{_SORT_BEST_}" href="#" class="ajax sortans qtype%2$s ttt2" title="%6$s"><span rel="in">%5$s</span></a>
+		<a id="sort_{_SORT_RECENT_}" href="#" class="ajax sortans qtype%1$s ttt2" title="%4$s"><span rel="in">%3$s</span></a>
+		<a id="sort_{_SORT_OLDEST_}" href="#" class="ajax sortans qtype%7$s ttt2" title="%9$s"><span rel="in">%8$s</span></a>
 	</div>';
 }

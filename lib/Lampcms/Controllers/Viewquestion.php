@@ -415,7 +415,8 @@ class Viewquestion extends WebPage
          * only 1 answer or no answers at all
          */
         if ($this->Question['i_ans'] > 1) {
-            $cond = $this->Registry->Request->get('sort', 's', 'i_lm_ts');
+
+            $cond = $this->Router->getSegment(3, 's', $this->Registry->Ini['URI_PARTS']['SORT_BEST']);
             $tabs = Urhere::factory($this->Registry)->get('tplAnstypes', $cond);
         }
 
@@ -567,7 +568,7 @@ class Viewquestion extends WebPage
     {
 
         if (!empty($this->aQuestion['sim_q'])) {
-            $sim                     = \tplBoxrecent::parse(array($this->_('Similar questions'), 'recent-tags', $this->aQuestion['sim_q']), false);
+            $sim                     = \tplBoxrecent::parse(array('@@Similar questions@@', 'recent-tags', $this->aQuestion['sim_q']), false);
             $this->aPageVars['tags'] = $sim;
         }
 
@@ -612,7 +613,7 @@ class Viewquestion extends WebPage
      * Adds small extra text to the bottom of
      * answer form.
      *
-     * @todo translate text
+     * @todo finish this to actually add the text to the template
      *
      * @return object $this
      */
@@ -620,7 +621,7 @@ class Viewquestion extends WebPage
     {
 
         if ($this->Question['i_ans'] > 0) {
-            $text = 'Explore other questions tagged %1$s or <a href="/ask/">ask your own question</a>';
+            $text = '@@Explore other questions tagged@@ %1$s or <a href="{_WEB_ROOT_}/{_ask_}/">@@Ask your own question@@</a>';
         } else {
             $text = '';
         }
@@ -676,18 +677,18 @@ class Viewquestion extends WebPage
         $aVars = array(
             'id'    => $qid,
             'icon'  => 'cplus',
-            'label' => $this->_('Follow this question'),
+            'label' => '@@Follow this question@@',
             'class' => 'follow',
             'type'  => 'q',
-            'title' => $this->_('Follow this question to be notified of new answers, comments and edits')
+            'title' => '@@Follow this question to be notified of new answers, comments and edits@@'
         );
 
 
-        if (in_array($this->Registry->Viewer->getUid(), $this->Question['a_flwrs'])) {
-            $aVars['label'] = $this->_('Following');
+        if (\in_array($this->Registry->Viewer->getUid(), $this->Question['a_flwrs'])) {
+            $aVars['label'] = '@@Following@@';
             $aVars['class'] = 'following';
             $aVars['icon']  = 'check';
-            $aVars['title'] = $this->_('You are following this question');
+            $aVars['title'] = '@@You are following this question@@';
         }
 
         $this->aPageVars['side'] = '<div class="fr cb w90 lg rounded3 pl10 mb10"><div class="follow_wrap">' . \tplFollowButton::parse($aVars, false) . '</div></div>';

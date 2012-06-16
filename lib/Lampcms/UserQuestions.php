@@ -62,8 +62,6 @@ namespace Lampcms;
 class UserQuestions extends LampcmsObject
 {
 
-    const PER_PAGE = 10;
-
     /**
      *
      * Get parsed html of user questions div,
@@ -84,6 +82,8 @@ class UserQuestions extends LampcmsObject
      */
     public static function get(Registry $Registry, User $User)
     {
+        $perPage = $Registry->Ini->PROFILE_QUESTIONS_PER_PAGE;
+
         $uid = $User->getUid();
         if (0 === $uid) {
             d('not registered user');
@@ -171,11 +171,11 @@ class UserQuestions extends LampcmsObject
             return '';
         }
 
-        if ($count > self::PER_PAGE || $pageID > 1) {
+        if ($count > $perPage || $pageID > 1) {
 
             $Paginator = Paginator::factory($Registry);
 
-            $Paginator->paginate($cursor, self::PER_PAGE,
+            $Paginator->paginate($cursor, $perPage,
                 array('path'        => $pagerPath,
                       'currentPage' => $pageID));
 

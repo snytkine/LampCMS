@@ -118,7 +118,7 @@ class Answers extends LampcmsObject
 
         $urlParts = $this->Registry->Ini->getSection('URI_PARTS');
 
-        $cond = $this->Registry->Router->getSegment(3, 's', $urlParts['SORT_RECENT']);
+        $cond = $this->Registry->Router->getSegment(3, 's', $urlParts['SORT_BEST']);
 
         d('cond: ' . $cond);
         $noComments = (false === (bool)$this->Registry->Ini->MAX_COMMENTS);
@@ -130,7 +130,7 @@ class Answers extends LampcmsObject
          * anything in Mongo methods directly from
          * user input
          */
-        if (!in_array($cond, array($urlParts['SORT_RECENT'], $urlParts['SORT_VOTED'], $urlParts['SORT_NEW']))) {
+        if (!in_array($cond, array($urlParts['SORT_RECENT'], $urlParts['SORT_BEST'], $urlParts['SORT_OLDEST']))) {
             throw new Exception('Invalid value of param "cond" was: ' . $cond);
         }
 
@@ -142,15 +142,17 @@ class Answers extends LampcmsObject
 
         switch ( $cond ) {
             case $urlParts['SORT_RECENT']:
+                $sort = array('i_lm_ts' => -1);
+                break;
+
+            case $urlParts['SORT_OLDEST']:
                 $sort = array('i_ts' => 1);
                 break;
 
-            case $urlParts['SORT_VOTED']:
-                $sort = array('i_votes' => -1);
-                break;
-
+            case $urlParts['SORT_BEST']:
             default:
-                $sort = array($cond => -1);
+                $sort = array('accepted' => -1,
+                              'i_votes'  => -1);
         }
 
         $cursor = $this->Registry->Mongo->ANSWERS->find($where, $aFields);
@@ -160,7 +162,7 @@ class Answers extends LampcmsObject
         $oPager->paginate($cursor, $this->Registry->Ini->PER_PAGE_ANSWERS,
             array('path'        => $this->pagetPath . $cond,
                   'append'      => false,
-                  'currentPage' => $pageID)); //, 'fileName' => '&pageID=%d'
+                  'currentPage' => $pageID));
 
         $pagerLinks = $oPager->getLinks();
 

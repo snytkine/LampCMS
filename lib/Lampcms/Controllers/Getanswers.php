@@ -58,7 +58,7 @@ use Lampcms\Responder;
 /**
  * This controller is called by Ajax call only
  * It's is called when user clicks on the sort tags
- * in the answer page to sort answers by recent, olderst, votes
+ * in the answer page to sort answers by recent, oldest, votes
  * It will return the parsed block of answers
  *
  *
@@ -73,9 +73,13 @@ class Getanswers extends Viewquestion
 
     protected function main()
     {
+        $this->qid = $this->Router->getNumber(1);
         $this->getQuestion()->getAnswers()->setReturn();
     }
 
+    /**
+     * Sends out json-encoded array of answers to browser
+     */
     protected function setReturn()
     {
         Responder::sendJSON(array('paginated' => $this->answers));

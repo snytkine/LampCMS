@@ -64,14 +64,14 @@ class tplToptabsWithCategory extends tplToptabs
         'unanswered_c' => '', //2
         'tags_c'       => '', //3
         'ask_c'        => '', //4
-        'questions'    => 'Questions', //5
-        'unanswered'   => 'Unanswered', //6
-        'tags'         => 'Tags', //7
-        'ask'          => 'Ask Question', //8
+        'questions'    => '@@Questions@@', //5
+        'unanswered'   => '@@Unanswered@@', //6
+        'tags'         => '@@Tags@@', //7
+        'ask'          => '@@Ask Question@@', //8
         'search'       => '', //9
         'users_c'      => '', //10
-        'users'        => 'Members', //11
-        'categories'   => 'Categories', //12
+        'users'        => '@@Members@@', //11
+        'categories'   => '@@Categories@@', //12
         'categories_c' => '' //13
     );
 

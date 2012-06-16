@@ -86,25 +86,33 @@ class Usergroup extends WebPage
             ->setReturn();
     }
 
+    /**
+     * Update value of 'role' in the USERS collection
+     *
+     * @return Usergroup (this object)
+     */
     protected function setRole()
     {
-        $uid = $this->Request['uid'];
+        $uid  = $this->Request['uid'];
         $role = $this->Request['role'];
         d('uid: ' . $uid . ' role: ' . $role);
 
         $update = array('$set' => array('role' => $role));
-        $res = $this->Registry->Mongo->USERS->update(array('_id' => $uid), $update);
+        $res    = $this->Registry->Mongo->USERS->update(array('_id' => $uid), $update);
         d('$res: ' . $res);
 
         return $this;
     }
 
-
+    /**
+     * In case of Ajax request send out the json encoded array
+     * In case on non-ajax redirect to same page or to home page
+     */
     protected function setReturn()
     {
         if (Request::isAjax()) {
             $ret = array(
-                'alert' => '@@User group updated@@',
+                'alert'  => '@@User group updated@@',
                 'reload' => 1000);
 
             Responder::sendJSON($ret);

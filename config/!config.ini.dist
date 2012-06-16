@@ -273,6 +273,20 @@ CATEGORY_SEPARATOR = " &gt; "
 ; will be shown in minimal details template
 ; REMEMBER that level starts at 0 not at 1!
 CATEGORY_DETAILED_LEVEL = 2
+;
+; Email validation code will be valid for this time (in seconds)
+; This value is used in the Activate controller
+; Defaults to 604800 which is 7 days
+VALIDATION_CODE_EXPIRATION = 604800
+;
+; Number of user answers to show on profile page
+; in user answers block
+;
+PROFILE_ANSWERS_PER_PAGE = 10
+;
+; Number of Question to show on profile page
+; in user questions block
+PROFILE_QUESTIONS_PER_PAGE = 10
 
 ;
 ;

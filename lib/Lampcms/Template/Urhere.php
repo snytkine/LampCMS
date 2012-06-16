@@ -153,15 +153,6 @@ class Urhere extends LampcmsObject
     {
         $Translator = $this->Registry->Tr;
         switch ($template) {
-            case 'tplToptabs':
-            case 'tplToptabsWithCategory':
-                $vars['questions'] = $Translator['Questions'];
-                $vars['unanswered'] = $Translator['Unanswered'];
-                $vars['tags'] = $Translator['Tags'];
-                $vars['ask'] = $Translator['Ask Question'];
-                $vars['users'] = $Translator['Members'];
-                $vars['search_label'] = $Translator['Search'];
-                break;
 
             case 'tplQtypesdiv':
                 $vars['newest'] = $Translator['Newest'];

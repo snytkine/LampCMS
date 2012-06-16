@@ -68,21 +68,21 @@ namespace Lampcms;
 class UserAnswers extends LampcmsObject
 {
 
-    const PER_PAGE = 10;
-
     /**
      * Get a block with 10 answers by user
      * sorted and ordered by condition passed in request
      *
      * @static
+     *
      * @param Registry $Registry
-     * @param User $User
+     * @param User     $User
+     *
      * @return string html string - result of parsed template tplUserAnswers
      */
     public static function get(Registry $Registry, User $User)
     {
-
-        $uid = $User->getUid();
+        $perPage = $Registry->Ini->PROFILE_ANSWERS_PER_PAGE;
+        $uid     = $User->getUid();
         if (0 === $uid) {
             d('not registered user');
 
@@ -101,10 +101,10 @@ class UserAnswers extends LampcmsObject
 
 
         $cond = $Registry->Router->getSegment(3, 's', $aUriMap['SORT_RECENT']);
-        switch ($cond) {
+        switch ( $cond ) {
 
             case $aUriMap['SORT_RECENT']:
-                $sort = array('_id' => -1);
+                $sort      = array('_id' => -1);
                 $pagerPath = '{_WEB_ROOT_}/{_userinfotab_}/a/' . $uid . '/{_SORT_RECENT_}';
                 break;
 
@@ -119,19 +119,19 @@ class UserAnswers extends LampcmsObject
                 break;
 
             case $aUriMap['SORT_BEST']:
-                $sort = array('accepted' => -1);
+                $sort      = array('accepted' => -1);
                 $pagerPath = '{_WEB_ROOT_}/{_userinfotab_}/a/' . $uid . '/{_SORT_BEST_}';
                 break;
 
             default:
-                $sort = array('_id' => 1);
+                $sort      = array('_id' => 1);
                 $pagerPath = '{_WEB_ROOT_}/{_userinfotab_}/a/' . $uid . '/{_SORT_OLDEST_}';
                 break;
 
         }
 
         $cursor = self::getCursor($Registry, $uid, $sort);
-        $count = $cursor->count(true);
+        $count  = $cursor->count(true);
         d('$count: ' . $count);
 
         /**
@@ -144,11 +144,11 @@ class UserAnswers extends LampcmsObject
         }
 
 
-
-        if ($count > self::PER_PAGE || $pageID > 1) {
+        if ($count > $perPage || $pageID > 1) {
             $oPaginator = Paginator::factory($Registry);
-            $oPaginator->paginate($cursor, self::PER_PAGE,
-                array('path' => $pagerPath, 'currentPage' => $pageID));
+            $oPaginator->paginate($cursor, $perPage,
+                array('path'        => $pagerPath,
+                      'currentPage' => $pageID));
 
             $pagerLinks = $oPaginator->getLinks();
             d('$pagerPath: ' . $pagerPath . ' pagerLinks: ' . $pagerLinks);
@@ -157,8 +157,8 @@ class UserAnswers extends LampcmsObject
         $answers = \tplUanswers::loop($cursor);
 
         $vals = array(
-            'count' => $count,
-            'answers' => $answers,
+            'count'      => $count,
+            'answers'    => $answers,
             'pagination' => $pagerLinks);
 
         return \tplUserAnswers::parse($vals);

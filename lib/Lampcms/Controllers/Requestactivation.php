@@ -92,13 +92,13 @@ IMPORTANT: You Must use the link below to activate your account
          * @todo
          * Translate String
          */
-        $this->aPageVars['title'] = $this->_('Request email confirmation');
+        $this->aPageVars['title'] = '@@Request email confirmation@@';
 
         $this->getEmailObject()
             ->makeActivationCode()
             ->sendActivationEmail();
 
-        $this->aPageVars['body'] = '<div id="tools">' . sprintf(self::SUCCESS, $this->email) . '</div>';
+        $this->aPageVars['body'] = '<div id="tools">' . \sprintf(self::SUCCESS, $this->email) . '</div>';
     }
 
 
@@ -114,13 +114,13 @@ IMPORTANT: You Must use the link below to activate your account
      */
     protected function getEmailObject()
     {
-        $this->email = strtolower($this->Registry->Viewer->email);
+        $this->email = \mb_strtolower($this->Registry->Viewer->email);
         if (empty($this->email)) {
             /**
              * @todo
              * Translate String
              */
-            throw new \Lampcms\NoemailException($this->_('You have not selected any email address for your account yet'));
+            throw new \Lampcms\NoemailException('@@You have not selected any email address for your account yet@@');
         }
 
         try {
@@ -130,14 +130,14 @@ IMPORTANT: You Must use the link below to activate your account
                  * @todo
                  * Translate String
                  */
-                throw new \Lampcms\NoemailException($this->_('You have not selected any email address for your account yet'));
+                throw new \Lampcms\NoemailException('@@You have not selected any email address for your account yet@@');
             }
         } catch (\MongoException $e) {
             /**
              * @todo
              * Translate String
              */
-            throw new \Lampcms\NoemailException($this->_('You have not selected any email address for your account yet'));
+            throw new \Lampcms\NoemailException('@@You have not selected any email address for your account yet@@');
 
         }
 
@@ -154,13 +154,13 @@ IMPORTANT: You Must use the link below to activate your account
              * @todo
              * Translate String
              */
-            throw new \Lampcms\NoticeException($this->_('This account has already been activated'));
+            throw new \Lampcms\NoticeException('@@This account has already been activated@@');
         }
 
         $code = $this->oEmail['code'];
 
         if (empty($code)) {
-            $this->oEmail['code'] = substr(hash('md5', uniqid(mt_rand())), 0, 12);
+            $this->oEmail['code'] = \substr(hash('md5', \uniqid(\mt_rand())), 0, 12);
         }
 
         $this->oEmail['i_code_ts'] = time();
@@ -181,13 +181,13 @@ IMPORTANT: You Must use the link below to activate your account
      */
     protected function sendActivationEmail()
     {
-        $tpl = $this->Registry->Ini->SITE_URL . '/aa/%d/%s';
-        $link = sprintf($tpl, $this->oEmail['_id'], $this->oEmail['code']);
+        $tpl = $this->Registry->Ini->SITE_URL . '{_WEB_ROORT_}/{_activate_}/%d/%s';
+        $link = \sprintf($tpl, $this->oEmail['_id'], $this->oEmail['code']);
         d('$link: ' . $link);
 
         $siteName = $this->Registry->Ini->SITE_NAME;
-        $body = vsprintf(self::EMAIL_BODY, array($siteName, $link));
-        $subject = sprintf(self::SUBJECT, $siteName);
+        $body = \vsprintf(self::EMAIL_BODY, array($siteName, $link));
+        $subject = \sprintf(self::SUBJECT, $siteName);
         $this->Registry->Mailer->mail($this->email, $subject, $body);
 
         return $this;

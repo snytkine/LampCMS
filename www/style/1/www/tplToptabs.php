@@ -41,7 +41,7 @@ class tplToptabs extends Lampcms\Template\Fast
 
     protected static function func(&$a)
     {
-        $a['search'] = \tplSearchForm::parse(array('q' => '', 'search_label' => $a['search_label']));
+        $a['search'] = \tplSearchForm::parse(array('q' => ''));
 
     }
 
@@ -50,13 +50,13 @@ class tplToptabs extends Lampcms\Template\Fast
         'unanswered_c' => '', //2
         'tags_c' => '', //3
         'ask_c' => '', //4
-        'questions' => 'Questions', //5
-        'unanswered' => 'Unanswered', //6
-        'tags' => 'Tags', //7
-        'ask' => 'Ask Question', //8
+        'questions' => '@@Questions@@', //5
+        'unanswered' => '@@Unanswered@@', //6
+        'tags' => '@@Tags@@', //7
+        'ask' => '@@Ask Question@@', //8
         'search' => '', //9
         'users_c' => '', //10
-        'users' => 'Members' //11
+        'users' => '@@Members@@' //11
     );
 
 
