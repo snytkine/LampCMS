@@ -52,6 +52,8 @@ ini_set('session.use_trans_sid', false);
 ini_set('session.use_only_cookies', true);
 
 define('INIT_TIMESTAMP', microtime());
+// The name of THIS file will always be index.php unless renamed. That's why we going to define in as INDEX_FILE
+define('INDEX_FILE', pathinfo(__FILE__, PATHINFO_BASENAME)); //
 require 'bootstrap.php';
 
 require LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . '!inc.php';

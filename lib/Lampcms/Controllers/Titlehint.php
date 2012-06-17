@@ -114,7 +114,7 @@ class Titlehint extends WebPage
                 $this->aData = iterator_to_array($cur, false);
                 d('$this->aData: ' . print_r($this->aData, 1));
             } catch ( \MongoException $e ) {
-                d('MongoException: ' . $e->getMessage() . ' aTokens was: ' . print_r($this->aTokens, 1));
+                d('MongoException: ' . $e->getMessage() . ' aTokens was: ' . \print_r($this->aTokens, 1));
             }
         }
 
@@ -130,6 +130,10 @@ class Titlehint extends WebPage
      */
     protected function sendResult()
     {
+        /**
+         * @todo check and see if we have to manually call urldecode
+         * on the value. Not sure if we going to get raw urlencoded value or not
+         */
         $callback = $_GET['callback'];
         d('$callback: ' . $callback);
 
