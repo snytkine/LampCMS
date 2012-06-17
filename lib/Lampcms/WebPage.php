@@ -83,7 +83,7 @@ abstract class WebPage extends Base
     /**
      * HTTP Response code to send
      * the value of 200 is default
-     * This is usefull only when handling certain
+     * This is useful only when handling certain
      * exceptions that may indicate a '404 not found' error
      * in which case we pass the 404 as error code
      * of exception and then can set the http 404 response
@@ -182,7 +182,7 @@ abstract class WebPage extends Base
     /**
      * Name of template dir
      * for mobile output it should
-     * be dynamically chaned to 'mobile'
+     * be dynamically changed to 'mobile'
      * it can also be changed to 'tablet'
      * for tablet screens
      *
@@ -261,7 +261,7 @@ abstract class WebPage extends Base
         parent::__construct($Registry);
 
         $this->Request = (null !== $Request) ? $Request : $Registry->Request;
-        $this->Router = $this->Registry->Router;
+        $this->Router  = $this->Registry->Router;
         $this->action  = $this->Request['a'];
 
         $this->initParams()
@@ -612,11 +612,15 @@ abstract class WebPage extends Base
 
     /**
      *
-     * Enter description here ...
+     * Set User object as a currently logged in
+     * User, aka Viewer
+     * Set this Viewer as a value of $_SESSION['viewer']
+     * array
      *
      * @param User $User
      * @param bool $bResetSession
      *
+     * @return \Lampcms\WebPage
      * @throws LoginException
      */
     protected function processLogin(User $User, $bResetSession = false)
@@ -711,7 +715,7 @@ abstract class WebPage extends Base
     /**
      * Adds (appends) value to last_js element of page
      *
-     * @todo check if relavite path of src
+     * @todo check if relative path of src
      *       then also take into account
      *       config option JS
      *
@@ -832,7 +836,7 @@ abstract class WebPage extends Base
                  * then use mapper callback function
                  * to replace those placeholders
                  */
-                if(\strstr($newUrl, '{_')){
+                if (\strstr($newUrl, '{_')) {
                     $mapper = $this->Router->getCallback();
                     $newUrl = $mapper($newUrl);
                 }
@@ -842,8 +846,8 @@ abstract class WebPage extends Base
                  * full url to comply with w3c standard that says
                  * redirect headers must point to complete url
                  */
-                if(0 !== \strncasecmp('http', $newUrl, 4)){
-                    $newUrl = $this->Registry->Ini->SITE_URL.$newUrl;
+                if (0 !== \strncasecmp('http', $newUrl, 4)) {
+                    $newUrl = $this->Registry->Ini->SITE_URL . $newUrl;
                 }
 
                 header("Location: " . $newUrl, true, $le->getCode());
@@ -892,7 +896,7 @@ abstract class WebPage extends Base
              * in special types of exceptions that have
              * code set to -1
              * which is a way to say
-             * "This exception is not severe enought for email to be sent out"
+             * "This exception is not severe enough for email to be sent out"
              */
             if (
                 ($errCode >= 0) &&
@@ -951,9 +955,6 @@ abstract class WebPage extends Base
             $welcome      = LoginForm::makeWelcomeMenu($this->Registry);
             $a['welcome'] = $welcome;
         }
-
-        d('cp');
-        //d('a: '.print_r($a, 1));
 
         return $a;
     }

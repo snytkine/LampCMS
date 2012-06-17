@@ -287,6 +287,16 @@ PROFILE_ANSWERS_PER_PAGE = 10
 ; Number of Question to show on profile page
 ; in user questions block
 PROFILE_QUESTIONS_PER_PAGE = 10
+;
+; Amount of time in seconds to check for flagged item abuse
+; Default is 86400 (24 hours)
+FLAGGED_FLOOD_PERIOD = 86400
+;
+; Maximum number of flagged requests
+; allowed in FLAGGED_FLOOD_PERIOD
+; per user. This is to prevent abuse of "Flagged item" form
+FLAGGED_LIMIT = 10
+
 
 ;
 ;
@@ -348,6 +358,7 @@ SORT_UPDATED = updated
 SORT_OLDEST = oldest
 SORT_BEST = best
 SORT_VIEWS = views
+SORT_REPUTATION = rep
 
 ;
 ; Options of RTE Editor

@@ -92,10 +92,6 @@ class Flagger extends WebPage
 
     protected $SUBJECT = 'Flagged item';
 
-    const TIME_PERIOD = 86400;
-
-    const MAX_FLAGS = 10;
-
     protected $membersOnly = true;
 
     protected $requireToken = true;
@@ -172,7 +168,7 @@ class Flagger extends WebPage
      * Maximum allowed uses is 5 in 24 hours
      * but this does not apply to moderator
      *
-     * @throws \Lampcms\Exception if user flagged too many questions in 24 hours (limit set in self::MAX_FLAGS
+     * @throws \Lampcms\Exception if user flagged too many questions in 24 hours (limit set in !config.ini)
      * @return \Lampcms\Controllers\Flagger
      */
     protected function checkReportFlood()
@@ -180,13 +176,14 @@ class Flagger extends WebPage
         $oViewer = $this->Registry->Viewer;
         if (!$oViewer->isModerator()) {
 
-            $since = time() - self::TIME_PERIOD; // 24 hours
+            $flaggedLimit = $this->Registry->Ini->FLAGGED_LIMIT;
+            $since = time() - $this->Registry->Ini->FLAGGED_FLOOD_PERIOD;
             $cur = $this->Registry->Mongo->REPORTED_ITEMS
                 ->find(array('i_uid' => $this->Registry->Viewer->getUid(), 'i_ts' => array('$gt' => $since)), array('i_ts', 'hts'));
 
-            if ($cur && ($cur->count(true) > self::MAX_FLAGS)) {
+            if ($cur && ($cur->count(true) > $flaggedLimit)) {
 
-                throw new \Lampcms\Exception('You have reached the limit of ' . self::MAX_FLAGS . ' reports in 24 hours');
+                throw new \Lampcms\Exception('@@You have reached the limit of@@ ' . $flaggedLimit.' @@flagged items@@');
             }
         }
 

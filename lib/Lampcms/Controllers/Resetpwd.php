@@ -59,7 +59,7 @@ use \Lampcms\String;
  * Class responsible for
  * displaying the reset password
  * form, processing the form,
- * generating a new ramdom password
+ * generating a new random password
  * for user
  * and emailing it to user
  */
@@ -149,7 +149,7 @@ You can also change your password after you log in.
      * and is not older than 24 hours
      *
      * Up to 10 results will be selected
-     * and each one will be tested untill
+     * and each one will be tested until
      * a positive match is found.
      *
      * This is so that
@@ -191,11 +191,8 @@ You can also change your password after you log in.
 
         if (!empty($aResult['i_used'])) {
             d('code used');
-            /**
-             * @todo translate string using replacement placeholder for 'date/time'
-             * Can just use tr string @@This password resent code was already used@@ . $date
-             */
-            throw new \Lampcms\NoticeException('This password reset link was already used on ' . date('r', $aResult['i_used']));
+
+            throw new \Lampcms\NoticeException('@@This password reset link was already used on@@ ' . date('r', $aResult['i_used']));
         }
 
         $aVal = $this->Registry->Mongo->USERS->findOne(array('_id' => (int)$aResult['i_uid']));
@@ -212,7 +209,7 @@ You can also change your password after you log in.
      * Once the password reset code has been
      * validated we should delete it so that it cannot
      * be reused. This is both for security reason
-     * and so that the same user cannot accidentely change
+     * and so that the same user cannot accidentally change
      * the password again by clicking on the
      * same link in email
      *

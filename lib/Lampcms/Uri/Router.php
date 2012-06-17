@@ -65,8 +65,21 @@ use Lampcms\DevException;
 class Router
 {
 
+    /**
+     * These strings are not allowed
+     * values because they are used internally
+     * as start of placeholders of variables for routes and translation strings
+     *
+     * @var array
+     */
     protected $filterSearch = array('{_', '@@');
 
+    /**
+     * Strings from filterSearch will be replaced with
+     * their html entities
+     *
+     * @var array
+     */
     protected $filterReplace = array('&#123;_', '&#64;@');
 
     /**
@@ -324,7 +337,7 @@ class Router
             $segments            = $this->uriSegments;
             $segments[($id - 1)] = $prefix . $int . $postfix;
             $uri                 = \implode('/', $segments);
-            $uri                 = $this->Ini->SITE_URL .$this->map['DIR'] . $this->map['FILE']. '/' . $this->getControllerSegment() . '/' . $uri;
+            $uri                 = $this->Ini->SITE_URL . $this->map['DIR'] . $this->map['FILE'] . '/' . $this->getControllerSegment() . '/' . $uri;
 
             if (!empty($_SERVER['QUERY_STRING'])) {
                 $uri .= '?' . $_SERVER['QUERY_STRING'];

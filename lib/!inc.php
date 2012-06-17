@@ -128,7 +128,7 @@ require $lampcmsClasses . 'Template' . DIRECTORY_SEPARATOR . 'Fast.php';
 /**
  * Custom error handle
  * the purpose of this is to catch
- * the catchable fatal error, intoduced in php 5.2.0
+ * the catchable fatal error, introduced in php 5.2.0
  * We use it with type hinting in class constructors
  * if the object passed to class constructor is not of the same type
  * as hinted, it generates a catchable fatal error.
@@ -143,9 +143,11 @@ require $lampcmsClasses . 'Template' . DIRECTORY_SEPARATOR . 'Fast.php';
  *
  *
  * @param integer $errno
- * @param string $errstr
- * @param string $errfile
+ * @param string  $errstr
+ * @param string  $errfile
  * @param integer $errline
+ *
+ * @throws Lampcms\DevException
  * @return true
  */
 function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
@@ -291,6 +293,8 @@ if ((true === LAMPCMS_DEBUG) && ('' !== LOG_FILE_PATH) && (true === (bool)$Ini->
  * Shortcuts to log debug and log error
  * MUST BE CALLED after DEBUG MODE and LOG_FILE_PATH
  * has been defined
+ *
+ * @param string $message
  */
 function d($message)
 {
@@ -299,6 +303,10 @@ function d($message)
     }
 }
 
+/**
+ * Log error message
+ * @param string $message
+ */
 function e($message)
 {
     \Lampcms\Log::e($message, 2);

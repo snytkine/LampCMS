@@ -73,6 +73,7 @@ use Lampcms\Request;
  */
 class Users extends WebPage
 {
+
     /**
      * Users to show per page
      *
@@ -80,7 +81,10 @@ class Users extends WebPage
      */
     protected $perPage = 15;
 
-    protected $pagerPath = '/users/rep';
+    /**
+     * @var string
+     */
+    protected $pagerPath = '{_users_}/{_SORT_NEW_}';
 
 
     /**
@@ -105,7 +109,7 @@ class Users extends WebPage
      *
      * @var string
      */
-    protected $sort = 'rep';
+    protected $sort;
 
 
     /**
@@ -117,6 +121,11 @@ class Users extends WebPage
      * @var array
      */
     protected $sortOrder = array('i_rep' => -1);
+
+    /**
+     * @var int
+     */
+    protected $pageID = 1;
 
 
     /**
@@ -145,6 +154,7 @@ class Users extends WebPage
     protected function main()
     {
 
+        $this->pageID = $this->Registry->Router->getPageID();
         $this->init()
             ->getCursor()
             ->paginate()
@@ -169,14 +179,12 @@ class Users extends WebPage
     /**
      * Set value for title meta and title on page
      *
-     * @todo translate string
-     *
      * @return object $this
      */
     protected function setTitle()
     {
-        $title = $this->Registry->Ini->SITE_TITLE . ' Members';
-        $this->aPageVars['title'] = $title;
+        $title                      = $this->Registry->Ini->SITE_TITLE . ' @@Members@@';
+        $this->aPageVars['title']   = $title;
         $this->aPageVars['qheader'] = '<h1>' . $title . '</h1>';
 
         return $this;
@@ -193,36 +201,38 @@ class Users extends WebPage
      */
     protected function init()
     {
-
+        $uriParts = $this->Registry->Ini->getSection('URI_PARTS');
         $this->perPage = $this->Registry->Ini->PER_PAGE_USERS;
 
 
-        $this->sort = $this->Registry->Request->get('sort', 's', 'rep');
-        if (!in_array($this->sort, array('rep', 'new', 'old', 'active'))) {
-            throw new \InvalidArgumentException('Invalid value of "sort" param. Valid values are "new", "old" or "rep" or "active". Was: ' . $this->sort);
-        }
+       // $this->sort = $this->Registry->Request->get('sort', 's', 'rep');
 
-        switch ($this->sort) {
-            case 'active':
+        $this->sort = $this->Registry->Router->getSegment(1, 's', $uriParts['SORT_REPUTATION']);
+
+        switch ( $this->sort ) {
+            case $uriParts['SORT_ACTIVE']:
                 $this->sortOrder = array('i_lm_ts' => -1);
-                $this->pagerPath = '/users/active';
+                $this->pagerPath = '{_users_}/{_SORT_ACTIVE_}';
                 break;
 
-            case 'rep':
+            case $uriParts['SORT_REPUTATION']:
                 $this->sortOrder = array('i_rep' => -1);
-                $this->pagerPath = '/users/rep';
+                $this->pagerPath = '{_users_}/{_SORT_REPUTATION_}';
                 break;
 
-            case 'new':
+            case $uriParts['SORT_NEW']:
                 $this->sortOrder = array('_id' => -1);
-                $this->pagerPath = '/users/new';
+                $this->pagerPath = '{_users_}/{_SORT_NEW_}';
                 break;
 
 
-            case 'old':
+            case $uriParts['SORT_OLDEST']:
                 $this->sortOrder = array('_id' => 1);
-                $this->pagerPath = '/users/old';
+                $this->pagerPath = '{_users_}/{_SORT_OLDEST_}';
                 break;
+
+            default:
+                throw new \InvalidArgumentException('@@Invalid value of sort param@@: ' . $this->sort);
         }
 
         return $this;
@@ -238,7 +248,7 @@ class Users extends WebPage
     protected function makeTopTabs()
     {
         d('cp');
-        $tabs = Urhere::factory($this->Registry)->get('tplToptabs', $this->qtab);
+        $tabs                       = Urhere::factory($this->Registry)->get('tplToptabs', $this->qtab);
         $this->aPageVars['topTabs'] = $tabs;
 
         return $this;
@@ -252,11 +262,11 @@ class Users extends WebPage
      */
     protected function paginate()
     {
-
         d('paginating');
         $oPaginator = Paginator::factory($this->Registry);
         $oPaginator->paginate($this->Cursor, $this->perPage,
-            array('path' => $this->pagerPath));
+            array('path'        => '{_WEB_ROOT_}/' . $this->pagerPath,
+            'currentPage' => $this->pageID));
 
         $this->pagerLinks = $oPaginator->getLinks();
 
@@ -294,14 +304,11 @@ class Users extends WebPage
 
         $aVars = array(
             $this->usersCount,
-            (1 === $this->usersCount) ? 'User' : 'Users',
-            $tabs
-        );
+            (1 === $this->usersCount) ? 'User' : 'Users', $tabs);
 
         $this->aPageVars['body'] .= \tplUsersheader::parse($aVars, false);
 
         return $this;
-
     }
 
 
@@ -356,7 +363,7 @@ class Users extends WebPage
      */
     protected function renderUsersHtml()
     {
-        $func = null;
+        $func      = null;
         $aGravatar = $this->Registry->Ini->getSection('GRAVATAR');
 
         if (count($aGravatar) > 0) {

@@ -59,7 +59,7 @@ class tplUsersheader extends Lampcms\Template\Fast
 {
     protected static $vars = array(
         'count' => '', //1
-        'users' => 'Users', // 2
+        'users' => '@@Users@@', // 2
         'tabs' => '' //3
     );
 

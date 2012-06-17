@@ -263,7 +263,7 @@ class CommentParser extends LampcmsObject
         d('aGeo: ' . print_r($aGeo, 1));
         if (!empty($aGeo)) {
             d('cp');
-            $this->aComment = array_merge($this->aComment, $aGeo);
+            $this->aComment = \array_merge($this->aComment, $aGeo);
         }
 
         /**
@@ -301,7 +301,7 @@ class CommentParser extends LampcmsObject
         $this->Resource->addComment($this);
         $this->followQuestion();
         $this->touchQuestion();
-        $this->Resource->save();
+        $this->Resource->touch()->save();
 
         $this->Registry->Dispatcher->post($this->Comment, 'onNewComment', $this->aComment);
 
@@ -437,7 +437,7 @@ class CommentParser extends LampcmsObject
 
                     d('comment found: ' . $i);
                     $aComments[$i]['b'] = $Body->valueOf();
-                    $aComments[$i]['e'] = '<a class="ce" href="' . $editor_url . '"><span class="ico edited tu" title="This comment was edited by ' . $editor . ' on ' . $date . '"></span></a>';
+                    $aComments[$i]['e'] = '<a class="ce" href="' . $editor_url . '"><span class="ico edited tu" title="@@This comment was edited by@@ ' . $editor . ' on ' . $date . '"></span></a>';
                     $bEdited = true;
                     break;
                 }
@@ -455,7 +455,7 @@ class CommentParser extends LampcmsObject
          * will have all required values
          *
          */
-        $this->aComment = array_merge($this->aComment, $aComments[$i]);
+        $this->aComment = \array_merge($this->aComment, $aComments[$i]);
         $this->Registry->Dispatcher->post($this->Resource, 'onBeforeCommentEdit', $aComments[$i]);
 
         if ($bEdited) {
@@ -516,7 +516,7 @@ class CommentParser extends LampcmsObject
      */
     protected function touchQuestion()
     {
-
+       // $this->Resource->touch()->save();
         if ($this->Resource instanceof \Lampcms\Question) {
             $this->Resource->touch();
         } elseif ($this->Resource instanceof \Lampcms\Answer) {

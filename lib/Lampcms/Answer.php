@@ -364,14 +364,11 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      */
     public function getUrl($short = false)
     {
-
-        //return $this->Registry->Ini->SITE_URL . '/q' . $this->offsetGet('i_qid') . '/#ans' . $this->offsetGet('_id');
-
         $url = '{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}'.$this->offsetGet('_id'). '/#ans' . $this->offsetGet('_id');
-
 
         $url = $this->getRegistry()->Ini->SITE_URL.$url;
         $callback = $this->Registry->Router->getCallback();
+
 
         $ret = $callback($url);
 
@@ -459,7 +456,6 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
         $this->setComments($aComments);
 
         return $this;
-
     }
 
 
@@ -614,7 +610,9 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
     public function setComments(array $aComments)
     {
         parent::offsetSet('a_comments', $aComments);
-        parent::offsetSet('i_comments', count($aComments));
+        parent::offsetSet('i_comments', \count($aComments));
+
+        $this->touch();
 
         return $this;
     }
@@ -635,7 +633,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      * Get uid of user who asked the question
      * for which this is the answer
      * This is useful during adding a comment
-     * to an asnwer where we need to know wheather of not
+     * to an answer where we need to know if
      * the comment comes from the original asker.
      *
      * @return int id of question owner

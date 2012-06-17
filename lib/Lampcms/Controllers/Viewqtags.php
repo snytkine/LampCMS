@@ -105,13 +105,6 @@ class Viewqtags extends Viewquestions
         $cond = $this->Router->getSegment(1, 's', $uriParts['SORT_POPULAR']);
         d('cond: ' . $cond);
 
-        /**
-         * Default sort is by timestamp Descending
-         * meaning most recent should be on top
-         *
-         */
-        $sort = array('tag' => 1);
-
         $this->title = '@@Tags@@';
 
         switch ( $cond ) {
@@ -198,11 +191,8 @@ class Viewqtags extends Viewquestions
      */
     protected function makeCounterBlock()
     {
-        /**
-         * @todo
-         * Translate string
-         */
-        $text = 'Unique Tags';
+
+        $text = '@@Unique Tags@@';
 
         $description = 'A tag is a keyword or label that categorizes your question with other, similar questions. Using the right tags makes it easier for others to find and answer your question.';
 
@@ -221,15 +211,6 @@ class Viewqtags extends Viewquestions
     protected function makeQlistBody()
     {
 
-        /**
-         * @todo pass false to loop
-         *       but we MUST be sure that we have consistent
-         *       field names in QUESTION_TAGS collection and that
-         *       they are always in the same order, which would be
-         *       the case normally as long as they are inserted using
-         *       the same class
-         *
-         */
         $sQdivs                  = \tplTagslist::loop($this->Cursor);
         $sQlist                  = \tplQlist::parse(array($this->typeDiv, $sQdivs . $this->pagerLinks, '', $this->notAjaxPaginatable), false);
         $this->aPageVars['body'] = $sQlist;

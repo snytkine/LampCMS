@@ -118,7 +118,7 @@ class Answers extends LampcmsObject
 
         $urlParts = $this->Registry->Ini->getSection('URI_PARTS');
 
-        $cond = $this->Registry->Router->getSegment(3, 's', $urlParts['SORT_BEST']);
+        $cond = $this->Registry->Router->getSegment(3, 's', $urlParts['SORT_RECENT']);
 
         d('cond: ' . $cond);
         $noComments = (false === (bool)$this->Registry->Ini->MAX_COMMENTS);
@@ -142,7 +142,12 @@ class Answers extends LampcmsObject
 
         switch ( $cond ) {
             case $urlParts['SORT_RECENT']:
-                $sort = array('i_lm_ts' => -1);
+                /**
+                 * Accepted answer will always be the first one,
+                 * then most recently modified
+                 */
+                $sort = array('accepted' => -1,
+                              'i_lm_ts'  => -1);
                 break;
 
             case $urlParts['SORT_OLDEST']:
@@ -151,6 +156,10 @@ class Answers extends LampcmsObject
 
             case $urlParts['SORT_BEST']:
             default:
+                /**
+                 * Accepted answer will be first
+                 * then most highly voted
+                 */
                 $sort = array('accepted' => -1,
                               'i_votes'  => -1);
         }

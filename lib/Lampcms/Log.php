@@ -55,7 +55,7 @@ namespace Lampcms;
 
 /**
  * Public static logger class
- * This class is responsible for loggin
+ * This class is responsible for logging
  * messages to a file
  *
  * @author Dmitri Snytkine
@@ -64,12 +64,16 @@ namespace Lampcms;
 class Log
 {
 
+    const DEBUG_LEVEL = 'debug';
+
+    const ERROR_LEVEL = 'error';
+
     protected static $aLog = array();
 
 
     public static function dump()
     {
-        $s = implode("\n<br>", self::$aLog);
+        $s = \implode("\n<br>", self::$aLog);
         echo $s;
     }
 
@@ -98,6 +102,7 @@ class Log
 
     /**
      * Format of timestamp
+     *
      * @var string
      */
     const TIME_FORMAT = "F j, Y H:i:s";
@@ -115,16 +120,18 @@ class Log
     /**
      * Our main logging function
      *
-     * @param string $message message to log
-     * @param int $traceLevel this is useful
-     * for extracting correct line from debug backtrace
-     * you should normally not worry about this
-     * This is useful in only some cases where you notice that
-     * line number/method name is not logged correctly
+     * @param string     $message    message to log
+     * @param int        $traceLevel this is useful
+     *                               for extracting correct line from debug backtrace
+     *                               you should normally not worry about this
+     *                               This is useful in only some cases where you notice that
+     *                               line number/method name is not logged correctly
+     *
+     * @param string     $logLevel
      *
      * @return string message that was just logged
      */
-    public static function l($message, $traceLevel = 0)
+    public static function l($message, $traceLevel = 0, $logLevel = self::DEBUG_LEVEL)
     {
         $logPath = self::getLogPath();
 
@@ -137,19 +144,19 @@ class Log
          * automatically stringify array
          * in case we want to just add array to log
          */
-        $str = (is_array($message)) ? print_r($message, true) : $message;
+        $str = (\is_array($message)) ? \print_r($message, true) : $message;
 
         $string = '';
-        $line = 'unknown';
+        $line   = 'unknown';
 
         /**
          * Passing the false as param
-         * will reduce the size of backtrace objet, sometimes considerabelly
+         * will reduce the size of backtrace object, sometimes considerably
          * because by default, this value is true and it means
          * that each object of backtrace is dumped!
          *
          */
-        $arrBacktrace = debug_backtrace(false);
+        $arrBacktrace = \debug_backtrace(false);
 
         /**
          * Special case: if the ->log() called from an object
@@ -161,7 +168,7 @@ class Log
          *
          * In a case like this we are interested in level2 of backtrace!
          */
-        if (array_key_exists(1, $arrBacktrace)) {
+        if (\array_key_exists(1, $arrBacktrace)) {
             if ('__call' === $arrBacktrace[1]['function']) {
 
                 $traceLevel += 2;
@@ -200,20 +207,19 @@ class Log
 
         $string .= PHP_EOL . $str;
 
-        $sMessage = PHP_EOL . self::getTimeStamp() . $string;
+        $message = PHP_EOL . \strtoupper($logLevel). ' '. self::getTimeStamp() . $string;
 
-        self::$aLog[] = $sMessage;
+        self::$aLog[] = array($message, $logLevel);
 
-        $ret = \file_put_contents($logPath, $sMessage, FILE_APPEND | LOCK_EX);
+        $res = \file_put_contents($logPath, $message, FILE_APPEND | LOCK_EX);
 
-        return $sMessage;
-
+        return $message;
     }
 
 
     /**
      * Log debug message. The debug messages
-     * are NOT logged in normal production enviroment
+     * are NOT logged in normal production environment
      * Debugging messages are logged
      * ONLY when global constant LAMPCMS_DEBUG is set to true
      *
@@ -232,7 +238,6 @@ class Log
          * method to log() method
          */
         return self::l($message, $level);
-
     }
 
 
@@ -242,7 +247,7 @@ class Log
      * is that email will also be sent to admin
      *
      * @param string $message message to log
-     * @param int    $level debug backtrace offset level
+     * @param int    $level   debug backtrace offset level
      *
      * @return string
      */
@@ -253,7 +258,7 @@ class Log
          * to account to delegating from this
          * method to log() method
          */
-        $message = self::l($message, $level);
+        $message = self::l($message, $level, self::ERROR_LEVEL);
 
         self::notifyDeveloper($message);
 
@@ -284,7 +289,7 @@ class Log
      * Sends email message to developer
      * if message contains error pattern
      *
-     * @param $message message to send to developers
+     * @param string $message message to send to developers
      *
      * @return
      */
@@ -315,7 +320,7 @@ class Log
 
             if (Request::isPost()) {
                 $msg .= "\n" . '-----------------------------------------------------';
-                $msg .= "\n" . 'POST: ' . print_r($_POST, true);
+                $msg .= "\n" . 'POST: ' . \print_r($_POST, true);
             }
         }
 

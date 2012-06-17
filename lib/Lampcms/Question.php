@@ -113,7 +113,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     /**
      * Convenience method so that it can be used from
-     * objects that expect a Resource but not necessaraly know
+     * objects that expect a Resource but not necessarily know
      * if Resource is going to be Question or Answer
      *
      * @todo Add Interface for this and implement it in Question
@@ -527,7 +527,6 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     /**
      * Updates last modified timestamp
-     * A replacement for updateLastModified() method
      *
      * @param bool $etagOnly
      *
@@ -547,7 +546,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
 
     /**
-     * Logic: For guests dont check question owner id
+     * Logic: For guests don't check question owner id
      * For others: insert into QUESTION_VIEWS first as a way
      * to test for duplicates.
      * Duplicates are: same uid and same qid
@@ -633,7 +632,6 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
         }
 
         return $this;
-
     }
 
 

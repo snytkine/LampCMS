@@ -367,7 +367,6 @@ class Viewquestion extends WebPage
             $this->aQuestion['nocomments'] = ' nocomments';
         }
 
-
         $breadcrumb = (empty($this->aQuestion['i_cat'])) ? '' : $this->getBreadcrumb($this->aQuestion['i_cat']);
 
         $this->aPageVars['body'] = $breadcrumb . \tplQuestion::parse($this->aQuestion);
@@ -401,8 +400,6 @@ class Viewquestion extends WebPage
      * count of answers and some 'sort by'
      * tabs
      *
-     * @todo translate word 'Answer'
-     *
      * @return object $this
      */
     protected function setAnswersHeader()
@@ -416,13 +413,13 @@ class Viewquestion extends WebPage
          */
         if ($this->Question['i_ans'] > 1) {
 
-            $cond = $this->Router->getSegment(3, 's', $this->Registry->Ini['URI_PARTS']['SORT_BEST']);
+            $cond = $this->Router->getSegment(3, 's', $this->Registry->Ini['URI_PARTS']['SORT_RECENT']);
             $tabs = Urhere::factory($this->Registry)->get('tplAnstypes', $cond);
         }
 
         $aVars = array(
             $this->Question['i_ans'],
-            'Answer' . $this->Question['ans_s'],
+            '@@Answer@@' . $this->Question['ans_s'],
             $tabs
         );
 

@@ -62,7 +62,7 @@ class tplUserTags extends Lampcms\Template\Fast
         's' => ''
     );
 
-    // %2$s%4$s
+
     protected static $tpl = '
 	<div class="user_tags cb fl">
 	<h3><span class="counter">%1$s</span></h3>
