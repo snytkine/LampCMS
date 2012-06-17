@@ -172,20 +172,7 @@ oSL = {
     toString:function () {
         return 'object oSL';
     },
-    getQuickRegForm:function () {
-        if (oSL.Regform && oSL.Regform.hasDialog()) {
-            oSL.Regform.getInstance().show();
-        } else {
-            /**
-             * &ajaxid=1&tplflag=1
-             */
-            /*if (oSL.modal) {
-             oSL.modal.show();
-             }*/
-            $CONN.asyncRequest("GET", "/index.php?a=getregform", oSL.oCallback);
-        }
 
-    },
     hideRegForm:function () {
         if (oSL.Regform) {
             oSL.Regform.getInstance().hide();
@@ -231,7 +218,21 @@ oSL = {
 
         return false;
     },
+    getQuickRegForm:function () {
+        var web_root = oSL.getMeta('web_root');
+        if (oSL.Regform && oSL.Regform.hasDialog()) {
+            oSL.Regform.getInstance().show();
+        } else {
+            /**
+             * &ajaxid=1&tplflag=1
+             */
+            /*if (oSL.modal) {
+             oSL.modal.show();
+             }*/
+            $CONN.asyncRequest("GET", web_root + "/getregform", oSL.oCallback);
+        }
 
+    },
     /**
      * Get value of 'mytoken' meta tag which serves as a security token for form
      * validation.
@@ -452,6 +453,7 @@ oSL.tweet = (function () {
     var siteTitle = oSL.getMeta('site_title');
     var siteUrl = oSL.getMeta('site_url');
     var token = oSL.getToken();
+    var web_root = oSL.getMeta('web_root');
 
     return {
 
@@ -462,7 +464,7 @@ oSL.tweet = (function () {
 
                     sForm = '<div class="hd">Please enter your information</div>'
                         + '<div class="bd"><hr/>'
-                        + '<form method="POST" action="/index.php">'
+                        + '<form method="POST" action="'+ web_root +'">'
                         + '<input type="hidden" name="a" value="tweet">'
                         + '<input type="hidden" name="token" value="'
                         + token
@@ -1188,7 +1190,7 @@ YUI({
                             resultTextLocator:'tag',
                             resultFilters:'charMatch',
                             resultHighlighter:'charMatch',
-                            source:'/index.php?a=taghint&q={query}&ajaxid=1&callback={callback}'
+                            source: getMeta('web_root') + '/taghint?q={query}&ajaxid=1&callback={callback}'
                         });
                 }
             },
@@ -1429,7 +1431,7 @@ YUI({
 
             /**
              * Each question/answer is allowed up to 4 up and down votes, after that
-             * user can click on votes buttons untill he's blue in the face, nothing
+             * user can click on votes buttons until he's blue in the face, nothing
              * will be sent to server.
              *
              * @return bool true if limit has not been reached false if limit has been
@@ -1456,7 +1458,7 @@ YUI({
             /**
              * Get timezone offset based on user clock
              *
-             * @return number of secord from UTC time can be negative
+             * @return number of second from UTC time can be negative
              */
                 getTZO = function () {
                 var tzo, nd = new Date();
@@ -1499,20 +1501,7 @@ YUI({
                     loader.hide();
                 }
             },
-            /**
-             * Start Login with FriendConnect routine
-             *
-             */
-                initGfcSignup = function () {
-                if ((typeof google === 'undefined') || !google.friendconnect) {
 
-                    return;
-                }
-
-                google.friendconnect.requestSignIn();
-
-                return;
-            },
             /**
              * Record value of timestamp
              * when user views the question
@@ -1749,7 +1738,7 @@ YUI({
                 };
                 oAlerter.hide();
                 showLoading();
-                request = Y.io('/index.php', cfg);
+                request = Y.io(getMeta('web_root'), cfg);
             },
 
             /**
@@ -1788,7 +1777,7 @@ YUI({
                     oAlerter.hide();
                 }
                 showLoading(form.ancestor('div'));
-                request = Y.io('/index.php', cfg);
+                request = Y.io(getMeta('web_root'), cfg);
             },
             /**
              * This function executes onClick on any element
@@ -1804,9 +1793,11 @@ YUI({
                     fbappid, //
                     fbcookie, //
                     el = e.currentTarget,
+                    web_root = getMeta('web_root'),
                     target = e.target;
                 Y.log('el is ' + el + ' id is: ' + el.get('id') + ' target: ' + target + ' tagName: ' + el.get('tagName'));
                 id = el.get('id');
+
                 //e.halt();
                 //e.preventDefault();
                 switch (true) {
@@ -1850,11 +1841,6 @@ YUI({
                         initFBSignup();
                         break;
 
-                    case el.test('.gfcsignin'):
-                        //Y.log('clicked gfcsignin');
-                        initGfcSignup();
-                        break;
-
                     case el.test('.twsignin'):
                         Y.log('clicked on twsignin.');
                         //Y.log('Twitter: ' + Twitter);
@@ -1863,17 +1849,17 @@ YUI({
 
                     case el.test('.add_tumblr'):
                         Y.log('clicked on .add_tumblr');
-                        Twitter.startDance('/index.php?a=logintumblr', 680, 540);
+                        Twitter.startDance(web_root + '/logintumblr', 680, 540);
                         break;
 
                     case el.test('.add_linkedin'):
                         Y.log('clicked on .add_linkedin');
-                        Twitter.startDance('/index.php?a=loginlinkedin', 640, 480);
+                        Twitter.startDance(web_root + '/loginlinkedin', 640, 480);
                         break;
 
                     case el.test('.add_blogger'):
                         Y.log('clicked on .add_blogger');
-                        Twitter.startDance('/index.php?a=connectblogger', 680, 540);
+                        Twitter.startDance(web_root + '/connectblogger', 680, 540);
                         break;
 
                     case el.test('.inreply'):
@@ -1900,18 +1886,6 @@ YUI({
                         })();
                         break;
 
-                    case (id === 'gfcset'):
-                        if ((typeof google !== 'undefined') && google.friendconnect) {
-                            google.friendconnect.requestSettings();
-                        }
-                        break;
-
-                    case (id === 'gfcinvite'):
-                        //Y.log('clicked on gfcinvite.');
-                        if ((typeof google !== 'undefined') && google.friendconnect) {
-                            google.friendconnect.requestInvite();
-                        }
-                        break;
 
                     case (id === 'fbinvite'):
                         initFbInvite(el);
@@ -1929,6 +1903,7 @@ YUI({
                         break;
 
                     case (id === 'logout'):
+
                         e.preventDefault();
                         e.halt();
                         showLoading(el);
@@ -1941,11 +1916,12 @@ YUI({
                                 Y.log('removing fbcookie: ' + fbcookie);
                                 Y.Cookie.remove(fbcookie);
                                 Y.log('FB Session after logout: ' + Y.dump(FB.getAuthResponse()), 'warn');
-                                window.location.assign('/index.php?a=logout');
+                                window.location.assign(web_root + '/logout/');
                             });
 
                         } else {
-                            window.location.assign('/index.php?a=logout');
+
+                            window.location.assign(web_root + '/logout/');
                         }
                         break;
 
@@ -1988,12 +1964,12 @@ YUI({
                         break;
 
                     case el.test('.stick'):
-                        window.location.assign('/index.php?a=stick&qid=' + getMeta('qid'));
+                        window.location.assign(web_root + '/stick/' + getMeta('qid'));
 
                         break;
 
                     case el.test('.unstick'):
-                        window.location.assign('/index.php?a=unstick&qid=' + getMeta('qid'));
+                        window.location.assign(web_root + '/unstick/' + getMeta('qid'));
                         break;
 
                     case el.test('.close'):
@@ -2040,7 +2016,7 @@ YUI({
                             } else {
                                 restype = (ancestor.test('.question')) ? 'q' : 'a';
                                 //Y.log('restype: ' + restype + ' resID: ' + resID);
-                                window.location.assign('/index.php?a=edit&rid=' + resID + '&rtype=' + restype);
+                                window.location.assign(web_root + '/edit/' + resID + '/' + restype);
                             }
                         }
                         break;
@@ -2156,7 +2132,7 @@ YUI({
                     //qid = getMeta('qid'),
                     href = el.getAttribute('href');
                     Y.log('href: ' + href);
-                   // href = ('#' === href) ? '/index.php?a=getanswers&qid=' + getMeta('qid') + '&sort=' + sortby : href;
+
                     href = ('#' === href) ? getMeta('web_root') + '/getanswers/' + getMeta('qid') + '/sort/' + sortby : href;
                     Y.io(href, {'arguments':{'sortby':sortby}});
 
@@ -2234,7 +2210,7 @@ YUI({
                 };
 
                 //Y.log('after setting form ');
-                request = Y.io('/index.php', cfg);
+                request = Y.io(getMeta('web_root'), cfg);
                 //Y.log('request: ' + request);
 
                 return;
@@ -2669,7 +2645,7 @@ YUI({
                 showLoading(Y.one("#dostuff").ancestor('div'));
             }
 
-            request = Y.io('/index.php', cfg);
+            request = Y.io(getMeta('web_root'), cfg);
 
             e.halt();
             return false;
@@ -3323,7 +3299,7 @@ YUI({
                         }
                     };
 
-                    request = Y.io('/index.php', cfg);
+                    request = Y.io(getMeta('web_root'), cfg);
                     comment.hide('fadeOut');
 
                     Y.later(1000, comment, function () {
@@ -3820,7 +3796,7 @@ YUI({
                             Y.log('FB Signed in response: ' + Y.dump(response));
                             if (response.status === 'connected') {
                                 showLoading(null, 'Connecting<br>Facebook account');
-                                Y.io('/index.php?a=connectfb');
+                                Y.io(getMeta('web_root') + '/connectfb');
                             } else {
                                 Y.log('No permissions from Facebook', 'error');
                             }
@@ -3919,6 +3895,7 @@ YUI({
          * initiate Twitter dance
          */
         checkExtApi = function (el) {
+            var web_root = getMeta('web_root');
             Y.log('3126 is Checked: ' + el.get('checked'));
             if ((el.get('tagName') === 'INPUT') && el.get('checked')) {
                 saveToStorage();
@@ -3933,17 +3910,17 @@ YUI({
 
                     case ((el.get('id') === 'api_tumblr') && ('1' !== getMeta('tm'))):
                         Y.log('3222 api_tumblr');
-                        Twitter.startDance('/index.php?a=logintumblr', 800, 540);
+                        Twitter.startDance(web_root + '/logintumblr', 800, 540);
                         break;
 
                     case ((el.get('id') === 'api_linkedin') && ('1' !== getMeta('linkedin'))):
                         Y.log('3879 api_linkedin');
-                        Twitter.startDance('/index.php?a=loginlinkedin', 640, 480);
+                        Twitter.startDance(web_root + '/loginlinkedin', 640, 480);
                         break;
 
                     case ((el.get('id') === 'api_blogger') && ('1' !== getMeta('blgr'))):
                         Y.log('3227 api_blogger');
-                        Twitter.startDance('/index.php?a=connectblogger', 680, 540);
+                        Twitter.startDance(web_root + '/connectblogger', 680, 540);
                         break;
 
                 }
@@ -3978,21 +3955,22 @@ YUI({
              * Start the oAuth login process by opening the popup window
              */
             startDance:function (url, w, h) {
+                var u, mydomain, popupParams, height, width, web_root = getMeta('web_root'); //
                 showLoading();
                 //Y.log('1084 starting oAuth dance this is: ' + this, 'window'); // Object Twitter
-                var u, mydomain, popupParams, height, width; //
+
 
                 width = (w) ? w : 800;
                 height = (h) ? h : 800;
                 popupParams = 'location=0,status=0,width=' + width + ',height=' + height + ',alwaysRaised=yes,modal=yes';
 
-                u = (!url) ? 'http://' + window.location.hostname + '/index.php?a=logintwitter&ajaxid=1' : url;
+                u = (!url) ? 'http://' + window.location.hostname + web_root + '/logintwitter?ajaxid=1' : url;
 
 
                 /**
                  * Prevent user from opening more than one Twitter oAuth popup windows.
                  * This is helpful when the already opened window has gone out of focus
-                 * (turned into popunder) accedentally
+                 * (turned into popunder) accidentally
                  *
                  */
                 if (this.popupWindow && !this.popupWindow.closed) {
@@ -4013,11 +3991,11 @@ YUI({
                  * This is very important to cancel any already running intervaled jobs,
                  * otherwise the next one will override prev one but the job will still
                  * be running in the background, so it will never be cancelled,
-                 * resulting in continuesly issuing asyncRequests to the server like
+                 * resulting in continuously issuing asyncRequests to the server like
                  * crazy
                  *
-                 * This can happend when someone opens multiple browser windows by
-                 * clickin on 'signin with twitter' several times
+                 * This can happen when someone opens multiple browser windows by
+                 * clicking on 'signin with twitter' several times
                  */
                 if (this.oInterval) {
                     // alert('1109 something is still running');
@@ -4058,7 +4036,7 @@ YUI({
              */
             cancelIntervals:function () {
 
-                //Y.log('Cancellng pending intervals this: ' + this, 'window');
+                //Y.log('Cancelling pending intervals this: ' + this, 'window');
                 if (this.oInterval) {
                     //Y.log(' 1131 killing interval');
                     window.clearInterval(this.oInterval);
@@ -4101,7 +4079,7 @@ YUI({
         }
 
         initAutoComplete = function () {
-            var isearch, id_title;
+            var isearch, id_title, web_root = getMeta('web_root'), qid_prefix = getMeta('qid_prefix');
             if ("1" === getMeta('noac')) {
                 return;
             }
@@ -4115,7 +4093,7 @@ YUI({
                         resultHighlighter:'wordMatch',
                         resultListLocator:'ac',
                         resultTextLocator:'title',
-                        source:'/index.php?a=titlehint&q={query}&ajaxid=1&callback={callback}'
+                        source: web_root + '/titlehint?q={query}&ajaxid=1&callback={callback}'
                     });
             }
 
@@ -4128,10 +4106,10 @@ YUI({
                         resultHighlighter:'wordMatch',
                         resultListLocator:'ac',
                         resultTextLocator:'title',
-                        source:'/index.php?a=titlehint&q={query}&ajaxid=1&callback={callback}',
+                        source: web_root + '/titlehint?q={query}&ajaxid=1&callback={callback}',
                         resultFormatter:function (query, results) {
                             return Y.Array.map(results, function (result) {
-                                var tpl = '<a href="/q{_id}/{url}">{t}</a><br>{intro}<br><div class="c6">Asked {hts} (<span class="c_{status}">{i_ans} answer{ans_s})</span></div>';
+                                var tpl = '<a href="' + web_root + '/viewquestion/' + qid_prefix + '{_id}/{url}">{t}</a><br>{intro}<br><div class="c6">Asked {hts} (<span class="c_{status}">{i_ans} answer{ans_s})</span></div>';
                                 var raw = result.raw;
                                 return Y.Lang.sub(tpl, {
                                     _id:raw._id,
@@ -4159,7 +4137,7 @@ YUI({
 
                     if (result.raw && result.raw._id && result.raw.url) {
                         e.preventDefault();
-                        qlink = '/q' + result.raw._id + '/' + result.raw.url;
+                        qlink = web_root + '/viewquestion/' + qid_prefix + result.raw._id + '/' + result.raw.url;
                         window.location.assign(qlink);
                     }
 
@@ -4184,12 +4162,12 @@ YUI({
 
         var changeLang = function (e) {
 
-            var url, redirect = window.location.href;
-            url = '/index.php?a=locale&locale=' + e.currentTarget.get('value') + '&redirect=' + redirect;
+            var url, web_root = getMeta('web_root'), redirect = window.location.href;
+            url = web_root + '/locale/' + e.currentTarget.get('value') + '/?redirect=' + redirect;
             //alert('url: ' + url);
             //return;
             window.location.assign(url);
-            //alert('changed ' + e.target + ' curr: ' + e.currentTarget + ' val ' + e.currentTarget.get('value'));
+
 
         }
 

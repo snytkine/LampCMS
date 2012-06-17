@@ -72,17 +72,18 @@ class Taghint extends Titlehint
     protected function getData()
     {
 
-        $q = $this->Request->get('q', 's');
-        $q = mb_strtolower($q);
+        $q = $_GET['q'];
+        d('$q: ' . $q);
+        $q = \mb_strtolower($q);
         d('looking for tag hint $q: ' . $q);
 
         try {
             $cur = $this->Registry->Mongo->QUESTION_TAGS->find(
-                array('tag' => array('$regex' => '^' . $q)), array('tag'))
+                array('tag' => array('$regex' => '^' . $q)), array('tag' => true, '_id' => false))
                 ->sort(array('i_count' => -1))
-                ->limit(200);
-            $this->aData = iterator_to_array($cur, false);
-            d('$this->aData: ' . print_r($this->aData, 1));
+                ->limit(100);
+            $this->aData = \iterator_to_array($cur, false);
+            d('$this->aData: ' . \print_r($this->aData, 1));
         } catch (\MongoException $e) {
             d('MongoException: ' . $e->getMessage() . ' $q was: ' . $q);
         }

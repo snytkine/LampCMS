@@ -75,15 +75,15 @@ class Logout extends WebPage
 
         /**
          * Don't forget about the 'dnd' cookies
-         * that may have been set previosly
-         * Whith dnd set to 1 a user may register
+         * that may have been set previously
+         * With dnd set to 1 a user may register
          * with external auth and will never
          * be asked to provide email address
          * This is designed so that a user may say, hey, don't
          * bother me with this again, I don't want to provide
          * an email address
          *
-         * But once the user logges out
+         * But once the user loges out
          * treat them as another guest!
          */
         $aDelete = array('uid', 'dnd');
@@ -128,7 +128,7 @@ class Logout extends WebPage
         $Ini = $this->Registry->Ini;
         $map = $Ini->getSection('URI_PARTS');
 
-        $fullUrl = $Ini->SITE_URL . $map['DIR'] . $map['FILE'];
+        $fullUrl = $Ini->SITE_URL . $map['DIR'] . $map['FILE'].'/';
         $redirect = \trim($fullUrl, '?').'?logout=1'; // .'?logout=1'
 
         Responder::redirectToPage($redirect);

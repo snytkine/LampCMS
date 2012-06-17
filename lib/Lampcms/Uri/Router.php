@@ -308,6 +308,22 @@ class Router
 
 
     /**
+     * Get value of segment as a Utf8String object
+     *
+     * @param $segmentId
+     * @param null $default
+     * @return object of type \Lampcms\Utf8String
+     */
+    public function getUTF8($segmentId, $default = null)
+    {
+        $res = $this->getSegment($segmentId, 's', $default);
+        $ret = Utf8String::stringFactory($res);
+
+        return $ret;
+    }
+
+
+    /**
      * @param int     $id      segment number
      * @param null    $default default value to return if segment does not exist or number not in segment
      * @param null    $prefix  optional prefix before the number in the segment

@@ -464,7 +464,7 @@ abstract class WebPage extends Base
          */
         $this->addMetaTag('fb', ('' !== (string)$Viewer->getFacebookToken()));
 
-        $js = (true === LAMPCMS_DEBUG) ? '/qa.js' : '/min/qa_' . JS_MIN_ID . '.js';
+        $js = (true === LAMPCMS_DEBUG) ? '/qa.js?t='.time() : '/min/qa_' . JS_MIN_ID . '.js';
         //$js = (true === LAMPCMS_DEBUG) ? '/temp1.js' : '/min/qa_'.JS_MIN_ID.'.js';
         $src = $Ini->JS_SITE . '/js' . $js;
 
@@ -487,6 +487,7 @@ abstract class WebPage extends Base
      * Add JavaScript for Facebook UI to the page
      *
      * @param string $appId value from !config.ini 'FACEBOOK' -> 'APP_ID'
+     * @return \Lampcms\WebPage (this object)
      */
     protected function addFacebookJs($appId)
     {
@@ -513,7 +514,7 @@ abstract class WebPage extends Base
      */
     protected function addMetaTag($tag, $val)
     {
-        $meta = CRLF . sprintf('<meta name="%s" content="%s">', $tag, $val);
+        $meta = CRLF . \sprintf('<meta name="%s" content="%s">', $tag, $val);
 
         $this->aPageVars['extra_metas'] .= $meta;
 

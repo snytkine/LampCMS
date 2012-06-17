@@ -75,11 +75,16 @@ use Lampcms\I18n\Translator;
  */
 class Locale extends WebPage
 {
-    protected $aRequired = array('locale', 'redirect');
 
     protected function main()
     {
-        $locale = $this->Request->get('locale');
+        $locale = $this->Registry->Router->getSegment(1);
+        /**
+         * Redirect url is passed as query string (?redirect=http://someurl)
+         * because we cannot pass the url as a uri segment because url itself
+         * has many segments
+         */
+        $redirect = $_GET['redirect'];
 
         if (isset($_SESSION['guest_block'])) {
             unset($_SESSION['guest_block']);
@@ -103,10 +108,8 @@ class Locale extends WebPage
         if (!empty($_SESSION['langs'])) {
             unset($_SESSION['langs']);
         }
-        //echo __METHOD__.' '.__LINE__.' getting Tr object for locale: '.$locale;
-        //$this->Tr = Translator::factory($this->Registry, $locale);
-        //echo __METHOD__.' '.__LINE__.' '.print_r($this->Tr->getMessages(), 1);//$this->Tr->get('Questions');
 
-        Responder::redirectToPage($this->Request->get('redirect'));
+
+        Responder::redirectToPage($redirect);
     }
 }

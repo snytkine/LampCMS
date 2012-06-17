@@ -5,3 +5,5 @@
 /www/sandbox/
 /www/img/tmp/
 .idea/
+.idea/*/
+*admin.xml

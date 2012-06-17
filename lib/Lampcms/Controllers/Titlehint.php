@@ -91,18 +91,29 @@ class Titlehint extends WebPage
      */
     protected function getData()
     {
-
-        $aTokens = TitleTokenizer::factory($this->Request->getUTF8('q'))->getArrayCopy();
+        $q = $_GET['q'];
+        d('$q: ' . $q);
+        $q       = Utf8String::stringFactory($q);
+        $aTokens = TitleTokenizer::factory($q)->getArrayCopy();
 
         if (!empty($aTokens)) {
             d('looking for something');
             try {
-                $cur = $this->Registry->Mongo->QUESTIONS->find(array('a_title' => array('$all' => $aTokens), 'a_deleted' => null), array('_id', 'title', 'url', 'intro', 'hts', 'status', 'i_ans', 'ans_s'))
-                    ->sort(array('status' => 1, 'i_ans' => -1))
+                $cur         = $this->Registry->Mongo->QUESTIONS->find(array('a_title'   => array('$all' => $aTokens),
+                                                                             'a_deleted' => null), array('_id'    => true,
+                                                                                                         'title'  => true,
+                                                                                                         'url'    => true,
+                                                                                                         'intro'  => true,
+                                                                                                         'hts'    => true,
+                                                                                                         'status' => true,
+                                                                                                         'i_ans'  => true,
+                                                                                                         'ans_s'  => true))
+                    ->sort(array('status' => 1,
+                                 'i_ans'  => -1))
                     ->limit(12);
                 $this->aData = iterator_to_array($cur, false);
                 d('$this->aData: ' . print_r($this->aData, 1));
-            } catch (\MongoException $e) {
+            } catch ( \MongoException $e ) {
                 d('MongoException: ' . $e->getMessage() . ' aTokens was: ' . print_r($this->aTokens, 1));
             }
         }
@@ -119,7 +130,7 @@ class Titlehint extends WebPage
      */
     protected function sendResult()
     {
-        $callback = $this->Request->get('callback');
+        $callback = $_GET['callback'];
         d('$callback: ' . $callback);
 
         Responder::sendJSONP(array('ac' => $this->aData), $callback);
