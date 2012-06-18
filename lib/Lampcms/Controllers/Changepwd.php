@@ -81,7 +81,7 @@ class Changepwd extends Resetpwd
     {
 
         $this->Form = new \Lampcms\Forms\Changepwd($this->Registry);
-		$this->Form->formTitle = $this->aPageVars['title'] = $this->_('Change Password');
+		$this->Form->formTitle = $this->aPageVars['title'] = '@@Change Password@@';
 
 		if ($this->Form->isSubmitted() && $this->Form->validate()) {
             $this->saveNewPassword();
@@ -89,7 +89,7 @@ class Changepwd extends Resetpwd
                 $this->emailPwd();
             }
 
-            $this->aPageVars['body'] = '<div id="tools">' . $this->_('Password updated successfully') . '</div>';
+            $this->aPageVars['body'] = '<div id="tools">@@Password updated successfully@@</div>';
 
         } else {
             $this->aPageVars['body'] = $this->Form->getForm();

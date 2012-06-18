@@ -103,7 +103,8 @@ if (true !== session_start()) {
             /**
              * Now replace translation strings
              * identified as
-             * @@somestring@@
+             * @
+             * @somestring@@
              *
              */
             $output = $translator($output);

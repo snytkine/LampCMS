@@ -72,6 +72,7 @@ class Clientdata extends \Lampcms\Mongo\Doc
         parent::__construct($Registry, 'API_CLIENTS');
     }
 
+
     /**
      * Factory method
      * @todo when support for OAuth2 is added
@@ -80,7 +81,8 @@ class Clientdata extends \Lampcms\Mongo\Doc
      * It will have extra methods
      * to return and save extra data
      *
-     * @param Registry $Registry
+     * @param \Lampcms\Registry $Registry
+     * @return \Lampcms\Api\Clientdata|object
      */
     public static function factory(\Lampcms\Registry $Registry)
     {
@@ -95,13 +97,15 @@ class Clientdata extends \Lampcms\Mongo\Doc
      * if this client has not uploaded
      * own icon.
      *
+     * @param bool $asHtml
+     *
      * @return string value of the $src of the image
      */
     public function getIcon($asHtml = true)
     {
         $s = $this->offsetGet('icon');
 
-        $s = (empty($s)) ? '/images/app2.png' : LAMPCMS_AVATAR_IMG_SITE . \Lampcms\PATH_WWW_IMG_AVATAR_SQUARE . $s;
+        $s = (empty($s)) ? '{_IMAGE_SITE_}{_DIR_}/images/app2.png' : LAMPCMS_AVATAR_IMG_SITE . \Lampcms\PATH_WWW_IMG_AVATAR_SQUARE . $s;
 
         if (!$asHtml) {
             return $s;

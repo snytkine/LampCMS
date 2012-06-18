@@ -220,37 +220,37 @@ abstract class Pager_Common
      * @var string alt text for "first page" (use "%d" placeholder for page number)
      * @access private
      */
-    protected $_altFirst = 'first page';
+    protected $_altFirst = '@@first page@@';
 
     /**
      * @var string alt text for "previous page"
      * @access private
      */
-    protected $_altPrev = 'previous page';
+    protected $_altPrev = '@@previous page@@';
 
     /**
      * @var string alt text for "next page"
      * @access private
      */
-    protected $_altNext = 'next page';
+    protected $_altNext = '@@next page@@';
 
     /**
      * @var string alt text for "last page" (use "%d" placeholder for page number)
      * @access private
      */
-    protected $_altLast = 'last page';
+    protected $_altLast = '@@last page@@';
 
     /**
      * @var string alt text for "page" (use optional "%d" placeholder for page number)
      * @access private
      */
-    protected $_altPage = 'page';
+    protected $_altPage = '@@page@@';
 
     /**
      * @var string image/text to use as "prev" link
      * @access private
      */
-    protected $_prevImg = '&lt;&lt; Back';
+    protected $_prevImg = '&lt;&lt; @@Back@@';
 
     /**
      * image/text to use as "prev" link when no prev link is needed  (e.g. on the first page)
@@ -265,7 +265,7 @@ abstract class Pager_Common
      * @var string image/text to use as "next" link
      * @access private
      */
-    protected $_nextImg = 'Next &gt;&gt;';
+    protected $_nextImg = '@@Next@@ &gt;&gt;';
 
     /**
      * image/text to use as "next" link when
@@ -365,25 +365,25 @@ abstract class Pager_Common
      * @var string String used as title in <link rel="first"> tag
      * @access private
      */
-    protected $_firstLinkTitle = 'first page';
+    protected $_firstLinkTitle = '@@first page@@';
 
     /**
      * @var string String used as title in <link rel="next"> tag
      * @access private
      */
-    protected $_nextLinkTitle = 'next page';
+    protected $_nextLinkTitle = '@@next page@@';
 
     /**
      * @var string String used as title in <link rel="previous"> tag
      * @access private
      */
-    protected $_prevLinkTitle = 'previous page';
+    protected $_prevLinkTitle = '@@previous page@@';
 
     /**
      * @var string String used as title in <link rel="last"> tag
      * @access private
      */
-    protected $_lastLinkTitle = 'last page';
+    protected $_lastLinkTitle = '@@last page@@';
 
     /**
      * @var string Text to be used for the 'show all' option in the select box
@@ -1549,4 +1549,3 @@ abstract class Pager_Common
 
 }
 
-?>

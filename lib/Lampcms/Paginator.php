@@ -203,6 +203,6 @@ class Paginator
     {
         $links = $this->oPager->getLinks();
 
-        return (is_array($links) && !empty($links['all'])) ? '<div class="qpages ajax"><span class="pager_title">Pages</span> : ' . $links['all'] . '</div>' : '';
+        return (is_array($links) && !empty($links['all'])) ? '<div class="qpages ajax"><span class="pager_title">@@Pages@@</span> : ' . $links['all'] . '</div>' : '';
     }
 }

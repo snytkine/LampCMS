@@ -54,7 +54,7 @@ class tplFormEmailOptions extends \Lampcms\Template\Fast
 {
     protected static $vars = array(
         'token' => '', // 1
-        'formTitle' => '@@Current Email Subscription Preferences@@', //2
+        'formTitle' => '@@Your Email Subscription Preferences@@', //2
         'e_fu' => '', //3
         'e_fu_t' => '@@New posts by users I follow@@', //4
         'e_fu_d' => '@@Email me when a new post is made by a user I follow@@', //5

@@ -41,15 +41,15 @@ class tplRegform extends Lampcms\Template\Fast
 {
 
     protected static $vars = array(
-        'titleBar' => 'Step 2 :: Please provide email address', // 1
-        'title' => 'Welcome!', //2
+        'titleBar' => '@@Step 2 Please provide email address@@', // 1
+        'title' => '@@Welcome@@!', //2
         'header2' => '', //3
         'token' => '', //4
         'externalAccount' => '', //5
         'username' => '', // 6
-        'email_l' => 'Email:', // 7
+        'email_l' => '@@Email@@:', // 7
         'email' => '', // 8
-        'email_d' => "<strong>Please provide a valid email address<br/>Your password and account activation link will be send to there</strong><br/>Don't worry, your email is never shown anywhere on our site and we never share it.\nWe also never send spam",
+        'email_d' => "<strong>@@Please provide a valid email address@@<br/>@@Your password and account activation link will be send to there@@</strong><br/>Don't worry, your email is never shown anywhere on our site and we never share it.\nWe also never send spam",
         'captcha' => '', //10
         'optinBox' => '', //11
         'button' => '', //12
@@ -58,9 +58,9 @@ class tplRegform extends Lampcms\Template\Fast
         'td2' => '', //15
         'loginBlock' => '', //16
         'email_e' => '', //17
-        'username_l' => 'Username', //18
+        'username_l' => '@@Username@@', //18
         'username_e' => '', //19
-        'username_d' => 'Username will appear alongside your posts', //20
+        'username_d' => '@@Username will appear alongside your posts@@', //20
         'formError' => '', // 21
         'divID' => 'regdiv', // 22
         'className' => 'yui-pe-content' // 23
@@ -77,7 +77,7 @@ class tplRegform extends Lampcms\Template\Fast
 	<table class="mainreg">
 	<tr>
 	<td>
-		<form id="regform" method="post" action="/index.php">	
+		<form id="regform" method="post" action="{_WEB_ROOT_}">
 		<input type="hidden" name="a" value="%13$s">
 		<input type="hidden" name="tzo" value="">
 		<input type="hidden" name="token" value="%4$s">
@@ -115,7 +115,7 @@ class tplRegform extends Lampcms\Template\Fast
 	<!-- checkbox email offers -->
 		%11$s
 	<tr>
-		<td><span class="red"> * </span><span class="label2">Denotes required fields</span><br></td>
+		<td><span class="red"> * </span><span class="label2">@@Denotes required fields@@</span><br></td>
 	</tr>
 	<!-- submit button -->
 	<tr>

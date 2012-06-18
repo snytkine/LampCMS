@@ -66,7 +66,7 @@ use \Lampcms\String;
 class Resetpwd extends WebPage
 {
 
-    const TPL_SUCCESS = 'New password was just sent to your email %s';
+    const TPL_SUCCESS = '@@New password was just sent to your email@@ %s';
 
     const SUBJECT = 'Your %1$s login information';
 
@@ -107,7 +107,7 @@ You can also change your password after you log in.
             ->savePassword()
             ->emailPwd();
 
-        $this->aPageVars['title'] = 'Password reset';
+        $this->aPageVars['title'] = '@@Password reset@@';
         $this->aPageVars['body']  = '<div class="frm1">' . sprintf(self::TPL_SUCCESS, $this->email) . '</div>';
     }
 
@@ -178,14 +178,14 @@ You can also change your password after you log in.
 
             $this->saveFailedAttempt()->Registry->Dispatcher->post($this, 'onFailedPasswordReset');
 
-            throw new \Lampcms\AlertException('Wrong password reset code');
+            throw new \Lampcms\AlertException('@@Wrong password reset code@@');
         }
 
 
         if ($aResult['i_ts'] < $timeOffset) {
             d('code expired');
 
-            throw new \Lampcms\NoticeException('password_reset_code_expired');
+            throw new \Lampcms\NoticeException('@@Password reset code expired@@');
         }
 
 
@@ -281,10 +281,8 @@ You can also change your password after you log in.
                     e('LampcmsError: hacking of password reset link. $uidHacks: ' . $uidHacks . ' $ipHacks: ' . $ipHacks . ' from ip: ' . $ip);
 
                     $this->Registry->Dispatcher->post($this, 'onPasswordResetHack', $aVal);
-                    /**
-                     * @todo Translate String
-                     */
-                    throw new \Lampcms\Exception($this->_('Access Denied'));
+
+                    throw new \Lampcms\Exception('@@Access denied@@');
                 }
             }
         }

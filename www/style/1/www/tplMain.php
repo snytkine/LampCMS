@@ -114,6 +114,7 @@ class tplMain extends Lampcms\Template\Fast
 <meta name="comments_timeout" content="%37$s">
 <meta name="max_comments" content="%38$s">
 <meta name="noac" content="%40$s">
+<meta name="web_dir" content="{_DIR_}">
 <meta name="web_root" content="{_WEB_ROOT_}">
 <meta name="qid_prefix" content="{_QID_PREFIX_}">
 %8$s
@@ -158,7 +159,7 @@ class tplMain extends Lampcms\Template\Fast
 </div>
 <hr class="line1">
 	<div id="ft" class="footer">%19$s
-		<div id="ccwiki-copyright">Powered by <a href="http://www.lampcms.com">LampCMS</a> Source code available at <a href="https://github.com/snytkine/LampCMS">github</a>
+		<div id="ccwiki-copyright">@@Powered by@@ <a href="http://www.lampcms.com">LampCMS</a> Source code available at <a href="https://github.com/snytkine/LampCMS">github</a>
 			<br>Questions and Answers are licensed under <a href="http://creativecommons.org/licenses/by-sa/2.5/" rel="nofollow" target="_blank">cc-wiki</a> license.<br>
 		</div>
 		%41$s
@@ -167,10 +168,10 @@ class tplMain extends Lampcms\Template\Fast
 </div>
 
 <div id="fbOverlay">
-<div class="yui3-widget-hd"><h3>Alert</h3></div>
+<div class="yui3-widget-hd"><h3>@@Alert@@</h3></div>
 <div class="yui3-widget-bd"></div>
 <div class="yui3-widget-ft">
-<div><button id="hide-fbOverlay" class="btn">close</button></div>
+<div><button id="hide-fbOverlay" class="btn">@@close@@</button></div>
 </div>
 </div>
 

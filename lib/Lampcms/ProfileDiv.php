@@ -253,7 +253,7 @@ class ProfileDiv extends LampcmsObject
             $a = $this->Registry->Ini->getSection('BLOGGER');
             if (!empty($a) && !empty($a['OAUTH_KEY']) && !empty($a['OAUTH_SECRET'])) {
 
-                return '<div id="connect_blogger" class="add_blogger ajax ttt btn_connect rounded4" title="Connect Blogger.com Blog"><img src="{_IMAGE_SITE_}{_DIR_}/images/blogger_16.png" width="16" height="16"><span class="_bg_tw">@@Connect Blogger Blog@@</span></div>';
+                return '<div id="connect_blogger" class="add_blogger ajax ttt btn_connect rounded4" title="@@Connect Blogger Blog@@"><img src="{_IMAGE_SITE_}{_DIR_}/images/blogger_16.png" width="16" height="16"><span class="_bg_tw">@@Connect Blogger Blog@@</span></div>';
             }
         }
 

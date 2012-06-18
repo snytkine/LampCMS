@@ -106,11 +106,8 @@ class Usertools
 
         if ($oACL->isAllowed($role, null, 'shred_user')) {
             d('getting shred button');
-            /**
-             * @todo
-             * Translate String
-             */
-            $shredButton = '<div class="fl cb"><input type="button" class="ajax btn_shred rounded4" value="Shred User" id="shred' . $uid . '"></div>';
+
+            $shredButton = '<div class="fl cb"><input type="button" class="ajax btn_shred rounded4" value="@@Shred User@@" id="shred' . $uid . '"></div>';
         }
 
         if (empty($options) && empty($shredButton)) {

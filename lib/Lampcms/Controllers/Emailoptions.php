@@ -79,8 +79,6 @@ class Emailoptions extends WebPage
 
 
     /**
-     * @todo Translate strings used in form using the
-     * $this->Form->name = val setting
      *
      * @todo maybe send email on save() notifying
      * that email settings has been updated
@@ -93,14 +91,14 @@ class Emailoptions extends WebPage
 
         $email = $this->Registry->Viewer->email;
         $this->Form = new \Lampcms\Forms\EmailOptions($this->Registry);
-		$this->Form->formTitle = $this->aPageVars['title'] = $this->_('Your Email Subscription Preferences');
+		//$this->Form->formTitle = $this->aPageVars['title'] = $this->_('Your Email Subscription Preferences');
 		$this->Form->your_email = $email;
 
 		if ($this->Form->isSubmitted()) {
             $this->Registry->Dispatcher->post($this->Form, 'onBeforeEmailOptionsUpdate');
             $this->savePrefs();
             $this->Registry->Dispatcher->post($this->Form, 'onEmailOptionsUpdate');
-            $this->aPageVars['body'] = '<div id="tools"><h3>Your email subscription preferences have been updated.</h3><p><a href="/emailoptions/">Your email preferences</a></p></div>';
+            $this->aPageVars['body'] = '<div id="tools"><h3>@@Your email subscription preferences have been updated@@.</h3><p><a href="{_WEB_ROOT_}/{_emailoptions_}/">@@Your email preferences@@</a></p></div>';
 
         } else {
             $this->setForm();
@@ -145,17 +143,15 @@ class Emailoptions extends WebPage
      * Set the "checked" values of check boxes
      * to the ones in Viewer object
      *
-     * Value is considered checked in it is
-     * not spefically set to false by user
+     * Value is considered checked if it is
+     * not specifically set to false by user
      * by default there is no value in USERS collection
      * for these settings, so it will be returned
      * as null (but not false) from Viewer object
      *
-     * Enter description here ...
      */
     protected function setForm()
     {
-
         $this->Form->e_fu = (true !== $this->Registry->Viewer->ne_fu) ? 'checked' : '';
         $this->Form->e_ft = (true !== $this->Registry->Viewer->ne_ft) ? 'checked' : '';
         $this->Form->e_fq = (true !== $this->Registry->Viewer->ne_fq) ? 'checked' : '';

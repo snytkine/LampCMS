@@ -159,7 +159,7 @@ class Editprofile extends WebPage
     {
 
         $this->Form->username = $this->User['username'];
-        $this->Form->usernameLabel = 'Username';
+        $this->Form->usernameLabel = '@@Username@@';
         $this->Form->fn = $this->User['fn'];
         $this->Form->mn = $this->User['mn'];
         $this->Form->ln = $this->User['ln'];
@@ -176,10 +176,8 @@ class Editprofile extends WebPage
         $this->Form->uid = $this->User->getUid();
         $this->Form->maxAvatarSize = $this->Registry->Ini->MAX_AVATAR_UPLOAD_SIZE;
         $this->Form->timezone = \Lampcms\TimeZone::getMenu($this->User->getTimezone());
-        /**
-         * @todo translate string
-         */
-        $this->Form->avatarTos = \sprintf('Upload Image. Maximum size of %sMb<br><span class="smaller">@@By uploading a file you certify that you have the right to distribute this picture and that it does not violate the Terms of Service@@</span>', \floor($this->Registry->Ini->MAX_AVATAR_UPLOAD_SIZE / 1000000));
+
+        $this->Form->avatarTos = \sprintf('@@Upload Image. Maximum size of@@ %sMb<br><span class="smaller">@@By uploading a file you certify that you have the right to distribute this picture and that it does not violate the Terms of Service@@</span>', \floor($this->Registry->Ini->MAX_AVATAR_UPLOAD_SIZE / 1000000));
 
         /**
          * Add '  hide' class to avatar upload
@@ -261,7 +259,7 @@ class Editprofile extends WebPage
     {
         $current = $this->Registry->Viewer['gender'];
         $s = '';
-        $a = array('' => 'Select Gender', 'M' => '@@Male@@', 'F' => '@@Female@@');
+        $a = array('' => '@@Select Gender@@', 'M' => '@@Male@@', 'F' => '@@Female@@');
         $tpl = '<option value="%1$s"%2$s>%3$s</option>';
         foreach ($a as $key => $val) {
             $selected = ($key === $current) ? ' selected' : '';

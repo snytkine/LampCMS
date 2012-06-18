@@ -68,7 +68,7 @@ class UserLinkedin extends UserExternal
     public function getAvatarImgSrc($sSize = 'medium', $boolNoCache = false)
     {
         $strAvatar = parent::getAvatarImgSrc($sSize, $boolNoCache);
-        $strAvatar .= '<img width="14" height="14" class="iconfb" alt="LinkedIn User" src="/images/linkedin_16.png">';
+        $strAvatar .= '<img width="14" height="14" class="iconfb" alt="LinkedIn User" src="{_IMAGE_SITE_}{_DIR_}/images/linkedin_16.png">';
 
         return $strAvatar;
     }

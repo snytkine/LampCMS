@@ -245,9 +245,11 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
                  * AND has not been translated with $translator
                  *
                  * will be replaced with their placeholder names
-                 * with this single preg_replace call (profiler reports this to take about 0.3 - 1ms - really fast)
+                 * with this single call
                  */
-                return \preg_replace('/@@([a-zA-Z0-9_\-!?\().,\'\/\s]+)@@/', '\\1', $output);
+                //return \preg_replace('/@@([a-zA-Z0-9_\-!?\().,\'\/\s]+)@@/', '\\1', $output);
+
+                return \str_replace('@@', '', $output);
 
             };
 

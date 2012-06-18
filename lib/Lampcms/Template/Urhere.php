@@ -80,21 +80,18 @@ class Urhere extends LampcmsObject
         'newest_c' => '',
         'voted_c' => '',
         'active_c' => '',
-        'newest' => 'Newest',
-        'newest_t' => 'Most recent questions',
-        'voted' => 'Most Voted',
-        'voted_t' => 'Questions with most votes');
+        'newest' => '@@Newest@@',
+        'newest_t' => '@@Most recent questions@@',
+        'voted' => '@@Most Voted@@',
+        'voted_t' => '@@Questions with most votes@@');
 
     /**
-     * @todo instead of registry pass I18n here
-     * we going to use it to translate strings
-     * in template
      *
      * @param Registry $Registry
      */
     public function __construct(Registry $Registry)
     {
-        $this->Registry = $Registry;
+       // $this->Registry = $Registry;
     }
 
 
@@ -132,7 +129,7 @@ class Urhere extends LampcmsObject
         }
 
         d('template: ' . $template . ' $aVars: ' . print_r($aVars, 1));
-        $this->translate($template, $aVars);
+
         if (null !== $func) {
             d('$func is not null');
         }
@@ -140,36 +137,4 @@ class Urhere extends LampcmsObject
         return $template::parse($aVars, false, $func);
     }
 
-
-    /**
-     * Apply Translation to some template strings
-     *
-     * @todo stop doing translation here, just set the placeholders for strings
-     *
-     * @param string $template
-     * @param array $vars passed by reference
-     */
-    protected function translate($template, array &$vars)
-    {
-        $Translator = $this->Registry->Tr;
-        switch ($template) {
-
-            case 'tplQtypesdiv':
-                $vars['newest'] = $Translator['Newest'];
-                $vars['newest_t'] = $Translator['Most recent questions'];
-                $vars['voted'] = $Translator['Most Voted'];
-                $vars['voted_t'] = $Translator['Questions with most votes'];
-                $vars['active'] = $Translator['Most Active'];
-                $vars['active_t'] = $Translator['Questions with most activity'];
-                break;
-
-            case 'tplQuntypes':
-                $vars['newest'] = $Translator['Unanswered'];
-                $vars['newest_t'] = $Translator['Questions with no accepted answer'];
-                $vars['noanswer'] = $Translator['No Answers'];
-                $vars['noanswer_t'] = $Translator['Questions with no answers'];
-                break;
-
-        }
-    }
 }

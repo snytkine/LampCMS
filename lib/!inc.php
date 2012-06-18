@@ -180,7 +180,7 @@ function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
          */
         if ($errLevel & $errno) {
 
-            throw new \Lampcms\DevException($errstr, NULL, $errno, $errfile, $errline);
+            throw new \Lampcms\DevException($errstr, null, $errno, $errfile, $errline);
         }
     }
 
@@ -243,7 +243,7 @@ $debug = $Ini->DEBUG; // string '1' in case of true, empty string of false
 
 if ($debug || isset($aMyIPs[$myIP]) || defined('SPECIAL_LOG_FILE')) {
     define('LAMPCMS_DEBUG', true);
-    error_reporting(E_ALL | E_DEPRECATED);
+    error_reporting(E_ALL | E_DEPRECATED); // E_ALL | E_DEPRECATED
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
     ini_set('warn_plus_overloading', 1);

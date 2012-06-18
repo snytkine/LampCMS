@@ -73,35 +73,35 @@ class tplFormapiclient extends Lampcms\Template\Fast
 
     protected static $vars = array(
         'token' => '', // 1
-        'formTitle' => 'Register an Application', //2
+        'formTitle' => '@@Register an Application@@', //2
         'app_id' => '0', //3
         'app_name' => '', //4
-        'app_name_l' => 'Application Name', //5
+        'app_name_l' => '@@Application Name@@', //5
         'appsite' => '', //6
-        'appsite_l' => 'Application Website', //7
+        'appsite_l' => '@@Application Website@@', //7
         'company' => '', // 8
-        'company_l' => 'Organization', //9
+        'company_l' => '@@Organization@@', //9
         'about' => '', //10
-        'about_l' => 'Description', // 11
-        'submit' => 'Save Application Settings', // 12
+        'about_l' => '@@Description@@', // 11
+        'submit' => '@@Save Application Settings@@', // 12
         'selected_b' => '', //13
         'selected_c' => '', //14
-        'app_type_l' => 'Application type', //15
+        'app_type_l' => '@@Application type@@', //15
         'app_type_d' => '', //16
         'formError' => '', //17
         'maxUploadSize' => '700000', //18
-        'icon_image' => '/images/app2.png', //19
+        'icon_image' => '{_IMAGE_SITE_}{_DIR_}/images/app2.png', //19
         'icon_e' => '', //20
         'app_name_e' => '', //21
         'captcha' => '', //22
         'app_type' => '', // 23
         'app_type_e' => '', // 24
-        'required_l' => 'Required', // 25
+        'required_l' => '@@Required@@', // 25
         'icon' => '' //26 Need this or Form class will complain about field does not exist
     );
 
     protected static $tpl = '
-	<form name="epForm" method="POST" action="/index.php" enctype="multipart/form-data" accept-charset="utf-8">
+	<form name="epForm" method="POST" action="{_WEB_ROOT_}" enctype="multipart/form-data" accept-charset="utf-8">
 		<input type="hidden" name="a" value="editapp">
 		<input type="hidden" name="app_id" value="%3$s">	
 		<input type="hidden" name="token" value="%1$s">

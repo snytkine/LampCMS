@@ -119,7 +119,7 @@ class Askform extends Form
         $selectMenu = $clabel = $crequired = null;
         if ($categs) {
             $Menu = new Renderer($this->Registry);
-            $clabel = $this->Registry->Tr->get('Select Category');
+            $clabel = '@@Select Category@@';
             /**
              * If CATEGORIES in !config.ini is set to 2
              * then category selection is required.
@@ -128,7 +128,7 @@ class Askform extends Form
              */
             if (2 == $categs) {
                 $crequired = true;
-                $err = $this->Registry->Tr->get('You must select a category');
+                $err = '@@You must select a category@@';
                 $this->addValidator('category', function($val) use ($err)
                 {
 
@@ -150,25 +150,20 @@ class Askform extends Form
 
         $d = $this->Tr->get('Please enter between {min_tags} and {max_tags} tags, separated by spaces', array('{min_tags}' => $minTags, '{max_tags}' => $maxTags));
         $this->setVar('tags_d', $d);
-        $this->setVar('tags_l', $this->Tr['Tags']);
-        $this->setVar('Preview', $this->Tr['Preview']);
-        $this->setVar('Preview', $this->Tr['Preview']);
-        $this->setVar('title_d', $this->Tr['Enter a descriptive title']);
-        $this->setVar('title_l', $this->Tr['Title']);
-        $this->setVar('submit', $this->Tr['Ask Question']);
+
         $this->setVar('category_menu', $selectMenu);
         if (0 === strlen($categs)) {
             $this->setVar('category_class', 'hide');
         }
         if ($minTags > 0) {
             $tagsRequired = '(* %s)';
-            $this->setVar('tags_required', sprintf($tagsRequired, 'required'));
+            $this->setVar('tags_required', \sprintf($tagsRequired, 'required'));
         }
 
         $minTitle = $this->Registry->Ini->MIN_TITLE_CHARS;
         if ($minTitle > 0) {
             $t = 'Please enter a descriptive title at least %s characters long';
-            $this->setVar('title_d', sprintf($t, $minTitle));
+            $this->setVar('title_d', \sprintf($t, $minTitle));
         }
     }
 

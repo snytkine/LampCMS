@@ -435,8 +435,8 @@ abstract class WebPage extends Base
          * $this->Registrty->Viewer->getStyleID()
          *
          */
-        $css                         = (true === LAMPCMS_DEBUG) ? '/_main.css' : '/main.css';
-        $this->aPageVars['main_css'] = $Ini->CSS_SITE . '/style/' . STYLE_ID . '/' . VTEMPLATES_DIR . $css;
+        $css                         = (true === LAMPCMS_DEBUG) ? '/_main.css?t='.time() : '/main.css';
+        $this->aPageVars['main_css'] = $Ini->CSS_SITE . '{_DIR_}/style/' . STYLE_ID . '/' . VTEMPLATES_DIR . $css;
 
         $aFacebookConf = $Ini->getSection('FACEBOOK');
 
@@ -466,7 +466,7 @@ abstract class WebPage extends Base
 
         $js = (true === LAMPCMS_DEBUG) ? '/qa.js?t='.time() : '/min/qa_' . JS_MIN_ID . '.js';
         //$js = (true === LAMPCMS_DEBUG) ? '/temp1.js' : '/min/qa_'.JS_MIN_ID.'.js';
-        $src = $Ini->JS_SITE . '/js' . $js;
+        $src = $Ini->JS_SITE . '{_DIR_}/js' . $js;
 
         $this->aPageVars['JS'] = $src;
         /**
@@ -553,7 +553,7 @@ abstract class WebPage extends Base
         try {
             $oCheckLogin = new CookieAuth($this->Registry);
             $User        = $oCheckLogin->authByCookie();
-            d('aResult: ' . print_r($User->getArrayCopy(), 1));
+            d('aResult: ' . \print_r($User->getArrayCopy(), 1));
 
         } catch ( CookieAuthException $e ) {
             d('LampcmsError: login by sid failed with message: ' . $e->getMessage());
@@ -746,7 +746,7 @@ abstract class WebPage extends Base
         try {
             if ($this->Registry->Ini->SHOW_FLAGS) {
 
-                $this->extraCss[] = $this->Registry->Ini->CSS_SITE . '/css/flags.css';
+                $this->extraCss[] = $this->Registry->Ini->CSS_SITE . '{_DIR_}/css/flags.css';
             }
         } catch ( \Lampcms\IniException $e ) {
             e($e->getMessage());
@@ -783,8 +783,8 @@ abstract class WebPage extends Base
         $a = $this->Registry->Ini->getSection('EDITOR');
         if ($a['ENABLE_CODE_EDITOR']) {
             d('enabling code highlighter');
-            $this->lastJs     = array('/js/min/shCoreMin.js', '/js/min/dsBrushes.js');
-            $this->extraCss[] = '/js/min/sh.css';
+            $this->lastJs     = array('{_DIR_}/js/min/shCoreMin.js', '{_DIR_}/js/min/dsBrushes.js');
+            $this->extraCss[] = '{_DIR_}/js/min/sh.css';
         }
 
         if ($a['ENABLE_YOUTUBE']) {

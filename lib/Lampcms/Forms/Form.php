@@ -203,7 +203,7 @@ class Form extends LampcmsObject
 
         if (isset($tpl)) {
             $this->aVars = $tpl::getVars();
-            d('$this->aVars: ' . print_r($this->aVars, 1));
+            d('$this->aVars: ' . \print_r($this->aVars, 1));
         }
 
         if (Request::isPost()) {
@@ -212,7 +212,7 @@ class Form extends LampcmsObject
                 self::validateToken($Registry);
             }
             $this->aUploads = $_FILES;
-            d('$this->aUploads: ' . print_r($this->aUploads, 1));
+            d('$this->aUploads: ' . \print_r($this->aUploads, 1));
         } else {
             $this->addToken();
         }
@@ -291,10 +291,9 @@ class Form extends LampcmsObject
      * which may contain all necessary validation methods and
      * must set errors via setError()
      *
-     * @throws LampcmsDevException
      *
+     * @throws \Lampcms\DevException
      * @return bool true if there are no validation errors,
-     * false otherwise
      */
     public function validate()
     {
@@ -343,13 +342,13 @@ class Form extends LampcmsObject
     {
         $aFields = $this->getFields();
         $a = $this->Registry->Request->getArray();
-        d('$aFields: ' . print_r($aFields, 1) . ' Request->getArray(): ' . print_r($a, 1) . ' POST: ' . print_r($_POST, 1));
+        d('$aFields: ' . \print_r($aFields, 1) . ' Request->getArray(): ' . \print_r($a, 1) . ' POST: ' . \print_r($_POST, 1));
 
         /**
          * Order of array_intersect_key is very important!
          */
-        $ret = array_intersect_key($a, array_flip($aFields));
-        d('submitted values: ' . print_r($ret, 1));
+        $ret = \array_intersect_key($a, \array_flip($aFields));
+        d('submitted values: ' . \print_r($ret, 1));
 
         return $ret;
     }
@@ -483,7 +482,7 @@ class Form extends LampcmsObject
      */
     public function getFields()
     {
-        $aFields = (!empty($this->aFields)) ? array_keys($this->aFields) : array_keys($this->aVars);
+        $aFields = (!empty($this->aFields)) ? \array_keys($this->aFields) : \array_keys($this->aVars);
 
         return $aFields;
     }
@@ -515,13 +514,10 @@ class Form extends LampcmsObject
      * absolutely no meaning since errors will not be shown
      * on form.
      *
-     * @todo in the future will automatically
-     * translate the $message into current language
-     * using oI18n
-     *
      *
      * @param string $field
      * @param string $message
+     * @return \Lampcms\Forms\Form
      */
     public function setError($field, $message)
     {
@@ -547,6 +543,7 @@ class Form extends LampcmsObject
      * The form template MUST have 'formError' variable in it!
      *
      * @param string $errMessage
+     * @return \Lampcms\Forms\Form
      */
     public function setFormError($errMessage)
     {
@@ -616,7 +613,7 @@ class Form extends LampcmsObject
      * will not update $this->aVars to the values of submitted
      * values and will reuse the vars that were set initially.
      * This is useful when form was submitted but then some error
-     * occured in a script that was parsing the form.
+     * occurred in a script that was parsing the form.
      * In that case
      * we often need to setFormError and then use values in form
      * than were there initially, no using any of the submitted values.
@@ -648,10 +645,6 @@ class Form extends LampcmsObject
 
 
     /**
-     * @todo here we can do translation of template vars
-     * We will have translateArray() in oTr which will
-     * take array as input, then use keys as strings and values
-     * as fallback values and return array with translated values
      *
      * @return object $this
      */
@@ -663,7 +656,7 @@ class Form extends LampcmsObject
             d('a from request: ' . print_r($a, 1));
             d('$this->aVars : ' . print_r($this->aVars, 1));
 
-            $this->aVars = array_merge($this->aVars, $a);
+            $this->aVars = \array_merge($this->aVars, $a);
         }
 
         return $this;
@@ -695,7 +688,7 @@ class Form extends LampcmsObject
     {
         if (!empty($this->aErrors)) {
             $this->aVars = array_merge($this->aVars, $this->flattenErrors());
-            d('$this->aVars: ' . print_r($this->aVars, 1));
+            d('$this->aVars: ' . \print_r($this->aVars, 1));
         }
 
         return $this;
@@ -721,7 +714,7 @@ class Form extends LampcmsObject
             }
             $ret[$field] .= '</ul>';
         }
-        d('$ret: ' . print_r($ret, 1));
+        d('$ret: ' . \print_r($ret, 1));
 
         return $ret;
     }
@@ -740,11 +733,11 @@ class Form extends LampcmsObject
      */
     public static function generateToken()
     {
-        if (!array_key_exists('secret', $_SESSION)) {
+        if (!\array_key_exists('secret', $_SESSION)) {
 
-            $token = uniqid(mt_rand());
+            $token = \uniqid(\mt_rand());
             //$_SESSION['secret'] = $token;
-            $_SESSION['secret'] = hash('md5', $token);
+            $_SESSION['secret'] = \hash('md5', $token);
         }
 
         return $_SESSION['secret'];
@@ -769,26 +762,28 @@ class Form extends LampcmsObject
 
     /**
      * Validate submitted 'token' value
-     * agains generateToken()
+     * against generateToken()
      * they must match OR throw TokenException
      *
      * Must be static because we use this sometimes
      * from outside this object.
      *
-     * @return true on success
+     * @param Registry $Registry
      *
+     * @throws \Lampcms\TokenException
+     * @return \Lampcms\Forms\true on success
      */
     public static function validateToken(Registry $Registry)
     {
 
         if (empty($_SESSION['secret'])) {
-            throw new \Lampcms\TokenException('Form token not found in session');
+            throw new \Lampcms\TokenException('@@Form token not found in session@@');
         }
 
         $token = $Registry->Request['token'];
         d('submitted form token: ' . $token);
         if ($token !== $_SESSION['secret']) {
-            throw new \Lampcms\TokenException('Invalid security token. You need to reload this page in browser and try submitting this form again');
+            throw new \Lampcms\TokenException('@@Invalid security token. You need to reload this page in browser and try submitting this form again@@');
         }
 
         return true;
@@ -796,11 +791,11 @@ class Form extends LampcmsObject
 
 
     /**
-     * Translate some vars like labels and
-     * descriptions of form elements
+     * Not going to use translation here
+     * We now translating all vars on page render
+     * from inside output buffer
      *
-     * @todo actually translate those
-     *
+     * @return object $this
      */
     protected function translateVars()
     {

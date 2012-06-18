@@ -65,7 +65,7 @@ class tplFormask extends Lampcms\Template\Simple
         'category_l' => '@@Category@@',
         'category_e' => '',
         'category_menu' => '',
-        'submit' => '@@Submit@@',
+        'submit' => '@@Ask Question@@',
         'com_hand' => '',
         'readonly' => '',
         'disabled' => '',

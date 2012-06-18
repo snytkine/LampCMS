@@ -2,7 +2,7 @@
 img.flag {
     width: 18px;
     height: 12px;
-    background: url('/images/flags.png') no-repeat;
+    background: url('images/flags.png') no-repeat;
 }
 
 .flag.flag-af {

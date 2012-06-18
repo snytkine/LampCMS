@@ -64,7 +64,6 @@ class LoginForm
     protected static function forMember(Registry $Registry)
     {
         if (empty($_SESSION['welcome'])) {
-            $Translator = $Registry->Tr;
 
             $oViewer     = $Registry->Viewer;
             $invite      = self::makeInviteLink($oViewer);
@@ -75,13 +74,12 @@ class LoginForm
             $a = array(
                 $avatar,
                 $displayName,
-                $Translator['Logout'],
+                '@@Logout@@',
                 $invite,
-                'settings' => $Translator['Settings'],
+                'settings' => '@@Settings@@',
                 'url'      => $url
             );
 
-            d('cp aVals: ' . print_r($a, 1));
             $_SESSION['welcome'] = \tplWelcome::parse($a, false);
             d('SESSION[welcome]: ' . $_SESSION['welcome']);
         } else {
@@ -211,7 +209,7 @@ class LoginForm
             /**
              * Facebook
              */
-            if (extension_loaded('curl') && isset($Ini->FACEBOOK)) {
+            if (\extension_loaded('curl') && isset($Ini->FACEBOOK)) {
                 $aFB = $Ini['FACEBOOK'];
 
                 if (!empty($aFB['APP_ID'])) {

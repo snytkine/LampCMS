@@ -66,8 +66,18 @@ use \Lampcms\Request;
  */
 class Editcategory extends WebPage
 {
+
+    /**
+     * Permission required to use this controller is edit_category
+     * must be defined in config/acl.ini
+     * @var string
+     */
     protected $permission = 'edit_category';
 
+    /**
+     * layoutID 1 means single-column page
+     * @var int
+     */
     protected $layoutID = 1;
 
 
@@ -88,7 +98,7 @@ class Editcategory extends WebPage
                 $this->delete($delId);
             }
         }
-        $this->aPageVars['title'] = $this->_('Categories Editor');
+        $this->aPageVars['title'] = '@@Categories Editor@@';
         /**
          * Categories editor uses
          * jQuery UI NestedSortable module
@@ -97,12 +107,12 @@ class Editcategory extends WebPage
          * that handles Category editor
          */
         $this->lastJs = array(
-            '/js/jquery-1.5.2.min.js',
-            '/js/jquery-ui-1.8.11.custom.min.js',
-            '/js/jquery.ui.nestedSortable.js',
-            '/js/cateditor.js'
+            '{_DIR_}/js/jquery-1.5.2.min.js',
+            '{_DIR_}/js/jquery-ui-1.8.11.custom.min.js',
+            '{_DIR_}/js/jquery.ui.nestedSortable.js',
+            '{_DIR_}/js/cateditor.js'
         );
-        $this->extraCss[] = '/css/cateditor.css';
+        $this->extraCss[] = '{_DIR_}/css/cateditor.css';
         $this->setBody();
 
     }
@@ -161,7 +171,7 @@ class Editcategory extends WebPage
          * @todo
          * Translate String
          */
-        Responder::sendJSON(array('alert' => $this->_('Sort order saved')));
+        Responder::sendJSON(array('alert' => '@@Sort order saved@@'));
     }
 
     protected function processForm()
@@ -199,7 +209,7 @@ class Editcategory extends WebPage
                 Responder::sendJSON(array('category' => $aRes));
             }
         } else {
-            $message = ('One of the Observers cancelled the onBeforeCategoryEdit event');
+            $message = ('@@One of the Observers cancelled the onBeforeCategoryEdit event@@');
             d($message);
             Responder::sendJSON(array('alert' => $message));
         }
@@ -219,24 +229,24 @@ class Editcategory extends WebPage
         $ListRenderer = new \Lampcms\Category\Renderer($this->Registry);
         $list = $ListRenderer->getSortableList();
 
-        $vars = array('cat_title' => $this->_('Category Title'),
-            'manage_category' => $this->_('Add or Edit Category'),
-            'cat_title_desc' => $this->_('Enter title of the category'),
-            'cat_slug' => $this->_('Category Slug'),
-            'catslug_desc' => $this->_('Seo-friendly URL part of category'),
-            'cat_desc' => $this->_('Category Description'),
-            'catdesc_desc' => $this->_('A short description of this category. HTML is allowed. If entering html, make sure html is valid!'),
-            'catonly' => $this->_('Category-only'),
-            'catonly_desc' => $this->_('Category-only can contain only sub-categories and cannot contain posts'),
-            'submit' => $this->_('Add New Category'),
-            'reset' => $this->_('Reset'),
-            'categories' => $this->_('Sort Categories'),
+        $vars = array('cat_title' => '@@Category Title@@',
+            'manage_category' => '@@Add or Edit Category@@',
+            'cat_title_desc' => '@@Enter title of the category@@',
+            'cat_slug' => '@@Category Slug@@',
+            'catslug_desc' => '@@Seo-friendly URL part of category@@',
+            'cat_desc' => '@@Category Description@@',
+            'catdesc_desc' => '@@A short description of this category. HTML is allowed. If entering html, make sure html is valid!@@',
+            'catonly' => '@@Category-only@@',
+            'catonly_desc' => '@@Category-only can contain only sub-categories and cannot contain posts@@',
+            'submit' => '@@Add New Category@@',
+            'reset' => '@@Reset@@',
+            'categories' => '@@Sort Categories@@',
             'cat_list' => $list,
             'parent_select' => '',
-            'active' => $this->_('Active'),
+            'active' => '@@Active@@',
             'active_desc' => '',
             'active_checked' => 'checked',
-            'save' => $this->_('Save Sort Order'));
+            'save' => '@@Save Sort Order@@');
 
 
         $this->aPageVars['body'] = \tplEditcats::parse($vars);

@@ -110,7 +110,7 @@ const CODING_EMAILS = 'us-ascii';
 
 const SUFFIX_PRIVATE = '-private';
 
-const SMILIES_PATH = '/images/smiles';
+const SMILIES_PATH = '{_IMAGE_SITE_}{_DIR_}/images/smiles';
 
 const DIR_TEMPLATES = 'templates';
 

@@ -69,7 +69,7 @@ class UserTwitter extends UserExternal
     {
 
         $strAvatar = parent::getAvatarImgSrc($sSize, $boolNoCache);
-        $strAvatar .= '<img width="16" height="16" class="icontw" alt="Twitter User" src="/images/tw-user.png" />';
+        $strAvatar .= '<img width="16" height="16" class="icontw" alt="Twitter User" src="{_IMAGE_SITE_}{_DIR_}/images/tw-user.png" />';
 
         return $strAvatar;
 

@@ -297,7 +297,7 @@ oSL = {
 
         if (!this.eLoader) {
             this.eLoader = document.createElement("img");
-            this.eLoader.src = '/images/ajax-loader.gif';
+            this.eLoader.src = getMeta('web_dir') + '/images/ajax-loader.gif';
             this.eLoader.id = "loadericon";
         }
 
@@ -1333,7 +1333,7 @@ YUI({
                         err = 'Error returned from Youtube API. ', //
                     //tpl = '<a href="http://youtu.be/{id}" class="ajax ytplay ttt" rev="{id}" title="{t}"><img src="/images/play.png" alt="Youtube video" width="44px" height="44px"/></a>';
                         tpl = '<a href="http://youtu.be/{id}" class="ajax ytlink ttt" rev="{id}" title="{t}"><img src="http://i.ytimg.com/vi/{id}/default.jpg" alt="YouTube video" width="120px" height="90px"/></a>';
-                    tpl += '<a href="http://youtu.be/{id}" class="ajax ytplay ttt" rev="{id}" title="{t}"><img src="/images/play.png" alt="Play" width="44px" height="44px"/></a>';
+                    tpl += '<a href="http://youtu.be/{id}" class="ajax ytplay ttt" rev="{id}" title="{t}"><img src="'+ getMeta('web_dir') +'/images/play.png" alt="Play" width="44px" height="44px"/></a>';
 
                     if (resp.error) {
                         if (resp['error']['message']) {
@@ -1476,7 +1476,7 @@ YUI({
                         width:"100px",
                         /*height:"60px",*/
                         headerContent:"Loading...",
-                        bodyContent:"<img src='/images/loading-bar.gif'>",
+                        bodyContent:"<img src='"+ getMeta('web_dir') +"/images/loading-bar.gif'>",
                         zIndex:1000
                     });
                     Y.one("#loading").removeClass('hidden');
@@ -2762,7 +2762,7 @@ YUI({
                     width:'660px',
                     height:'140px',
                     autoHeight:true,
-                    extracss:'pre { margin-left: 10px; margin-right: 10px; padding: 2px; background-color: #EEE; } a.ytplay{position: absolute; display: block; height: 44px; width: 44px; top: 23px; left: 38px;} .yui-media { height: 90px; width: 120px; border: 1px solid black; background-color: #f2f2f2; background-image: url( "/images/media.gif" ); background-position: 45% 45%; background-repeat: no-repeat; }  .ytvideo {border: 1px solid black; cursor: pointer; position: relative; clear: both; margin-bottom: 5px;}',
+                    extracss:'pre { margin-left: 10px; margin-right: 10px; padding: 2px; background-color: #EEE; } a.ytplay{position: absolute; display: block; height: 44px; width: 44px; top: 23px; left: 38px;} .yui-media { height: 90px; width: 120px; border: 1px solid black; background-color: #f2f2f2; background-image: url( "'+ getMeta('web_dir') +'/images/media.gif" ); background-position: 45% 45%; background-repeat: no-repeat; }  .ytvideo {border: 1px solid black; cursor: pointer; position: relative; clear: both; margin-bottom: 5px;}',
                     animate:true,
                     toolbar:{
                         buttons:[

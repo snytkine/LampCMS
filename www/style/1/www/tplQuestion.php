@@ -197,7 +197,7 @@ class tplQuestion extends Lampcms\Template\Fast
             	<span class="reputation" title="@@Reputation score@@"></span>
 				</div>
 				  <br>
-			&nbsp;<img src="/images/blank.gif" class="flag flag-%24$s" alt="%24$s" title="%25$s">
+			&nbsp;<img src="{_DIR_}/images/blank.gif" class="flag flag-%24$s" alt="%24$s" title="%25$s">
 			</div>
             </td>
           </tr>

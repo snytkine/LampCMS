@@ -67,9 +67,9 @@ use \Lampcms\Forms\Form;
 class RegBlockQuickReg extends RegBlock
 {
     protected $aUsername = array(
-        'usernameLabel' => 'Choose a Username',
+        'usernameLabel' => '@@Choose a Username@@',
         'usernameVal' => '',
-        'usernameNote' => 'Username will appear alongside your posts');
+        'usernameNote' => '@@Username will appear alongside your posts@@');
 
 
     protected function setUsernameVars()
@@ -85,7 +85,7 @@ class RegBlockQuickReg extends RegBlock
             'titleBar' => 'Welcome to ' . $this->Registry->Ini->SITE_NAME,
             'token' => Form::generateToken(), /*$this->oGlobal->addFormToken(),*/
             'title' => 'Welcome to ' . $this->Registry->Ini->SITE_NAME,
-            'header2' => '<div class="step2">Join us! It\'s super easy and free!</div>',
+            'header2' => '<div class="step2">@@Join us! It\'s super easy and free@@!</div>',
             'captcha' => $this->makeCaptchaBlock(),
             'action' => 'quickreg',
             'td1width' => '200px',
@@ -141,19 +141,20 @@ class RegBlockQuickReg extends RegBlock
      *
      * @todo add LinkedIn button!
      *
+     * @param string $or
+     *
      * @return string html
      */
     public function makeSocialAuthBlock($or = '<h2>-OR-</h2>')
     {
         $s = '';
         $Ini = $this->Registry->Ini;
-        $GfcSiteID = $Ini->GFC_ID;
 
         if (isset($Ini->TWITTER)) {
             $aTW = $Ini['TWITTER'];
             if (!empty($aTW['TWITTER_OAUTH_KEY']) && !empty($aTW['TWITTER_OAUTH_SECRET'])) {
                 //onClick="oSL.Twitter.startDance(); return false"
-                $s .= '<div class="extauth"><a href="#" class="ajax twsignin"><img class="hand" src="/images/signin.png" width="151" height="24" alt="Sign in with Twitter account"/></a></div>';
+                $s .= '<div class="extauth"><a href="#" class="ajax twsignin"><img class="hand" src="{_IMAGE_SITE_}{_DIR_}/images/signin.png" width="151" height="24" alt="@@Sign in with Twitter account@@"/></a></div>';
             }
         }
 
@@ -163,16 +164,13 @@ class RegBlockQuickReg extends RegBlock
             d('cp');
             if (!empty($aFB['APP_ID'])) {
                 d('cp');
-                //onClick="oSL.initFBSignup(); return false"
-                $s .= '<div class="extauth"><a href="#" class="ajax fbsignup"><img class="hand" src="/images/fblogin.png" width="154" height="22" alt="Sign in with Facebook account"/></a></div>';
+
+                $s .= '<div class="extauth"><a href="#" class="ajax fbsignup"><img class="hand" src="{_IMAGE_SITE_}{_DIR_}/images/fblogin.png" width="154" height="22" alt="@@Sign in with Facebook account@@"/></a></div>';
             }
         }
 
-        if (!empty($GfcSiteID)) {
-            $s .= '<div class="extauth"><a href="#" onClick="google.friendconnect.requestSignIn(); return false;"><img class="hand" src="/images/gfcbutton.jpg" width="226" height="40" alt="Sign in with Google Friend Connect"/></a></div>';
-        }
 
-        $label = (!empty($s)) ? '<h3>Join with account you already have</h3><hr class="line1"/>' : '';
+        $label = (!empty($s)) ? '<h3>@@Join with account you already have@@</h3><hr class="line1"/>' : '';
 
         return \tplSocial::parse(array($s, '', $label), false);
     }

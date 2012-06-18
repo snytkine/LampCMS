@@ -69,13 +69,13 @@ class tplFormprofile extends Lampcms\Template\Fast
         'dob_l' => '@@Date of Birth@@', //10
         'dob_d' => 'YYYY/MM/DD, only used for displaying age', //11
         'cc' => '', // 12
-        'cc_l' => 'Country', //13
+        'cc_l' => '@@Countr@@y', //13
         'state' => '', //14
-        'state_l' => 'State or Region', // 15
+        'state_l' => '@@State or Region@@', // 15
         'city' => '', //16
         'city_l' => '@@City@@', //17
         'zip' => '', //18
-        'zip_l' => 'Postal code (zip)', //19
+        'zip_l' => '@@Postal code@@', //19
         'url' => '', // 20
         'url_l' => '@@Website@@', //21
         'description' => '', //22
@@ -93,7 +93,7 @@ class tplFormprofile extends Lampcms\Template\Fast
         'width' => '40', //34
         'profile_image' => '', //35
         'changeImage' => '@@Change image@@', //36
-        'avatarTos' => 'Upload Avatar Image. Maximum size of 1Mb<br><span class="smaller">By uploading a file you certify that you have the right to distribute this picture and that it does not violate the Terms of Service.</span>', //37
+        'avatarTos' => '@@Upload Avatar Image. Maximum size of 1Mb@@<br><span class="smaller">By uploading a file you certify that you have the right to distribute this picture and that it does not violate the Terms of Service.</span>', //37
         'deleteLabel' => '@@Delete this image@@', //38
         'uid' => '', //39
         'hideAvatar' => '', //40
@@ -128,7 +128,7 @@ class tplFormprofile extends Lampcms\Template\Fast
 	        <!-- <div class="follow ajax slvrbtn change_image rounded4 ">%36$s</div> -->
 	        <a href="#" id="adel_%39$s" class="ajax delete_image smaller ml10">%38$s</a>
 	  	<span id="avatar_upload" class="fl _pic_upload"> 
-	  	<span class="fl">You may upload your avatar image</span>
+	  	<span class="fl">@@You may upload your avatar image@@</span>
 	  	  <input type="hidden" name="MAX_FILE_SIZE" value="%41$s">
 	      <input id="id_profile_image" name="profile_image" size="20" type="file"> 
 	      <span class="f_err">%42$s</span>
