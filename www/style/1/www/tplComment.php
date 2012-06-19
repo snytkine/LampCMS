@@ -99,7 +99,7 @@ class tplComment extends \Lampcms\Template\Fast
 				<span class="ico ttt flag ajax" id="cflag_%1$s" title="@@Flag this comment as inappropriate@@">flag</span>
 			</div>
 			<div class="com_tools controls uid-%5$s" id="res_%1$s">
-				<div class="com_auth usr usr_%5$s fl"><a href="{_WEB_ROOT_}/{_users_}/%5$s/" class="iu usr-%5$s commentor%8$s">%4$s</a></div>
+				<div class="com_auth usr usr_%5$s fl"><a href="{_WEB_ROOT_}/{_userinfo_}/%5$s/" class="iu usr-%5$s commentor%8$s">%4$s</a></div>
 				<div title="%3$s" class="com_ts ts fl">%6$s</div>
 				%11$s
 				%9$s		

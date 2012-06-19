@@ -90,8 +90,6 @@ class Answerform extends Form
     {
 
         d('cp');
-
-
         /**
          * A custom observer may cancel the onBeforeAnswerform event
          * in order to NOT display the form
@@ -122,16 +120,16 @@ class Answerform extends Form
         d('cp');
 
 
-        $formTitle = (0 === $Question['i_ans']) ? $this->Tr['Be the first to answer this question'] : $this->Tr['Your answer'];
+        $formTitle = (0 === $Question['i_ans']) ? '@@Be the first to answer this question@@' : '@@Your answer@@';
 
         $this->setVar('title', $formTitle);
         $this->setVar('qid', $Question['_id']);
-        $this->setVar('submit', $this->Tr['Submit answer']);
-        $this->setVar('preview', $this->Tr['Preview']);
+        //$this->setVar('submit', $this->Tr['Submit answer']);
+        //$this->setVar('preview', $this->Tr['Preview']);
 
         if ($this->Registry->Viewer->isGuest()) {
             d('cp');
-            $this->qbody = $this->_('Please login to post your answer');
+            $this->qbody = '@@Please login to post your answer@@';
             $this->com_hand = ' com_hand';
             $this->readonly = 'readonly="readonly"';
             $this->disabled = ' disabled="disabled"';
@@ -139,9 +137,7 @@ class Answerform extends Form
             $oQuickReg = new \Lampcms\RegBlockQuickReg($this->Registry);
             d('cp');
             $socialButtons = LoginForm::makeSocialButtons($this->Registry);
-            /**
-             * @todo Translate string
-             */
+
             if (!empty($socialButtons)) {
                 $this->connectBlock = '<div class="com_connect"><h3>@@Join with account you already have@@</h3>' . $socialButtons . '</div>';
             }
@@ -161,9 +157,9 @@ class Answerform extends Form
      * @todo Translate strings of error messages
      *
      * (non-PHPdoc)
-     * @see Lampcms\Forms.Form::doValidate()
+     * @see  Lampcms\Forms.Form::doValidate()
      *
-     * @return object $this
+     * @return \Lampcms\Forms\object $this|void
      */
     protected function doValidate()
     {

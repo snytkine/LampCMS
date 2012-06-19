@@ -74,9 +74,9 @@ class tplClosedby extends \Lampcms\Template\Fast
 
     protected static $tpl = '
 	<div id="closed">
-            <div class="cb fl larger bold">Closed by <a href="/users/%2$s/%1$s">%1$s</a> <img src="%3$s" height="32" width="32" alt=""></div>
+            <div class="cb fl larger bold">@@Closed by@@ <a href="{_WEB_ROOT_}/{_userinfo_}/%2$s/%1$s">%1$s</a> <img src="%3$s" height="32" width="32" alt=""></div>
             <div class="fl cb"><span title="%5$s" class="ts" rel="time">%5$s</span></div>
-            <div class="cb fl"><span class="fl bold">Reason: </span><span class="reason">&nbsp; %4$s</span></div>
+            <div class="cb fl"><span class="fl bold">@@Reason@@: </span><span class="reason">&nbsp; %4$s</span></div>
      </div>';
 
 }

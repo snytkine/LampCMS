@@ -91,9 +91,10 @@ class Stick extends WebPage
      */
     protected function getQuestion()
     {
-        $a = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => $this->Request['qid']));
+        $qid = $this->Registry->Router->getNumber(1);
+        $a = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => $qid));
         if (empty($a)) {
-            throw new \Lampcms\Exception('@@Question not found by id@@: ' . $this->Request['qid']);
+            throw new \Lampcms\Exception('@@Question not found by id@@: ' . $qid);
         }
 
         $this->Question = new Question($this->Registry, $a);

@@ -62,19 +62,19 @@ class tplFormedit extends Lampcms\Template\Fast
      */
     protected static $vars = array(
         'token' => '', //1
-        'required' => 'required', //2
+        'required' => '@@required@@', //2
         'title' => '', //3
-        'title_l' => 'Title', // 4
+        'title_l' => '@@Title@@', // 4
         'title_d' => '',
         'title_e' => '', // 6
         'title_c' => 'title', // 7
         'qbody' => '', //8
         'qbody_e' => '', //9
         'reason' => '', //10
-        'reason_l' => 'Reason for editing', //11
-        'reason_d' => 'Enter short summary of reason for this edit', //12
+        'reason_l' => '@@Reason for editing@@', //11
+        'reason_d' => '@@Enter short summary of reason for this edit@@', //12
         'reason_e' => '', //13
-        'submit' => 'Save', //14
+        'submit' => '@@Save@@', //14
         'rtype' => 'q', //15
         'formError' => '', // 16
         'hidden' => '', //17
@@ -85,7 +85,7 @@ class tplFormedit extends Lampcms\Template\Fast
     protected static $tpl = '
 	<div id="edit_form">
 	<div class="form_error">%16$s</div>
-		<form class="qa_form" name="editor" method="POST" action="/index.php" accept-charset="utf-8">
+		<form class="qa_form" name="editor" method="POST" action="{_WB_ROOT_}" accept-charset="utf-8">
 		<input type="hidden" name="a" value="editor">	
 		<input type="hidden" name="token" value="%1$s">
 		<input type="hidden" name="rtype" value="%15$s">
@@ -100,7 +100,7 @@ class tplFormedit extends Lampcms\Template\Fast
                 <textarea id="id_qbody" rows="10" cols="40" class="com_body white" name="qbody">%8$s</textarea><br>
                 <span class="f_err">%9$s</span>
                 <div id="body_preview"></div>
-                <span class="label">Preview</span>
+                <span class="label">@@Preview@@</span>
                 <div id="tmp_preview"></div>
             </div>
             <!-- // el body -->

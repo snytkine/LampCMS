@@ -124,6 +124,7 @@ class Editor extends Edit
     /**
      *
      * Process submitted form values
+     *
      * @return \Lampcms\Controllers\Editor
      */
     protected function process()
@@ -195,7 +196,7 @@ class Editor extends Edit
             ->safeHtml()
             ->asHtml();
 
-        $Body = HTMLStringParser::factory($this->Body)->parseCodeTags()->linkify()->reload()->setNofollow();
+        $Body = HTMLStringParser::stringFactory($this->Body)->parseCodeTags()->linkify()->reload()->setNofollow();
 
         if ($this->Resource instanceof \Lampcms\Question) {
             $Body->unhilight()->hilightWords($this->Resource['a_tags']);

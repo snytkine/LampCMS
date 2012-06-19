@@ -53,6 +53,7 @@
 namespace Lampcms\Controllers;
 
 use Lampcms\WebPage;
+use Lampcms\Request;
 
 /**
  * Controller for creating a page
@@ -66,6 +67,7 @@ use Lampcms\WebPage;
  */
 class Edit extends WebPage
 {
+
     /**
      * Name of collection that this resource
      * belongs to. This is either QUESTIONS or ANSWERS
@@ -90,6 +92,20 @@ class Edit extends WebPage
      */
     protected $Form;
 
+    /**
+     * Resource type (q for question, a for answer)
+     *
+     * @var string
+     */
+    protected $rtype;
+
+    /**
+     * Resource ID
+     *
+     * @var int
+     */
+    protected $rid;
+
     protected function main()
     {
 
@@ -101,19 +117,38 @@ class Edit extends WebPage
             ->setMemo();
     }
 
+    /**
+     * Init values of $this->rid and $this->rtype based
+     * on type of request (POST OR GET) will use Router or Request
+     *
+     * @return object $this
+     */
+    protected function initRequestParams()
+    {
+        if (Request::isPost()) {
+            $this->rtype = $this->Request['rtype'];
+            $this->rid   = (int)$this->Request['rid'];
+        } else {
+            $this->rid   = $this->Registry->Router->getNumber(1);
+            $this->rtype = $this->Registry->Router->getSegment(2, 's', 'a');
+        }
+
+        return $this;
+    }
+
 
     /**
-     * @todo translate string
+     *
      *
      * @return object $this
      */
     protected function setMemo()
     {
-        $memo = '<strong>How to Edit:</strong>
+        $memo = '<strong>@@How to Edit@@:</strong>
 		<ul>
-		<li>Fix grammatical or spelling errors</li>
-		<li>Clarify meaning without changing it</li>
-		<li>Add related resources or links</li>
+		<li>@@Fix grammatical or spelling errors@@</li>
+		<li>@@Clarify meaning without changing it@@</li>
+		<li>@@Add related resources or links@@</li>
 		</ul>';
 
         $this->aPageVars['qheader'] = '<div class="memo">' . $memo . '</div>';
@@ -126,29 +161,29 @@ class Edit extends WebPage
     {
         d('cp');
         $this->Form = new \Lampcms\Forms\Edit($this->Registry);
-        $body = $this->Resource['b'];
+        $body       = $this->Resource['b'];
 
         /**
          * <pre rel="codepreview" class="xml">
          */
         d('body: ' . $body);
-        $body = str_replace('rel="code"', 'alt="codepreview"', $body);
+        $body              = \str_replace('rel="code"', 'alt="codepreview"', $body);
         $this->Form->qbody = $body;
-        $this->Form->id = $this->Resource['_id'];
-        $this->Form->rtype = $this->Request['rtype'];
+        $this->Form->id    = $this->Resource->getResourceId();
+        $this->Form->rtype = $this->rtype;
 
         if ('ANSWERS' === $this->collection) {
             $this->Form->hidden = ' hidden';
         } else {
-            $this->Form->title = $this->Resource['title'];
+            $this->Form->title    = $this->Resource['title'];
             $this->Form->id_title = $this->Resource['id_title'];
-            $minTitle = $this->Registry->Ini->MIN_TITLE_CHARS;
+            $minTitle             = $this->Registry->Ini->MIN_TITLE_CHARS;
             $this->Form->addValidator('title', function($val) use ($minTitle)
             {
 
-                if (mb_strlen($val) < $minTitle) {
+                if (\mb_strlen($val) < $minTitle) {
                     $err = 'Title must contain at least %s letters';
-                    return sprintf($err, $minTitle);
+                    return \sprintf($err, $minTitle);
                 }
 
                 return true;
@@ -167,7 +202,7 @@ class Edit extends WebPage
      */
     protected function setForm()
     {
-        $form = $this->Form->getForm();
+        $form                    = $this->Form->getForm();
         $this->aPageVars['body'] = $form;
 
         return $this;
@@ -177,21 +212,23 @@ class Edit extends WebPage
     /**
      * Create object of type Question or Answer
      *
-     * @return object $this
+     * @throws \Lampcms\Exception
+     * @return \Lampcms\Controllers\object $this
      */
     protected function getResource()
     {
-        $this->collection = ('q' == $this->Request['rtype']) ? 'QUESTIONS' : 'ANSWERS';
+        $this->initRequestParams();
+        $this->collection = ('q' == $this->rtype) ? 'QUESTIONS' : 'ANSWERS';
         $this->permission = ('QUESTIONS' === $this->collection) ? 'edit_question' : 'edit_answer';
 
         d('type: ' . $this->collection);
         $coll = $this->Registry->Mongo->getCollection($this->collection);
-        $a = $coll->findOne(array('_id' => (int)$this->Request['rid']));
-        d('a: ' . print_r($a, 1));
+        $a    = $coll->findOne(array('_id' => (int)$this->rid));
+        d('a: ' . \print_r($a, 1));
 
         if (empty($a)) {
 
-            throw new \Lampcms\Exception('Item not found');
+            throw new \Lampcms\Exception('@@Item not found@@');
         }
 
         $class = ('QUESTIONS' === $this->collection) ? '\\Lampcms\\Question' : '\\Lampcms\\Answer';

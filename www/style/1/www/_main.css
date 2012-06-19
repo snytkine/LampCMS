@@ -7310,7 +7310,7 @@ div#layout1 div#qview-body {
 }
 
 .icn {
-    background-image: url('images/tango-large.png');
+    background-image: url('../images/tango-large.png');
     background-repeat: no-repeat;
     height: 23px;
     width: 23px;
@@ -7952,11 +7952,11 @@ span.ico, .icoc {
 }
 
 span.ico {
-    background: url("images/sprite_bw.png") no-repeat scroll 0 0 transparent;
+    background: url("../images/sprite_bw.png") no-repeat scroll 0 0 transparent;
 }
 
 .icoc {
-    background-image: url("images/icon_sprite.png") !important;
+    background-image: url("../images/icon_sprite.png") !important;
 }
 
 .controls span.retag {
@@ -7964,7 +7964,7 @@ span.ico {
 }
 
 .com_flag span {
-    background: url("images/sprite_bw.png") no-repeat scroll 0 0 transparent;
+    background: url("../images/sprite_bw.png") no-repeat scroll 0 0 transparent;
     float: right !important;
     opacity: 0.5;
 }
@@ -8036,7 +8036,7 @@ span.stub {
 }
 
 .controls span:hover, div.com_flag span.flag:hover {
-    background-image: url("images/icon_sprite.png") !important;
+    background-image: url("../images/icon_sprite.png") !important;
     opacity: 0.9 !important;
 }
 
@@ -8045,7 +8045,7 @@ span.stub {
 }
 
 span.cplus {
-    background-image: url("images/icon_sprite.png") !important;
+    background-image: url("../images/icon_sprite.png") !important;
     background-position: 0 -192px;
 }
 
@@ -8295,28 +8295,28 @@ blockquote {
 }
 
 .yui-skin-sam .yui-toolbar-container li.yui-toolbar-groupitem span.yui-toolbar-save span.yui-toolbar-icon {
-    background-image: url('images/save.png');
+    background-image: url('../images/save.png');
     background-position: 3px 2px;
     left: 4px;
     top: 2px;
 }
 
 .yui-skin-sam .yui-toolbar-container li.yui-toolbar-groupitem span.yui-toolbar-save-selected span.yui-toolbar-icon {
-    background-image: url('images/save.png');
+    background-image: url('../images/save.png');
     background-position: 3px 2px;
     left: 4px;
     top: 2px;
 }
 
 .yui-skin-sam .yui-toolbar-group span.yui-toolbar-clear span.yui-toolbar-icon {
-    background-image: url('images/clear.png');
+    background-image: url('../images/clear.png');
     background-position: 3px 2px;
     left: 4px;
     top: 2px;
 }
 
 .yui-skin-sam .yui-toolbar-container span.yui-toolbar-clear-selected span.yui-toolbar-icon {
-    background-image: url('images/clear.png');
+    background-image: url('../images/clear.png');
     background-position: 3px 2px;
     left: 4px;
     top: 2px;
@@ -8549,7 +8549,7 @@ td.td_question, td.td_answer {
 }
 
 .votebtns a {
-    background-image: url('images/rating_thumbs.png');
+    background-image: url('../images/rating_thumbs.png');
     background-repeat: repeat-y;
     vertical-align: middle;
     height: 22px;
@@ -8567,7 +8567,7 @@ td.td_question, td.td_answer {
 
 div.vote {
     margin: 10px;
-    background-image: url('images/rating_thumbs.png');
+    background-image: url('../images/rating_thumbs.png');
     background-repeat: repeat-y;
     vertical-align: middle;
     height: 18px;
@@ -8614,7 +8614,7 @@ div.acceptit {
 }
 
 div.anstype1 {
-    background-image: url('images/accepted.png');
+    background-image: url('../images/accepted.png');
     background-repeat: no-repeat;
     vertical-align: middle;
     height: 30px;
@@ -8623,7 +8623,7 @@ div.anstype1 {
 }
 
 a.accept {
-    background-image: url('images/accept.png');
+    background-image: url('../images/accept.png');
     background-repeat: no-repeat;
     vertical-align: middle;
     height: 30px;
@@ -8633,7 +8633,7 @@ a.accept {
 }
 
 a.accept:hover, a.accept:active {
-    background-image: url('images/accepted.png');
+    background-image: url('../images/accepted.png');
     background-repeat: repeat-y;
     vertical-align: middle;
     height: 30px;
@@ -9033,7 +9033,7 @@ div.imgloader {
 }
 
 a.pri1:before {
-    content: url('images/pin.png');
+    content: url('../images/pin.png');
 }
 
 a.pri1:after {
@@ -9046,7 +9046,7 @@ a.closed:after {
 
 .btn_comment, .btn_comment:active {
     margin-left: 1em;
-    background: url('images/bg.png');
+    background: url('../images/bg.png');
     border-color: #304369 !important;
     background-color: blue !important;
     background-position: 0 -1400px;
@@ -9292,7 +9292,7 @@ div.com_like a, a.c_like {
 }
 
 .following {
-    background: url('images/bg.png');
+    background: url('../images/bg.png');
     border: 1px solid #304369 !important;
     background-color: lightblue !important;
     background-position: 0 -1300px;
@@ -9303,7 +9303,7 @@ div.com_like a, a.c_like {
 }
 
 .btn_connect {
-    background: url('images/bg.png') repeat-x scroll 0 0;
+    background: url('../images/bg.png') repeat-x scroll 0 0;
     border: 1px solid #808080 !important;
     display: inline-block;
     cursor: pointer;
@@ -9326,7 +9326,7 @@ div.com_like a, a.c_like {
 }
 
 div.follow {
-    background: url('images/bg.png');
+    background: url('../images/bg.png');
     border: 1px solid gray;
     color: #333 !important;
     text-shadow: 0 1px #F0F0F0;
@@ -9624,47 +9624,47 @@ div.social_post span {
 }
 
 a.tmblr:before {
-    content: url('images/tumblr_16.png');
+    content: url('../images/tumblr_16.png');
 }
 
 a.linkedin:before {
-    content: url('images/linkedin_16.png');
+    content: url('../images/linkedin_16.png');
 }
 
 a.fbook:before {
-    content: url('images/facebook_16.png');
+    content: url('../images/facebook_16.png');
 }
 
 a.twtr:before {
-    content: url('images/tw-user.png');
+    content: url('../images/tw-user.png');
 }
 
 a.blgr:before {
-    content: url('images/blogger_16.png');
+    content: url('../images/blogger_16.png');
 }
 
 .bg_tweet {
-    background: url('images/tw-user.png') no-repeat;
+    background: url('../images/tw-user.png') no-repeat;
 }
 
 .bg_facebook {
-    background: url('images/facebook_16.png') no-repeat;
+    background: url('../images/facebook_16.png') no-repeat;
 }
 
 .bg_tumblr {
-    background: url('images/tumblr_16.png') no-repeat;
+    background: url('../images/tumblr_16.png') no-repeat;
 }
 
 .bg_linkedin {
-    background: url('images/linkedin_16.png') no-repeat;
+    background: url('../images/linkedin_16.png') no-repeat;
 }
 
 .bg_blogger {
-    background: url('images/blogger_16.png') no-repeat;
+    background: url('../images/blogger_16.png') no-repeat;
 }
 
 #btn_youtube span.yui-toolbar-icon {
-    background-image: url("images/youtube_16.png") !important;
+    background-image: url("../images/youtube_16.png") !important;
     background-position: 1px 0px;
     top: 3px;
     left: 4px;

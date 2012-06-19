@@ -64,13 +64,15 @@ class SocialCheckboxes
 {
 
     /**
-     * Make html with divs containint checkboxes
+     * Make html with divs containing checkboxes
      * and labels for the extra "post to Twitter" etc.
      * checkboxes
      * a bunch of divs with checkboxes to
      * post content to Twitter, Facebook etc., depending
      * on settings in !config.ini
      * and depending if these extra modules are enabled
+     *
+     * @param Registry $Registry
      *
      * @return string html fragment
      */
@@ -86,16 +88,13 @@ class SocialCheckboxes
 
         $ret = '';
         $aFilters = $Registry->Ini->getSection('INPUT_FILTERS');
-        //d('$aFilters: '.print_r($aFilters, 1));
-        /**
-         * @todo Translate String
-         */
-        $tpl = 'Post to %s<br><strong>+%s</strong> reputation points';
+
+        $tpl = '@@Post to@@ %s<br><strong>+%s</strong> @@reputation points@@';
 
         /**
          * If has twitter observer module
          */
-        if (array_key_exists('twitter', $aFilters)) {
+        if (\array_key_exists('twitter', $aFilters)) {
             d('cp');
             /**
              * The state of checkbox remembered from
@@ -114,7 +113,7 @@ class SocialCheckboxes
         /**
          * Is has facebook observer module
          */
-        if (array_key_exists('facebook', $aFilters)) {
+        if (\array_key_exists('facebook', $aFilters)) {
             $isFbConnected = (1 < \strlen((string)$oViewer->getFacebookToken()));
             $checked = ($isFbConnected && true === $oViewer['b_fb']) ? ' checked' : '';
             $label = \sprintf($tpl, 'Facebook', $Registry->Ini->POINTS->SHARED_CONTENT);
@@ -125,7 +124,7 @@ class SocialCheckboxes
         /**
          * Is has tumblr observer module
          */
-        if (array_key_exists('tumblr', $aFilters)) {
+        if (\array_key_exists('tumblr', $aFilters)) {
             $isTmConnected = (null !== $oViewer->getTumblrToken());
             $checked = ($isTmConnected && true === $oViewer['b_tm']) ? ' checked' : '';
             $label = \sprintf($tpl, 'Tumblr', $Registry->Ini->POINTS->SHARED_CONTENT);
@@ -136,7 +135,7 @@ class SocialCheckboxes
         /**
          * Is has blogger observer module
          */
-        if (array_key_exists('blogger', $aFilters)) {
+        if (\array_key_exists('blogger', $aFilters)) {
             $isBConnected = (null !== $oViewer->getBloggerToken());
             $checked = ($isBConnected && true === $oViewer['b_bg']) ? ' checked' : '';
             $label = \sprintf($tpl, 'Blogger', $Registry->Ini->POINTS->SHARED_CONTENT);
@@ -148,7 +147,7 @@ class SocialCheckboxes
         /**
          * Is has LinkedIn observer module
          */
-        if (array_key_exists('linkedin', $aFilters)) {
+        if (\array_key_exists('linkedin', $aFilters)) {
             $isLConnected = (null !== $oViewer->getLinkedInToken());
             $checked = ($isLConnected && true === $oViewer['b_li']) ? ' checked' : '';
             $label = \sprintf($tpl, 'LinkedIn', $Registry->Ini->POINTS->SHARED_CONTENT);

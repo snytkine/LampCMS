@@ -82,9 +82,7 @@ class Edit extends Form
      */
     protected function doValidate()
     {
-
         $this->validateBody()->validateReason();
-
     }
 
 
@@ -107,11 +105,10 @@ class Edit extends Form
     protected function validateReason()
     {
         $s = $this->Registry->Request->get('reason', 's', '');
-        $s = trim($s);
+        $s = \trim($s);
         if (empty($s)) {
-            $this->setError('reason', 'You must include reason for editing');
+            $this->setError('reason', '@@You must include reason for editing@@');
         }
-
 
         return $this;
     }
