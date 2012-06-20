@@ -53,7 +53,7 @@
 /**
  * All Exceptions defined here
  *
- * @important Allways include this file!
+ * @important Always include this file!
  *
  * @author    Dmitri Snytkine
  *
@@ -226,7 +226,7 @@ class Exception extends \Exception
              * @todo if Tr was passed here
              *       then we can translate string
              */
-            $message = (true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occured. Administrator has been notified or the error. We will fix this as soon as possible'; //$oTr->get('generic_error', 'exceptions');
+            $message = (true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occurred. Administrator has been notified or the error. We will fix this as soon as possible'; //$oTr->get('generic_error', 'exceptions');
 
         }
         /**
@@ -239,7 +239,7 @@ class Exception extends \Exception
         $message = \htmlspecialchars($message);
 
         $aArgs   = ($e instanceof \Lampcms\Exception) ? $e->getArgs() : null;
-        $message = (!empty($aArgs)) ? vsprintf($message, $aArgs) : $message;
+        $message = (!empty($aArgs)) ? \vsprintf($message, $aArgs) : $message;
 
         if ($Tr) {
 
@@ -253,7 +253,7 @@ class Exception extends \Exception
         $intLine = $e->getLine();
         $intCode = ($e instanceof \ErrorException) ? $e->getSeverity() : $e->getCode();
 
-        $sLogMessage = 'Exception caught: ' . get_class($e) . "\n" . $message . "\n" . 'error code: ' . $intCode . "\n" . 'file: ' . $strFile . "\n" . 'line: ' . $intLine . "\n" . 'stack: ' . $sTrace . "\n";
+        $sLogMessage = 'Exception caught: ' . \get_class($e) . "\n" . $message . "\n" . 'error code: ' . $intCode . "\n" . 'file: ' . $strFile . "\n" . 'line: ' . $intLine . "\n" . 'stack: ' . $sTrace . "\n";
         d($sLogMessage . "\n" . '$_REQUEST: ' . print_r($_REQUEST, true));
         if (!empty($_SESSION)) {
             d('$_SESSION: ' . print_r($_SESSION, 1));
@@ -262,7 +262,7 @@ class Exception extends \Exception
         $sError .= $message . "\n";
 
         if ((defined('LAMPCMS_DEBUG')) && true === LAMPCMS_DEBUG) {
-            $sError .= "\nException Class: " . get_class($e) . BR;
+            $sError .= "\nException Class: " . \get_class($e) . BR;
             $sError .= "\nError code: $intCode\n";
             $sError .= "\nFile: $strFile\n";
             $sError .= "\nLine: $intLine\n";
@@ -326,25 +326,25 @@ class Exception extends \Exception
             if (isset($frame['args'])) {
                 $args = array();
                 foreach ($frame['args'] as $arg) {
-                    if (is_string($arg)) {
+                    if (\is_string($arg)) {
                         $args[] = "'" . $arg . "'";
-                    } elseif (is_array($arg)) {
+                    } elseif (\is_array($arg)) {
                         $args[] = "Array";
-                    } elseif (is_null($arg)) {
+                    } elseif (\is_null($arg)) {
                         $args[] = 'NULL';
-                    } elseif (is_bool($arg)) {
+                    } elseif (\is_bool($arg)) {
                         $args[] = ($arg) ? "true" : "false";
                     } elseif (is_object($arg)) {
-                        $args[] = get_class($arg);
+                        $args[] = \get_class($arg);
                     } elseif (is_resource($arg)) {
-                        $args[] = get_resource_type($arg);
+                        $args[] = \get_resource_type($arg);
                     } else {
                         $args[] = $arg;
                     }
                 }
-                $args = join(", ", $args);
+                $args = \join(", ", $args);
             }
-            $rtn .= sprintf("#%s %s(%s): %s(%s)\n",
+            $rtn .= \sprintf("#%s %s(%s): %s(%s)\n",
                 $count,
                 self::getOffset($frame, 'file'),
                 self::getOffset($frame, 'line'),
@@ -367,7 +367,7 @@ class Exception extends \Exception
      */
     protected static function getOffset(array $a, $key)
     {
-        return (array_key_exists($key, $a) ? $a[$key] : '');
+        return (\array_key_exists($key, $a) ? $a[$key] : '');
     }
 
 } // end Lampcms\Exceptions class

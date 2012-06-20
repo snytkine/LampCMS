@@ -47,7 +47,7 @@ class tplFormRegister extends \Lampcms\Template\Fast
     protected static $vars = array();
 
 
-    protected static $tpl = '<form id="regform" method="post" action="{_WEB_ROOT_}">
+    protected static $tpl = '<form id="regform" method="post" action="{_WEB_ROOT_}/">
 		<input type="hidden" name="a" value="%13$s"/>
 		<input type="hidden" name="tzo" value=""/>
 		<input type="hidden" name="token" value="%4$s"/>

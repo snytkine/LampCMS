@@ -77,7 +77,7 @@ class tplRegform extends Lampcms\Template\Fast
 	<table class="mainreg">
 	<tr>
 	<td>
-		<form id="regform" method="post" action="{_WEB_ROOT_}">
+		<form id="regform" method="post" action="{_WEB_ROOT_}/">
 		<input type="hidden" name="a" value="%13$s">
 		<input type="hidden" name="tzo" value="">
 		<input type="hidden" name="token" value="%4$s">
@@ -137,4 +137,3 @@ class tplRegform extends Lampcms\Template\Fast
 
 }
 
-?>

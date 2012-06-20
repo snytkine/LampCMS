@@ -118,7 +118,7 @@ class Connectblogger extends WebPage
     protected $aBlogs;
 
 
-    protected $callback = '/index.php?a=connectblogger';
+    protected $callback = '{_WEB_ROOT_}/{_connectblogger_}';
 
     /**
      * The main purpose of this class is to
@@ -145,7 +145,7 @@ class Connectblogger extends WebPage
         d('$this->callback: ' . $this->callback);
 
         if (!extension_loaded('oauth')) {
-            throw new \Exception('Unable to use Blogger API because OAuth extension is not available');
+            throw new \Exception('@@Unable to use Blogger API because OAuth extension is not available@@');
         }
 
         $this->aConfig = $this->Registry->Ini['BLOGGER'];
@@ -156,7 +156,7 @@ class Connectblogger extends WebPage
         } catch (\OAuthException $e) {
             e('OAuthException: ' . $e->getMessage());
 
-            throw new \Exception('Something went wrong during authorization. Please try again later' . $e->getMessage());
+            throw new \Exception('@@Something went wrong during authorization. Please try again later@@' . $e->getMessage());
         }
 
 
@@ -202,7 +202,7 @@ class Connectblogger extends WebPage
         d('$a: ' . print_r($a, 1));
 
         if (empty($a)) {
-            throw new \Exception('No blogs found for this user');
+            throw new \Exception('@@No blogs found for this user@@');
         }
 
         $selectedID = (int)substr($this->Request->get('blog'), 4);
@@ -245,10 +245,9 @@ class Connectblogger extends WebPage
      * Generate oAuth request token
      * and redirect to Blogger for authentication
      *
-     * @return object $this
-     *
-     * @throws Exception in case something goes wrong during
+     * @throws \Exception in case something goes wrong during
      * this stage
+     * @return \Lampcms\Controllers\object $this
      */
     protected function step1()
     {
@@ -268,12 +267,12 @@ class Connectblogger extends WebPage
                  * so that it will be caught ONLY by the index.php and formatted
                  * on a clean page, without any template
                  */
-                throw new \Exception("Failed fetching request token, response was: " . $this->oAuth->getLastResponse());
+                throw new \Exception("@@Failed fetching request token, response was@@: " . $this->oAuth->getLastResponse());
             }
         } catch (\OAuthException $e) {
             e('OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
 
-            throw new \Exception('Something went wrong during authorization. Please try again later' . $e->getMessage());
+            throw new \Exception('@@Something went wrong during authorization. Please try again later@@' . $e->getMessage());
         }
 
         return $this;
@@ -284,9 +283,10 @@ class Connectblogger extends WebPage
      * Step 2 in oAuth process
      * this is when Blogger redirected the user back
      * to our callback url, which calls this controller
-     * @return object $this
      *
-     * @throws Exception in case something goes wrong with oAuth class
+     * @throws \OutOfBoundsException
+     * @throws \Exception in case something goes wrong with oAuth class
+     * @return \Lampcms\Controllers\object $this
      */
     protected function step2()
     {
@@ -369,7 +369,7 @@ class Connectblogger extends WebPage
              */
             e('OAuthException: ' . $e->getMessage() . ' in file ' . $e->getFile() . ' on line: ' . $e->getLine() . ' Debug: ' . print_r($aDebug, 1));
 
-            $err = 'Something went wrong during authorization. Please try again later. ' . $e->getMessage();
+            $err = '@@Something went wrong during authorization. Please try again later@@. ' . $e->getMessage();
             throw new \Exception($err);
         }
 
@@ -398,12 +398,12 @@ class Connectblogger extends WebPage
         /**
          * @todo Translate string
          */
-        $save = 'Save';
+        $save = '@@Save@@';
         $token = \Lampcms\Forms\Form::generateToken();
         $options = '';
         $tpl = '<option value="blog%s">%s</option>';
         foreach ($this->aBlogs as $id => $blog) {
-            $options .= sprintf($tpl, $id, $blog['title']);
+            $options .= \sprintf($tpl, $id, $blog['title']);
         }
 
         $vars = array(
@@ -473,7 +473,7 @@ class Connectblogger extends WebPage
         $s = Responder::PAGE_OPEN . Responder::JS_OPEN .
             $script .
             Responder::JS_CLOSE .
-            '<h2>You have successfully connected your Blogger Blog. You should close this window now</h2>' .
+            '<h2>@@You have successfully connected your Blogger Blog. You should close this window now@@</h2>' .
 
             Responder::PAGE_CLOSE;
         d('cp s: ' . $s);
@@ -509,7 +509,7 @@ class Connectblogger extends WebPage
          */
         d('debug: ' . print_r($aDebug, 1));
         if (empty($res) || empty($aDebug['http_code']) || '200' != $aDebug['http_code']) {
-            $err = 'Unexpected Error parsing API response';
+            $err = '@@Unexpected Error parsing API response@@';
 
             throw new \Exception($err);
         }

@@ -143,7 +143,7 @@ if (true !== session_start()) {
          * may never be saved. It's worth trying commenting this out
          * and running the site for awhile. If noticing any problems
          * with sessions (like user suddenly logged out
-         * while browsing beteen pages) then uncomment this
+         * while browsing between pages) then uncomment this
          */
         // session_write_close();
         //ob_end_flush();

@@ -48,7 +48,7 @@ class tplComform extends Lampcms\Template\Fast
         'label' => '', //5
         'avatar' => '',
         'text' => '',
-        'btn' => 'Post comment',
+        'btn' => '@@Post comment@@',
         'header' => '',
         'connectBlock' => '', //10
         'readonly' => 'no', //11
@@ -62,7 +62,7 @@ class tplComform extends Lampcms\Template\Fast
 	<a name="com_label"></a>
 	<span class="com_label rounded">%5$s</span>
 	%10$s
-	<form class="comment_form" accept-charset="utf-8" action="/index.php" enctype="application/x-www-form-urlencoded" method="post" name="uForm">
+	<form class="comment_form" accept-charset="utf-8" action="{_WEB_ROOT_}" enctype="application/x-www-form-urlencoded" method="post" name="uForm">
 <input name="a" type="hidden" value="rcomment">
 <input name="token" type="hidden" value="%1$s">
 <input name="rid" type="hidden" value="%2$s">

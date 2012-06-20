@@ -709,7 +709,6 @@ abstract class WebPage extends Base
         d('cp');
 
         return $tpl;
-
     }
 
 

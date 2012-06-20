@@ -139,7 +139,7 @@ class Logintumblr extends WebPage
     {
 
         if (!extension_loaded('oauth')) {
-            throw new \Exception('Unable to use Tumblr API because OAuth extension is not available');
+            throw new \Exception('@@Unable to use Tumblr API because OAuth extension is not available@@');
         }
 
         $this->aTm = $this->Registry->Ini['TUMBLR'];
@@ -150,7 +150,7 @@ class Logintumblr extends WebPage
         } catch (\OAuthException $e) {
             e('OAuthException: ' . $e->getMessage());
 
-            throw new \Exception('Something went wrong during authorization. Please try again later' . $e->getMessage());
+            throw new \Exception('@@Something went wrong during authorization. Please try again later@@' . $e->getMessage());
         }
 
 
@@ -177,10 +177,9 @@ class Logintumblr extends WebPage
      * Generate oAuth request token
      * and redirect to tumblr for authentication
      *
-     * @return object $this
-     *
-     * @throws Exception in case something goes wrong during
+     * @throws \Exception in case something goes wrong during
      * this stage
+     * @return \Lampcms\Controllers\object $this
      */
     protected function step1()
     {
@@ -207,12 +206,12 @@ class Logintumblr extends WebPage
                  * on a clean page, without any template
                  */
 
-                throw new \Exception("Failed fetching request token, response was: " . $this->oAuth->getLastResponse());
+                throw new \Exception("@@Failed fetching request token, response was@@: " . $this->oAuth->getLastResponse());
             }
         } catch (\OAuthException $e) {
             e('OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
 
-            throw new \Exception('Something went wrong during authorization. Please try again later' . $e->getMessage());
+            throw new \Exception('@@Something went wrong during authorization. Please try again later@@' . $e->getMessage());
         }
 
         return $this;
@@ -223,9 +222,9 @@ class Logintumblr extends WebPage
      * Step 2 in oAuth process
      * this is when tumblr redirected the user back
      * to our callback url, which calls this controller
-     * @return object $this
      *
-     * @throws Exception in case something goes wrong with oAuth class
+     * @throws \Exception in case something goes wrong with oAuth class
+     * @return \Lampcms\Controllers\object $this
      */
     protected function step2()
     {
@@ -293,7 +292,7 @@ class Logintumblr extends WebPage
         } catch (\OAuthException $e) {
             e('OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
 
-            $err = 'Something went wrong during authorization. Please try again later' . $e->getMessage();
+            $err = '@@Something went wrong during authorization. Please try again later@@' . $e->getMessage();
             throw new \Exception($err);
         }
 
@@ -358,7 +357,7 @@ class Logintumblr extends WebPage
         d('debug: ' . print_r($aDebug, 1));
 
         if (empty($res) || empty($aDebug['http_code']) || '200' != $aDebug['http_code']) {
-            $err = 'Unexpected Error parsing API response';
+            $err = '@@Unexpected Error parsing API response@@';
 
             throw new \Exception($err);
         }
@@ -375,7 +374,7 @@ class Logintumblr extends WebPage
          */
         $XML = new \DOMDocument('1.0', 'utf-8');
         if (false === $XML->loadXML($res)) {
-            $err = 'Unexpected Error parsing response XML';
+            $err = '@@Unexpected Error parsing response XML@@';
             throw new \Exception($err);
         }
 
@@ -385,7 +384,7 @@ class Logintumblr extends WebPage
         if (0 === $aParsed->length) {
             e('Looks like user does not have any blogs: $xml: ' . $res);
 
-            $err = ('Looks like you have Tumblr account but do not have any blogs on Tumblr');
+            $err = ('@@Looks like you have Tumblr account but do not have any blogs on Tumblr@@');
             throw new \Exception($err);
         }
 
@@ -443,7 +442,9 @@ class Logintumblr extends WebPage
     /**
      * Return html that contains JS window.close code and nothing else
      *
-     * @return unknown_type
+     * @param array $a
+     *
+     * @return void
      */
     protected function closeWindow(array $a = array())
     {
@@ -458,7 +459,7 @@ class Logintumblr extends WebPage
 		%s
 		setTimeout(myclose, 100); // give opener window time to process login and cancell intervals
 		}else{
-			alert("This is not a popup window or opener window gone away");
+			alert("@@This is not a popup window or opener window gone away@@");
 		}';
         d('cp');
 
@@ -467,7 +468,7 @@ class Logintumblr extends WebPage
         $s = Responder::PAGE_OPEN . Responder::JS_OPEN .
             $script .
             Responder::JS_CLOSE .
-            '<h2>You have successfully connected your Tumblr Blog. You should close this window now</h2>' .
+            '<h2>@@You have successfully connected your Tumblr Blog. You should close this window now@@</h2>' .
 
             Responder::PAGE_CLOSE;
         d('cp s: ' . $s);
@@ -511,7 +512,7 @@ class Logintumblr extends WebPage
 			setTimeout(myredirect, 300);
 			' .
             Responder::JS_CLOSE .
-            '<div class="centered"><a href="' . $url . '">If you are not redirected in 2 seconds, click here to authenticate with tumblr</a></div>' .
+            '<div class="centered"><a href="' . $url . '">@@If you are not redirected in 2 seconds, click here to authenticate with tumblr@@</a></div>' .
             Responder::PAGE_CLOSE;
 
         d('exiting with this $s: ' . $s);

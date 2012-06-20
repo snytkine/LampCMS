@@ -51,7 +51,7 @@
 
 /**
  * This template is for a "Select Tumblr blog"
- * small html form that will apper
+ * small html form that will appear
  * in a popup "Connect to Tumblr" window
  * only if it's detected that User has more than one
  * blog on Tumblr, in which case use must select
@@ -67,13 +67,13 @@ class tplTumblrblogs extends \Lampcms\Template\Fast
         'token' => '', //1
         'options' => '', //2
         'label' => '', //3
-        'save' => '', //4
+        'save' => '@@Save@@', //4
         'a' => 'tumblrselect' //5
     );
 
 
     protected static $tpl = '
-		<form action="/index.php" name="tumblrblogs" method="POST" action="/index.php" accept-charset="utf-8">
+		<form action="/index.php" name="tumblrblogs" method="POST" action="{_WEB_ROOT_}/" accept-charset="utf-8">
 			<input type="hidden" name="a" value="%5$s">
 			<input type="hidden" name="blogselect" value="1">
 			<input type="hidden" name="token" value="%1$s">

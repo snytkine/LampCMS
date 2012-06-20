@@ -59,7 +59,7 @@ class Responder
 <head>
 <title></title>
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
-<link type="text/css" rel="stylesheet" href="/style/1/www/_main.css">
+<link type="text/css" rel="stylesheet" href="{_DIR_}/style/1/www/_main.css">
 </head>
 <body>';
 

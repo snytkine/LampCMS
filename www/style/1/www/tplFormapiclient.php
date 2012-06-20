@@ -101,7 +101,7 @@ class tplFormapiclient extends Lampcms\Template\Fast
     );
 
     protected static $tpl = '
-	<form name="epForm" method="POST" action="{_WEB_ROOT_}" enctype="multipart/form-data" accept-charset="utf-8">
+	<form name="epForm" method="POST" action="{_WEB_ROOT_}/" enctype="multipart/form-data" accept-charset="utf-8">
 		<input type="hidden" name="a" value="editapp">
 		<input type="hidden" name="app_id" value="%3$s">	
 		<input type="hidden" name="token" value="%1$s">

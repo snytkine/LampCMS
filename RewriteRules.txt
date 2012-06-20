@@ -1,4 +1,5 @@
 # Rewrite Rules for Lampcms
+# These rewrite rules are for hosting Lampcms in root directory of the site
 # place in httpd.conf inside virtual host container for your site
 # or add to .htaccess of your site
 #
@@ -12,3 +13,28 @@
 RewriteEngine on
 RewriteCond $1 !^(index\.php|(.+)\.(css|js|png|gif|jpg|jpeg)$|robots\.txt)
 RewriteRule ^(.*)$ /index.php/$1 [L]
+
+
+######### RULES FOR HOSTING LAMPCMS in SUB DIRECTORY (not in site's root) ################
+#
+# Option 1 - without using .htaccess:
+# Place this in the <Directory/> Container that points to full path of sub-directory
+# Example: (this is on Windows, on Linux just use Unix style full path)
+# Notice - NO slash in front of index.php redirect!
+# Of cause you must uncomment the 5 lines below
+# <Directory C:\wamp\sites\LampCMS\forum>
+# RewriteEngine on
+# RewriteCond $1 !^(index\.php|(.+)\.(css|js|png|gif|jpg|jpeg|txt))
+# RewriteRule ^(.*)$ index.php/$1
+# </Directory>
+#
+#######################################################################
+# Option 2: If .htaccess is enabled for your sub-directory
+# Then place these lines in the .htaccess file
+# in the directory where Lampcms going to be installed:
+# (of cause uncomment the lines first)
+#
+# RewriteEngine on
+# RewriteCond $1 !^(index\.php|(.+)\.(css|js|png|gif|jpg|jpeg|txt))
+# RewriteRule ^(.*)$ index.php/$1
+#

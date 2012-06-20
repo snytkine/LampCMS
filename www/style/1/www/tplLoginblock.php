@@ -51,25 +51,25 @@ class tplLoginblock extends Lampcms\Template\Fast
 
     protected static $tpl = '
 	<div class="loginBlock">
-	<form accept-charset="utf-8" action="/index.php" method="post" enctype="application/x-www-form-urlencoded" name="mLogin" id="mLogin">
+	<form accept-charset="utf-8" action="{_WEB_ROOT_}/" method="post" enctype="application/x-www-form-urlencoded" name="mLogin" id="mLogin">
 	<input name="a" type="hidden" value="login">
 	<table class="login_block">
 	<tr>
 	<th colspan="2">%1$s</th>
 	</tr>
 	<tr>
-	<td colspan="2">Username<br>
+	<td colspan="2">@@Username@@<br>
 	<input type="text" class="inlogin" name="login" id="login" size="15" accesskey="u" tabindex="41">
 	</td></tr>
 	<tr>
-	<td colspan="2">Password<br>
+	<td colspan="2">@@Password@@<br>
 	<input type="password" name="pwd" class="inpwd" id="pwd" size="10" tabindex="42"><br>
-	<a href="/remindpwd/" class="forgot">Forgot password?</a>
+	<a href="{_WEB_ROOT_}/{_remindpwd_}/" class="forgot">@@Forgot password@@?</a>
 	</td></tr>
 	<tr>
 	<td class="chkRemember" align="left" nowrap><label for="chkRemember">
-	<input name="chkRemember" type="checkbox" value="3" id="chkRemember">Remember me?</label></td>
-	<td align="left" class="btnGo"><input id="go" value="Log in" type="submit" tabindex="43"></td>
+	<input name="chkRemember" type="checkbox" value="3" id="chkRemember">@@Remember me@@?</label></td>
+	<td align="left" class="btnGo"><input id="go" value="@@Log in@@" type="submit" tabindex="43"></td>
 	</tr>
 	</table>
 	</form>

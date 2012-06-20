@@ -85,7 +85,7 @@ class tplFormedit extends Lampcms\Template\Fast
     protected static $tpl = '
 	<div id="edit_form">
 	<div class="form_error">%16$s</div>
-		<form class="qa_form" name="editor" method="POST" action="{_WB_ROOT_}" accept-charset="utf-8">
+		<form class="qa_form" name="editor" method="POST" action="{_WB_ROOT_}/" accept-charset="utf-8">
 		<input type="hidden" name="a" value="editor">	
 		<input type="hidden" name="token" value="%1$s">
 		<input type="hidden" name="rtype" value="%15$s">

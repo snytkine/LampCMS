@@ -153,7 +153,7 @@ class Logintwitter extends WebPage
     {
 
         if (!extension_loaded('oauth')) {
-            throw new \Lampcms\Exception('Unable to use Twitter API because OAuth extension is not available');
+            throw new \Lampcms\Exception('@@Unable to use Twitter API because OAuth extension is not available@@');
         }
 
         /**
@@ -180,7 +180,7 @@ class Logintwitter extends WebPage
         } catch (\OAuthException $e) {
             e('OAuthException: ' . $e->getMessage());
 
-            throw new \Lampcms\Exception('Something went wrong during authorization. Please try again later' . $e->getMessage());
+            throw new \Lampcms\Exception('@@Something went wrong during authorization. Please try again later@@' . $e->getMessage());
         }
 
         /**
@@ -200,10 +200,10 @@ class Logintwitter extends WebPage
      * Generate oAuth request token
      * and redirect to twitter for authentication
      *
-     * @return object $this
-     *
-     * @throws Exception in case something goes wrong during
+     * @throws Exception
+     * @throws \Exception in case something goes wrong during
      * this stage
+     * @return \Lampcms\Controllers\object $this
      */
     protected function startOauthDance()
     {
@@ -230,14 +230,13 @@ class Logintwitter extends WebPage
                  * on a clean page, without any template
                  */
 
-                throw new Exception("Failed fetching request token, response was: " . $this->oAuth->getLastResponse());
+                throw new \Exception("@@Failed fetching request token, response was@@: " . $this->oAuth->getLastResponse());
             }
         } catch (\OAuthException $e) {
             e('OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
 
-            throw new \Exception('Something went wrong during authorization. Please try again later' . $e->getMessage());
+            throw new \Exception('@@Something went wrong during authorization. Please try again later@@' . $e->getMessage());
         }
-
 
         return $this;
     }
@@ -282,7 +281,7 @@ class Logintwitter extends WebPage
              * there is a slight possibility that
              * we don't get the oData back like if
              * request for verify_credentials with token/secret fails
-             * This should not happend because user has just authorized us - this
+             * This should not happen because user has just authorized us - this
              * is a callback url after all.
              * But still, what if... what if Twitter hickups and does not
              * return valid response, then what should be do?
@@ -312,8 +311,8 @@ class Logintwitter extends WebPage
             $aDebug = $this->oAuth->getLastResponseInfo();
             d('debug: ' . print_r($aDebug, 1));
 
-            $this->aUserData = array_merge($this->aUserData, $aAccessToken);
-            d('$this->aUserData ' . print_r($this->aUserData, 1));
+            $this->aUserData = \array_merge($this->aUserData, $aAccessToken);
+            d('$this->aUserData ' . \print_r($this->aUserData, 1));
 
             $this->aUserData['_id'] = (!empty($this->aUserData['id_str'])) ? $this->aUserData['id_str'] : (string)$this->aUserData['id'];
             unset($this->aUserData['user_id']);
@@ -337,7 +336,6 @@ class Logintwitter extends WebPage
         } catch (\OAuthException $e) {
             e('OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
 
-            // throw new \Lampcms\Exception('Something went wrong during authorization. Please try again later'.$e->getMessage());
             /*
                 /**
                 * Cannot throw exception because then it would be
@@ -346,7 +344,7 @@ class Logintwitter extends WebPage
                 * for showing twitter oauth page and we don't need
                 * a login form or any other elements of regular page there
                 */
-            $err = 'Something went wrong during authorization. Please try again later' . $e->getMessage();
+            $err = '@@Something went wrong during authorization. Please try again later@@' . $e->getMessage();
             exit(\Lampcms\Responder::makeErrorPage($err));
         }
 
@@ -364,14 +362,15 @@ class Logintwitter extends WebPage
      * a new user, otherwise update record
      *
      * @todo special case if this is 'connect' type of action
-     * where existing logged in user is adding twitter to his account
-     * then we should delegate to connect() method which
-     * does different things - adds twitter data to $this->Registry->Viewer
-     * but also first checks if another user already has
-     * this twitter account in which case must show error - cannot
-     * use same Twitter account by different users
+     *       where existing logged in user is adding twitter to his account
+     *       then we should delegate to connect() method which
+     *       does different things - adds twitter data to $this->Registry->Viewer
+     *       but also first checks if another user already has
+     *       this twitter account in which case must show error - cannot
+     *       use same Twitter account by different users
      *
-     * @return object $this
+     * @throws \Exception
+     * @return \Lampcms\Controllers\object $this
      */
     protected function createOrUpdate()
     {
@@ -403,7 +402,7 @@ class Logintwitter extends WebPage
              * re-throw as regular exception
              * so that it can be caught and shown in popup window
              */
-            e('Unable to process login: ' . $e->getMessage());
+            e('@@Unable to process login@@: ' . $e->getMessage());
             throw new \Exception($e->getMessage());
         }
 
@@ -419,6 +418,8 @@ class Logintwitter extends WebPage
 
     /**
      * Add Twitter credentials to existing user
+     *
+     * @param $tid
      *
      * @return $this
      */
@@ -507,7 +508,7 @@ class Logintwitter extends WebPage
         /**
          * This will mark this userobject is new user
          * and will be persistent for the duration of this session ONLY
-         * This way we can know it's a newsly registered user
+         * This way we can know it's a newly registered user
          * and ask the user to provide email address but only
          * during the same session
          */
@@ -519,8 +520,6 @@ class Logintwitter extends WebPage
 
         $this->Registry->Dispatcher->post($this->User, 'onNewUser');
         $this->Registry->Dispatcher->post($this->User, 'onNewTwitterUser');
-
-        //exit(' new user: '.$this->User->isNewUser().' '.print_r($this->User->getArrayCopy(), 1));
 
         return $this;
     }
@@ -581,8 +580,6 @@ class Logintwitter extends WebPage
     protected function postTweetStatus()
     {
 
-        //return $this;
-
         $sToFollow = $this->aTW['TWITTER_USERNAME'];
         $follow = (!empty($sToFollow)) ? ' #follow @' . $sToFollow : '';
         $siteName = $this->Registry->Ini->SITE_TITLE;
@@ -619,7 +616,7 @@ class Logintwitter extends WebPage
      * Create a new record in USERS_TWITTER table
      * or update an existing record
      *
-     * @param unknown_type $isUpdate
+     * @return \Lampcms\Controllers\Logintwitter
      */
     protected function updateTwitterUserRecord()
     {
@@ -631,7 +628,7 @@ class Logintwitter extends WebPage
 
 
     /**
-     * Get user objecty ty twitter id (tid)
+     * Get user object ty twitter id (tid)
      *
      * @param string $tid Twitter id
      *
@@ -655,15 +652,17 @@ class Logintwitter extends WebPage
      * code and nothing else
      *
      * @todo instead of just closing window
-     * can show a small form with pre-populated
-     * text to be posted to Twitter,
-     * for example "I just joined SITE_NAME, awesome site
+     *       can show a small form with pre-populated
+     *       text to be posted to Twitter,
+     *       for example "I just joined SITE_NAME, awesome site
      * + link +
      *
      * And there will be 2 buttons Submit and Cancel
      * Cancel will close window
      *
-     * @return unknown_type
+     * @param array $a
+     *
+     * @return void
      */
     protected function closeWindow(array $a = array())
     {
@@ -691,7 +690,7 @@ class Logintwitter extends WebPage
         $s = Responder::PAGE_OPEN . Responder::JS_OPEN .
             $script .
             Responder::JS_CLOSE .
-            '<h2>You have successfully logged in. You should close this window now</h2>' .
+            '<h2>@@You have successfully logged in. You should close this window now@@</h2>' .
             //print_r($_SESSION, 1).
             Responder::PAGE_CLOSE;
         d('cp s: ' . $s);
@@ -735,7 +734,7 @@ class Logintwitter extends WebPage
 			setTimeout(myredirect, 300);
 			' .
             Responder::JS_CLOSE .
-            '<div class="centered"><a href="' . $url . '">If you are not redirected in 2 seconds, click here to authenticate with Twitter</a></div>' .
+            '<div class="centered"><a href="' . $url . '">@@If you are not redirected in 2 seconds, click here to authenticate with Twitter@@</a></div>' .
             Responder::PAGE_CLOSE;
 
         d('exising with this $s: ' . $s);
