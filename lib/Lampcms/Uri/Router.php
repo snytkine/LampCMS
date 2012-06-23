@@ -536,6 +536,9 @@ class Router
             $search[]  = '{_WEB_ROOT_}';
             $replace[] = $this->map['DIR'] . $this->map['FILE'];
 
+            $search[] = '{_FORM_ACTION_}';
+            $replace[] = $this->map['DIR'] . '/'.INDEX_FILE;
+
             /**
              * Now add controller name as search
              * and route as replace values

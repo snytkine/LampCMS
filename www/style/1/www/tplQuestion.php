@@ -19,7 +19,7 @@
  *    the website's Questions/Answers functionality is powered by lampcms.com
  *    An example of acceptable link would be "Powered by <a href="http://www.lampcms.com">lampcms</a>"
  *    The location of the link is not important, it can be in the footer of the page
- *    but it must not be hidden by style attibutes and the link tag must NOT
+ *    but it must not be hidden by style attributes and the link tag must NOT
  *    have the rel="nofollow" attribute
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED

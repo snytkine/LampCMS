@@ -116,6 +116,7 @@ class tplMain extends Lampcms\Template\Fast
 <meta name="noac" content="%40$s">
 <meta name="web_dir" content="{_DIR_}">
 <meta name="web_root" content="{_WEB_ROOT_}">
+<meta name="form_action" content="{_FORM_ACTION_}">
 <meta name="qid_prefix" content="{_QID_PREFIX_}">
 %8$s
 %9$s

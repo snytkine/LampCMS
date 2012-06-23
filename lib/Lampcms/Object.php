@@ -3,7 +3,7 @@
  *
  * License, TERMS and CONDITIONS
  *
- * This software is lisensed under the GNU LESSER GENERAL PUBLIC LICENSE (LGPL) version 3
+ * This software is licensed under the GNU LESSER GENERAL PUBLIC LICENSE (LGPL) version 3
  * Please read the license here : http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  *    the website's Questions/Answers functionality is powered by lampcms.com
  *    An example of acceptable link would be "Powered by <a href="http://www.lampcms.com">LampCMS</a>"
  *    The location of the link is not important, it can be in the footer of the page
- *    but it must not be hidden by style attibutes
+ *    but it must not be hidden by style attributes
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF

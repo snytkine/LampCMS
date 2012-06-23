@@ -3,7 +3,7 @@
  *
  * License, TERMS and CONDITIONS
  *
- * This software is lisensed under the GNU LESSER GENERAL PUBLIC LICENSE (LGPL) version 3
+ * This software is licensed under the GNU LESSER GENERAL PUBLIC LICENSE (LGPL) version 3
  * Please read the license here : http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  *  Redistribution and use in source and binary forms, with or without

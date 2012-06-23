@@ -3,7 +3,7 @@
  *
  * License, TERMS and CONDITIONS
  *
- * This software is lisensed under the GNU LESSER GENERAL PUBLIC LICENSE (LGPL) version 3
+ * This software is licensed under the GNU LESSER GENERAL PUBLIC LICENSE (LGPL) version 3
  * Please read the license here : http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  *    the website's Questions/Answers functionality is powered by lampcms.com
  *    An example of acceptable link would be "Powered by <a href="http://www.lampcms.com">LampCMS</a>"
  *    The location of the link is not important, it can be in the footer of the page
- *    but it must not be hidden by style attibutes
+ *    but it must not be hidden by style attributes
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -56,7 +56,7 @@ use Lampcms\IniException;
 
 /**
  * Object represents the parsed !config.ini file
- * has accessorts for the whole section via getSection
+ * has accessor for the whole section via getSection
  * or access values from the CONSTANTS section via
  * the magic __get method like this:
  * Ini->ADMIN_EMAIL
@@ -144,13 +144,13 @@ class Ini extends \Lampcms\LampcmsArray
         }
 
 
-        if (!array_key_exists($name, $aConstants) && !$this->offsetExists($name)) {
+        if (!\array_key_exists($name, $aConstants) && !$this->offsetExists($name)) {
 
             throw new IniException('Error: configuration param: ' . $name . ' does not exist in config file ' . $this->iniFile);
         }
 
         if ('MAGIC_MIME_FILE' === $name) {
-            if (!empty($aConstants['MAGIC_MIME_FILE']) && !is_readable($aConstants['MAGIC_MIME_FILE'])) {
+            if (!empty($aConstants['MAGIC_MIME_FILE']) && !\is_readable($aConstants['MAGIC_MIME_FILE'])) {
                 throw new IniException('magic mime file does not exist in this location or not readable: ' . $aConstants['MAGIC_MIME_FILE']);
             }
         }
@@ -212,7 +212,7 @@ class Ini extends \Lampcms\LampcmsArray
                 break;
 
             case 'LOG_FILE_PATH':
-                if ((substr(PHP_SAPI, 0, 3) === 'cli') || (substr(PHP_SAPI, 0, 3) === 'cgi')) {
+                if ((\substr(PHP_SAPI, 0, 3) === 'cli') || (\substr(PHP_SAPI, 0, 3) === 'cgi')) {
                     $ret = $aConstants['LOG_FILE_PATH_CGI'];
                 } else {
                     $ret = $aConstants['LOG_FILE_PATH'];
