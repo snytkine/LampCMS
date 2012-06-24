@@ -116,8 +116,8 @@ define('LAMPCMS_COOKIE_SALT', 'abcde');
 define('DEFAULT_LANG', 'en');
 define('LAMPCMS_COOKIE_DOMAIN', '');
 define('SITE_URL', '');
-define('LAMPCMS_IMAGE_SITE', 'http://img.lampcms.com');
-define('LAMPCMS_AVATAR_IMG_SITE', 'http://img.lampcms.com');
+//define('LAMPCMS_IMAGE_SITE', 'http://img.lampcms.com');
+//define('LAMPCMS_AVATAR_IMG_SITE', 'http://img.lampcms.com');
 /**
  * This is very important!
  * Use test databases!

@@ -87,7 +87,7 @@ class tplMain extends Lampcms\Template\Fast
         'show_comments' => '5', //36
         'comments_timeout' => '5', //37
         'max_comments' => '0', // 38
-        'JS_MIN_ID' => '', // 39
+        'VERSION_ID' => '', // 39
         'DISABLE_AUTOCOMPLETE' => '', // 40
         'langsForm' => '', //41
         'home' => 'Home', // 42

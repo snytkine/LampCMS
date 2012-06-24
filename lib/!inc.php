@@ -72,6 +72,8 @@ if (function_exists('mb_internal_encoding')) {
     mb_internal_encoding("UTF-8");
 }
 
+
+
 function exception_handler($e)
 {
     $code = $e->getCode();
@@ -105,7 +107,6 @@ if (!function_exists('fastcgi_finish_request')) {
 
 set_exception_handler('exception_handler');
 
-
 $lampcmsClasses = LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . 'Lampcms' . DIRECTORY_SEPARATOR;
 
 require $lampcmsClasses . 'Interfaces' . DIRECTORY_SEPARATOR . 'All.php';
@@ -118,6 +119,7 @@ require $lampcmsClasses . 'Mongo' . DIRECTORY_SEPARATOR . 'Collections.php';
 require $lampcmsClasses . 'Config' . DIRECTORY_SEPARATOR . 'Ini.php';
 require $lampcmsClasses . 'Log.php';
 require $lampcmsClasses . 'Request.php';
+
 require $lampcmsClasses . DIRECTORY_SEPARATOR . 'Mongo' . DIRECTORY_SEPARATOR . 'DB.php';
 require $lampcmsClasses . DIRECTORY_SEPARATOR . 'Mongo' . DIRECTORY_SEPARATOR . 'Doc.php'; // User extends it
 require $lampcmsClasses . 'User.php'; // User is always used

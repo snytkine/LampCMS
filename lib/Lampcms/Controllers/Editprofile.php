@@ -58,6 +58,7 @@ use Lampcms\ProfileParser;
 
 class Editprofile extends WebPage
 {
+
     /**
      * Pre-check to deny non-logged in user
      * access to this page
@@ -71,6 +72,7 @@ class Editprofile extends WebPage
      *
      * Viewer must have edit_profile
      * permission to access this page
+     *
      * @var string
      */
     protected $permission = 'edit_profile';
@@ -104,10 +106,10 @@ class Editprofile extends WebPage
     protected function main()
     {
         $this->getUser();
-        $this->Form = new \Lampcms\Forms\Profile($this->Registry);
-		$this->Form->formTitle = $this->aPageVars['title'] = '@@Edit Profile@@';
+        $this->Form                                        = new \Lampcms\Forms\Profile($this->Registry);
+        $this->Form->formTitle = $this->aPageVars['title'] = '@@Edit Profile@@';
 
-		if ($this->Form->isSubmitted() && $this->Form->validate()) {
+        if ($this->Form->isSubmitted() && $this->Form->validate()) {
             $this->Registry->Dispatcher->post($this->Form, 'onBeforeProfileUpdate');
             //try{
             $this->saveProfile();
@@ -122,7 +124,7 @@ class Editprofile extends WebPage
             $this->setForm();
             $this->aPageVars['body'] = $this->Form->getForm();
         }
-	}
+    }
 
 
     /**
@@ -158,24 +160,24 @@ class Editprofile extends WebPage
     protected function setForm()
     {
 
-        $this->Form->username = $this->User['username'];
+        $this->Form->username      = $this->User['username'];
         $this->Form->usernameLabel = '@@Username@@';
-        $this->Form->fn = $this->User['fn'];
-        $this->Form->mn = $this->User['mn'];
-        $this->Form->ln = $this->User['ln'];
-        $this->Form->gender = $this->getGenderOptions();
-        $this->Form->dob = $this->User['dob'];
-        $this->Form->cc = $this->getCountryOptions();
-        $this->Form->state = $this->User['state'];
-        $this->Form->city = $this->User['city'];
-        $this->Form->url = $this->User['url'];
-        $this->Form->zip = $this->User['zip'];
-        $this->Form->description = $this->User['description'];
-        $this->Form->avatarSrc = $this->User->getAvatarSrc();
-        $this->Form->width = $this->Registry->Ini->AVATAR_SQUARE_SIZE;
-        $this->Form->uid = $this->User->getUid();
+        $this->Form->fn            = $this->User['fn'];
+        $this->Form->mn            = $this->User['mn'];
+        $this->Form->ln            = $this->User['ln'];
+        $this->Form->gender        = $this->getGenderOptions();
+        $this->Form->dob           = $this->User['dob'];
+        $this->Form->cc            = $this->getCountryOptions();
+        $this->Form->state         = $this->User['state'];
+        $this->Form->city          = $this->User['city'];
+        $this->Form->url           = $this->User['url'];
+        $this->Form->zip           = $this->User['zip'];
+        $this->Form->description   = $this->User['description'];
+        $this->Form->avatarSrc     = $this->User->getAvatarSrc();
+        $this->Form->width         = $this->Registry->Ini->AVATAR_SQUARE_SIZE;
+        $this->Form->uid           = $this->User->getUid();
         $this->Form->maxAvatarSize = $this->Registry->Ini->MAX_AVATAR_UPLOAD_SIZE;
-        $this->Form->timezone = \Lampcms\TimeZone::getMenu($this->User->getTimezone());
+        $this->Form->timezone      = $this->getTimeZonesMenu(); //\Lampcms\TimeZone::getMenu($this->User->getTimezone());
 
         $this->Form->avatarTos = \sprintf('@@Upload Image. Maximum size of@@ %sMb<br><span class="smaller">@@By uploading a file you certify that you have the right to distribute this picture and that it does not violate the Terms of Service@@</span>', \floor($this->Registry->Ini->MAX_AVATAR_UPLOAD_SIZE / 1000000));
 
@@ -189,6 +191,14 @@ class Editprofile extends WebPage
         }
 
         return $this;
+    }
+
+
+    protected function getTimeZonesMenu(){
+        $menu = $this->_('time_zones');
+        $current = $this->User->getTimezone();
+
+        return \str_replace('value="'.$current.'"', 'value="'.$this->User->getTimezone().'" selected="selected"', $menu );
     }
 
 
@@ -221,23 +231,23 @@ class Editprofile extends WebPage
      * menu for Country selection
      *
      * @todo use 'cc' key from USER as value
-     * and country name only as label! Don NOT
-     * set 'country' key at all!
-     * For this we need an array that translates
+     *       and country name only as label! Don NOT
+     *       set 'country' key at all!
+     *       For this we need an array that translates
      * 2-letter country code 'cc' to the full country name
      *
      * @return string html string
      */
     protected function getCountryOptions()
     {
-        $s = '';
-        $current = \strtoupper($this->Registry->Viewer['cc']);
-        $tpl = '<option value="%1$s"%2$s>%3$s</option>';
+        $s          = '';
+        $current    = \strtoupper($this->Registry->Viewer['cc']);
+        $tpl        = '<option value="%1$s"%2$s>%3$s</option>';
         $aCountries = \array_combine(\Lampcms\Geo\Location::getCodes(), \Lampcms\Geo\Location::getNames());
 
         foreach ($aCountries as $key => $val) {
             $selected = ($current == $key) ? ' selected' : '';
-            $name = (empty($val)) ? '@@Select country@@' : $val;
+            $name     = (empty($val)) ? '@@Select country@@' : $val;
 
             $s .= \vsprintf($tpl, array($key, $selected, $name));
         }
@@ -258,9 +268,9 @@ class Editprofile extends WebPage
     protected function getGenderOptions()
     {
         $current = $this->Registry->Viewer['gender'];
-        $s = '';
-        $a = array('' => '@@Select Gender@@', 'M' => '@@Male@@', 'F' => '@@Female@@');
-        $tpl = '<option value="%1$s"%2$s>%3$s</option>';
+        $s       = '';
+        $a       = array('' => '@@Select Gender@@', 'M' => '@@Male@@', 'F' => '@@Female@@');
+        $tpl     = '<option value="%1$s"%2$s>%3$s</option>';
         foreach ($a as $key => $val) {
             $selected = ($key === $current) ? ' selected' : '';
             $s .= \vsprintf($tpl, array($key, $selected, $val));

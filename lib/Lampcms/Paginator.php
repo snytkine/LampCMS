@@ -69,7 +69,7 @@ class Paginator
      * This is how this object is usually
      * instantiated
      * No parameters are necessary
-     * but for backward compatability it
+     * but for backward compatibility it
      * can accept one param, but it's totally ignored
      * This is because originally it used to accept Registry object
      * and other methods still passing Registry to it but
@@ -118,13 +118,13 @@ class Paginator
             $arrParams = array('mode' => 'Sliding', 'fileName' => '{_PAGER_PREFIX_}%d{_PAGER_EXT_}', 'path' => '', 'append' => false, 'perPage' => $perPage, 'delta' => 2, 'urlVar' => 'pageID');
 
             if (!empty($arrData)) {
-                if (is_array($arrData)) {
+                if (\is_array($arrData)) {
                     d('arrData: ' . print_r($arrData, true));
                     $arrParams['itemData'] = $arrData;
-                } elseif (is_numeric($arrData)) {
+                } elseif (\is_numeric($arrData)) {
                     d('totalItems: ' . $arrData);
                     $arrParams['totalItems'] = $arrData;
-                } elseif (is_object($arrData) && ($arrData instanceof \MongoCursor)) {
+                } elseif (\is_object($arrData) && ($arrData instanceof \MongoCursor)) {
                     d('got mongo cursor');
                     $mongoCursor = $arrData;
                     $arrParams['totalItems'] = $mongoCursor->count(true);
@@ -132,18 +132,15 @@ class Paginator
                 }
 
                 else {
-                    throw new DevException('Wrong type for $arrData param. It must be array or numeric value. Passed: ' . gettype($arrData) . ' ' . \get_class($arrData));
+                    throw new DevException('Wrong type for $arrData param. It must be array or numeric value. Passed: ' . \gettype($arrData) . ' ' . \get_class($arrData));
                 }
             }
 
             if (!empty($arrExtraParams)) {
-                $arrParams = array_merge($arrParams, $arrExtraParams); // this way we can pass extra parameters here
+                $arrParams = \array_merge($arrParams, $arrExtraParams); // this way we can pass extra parameters here
             }
 
-            include_once(LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . 'Pear' . DIRECTORY_SEPARATOR . 'Pager.php');
-            include_once(LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . 'Pear' . DIRECTORY_SEPARATOR . 'Pager' . DIRECTORY_SEPARATOR . 'Common.php');
-
-            $this->oPager = \Pager::factory($arrParams);
+            $this->oPager = \Pear\Pager::factory($arrParams);
 
             if (null !== $mongoCursor) {
                 $curPage = $this->oPager->getCurrentPageID();

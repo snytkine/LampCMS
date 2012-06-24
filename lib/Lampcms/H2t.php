@@ -116,7 +116,8 @@ class H2t
      * Constructor, cannot be called
      * directly, only via factory!
      *
-     * @return void
+     * @throws Exception
+     * @return \Lampcms\H2t
      */
     protected function __construct()
     {
@@ -205,7 +206,7 @@ class H2t
     protected function makeXslProcessor()
     {
         $xsl = new \DOMDocument;
-        $tpl = LAMPCMS_PATH . DIRECTORY_SEPARATOR . $this->templateFile;
+        $tpl = LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . $this->templateFile;
         if (!is_file($tpl)) {
             throw new HTML2TextException('XSL template not found here: ' . $tpl);
         }
@@ -254,5 +255,3 @@ class H2t
     }
 }
 
-
-?>

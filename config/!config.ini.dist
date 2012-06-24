@@ -183,9 +183,13 @@ MAX_AVATAR_UPLOAD_SIZE = 1024000
 LOG_PER_SCRIPT = true
 ; set LOG_FILE_PATH to point to your writable log file to enable logging
 ; for example: /usr/local/apache/sites/qa.lampcms.com/logs/php.log
-LOG_FILE_PATH = php.log
+;LOG_FILE_PATH = php.log
 ;/usr/local/apache/sites/lampcms.com/logs/cgiphp.log
-LOG_FILE_PATH_CGI = cgiphp.log
+;LOG_FILE_PATH_CGI = cgiphp.log
+; Directory where log files will reside
+; Must be a writable directory
+; If left blank default will be directory 'log' sibling to www dir.
+LOG_DIR =
 ;
 ; base url of your main website. Required value! Leading slash not required.
 SITE_URL="http://localhost"

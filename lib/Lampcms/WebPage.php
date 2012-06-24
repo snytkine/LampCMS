@@ -427,15 +427,16 @@ abstract class WebPage extends Base
         $this->aPageVars['comments_timeout']     = $Ini->COMMENT_EDIT_TIME;
         $this->aPageVars['layoutID']             = $this->layoutID;
         $this->aPageVars['DISABLE_AUTOCOMPLETE'] = $Ini->DISABLE_AUTOCOMPLETE;
-        $this->aPageVars['JS_MIN_ID']            = JS_MIN_ID;
+        $this->aPageVars['VERSION_ID']            = VERSION_ID;
         $this->aPageVars['home']                 = $this->_('Home');
 
         /**
          * @todo later can change to something like
          * $this->Registrty->Viewer->getStyleID()
+         * To load style selected by user
          *
          */
-        $css                         = (true === LAMPCMS_DEBUG) ? '/_main.css?t='.time() : '/main.css';
+        $css                         = (true === LAMPCMS_DEBUG || '@package_version@' === VERSION_ID) ? '/_main.css?t='.time() : '/main.css';
         $this->aPageVars['main_css'] = $Ini->CSS_SITE . '{_DIR_}/style/' . STYLE_ID . '/' . VTEMPLATES_DIR . $css;
 
         $aFacebookConf = $Ini->getSection('FACEBOOK');
@@ -464,8 +465,8 @@ abstract class WebPage extends Base
          */
         $this->addMetaTag('fb', ('' !== (string)$Viewer->getFacebookToken()));
 
-        $js = (true === LAMPCMS_DEBUG) ? '/qa.js?t='.time() : '/min/qa_' . JS_MIN_ID . '.js';
-        //$js = (true === LAMPCMS_DEBUG) ? '/temp1.js' : '/min/qa_'.JS_MIN_ID.'.js';
+        $js = (true === LAMPCMS_DEBUG || '@package_version@' === VERSION_ID) ? '/qa.js?t='.time() : '/min/qa_' . VERSION_ID . '.js';
+
         $src = $Ini->JS_SITE . '{_DIR_}/js' . $js;
 
         $this->aPageVars['JS'] = $src;

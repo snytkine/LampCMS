@@ -3,7 +3,7 @@
  *
  * License, TERMS and CONDITIONS
  *
- * This software is licensed under the GNU LESSER GENERAL PUBLIC LICENSE (LGPL) version 3
+ * This software is lisensed under the GNU LESSER GENERAL PUBLIC LICENSE (LGPL) version 3
  * Please read the license here : http://www.gnu.org/licenses/lgpl-3.0.txt
  *
  *  Redistribution and use in source and binary forms, with or without
@@ -23,7 +23,7 @@
  *    the website's Questions/Answers functionality is powered by lampcms.com
  *    An example of acceptable link would be "Powered by <a href="http://www.lampcms.com">LampCMS</a>"
  *    The location of the link is not important, it can be in the footer of the page
- *    but it must not be hidden by style attributes
+ *    but it must not be hidden by style attibutes
  *
  * THIS SOFTWARE IS PROVIDED BY THE AUTHOR "AS IS" AND ANY EXPRESS OR IMPLIED
  * WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
@@ -83,6 +83,7 @@ class Ini extends \Lampcms\LampcmsArray
      * Constructor
      *
      * @param string $iniFile
+     *
      * @throws IniException if unable to parse ini file
      *
      */
@@ -110,6 +111,7 @@ class Ini extends \Lampcms\LampcmsArray
      * object
      *
      * @param string $name
+     *
      * @throws IniException if CONSTANTS key
      * does not exist OR if var
      * does not exist and is a required var
@@ -144,18 +146,18 @@ class Ini extends \Lampcms\LampcmsArray
         }
 
 
-        if (!\array_key_exists($name, $aConstants) && !$this->offsetExists($name)) {
+        if (!array_key_exists($name, $aConstants) && !$this->offsetExists($name) && ('LOG_FILE_PATH' !== $name)) {
 
             throw new IniException('Error: configuration param: ' . $name . ' does not exist in config file ' . $this->iniFile);
         }
 
         if ('MAGIC_MIME_FILE' === $name) {
-            if (!empty($aConstants['MAGIC_MIME_FILE']) && !\is_readable($aConstants['MAGIC_MIME_FILE'])) {
+            if (!empty($aConstants['MAGIC_MIME_FILE']) && !is_readable($aConstants['MAGIC_MIME_FILE'])) {
                 throw new IniException('magic mime file does not exist in this location or not readable: ' . $aConstants['MAGIC_MIME_FILE']);
             }
         }
 
-        switch ($name) {
+        switch ( $name ) {
             case 'SITE_URL':
                 if (empty($aConstants['SITE_URL'])) {
                     throw new IniException('Value of SITE_URL in ' . $this->iniFile . ' file SHOULD NOT be empty!');
@@ -211,11 +213,18 @@ class Ini extends \Lampcms\LampcmsArray
                 }
                 break;
 
+
+            case 'LOG_DIR':
+                $ret = (empty($aConstants['LOG_DIR'])) ? \dirname(LAMPCMS_WWW_DIR) . DIRECTORY_SEPARATOR . 'logs' : \rtrim($aConstants['LOG_DIR'], DIRECTORY_SEPARATOR);
+                break;
+
             case 'LOG_FILE_PATH':
-                if ((\substr(PHP_SAPI, 0, 3) === 'cli') || (\substr(PHP_SAPI, 0, 3) === 'cgi')) {
-                    $ret = $aConstants['LOG_FILE_PATH_CGI'];
+                if (\substr(PHP_SAPI, 0, 3) === 'cli') {
+                    $ret = $this->__get('LOG_DIR') . DIRECTORY_SEPARATOR . 'cli-php.log';
+                } elseif ((\substr(PHP_SAPI, 0, 3) === 'cgi')) {
+                    $ret = $this->__get('LOG_DIR') . DIRECTORY_SEPARATOR . 'cgi-php.log';
                 } else {
-                    $ret = $aConstants['LOG_FILE_PATH'];
+                    $ret = $this->__get('LOG_DIR') . DIRECTORY_SEPARATOR . 'php.log';
                 }
                 break;
 
@@ -253,7 +262,9 @@ class Ini extends \Lampcms\LampcmsArray
      * most of the times
      *
      * @return string a value of $name
+     *
      * @param string $name
+     *
      * @throws LampcmsIniException if $name
      * does not exist as a key in this->aIni
      *
@@ -302,7 +313,7 @@ class Ini extends \Lampcms\LampcmsArray
      *
      * @param string $name name of section in !config.ini file
      *
-     * @param array $val array of values for this section
+     * @param array  $val  array of values for this section
      *
      * @return object $this
      */

@@ -39,6 +39,8 @@
 
 //namespace Pear;
 
+namespace Pear\Pager;
+
 /**
  * Two constants used to guess the path- and file-name of the page
  * when the user doesn't set any other value
@@ -79,7 +81,7 @@ if (substr($_SERVER['PHP_SELF'], -1) == '/') {
  * @license   http://www.debian.org/misc/bsd.license  BSD License (3 Clause)
  * @link      http://pear.php.net/package/Pager
  */
-abstract class Pager_Common
+abstract class Common
 {
 
     const PAGER_OK = 0;
@@ -1520,6 +1522,7 @@ abstract class Pager_Common
      *
      * @param string $name option name
      *
+     * @throws Exception
      * @return mixed option value
      * @access public
      */

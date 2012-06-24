@@ -37,11 +37,8 @@
  * @link      http://pear.php.net/package/Pager
  */
 
+namespace Pear\Pager;
 
-/**
- * require PEAR::Pager_Common base class
- */
-//require_once 'Pager/Common.php';
 
 /**
  * Pager_Jumping - Generic data paging class  ("jumping window" style)
@@ -55,7 +52,7 @@
  * @license   http://www.debian.org/misc/bsd.license  BSD License (3 Clause)
  * @link      http://pear.php.net/package/Pager
  */
-class Pager_Jumping extends Pager_Common
+class Jumping extends Common
 {
     // {{{ Pager_Jumping()
 
@@ -64,6 +61,8 @@ class Pager_Jumping extends Pager_Common
      *
      * @param array $options Associative array of option names and their values
      *
+     * @throws \Exception
+     * @return void
      * @access public
      */
     function Pager_Jumping($options = array())
@@ -145,7 +144,7 @@ class Pager_Jumping extends Pager_Common
      * an integer ($pageID), since the html text for prev/next links can
      * be set in the constructor. If a second parameter is provided, then
      * the method act as it previously did. This hack's only purpose is to
-     * mantain backward compatibility.
+     * maintain backward compatibility.
      *
      * @param integer $pageID    Optional pageID. If specified, links for that
      *                           page are provided instead of current one.
@@ -260,4 +259,3 @@ class Pager_Jumping extends Pager_Common
     // }}}
 }
 
-?>

@@ -84,6 +84,7 @@ class SplClassLoader
      * @todo use constant LAMPCMS_LIB_DIR if $includePath not passed
      *
      * @param string $ns The namespace to use.
+     * @param string $includePath
      */
     public function __construct($ns = null, $includePath = LAMPCMS_LIB_DIR)
     {
@@ -180,6 +181,8 @@ class SplClassLoader
      * Loads the given class or interface.
      *
      * @param string $className The name of the class to load.
+     *
+     * @throws \OutOfBoundsException if class file not found or cannot be included
      * @return void
      */
     public function loadClass($className)

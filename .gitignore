@@ -8,3 +8,10 @@ logs/.*
 .idea/
 .idea/*/
 *admin.xml
+build.xml
+phpunitbootstrap.php
+*.log
+version.ver
+www/phpinfo.php
+www/phpinfo.htm
+

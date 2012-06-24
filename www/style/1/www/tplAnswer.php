@@ -96,15 +96,11 @@ class tplAnswer extends Lampcms\Template\Fast
              */
             $rid = $a['_id'];
             $uid = $a['i_uid'];
-            //$reply = $a['reply'];
-            //$reply_t = $a['reply_t'];
 
             $f = function(&$data) use ($rid, $uid)
             {
                 $data['resource_id'] = $rid;
                 $data['owner_id'] = $uid;
-                //$data['reply'] = $reply;
-                //$data['reply_t'] = $reply_t;
             };
 
             $a['comments_html'] = tplComment::loop($a['a_comments'], true, $f);
@@ -120,7 +116,7 @@ class tplAnswer extends Lampcms\Template\Fast
         'i_votes' => '', // 6
         'i_uid' => '0', // 7 // answer author id
         'accepted_text' => '', //8
-        'accepted_class' => '@@accept_answer@@', // 9
+        'accepted_class' => '@@Accept answer@@', // 9
         'vote_up' => "\xE2\x87\xA7", // 10 \xE2\x87\xA7
         'vote_down' => "\xE2\x87\xA9", //11
         'accept_link' => '&nbsp', // 12,

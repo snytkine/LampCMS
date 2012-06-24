@@ -42,7 +42,7 @@
  */
 //require_once 'Pager/Common.php';
 
-///namespace Pear;
+namespace Pear\Pager;
 
 /**
  * Pager_Sliding - Generic data paging class  ("sliding window" style)
@@ -55,7 +55,7 @@
  * @license   http://www.debian.org/misc/bsd.license  BSD License (3 Clause)
  * @link      http://pear.php.net/package/Pager
  */
-class Pager_Sliding extends Pager_Common
+class Sliding extends Common
 {
     // {{{ Pager_Sliding()
 
@@ -64,6 +64,7 @@ class Pager_Sliding extends Pager_Common
      *
      * @param array $options Associative array of option names and their values
      *
+     * @throws \Exception
      * @access public
      */
     public function __construct($options = array())

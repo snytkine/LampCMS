@@ -52,7 +52,8 @@
 
 namespace Lampcms;
 
-const JS_MIN_ID = '122411';
+//const JS_MIN_ID = '@package_version@';
+const VERSION_ID = '@package_version@';
 
 const LF   = "\n";
 const CR   = "\r";
@@ -63,20 +64,6 @@ const LINE = "\n---------------------------------------------------------------\
 const BR   = '<br/>';
 const LB   = "\n<br/>";
 
-
-/**
- * name of directory where the index.php
- * is located. This is NOT a full path, just a directory name!
- * Default is www and should not be changed unless
- * you must have specific name of your root www dir
- * maybe a web host requires this directory
- * to be named 'htdocs' or something else, then you would
- * copy everything from 'www' to this 'htdocs' and then
- * put 'htdocs' as a value of WWW_DIR here
- *
- * @deprecated
- */
-//const WWW_DIR = 'www';
 
 
 /**
@@ -399,6 +386,7 @@ class LampcmsArray extends \ArrayObject implements \Serializable, Interfaces\Lam
      * @see ArrayObject::unserialize()
      *
      * @param string $serialized
+     * @return mixed|void
      */
     public function unserialize($serialized)
     {
@@ -586,7 +574,7 @@ class ArrayDefaults extends LampcmsArray
      *
      * @param string $name
      *
-     * @return unknown
+     * @return mixed null|string|int
      */
     public function offsetGet($name)
     {
@@ -616,7 +604,7 @@ class ArrayDefaults extends LampcmsArray
 
     /**
      * Getter method for $this->defaultValue
-     * this is not very usefull, usually only used
+     * this is not very useful, usually only used
      * when you want to see what the defaultValue is
      * (mostly during debugging)
      *
@@ -679,6 +667,7 @@ class ArrayDefaults extends LampcmsArray
      * @see Lampcms.LampcmsArray::unserialize()
      *
      * @param string $serialized
+     * @return mixed|void
      */
     public function unserialize($serialized)
     {

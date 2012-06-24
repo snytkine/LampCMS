@@ -36,7 +36,7 @@
  *
  */
 
-//namespace Pear;
+namespace Pear;
 
 
 /**
@@ -65,11 +65,7 @@ class Pager
     public static function factory($options = array())
     {
         $mode = (isset($options['mode']) ? ucfirst($options['mode']) : 'Jumping');
-        $classname = 'Pager_' . $mode;
-        $classfile = DIRECTORY_SEPARATOR . 'Pager' . DIRECTORY_SEPARATOR . $mode . '.php';
-        //$common = DIRECTORY_SEPARATOR . 'Pager' . DIRECTORY_SEPARATOR . 'Common.php';
-
-        include_once(LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . 'Pear' . $classfile);
+        $classname = '\\Pear\\Pager\\'.$mode;
         $pager = new $classname($options);
 
         return $pager;
