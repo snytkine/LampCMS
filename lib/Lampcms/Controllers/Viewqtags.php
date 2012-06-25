@@ -95,7 +95,7 @@ class Viewqtags extends Viewquestions
      * Select items according to conditions passed in GET
      * Conditions can be == 'unanswered', 'hot', 'recent' (default)
      *
-     * @return \Lampcms\Controllers\Viewqtags
+     * @return \Lampcms\Controllers\Viewqtags|\Lampcms\Controllers\Viewquestions
      */
     protected function getCursor()
     {
@@ -163,7 +163,7 @@ class Viewqtags extends Viewquestions
      * sense to process any further methods
      *
      * @see wwwViewquestions::sendCacheHeaders()
-     * @return \Lampcms\Controllers\Viewqtags
+     * @return \Lampcms\Controllers\Viewqtags|\Lampcms\Controllers\Viewquestions
      */
     protected function sendCacheHeaders()
     {
@@ -187,14 +187,14 @@ class Viewqtags extends Viewquestions
      * (non-PHPdoc)
      *
      * @see Lampcms\Controllers.Viewquestions::makeCounterBlock()
-     * @return \Lampcms\Controllers\Viewqtags
+     * @return object $this
      */
     protected function makeCounterBlock()
     {
 
         $text = '@@Unique Tags@@';
 
-        $description = 'A tag is a keyword or label that categorizes your question with other, similar questions. Using the right tags makes it easier for others to find and answer your question.';
+        $description = '@@A tag is a keyword or label that categorizes your question with other, similar questions. Using the right tags makes it easier for others to find and answer your question@@.';
 
         $this->aPageVars['topRight'] = \tplCounterblock::parse(array($this->count, $text, $description), false);
 

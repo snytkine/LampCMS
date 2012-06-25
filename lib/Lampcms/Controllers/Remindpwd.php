@@ -54,18 +54,21 @@ namespace Lampcms\Controllers;
 use Lampcms\WebPage;
 use Lampcms\String;
 
-//use Lampcms\Mailer;
 
 /**
  * Class responsible for
  * displaying the forgot password
  * form, processing the form,
- * generating a new ramdom password
+ * generating a new random password
  * for user
  * and emailing it to user
  */
 class Remindpwd extends WebPage
 {
+
+    /**
+     * @todo translate string
+     */
     const EMAIL_BODY = 'Hi there, %1$s
 
 You have requested to reset your password on %2$s because you have forgotten your password. 
@@ -147,10 +150,10 @@ associated with your account.</div>';
 
 
     /**
-     * Remders and processes the form
+     * Renders and processes the form
      *
      * @return string page with html form
-     * @param array $arrParams array of GET or POST params
+     * @internal param array $arrParams array of GET or POST params
      */
     protected function main()
     {
@@ -181,9 +184,8 @@ associated with your account.</div>';
      * If user exists, set the $this->forgottenUid
      * to the value of this user's id
      *
+     * @throws \Lampcms\Exception
      * @return bool true if user found, otherwise false
-     * and in case of false also sets form errors
-     * so that user will see the form with errors
      */
     protected function validateUser()
     {
@@ -231,7 +233,7 @@ associated with your account.</div>';
          * Actually maybe it's better if user could just login
          * then edit profile and become regular user...
          *
-         * But how would we do that? We would bacially activate
+         * But how would we do that? We would basically activate
          * a user on first login.
          */
         d('$aResult: ' . \print_r($aResult, 1));
@@ -244,7 +246,7 @@ associated with your account.</div>';
          */
 
         if (empty($aResult['email'])) {
-            throw new \Lampcms\Exception('This is an external account and you have not provided a valid email address for it');
+            throw new \Lampcms\Exception('@@This is an external account and you have not provided a valid email address for it@@');
         }
 
         /**
@@ -267,10 +269,8 @@ associated with your account.</div>';
      * It checks to make sure this string does not already exist
      * in the PASSWORD_CHANGE table
      *
-     * @return object $this
-     *
-     * @throws LampcmsException in case a unique string
-     * could not be generated
+     * @throws \Lampcms\Exception
+     * @return \Lampcms\Controllers\object $this
      */
     protected function generateCode()
     {
@@ -305,7 +305,7 @@ associated with your account.</div>';
         } while (!$done && ($counter < 50));
 
         if (!$done) {
-            throw new \Lampcms\Exception('Error: Unable to generate random string at this time, please try again in 30 seconds');
+            throw new \Lampcms\Exception('@@Unable to generate random string at this time, please try again in 30 seconds@@');
         }
 
         $this->randomString = $aData['_id'];
@@ -318,18 +318,20 @@ associated with your account.</div>';
      * Prepares the body, subject and from
      * and email to user
      *
-     * @todo translate strings instead of using constants
      * of this class
      *
      * @return object $this
      */
     protected function emailCode()
     {
-        $link = $this->Registry->Ini->SITE_URL . '/index.php?a=resetpwd&uid=' . $this->uid . '&r=' . $this->randomString;
-        $body = vsprintf(self::EMAIL_BODY, array($this->login, $this->Registry->Ini->SITE_NAME, $link));
-        $subject = sprintf(self::SUBJECT, $this->Registry->Ini->SITE_NAME);
+        $routerCallback = $this->Registry->Router->getCallback();
+        $uri = $routerCallback('{_WEB_ROOT_}/{_resetpwd_}');
+        d('uri: '.$uri);
 
-        //Mailer::factory($this->Registry)->mail($this->emailAddress, $subject, $body);
+        $link = $this->Registry->Ini->SITE_URL . $uri.'/' . $this->uid . '/' . $this->randomString;
+        $body = \vsprintf(self::EMAIL_BODY, array($this->login, $this->Registry->Ini->SITE_NAME, $link));
+        $subject = \sprintf(self::SUBJECT, $this->Registry->Ini->SITE_NAME);
+
         $this->Registry->Mailer->mail($this->emailAddress, $subject, $body);
 
         return $this;

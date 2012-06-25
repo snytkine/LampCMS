@@ -57,14 +57,16 @@ use \Lampcms\Registry;
 
 /**
  * @author    Dmitri Snytkine
- * @todo handle various MongoExceptions by wrapping
- * methods in try/catch blocks and add logging
- * to log errors
+ * @todo      handle various MongoExceptions by wrapping
+ *            methods in try/catch blocks and add logging
+ *            to log errors
  */
 class Mongo implements \Lampcms\Interfaces\Cache
 {
+
     /**
      * Mongo object
+     *
      * @var object of type \Mongo (php's \Mongo class, NOT Lampcms Mongo)
      */
     protected $Mongo;
@@ -103,7 +105,7 @@ class Mongo implements \Lampcms\Interfaces\Cache
 
     public static function factory(Registry $Registry)
     {
-        $Ini = $Registry->Ini;
+        $Ini     = $Registry->Ini;
         $aConfig = $Ini->getSection('CACHE_MONGO');
         d('cp');
         $Mongo = $Registry->Mongo->getMongo();
@@ -117,16 +119,19 @@ class Mongo implements \Lampcms\Interfaces\Cache
     /**
      * Constructor
      *
-     * @param string $server connection string
+     * @param \Lampcms\Cache\Mongo|\Mongo $Mongo      $Mongo
+     * @param string                      $db         name of database
+     *
+     * @param string                      $collection name of collection
+     *
+     * @param null                        $nameSpace
+     * @param bool                        $compress   is true then will store values compressed with gzip
+     *                                                to save space (extra processing overhead will be incured to compress/uncompress)
+     *
+     * @throws \LogicException
+     * @internal param string $server connection string
      * (may contain username/password)
-     * like this:
-     *
-     * @param string $db name of database
-     *
-     * @param string $collection name of collection
-     *
-     * @param bool $compress is true then will store values compressed with gzip
-     * to save space (extra processing overhead will be incured to compress/uncompress)
+     *           like this:
      */
     public function __construct(\Mongo $Mongo, $db, $collection, $nameSpace = null, $compress = false)
     {
@@ -145,7 +150,7 @@ class Mongo implements \Lampcms\Interfaces\Cache
             $this->bCompress = (bool)$compress;
         }
 
-        $this->Mongo = $Mongo;
+        $this->Mongo       = $Mongo;
         $this->_collection = $Mongo->selectCollection($db, $collection); //$this->_db->selectCollection($collection);
         $this->_collection->ensureIndex(array('tags' => 1));
     }
@@ -154,7 +159,9 @@ class Mongo implements \Lampcms\Interfaces\Cache
     /**
      * Test if a cache is available or not (for the given id)
      *
-     * @param  string $id Cache id
+     * @param $key
+     *
+     * @internal param string $id Cache id
      * @return mixed|false (a cache is not available) or "last modified" timestamp (int) of the available cache record
      */
     public function test($key)
@@ -172,8 +179,11 @@ class Mongo implements \Lampcms\Interfaces\Cache
     /**
      * Remove a cache record
      *
-     * @param  string $id Cache id
-     * @return boolean True if no problem
+     * @param string $key
+     * @param int    $exp
+     *
+     * @internal param string $id Cache id
+     * @return bool|void True if no problem
      */
     public function delete($key, $exp = 0)
     {
@@ -202,9 +212,9 @@ class Mongo implements \Lampcms\Interfaces\Cache
 
 
     /**
-     * Maintainance function to remove expired entries
+     * Maintenance function to remove expired entries
      * This should be run from special script
-     * that instatiates this object and calls
+     * that instantiates this object and calls
      * this method periodically via cron
      *
      */
@@ -222,7 +232,7 @@ class Mongo implements \Lampcms\Interfaces\Cache
     public function getIds()
     {
         $cursor = $this->_collection->find();
-        $ret = array();
+        $ret    = array();
         while ($tmp = $cursor->getNext()) {
             $ret[] = $tmp['_id'];
         }
@@ -245,15 +255,17 @@ class Mongo implements \Lampcms\Interfaces\Cache
 
 
     /**
-     * Return an array of everying
+     * Return an array of everything
      * that is stored under this key, not just the value
      * but also the extra fields
      * 'created' and 'exp' (expiration)
      * the actual data is in the 'd' key
      *
-     * @param string $id cache id
+     * @param $key
+     *
+     * @internal param string $id cache id
      * @return mixed null if not found
-     * or array
+     *           or array
      */
     public function getRawData($key)
     {
@@ -265,11 +277,16 @@ class Mongo implements \Lampcms\Interfaces\Cache
 
     /**
      * Set item into cache
-     * @param string $key cache key
-     * @param mixed $value array|string|object|int|bool
-     * @param int $ttl expiration time either as unix timestamp
-     * or numer of seconds, in case of number of seconds, it cannot
-     * be > 2592000 (30 days)
+     *
+     * @param string     $key   cache key
+     * @param mixed      $value array|string|object|int|bool
+     * @param int        $ttl   expiration time either as unix timestamp
+     *                          or number of seconds, in case of number of seconds, it cannot
+     *                          be > 2592000 (30 days)
+     * @param array|null $tags
+     *
+     * @throws \InvalidArgumentException
+     * @return array result of calling MongoCollection->save()
      */
     public function set($key, $value, $ttl = 0, array $tags = null)
     {
@@ -279,8 +296,8 @@ class Mongo implements \Lampcms\Interfaces\Cache
             throw new \InvalidArgumentException('Cannot set resource into cache. Only serializable object, array, string, int, double or bool can be set as value');
         }
 
-        $ttl = (int)$ttl;
-        $now = time();
+        $ttl          = (int)$ttl;
+        $now          = time();
         $isSerialized = false;
 
         /**
@@ -315,13 +332,13 @@ class Mongo implements \Lampcms\Interfaces\Cache
                 throw new \InvalidArgumentException($err);
             }
 
-            $value = serialize($value);
+            $value        = serialize($value);
             $isSerialized = true;
             d('serialized object: ' . $value);
 
         } elseif ($this->bCompress && is_array($value)) {
 
-            $value = \serialize($value);
+            $value        = \serialize($value);
             $isSerialized = true;
         }
 
@@ -335,10 +352,10 @@ class Mongo implements \Lampcms\Interfaces\Cache
         }
 
         d('cp');
-        $aData = array('_id' => $this->nameSpace . $key,
-            'd' => $data,
-            'created' => $now,
-            'exp' => $exp);
+        $aData = array('_id'     => $this->nameSpace . $key,
+                       'd'       => $data,
+                       'created' => $now,
+                       'exp'     => $exp);
 
         d('aData: ' . print_r($aData, true));
         if ($isSerialized) {
@@ -362,8 +379,8 @@ class Mongo implements \Lampcms\Interfaces\Cache
      * Add item to cache but only if it does not already exist
      *
      * @param string $key
-     * @param mixed $value
-     * @param int $ttl
+     * @param mixed  $value
+     * @param int    $ttl
      */
     public function add($key, $value, $ttl = 0)
     {
@@ -387,7 +404,7 @@ class Mongo implements \Lampcms\Interfaces\Cache
      *
      * @return mixed string | false if data with this key does not exist
      * If value is found but is expired, then the item is removed from cache
-     * as a way to do mainainance without relying on cron job
+     * as a way to do maintenance without relying on cron job
      * and false is returned
      */
     public function get($key)
@@ -396,12 +413,14 @@ class Mongo implements \Lampcms\Interfaces\Cache
         d('looking for key: ' . $key);
         d('in collection: ' . $this->_collection->getName() . ' in DB: ' . $this->_collection->db);
         $ret = $this->_collection->findOne(array('_id' => $key));
-        d('ret: ' . print_r($ret, 1));
+
         if (empty($ret)) {
             d('not found ' . $key);
 
             return false;
         }
+
+        d('found result in cache');
 
         return $this->getData($ret);
     }
@@ -414,13 +433,16 @@ class Mongo implements \Lampcms\Interfaces\Cache
      * MongoDB find() functions which is just one call to mongo
      * vs multiple findOne() calls
      * should be a bit faster
+     *
      * @param array $aKeys
+     *
      * @return array array of found key=>value pairs
      */
     public function getMulti(array $aKeys)
     {
         /**
          * Prepend namespace to every key
+         *
          * @var unknown_type
          */
         $a = array();
@@ -451,7 +473,7 @@ class Mongo implements \Lampcms\Interfaces\Cache
                          * have the same name of keys as
                          * in the original array
                          */
-                        $key = substr($tmp['_id'], $len);
+                        $key       = substr($tmp['_id'], $len);
                         $ret[$key] = $data;
                     }
                 }
@@ -464,6 +486,7 @@ class Mongo implements \Lampcms\Interfaces\Cache
 
     /**
      * Decode the value and return it
+     *
      * @param array $a
      * array represents one Mongo Document (one row)
      *
@@ -473,7 +496,7 @@ class Mongo implements \Lampcms\Interfaces\Cache
      * is immediately deleted from Mongo collection
      *
      * If found and not expired then the data is returned.
-     * If data is determied to be in gzipped format, it is
+     * If data is determined to be in gzipped format, it is
      * uncompressed before it is returned
      */
     protected function getData(array $a)
@@ -512,9 +535,10 @@ class Mongo implements \Lampcms\Interfaces\Cache
     /**
      * Increment numeric value of $key
      *
-     * @param $key
-     * @param $int
-     * @return unknown_type
+     * @param     $key
+     * @param int $int
+     *
+     * @return bool true
      */
     public function increment($key, $int = 1)
     {
@@ -531,8 +555,11 @@ class Mongo implements \Lampcms\Interfaces\Cache
 
     /**
      * Decrement numeric value of $key
+     *
      * @param string $key
-     * @param int $int
+     * @param int    $int
+     *
+     * @return bool
      */
     public function decrement($key, $int = 1)
     {

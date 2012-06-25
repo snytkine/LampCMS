@@ -66,7 +66,7 @@ class Loginlinkedin extends WebPage
     //,location:(name) cannot be used together with locationlocation:(country:(code)) it generates duplicate field exception
     const PROFILE_URL = 'http://api.linkedin.com/v1/people/~:(id,first-name,last-name,industry,picture-url,public-profile-url,location,summary,interests,date-of-birth,twitter-accounts,phone-numbers,skills,im-accounts,educations,certifications,languages)';
 
-    protected $callback = '/index.php?a=loginlinkedin';
+    protected $callback = '{_WEB_ROOT_}/{_loginlinkedin_}';
 
     /**
      * Array of Tumblr's
@@ -128,8 +128,12 @@ class Loginlinkedin extends WebPage
     protected function main()
     {
 
+        $routerCallback = $this->Registry->Router->getCallback();
+        $this->callback = $routerCallback($this->callback);
+        d('$this->callback'. $this->callback);
+
         if (!extension_loaded('oauth')) {
-            throw new \Exception('Unable to use Tumblr API because OAuth extension is not available');
+            throw new \Exception('Unable to use LinkedIn API because OAuth extension is not available');
         }
 
         /**
@@ -159,7 +163,7 @@ class Loginlinkedin extends WebPage
         } catch (\OAuthException $e) {
             e('OAuthException: ' . $e->getMessage());
 
-            throw new \Exception('Something went wrong during authorization. Please try again later' . $e->getMessage());
+            throw new \Exception('@@Something went wrong during authorization. Please try again later@@' . $e->getMessage());
         }
 
 
@@ -169,12 +173,7 @@ class Loginlinkedin extends WebPage
          * in session and redirect to linkedin authorization page
          */
         if (empty($_SESSION['linkedin_oauth']) || empty($this->Request['oauth_token'])) {
-            /**
-             * Currently Tumblr does not handle "Deny" response of user
-             * too well - they just redirect back to this url
-             * without any clue that user declined to authorize
-             * our application.
-             */
+
             $this->step1();
         } else {
             $this->step2();
@@ -184,12 +183,11 @@ class Loginlinkedin extends WebPage
 
     /**
      * Generate oAuth request token
-     * and redirect to linkedin for authentication
+     * and redirect to Linkedin for authentication
      *
-     * @return object $this
-     *
-     * @throws Exception in case something goes wrong during
+     * @throws \Exception in case something goes wrong during
      * this stage
+     * @return \Lampcms\Controllers\object $this
      */
     protected function step1()
     {
@@ -237,9 +235,9 @@ class Loginlinkedin extends WebPage
      * Step 2 in oAuth process
      * this is when linkedin redirected the user back
      * to our callback url, which calls this controller
-     * @return object $this
      *
-     * @throws Exception in case something goes wrong with oAuth class
+     * @throws \Exception in case something goes wrong with oAuth class
+     * @return \Lampcms\Controllers\object $this
      */
     protected function step2()
     {
@@ -295,9 +293,9 @@ class Loginlinkedin extends WebPage
             $this->closeWindow();
 
         } catch (\OAuthException $e) {
-            e('OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
+            e('OAuthException: ' . $e->getMessage());
 
-            $err = 'Something went wrong during authorization. Please try again later' . $e->getMessage();
+            $err = '@@Something went wrong during authorization. Please try again later@@' . $e->getMessage();
             throw new \Exception($err);
         }
 
@@ -385,7 +383,7 @@ class Loginlinkedin extends WebPage
         /**
          * This will mark this userobject is new user
          * and will be persistent for the duration of this session ONLY
-         * This way we can know it's a newsly registered user
+         * This way we can know it's a newly registered user
          * and ask the user to provide email address but only
          * during the same session
          */
@@ -406,12 +404,14 @@ class Loginlinkedin extends WebPage
      * Parses the XML returned from LinkedIn API
      * and creates array of $this->aData from it
      *
-     * @param string xml xml string received from LinkedIn API
+     * @param $xml
      *
-     * @return object $this
-     *
+     * @throws \Lampcms\DevException
      * @throws \Lampcms\Exception if xml could not
-     * be parsed for any reason
+     *           be parsed for any reason
+     * @internal param \Lampcms\Controllers\xml $string xml string received from LinkedIn API
+     *
+     * @return \Lampcms\Controllers\object $this
      */
     protected function parseXML($xml)
     {
@@ -479,7 +479,7 @@ class Loginlinkedin extends WebPage
      * Adds data from LinkedIn API, including
      * oauth token, secret to the
      * User object
-     * avatar from LinkedIn, Contry Code, City
+     * avatar from LinkedIn, Country Code, City
      * and 'about' are added ONLY if they
      * don't already exist in User
      *
@@ -517,7 +517,7 @@ class Loginlinkedin extends WebPage
 
         /**
          * Update the following field ONLY
-         * if they DONT already exists in this user's record!
+         * if they DON'T already exists in this user's record!
          *
          * This means that if record exists and is an empty
          * string - don't update this because it usually means
@@ -585,7 +585,9 @@ class Loginlinkedin extends WebPage
     /**
      * Return html that contains JS window.close code and nothing else
      *
-     * @return unknown_type
+     * @param array $a
+     *
+     * @return \Lampcms\Controllers\unknown_type
      */
     protected function closeWindow(array $a = array())
     {
@@ -655,7 +657,7 @@ class Loginlinkedin extends WebPage
 			setTimeout(myredirect, 300);
 			' .
             Responder::JS_CLOSE .
-            '<div class="centered"><a href="' . $url . '">If you are not redirected in 2 seconds, click here to authenticate with linkedin</a></div>' .
+            '<div class="centered"><a href="' . $url . '">@@If you are not redirected in 2 seconds, click here to authenticate with LinkedIn@@</a></div>' .
             Responder::PAGE_CLOSE;
 
         d('exiting with this $s: ' . $s);

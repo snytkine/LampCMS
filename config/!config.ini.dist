@@ -300,7 +300,9 @@ FLAGGED_FLOOD_PERIOD = 86400
 ; allowed in FLAGGED_FLOOD_PERIOD
 ; per user. This is to prevent abuse of "Flagged item" form
 FLAGGED_LIMIT = 10
-
+;
+; Max number of recent tags in recent tags block
+MAX_RECENT_TAGS = 30
 
 ;
 ;

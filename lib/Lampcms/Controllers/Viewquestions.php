@@ -137,7 +137,7 @@ class Viewquestions extends WebPage
             ->sendCacheHeaders();
 
         $this->aPageVars['title']       = $this->title;
-        $this->aPageVars['description'] = $this->_('My cool site');
+        $this->aPageVars['description'] = '@@My Website@@';
         $this->makeTopTabs()
             ->makeQlistHeader()
             ->makeCounterBlock()
@@ -301,12 +301,14 @@ class Viewquestions extends WebPage
     {
 
         $aUserTags = $this->Registry->Viewer['a_f_t'];
+        d('$aUserTags: '.print_r($aUserTags, 1));
         if (!empty($aUserTags)) {
             $s = $this->getSortedRecentTags($aUserTags);
         } else {
             $s = $this->Registry->Cache->get('qrecent');
         }
 
+        d('recent tags: '.$s);
         $tags = \tplBoxrecent::parse(array('tags'  => $s,
                                            'title' => '@@Recent Tags@@'));
         d('cp');
@@ -459,7 +461,7 @@ class Viewquestions extends WebPage
     protected function getSortedRecentTags(array $aUserTags, $type = 'recent')
     {
 
-        $limit = 30;
+        $limit = $this->Registry->Ini->MAX_RECENT_TAGS;
         if ('unanswered' === $type) {
             $cur = $this->Registry->Mongo->UNANSWERED_TAGS->find(array(), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
         } else {
@@ -467,9 +469,9 @@ class Viewquestions extends WebPage
         }
 
         d('got ' . $cur->count(true) . ' tag results');
-        $aTags = iterator_to_array($cur);
+        $aTags = \iterator_to_array($cur);
 
-        d('aTags: ' . print_r($aTags, 1));
+        d('aTags: ' . \print_r($aTags, 1));
         /**
          * $aTags now looks like array of
          * elements like this one:

@@ -226,7 +226,7 @@ class Exception extends \Exception
              * @todo if Tr was passed here
              *       then we can translate string
              */
-            $message = (true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occurred. Administrator has been notified or the error. We will fix this as soon as possible'; //$oTr->get('generic_error', 'exceptions');
+            $message = (defined('LAMPCMS_DEBUG') && true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occurred. Administrator has been notified or the error. We will fix this as soon as possible'; //$oTr->get('generic_error', 'exceptions');
 
         }
         /**
@@ -623,10 +623,6 @@ class ExternalAuthException extends AuthException
 
 }
 
-class GFCAuthException extends ExternalAuthException
-{
-
-}
 
 class TwitterAuthException extends ExternalAuthException
 {
@@ -729,13 +725,13 @@ class HttpResponseCodeException extends HttpResponseErrorException
     /**
      * Constructor
      *
-     * @param Exception $message
-     * @param int       $httpCode      http response code as received from http server
-     * @param int       $code          arbitrary code, usually used to indicate the level of error
-     * @param object    $prevException object of type Exception containing the
-     *                                 previous (inner) Exception
+     * @param Exception                                               $message
+     * @param int                                                     $httpCode      http response code as received from http server
+     * @param int                                                     $code          arbitrary code, usually used to indicate the level of error
+     * @param \Lampcms\Exception|null|object $prevException object of type Exception containing the
+     *                                                                               previous (inner) Exception
      *
-     * @return void
+     * @return \Lampcms\HttpResponseCodeException
      */
     public function __construct($message, $httpCode, $code = 0, Exception $prevException = null)
     {
@@ -895,7 +891,7 @@ class AnswerParserException extends Exception
 }
 
 /**
- * Base exception thrown by varios post filters like question filter,
+ * Base exception thrown by various post filters like question filter,
  * comment filter, answer filter, etc...
  *
  * Each filter should extend this class.
@@ -915,7 +911,7 @@ class HTML2TextException extends Exception
 }
 
 /**
- * Special type of exteption
+ * Special type of exception
  * The purpose of this exception is to only
  * show error message to user (Viewer) but
  * NOT email an error to site admin
@@ -974,12 +970,14 @@ class FormException extends NoticeException
      * Constructor
      *
      * @param string $message     error message
-     * @param array  $aFormFields regular array with names of form fields
-     *                            that caused validation error
-     *
+     * @param null   $formFields
      * @param array  $aArgs       additional optional array of args for
      *                            vsprintf. This is in case we need to translate the error message
      *                            and then apply the replacement vars.
+     *
+     * @internal                  param array $aFormFields regular array with names of form fields
+     *                            that caused validation error
+     *
      */
     public function __construct($message, $formFields = null, array $aArgs = null)
     {

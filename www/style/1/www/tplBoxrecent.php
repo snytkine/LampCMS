@@ -70,7 +70,7 @@
 class tplBoxrecent extends Lampcms\Template\Fast
 {
     protected static $vars = array(
-        'title' => 'Recent Tags',
+        'title' => '@@Recent Tags@@',
         'id' => 'recent-tags',
         'tags' => '');
 

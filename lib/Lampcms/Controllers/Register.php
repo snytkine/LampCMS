@@ -75,7 +75,9 @@ class Register extends WebPage
 {
     protected $permission = 'register';
 
-
+    /**
+     * @todo translate string
+      */
     const EMAIL_BODY = 'Welcome to %1$s!
 
 IMPORTANT: You Must use the link below to activate your account
@@ -324,7 +326,11 @@ You can change your password after you log in.
      */
     protected function makeActivationLink()
     {
-        $tpl = $this->Registry->Ini->SITE_URL . '/aa/%d/%s';
+        $routerCallback = $this->Registry->Router->getCallback();
+        $uri = $routerCallback('{_WEB_ROOT_}/{_activate_}');
+        d('uri: '.$uri);
+
+        $tpl = $this->Registry->Ini->SITE_URL . $uri.'/%d/%s';
         $link = \sprintf($tpl, $this->oEmail['_id'], $this->oEmail['code']);
         d('activation link: ' . $link);
 
@@ -336,7 +342,7 @@ You can change your password after you log in.
     {
         $sActivationLink = $this->makeActivationLink();
         $siteName = $this->Registry->Ini->SITE_NAME;
-        $body = vsprintf(self::EMAIL_BODY, array($siteName, $this->username, $this->pwd, $sActivationLink));
+        $body = \vsprintf(self::EMAIL_BODY, array($siteName, $this->username, $this->pwd, $sActivationLink));
         $subject = sprintf(self::SUBJECT, $this->Registry->Ini->SITE_NAME);
 
         $this->Registry->Mailer->mail($this->email, $subject, $body);

@@ -81,7 +81,6 @@ do not face any inconvenience in future.
 You can also change your password after you log in. 
 	';
 
-    protected $aRequired = array('uid', 'r');
 
     protected $username;
 
@@ -108,7 +107,7 @@ You can also change your password after you log in.
             ->emailPwd();
 
         $this->aPageVars['title'] = '@@Password reset@@';
-        $this->aPageVars['body']  = '<div class="frm1">' . sprintf(self::TPL_SUCCESS, $this->email) . '</div>';
+        $this->aPageVars['body']  = '<div class="frm1">' . \sprintf(self::TPL_SUCCESS, $this->email) . '</div>';
     }
 
 
@@ -133,11 +132,12 @@ You can also change your password after you log in.
     protected function savePassword()
     {
         d('$this->newPwd: ' . $this->newPwd);
+        $uid = $this->Router->getNumber(1);
 
         $salted  = String::hashPassword($this->newPwd);
-        $newdata = array('$set' => array("pwd" => $salted));
+        $newdata = array('$set' => array('pwd' => $salted));
 
-        $this->Registry->Mongo->USERS->update(array('_id' => (int)$this->Request['uid']), $newdata);
+        $this->Registry->Mongo->USERS->update(array('_id' => (int)$uid), $newdata);
 
         return $this;
     }
@@ -166,13 +166,14 @@ You can also change your password after you log in.
     protected function validateCode()
     {
         $timeOffset = (time() - 86500);
-        $uid        = (int)$this->Request['uid'];
+        $uid        = $this->Router->getNumber(1); //(int)$this->Request['uid'];
+        $hash       = $this->Router->getSegment(2);
 
         $aResult = $this->Registry->Mongo->PASSWORD_CHANGE
-            ->findOne(array('_id'   => $this->Request['r'],
+            ->findOne(array('_id'   => $hash,
                             'i_uid' => $uid));
 
-        d('$aResult ' . print_r($aResult, true));
+        d('$aResult ' . \print_r($aResult, true));
 
         if (empty($aResult)) {
 
@@ -218,8 +219,9 @@ You can also change your password after you log in.
     protected function markCodeUsed()
     {
         $newdata = array('$set' => array('i_used' => time()));
+        $hash = $this->Router->getSegment(2);
 
-        $this->Registry->Mongo->PASSWORD_CHANGE->update(array('_id' => $this->Request['r']), $newdata);
+        $this->Registry->Mongo->PASSWORD_CHANGE->update(array('_id' => $hash), $newdata);
 
         return $this;
     }
@@ -234,9 +236,10 @@ You can also change your password after you log in.
     protected function saveFailedAttempt()
     {
         $ip = Request::getIP();
+        $uid = $this->Router->getNumber(1);
 
         $aData = array(
-            'i_uid' => (int)$this->Request['uid'],
+            'i_uid' => (int)$uid,
             'i_ts'  => time());
 
         $res = $this->saveResourceLocation('1', $ip, $aData, 'PASSWORD_CHANGE');
@@ -260,6 +263,7 @@ You can also change your password after you log in.
     {
         $ipHacks  = 0;
         $uidHacks = 0;
+        $uid = $this->Router->getNumber(1);
 
         $timeOffset = time() - 86400;
         $cur        = $this->Registry->Mongo->PASSWORD_CHANGE->find(array('i_ts' > $timeOffset));
@@ -273,7 +277,7 @@ You can also change your password after you log in.
                     $ipHacks += 1;
                 }
 
-                if ($this->Request['uid'] == $aVal['i_uid']) {
+                if ($uid == $aVal['i_uid']) {
                     $uidHacks += 1;
                 }
 

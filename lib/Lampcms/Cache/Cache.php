@@ -77,16 +77,18 @@ class Cache extends \Lampcms\Event\Observer
      * arrayObject where key is cache key
      * and value is integer number of seconds to cache that key
      * when adding to cache.
+     *
      * @var object of type ArrayDefaults
      */
     protected $oTtl;
 
     /**
-     * If set to true the Cache will NOT be cheched
+     * If set to true the Cache will NOT be checked
      * when looking for keys and no values will be put in cache
      * This can be used for debugging purposes only
      * Never set this to true on a production server because this would
-     * defeate the purpose of using this class (cache will not be used)
+     * defeat the purpose of using this class (cache will not be used)
+     *
      * @var bool
      */
     protected $skipCache = false;
@@ -95,6 +97,7 @@ class Cache extends \Lampcms\Event\Observer
     /**
      * array of extra params
      * it is used in getKeyValue function
+     *
      * @var array
      */
     protected $arrExtra = array();
@@ -104,6 +107,7 @@ class Cache extends \Lampcms\Event\Observer
      * using get()
      * Values for these keys will be recreated
      * and set in cache
+     *
      * @var array
      */
     protected $aMissingKeys = array();
@@ -111,6 +115,7 @@ class Cache extends \Lampcms\Event\Observer
     /**
      * Array of value to be returned
      * to client from get() method
+     *
      * @var array
      */
     protected $aReturnVals = array();
@@ -132,8 +137,8 @@ class Cache extends \Lampcms\Event\Observer
     {
         d('starting Cache');
         parent::__construct($Registry);
-        $this->oTtl = new ArrayDefaults(array(), 0);
-        $this->Tmp = new ArrayDefaults(array());
+        $this->oTtl      = new ArrayDefaults(array(), 0);
+        $this->Tmp       = new ArrayDefaults(array());
         $this->skipCache = $Registry->Ini->SKIP_CACHE;
         d('cp');
         if (!$this->skipCache) {
@@ -147,6 +152,7 @@ class Cache extends \Lampcms\Event\Observer
     /**
      * Since this is a singleton object
      * we should disallow cloning
+     *
      * @return void
      * @throws \Lampcms\DevException
      */
@@ -166,15 +172,15 @@ class Cache extends \Lampcms\Event\Observer
     /**
      * Get value for key or array of keys
      *
-     * @param mixed string|array $key
+     * @param                                       $key
      *
-     * @param array $arrExtra array of extra parameters. Some functions
-     * need certain extra parameters
+     * @param Callback|\Lampcms\Cache\Callback|null $callback
+     * @param array                                 $arrExtra array of extra parameters. Some functions
+     *                                                        need certain extra parameters
      *
+     * @throws \Lampcms\DevException
      * @return mixed usually a date for a requested key but could be null
      * in case of some problems
-     *
-     * @throws DevException is case the requested key is not a string or array
      */
     public function get($key, Callback $callback = null, array $arrExtra = array())
     {
@@ -201,7 +207,7 @@ class Cache extends \Lampcms\Event\Observer
 
             $arrRequestKeys = $key;
 
-            $this->aReturnVals = array();
+            $this->aReturnVals  = array();
             $this->aMissingKeys = array();
 
             /**
@@ -214,12 +220,12 @@ class Cache extends \Lampcms\Event\Observer
 
             $this->aReturnVals = (false === $this->aReturnVals) ? array() : $this->aReturnVals;
 
-            $arrRequestKeys = array_flip($arrRequestKeys);
+            $arrRequestKeys = \array_flip($arrRequestKeys);
 
-            d('$arrRequestKeys: ' . print_r($arrRequestKeys, 1));
+            d('$arrRequestKeys: ' . \print_r($arrRequestKeys, 1));
 
-            $this->aMissingKeys = array_diff_key($arrRequestKeys, $this->aReturnVals);
-            d('$this->aMissingKeys: ' . print_r($this->aMissingKeys, 1));
+            $this->aMissingKeys = \array_diff_key($arrRequestKeys, $this->aReturnVals);
+            d('$this->aMissingKeys: ' . \print_r($this->aMissingKeys, 1));
 
             /**
              * If we did not get any of the requested keys from cache
@@ -265,7 +271,7 @@ class Cache extends \Lampcms\Event\Observer
         $arrFoundKey = array();
 
         foreach ($this->aMissingKeys as $key => $val) {
-            $arrFoundKey = $this->getKeyValue($key);
+            $arrFoundKey        = $this->getKeyValue($key);
             $arrFoundKeys[$key] = $arrFoundKey;
             $this->setValues($key, $arrFoundKey);
         }
@@ -276,15 +282,15 @@ class Cache extends \Lampcms\Event\Observer
 
     /**
      * Finds the method that is responsible
-     * for retreiving data for a requested key
+     * for retrieving data for a requested key
      * and calls on that method
      *
-     * @param $key
-     * @param object $callback object of type Lampcms\Cache\Callback
-     * if this object is passed it contains method
-     * for getting the value of requested key - it will be
-     * used if the $key is not present in cache.
-     * The run() method of $callback object will be called with
+     * @param                                     $key
+     * @param \Lampcms\Cache\Callback|null|object $callback object of type Lampcms\Cache\Callback
+     *                                                      if this object is passed it contains method
+     *                                                      for getting the value of requested key - it will be
+     *                                                      used if the $key is not present in cache.
+     *                                                      The run() method of $callback object will be called with
      * 2 parameters: Registry and $key
      *
      * If this param is
@@ -305,7 +311,7 @@ class Cache extends \Lampcms\Event\Observer
 
         } else {
             $aRes = explode('_', $key, 2);
-            $arg = (array_key_exists(1, $aRes)) ? $aRes[1] : null;
+            $arg  = (array_key_exists(1, $aRes)) ? $aRes[1] : null;
 
             d('aRes: ' . print_r($aRes, 1));
 
@@ -334,7 +340,7 @@ class Cache extends \Lampcms\Event\Observer
      * @param $key
      *
      * @param $ttl optional number of seconds to keep this
-     * key in cache. Default null will result in no expiration for value
+     *             key in cache. Default null will result in no expiration for value
      *
      * @return object $this
      */
@@ -354,6 +360,7 @@ class Cache extends \Lampcms\Event\Observer
      * attempt to recreate that value
      *
      * @param $key
+     *
      * @return mixed value for $key if it exists in cache
      * or false or null
      */
@@ -396,7 +403,7 @@ class Cache extends \Lampcms\Event\Observer
      *
      * @param string $strKey
      *
-     * @param mixed $val
+     * @param mixed  $val
      *
      * @throws DevException if value is empty, so basically a string like this:
      * $this->hdlCache->somekey = ''; is not allowed. setting value to null or
@@ -446,17 +453,17 @@ class Cache extends \Lampcms\Event\Observer
 
 
     /**
-     * First checks wheather or not cache should be used
+     * First checks whether or not cache should be used
      * if yes, then adds value to Cache object under the $key
      * or if $key is array, sets multiple items into cache
      * if $key is array, it must be an associative array of $key => $val
      *
-     * @param mixed $key string or associative array
+     * @param mixed                       $key   string or associative array
      *
-     * @param $val value to be set into cache
+     * @param \Lampcms\Cache\value|string $val   value to be set into cache
      *
-     * @param array $aTags optionally assign these tags to this
-     * key
+     * @param array                       $aTags optionally assign these tags to this
+     *                                           key
      *
      * @return bool
      */
@@ -469,9 +476,9 @@ class Cache extends \Lampcms\Event\Observer
 
                 /**
                  * @todo must ensure $val is utf-8 by
-                 * running it through Utf8String::stringFactory()!
-                 * or better yet make setValue() that requires
-                 * Utf8string as value!
+                 *       running it through Utf8String::stringFactory()!
+                 *       or better yet make setValue() that requires
+                 *       Utf8string as value!
                  *
                  */
                 /**
@@ -532,7 +539,9 @@ class Cache extends \Lampcms\Event\Observer
     /**
      * Magic method to delete cache key
      * using the unset($this->key)
+     *
      * @param $key
+     *
      * @return mixed whatever is returned by cache object
      * which is usually true on success or false on failure
      *
@@ -559,11 +568,12 @@ class Cache extends \Lampcms\Event\Observer
     /**
      * Handle events
      * (non-PHPdoc)
+     *
      * @see Lampcms.Observer::main()
      */
     protected function main()
     {
-        switch ($this->eventName) {
+        switch ( $this->eventName ) {
             case 'onNewQuestions':
             case 'onNewQuestion':
             case 'onResourceDelete':
@@ -593,13 +603,13 @@ class Cache extends \Lampcms\Event\Observer
      * Generated html string
      * of links to recent tags fom QA module
      *
-     * @todo the limit will be in SETTINGS
+
      */
     public function qrecent()
     {
         d('cp');
-        $limit = 30;
-        $cur = $this->Registry->Mongo->QUESTION_TAGS->find(array('i_count' => array('$gt' => 0)), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
+        $limit = $this->Registry->Ini->MAX_RECENT_TAGS;
+        $cur   = $this->Registry->Mongo->QUESTION_TAGS->find(array('i_count' => array('$gt' => 0)), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
         d('got ' . $cur->count(true) . ' tag results');
 
         $html = \tplLinktag::loop($cur);
@@ -619,7 +629,7 @@ class Cache extends \Lampcms\Event\Observer
     public function categories()
     {
         $aRes = array();
-        $cur = $this->Registry->Mongo->CATEGORY->find(array(), array('_id' => false))
+        $cur  = $this->Registry->Mongo->CATEGORY->find(array(), array('_id' => false))
             ->sort(array('i_parent' => 1, 'i_weight' => 1));
 
         /**
@@ -640,12 +650,11 @@ class Cache extends \Lampcms\Event\Observer
      * Generated html string
      * of links to unanswered tags fom QA module
      *
-     * @todo the limit will be in SETTINGS
      */
     public function qunanswered()
     {
-        $limit = 30;
-        $cur = $this->Registry->Mongo->UNANSWERED_TAGS->find(array(), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
+        $limit = $this->Registry->Ini->MAX_RECENT_TAGS;
+        $cur   = $this->Registry->Mongo->UNANSWERED_TAGS->find(array(), array('tag', 'i_count'))->sort(array('i_ts' => -1))->limit($limit);
         $count = $cur->count(true);
         d('got ' . $count . ' tag results');
 
@@ -654,9 +663,9 @@ class Cache extends \Lampcms\Event\Observer
         d('html recent tags: ' . $html);
 
         $ret = '<div class="tags-list">' . $html . '</div>';
-        if ($count > $limit) {
-            $ret .= '<div class="moretags"><a href="/tags/unanswered/"><span rel="in">All unanswered tags</span></a>';
-        }
+       /* if ($count > $limit) {
+            $ret .= '<div class="moretags"><a href="{_WEB_ROOT_}/{_viewqtags_}/{_unanswered_}/"><span rel="in">@@All unanswered tags@@</span></a>';
+        }*/
 
         $this->aTags = array('tags');
 
@@ -668,6 +677,7 @@ class Cache extends \Lampcms\Event\Observer
      *
      * @param string $strIp ip address to lookup
      *
+     * @throws \Lampcms\DevException
      * @return object of type GeoipLocation
      */
     protected function geo($strIp)
@@ -692,8 +702,12 @@ class Cache extends \Lampcms\Event\Observer
 
 
     /**
-     * @param string $locale name of locate for this object
+     * @param $key
+     *
+     * @internal param string $locale name of locate for this object
      * (for example 'en_CA' for Canada)
+     *
+     * @return \Lampcms\I18n\XliffCatalog
      */
     protected function xliff($key)
     {
@@ -711,8 +725,11 @@ class Cache extends \Lampcms\Event\Observer
     /**
      *
      * Method for creating Translation object
+     *
      * @param string $locale name of locate for this object
      * (for example 'en_CA' for Canada)
+     *
+     * @return \Lampcms\I18n\Translator
      */
     protected function tr($locale)
     {
