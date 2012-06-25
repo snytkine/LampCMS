@@ -68,7 +68,7 @@ MIN_QUESTION_TAGS = 1
 ; and when question is retagged
 MAX_QUESTION_TAGS = 5
 ;
-; Minimun length of question in chars
+; Minimum length of question in chars
 MIN_QUESTION_CHARS = 10
 ;
 ; Minimum required length of question title
@@ -82,7 +82,7 @@ MIN_ANSWER_CHARS = 10
 ;
 ; Minimum number of words required for answer
 MIN_ANSWER_WORDS = 3
-; maximum commets per item
+; maximum comments per item
 ; set to 0 to disable comments feature
 MAX_COMMENTS = 20
 ; max comments to show per item
@@ -181,11 +181,6 @@ MAX_AVATAR_UPLOAD_SIZE = 1024000
 ; Logging is enabled in debugging mode only
 ;
 LOG_PER_SCRIPT = true
-; set LOG_FILE_PATH to point to your writable log file to enable logging
-; for example: /usr/local/apache/sites/qa.lampcms.com/logs/php.log
-;LOG_FILE_PATH = php.log
-;/usr/local/apache/sites/lampcms.com/logs/cgiphp.log
-;LOG_FILE_PATH_CGI = cgiphp.log
 ; Directory where log files will reside
 ; Must be a writable directory
 ; If left blank default will be directory 'log' sibling to www dir.
@@ -195,7 +190,7 @@ LOG_DIR =
 SITE_URL="http://localhost"
 
 
-; system path to directory that is accessable via browser as /w/
+; system path to directory that is accessible via browser as /w/
 ; This is optional value. Leave blank to use default data dir (recommended)
 LAMPCMS_DATA_DIR =
 ;
@@ -267,11 +262,11 @@ SHOW_FLAGS = true
 ; but there will be no drop-down menu and 
 ; user will not be able to post a question at all
 CATEGORIES = 
-; SEPARATOR TO BE USED IN BREADCRUMN 
-; OF CATEGORYIES. 
+; SEPARATOR TO BE USED IN BREADCRUMB
+; OF CATEGORIES.
 ; LEAVE INSIDE DOUBLE QUOTES TO PRESERVE SPACES
 CATEGORY_SEPARATOR = " &gt; "
-; Maximin nesting level of category
+; Maximum nesting level of category
 ; to show in detailed template
 ; categories deeper that this level
 ; will be shown in minimal details template
@@ -475,7 +470,7 @@ OAUTH_SECRET =
 ; To setup new application and get API_KEY
 ; go here: http://www.facebook.com/developers/
 ;
-; IMPORTANT! when settin up your Facebook APP,
+; IMPORTANT! when setting up your Facebook APP,
 ; DO NOT SET value for "Site Domain" - leave it blank
 ; otherwise Facebook will be setting cookie using
 ; .yourdomain.com and it will be very difficult to delete
@@ -620,7 +615,7 @@ OAUTH_SECRET =
 [API]
 ; Maximum results an API can return per page
 MAX_RESULTS = 100
-; Dalily access limit for not logged in users
+; Daily access limit for not logged in users
 DAILY_LIMIT_ANON = 150
 ; Daily access limit for logged in users
 DAILY_LIMIT_APP = 3000
@@ -651,7 +646,7 @@ ru_RU = "Russian"
 
 
 ;
-; Point to award user for cetain actions
+; Point to award user for certain actions
 ; as well as points required to perform certain actions
 [POINTS]
 ;
