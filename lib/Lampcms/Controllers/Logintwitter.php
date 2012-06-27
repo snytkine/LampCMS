@@ -215,6 +215,11 @@ class Logintwitter extends WebPage
             d('$_SESSION[\'oauth\']: ' . print_r($_SESSION['oauth'], 1));
             if (!empty($_SESSION['oauth']) && !empty($_SESSION['oauth']['oauth_token'])) {
 
+                $uri = $this->Registry->Ini->SITE_URL.'{_WEB_ROOT_}/{_logintwitter_}';
+                $routerCallback = $this->Registry->Router->getCallback();
+                $callbackUrl = \urlencode($routerCallback($uri));
+                d('$callbackUrl'. $callbackUrl);
+
                 /**
                  * A more advanced way is to NOT use Location header
                  * but instead generate the HTML that contains the onBlur = focus()
@@ -222,7 +227,7 @@ class Logintwitter extends WebPage
                  * This is to prevent from popup window going out of focus
                  * in case user clicks outsize the popup somehow
                  */
-                $this->redirectToTwitter(self::AUTHORIZE_URL . '?oauth_token=' . $_SESSION['oauth']['oauth_token']);
+                $this->redirectToTwitter(self::AUTHORIZE_URL . '?oauth_token=' . $_SESSION['oauth']['oauth_token'].'&oauth_callback='.$callbackUrl);
             } else {
                 /**
                  * Here throw regular Exception, not Lampcms\Exception
@@ -737,7 +742,7 @@ class Logintwitter extends WebPage
             '<div class="centered"><a href="' . $url . '">@@If you are not redirected in 2 seconds, click here to authenticate with Twitter@@</a></div>' .
             Responder::PAGE_CLOSE;
 
-        d('exising with this $s: ' . $s);
+        d('exiting with this $s: ' . $s);
 
         exit($s);
     }

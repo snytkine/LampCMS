@@ -392,7 +392,7 @@ class Router
      */
     public function getController()
     {
-        return $this->controller;
+        return \Lampcms\Request::getCleanControllerName($this->controller);
     }
 
 
@@ -473,9 +473,6 @@ class Router
         } else {
             $this->controller = $this->Ini->DEFAULT_CONTROLLER;
         }
-
-
-        $this->controller = \Lampcms\Request::getCleanControllerName($this->controller);
 
         return $this;
     }

@@ -76,7 +76,7 @@ class LoginHistory extends \Lampcms\Event\Observer
 
         d('get event: ' . $this->eventName);
 
-        switch ($this->eventName) {
+        switch ( $this->eventName ) {
             case 'onUserLogin':
                 $this->loginMethod = 'password';
                 break;
@@ -92,9 +92,6 @@ class LoginHistory extends \Lampcms\Event\Observer
             case 'onCookieLogin':
                 $this->loginMethod = 'cookie';
                 break;
-
-            case 'onGfcLogin':
-                $this->loginMethod = 'gfc';
 
             case 'onTwitterLogin':
                 $this->loginMethod = 'twitter';
@@ -114,17 +111,22 @@ class LoginHistory extends \Lampcms\Event\Observer
     protected function run()
     {
         $Viewer = $this->Registry->Viewer;
-        $ip = Request::getIP();
+        if (!is_object($Viewer)) {
+            d('Could not get Viewer object');
+            return;
+        }
+
+        $ip  = Request::getIP();
         $uid = $Viewer->getUid();
 
         d('uid: ' . $uid);
         if ($uid > 0) {
 
             $aData = array(
-                'ip' => $ip,
-                'i_uid' => $uid,
-                'i_ts' => time(),
-                'ua' => Request::getUserAgent(),
+                'ip'           => $ip,
+                'i_uid'        => $uid,
+                'i_ts'         => time(),
+                'ua'           => Request::getUserAgent(),
                 'login_method' => $this->loginMethod
             );
 

@@ -446,6 +446,8 @@ max_errors = 4
 ; get api key and secret from here http://dev.twitter.com/apps/new
 ; When creating new application on Twitter Website MAKE SURE 
 ; to select READ AND WRITE access (not just READ, else it would not work)
+; Make sure you set up callback uri to point to your "logintwitter" controller
+; For example: http://yoursite.com/logintwitter/
 ;
 API_KEY = 
 ; twitter consumer key and consumer secret for oauth

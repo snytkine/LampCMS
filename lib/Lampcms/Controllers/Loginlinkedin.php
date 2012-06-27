@@ -252,7 +252,7 @@ class Loginlinkedin extends WebPage
              * send cookie to remember user
              * and then send out HTML with js instruction to close the popup window
              */
-            d('Looks like we are at step 2 of authentication. Request: ' . print_r($_REQUEST, 1));
+            d('We are at step 2 of authentication. Request: ' . print_r($_REQUEST, 1));
 
             /**
              * @todo check first to make sure we do have oauth_token

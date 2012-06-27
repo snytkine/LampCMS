@@ -82,9 +82,8 @@ if (true !== session_start()) {
             \Lampcms\Cookie::sendRefferrerCookie();
         }
 
-        $Request = $Registry->Request;
+
         $Tr      = $Registry->Tr;
-        $a       = $Request->getController();
 
         $mapper           = $Registry->Router->getCallback();
         $translator       = $Tr->getCallback();
@@ -125,6 +124,9 @@ if (true !== session_start()) {
         };
 
         ob_start($callback);
+
+        $Request = $Registry->Request;
+        $a       = $Request->getController();
 
         $controller = ucfirst($a);
         include($lampcmsClasses . 'Controllers' . DIRECTORY_SEPARATOR . $controller . '.php');

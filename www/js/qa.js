@@ -453,7 +453,7 @@ oSL.tweet = (function () {
     var siteTitle = oSL.getMeta('site_title');
     var siteUrl = oSL.getMeta('site_url');
     var token = oSL.getToken();
-    var web_root = oSL.getMeta('web_root');
+    var web_root = oSL.getMeta('form_action');
 
     return {
 
@@ -464,7 +464,7 @@ oSL.tweet = (function () {
 
                     sForm = '<div class="hd">Please enter your information</div>'
                         + '<div class="bd"><hr/>'
-                        + '<form method="POST" action="'+ web_root +'/">'
+                        + '<form method="POST" action="'+ web_root +'">'
                         + '<input type="hidden" name="a" value="tweet">'
                         + '<input type="hidden" name="token" value="'
                         + token
@@ -3195,7 +3195,7 @@ YUI({
                     faction = 'flagcomment';
                 }
                 form = '<div id="div_flag" style="text-align: left">'
-                    + '<form name="form_flag" action="'+ getMeta('web_root') + '/">'
+                    + '<form name="form_flag" action="'+ getMeta('form_action') + '">'
                     + '<input type="hidden" name="a" value="' + faction + '">'
                     + '<input type="hidden" name="rid" value="{rid}">'
                     + '<input type="hidden" name="token" value="' + getToken() + '">'
@@ -3258,7 +3258,7 @@ YUI({
                 //Y.log('sTags: ' + sTags);
 
                 form = '<div id="div_flag" style="text-align: left">'
-                    + '<form name="form_flag" id="id_flag" action="'+ getMeta('web_root') + '/">'
+                    + '<form name="form_flag" id="id_flag" action="'+ getMeta('form_action') + '">'
                     + '<input type="hidden" name="a" value="retag">'
                     + '<input type="hidden" name="token" value="' + getToken() + '">'
                     + '<input type="hidden" name="qid" value="' + getMeta('qid') + '">'
@@ -3284,7 +3284,7 @@ YUI({
             if (confirm('Really delete this comment?')) {
                 comment = Y.one("#comment-" + resID);
                 if (comment) {
-                    myform = '<form name="form_del" action="'+ getMeta('web_root') + '/">'
+                    myform = '<form name="form_del" action="'+ getMeta('form_action') + '">'
                         + '<input type="hidden" name="a" value="deletecomment">'
                         + '<input type="hidden" name="rid" value="' + resID + '">'
                         + '<input type="hidden" name="token" value="' + getToken() + '">';
@@ -3511,7 +3511,7 @@ YUI({
                 //Y.log('1555 mmdDecoded: ' + content);
 
                 form = '<div id="comm_wrap_' + resID + '" class="fl cb">'
-                    + '<form action="'+ getMeta('web_root' )+ '/" id="edit-comment-' + resID + '" class="comform" method="post">'
+                    + '<form action="'+ getMeta('form_action' )+ '" id="edit-comment-' + resID + '" class="comform" method="post">'
                     + '<input type="hidden" name="a" value="editcomment">'
                     + '<input type="hidden" name="commentid" value="' + resID + '">'
                     + '<input type="hidden" name="token" value="' + getToken() + '">'
