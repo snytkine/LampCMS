@@ -315,6 +315,7 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
      * @see Serializable::unserialize()
      *
      * @param $serialized
+     * @return mixed|void
      */
     public function unserialize($serialized)
     {

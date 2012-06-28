@@ -310,8 +310,9 @@ class Router
     /**
      * Get value of segment as a Utf8String object
      *
-     * @param $segmentId
+     * @param      $segmentId
      * @param null $default
+     *
      * @return object of type \Lampcms\Utf8String
      */
     public function getUTF8($segmentId, $default = null)
@@ -513,7 +514,7 @@ class Router
      * in !config.ini
      * This callback is used in the output buffer
      *
-     * @return function a function that will replace
+     * @return closure a function that will replace
      * placeholders in string with the values from URL_PARTS
      * section
      */
@@ -533,8 +534,8 @@ class Router
             $search[]  = '{_WEB_ROOT_}';
             $replace[] = $this->map['DIR'] . $this->map['FILE'];
 
-            $search[] = '{_FORM_ACTION_}';
-            $replace[] = $this->map['DIR'] . '/'.INDEX_FILE;
+            $search[]  = '{_FORM_ACTION_}';
+            $replace[] = $this->map['DIR'] . '/' . INDEX_FILE;
 
             /**
              * Now add controller name as search
@@ -563,6 +564,43 @@ class Router
         }
 
         return $this->callback;
+    }
+
+
+    /**
+     * Get full url of the question
+     * This is convenience method and it is used oftern from
+     * various email methods as well as from modules that post
+     * question to Twitter, Facebook, etc. where a full url is needed
+     *
+     * @param   int     $questionId
+     * @param string    $slug optionally a title slug
+     *
+     * @return string a full url of the question
+     */
+    public function getQuestionUrl($questionId, $slug = '')
+    {
+
+        $uri    = $this->Ini->SITE_URL . '{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}' . $questionId . '/' . $slug;
+        $mapper = $this->getCallback();
+        $ret    = $mapper($uri);
+
+        return $ret;
+    }
+
+
+    /**
+     * Get full url to the site
+     *
+     * @return string full url of QA site (including web directory if installed in non-root directory
+     * and including /index.php if not using server-side rewrite rules)
+     */
+    public function getHomePageUrl(){
+        $uri    = $this->Ini->SITE_URL . '{_WEB_ROOT_}';
+        $mapper = $this->getCallback();
+        $ret    = $mapper($uri);
+
+        return $ret;
     }
 
 }

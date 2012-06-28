@@ -738,7 +738,7 @@ abstract class Api extends \Lampcms\Base
         $allowed = array('asc', 'desc');
         $order = $this->Request->get('dir', 's', 'desc');
         if (!\in_array($order, $allowed)) {
-            throw new \Lampcms\HttpResponseCodeException('Invalid value of "dir" param in request. Allowed values are: ' . implode(', ', $allowed) . ' Value was" ' . $dir, 406);
+            throw new \Lampcms\HttpResponseCodeException('Invalid value of "dir" param in request. Allowed values are: ' . implode(', ', $allowed) . ' Value was" ' . $order, 406);
         }
 
         $this->sortOrder = ('desc' === $order) ? -1 : 1;

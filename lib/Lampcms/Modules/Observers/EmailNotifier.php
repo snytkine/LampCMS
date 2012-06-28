@@ -76,23 +76,23 @@ namespace Lampcms\Modules\Observers;
  * Ask your question at http://support.lampcms.com
  *
  *
- * @todo For a super busy and popular site
- * that has over 10,000 followers for some
- * tags or for some users this class has to be re-written to run
- * very differently.
+ * @todo   For a super busy and popular site
+ *         that has over 10,000 followers for some
+ *         tags or for some users this class has to be re-written to run
+ *         very differently.
  *
  * Basically such sites should have separate dedicated server
  * for sending out mass emails. The most efficient way then would
  * be to invoke the script on that other server and only pass
  * the params there. So the notifyTagFollowers
- * will just be invoking the remore script
+ * will just be invoking the remote script
  * and passing comma separated list
  * of tags as param
  * notifyUserFollowers will be invoking remote script and passing
  * userID of user as just one param.
  *
  * That remote script will
- * konw what to do it will normally do this:
+ * know what to do it will normally do this:
  * get own cursor, get that huge number of results like maybe 25000 followers
  * and then send then in chunks of 1000 and sleep 2 minutes in between
  * It's perfectly fine for one script to take sometimes 1 hours to send out such
@@ -103,30 +103,31 @@ namespace Lampcms\Modules\Observers;
  * PENDING_NOTIFICATIONS collection as
  * a nested object via $addToSet operation of Mongo
  *
- * @todo The dedicated server will periodically check
- * that collection and will pop the notifications off
- * the nested array and process them.
- * This is probably a very effective way to deal
- * with frequent notifications and where notification
- * jobs can potentially jobs that need to send very large
- * number of emails - like when a user or topic is followed
- * by tens of thousands of other users.
- * This type of solution will not require invoking
- * a remote script, instead a remove server will be
- * checking the PENDING_NOTIFICATIONS collection
- * via cron script
- * In order for this to work you need to extend this class
- * and the factory() must return the instance of
- * that sub-class instead of this class.
+ * @todo   The dedicated server will periodically check
+ *         that collection and will pop the notifications off
+ *         the nested array and process them.
+ *         This is probably a very effective way to deal
+ *         with frequent notifications and where notification
+ *         jobs can potentially jobs that need to send very large
+ *         number of emails - like when a user or topic is followed
+ *         by tens of thousands of other users.
+ *         This type of solution will not require invoking
+ *         a remote script, instead a remove server will be
+ *         checking the PENDING_NOTIFICATIONS collection
+ *         via cron script
+ *         In order for this to work you need to extend this class
+ *         and the factory() must return the instance of
+ *         that sub-class instead of this class.
  *
- * @todo more all the email and subject templates
- * into the I18N class when such class is ready
+ * @todo   more all the email and subject templates
+ *         into the I18N class when such class is ready
  *
  * @author Dmitri Snytkine
  *
  */
 class EmailNotifier extends \Lampcms\Event\Observer
 {
+
     protected static $QUESTION_BY_USER_BODY = '
 %1$s has asked a question:
 %2$s
@@ -298,11 +299,12 @@ site %5$s and navigating to Settings > Email preferences
      * in !config.ini replace the path to this class
      * with the path to your own new class. This is better
      * because in case of upgrades your changes will not
-     * be overritten since !config.ini is never overritten in
+     * be overridden since !config.ini is never overridden in
      * upgrade - it's not included in the distro
      *
      *
      * @param \Lampcms\Registry $Registry
+     * @return \Lampcms\Event\Observer|\Lampcms\Modules\Observers\EmailNotifier
      */
     public static function factory(\Lampcms\Registry $Registry)
     {
@@ -311,27 +313,27 @@ site %5$s and navigating to Settings > Email preferences
 
     /**
      * @todo Finish this by adding handling
-     * updates onEditedQuestion, onQuestionVote,
-     * onAcceptAnswer, etc...
-     * and later deal with comment replies
+     *       updates onEditedQuestion, onQuestionVote,
+     *       onAcceptAnswer, etc...
+     *       and later deal with comment replies
      *
      * (non-PHPdoc)
-     * @see Lampcms.Observer::main()
+     * @see  Lampcms.Observer::main()
      */
     public function main()
     {
         d('get event: ' . $this->eventName);
-        switch ($this->eventName) {
+        switch ( $this->eventName ) {
             case 'onNewQuestion':
                 $this->collUsers = $this->Registry->Mongo->USERS;
-                $this->Question = $this->obj;
+                $this->Question  = $this->obj;
                 $this->notifyUserFollowers();
                 $this->notifyTagFollowers();
                 break;
 
             case 'onNewAnswer':
                 $this->collUsers = $this->Registry->Mongo->USERS;
-                $this->Question = $this->aInfo['question'];
+                $this->Question  = $this->aInfo['question'];
                 $this->notifyUserFollowers();
                 $this->notifyQuestionFollowers();
                 break;
@@ -343,7 +345,7 @@ site %5$s and navigating to Settings > Email preferences
 
             case 'onRetag' :
                 $this->collUsers = $this->Registry->Mongo->USERS;
-                $this->Question = $this->obj;
+                $this->Question  = $this->obj;
                 $this->notifyTagFollowers($this->aInfo);
                 break;
         }
@@ -378,6 +380,7 @@ site %5$s and navigating to Settings > Email preferences
          * Special case if this is a reply to existing comment:
          * in which case we notify parent comment owner
          * and also question owner if this is comment on a question.
+         *
          * @todo not yet implemented
          */
 
@@ -408,7 +411,7 @@ site %5$s and navigating to Settings > Email preferences
                 d('cp');
                 $this->notifyAnswerAuthor($Resource);
             } else {
-                throw new \Lampcms\DevException('Something is wrong here. The object is not Question and not Answer. it is: ' . get_class($Resource));
+                throw new \Lampcms\DevException('Something is wrong here. The object is not Question and not Answer. it is: ' . \get_class($Resource));
             }
         }
     }
@@ -418,14 +421,17 @@ site %5$s and navigating to Settings > Email preferences
      * Notify just the author of the answer
      * exclude the ViewerID
      *
-     * @return object $this
+     * @param \Lampcms\Answer                                   $Answer
+     * @param int                                               $excludeUid
+     *
+     * @return \Lampcms\Modules\Observers\object $this
      */
     protected function notifyAnswerAuthor(\Lampcms\Answer $Answer, $excludeUid = 0)
     {
 
-        $commentorID = (int)$this->aInfo['i_uid'];
+        $commentorID   = (int)$this->aInfo['i_uid'];
         $answerOwnerId = $Answer->getOwnerId();
-        $siteUrl = $this->Registry->Ini->SITE_URL;
+        $siteUrl       = $this->Registry->Ini->SITE_URL;
         d('$siteUrl: ' . $siteUrl);
         $commUrl = $siteUrl . '/q' . $this->aInfo['i_qid'] . '/#c' . $this->aInfo['_id'];
         d('commUrl: ' . $commUrl);
@@ -478,7 +484,7 @@ site %5$s and navigating to Settings > Email preferences
      *
      * In case of question IF parent comment author
      * is also following QUESTION OR QUESTION AUTHOR
-     * then also exclde that user.
+     * then also exclude that user.
      *
      * OR MAYBE _ DON TREAT REPLY AS COMMENT _ SO DON'T
      * SEND OUT THE REGULAR onNewComment emails in case
@@ -488,14 +494,15 @@ site %5$s and navigating to Settings > Email preferences
      * often very specific to that parent comment and NOT
      * interesting to Question followers...
      *
-     * @param object $Resource Answer OR Question object
+     * @param \Lampcms\Interfaces\Post|object $Resource Answer OR Question object
      *
+     * @return \Lampcms\Modules\Observers\EmailNotifier
      */
     protected function notifyCommentAuthor(\Lampcms\Interfaces\Post $Resource)
     {
-        $commentorID = (int)$this->aInfo['i_uid'];
+        $commentorID        = (int)$this->aInfo['i_uid'];
         $parentCommentOwner = (int)$this->aInfo['inreply_uid'];
-        $siteUrl = $this->Registry->Ini->SITE_URL;
+        $siteUrl            = $this->Registry->Ini->SITE_URL;
         d('$siteUrl: ' . $siteUrl);
         $commUrl = $siteUrl . '/q' . $Resource->getQuestionId() . '/#c' . $this->aInfo['_id'];
         d('commUrl: ' . $commUrl);
@@ -547,15 +554,15 @@ site %5$s and navigating to Settings > Email preferences
      * The cursor is then passed to Mailer object
      *
      * @param array $aNewTags array of new tags, if not passed then
-     * array from $this->Question['a_tags'] will be used. This param
-     * is used when handling onRetag Event in which case we receive
-     * array of "new" tags that have been added as result of retagging
+     *                        array from $this->Question['a_tags'] will be used. This param
+     *                        is used when handling onRetag Event in which case we receive
+     *                        array of "new" tags that have been added as result of retagging
      *
      * @return object $this
      *
      * @todo use different subject if $aNewTags is passed here - the
-     * subject should indicate that Question was tagged with one
-     * of your tags
+     *       subject should indicate that Question was tagged with one
+     *       of your tags
      */
     protected function notifyTagFollowers(array $aNewTags = null)
     {
@@ -571,8 +578,8 @@ site %5$s and navigating to Settings > Email preferences
 
         $askerID = $this->Question->getOwnerId();
         $oMailer = $this->Registry->Mailer;
-        $subj = sprintf(static::$QUESTION_BY_TAG_SUBJ, implode(', ', $this->Question['a_tags']));
-        $body = vsprintf(static::$QUESTION_BY_TAG_BODY, array($this->Question['username'], $this->Question['title'], $this->Question['intro'], $this->Question->getUrl(), $this->Registry->Ini->SITE_URL));
+        $subj    = sprintf(static::$QUESTION_BY_TAG_SUBJ, implode(', ', $this->Question['a_tags']));
+        $body    = vsprintf(static::$QUESTION_BY_TAG_BODY, array($this->Question['username'], $this->Question['title'], $this->Question['intro'], $this->Question->getUrl(), $this->Registry->Ini->SITE_URL));
 
         $coll = $this->collUsers;
         d('before shutdown function in TagFollowers');
@@ -582,16 +589,16 @@ site %5$s and navigating to Settings > Email preferences
             /**
              * Find all users who follow any of the tags
              * but not following the asker
-             * and not themselve the asker //
+             * and not themselves the asker //
              */
             $where = array(
-                '_id' => array('$ne' => $askerID),
+                '_id'   => array('$ne' => $askerID),
                 'a_f_t' => array('$in' => $aTags),
                 'a_f_u' => array('$nin' => array(0 => $askerID)),
                 'ne_ft' => array('$ne' => true)
             );
 
-            $cur = $coll->find($where, array('email'));
+            $cur   = $coll->find($where, array('email'));
             $count = $cur->count();
             if ($count > 0) {
 
@@ -627,19 +634,19 @@ site %5$s and navigating to Settings > Email preferences
          * templates for SUBJ and BODY
          *
          */
-        $tpl = static::$ANSWER_BY_USER_BODY;
+        $tpl        = static::$ANSWER_BY_USER_BODY;
         $updateType = 'answer';
-        $body = '';
+        $body       = '';
         if ('onNewQuestion' === $this->eventName) {
 
-            $body = $this->obj['intro'];
-            $tpl = static::$QUESTION_BY_USER_BODY;
+            $body       = $this->obj['intro'];
+            $tpl        = static::$QUESTION_BY_USER_BODY;
             $updateType = 'question';
         }
 
-        $subj = sprintf(static::$QUESTION_BY_USER_SUBJ, $updateType, $this->obj['username']);
-        $body = vsprintf($tpl, array($this->obj['username'], $this->Question['title'], $body, $this->obj->getUrl(), $this->Registry->Ini->SITE_URL));
-        $coll = $this->collUsers;
+        $subj    = sprintf(static::$QUESTION_BY_USER_SUBJ, $updateType, $this->obj['username']);
+        $body    = vsprintf($tpl, array($this->obj['username'], $this->Question['title'], $body, $this->obj->getUrl(), $this->Registry->Ini->SITE_URL));
+        $coll    = $this->collUsers;
         $oMailer = $this->Registry->Mailer;
         d('before shutdown function in UserFollowers');
 
@@ -653,7 +660,7 @@ site %5$s and navigating to Settings > Email preferences
         {
 
             $count = 0;
-            $cur = $coll->find(array('a_f_u' => $uid, 'ne_fu' => array('$ne' => true)), array('email'));
+            $cur   = $coll->find(array('a_f_u' => $uid, 'ne_fu' => array('$ne' => true)), array('email'));
             $count = $cur->count();
             if ($count > 0) {
 
@@ -696,10 +703,10 @@ site %5$s and navigating to Settings > Email preferences
      * @param int qid id of question
      *
      * @param int excludeUid UserID of user that should NOT
-     * be notified. Usually this is in a special case of when
-     * the answer or comment owner has already been notified
-     * so now we just have to exclude the same user in case same user
-     * is also the question author.
+     *            be notified. Usually this is in a special case of when
+     *            the answer or comment owner has already been notified
+     *            so now we just have to exclude the same user in case same user
+     *            is also the question author.
      *
      * @return object $this
      */
@@ -717,7 +724,7 @@ site %5$s and navigating to Settings > Email preferences
             $Question = new \Lampcms\Question($this->Registry);
             try {
                 $Question->by_id((int)$qid);
-            } catch (\Exception $e) {
+            } catch ( \Exception $e ) {
                 e($e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
                 $Question = null;
             }
@@ -730,24 +737,25 @@ site %5$s and navigating to Settings > Email preferences
         }
 
         $updateType = ('onNewAnswer' === $this->eventName) ? 'answer' : 'comment';
-        $subj = sprintf(static::$QUESTION_FOLLOW_SUBJ, $updateType);
+        $subj       = sprintf(static::$QUESTION_FOLLOW_SUBJ, $updateType);
         d('cp');
 
         $siteUrl = $this->Registry->Ini->SITE_URL;
 
         $username = ('answer' === $updateType) ? $this->obj['username'] : $this->aInfo['username'];
-        $url = ('answer' === $updateType) ? $this->obj->getUrl() : $siteUrl . '/q' . $this->aInfo['i_qid'] . '/#c' . $this->aInfo['_id'];
+        $url      = ('answer' === $updateType) ? $this->obj->getUrl() : $siteUrl . '/q' . $this->aInfo['i_qid'] . '/#c' . $this->aInfo['_id'];
         ;
         d('url: ' . $url);
 
         $content = ('comment' === $updateType) ? "\n____\n" . \strip_tags($this->aInfo['b']) . "\n" : '';
-        $body = vsprintf(static::$QUESTION_FOLLOW_BODY, array($username, $updateType, $this->Question['title'], $url, $siteUrl, $content));
+        $body    = vsprintf(static::$QUESTION_FOLLOW_BODY, array($username, $updateType, $this->Question['title'], $url, $siteUrl, $content));
         d('$body: ' . $body);
 
         $oMailer = $this->Registry->Mailer;
         d('cp');
         /**
          * MongoCollection USERS
+         *
          * @var object MongoCollection
          */
         $coll = $this->collUsers;
