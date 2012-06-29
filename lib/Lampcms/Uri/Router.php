@@ -537,6 +537,8 @@ class Router
             $search[]  = '{_FORM_ACTION_}';
             $replace[] = $this->map['DIR'] . '/' . INDEX_FILE;
 
+            $siteUrl = $this->Ini->SITE_URL;
+
             /**
              * Now add controller name as search
              * and route as replace values
@@ -546,8 +548,9 @@ class Router
                 $replace[] = $route;
             }
 
-            $this->callback = function($s) use ($search, $replace)
+            $this->callback = function($s, $fullUrl = true) use ($search, $replace, $siteUrl)
             {
+                //$siteUrl = ($fullUrl) ? $siteUrl : '';
                 /**
                  * First replace all alias values
                  * with their real values
@@ -569,7 +572,7 @@ class Router
 
     /**
      * Get full url of the question
-     * This is convenience method and it is used oftern from
+     * This is convenience method and it is used often from
      * various email methods as well as from modules that post
      * question to Twitter, Facebook, etc. where a full url is needed
      *

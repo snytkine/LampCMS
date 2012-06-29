@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xliff version="1.2" xmlns="urn:oasis:names:tc:xliff:document:1.2">
-    <file source-language="en" datatype="plaintext" original="file.ext">
-        <body>
-        <trans-unit id="1">
-            <source>time_zones</source>
-            <target><![CDATA[
+<file source-language="en" datatype="plaintext" original="file.ext">
+<body>
+<trans-unit id="1">
+    <source>time_zones</source>
+    <target><![CDATA[
 <option value="UTC">(GMT-12:00) International Date Line West</option>
 <option value="Pacific/Pago_Pago">(GMT-11:00) Midway Island, Samoa</option>
 <option value="Pacific/Honolulu">(GMT-10:00) Hawaii</option>
@@ -89,30 +89,30 @@
 <option value="Pacific/Fiji">(GMT+12:00) Fiji, Kamchatka, Marshall Is.</option>
 <option value="Pacific/Tongatapu">(GMT+13:00) Nuku&#39;alofa</option></select>
 ]]></target>
-        </trans-unit>
-        <trans-unit id="2">
-            <source>email.subject.new_post_by</source>
-            <target>New {item} by {username}</target>
-        </trans-unit>
-        <trans-unit id="3">
-            <source>email.subject.new_question_tagged</source>
-            <target>New question tagged: [{tags}]</target>
-        </trans-unit>
-        <trans-unit id="4">
-            <source>email.subject.comment_to_your_answer</source>
-            <target>{username} commented on your answer</target>
-        </trans-unit>
-        <trans-unit id="5">
-            <source>email.subject.reply_to_followed_question</source>
-            <target>New {reply} to a question you following</target>
-        </trans-unit>
-        <trans-unit id="6">
-            <source>email.subject.reply_to_your_comment</source>
-            <target>{username} replied to your comment</target>
-        </trans-unit>
-        <trans-unit id="7">
-            <source>email.body.question_by_user</source>
-            <target><![CDATA[
+</trans-unit>
+<trans-unit id="2">
+    <source>email.subject.new_post_by</source>
+    <target>New {item} by {username}</target>
+</trans-unit>
+<trans-unit id="3">
+    <source>email.subject.new_question_tagged</source>
+    <target>New question tagged: [{tags}]</target>
+</trans-unit>
+<trans-unit id="4">
+    <source>email.subject.comment_to_your_answer</source>
+    <target>{username} commented on your answer</target>
+</trans-unit>
+<trans-unit id="5">
+    <source>email.subject.reply_to_followed_question</source>
+    <target>New {reply} to a question you following</target>
+</trans-unit>
+<trans-unit id="6">
+    <source>email.subject.reply_to_your_comment</source>
+    <target>{username} replied to your comment</target>
+</trans-unit>
+<trans-unit id="7">
+    <source>email.body.question_by_user</source>
+    <target><![CDATA[
             {username} has asked a question:
                 {title}
 
@@ -131,11 +131,11 @@
                 You can change your email preferences by signing in to
                 site {home} and navigating to Settings > Email Preferences
             ]]>
-            </target>
-        </trans-unit>
-        <trans-unit id="8">
-            <source>email.body.answer_by_user</source>
-            <target><![CDATA[
+    </target>
+</trans-unit>
+<trans-unit id="8">
+    <source>email.body.answer_by_user</source>
+    <target><![CDATA[
                 {username} has answered a question:
                 {title}
 
@@ -150,11 +150,11 @@
                 You can change your email preferences by signing in to
                 site {home} and navigating to Settings > Email Preferences
             ]]>
-            </target>
-        </trans-unit>
-        <trans-unit id="9">
-            <source>email.body.question_by_tag</source>
-            <target><![CDATA[
+    </target>
+</trans-unit>
+<trans-unit id="9">
+    <source>email.body.question_by_tag</source>
+    <target><![CDATA[
                  {username} has asked a question:
                  {title}
 
@@ -175,8 +175,75 @@
                  site {home} and navigating to Settings > Email Preferences
 
                  ]]>
-            </target>
-        </trans-unit>
-        </body>
-    </file>
+    </target>
+</trans-unit>
+<trans-unit id="10">
+    <source>email.body.followed_question</source>
+    <target><![CDATA[
+                {username} has added a new {item}
+                to a question you follow:
+                {title}
+                {body}
+
+                Visit this url {link}
+                to read the entire question
+
+                ----
+                You receive this message because you are
+                following this question
+
+                You can change your email preferences by signing in to
+                site {home} and navigating to Settings > Email preferences
+
+                 ]]>
+    </target>
+</trans-unit>
+<trans-unit id="11">
+    <source>email.body.answer_comment</source>
+    <target><![CDATA[
+                 {username} commented on your answer to a question
+                {title}
+
+                Their comment was:
+                {body}
+
+                Visit this url to see the answer with the new comment:
+
+                {link}
+
+                ----
+                You can change your email preferences by signing in to
+                site {home} and navigating to Settings > Email preferences
+
+
+                 ]]>
+    </target>
+</trans-unit>
+<trans-unit id="12">
+    <source>email.body.comment_reply</source>
+    <target><![CDATA[
+                {username} has posted a reply to your comment
+                You comment was:
+                ============================
+                {body}
+                ============================
+
+                This is the reply:
+                ============================
+                {reply}
+                ============================
+
+                Visit this url to see the answer with the new comment:
+
+                {link}
+
+                ----
+                You can change your email preferences by signing in to
+                site {home} and navigating to Settings > Email preferences
+
+                 ]]>
+    </target>
+</trans-unit>
+</body>
+</file>
 </xliff>
