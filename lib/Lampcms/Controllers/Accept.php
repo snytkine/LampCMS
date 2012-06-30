@@ -61,6 +61,8 @@ use \Lampcms\Question;
  * Controller for processing the 'Accept as best answer'
  * vote
  *
+ * @todo require POST method for this
+ *
  * @author Dmitri Snytkine
  *
  */
@@ -206,11 +208,12 @@ class Accept extends WebPage
      */
     protected function getAnswer()
     {
-        $aAnswer = $this->Registry->Mongo->ANSWERS->findOne(array('_id' => $this->Request['aid']));
-        d('$aAnswer: ' . print_r($aAnswer, 1));
+        $id = $this->Router->getNumber(1);
+        $aAnswer = $this->Registry->Mongo->ANSWERS->findOne(array('_id' => $id));
+        d('$aAnswer: ' . \print_r($aAnswer, 1));
 
         if (empty($aAnswer)) {
-            throw new \Lampcms\Exception('Answer not found by id: ' . $this->Request['aid']);
+            throw new \Lampcms\Exception('Answer not found by id: ' . $id);
         }
 
         $this->Answer = new \Lampcms\Answer($this->Registry, $aAnswer);
@@ -235,12 +238,13 @@ class Accept extends WebPage
      */
     protected function getQuestion()
     {
+        $id = $this->Router->getNumber(1);
         $aQuestion = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => $this->Answer->getQuestionId()));
 
         d('$aQuestion: ' . print_r($aQuestion, 1));
 
         if (empty($aQuestion)) {
-            throw new \Lampcms\Exception('Question not found for this answer: ' . $this->Request['aid']);
+            throw new \Lampcms\Exception('Question not found for this answer: ' . $id);
         }
 
         $this->Question = new Question($this->Registry, $aQuestion);
