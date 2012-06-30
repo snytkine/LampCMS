@@ -38,9 +38,9 @@
 
 error_reporting(E_ALL | E_DEPRECATED);
 
-
+$Mailer = null;
 /**
- * For those unfortunate souls
+ * For those
  * who has magic_quotes enabled on their
  * server despite having php 5.3
  * this code will remove those
@@ -109,6 +109,7 @@ set_exception_handler('exception_handler');
 
 $lampcmsClasses = LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . 'Lampcms' . DIRECTORY_SEPARATOR;
 
+require 'SwiftMailer/lib/swift_required.php';
 require $lampcmsClasses . 'Interfaces' . DIRECTORY_SEPARATOR . 'All.php';
 require $lampcmsClasses . 'Exception.php';
 require $lampcmsClasses . 'Object.php';
@@ -224,6 +225,7 @@ try {
 }
 
 
+$Mailer = $Registry->Mailer;
 /**
  * First thing is to set our timezone
  */
@@ -254,17 +256,17 @@ if ($debug || isset($aMyIPs[$myIP]) || defined('SPECIAL_LOG_FILE')) {
      * to be run at every session start
      * to give us consistant behaviour
      * in debug mode
-     * Session expiration is 5 minutes
+     * Session expiration is 10 minutes
      * which means when logged in without
      * using "remember me" option,
      * you supposed to be logged out after 5 minutes
      * of inactivity. The only way to test it
-     * is to login, then after 6-7 minutes access site
+     * is to login, then after 11-12 minutes access site
      * with a different browser. Then go to the browser with logged
      * in user and try to use any other link. User should not
      * be logged in anymore at this time.
      */
-    ini_set("session.gc_maxlifetime", "300");
+    ini_set("session.gc_maxlifetime", "600");
     ini_set('session.gc_probability', "1");
     ini_set('session.gc_divisor', "1");
 } else {
@@ -300,6 +302,7 @@ if ((true === LAMPCMS_DEBUG) && ('' !== LOG_FILE_PATH) && (true === (bool)$Ini->
  */
 function d($message)
 {
+
     if (defined('LAMPCMS_DEBUG') && true === LAMPCMS_DEBUG) {
         \Lampcms\Log::d($message, 2);
     }

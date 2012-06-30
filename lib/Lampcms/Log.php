@@ -207,7 +207,7 @@ class Log
 
         $string .= PHP_EOL . $str;
 
-        $message = PHP_EOL . \strtoupper($logLevel). ' '. self::getTimeStamp() . $string;
+        $message = PHP_EOL . \strtoupper($logLevel) . ' ' . self::getTimeStamp() . $string;
 
         self::$aLog[] = array($message, $logLevel);
 
@@ -295,13 +295,13 @@ class Log
      */
     protected static function notifyDeveloper($message)
     {
+        global $Mailer;
+
         $devEmail = self::getDevEmail();
 
         if (empty($devEmail)) {
             return;
         }
-
-        $msg = '';
 
         $msg = $message;
 
@@ -328,9 +328,21 @@ class Log
          * Add high priority to email headers
          * for error messages of certain types (real errors, no notices)
          */
-        $headers = 'X-Mailer: LogObserver' . "\n" . 'X-Priority: 1' . "\n" . 'Importance: High' . "\n" . 'X-MSMail-Priority: High';
-
-        @mail($devEmail, self::EMAIL_SUBJECT, $msg, $headers);
+        $headers  = 'X-Mailer: LogObserver' . "\n" . 'X-Priority: 1' . "\n" . 'Importance: High' . "\n" . 'X-MSMail-Priority: High';
+        /**
+         * Attempt to use Mailer object, then fallback to php's mail()
+         */
+        $ER = error_reporting(0);
+        if (is_object($Mailer)) {
+            try {
+                $Mailer->mail($devEmail, self::EMAIL_SUBJECT, $msg, null, false);
+            } catch ( \Exception $e ) {
+                @mail($devEmail, self::EMAIL_SUBJECT, $msg, $headers);
+            }
+        } else {
+            @mail($devEmail, self::EMAIL_SUBJECT, $msg, $headers);
+        }
+        error_reporting($ER);
 
         return;
     }

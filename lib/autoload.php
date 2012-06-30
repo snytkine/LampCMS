@@ -54,6 +54,7 @@
  * Autoloader for vtemplates
  *
  * @param string $classname
+ * @return bool
  */
 function templateLoader($className)
 {

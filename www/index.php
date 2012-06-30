@@ -83,7 +83,7 @@ if (true !== session_start()) {
         }
 
 
-        $Tr      = $Registry->Tr;
+        $Tr = $Registry->Tr;
 
         $mapper           = $Registry->Router->getCallback();
         $translator       = $Tr->getCallback();
@@ -103,6 +103,7 @@ if (true !== session_start()) {
              * Now replace translation strings
              * identified as
              * @
+             *
              * @somestring@@
              *
              */
@@ -132,8 +133,11 @@ if (true !== session_start()) {
         include($lampcmsClasses . 'Controllers' . DIRECTORY_SEPARATOR . $controller . '.php');
         $class = '\Lampcms\\Controllers\\' . $controller;
 
+
+
         header('Content-Type: text/html; charset=utf-8');
         echo new $class($Registry);
+
         /**
          *
          * Commenting out the session_write_close()
@@ -186,7 +190,15 @@ if (true !== session_start()) {
              *       send out ajax and then throw \OutOfBoundsException in order to finish request (better than exit())
              */
             if (!($e instanceof \LogicException) && ($code >= 0) && defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7) {
-                @mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $extra);
+                if (!is_object($Mailer) || $e instanceof \Lampcms\Mail\SwiftException) {
+                    @mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $extra);
+                } else {
+                    try{
+                        $Mailer->mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $extra);
+                    } catch(\Exception $e){
+                        @mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $extra);
+                    }
+                }
             }
             $html = \Lampcms\Responder::makeErrorPage('<strong>Error:</strong> ' . Lampcms\Exception::formatException($e));
 
@@ -199,9 +211,15 @@ if (true !== session_start()) {
             $sHtml = \Lampcms\Responder::makeErrorPage('<strong>Exception:</strong> ' . strip_tags($e2->getMessage()) . "\nIn file:" . $e2->getFile() . "\nLine: " . $e2->getLine());
             $extra = (isset($_SERVER)) ? ' $_SERVER: ' . print_r($_SERVER, 1) : ' no extra';
             if (($code >= 0) && defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7) {
-
-                @mail(LAMPCMS_DEVELOPER_EMAIL, 'Error in index.php on line ' . __LINE__, $sHtml . $extra);
-
+                if (!is_object($Mailer) || $e instanceof \Lampcms\Mail\SwiftException) {
+                    @mail(LAMPCMS_DEVELOPER_EMAIL, 'Error in index.php on line ' . __LINE__, $sHtml . $extra);
+                } else {
+                    try{
+                        $Mailer->mail(LAMPCMS_DEVELOPER_EMAIL, 'Error in index.php on line ' . __LINE__, $sHtml . $extra);
+                    } catch(\Exception $e){
+                        @mail(LAMPCMS_DEVELOPER_EMAIL, 'Error in index.php on line ' . __LINE__, $sHtml . $extra);
+                    }
+                }
             }
             echo nl2br($sHtml);
         }

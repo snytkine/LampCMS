@@ -548,14 +548,27 @@ class Router
                 $replace[] = $route;
             }
 
-            $this->callback = function($s, $fullUrl = true) use ($search, $replace, $siteUrl)
+            $this->callback = function($s, $fullUrl = false) use ($search, $replace, $siteUrl)
             {
-                //$siteUrl = ($fullUrl) ? $siteUrl : '';
+
+                /**
+                 * Special case:
+                 * If $fullUrl then {_WEB_ROOT_} must be replaced by siteUrl + value of WEB_ROOT
+                 * then we want a full url in the link
+                 * This type of replace is used for generating
+                 * links that will be used inside email
+                 * or inside tweet or post to blog/linked-in, etc.
+                  */
+                if($fullUrl){
+                    $s = str_replace('{_WEB_ROOT_}', $siteUrl.'{_WEB_ROOT_}', $s);
+                }
+
                 /**
                  * First replace all alias values
                  * with their real values
                  */
                 $res = \str_replace($search, $replace, $s);
+
 
                 /**
                  * Now replace all controller and uri based placeholders
