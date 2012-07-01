@@ -67,9 +67,9 @@ namespace Lampcms;
 class RegBlock extends LampcmsObject
 {
     protected $aUsername = array(
-        'usernameLabel' => 'Username',
+        'usernameLabel' => '@@Username@@',
         'usernameVal' => '',
-        'usernameNote' => 'Username will appear alongside your posts');
+        'usernameNote' => '@@Username will appear alongside your posts@@');
 
     protected $tplOptin = '<tr>
 	<td>
@@ -124,7 +124,7 @@ class RegBlock extends LampcmsObject
      *
      * @param Registry Registry
      *
-     * @return object of this class or subclass
+     * @return \Lampcms\LampcmsObject|object of this class or subclass
      */
     public static function factory(Registry $Registry)
     {
@@ -132,10 +132,6 @@ class RegBlock extends LampcmsObject
         switch (true) {
             case ($oViewer instanceof UserTwitter):
                 $o = new RegBlockTwitter($Registry);
-                break;
-
-            case ($oViewer instanceof UserGfc):
-                $o = new RegBlockGfc($Registry);
                 break;
 
             case ($oViewer instanceof UserLinkedin):
@@ -195,7 +191,7 @@ class RegBlock extends LampcmsObject
     protected function setUsernameVars()
     {
         d('cp');
-        $this->aUsername = array('Username', $this->oViewer->username, 'Username will appear alongside your posts');
+        $this->aUsername = array('@@Username@@', $this->oViewer->username, '@@Username will appear alongside your posts@@');
         d('$this->aUsername: ' . print_r($this->aUsername, 1));
 
         $this->aVars['username'] = $this->oViewer['username'];

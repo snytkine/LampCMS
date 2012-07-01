@@ -43,10 +43,10 @@ class tplCaptcha extends Lampcms\Template\Fast
 
     protected static $tpl = '
 		<div class="captcha">
-			<span class="red"> * </span><span class="label2">Are you human? (sorry, we have to verify)</span><br>
+			<span class="red"> * </span><span class="label2">@@Are you human? (sorry, we have to verify)@@</span><br>
 			<div id="imgcaptcha">%1$s</div>
 			<input type="text" id="private_key" maxlength="16" name="private_key" autocomplete="off" value="">
-			<div class="note2">Enter the image text</div>
+			<div class="note2">@@Enter the image text@@</div>
 			<input type="hidden" name="public_key" id="public_key" value="%2$s">
 			<input type="hidden" name="hncaptcha" id="hncaptcha" value="%3$s">
 		</div>';

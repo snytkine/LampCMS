@@ -57,7 +57,7 @@ use \Lampcms\String;
 use \Lampcms\Validate;
 
 /**
- * Class to process submittions from the
+ * Class to process submissions from the
  * popup modal "quick registration"
  * This modal is used when someone joins via 3rd party auth like
  * via Twitter or FriendConnect and we need to collect email address
@@ -148,7 +148,7 @@ class Join extends Register
         if (!empty($this->Request['username'])) {
             $username = trim($this->Request['username']);
             $this->Registry->Viewer->offsetSet('username', $username);
-            $this->Registry->Viewer->offsetSet('username_lc', strtolower($username));
+            $this->Registry->Viewer->offsetSet('username_lc', \mb_strtolower($username));
             /**
              * Set the hashed password but it will only be
              * set if this is a new registration (post-registration)
@@ -224,11 +224,11 @@ class Join extends Register
 	<p>We hope you will enjoy being a member of our site!</p>
 	<br/>
 	<p>
-	<a class="regok" href="#" onClick="oSL.hideRegForm()">&lt;-- Return to site</a>&nbsp;
-	<a class="regok" href="/settings/"> Edit profile --&gt;</a>
+	<a class="regok" href="#" onClick="oSL.hideRegForm()">&lt;-- @@Return to site@@</a>&nbsp;
+	<a class="regok" href="{_WEB_ROOT_}/settings/"> @@Edit profile@@ --&gt;</a>
 	</p> ';
 
-        $ret = sprintf($tpl, $this->Registry->Ini->SITE_NAME);
+        $ret = \sprintf($tpl, $this->Registry->Ini->SITE_NAME);
 
         d('ret: ' . $ret);
 
@@ -275,7 +275,9 @@ class Join extends Register
         $aUser = $this->Registry->Mongo->USERS->findOne(array('username_lc' => $username));
 
         if (!empty($aUser) || in_array($username, $aReserved)) {
-
+            /**
+             * @todo translate string
+              */
             throw new \Lampcms\FormException('Someone else is already using this username. <br>
 			Please choose a different username and resubmit the form', 'username');
         }
@@ -294,14 +296,15 @@ class Join extends Register
      * @todo
      * Check that this email does not already exist
      *
-     * @return object $this
+     * @throws \Lampcms\FormException
+     * @return \Lampcms\Controllers\object $this
      */
     protected function validateEmail()
     {
 
         $email = strtolower($this->Request['email']);
         if (false === Validate::email($email)) {
-            throw new \Lampcms\FormException('Email address ' . $this->Request['email'] . ' is invalid<br/>Please correct it and resubmit the form', 'email');
+            throw new \Lampcms\FormException('@@Email address@@ ' . $this->Request['email'] . ' @@is invalid@@<br/>@@Please correct it and resubmit the form@@', 'email');
         }
 
         $ret = $this->Registry->Mongo->EMAILS->findOne(array('email' => $email));
@@ -314,7 +317,7 @@ class Join extends Register
          */
         if (!empty($ret)) {
             throw new \Lampcms\FormException('<p>Someone else (probably you) is already registered with this email address
-			<p/><p>If you forgot you password, <br/>please use the <a href="/remindpwd/">This link</a> to request a new password<br/>
+			<p/><p>If you forgot you password, <br/>please use the <a href="{_WEB_ROOT_}/remindpwd/">This link</a> to request a new password<br/>
 			or use different email address to register a new account</p>', 'email');
         }
 

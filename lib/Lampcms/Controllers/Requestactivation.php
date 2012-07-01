@@ -75,7 +75,7 @@ IMPORTANT: You Must use the link below to activate your account
      * @todo
      * Translate String
      */
-    const SUCCESS = 'Activation instructions have just been emailed to you to %s';
+    const SUCCESS = '@@Activation instructions have just been emailed to you to@@ %s';
 
 
     protected $membersOnly = true;
@@ -181,9 +181,12 @@ IMPORTANT: You Must use the link below to activate your account
      */
     protected function sendActivationEmail()
     {
-        $tpl = $this->Registry->Ini->SITE_URL . '{_WEB_ROORT_}/{_activate_}/%d/%s';
+        $tpl = $this->Registry->Ini->SITE_URL . '{_WEB_ROOT_}/{_activate_}/%d/%s';
         $link = \sprintf($tpl, $this->oEmail['_id'], $this->oEmail['code']);
         d('$link: ' . $link);
+        $callback = $this->Router->getCallback();
+        $link = $callback($link);
+        d('$link after callback: ' . $link);
 
         $siteName = $this->Registry->Ini->SITE_NAME;
         $body = \vsprintf(self::EMAIL_BODY, array($siteName, $link));

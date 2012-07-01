@@ -488,7 +488,7 @@ class Captcha
         $this->make_captcha();
         $is = getimagesize($this->get_filename());
 
-        return "\n" . '<img class="captchapict" src="' . $this->get_filename_url() . '" ' . $is[3] . ' alt="This is a captcha-picture. It is used to prevent mass-access by robots. (see: www.captcha.net)" title="">' . "\n";
+        return "\n" . '<img class="captchapict" src="' . $this->get_filename_url() . '" ' . $is[3] . ' alt="@@This is a captcha-picture. It is used to prevent mass-access by robots. see www.captcha.net@@" title="">' . "\n";
 
     }
 
@@ -736,7 +736,7 @@ class Captcha
             $public = $this->public_key;
         }
 
-        return '/w/img/tmp/' . $public . ".jpg";
+        return '{_DIR_}/w/img/tmp/' . $public . ".jpg";
     }
 
 
@@ -745,13 +745,12 @@ class Captcha
      * @return array with 3 elements: src = the web path (relative),
      * 'w' = width, 'h' = height
      */
-
     public function getCaptchaImage()
     {
         $this->make_captcha();
         $is = getimagesize($this->tempfolder . $this->public_key . '.jpg');
 
-        return array('src' => '/w/img/tmp/' . $this->public_key . '.jpg',
+        return array('src' => '{_DIR_}/w/img/tmp/' . $this->public_key . '.jpg',
                      'w'   => $is[0],
                      'h'   => $is[1]);
     }

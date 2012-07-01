@@ -53,6 +53,8 @@
 namespace Lampcms\Mail;
 
 use \Lampcms\DevException;
+use \Lampcms\I18n\TranslatableInterface;
+use \Lampcms\I18n\Translator;
 
 /**
  * Class for sending out emails
@@ -83,13 +85,41 @@ class Mailer
      */
     protected $Ini;
 
-    public function __construct(\Lampcms\Config\Ini $Ini)
+    /**
+     * @var array array of I18N\Translator objects
+     * where keys are locale names
+     */
+    protected $translators = array();
+
+    /**
+     * @var array keys are locale names
+     * values are translated bodies of message
+     */
+    protected $translatedMessages = array();
+
+    /**
+     * @var array keys are locale names
+     * values are translated subject strings
+     */
+    protected $translatedSubjects = array();
+
+    /**
+     * Cache object
+     * It is needed for instantiating different
+     * instances of Translator class (one for each locale)
+     *
+     * @var \Lampcms\Cache\Cache object
+     */
+    protected $Cache;
+
+    public function __construct(\Lampcms\Config\Ini $Ini, \Lampcms\Cache\Cache $cache)
     {
         $this->Ini        = $Ini;
         $this->adminEmail = $Ini->EMAIL_ADMIN;
         $this->siteName   = $Ini->SITE_NAME;
         $this->from       = \Lampcms\String::prepareEmail($this->adminEmail, $this->siteName);
         $this->setupSwiftMailer();
+        $this->Cache = $cache;
     }
 
 
@@ -207,7 +237,7 @@ class Mailer
      * @return bool
      * @throws DevException
      */
-    public function mail($to, $subject, $body, $func = null, $sendLater = true)
+    public function mail($to, $subject, $body = null, $func = null, $sendLater = true)
     {
 
         if (!is_string($to) && !is_array($to) && (!is_object($to) || !($to instanceof \Iterator))) {
@@ -215,6 +245,10 @@ class Mailer
             $class = (\is_object($to)) ? \get_class($to) : 'not an object';
 
             throw new DevException('$to can be only string or array or object implementing Iterator. Was: ' . \gettype($to) . ' class: ' . $class);
+        }
+
+        if (null === $body && (!is_object($subject) || !($subject instanceof \Swift_Message))) {
+            throw new DevException('$body cannot be null if $subject is not instance of \Swift_Message');
         }
 
         $aTo = (\is_string($to)) ? (array)$to : $to;
@@ -239,7 +273,7 @@ class Mailer
                 $failedRecipients = array();
                 $numSent          = 0;
                 try {
-                    $message = \Swift_Message::newInstance($subject)
+                    $message = (is_object($subject) && $subject instanceof \Swift_Message) ? $subject : \Swift_Message::newInstance($subject)
                         ->setFrom(array($fromEmail => $fromName))
                         ->setBody($body);
                 } catch ( \Exception $e ) {
@@ -308,6 +342,7 @@ class Mailer
                         continue;
                     }
 
+
                     $ER = error_reporting(0);
 
                     $message->setTo($to);
@@ -339,6 +374,59 @@ class Mailer
         }
 
         return true;
+    }
+
+    /**
+     * @todo this has to be done via runLater($callback)
+     *
+     * @param EmailAccountInterface $to
+     * @param                       $subject
+     * @param                       $body
+     * @param null                  $func
+     * @param bool                  $sendLater
+     *
+     * @return bool
+     * @throws \Lampcms\DevException
+     */
+    public function translateAndMail(EmailAccountInterface $to, $subject, $body, $func = null, $sendLater = true)
+    {
+        /**
+         * If neither subject nor body are Translatable then just email as normal message
+         */
+        if (is_string($subject) && is_string($body)) {
+            return $this->mail($to->getAddress(), $subject, $body, $func, $sendLater);
+        }
+
+        if (!is_object($subject) || !($subject instanceof TranslatableInterface)) {
+            throw new DevException('$subject must be a string or instance of TranslatableInterface. Was: ' . gettype($subject) . ' ' . is_object($subject) ? get_class($subject) : '');
+        }
+
+        if (!is_object($body) || !($body instanceof TranslatableInterface)) {
+            throw new DevException('$body must be a string or instance of TranslatableInterface. Was: ' . gettype($body) . ' ' . is_object($body) ? get_class($body) : '');
+        }
+
+        $locale = $to->getLocale();
+        if (!array_key_exists($locale, $this->translatedMessages)) {
+            if (!array_key_exists($locale, $this->translators)) {
+                $this->translators[$locale] = Translator::factory($this->Cache, $locale);
+            }
+
+            if (is_object($subject)) {
+                $subject = $this->translators[$locale]->get($subject->getString(), $subject->getVars());
+            }
+
+            if (is_object($body)) {
+                $body = $this->translators[$locale]->get($body->getString(), $body->getVars());
+            }
+
+
+            $this->translatedMessages[$locale] = \Swift_Message::newInstance($subject)
+                ->setFrom(array($this->adminEmail => $this->siteName))
+                ->setCharset('utf-8')
+                ->setBody($body);
+        }
+
+        $this->mail($to->getAddress(), $this->translatedMessages[$locale], null, $func, $sendLater);
     }
 
 
@@ -423,7 +511,7 @@ class Mailer
          * and the very best solution would be
          * to form the whole EmailNotifier methods
          * from the cgi script
-         * and the super-advanced solution for
+         * and the advanced solution for
          * sites that have over 10,000 followers per topic
          * or per some users would be to
          * form the whole process on a remove server

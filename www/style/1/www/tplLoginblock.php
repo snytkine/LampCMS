@@ -47,7 +47,7 @@
  */
 class tplLoginblock extends Lampcms\Template\Fast
 {
-    protected static $vars = array('Already a member?<br>Please login');
+    protected static $vars = array('@@Already a member?@@<br>@@Please login@@');
 
     protected static $tpl = '
 	<div class="loginBlock">
@@ -77,4 +77,3 @@ class tplLoginblock extends Lampcms\Template\Fast
 	';
 }
 
-?>

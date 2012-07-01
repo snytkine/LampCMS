@@ -72,13 +72,16 @@
  top.location.href = self.location.href;
  }*/
 
-// include.js
-
-// Editcat here
 
 /**
  *
  */
+if (typeof console == "undefined") {
+    window.console = {
+        log: function () {}
+    };
+}
+
 var oSL = {
     Regform:function () {
     }/*,
@@ -194,20 +197,20 @@ oSL = {
      *            DOMElement for that meta tag instead of just the value
      */
     getMeta:function (sMetaName, bAsElement) {
-        $L('182 looking for meta tag ' + sMetaName);
+        console.log('197 looking for meta tag ' + sMetaName);
         var el, i, aMeta = document.getElementsByTagName('meta');
-        $L('43 ' + $LANG.dump(aMeta) + ' total metas: ' + aMeta.length);
+        console.log('199 ' + $LANG.dump(aMeta) + ' total metas: ' + aMeta.length);
         if (!aMeta) {
-            $L('45 no meta tags in document', 'error');
+            console.log('201 no meta tags in document');
             return false;
         }
 
         for (i = 0; i < aMeta.length; i += 1) {
-            if (aMeta[i].name && (aMeta[i].name === sMetaName)
-                && aMeta[i].content) {
+            if (aMeta[i].name && (aMeta[i].name === sMetaName)) {
+                console.log('208 meta tag element ' + sMetaName + ' found');
                 if (bAsElement) {
                     el = aMeta[i];
-                    $L('213 meta tag element ' + el);
+                    console.log('210 meta tag element ' + el);
 
                     return el;
                 }
@@ -216,20 +219,26 @@ oSL = {
             }
         }
 
+        console.log('219 Meta tag ' + sMetaName + " not found");
+
         return false;
     },
     getQuickRegForm:function () {
-        var web_root = oSL.getMeta('web_root');
+        var url, web_root = oSL.getMeta('web_root');
+        //alert('223 web_root: ' + web_root);
         if (oSL.Regform && oSL.Regform.hasDialog()) {
+
             oSL.Regform.getInstance().show();
         } else {
+            url = web_root + "/getregform/";
             /**
              * &ajaxid=1&tplflag=1
              */
             /*if (oSL.modal) {
              oSL.modal.show();
              }*/
-            $CONN.asyncRequest("GET", web_root + "/getregform", oSL.oCallback);
+            console.log('getting regform from  ' + url);
+            $CONN.asyncRequest("GET", url, oSL.oCallback);
         }
 
     },
@@ -1684,6 +1693,7 @@ YUI({
              * Show QuickReg modal window
              */
                 getQuickRegForm = function () {
+                Y.log('Getting oSL.getQuickRegForm', 'warn');
                 oSL.getQuickRegForm();
             },
             /**

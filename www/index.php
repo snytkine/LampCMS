@@ -126,14 +126,15 @@ if (true !== session_start()) {
 
         ob_start($callback);
 
-        $Request = $Registry->Request;
-        $a       = $Request->getController();
-
+        $Request    = $Registry->Request;
+        $a          = $Request->getController();
         $controller = ucfirst($a);
-        include($lampcmsClasses . 'Controllers' . DIRECTORY_SEPARATOR . $controller . '.php');
+        $ER         = error_reporting(0);
+        if (false === @include($lampcmsClasses . 'Controllers' . DIRECTORY_SEPARATOR . $controller . '.php')) {
+            throw new \Lampcms\Lampcms404Exception('Page you looking for does not exist');
+        }
+        error_reporting($ER);
         $class = '\Lampcms\\Controllers\\' . $controller;
-
-
 
         header('Content-Type: text/html; charset=utf-8');
         echo new $class($Registry);
@@ -179,7 +180,11 @@ if (true !== session_start()) {
         $code = $e->getCode();
 
         session_write_close();
-        header("HTTP/1.0 500 Exception");
+        if ($e instanceof \Lampcms\Lampcms404Exception) {
+            header("HTTP/1.0 404 Not Found");
+        } else {
+            header("HTTP/1.0 500 Exception");
+        }
         try {
 
             $extra = (isset($_SERVER)) ? ' $_SERVER: ' . print_r($_SERVER, 1) : ' no server';
@@ -190,19 +195,19 @@ if (true !== session_start()) {
              *       send out ajax and then throw \OutOfBoundsException in order to finish request (better than exit())
              */
             if (!($e instanceof \LogicException) && ($code >= 0) && defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7) {
-                if (!is_object($Mailer) || $e instanceof \Lampcms\Mail\SwiftException) {
+                if (!is_object($Mailer) || ($e instanceof \Lampcms\Mail\SwiftException) || ($e instanceof \Swift_SwiftException)) {
                     @mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $extra);
                 } else {
-                    try{
+                    try {
                         $Mailer->mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $extra);
-                    } catch(\Exception $e){
+                    } catch ( \Exception $e ) {
                         @mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $extra);
                     }
                 }
             }
-            $html = \Lampcms\Responder::makeErrorPage('<strong>Error:</strong> ' . Lampcms\Exception::formatException($e));
+            $html = \Lampcms\Responder::makeErrorPage('<strong>Error:</strong> ' . nl2br(Lampcms\Exception::formatException($e)));
 
-            echo nl2br($html);
+            echo $html;
 
         } catch ( \OutOfBoundsException $e2 ) {
             // do nothing, this was a way to exit() from Responder::sendJSON()
@@ -211,12 +216,17 @@ if (true !== session_start()) {
             $sHtml = \Lampcms\Responder::makeErrorPage('<strong>Exception:</strong> ' . strip_tags($e2->getMessage()) . "\nIn file:" . $e2->getFile() . "\nLine: " . $e2->getLine());
             $extra = (isset($_SERVER)) ? ' $_SERVER: ' . print_r($_SERVER, 1) : ' no extra';
             if (($code >= 0) && defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7) {
-                if (!is_object($Mailer) || $e instanceof \Lampcms\Mail\SwiftException) {
+                /**
+                 * If $Mailer object not available OR if exception of type SwiftException which means
+                 * there was some problem with Swift mailer usage, then don'e attempt to
+                 * use Swift mailer to mail this error
+                 */
+                if (!is_object($Mailer) || ($e instanceof \Lampcms\Mail\SwiftException) || ($e instanceof \Swift_SwiftException)) {
                     @mail(LAMPCMS_DEVELOPER_EMAIL, 'Error in index.php on line ' . __LINE__, $sHtml . $extra);
                 } else {
-                    try{
+                    try {
                         $Mailer->mail(LAMPCMS_DEVELOPER_EMAIL, 'Error in index.php on line ' . __LINE__, $sHtml . $extra);
-                    } catch(\Exception $e){
+                    } catch ( \Exception $e ) {
                         @mail(LAMPCMS_DEVELOPER_EMAIL, 'Error in index.php on line ' . __LINE__, $sHtml . $extra);
                     }
                 }

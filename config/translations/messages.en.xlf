@@ -91,8 +91,8 @@
 ]]></target>
 </trans-unit>
 <trans-unit id="2">
-    <source>email.subject.new_post_by</source>
-    <target>New {item} by {username}</target>
+    <source>email.subject.new_question_by</source>
+    <target>New question by {username}</target>
 </trans-unit>
 <trans-unit id="3">
     <source>email.subject.new_question_tagged</source>
@@ -243,6 +243,10 @@
 
                  ]]>
     </target>
+</trans-unit>
+<trans-unit id="13">
+    <source>email.subject.new_answer_by</source>
+    <target>New answer by {username}</target>
 </trans-unit>
 </body>
 </file>

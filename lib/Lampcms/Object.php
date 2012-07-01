@@ -511,14 +511,14 @@ class ArrayDefaults extends LampcmsArray
 
 
     /**
-     * Redefine offsetExists to allways return true
+     * Redefine offsetExists to always return true
      * this way a request for $obj['blabla']
      * will NOT raise error or warning if blabla does
      * not exist.
      *
      * @param strint $name
      *
-     * @return true
+     * @return bool|\Lampcms\true
      */
     public function offsetExists($name)
     {

@@ -71,7 +71,7 @@ class Base extends LampcmsObject
 {
 
     /**
-     * Premission required to access this script
+     * Permission required to access this script
      *
      * @var string
      */
@@ -124,19 +124,22 @@ class Base extends LampcmsObject
 
 
     /**
-     * Given the $resourceId and $ip this functon
+     * Given the $resourceId and $ip this function
      * creates a record in RESOURCE_LOCATION collection (or any other collection name specified in arguments)
      *
-     * @param string $ip ip address or host name from where resource was submitted
+     * @param string $resourceId
+     * @param string $ip         ip address or host name from where resource was submitted
      *
-     * @param array $arrExtra associative array of key=>value can be passed here with extra data
-     * this data will be added to geoIP array so that any additional data can then be inserted into
-     * collection together with GeoIP data.
+     * @param array  $arrExtra   associative array of key=>value can be passed here with extra data
+     *                           this data will be added to geoIP array so that any additional data can then be inserted into
+     *                           collection together with GeoIP data.
      *
      * @param string $collection a name of mongo collection where the GeoIP data will be inserted
      *
      * @param string $columnName a name of database table column that can be used instead of the default 'resouce_id'
-     * the value of $resourceId will be recorded in that column.
+     *                           the value of $resourceId will be recorded in that column.
+     *
+     * @param bool   $addIp
      *
      * @return bool true or false
      */
@@ -199,23 +202,18 @@ class Base extends LampcmsObject
      * usually a Viewer and $resource is usually omitted
      * because we are checking a site-wide permission
      *
-     * @param string $privilege name of privilege (like 'add_comments')
+     * @param string                                        $privilege name of privilege (like 'add_comments')
      *
-     * @param object $role our User Object is fine because it implements Zned_Acl_Role_Interface
+     * @param \Lampcms\Interfaces\RoleInterface|null|object $role      our User Object is fine because it implements Zned_Acl_Role_Interface
      *
-     * @param mixed $resource object or string name of resource
+     * @param mixed                                         $resource  object or string name of resource
      *
+     * @throws AccessException
+     * @throws UnactivatedException
+     * @throws AuthException
      * @return mixed object $this if everything is OK
      * OR throws exception is access is denied
      *
-     * @throws If permission is denied, then we throw a special
-     * Exception: Lampcms\AuthException if user is not logged in,
-     * which would cause the template to present a login form
-     * on the error page
-     *
-     * OR Lampcms\AccessException if user is logged in
-     * which would mean a user does not have appropriate
-     * access privileges
      */
     public function checkAccessPermission($privilege = null, RoleInterface $role = null, $resource = null)
     {
@@ -298,7 +296,7 @@ class Base extends LampcmsObject
                 /**
                  * @todo translate string
                  */
-                throw new AuthException($Tr->get('Please Register or Login to perform this action'));
+                throw new AuthException('@@Please Register or Login to perform this action@@');
             }
 
             if (\strstr($roleID, 'unactivated')) {
@@ -313,14 +311,14 @@ class Base extends LampcmsObject
                         'notConfirmed' => $Tr->get('not validated'),
                         'sendLink' => $Tr->get('send me validation link'))) . '<br>';
                 } else {
-                    $err = $Tr->get('You have not confirmed email address') . '<br><a href="/settings/">' . $Tr->get('Request activation email') . '</a><br>';
+                    $err = '@@You have not confirmed email address@@<br><a href="{_WEB_ROOT_}/settings/">@@Request activation email@@' . '</a><br>';
                 }
 
                 throw new UnactivatedException($err);
 
             }
 
-            throw new AccessException($Tr->get('Your account does not have permission to perform this action'));
+            throw new AccessException('@@Your account does not have permission to perform this action@@');
         }
 
         return $this;
@@ -335,21 +333,19 @@ class Base extends LampcmsObject
      * to logged in users, the exception will be
      * throws in guest tries to access it
      *
-     * @return object $this
-     *
-     * @throws LampcmsException if access level
-     * error is detected
+     * @throws MustLoginException
+     * @return \Lampcms\object $this
      */
     protected function checkLoginStatus()
     {
         if ($this->membersOnly && !$this->isLoggedIn()) {
             d('cp must login');
-            throw new MustLoginException('You must login to access this page');
+            throw new MustLoginException('@@You must login to access this page@@');
         }
 
         if ($this->guestsOnly && $this->isLoggedIn()) {
             d('not a guest!');
-            throw new MustLoginException('This page cannot be accessed by a logged in user');
+            throw new MustLoginException('@@This page cannot be accessed by a logged in user@@');
         }
 
         return $this;

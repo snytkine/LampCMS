@@ -281,6 +281,14 @@ site %5$s and navigating to Settings > Email preferences
      */
     protected $collUsers;
 
+    /**
+     * Translator object for "en" locale
+     * Currently messages are set using default locate
+     * translations only (en)
+     *
+     * @var object I18N\Translator
+     */
+    protected $Translator;
 
     /**
      * Factory
@@ -304,11 +312,18 @@ site %5$s and navigating to Settings > Email preferences
      *
      *
      * @param \Lampcms\Registry $Registry
-     * @return \Lampcms\Event\Observer|\Lampcms\Modules\Observers\EmailNotifier
+     *
+     * @return \Lampcms\Modules\Observers\EmailNotifier
      */
     public static function factory(\Lampcms\Registry $Registry)
     {
         return new self($Registry);
+    }
+
+    public function __construct(\Lampcms\Registry $Registry)
+    {
+        parent::__construct($Registry);
+        $this->Translator = \Lampcms\I18N\Translator::factory($Registry->Cache, 'en');
     }
 
     /**
@@ -578,6 +593,14 @@ site %5$s and navigating to Settings > Email preferences
 
         $askerID = $this->Question->getOwnerId();
         $oMailer = $this->Registry->Mailer;
+
+        $varsBody = array('{username}' => $this->obj['username'],
+                          '{title}'    => $this->Question['title'],
+                          '{body}'     =>  $this->Question['intro'],
+                          '{link}'     => $this->Question->getUrl());
+
+        $varsSubj = array('{tags}' => implode(', ', $this->Question['a_tags']));
+
         $subj    = sprintf(static::$QUESTION_BY_TAG_SUBJ, implode(', ', $this->Question['a_tags']));
         $body    = vsprintf(static::$QUESTION_BY_TAG_BODY, array($this->Question['username'], $this->Question['title'], $this->Question['intro'], $this->Question->getUrl(), $this->Registry->Ini->SITE_URL));
 
@@ -634,18 +657,31 @@ site %5$s and navigating to Settings > Email preferences
          * templates for SUBJ and BODY
          *
          */
-        $tpl        = static::$ANSWER_BY_USER_BODY;
+        $tpl        = 'email.body.answer_by_user';
         $updateType = 'answer';
         $body       = '';
         if ('onNewQuestion' === $this->eventName) {
 
             $body       = $this->obj['intro'];
-            $tpl        = static::$QUESTION_BY_USER_BODY;
+            $tpl        = 'email.body.question_by_user';
             $updateType = 'question';
         }
 
-        $subj    = sprintf(static::$QUESTION_BY_USER_SUBJ, $updateType, $this->obj['username']);
-        $body    = vsprintf($tpl, array($this->obj['username'], $this->Question['title'], $body, $this->obj->getUrl(), $this->Registry->Ini->SITE_URL));
+        $varsBody = array('{username}' => $this->obj['username'],
+                          '{title}'    => $this->Question['title'],
+                          '{body}'     => $body,
+                          '{link}'     => $this->obj->getUrl());
+
+        $varsSubj = array('{username}' => $this->obj['username']);
+
+        //$subj    = sprintf(static::$QUESTION_BY_USER_SUBJ, $updateType, $this->obj['username']);
+        //$body    = vsprintf($tpl, array($this->obj['username'], $this->Question['title'], $body, $this->obj->getUrl(), $this->Registry->Ini->SITE_URL));
+        $subj = $this->Translator->get('email.subject.new_' . $updateType . '_by', $varsSubj);
+        d('subj: ' . $subj);
+
+        $body    = $this->Translator->get($tpl, $varsBody);
+        d('body: '.$body);
+
         $coll    = $this->collUsers;
         $oMailer = $this->Registry->Mailer;
         d('before shutdown function in UserFollowers');
