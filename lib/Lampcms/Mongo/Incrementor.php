@@ -82,25 +82,26 @@ class Incrementor
      * by storing collectionName => id
      * in Autoincrements collection
      *
-     * We get value, increment it and resave it
+     * We get value, increment it and re-save it
      * but watch for Errors/Exceptions in order
      * to prevent race condition
      *
-     * @param string $collName which collection this id
-     * is for. This has nothing to do with the name of the collection
-     * where these generated sequence numbers are stored.
-     * For example if you need the next id for collection 'STUDENTS',
-     * then you pass the 'STUDENTS' as $collName value
-     * This way different values of 'next id' are maintained
-     * per collection name
+     * @param string $collName  which collection this id
+     *                          is for. This has nothing to do with the name of the collection
+     *                          where these generated sequence numbers are stored.
+     *                          For example if you need the next id for collection 'STUDENTS',
+     *                          then you pass the 'STUDENTS' as $collName value
+     *                          This way different values of 'next id' are maintained
+     *                          per collection name
      *
-     * @param int $initialId if there is no record
-     * for the collection yet, then start the increment counter
-     * with this value.
+     * @param int    $initialId if there is no record
+     *                          for the collection yet, then start the increment counter
+     *                          with this value.
      *
-     * @param int $try this is used for recursive calling this method
-     * You should NEVER pass this value yourself
+     * @param int    $try       this is used for recursive calling this method
+     *                          You should NEVER pass this value yourself
      *
+     * @throws \RuntimeException
      * @return int value of next id for the collection
      */
     public function nextValue($collName, $initialId = 0, $try = 1)
@@ -165,7 +166,7 @@ class Incrementor
             }
 
             /**
-             * Insert successfull
+             * Insert successfully
              * now delete previous record(s)
              */
             if (null !== $prevRecordID) {

@@ -197,11 +197,11 @@ oSL = {
      *            DOMElement for that meta tag instead of just the value
      */
     getMeta:function (sMetaName, bAsElement) {
-        console.log('197 looking for meta tag ' + sMetaName);
+
         var el, i, aMeta = document.getElementsByTagName('meta');
-        console.log('199 ' + $LANG.dump(aMeta) + ' total metas: ' + aMeta.length);
+
         if (!aMeta) {
-            console.log('201 no meta tags in document');
+            console.log('204 no meta tags in document');
             return false;
         }
 
@@ -247,7 +247,7 @@ oSL = {
      * validation.
      */
     getToken:function () {
-        $L('166 getToken');
+        console.log('250 getToken');
         var token = this.getMeta('version_id');
         return token;
     },
@@ -256,14 +256,14 @@ oSL = {
      * user has the session-tid meta tag set to value of twitter userid
      */
     isLoggedIn:function () {
-        $L('64 this is: ' + this); // oTQ
+        console.log('259 this is: ' + this); // oTQ
 
         var ret, uid = this.getMeta('session-uid');
-        $L('148 uid: ' + uid);
+        console.log('262 uid: ' + uid);
 
         ret = (uid && (uid !== '') && (uid !== '0'));
 
-        $L('66 ret: ' + ret);
+        console.log('266 ret: ' + ret);
 
         return ret;
     },
@@ -289,9 +289,9 @@ oSL = {
      * any page but must be in the same domain)
      */
     setTZOCookie:function () {
-        $L('109 this is: ' + this);
+        console.log('292 this is: ' + this);
         var tzo = this.getTZO();
-        $L('117 tzo: ' + tzo);
+        console.log('294 tzo: ' + tzo);
         $COOKIE.set("tzo", tzo, {
             path:"/"
         });
@@ -320,8 +320,7 @@ oSL = {
     }, //
     fRemoveIcon:function () {
         if (this.eLoader && this.eLoader.parentNode) {
-            $L('include.js 118 eLoader parent: ' + this.eLoader.parentNode
-                + ' id: ' + this.eLoader.parentNode.id);
+            console.log('include.js 118 eLoader parent: ' + this.eLoader.parentNode  + ' id: ' + this.eLoader.parentNode.id);
             this.eLoader.parentNode.removeChild(this.eLoader);
         }
     },
@@ -338,8 +337,8 @@ oSL = {
      *         element that is not present in the old form.
      */
     fCompareForms:function (oNewForm, oOldForm) {
-        $L($CONN.setForm(oNewForm));
-        $L($CONN.setForm(oOldForm));
+        console.log($CONN.setForm(oNewForm));
+        console.log($CONN.setForm(oOldForm));
 
         if ($CONN.setForm(oNewForm) === $CONN.setForm(oOldForm)) {
             return true;
@@ -360,13 +359,13 @@ oSL = {
         *            sToColor
      */
     fColorChange:function (el, sFromColor, sToColor) {
-        $L('starting fColorChange for ' + el);
+        console.log('starting fColorChange for ' + el);
         var myChange, curBg, myChangeBack, //              
             element = (typeof el === 'string') ? $(el) : el, //
             sToColor = (sToColor && typeof sToColor === 'string') ? sToColor : '#FF0000', //
             sFromColor = (sFromColor && typeof sFromColor === 'string') ? sFromColor : '#FFFFFF';
 
-        $L('element is: ' + element);
+        console.log('element is: ' + element);
 
         if (element) {
 
@@ -400,7 +399,7 @@ oSL = {
      *            values.
      */
     fParseQf:function (json) {
-        $L($LANG.dump(json));
+        console.log($LANG.dump(json));
 
         var strMessage = '', aAvatars, i = 0, el, formField, eMessageDiv = $('qfe');
 
@@ -519,7 +518,7 @@ oSL.tweet = (function () {
                     ]
                 });
                 oDialog.beforeSubmitEvent.subscribe(function () {
-                    $L('before submit tweet');
+                    console.log('521 before submit tweet');
                     //oSL.modal.show();
                 });
                 oDialog.callback = {
@@ -605,7 +604,7 @@ oSL.Regform = (function () {
          * sessin we don't show this prompt again
          */
             handleCancel = function () {
-            $L('41 clicked on Cancel this is: ' + this);
+            console.log('607 clicked on Cancel this is: ' + this);
             oSL.Regform.getPrompt().show();
 
         }, //
@@ -623,7 +622,7 @@ oSL.Regform = (function () {
          */
             handleExit = function () {
             var eAvatar = $('regext');
-            $L('handling exit');
+            console.log('625 handling exit');
             this.hide();
             oSL.Regform.getInstance().hide();
             /**
@@ -645,7 +644,7 @@ oSL.Regform = (function () {
          * for the newsletter selections
          */
             handleSuccess = function (o) {
-            // $L('39 success ' + this, 'warn');
+            console.log('647 success ' + this);
             var response, i, aButtons, oMyDialog = oSL.Regform.getInstance();
             //oSL.modal.hide();
             oSL.Regform.enableButtons();
@@ -653,7 +652,7 @@ oSL.Regform = (function () {
             // oSL.Regform.getInstance().setFooter('<p>stuff and stuff</p>');
             aButtons = oSL.Regform.getInstance().getButtons();
             for (i = 0; i < aButtons.length; i += 1) {
-                $L('button ' + i + ' is ' + aButtons[i]);
+                console.log('655 button ' + i + ' is ' + aButtons[i]);
             }
 
             response = o.responseText;
@@ -684,7 +683,7 @@ oSL.Regform = (function () {
             oSL.Regform.enableButtons();
             oSL.Regform.getInstance().setBody('<p>boo hoo, something is wrong</p>');
             // setError('failed');
-            $L('47 fail ', 'warn');
+            console.log('686 fail');
         }, //
 
         setError = function (oError) {
@@ -764,11 +763,11 @@ oSL.Regform = (function () {
 
     return {
         getInstance:function () {
-            $L('cp 13', 'warn');
+            console.log('cp 766');
             if (!oDialog) {
-                $L('cp 15', 'warn');
+                console.log('cp 768');
                 $D.removeClass("regdiv", "yui-pe-content");
-                $L('cp 17', 'warn');
+                console.log('cp 770');
                 oDialog = new $W.Dialog("regdiv", {
                     width:"50em",
                     fixedcenter:"contained",
@@ -806,7 +805,7 @@ oSL.Regform = (function () {
                         myForm = this.form, //
                         nd = new Date(), //
                         data = this.getData();
-                    $L('data: ' + $LANG.dump(data));
+                    console.log('808 data: ' + $LANG.dump(data));
                     tzo = (0 - (nd.getTimezoneOffset() * 60)); // now its
                     // number of
                     // seconds
@@ -899,7 +898,7 @@ oSL.Regform = (function () {
         },
         getPrompt:function () {
             if (!oPrompt) {
-                $L('making prompt');
+                console.log('902 making prompt');
                 oPrompt = new $W.SimpleDialog("simpledialog1", {
                     width:"300px",
                     fixedcenter:true,
@@ -935,13 +934,13 @@ oSL.Regform = (function () {
                 oPrompt.render(document.body);
             }
 
-            $L('176 oPrompt: ' + oPrompt, 'warn');
+            console.log('938 oPrompt: ' + oPrompt);
 
             return oPrompt;
         },
         disableButtons:function () {
             var i, aBtns;
-            $L('105 this is: ' + this, 'warn');
+            console.log('944 this is: ' + this);
             if (oDialog) {
                 aBtns = oDialog.getButtons();
                 for (i = 0; i < aBtns.length; i += 1) {
@@ -952,7 +951,7 @@ oSL.Regform = (function () {
         },
         enableButtons:function () {
             var i, aBtns;
-            $L('105 this is: ' + this, 'warn');
+            console.log('955 this is: ' + this);
             if (oDialog) {
                 aBtns = oDialog.getButtons();
                 for (i = 0; i < aBtns.length; i += 1) {

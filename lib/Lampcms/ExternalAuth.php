@@ -123,15 +123,17 @@ class ExternalAuth extends LampcmsObject
      * otherwise returns twitter username
      *
      * The result is that we will use the value of
-     * Twitter username as our username OR the @username
-     * if username is already taken
+     * Twitter username as our username OR the
+     * @username
+     *       if username is already taken
      *
      * @todo change this to use MONGO USERS and use something like
      * $any
      *
-     * @return string the value of username that will
-     * be used as our own username
+     * @param      $displayName
+     * @param bool $isUtf8
      *
+     * @return string the value of username that will
      */
     public function makeUsername($displayName, $isUtf8 = false)
     {
@@ -177,7 +179,7 @@ class ExternalAuth extends LampcmsObject
         /**
          * If still could not find username then
          * use brute force and try appending numbers
-         * to username untill succeed
+         * to username until succeed
          */
         if (null === $username) {
             $i = 1;

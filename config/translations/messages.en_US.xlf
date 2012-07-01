@@ -120,7 +120,8 @@
                 {body}
 
 
-                Visit this url {link}
+                Visit this url
+                {link}
                 to read the entire question
                 and try to answer it if you can.
 
@@ -140,7 +141,8 @@
                 {title}
 
 
-                Visit this url {link}
+                Visit this url
+                {link}
                 to read the entire question and the answer
 
                 ----
@@ -162,7 +164,8 @@
                  {body}
 
 
-                 Visit this url {link}
+                 Visit this url:
+                 {link}
                  to read the entire question
                  and try to answer it if you can.
 
@@ -183,9 +186,11 @@
                 {username} has added a new {item}
                 to a question you follow:
                 {title}
+
                 {body}
 
-                Visit this url {link}
+                Visit this url:
+                {link}
                 to read the entire question
 
                 ----

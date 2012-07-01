@@ -74,6 +74,7 @@ class Twitter extends LampcmsObject
 
     /**
      * TWITTER section of !config.inc
+     *
      * @var array
      */
     protected $aTwitterConfig = array();
@@ -87,6 +88,7 @@ class Twitter extends LampcmsObject
 
     /**
      * Instance of TwitterUserInterface which is also User object
+     *
      * @var object User
      */
     protected $User;
@@ -102,7 +104,10 @@ class Twitter extends LampcmsObject
      * Constructor
      *
      * @param Registry $Registry
-     * @return void
+     *
+     * @throws DevException
+     * @throws Exception
+     * @return \Lampcms\Twitter
      */
     public function __construct(Registry $Registry)
     {
@@ -111,7 +116,7 @@ class Twitter extends LampcmsObject
         }
 
         $this->Registry = $Registry;
-        $oViewer = $Registry->Viewer;
+        $oViewer        = $Registry->Viewer;
         if ($oViewer instanceof TwitterUser) {
 
             $this->User = $oViewer;
@@ -130,7 +135,7 @@ class Twitter extends LampcmsObject
             $this->oAuth = new \OAuth($this->aTwitterConfig['TWITTER_OAUTH_KEY'], $this->aTwitterConfig['TWITTER_OAUTH_SECRET'], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
             $this->oAuth->enableDebug(); // This will generate debug output in your error_log
             d('cp');
-        } catch (\OAuthException $e) {
+        } catch ( \OAuthException $e ) {
             e('OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
 
             throw new Exception('Something went wrong during Twitter authorization. This has nothing to do with your account. Please try again later' . $e->getMessage());
@@ -141,8 +146,9 @@ class Twitter extends LampcmsObject
     /**
      * Setter for $this->User
      *
-     * @param User $User
-     * @return object $this
+     * @param \Lampcms\TwitterUser $User
+     *
+     * @return \Lampcms\object $this
      */
     public function setUser(\Lampcms\TwitterUser $User)
     {
@@ -154,6 +160,7 @@ class Twitter extends LampcmsObject
 
     /**
      * Getter for this->oAuth object
+     *
      * @return object of type php oAuth
      */
     public function getOAuth()
@@ -163,8 +170,10 @@ class Twitter extends LampcmsObject
 
     /**
      * Factory method
+     *
      * @param Registry $Registry
-     * @param User $User
+     * @param User     $User
+     *
      * @return object of this class
      */
     /*public static function factory(Registry $Registry, TwitterUser $User = null)
@@ -183,21 +192,13 @@ class Twitter extends LampcmsObject
      * This will confirm or deny that user is
      * authorizing us to use Twitter account
      *
-     * @param mixed $token string oauth token or object of type User
+     * @param mixed  $token string oauth token or object of type User
      * @param string $secret
+     *
+     * @throws TwitterAuthException
+     * @throws DevException
+     * @throws Exception
      * @return array of user profile on success
-     * Nothing is ever returned on failure because failure
-     * causes an exception to be thrown, so be ready to either
-     * catch exception explicitely or let the WebPage to catch it
-     * and generate web page or send json
-     *
-     * @throws \Lampcms\TwitterAuthException in case verification fails
-     * This is helpful because this would cause this exception to be caught
-     * in WebPage and returned in json array (in case request is by ajax)
-     * and in turn it would present nice modal on page asking user
-     * to start oAuth dance again.
-     *
-     *
      */
     public function verifyCredentials($token = null, $secret = null)
     {
@@ -208,7 +209,7 @@ class Twitter extends LampcmsObject
         $User = null;
 
         if (is_string($token) && is_string($secret)) {
-            $sToken = $token;
+            $sToken  = $token;
             $sSecret = $secret;
         }
 
@@ -225,8 +226,8 @@ class Twitter extends LampcmsObject
                 throw new DevException('param $token is not a string and not instance of User ' . get_class($token));
             }
 
-            $User = $token;
-            $sToken = $User->getTwitterToken();
+            $User    = $token;
+            $sToken  = $User->getTwitterToken();
             $sSecret = $User->getTwitterSecret();
         }
 
@@ -241,7 +242,7 @@ class Twitter extends LampcmsObject
 
             return $this->getResponse($User);
 
-        } catch (\OAuthException $e) {
+        } catch ( \OAuthException $e ) {
             e('LampcmsError OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
             /**
              * Should NOT throw LampcmsTwitterAuthException because
@@ -257,31 +258,32 @@ class Twitter extends LampcmsObject
      * Post message (update) to Twitter
      * using oAuth credentials from User
      *
-     * If post is successfull then we update the User
+     * If post is successful then we update the User
      * with the latest profile data we get from Twitter
      * and call save(), so that our record will be updated
      * if profile data has changed
      *
-     * @param string $sMessage message to post
+     * @param string $sMessage    message to post
      *
-     * @param object $User
+     * @param int    $inReplyToId twitter status id
+     *                            Optional. The ID of an existing status that the update is in reply to.
+     *                            Note: This parameter will be ignored
+     *                            unless the author of the tweet this parameter references is mentioned
+     *                            within the status text.
+     *                            Therefore, you must include
      *
-     * @param int $inReplyToId twitter status id
-     * Optional. The ID of an existing status that the update is in reply to.
-     * Note: This parameter will be ignored
-     * unless the author of the tweet this parameter references is mentioned
-     * within the status text.
-     * Therefore, you must include @username,
-     * where username is the author of the referenced tweet, within the update.
+     * @internal param object $User
      *
-     * @throws LampcmsTwitterException or LampcmsTwitterAuthException on failure
+     * @username ,
+     *           where username is the author of the referenced tweet, within the update.
+     *
      * @return array of data returned by Twitter
      */
     public function postMessage($sMessage, $inReplyToId = null)
     {
         d('cp');
         $this->url = self::URL_STATUS;
-        $args = array('status' => $sMessage);
+        $args      = array('status' => $sMessage);
         if (null !== $inReplyToId) {
             $args['in_reply_to_status_id'] = $inReplyToId;
         }
@@ -302,7 +304,7 @@ class Twitter extends LampcmsObject
      *
      *
      * @param mixed $tweet array in case of success
-     * or any possible format returned by Twitter API otherwise
+     *                     or any possible format returned by Twitter API otherwise
      *
      * @return object $this
      */
@@ -325,7 +327,7 @@ class Twitter extends LampcmsObject
 
             $aData = array('_id' => $tweet['id_str'], 'i_uid' => $this->User->getUid(), 'i_ts' => time());
             $coll->save($aData);
-        } catch (\Exception $e) {
+        } catch ( \Exception $e ) {
             e('Unable to save data to TWEETS collection because of ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
         }
 
@@ -338,9 +340,10 @@ class Twitter extends LampcmsObject
      * It will convert string to guaranteed utf8,
      * then strip html tags then truncate to 140 chars
      *
-     * @param string $sMessage
-     * @param string $inReplyToId
+     * @param Utf8String $Message
+     * @param string     $inReplyToId
      *
+     * @internal param string $sMessage
      * @return array of response data from Twitter API
      */
     public function prepareAndPost(Utf8String $Message, $inReplyToId = null)
@@ -353,17 +356,20 @@ class Twitter extends LampcmsObject
 
     /**
      * Add or delete status from user's favorites
-     * @param TwitterUserInterface $intStatusId
-     * @param $User
-     * @param $isDelete
-     * @return unknown_type
+     *
+     * @param      $statusId
+     * @param bool $isDelete
+     *
+     * @internal param \Lampcms\TwitterUserInterface $intStatusId
+     * @internal param $User
+     * @return \Lampcms\unknown_type
      */
     public function updateFavorites($statusId, $isDelete = false)
     {
 
-        d('$intStatusId: ' . $intStatusId);
-        $action = ($isDelete) ? 'destroy' : 'create';
-        $args = array('id' => $intStatusId);
+        d('$statusId: ' . $statusId);
+        $action    = ($isDelete) ? 'destroy' : 'create';
+        $args      = array('id' => $statusId);
         $this->url = sprintf(self::URL_FAVORITE, $action, $statusId);
 
         return $this->postApi($args);
@@ -375,8 +381,11 @@ class Twitter extends LampcmsObject
      * another user (usually to follow our own account)
      *
      * @param string $twitterUserId username or twitter user ID
-     * if not set then we will use the one from !config.inc
-     * TWITTER -> TWITTER_USERNAME
+     *                              if not set then we will use the one from !config.inc
+     *                              TWITTER -> TWITTER_USERNAME
+     *
+     * @throws DevException
+     * @return array
      */
     public function followUser($twitterUserId = null)
     {
@@ -398,13 +407,16 @@ class Twitter extends LampcmsObject
      * Get oAuth token, secret from User and set
      * the values in this oAuth object
      *
-     * @param TwitterUserInterface $User
-     * @return object $this
+     * @param null $token
+     * @param null $secret
+     *
+     * @internal param \Lampcms\TwitterUserInterface $User
+     * @return \Lampcms\object $this
      */
     public function setOAuthTokens($token = null, $secret = null)
     {
         d('this->User: ' . print_r($this->User->getArrayCopy(), 1));
-        $token = (!empty($token)) ? $token : $this->User->getTwitterToken();
+        $token  = (!empty($token)) ? $token : $this->User->getTwitterToken();
         $secret = (!empty($secret)) ? $secret : $this->User->getTwitterSecret();
 
         d('setting $token: ' . $token . ' secret: ' . $secret);
@@ -422,6 +434,8 @@ class Twitter extends LampcmsObject
      * and will throw exception if header is 401 meaning
      * authorization failed
      *
+     * @throws TwitterException
+     * @throws TwitterAuthException
      * @return mixed array of data returned by Twitter on success
      * nothing is returned on failure because an exception is thrown instead
      */
@@ -473,8 +487,10 @@ class Twitter extends LampcmsObject
 
     /**
      * Makes a POST request to Twitter API
+     *
      * @param mixed $aData
      *
+     * @throws TwitterException
      * @return array with response data from Twitter API
      */
     protected function apiPost($aData = null)
@@ -501,7 +517,7 @@ class Twitter extends LampcmsObject
             d('fetching: ' . $this->url . ' data: ' . print_r($aData, 1));
             $this->oAuth->fetch($this->url, $aData);
 
-        } catch (\OAuthException $e) {
+        } catch ( \OAuthException $e ) {
             $aDebug = $this->oAuth->getLastResponseInfo();
             d('debug: ' . print_r($aDebug, 1));
 
@@ -509,7 +525,7 @@ class Twitter extends LampcmsObject
             /**
              * Should NOT throw TwitterException because
              * we are not sure it was actually due to authorization
-             * or maby Twitter was bugged down or something else
+             * or maybe Twitter was bugged down or something else
              */
             throw new TwitterException('Something went wrong during connection with Twitter. Please try again later' . $e->getMessage());
         }
@@ -536,6 +552,5 @@ class Twitter extends LampcmsObject
 
         return $aResponse;
     }
-
 
 }

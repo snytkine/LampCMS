@@ -135,10 +135,10 @@ class AvatarParser extends LampcmsObject
      *
      * @todo unfinished
      *
-     * @param object $User object of type User
-     * @param string $src path to avatar
+     * @param \Lampcms\User|object $User object of type User
+     * @param string               $src  path to avatar
      *
-     * @return object $this
+     * @return \Lampcms\object $this
      */
     public function removeAvatar(User $User, $src)
     {

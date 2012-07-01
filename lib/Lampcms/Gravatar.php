@@ -133,7 +133,7 @@ class Gravatar
     protected $fallback = 'wavatar';
 
     /**
-     * Flag indication wheather or not
+     * Flag indication if
      * an email gas gravatar
      * @var string one of: Y for Definite Yes, N
      * for definite NO (when gravatar site returned http 404 response)
@@ -175,10 +175,12 @@ class Gravatar
      * Only this method can be used
      * to create this object
      *
-     * @param string $email
-     * @param int $size
-     * @param string $fallback
-     * @param string $rating
+     * @param string     $email
+     * @param int|string $size
+     * @param string     $fallback
+     * @param string     $rating
+     *
+     * @throws \InvalidArgumentException
      * @return object object of this class
      */
     public static function factory($email, $size = '75', $fallback = 'wavatar', $rating = 'g')
@@ -206,11 +208,13 @@ class Gravatar
      * Sets $this->email, and $this->emailHash
      * and unsets $this->url, $this->gravatar
      * and $this->gravatarExists
+     *
      * @param string $email email address
-     * @return object $this
-     * @throws InvalidArgumentException if email address
+     *
+     * @throws \InvalidArgumentException if email address
      * fails validation by php's built in
      * email validation filter FILTER_VALIDATE_EMAIL
+     * @return object $this
      */
     public function setEmail($email)
     {
@@ -232,9 +236,9 @@ class Gravatar
      * one of http or https
      *
      * @param string $protocol
+     *
+     * @throws \InvalidArgumentException
      * @return object $this
-     * @throws InvalidArgumentExceptions in case
-     * passed name of protocol is not http and not https
      */
     public function setProtocol($protocol = 'http')
     {
@@ -252,13 +256,14 @@ class Gravatar
     /**
      * Setter for $this->ext image extension
      * of of jpg, png or gif
+     *
      * @param $ext
      *
-     * @return object $this
-     *
-     * @throws InvalidArgumentException in case value
+     * @throws \InvalidArgumentException in case value
      * passed is not one of 3 supported image
      * extensions
+     * @return object $this
+     *
      */
     public function setExt($ext)
     {
@@ -277,9 +282,10 @@ class Gravatar
      * Setter for $this->rating
      *
      * @param string $rating g, pg, r, or x
-     * @return object $this
-     * @throws InvalidArgumentException in case value
+     *
+     * @throws \InvalidArgumentException in case value
      * passed in not one of supported ratings
+     * @return object $this
      */
     public function setRating($rating)
     {
@@ -302,12 +308,14 @@ class Gravatar
      *
      * @param string $size size in pixels or width and height
      *
+     * @throws \OutOfRangeException
+     * @throws \UnexpectedValueException
      * @return object $this
      */
     public function setSize($size)
     {
         if (!is_numeric($size)) {
-            throw new UnexpectedValueException('value of $size must be numeric, was: ' . $size);
+            throw new \UnexpectedValueException('value of $size must be numeric, was: ' . $size);
         }
 
 
@@ -326,10 +334,11 @@ class Gravatar
      * some image in case real gravatar does not exist
      *
      * @param string $fallback name of fallback service set to 404
-     * if you need to just test if avatar exists, in which case the server will
-     * respond with 404 HTTP response instead of using fallback avatar
-     * provider
+     *                         if you need to just test if avatar exists, in which case the server will
+     *                         respond with 404 HTTP response instead of using fallback avatar
+     *                         provider
      *
+     * @throws \InvalidArgumentException
      * @return object $this
      */
     public function setFallback($fallback)

@@ -76,6 +76,9 @@ class PostRegistration
      * from which use initially came from on his first visit
      * (before he was even registered)
      *
+     * @param Registry $Registry
+     * @param User     $User
+     *
      * @return void
      */
     public static function createReferrerRecord(Registry $Registry, User $User)

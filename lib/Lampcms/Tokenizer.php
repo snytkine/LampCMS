@@ -55,7 +55,7 @@ namespace Lampcms;
 
 /**
  * Class for breaking up string into
- * tokens then appying stopwords filter
+ * tokens then applying stopwords filter
  * to result
  *
  *

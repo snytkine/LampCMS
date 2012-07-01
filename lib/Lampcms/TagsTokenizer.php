@@ -67,7 +67,9 @@ class TagsTokenizer extends \Lampcms\String\Tokenizer
      * Factory method. This class should be instantiated
      * ONLY through this method
      *
-     * @param object of type Utf8string $Tags
+     * @param Utf8String $Tags
+     *
+     * @internal param \Lampcms\of $object type Utf8string $Tags
      * @return object of this class
      */
     public static function factory(Utf8String $Tags)
@@ -97,7 +99,7 @@ class TagsTokenizer extends \Lampcms\String\Tokenizer
         /**
          * Remove <> brackets and forward slash.
          * These are really bad news and will cause
-         * alot of headache later, especially the /
+         * allot of headache later, especially the /
          * which will break the url rewrite rules
          * This is important because values of tags are
          * used in urls

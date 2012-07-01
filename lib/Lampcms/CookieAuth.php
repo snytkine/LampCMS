@@ -106,10 +106,9 @@ class CookieAuth extends UserAuth
     /**
      * Get arr of UserInfo from
      * cache
-     * @return object of type User
      *
-     * @throws Lampcms\LoginException
-     * in case user does not exist
+     * @throws CookieAuthException
+     * @return object of type User
      */
     protected function getSidUser()
     {
@@ -132,11 +131,8 @@ class CookieAuth extends UserAuth
      * checks to make sure cookies uid and sid
      * are present in request
      *
-     * @return object $this
-     *
-     * @throws LampcmsCookieAuthException
-     * if sid or uid cookie are not present
-     * in request
+     * @throws CookieAuthException
+     * @return \Lampcms\object $this
      */
     protected function checkRequiredCookies()
     {
@@ -212,12 +208,8 @@ class CookieAuth extends UserAuth
      * come from ip address that was previously
      * banned for hack attempts
      *
-     * @return object $this
-     *
-     * @throws LampcmsCookieAuthException
-     * if request came from ip address that
-     * was banned for attempting to hack
-     * login by cookie
+     * @throws CookieAuthException
+     * @return \Lampcms\object $this
      */
     protected function checkForBannedIP()
     {
@@ -253,11 +245,8 @@ class CookieAuth extends UserAuth
      * Validator to make sure
      * 'sid' cookie is a valid hex number
      *
-     * @return object $this
-     * @throws LampcmsCookieAuthException
-     * if sid cookie is not a valid hex string
-     * string also must be in all lower case letters
-     * in order to pass validation
+     * @throws CookieAuthException
+     * @return \Lampcms\object $this
      */
     protected function checkSidFormat()
     {
@@ -292,13 +281,8 @@ class CookieAuth extends UserAuth
      * attempts for the same uid
      * in the last 60 minutes
      *
-     * @return object $this
-     *
-     * @throws LampcmsCookieAuthException
-     * if there has been any failed attempts
-     * to authenticated the same uid using cookie
-     * in the pas 60 minutes and the latest attempt
-     * was less than 30 minutes ago
+     * @throws CookieAuthException
+     * @return \Lampcms\object $this
      */
     protected function checkMultipleSidLoginErrors()
     {
@@ -350,7 +334,7 @@ class CookieAuth extends UserAuth
      * @param object $stored
      *
      * @return bool true if they match
-     * or false if dont match
+     * or false if don't match
      */
     protected function compareSids($stored)
     {

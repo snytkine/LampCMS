@@ -60,16 +60,20 @@ namespace Lampcms;
  */
 class Cookie
 {
+
     /**
      * Function for setting or deleting login cookie
      * the value of the s cookie is an md5 hash of user password
      * the value of the uid cookie is the userID
      *
-     * @param boolean $boolKeepSigned true if user checked 'remember me' box on login form
      * @param integer $intUserId userID
-     * @param string $strPassword user's password
-     * @return void cookies are sent to browser
+     * @param         $strSID
+     * @param string  $cookieName
      *
+     * @throws DevException
+     * @internal param bool $boolKeepSigned true if user checked 'remember me' box on login form
+     * @internal param string $strPassword user's password
+     * @return void cookies are sent to browser
      */
     public static function sendLoginCookie($intUserId, $strSID, $cookieName = 'uid')
     {
@@ -99,21 +103,18 @@ class Cookie
     /**
      * Sends cookie
      *
-     * @param string $name name of cookie
+     * @param string     $name    name of cookie
      *
-     * @param string $val value of cookie
+     * @param string     $val     value of cookie
      *
-     * @param string $ttl expiration time in seconds
-     * default is 63072000 means 2 years
+     * @param int|string $ttl     expiration time in seconds
+     *                            default is 63072000 means 2 years
      *
-     * @param string $sDomain optional if set the setcookie will use
-     * this value instead of LAMPCMS_COOKIE_DOMAIN constant
+     * @param string     $sDomain optional if set the setcookie will use
+     *                            this value instead of LAMPCMS_COOKIE_DOMAIN constant
      *
-     * @throws LampcmsDevException in case cookie
-     * was not send to browser. Usually this happends when
-     * the output has already been started. The main cause
-     * of this is when the script has an echo() or print_r()
-     * somewhere for debugging purposes.
+     * @throws DevException
+     * @return bool
      */
     public static function set($name, $val, $ttl = 63072000, $sDomain = null)
     {
@@ -144,11 +145,10 @@ class Cookie
      * in the past, which will delete the cookie
      *
      * @param mixed $name a string
-     * or array of cookies to delete
+     *                    or array of cookies to delete
      *
-     * @throws LampcmsDevException if $name
-     * is not string and not array
-     *
+     * @throws DevException
+     * @return bool
      */
     public static function delete($name)
     {
@@ -217,7 +217,7 @@ class Cookie
 
 
     /**
-     * Returnes value of specific cookie name
+     * Returns value of specific cookie name
      *
      * @param string $cookieName
      *
@@ -244,9 +244,9 @@ class Cookie
      * Returns value of first visit extracted
      * from sid cookie or false if sid cookie not present
      *
-     * @param $bFirstVisitOnly if set to true then return
-     * only the value of first visit, otherwise
-     * return the value of sid cookie
+     * @param bool|\Lampcms\if $bFirstVisitOnly if set to true then return
+     *                                          only the value of first visit, otherwise
+     *                                          return the value of sid cookie
      *
      * @return mixed int timestamp of first visit
      * or false if value not found in cookie

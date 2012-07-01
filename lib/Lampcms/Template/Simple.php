@@ -70,6 +70,7 @@ class Simple extends Fast
      * placeholders inside the template
      *
      * @param array $aVars
+     * @return string
      */
     protected static function replace(array $aVars)
     {

@@ -124,7 +124,10 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
      * Same as loadHTMLString() only the input
      * is an object of type Utf8String
      *
-     * @param \Lampcms\Utf8String $oHtml
+     * @param Utf8String $Html
+     *
+     * @internal param \Lampcms\Utf8String $oHtml
+     * @return bool
      */
     public function loadUTF8String(\Lampcms\Utf8String $Html)
     {
@@ -148,9 +151,9 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
         /**
          * Extremely important to add the
          * <META CONTENT="text/html; charset=utf-8">
-         * This is the ONLY way to tell the DOM (more spefically
+         * This is the ONLY way to tell the DOM (more specifically
          * the libxml) that input is in utf-8 encoding
-         * Whithout this the DOM will assume that input is in the
+         * Without this the DOM will assume that input is in the
          * default ISO-8859-1 format and then
          * will try to recode it to utf8
          * essentially it will do its own conversion to utf8,
@@ -177,9 +180,8 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
      * Get HTML fragment (the contents of the <body>,
      * without the actual <body> tag
      *
+     * @throws \Lampcms\Exception
      * @return string HTML string, usually with html special
-     * entities (like &nbsp;) replaced with special UTF8 XML entities
-     *
      */
     public function getHtml()
     {
@@ -199,11 +201,8 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
      * Get HTML fragment (the contents of the <body>,
      * without the actual <body> tag
      *
+     * @throws \Lampcms\Exception
      * @return string XML string
-     * It may be different from the input html because
-     * <br> will be replaced with <br/> and may be other
-     * changed to make it a valid XML string
-     *
      */
     public function getXML()
     {
@@ -272,7 +271,7 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
      * as separate UTF8String object
      *
      * This way each text node is split by UTF-8 specific word
-     * delimeters, making it return correct word count
+     * delimiters, making it return correct word count
      * for Any type of language (not only splitting by spaces but
      * by other accepted delimiters)
      *
@@ -319,7 +318,7 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
     /**
      * Reload document only if CData has been
      * added anywhere in the document
-     * This basically imports contens of CDATA section
+     * This basically imports contents of CDATA section
      * into the DOM Tree so it's not just a string anymore
      * but a part of DOM
      *

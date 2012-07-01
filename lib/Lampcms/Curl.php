@@ -146,6 +146,7 @@ class Curl extends LampcmsObject
      * if file does not exist php will attempt to create it
      * and if that fails that DevException is thrown
      *
+     * @return \Lampcms\Curl
      * @throws DevException
      */
     public function setCookieFile($file)
@@ -169,9 +170,9 @@ class Curl extends LampcmsObject
      * Sets the value for the referrer
      *
      * @param string $url should be a valid url,
-     * ideall it will be the url from which the request
+     * ideally it will be the url from which the request
      * would come in real life. For example when posting
-     * to a login form it's best to set referret to
+     * to a login form it's best to set referrer to
      * the page from where user would normally login
      *
      * When posting to a "send message" form it's best to
@@ -225,7 +226,7 @@ class Curl extends LampcmsObject
      * timeout: 8 seconds
      * useragent: Mozilla
      *
-     * These can be overritten in getDocument in third param
+     * These can be overridden in getDocument in third param
      * // used to also include this 'redirect' => 2,
      * but now cannot include redirect limit because
      * we handle redirects separately
@@ -242,9 +243,11 @@ class Curl extends LampcmsObject
      * created
      *
      * @reset bool if true then will reinitialize $this->request
-     * even if it's already set.
+     *        even if it's already set.
      *
-     * @return object $this
+     * @param bool $reset
+     *
+     * @return \Lampcms\object $this
      */
     public function initCurl($reset = false)
     {
@@ -273,35 +276,34 @@ class Curl extends LampcmsObject
 
 
     /**
-     * Main method to get (retreive) the document from url
+     * Main method to get (retrieve) the document from url
      * as well as set the $this object with values
      * This method makes use of special cache-control
      * request headers: If-Modified-Since
      * and If-None-Match
      *
-     * @param string $url URI from which we requesting the document
+     * @param string $url   URI from which we requesting the document
      *
      * @param string $since value to use for the If-Modified-Since
-     * this should be in the rfs 2822 or 822 date/time format
-     * Ideally (really strongly recommended) this value should be
-     * previously received from the same http server from which
-     * we are currently requesting the document. It is usually
-     * important that the time is in the timezone of the server
-     * from which we requesting the document
+     *                      this should be in the rfs 2822 or 822 date/time format
+     *                      Ideally (really strongly recommended) this value should be
+     *                      previously received from the same http server from which
+     *                      we are currently requesting the document. It is usually
+     *                      important that the time is in the timezone of the server
+     *                      from which we requesting the document
      *
-     * @param string $etag value to be used for the
-     * If-None-Match header. This should be the value previously
-     * received from the same http server for the same document
-     * that we currently requesting
+     * @param string $etag  value to be used for the
+     *                      If-None-Match header. This should be the value previously
+     *                      received from the same http server for the same document
+     *                      that we currently requesting
      *
-     * @param array $aOptions
+     * @param array  $aOptions
      *
-     * @return object $this
-     *
-     * @throws Exceptions are based on returned response code:
-     * 304, 404 and timeout result in special corresponding exceptions
-     *
-     *
+     * @throws \LogicException
+     * @throws HttpTimeoutException
+     * @throws DevException
+     * @throws \Exception
+     * @return \Lampcms\object $this
      */
     public function getDocument($url, $since = null, $etag = null, array $aOptions = array())
     {
@@ -332,7 +334,7 @@ class Curl extends LampcmsObject
         /**
          * Quick and dirty fix to enable
          * SSL by just not verifying ssl certificates
-         * Withot this like curl just would not work
+         * Without this like curl just would not work
          */
         \curl_setopt($this->request, CURLOPT_SSL_VERIFYPEER, false);
 
@@ -402,14 +404,11 @@ class Curl extends LampcmsObject
      * of some sort, or even parsing response from some API
      * as it takes case of all situations where we did not
      * get the "OK" response and even of situation where
-     * the body of an otherwise "OK" respose was empty
+     * the body of an otherwise "OK" response was empty
      *
-     * @throws sub-class of Lampcms\Exception, depending on
-     * the Http response code. In case the response
-     * code is 200 or 201 which is OK but there is no
-     * content in the body, it throws \Lampcms\HttpEmptyBodyException
      *
-     * @return object $this
+     * @throws Http304Exception|Http400Exception|Http401Exception|Http404Exception|Http500Exception|HttpEmptyBodyException|HttpRedirectException|HttpResponseErrorException
+     * @return \Lampcms\object $this
      */
     public function checkResponse()
     {
@@ -497,6 +496,7 @@ class Curl extends LampcmsObject
      *
      *
      * @param array $aHeaders
+     * @return \Lampcms\Curl
      */
     public function setHeaders(array $aHeaders)
     {
@@ -688,6 +688,7 @@ class Curl extends LampcmsObject
      * if this header does not exists, will return empty string
      *
      * @param string $sHeader
+     * @return string
      */
     public function getHeader($sHeader)
     {

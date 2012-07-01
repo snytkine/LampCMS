@@ -72,11 +72,13 @@ class UserTagsBlock extends LampcmsObject
      * Renders block with user tags
      *
      * @todo get Viewer from Registry and if NOT
-     * the same as User then get array intersection
-     * and show you have these 'tags' in common
+     *       the same as User then get array intersection
+     *       and show you have these 'tags' in common
      *
-     * @param object $Registry Registry object
-     * @param object $User User object
+     * @param \Lampcms\Registry|object $Registry Registry object
+     * @param \Lampcms\User|object     $User     User object
+     *
+     * @return string
      */
     public static function get(Registry $Registry, User $User)
     {
@@ -131,6 +133,7 @@ class UserTagsBlock extends LampcmsObject
      *
      * @param User $oViewer
      * @param array $userTags
+     * @return string
      */
     public static function getCommonTags(User $oViewer, array $userTags)
     {

@@ -789,6 +789,7 @@ class Doc extends LampcmsArray implements \Serializable
      * @see Lampcms.ArrayDefaults::unserialize()
      *
      * @param string $serialized
+     * @return void
      */
     public function unserialize($serialized)
     {

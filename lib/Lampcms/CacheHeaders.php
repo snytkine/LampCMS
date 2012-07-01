@@ -65,6 +65,7 @@ namespace Lampcms;
  */
 class CacheHeaders
 {
+
     /**
      * Process the If-Modified-Since
      * and If-None-Match headers
@@ -77,7 +78,7 @@ class CacheHeaders
      * will save bandwidth since no body has to be sent
      *
      * If the If-Modified-Since nor If-None-Matched
-     * are used in the request, then this metod will
+     * are used in the request, then this method will
      * send out the headers
      * Last-Modified and/or Etag
      * as passed to this method. This way a browser
@@ -87,19 +88,20 @@ class CacheHeaders
      * Says that ideally the server should send both
      * Last-Modified and Etag but it's not a requirement
      *
-     * @param string $lastModified must be valid time string
-     * @param string $etag any unique string
-     * @param int $maxAge maximum time during which client considers the cache entry is
-     * not stale. This number must be in seconds. By default is 15 seconds, but can be
-     * set to 0 to indicate that cache entry should alwasy be revalidated with the server
+     * @param string $etag            any unique string
+     * @param string $lastModified    must be valid time string
+     * @param int    $maxAge          maximum time during which client considers the cache entry is
+     *                                not stale. This number must be in seconds. By default is 15 seconds, but can be
+     *                                set to 0 to indicate that cache entry should always be re-validated with the server
      *
-     * @param bool $bCheckForChange if set to false, then will only send out
-     * the Last-Modified and/or Etag headers but will not
-     * look at request headers at all.
-     * Sometimes we may want to only send out headers but
-     * don't return 304 code if script has not changed.
-     * This is not a good idea usually, so it's set to true by default
+     * @param bool   $bCheckForChange if set to false, then will only send out
+     *                                the Last-Modified and/or Etag headers but will not
+     *                                look at request headers at all.
+     *                                Sometimes we may want to only send out headers but
+     *                                don't return 304 code if script has not changed.
+     *                                This is not a good idea usually, so it's set to true by default
      *
+     * @throws \OutOfBoundsException
      * @return mixed true on success or nothing at all
      * because script will exit after sending the 304 header
      */
@@ -107,9 +109,9 @@ class CacheHeaders
     {
         d('$etag ' . $etag . ' $lastModified: ' . $lastModified);
         if (empty($lastModified) && empty($etag)) {
-            d('No headers values provided, exising');
+            d('No headers values provided, exiting');
 
-            return $this;
+            return;
         }
 
 
@@ -131,12 +133,12 @@ class CacheHeaders
         /**
          * This tells browsers (at least this is what it's supposed to tell)
          * is "it's OK to cache this page" but
-         * before serving the cached content alwasy check back
+         * before serving the cached content always check back
          * with the server to see if content has changed.
          *
          * If we set the maxage to 600 (for example), then
          * it would tell the server that if the content was downloaded
-         * less than 10 minues ago, then don't even attempt to contant
+         * less than 10 minutes ago, then don't even attempt to contact
          * the server, just serve the cached content.
          *
          * The private meas per-user cache. Basically this means
@@ -150,7 +152,7 @@ class CacheHeaders
          *
          * More importantly the Header of page may include the 'welcome back'
          * block which would include user's username like "Welcome back Sam"
-         * Surely this sort of page is indended only for Sam's browser cache
+         * Surely this sort of page is intended only for Sam's browser cache
          * and not for just any user, so proxies should not
          * serve this copy to all users.
          * However, the search bots may ignore the cache-control
@@ -256,7 +258,7 @@ class CacheHeaders
         $noChangeByEtag = $noChangeByTimestamp = false;
 
         /**
-         * If we can determing change/no change by timestamp then do it
+         * If we can determine change/no change by timestamp then do it
          * otherwise we skip this test
          */
         if (!empty($_SERVER['HTTP_IF_MODIFIED_SINCE']) && (null !== $lastModified)) {
@@ -338,11 +340,11 @@ class CacheHeaders
      * result.
      *
      * @param string $etag value of our ACTUAL etag for this page
-     * This value must be unique not only for this page but for
-     * the whole domain. This means that just having the timestamp of
-     * the message is not enough since another message may have the exact same timestamp
-     * To uniquely identify the page we should include messageID followed by a timestamp
-     * and may append any other string to help uniquly identify the page
+     *                     This value must be unique not only for this page but for
+     *                     the whole domain. This means that just having the timestamp of
+     *                     the message is not enough since another message may have the exact same timestamp
+     *                     To uniquely identify the page we should include messageID followed by a timestamp
+     *                     and may append any other string to help uniquely identify the page
      *
      * @return bool true if ANY of the etags (in case more than one is included)
      * matches OUR etag (value of $etag)
@@ -386,10 +388,11 @@ class CacheHeaders
      * This means that both If-Modified-Since header
      * and $lastModified values are present
      * and after examining them we determine that there
-     * is definetely no change.
+     * is definitely no change.
      *
      * @param $lastModified
-     * @return bool true means definete 'no change', false
+     *
+     * @return bool true means definite 'no change', false
      * means content has changed
      */
     protected static function detectNoChangeByTimestamp($lastModified)
@@ -406,9 +409,9 @@ class CacheHeaders
          * Handle the case where client composed an arbitrary value
          * of If-Modified-Since
          * This is not recommended, but we still must be able
-         * to handle this gacefully
+         * to handle this gracefully
          * If value of If-Modified-Since greater than our Last-Modified
-         * that would mean that contant has indeed been modified
+         * that would mean that content has indeed been modified
          * For example, client asks for a content that has been modified
          * after Dec 5 2009, but our content was last modified on Dec 4 2009
          * As far as client is concerned, there has been no change

@@ -64,6 +64,7 @@ class String extends LampcmsObject implements \Serializable
 
     /**
      * The string that this object represents
+     *
      * @var string
      */
     protected $string;
@@ -83,10 +84,11 @@ class String extends LampcmsObject implements \Serializable
      * instance of $this->string is changing (object is not immutable in
      * this case) and $this is returned
      *
-     * The StringBuilder is more effecient because it does not
+     * The StringBuilder is more efficient because it does not
      * create a new object every time the string changes
      *
      * Default is 'immutable'
+     *
      * @var string
      */
     protected $returnMode = 'default';
@@ -135,13 +137,13 @@ class String extends LampcmsObject implements \Serializable
      *
      * @param $mode
      *
-     * @throws InvalidArgumentException
-     * @return object $this
+     * @throws \InvalidArgumentException
+     * @return \Lampcms\object $this
      */
     public function setReturnMode($mode)
     {
         if (!is_string($mode)) {
-            throw new InvalidArgumentException('$mode must be a string');
+            throw new \InvalidArgumentException('$mode must be a string');
         }
 
         $this->returnMode = $mode;
@@ -166,6 +168,7 @@ class String extends LampcmsObject implements \Serializable
      * is not the same as in parent class
      *
      * @param string $string
+     *
      * @return \Lampcms\String
      */
     public static function stringFactory($string)
@@ -189,6 +192,7 @@ class String extends LampcmsObject implements \Serializable
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms.LampcmsObject::__toString()
      */
     public function __toString()
@@ -209,6 +213,7 @@ class String extends LampcmsObject implements \Serializable
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms.LampcmsObject::hashCode()
      */
     public function hashCode()
@@ -232,6 +237,7 @@ class String extends LampcmsObject implements \Serializable
 
     /**
      * (non-PHPdoc)
+     *
      * @see Serializable::serialize()
      */
     public function serialize()
@@ -242,18 +248,19 @@ class String extends LampcmsObject implements \Serializable
 
     /**
      * (non-PHPdoc)
+     *
      * @see Serializable::unserialize()
      */
     public function unserialize($serialized)
     {
-        $a = \unserialize($serialized);
-        $this->string = $a['s'];
+        $a                = \unserialize($serialized);
+        $this->string     = $a['s'];
         $this->returnMode = $a['m'];
     }
 
 
     /**
-     * Returnes number of lines in a string
+     * Returns number of lines in a string
      * This is utf-8 safe,
      * so no need to override in utf8 string class
      *
@@ -271,7 +278,8 @@ class String extends LampcmsObject implements \Serializable
     /**
      * Counts number of words in a string
      *
-     * @param string $str
+     * @internal param string $str
+     *
      * @return int number of words in a string
      */
     public function getWordsCount()
@@ -283,11 +291,12 @@ class String extends LampcmsObject implements \Serializable
 
     /**
      * Return number of sentences in a string
-     * sentense is spotted by the end-of-sentence
+     * sentence is spotted by the end-of-sentence
      * punctuation mark: ., !, or ?
      * that is NOT followed by a word.
      *
-     * @param $str
+     * @internal param $str
+     *
      * @return int number of sentences in a string
      */
     public function getSentencesCount()
@@ -302,8 +311,8 @@ class String extends LampcmsObject implements \Serializable
      * It is important to understand that
      * for normal ASCII string this is also the number
      * of chars in string, but for utf-8 this may be
-     * different. That's why this method whould be
-     * overritten in Utf8String class
+     * different. That's why this method would be
+     * overridden in Utf8String class
      *
      * @return int length of string in bytes
      *
@@ -337,10 +346,11 @@ class String extends LampcmsObject implements \Serializable
 
     /**
      * Remove (mask) some chars from email address
-     * so that it becomes not valid for physhers
+     * so that it becomes not valid for email harvesters
      * and can be displayed on the web page
      *
      * @param object of this type
+     * @return object
      */
     public function obfuscateEmail()
     {
@@ -389,20 +399,19 @@ class String extends LampcmsObject implements \Serializable
      * Generates random alphanumeric string
      * of predetermined length
      *
-     * @param intered $len
+     * @param int|\Lampcms\intered $len
+     *
      * @return string a string of random letters and numbers.
-     *                letters in the string randomly using upper
-     *                or lower case
      */
     public static function makeRandomString($len = 30)
     {
 
         $strAlphanum = 'abcdefghijklmnopqrstuvwqyz0123456789';
-        $len = (int)$len;
-        $aAlphanum = \str_split($strAlphanum);
-        $strRes = '';
+        $len         = (int)$len;
+        $aAlphanum   = \str_split($strAlphanum);
+        $strRes      = '';
         for ($i = 0; $i < $len; $i += 1) {
-            $key = \mt_rand(0, 35);
+            $key  = \mt_rand(0, 35);
             $char = $aAlphanum[$key];
             $strRes .= (1 === \mt_rand(0, 1) && !\is_numeric($char)) ? \strtoupper($char) : $char;
         }
@@ -421,28 +430,31 @@ class String extends LampcmsObject implements \Serializable
      * equal to $len param
      *
      * @param int $len the total length of generated sid
+     *
      * @return string random string of $len chars
      * the string always starts with microtime value
      * then char 'a' and then random string
      * This way we can always extract the microtime
      * from it and find out when user first got this cookie
-     * meaning we don't even need to set a separete 'first visit'
+     * meaning we don't even need to set a separate 'first visit'
      * cookie!
      *
      */
     public static function makeSid($len = 48)
     {
         $prefix = \microtime(true) . 'a';
-        $rs = self::makeRandomString($len - \strlen($prefix));
+        $rs     = self::makeRandomString($len - \strlen($prefix));
 
         return $prefix . $rs;
     }
 
 
     /**
-     * Returnes sha256 hashed password
+     * Returns sha256 hashed password
      * using LAMPCMS_SALT from settings as salt
+     *
      * @param string $pwd password to hash
+     *
      * @return string md5 hash of VERSION + $pwd
      */
     public static function hashPassword($pwd)
@@ -463,9 +475,10 @@ class String extends LampcmsObject implements \Serializable
      * to pass password validation which requires the password
      * to have letters and numbers
      *
-     * @return string a randomly generate password
-     * of length between $minLen and $maxLen
+     * @param int $minLen
+     * @param int $maxLen
      *
+     * @return string a randomly generate password
      */
     public static function makePasswd($minLen = 6, $maxLen = 8)
     {
@@ -506,8 +519,8 @@ class String extends LampcmsObject implements \Serializable
      * Wraps the string inside this html (or xml) tag
      *
      * @param string $tag defaults to <pre>
-     * MUST specify tag without the < > brackets, just a tag name
-     * for example 'div'
+     *                    MUST specify tag without the < > brackets, just a tag name
+     *                    for example 'div'
      *
      * @return object of this class (new object or $this)
      */
@@ -551,7 +564,7 @@ class String extends LampcmsObject implements \Serializable
      * but seems to work better for certain links
      *
      * @important DO NOT use on HTML String!
-     * for html string use HTMLStringParser::linkify()
+     *            for html string use HTMLStringParser::linkify()
      *
      * @return object of this class
      */
@@ -574,8 +587,9 @@ class String extends LampcmsObject implements \Serializable
      * than $max chars but makes sure it cuts
      * only on word boundary
      *
-     * @param int $max
+     * @param int    $max
      * @param string $link
+     *
      * @return object of this class
      */
     public function truncate($max, $link = '')
@@ -583,7 +597,7 @@ class String extends LampcmsObject implements \Serializable
         $words = \preg_split("/[\s]+/", $this->string);
 
         $newstring = '';
-        $numwords = 0;
+        $numwords  = 0;
 
         foreach ($words as $word) {
             if ((\strlen($newstring) + 1 + \strlen($word)) < $max) {
@@ -608,7 +622,7 @@ class String extends LampcmsObject implements \Serializable
      * html entity, including &amp;
      * This is most likely utf8 safe because the pattern
      * only contains valid ascii chars
-     * and just in case, we also use the /u swtich with
+     * and just in case, we also use the /u switch with
      * will make the replace fail if input contains invalid utf8 chars
      *
      * @return object of this class
@@ -625,9 +639,9 @@ class String extends LampcmsObject implements \Serializable
      * Replace non alphanumerics with underscores,
      * limit to 65 chars
      *
+     * @param int $limit
+     *
      * @return object of this class
-     * representing the new string which is suitable
-     * for being part of a url (SEO-friendly)
      */
     public function makeLinkTitle($limit = 65)
     {
@@ -665,7 +679,7 @@ class String extends LampcmsObject implements \Serializable
         /**
          * Remove the Re: type prefix
          * because it's not adding any value to
-         * SEO-freindly string
+         * SEO-friendly string
          */
         $str = \preg_replace('/^re-/i', '', $str);
 
@@ -700,13 +714,13 @@ class String extends LampcmsObject implements \Serializable
         }
 
         /**
-         * Find the right-most occurance of dash
+         * Find the right-most occurrence of dash
          */
         $lastPos = \strrpos($str, '-', ($limit - strlen($str)));
 
         /**
-         * If last occurance of dash not found,
-         * then we will cut off the string at the $limit lenght
+         * If last occurrence of dash not found,
+         * then we will cut off the string at the $limit length
          * This is a rare case when a string did not
          * have any non alphanumeric chars - like when
          * it was a continues string of over 100 chars
@@ -720,20 +734,20 @@ class String extends LampcmsObject implements \Serializable
 
 
     /**
-     * Preapre email for more comfortable type
+     * Prepare email for more comfortable type
      *
-     * @param string $strAddress email address
+     * @param string $strAddress   email address
      *
      * @param string $strFirstName first name
-     * @param string $strLastName last name
+     * @param string $strLastName  last name
      *
      * @return string email address string complete with first name, last name and email address
      */
     public static function prepareEmail($strAddress, $strFirstName = '', $strLastName = '')
     {
-        $fn_ln = \trim(\trim($strFirstName) . ' ' . \trim($strLastName));
-        $filtered = \htmlspecialchars($fn_ln);
-        $name = ('' !== $fn_ln) ? '"' . $filtered . '"' : '';
+        $fn_ln     = \trim(\trim($strFirstName) . ' ' . \trim($strLastName));
+        $filtered  = \htmlspecialchars($fn_ln);
+        $name      = ('' !== $fn_ln) ? '"' . $filtered . '"' : '';
         $recipient = ('' !== $name) ? $name . ' <' . $strAddress . '>' : $strAddress;
 
         return $recipient;
@@ -773,6 +787,7 @@ class String extends LampcmsObject implements \Serializable
     /**
      * Apply trim() to this string with no
      * extra params passed to trim, which is UTF-8 safe
+     *
      * @return object of this class
      */
     public function trim()
@@ -780,6 +795,31 @@ class String extends LampcmsObject implements \Serializable
         $s = \trim($this->string);
 
         return $this->handleReturn($s);
+    }
+
+    /**
+     * This method is used to nicely align
+     * multi-line string to the left with
+     * equal number of spaces on the left in
+     * front of every line
+     *
+     * This function is mostly used to prettify the text
+     * obtained from translation object before it is used
+     * as body of the email.
+     *
+     * @static
+     *
+     * @param     $string
+     * @param int $numSpaces number of spaces to left-pad every line
+     * @param int $lineLen maximum length of every line
+     *
+     * @return string
+     */
+    public static function leftAlign($string, $numSpaces = 0, $lineLen = 70)
+    {
+        $lineLen = $lineLen - $numSpaces;
+
+        return \preg_replace('/^\s*/m', \str_repeat(' ', $numSpaces), \wordwrap($string, $lineLen));
     }
 
 }

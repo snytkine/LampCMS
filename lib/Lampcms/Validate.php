@@ -214,14 +214,15 @@ class Validate
      * tests a value for a specific type
      *
      * @param mixed $val any type of value like object, string, boolean, resource, etc.
-     * @param mixed string | array $type type of value that $var must be in order to satisfy the test
-     * @param string $strFunction function or method name that called this validator
+     * @param       $type
+     *
+     * @throws DevException
+     * @throws Exception
+     * @internal param array|string $mixed $type type of value that $var must be in order to satisfy the test
+     * @internal param string $strFunction function or method name that called this validator
      *
      * @return bool true
      *
-     * @throws LampcmsDevException is variable type does not match the test condition
-     * also throws exception is test condition is not supported by the php is_ test
-     * or if either $val or $type are empty
      */
     public final static function type($val, $type)
     {

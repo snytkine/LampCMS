@@ -101,11 +101,11 @@ class Utf8String extends String
      * to guess charset
      *
      *
-     * @param      $string
-     * @param      $charset
-     * @param bool $isClean indicates that string is already
-     *                      guaranteed clean utf8 string and does not have to pass
-     *                      through our validation and sanitization routines
+     * @param string $string
+     * @param        $charset
+     * @param bool   $isClean indicates that string is already
+     *                        guaranteed clean utf8 string and does not have to pass
+     *                        through our validation and sanitization routines
      *
      * @throws \InvalidArgumentException
      * @internal param string $className the name of child class that we
@@ -119,7 +119,7 @@ class Utf8String extends String
      * method in child and from there call parent::factory() (this class)
      * and pass the name of child class (using __CLASS__ in child is OK for that)
      *
-     * @return object of this class
+     * @return \Lampcms\String|object of this class
      */
     public static function stringFactory($string, $charset = null, $isClean = false)
     {
@@ -229,7 +229,7 @@ class Utf8String extends String
         /**
          * Charset hint is useless to us
          * if it's in detect order array
-         * it's only usefull if we can't detect it
+         * it's only useful if we can't detect it
          * using mb_detect_encoding
          */
         if (\in_array($charsetHint, $aDetectOrder)) {
@@ -963,7 +963,7 @@ class Utf8String extends String
      *
      * @param string $utf8string
      *
-     * @return string a string with first letter upercased, the rest lowercase
+     * @return string a string with first letter uppercased, the rest lowercase
      */
     public static function utf8_ucfirst($utf8string)
     {
@@ -1030,7 +1030,7 @@ class Utf8String extends String
                     'output-bom' => false, /* should always set this to no with only exception if output is utf16, which we never intent on doing */
                     'doctype' => 'omit',
                     'char-encoding' => 'utf8',
-                    'drop-proprietary-attributes' => true, /* this does not affect invalid attributes, only proprietory. Invalid arrtibutes are always removed */
+                    'drop-proprietary-attributes' => true, /* this does not affect invalid attributes, only proprietary. Invalid attributes are always removed */
                     'bare' => true,
                     'add-xml-space' => true
 
@@ -1417,7 +1417,7 @@ class Utf8String extends String
      * and it outputs the string that can then be used
      * in php in order to generate that unicode char
      *
-     * It does not actually generate the char, only ouputs a string like this:
+     * It does not actually generate the char, only outputs a string like this:
      * enter input param: 2602 and get back: (with double quotes included) "\xE2\x98\x82"
      *
      * You can then just assing the value of return to some variable, like this
@@ -1483,7 +1483,7 @@ class Utf8String extends String
      * mini mark down converts **string** to <strong>string</strong>
      * and _string_ to <em>string</em>
      *
-     * @return object of this class representin parsed string
+     * @return object of this class representing parsed string
      * which may now contain html tags
      *
      */
@@ -1535,7 +1535,7 @@ class Utf8String extends String
      * @param      $start
      * @param null $len
      *
-     * @return
+     * @return object
      */
     public function substr($start, $len = null)
     {

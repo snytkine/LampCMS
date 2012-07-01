@@ -79,15 +79,15 @@ class FollowManager extends LampcmsObject
      * current Viewer object so that viewer will see that
      * he is not following the question anymore.
      *
-     * @todo also update a_flwrs and i_flwrs count in Question?
-     * Maybe not
-     * maybe ONLY i_flwrs
+     * @todo     also update a_flwrs and i_flwrs count in Question?
+     *           Maybe not
+     *           maybe ONLY i_flwrs
      *
-     * @todo do the addToSet via shutdown_function so it will
-     * not delay the return
+     * @todo     do the addToSet via shutdown_function so it will
+     *           not delay the return
      *
-     * @todo experiment later with getting followers data
-     * from the USERS collection during Question display
+     * @todo     experiment later with getting followers data
+     *           from the USERS collection during Question display
      *
      * This will add one more find() query using indexed field
      * a_f_q in USERS but the upside is - no need to also store
@@ -98,18 +98,19 @@ class FollowManager extends LampcmsObject
      * ONLY if addToSet succeeds in USERS (put inside the else{})
      *
      *
-     * @param User $User
+     * @param User  $User
      *
      *
      * @param mixed $Question int | Question object
      *
-     * @param $addUserTQuestion bool if false then will Not append
-     * array of user data to QUESTION collection's a_flwrs array
-     * This option is here because in QuestionParser we already
-     * adding this array when we creating the brand new question - we
-     * add Viewer as the first follower automatically.
+     * @throws DevException
+     * @internal param bool $addUserTQuestion if false then will Not append
+     *           array of user data to QUESTION collection's a_flwrs array
+     *           This option is here because in QuestionParser we already
+     *           adding this array when we creating the brand new question - we
+     *           add Viewer as the first follower automatically.
      *
-     * @throws DevException if Question is not int and not Question object
+     * @return \Lampcms\FollowManager
      */
     public function followQuestion(User $User, $Question)
     {
@@ -164,6 +165,7 @@ class FollowManager extends LampcmsObject
      *
      * @param mixed $Question int | Question object
      *
+     * @return \Lampcms\FollowManager
      * @throws DevException if Question is not int and not Question object
      */
     public function unfollowQuestion(User $User, $Question)
@@ -206,12 +208,12 @@ class FollowManager extends LampcmsObject
      * Check that record exists in QUESTIONS
      * for a given question id
      *
-     * @param int $id
+     * @param $qid
      *
-     * @return object $this
+     * @throws Exception
+     * @internal param int $id
      *
-     * @throws \Lampcms\Exception if question with this id
-     * does not exist.
+     * @return \Lampcms\object $this
      */
     protected function checkQuestionExists($qid)
     {
@@ -235,6 +237,7 @@ class FollowManager extends LampcmsObject
      *
      * @param User $User
      * @param string $tag
+     * @return \Lampcms\FollowManager
      * @throws \InvalidArgumentException if $tag is not a string
      */
     public function followTag(User $User, $tag)
@@ -278,6 +281,7 @@ class FollowManager extends LampcmsObject
      *
      * @param User $User
      * @param string $tag
+     * @return \Lampcms\FollowManager
      * @throws \InvalidArgumentException if $tag is not a string
      */
     public function unfollowTag(User $User, $tag)
@@ -311,10 +315,11 @@ class FollowManager extends LampcmsObject
     /**
      * Process follow user request
      *
-     * @param Object $User object of type User user who follows
-     * @param int $userid id user being followed (followee)
+     * @param \Lampcms\User|Object $User   object of type User user who follows
+     * @param int                  $userid id user being followed (followee)
      *
-     * @return object $this
+     * @throws \InvalidArgumentException
+     * @return \Lampcms\object $this
      */
     public function followUser(User $User, $userid)
     {
@@ -364,9 +369,9 @@ class FollowManager extends LampcmsObject
         }
 
         $aFollowed = $User['a_f_u'];
-        d('$aFollowed: ' . print_r($aFollowed, 1));
+        d('$aFollowed: ' . \json_encode($aFollowed));
 
-        if (false !== $key = array_search($userid, $aFollowed)) {
+        if (false !== $key = \array_search($userid, $aFollowed)) {
             d('cp unsetting key: ' . $key);
             array_splice($aFollowed, $key, 1);
             $User['a_f_u'] = $aFollowed;
@@ -374,7 +379,7 @@ class FollowManager extends LampcmsObject
             $this->Registry->Mongo->USERS->update(array('_id' => $userid), array('$inc' => array('i_flwrs' => -1)));
             $this->Registry->Dispatcher->post($User, 'onUserUnfollow', array('uid' => $userid));
         } else {
-            d('tag ' . $tag . ' is not among the followed tags of this userID: ' . $User->getUid());
+            d('tag ' . $userid . ' is not among the followed users of this userID: ' . $User->getUid());
         }
 
         return $this;

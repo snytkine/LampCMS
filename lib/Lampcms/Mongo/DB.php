@@ -224,11 +224,12 @@ class DB extends \Lampcms\LampcmsObject
      *
      * @param string $collName name of collection
      *
-     * @param array $aValues array of data to insert
+     * @param array  $aValues  array of data to insert
      *
-     * @param mixed $option option to pass to mongoCollection->insert()
-     * this could be bool true for 'safe' but can also be an array
+     * @param mixed  $option   option to pass to mongoCollection->insert()
+     *                         this could be bool true for 'safe' but can also be an array
      *
+     * @throws \InvalidArgumentException
      * @return mixed false on failure or value of _id of inserted doc
      * which can be MongoId Object or string or int, depending if
      * you included value of _id in $aValues or let Mongo generate one
@@ -321,6 +322,7 @@ class DB extends \Lampcms\LampcmsObject
      * @param array $values
      * @param array $cond the condition to match on
      * @param array $options
+     * @return bool
      * @throws \InvalidArgumentException
      */
     public function update($collName, array $values, array $cond, array $options = array())
@@ -363,6 +365,7 @@ class DB extends \Lampcms\LampcmsObject
      * @param array $values
      * @param array $cond the condition to match on
      * @param array $options
+     * @return bool
      * @throws \InvalidArgumentException
      */
     public function upsert($collName, array $values, array $cond)
@@ -450,6 +453,7 @@ class DB extends \Lampcms\LampcmsObject
      * This is the same name as in php's MongoDB class
      *
      * @param string $collName
+     * @return object
      */
     public function selectCollection($collName)
     {

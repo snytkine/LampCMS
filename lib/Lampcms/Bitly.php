@@ -58,7 +58,7 @@ namespace Lampcms;
  * Later it may even support more API functions
  * like expand short url back to original
  * or to view some click stats
- * but primaraly we just need to make short URL
+ * but primarily we just need to make short URL
  *
  * @author Dmitri Snytkine
  *
@@ -105,11 +105,12 @@ class Bitly
      * Get the Short URL using bit.ly api
      *
      * @todo pass timeout as stream option to be
-     * no more than 5 seconds. This is not really necessary
+     *       no more than 5 seconds. This is not really necessary
+     *
+     * @param $url
      *
      * @return mixed string | false if no support for bit.ly api
-     * or if call to bit.ly api fails
-     *
+     *       or if call to bit.ly api fails
      */
     public function getShortUrl($url)
     {

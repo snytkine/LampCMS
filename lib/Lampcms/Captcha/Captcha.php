@@ -362,8 +362,7 @@ class Captcha
             d("Captcha-Debug: bad guy detected!");
             if (isset($this->badguys_url) && !headers_sent()) {
                 header('Location: ' . $this->badguys_url);
-            }
-            else {
+            } else {
                 throw new \Lampcms\Exception('Sorry but something is not right with this captcha image');
             }
         }
@@ -429,7 +428,9 @@ class Captcha
 
 
         // check Postvars
-        if (isset($_POST['public_key'])) $this->public_K = substr(strip_tags($_POST['public_key']), 0, $this->chars);
+        if (isset($_POST['public_key'])) {
+            $this->public_K = substr(strip_tags($_POST['public_key']), 0, $this->chars);
+        }
 
         /**
          * Replace Z with 0 for submitted captcha text
@@ -437,7 +438,9 @@ class Captcha
          * So now we must make sure to replace it back to 0
          * str_replace('Z', '0',
          */
-        if (isset($_POST['private_key'])) $this->private_K = substr(strip_tags($_POST['private_key']), 0, $this->chars);
+        if (isset($_POST['private_key'])) {
+            $this->private_K = substr(strip_tags($_POST['private_key']), 0, $this->chars);
+        }
         $this->current_try = isset($_POST['hncaptcha']) ? $this->get_try() : 0;
         if (!isset($_POST['captcharefresh'])) {
             $this->current_try++;
@@ -512,12 +515,13 @@ class Captcha
         $image = $func1($this->lx, $this->ly);
         d("Generate ImageStream with: ($func1)");
         d("For colordefinitions we use: ($func2)");
+        d('$image is: ' . gettype($image));
 
 
         // Set Backgroundcolor
         $this->random_color(224, 255);
         $back = @imagecolorallocate($image, $this->r, $this->g, $this->b);
-        imagefilledrectangle($image, 0, 0, $this->lx, $this->ly, $back);
+        \imagefilledrectangle($image, 0, 0, $this->lx, $this->ly, $back);
         d("Captcha-Debug: We allocate one color for Background: (" . $this->r . "-" . $this->g . "-" . $this->b . ")");
 
         // allocates the 216 websafe color palette to the image
@@ -546,9 +550,10 @@ class Captcha
                 //d('Captcha-Debug');
                 srand((double)microtime() * 1000000);
                 $text = chr(intval(rand(45, 250)));
-                //d('Captcha-Debug: $text:  '.$text);
-                if (false === imagettftext($image, $size, $angle, $x, $y, $color, $this->change_TTF(), $text)) {
-                    throw new DevException('Your php does not support imagettftext operation. You should disable captcha support in !config.ini');
+                //d('Captcha-Debug: $text:  ' . $text);
+                if (false === \imagettftext($image, $size, $angle, $x, $y, $color, $this->change_TTF(), $text)) {
+
+                    throw new DevException('Your php does not support imagettftext operation OR your fonts file did not upload correctly (hint: did you upload them in text mode instead of binary?). You should disable captcha support in !config.ini');
                 }
 
                 //d('Captcha-Debug');
@@ -570,7 +575,7 @@ class Captcha
         }
 
         // generate Text
-        d("Captcha-Debug: Fill forground with chars and shadows: (" . $this->chars . ")");
+        d("Captcha-Debug: Fill foreground with chars and shadows: (" . $this->chars . ")");
         for ($i = 0, $x = intval(rand($this->minsize, $this->maxsize)); $i < $this->chars; $i++) {
             //d('Captcha-Debug');
             $text = strtoupper(substr($private_key, $i, 1));
@@ -588,8 +593,8 @@ class Captcha
             $this->random_color(0, 127);
             $shadow = $func2($image, $this->r + 127, $this->g + 127, $this->b + 127);
             //d('Captcha-Debug');
-            @ImageTTFText($image, $size, $angle, $x + (int)($size / 15), $y, $shadow, $this->change_TTF(), $text);
-            @ImageTTFText($image, $size, $angle, $x, $y - (int)($size / 15), $color, $this->TTF_file, $text);
+            @\imagettftext($image, $size, $angle, $x + (int)($size / 15), $y, $shadow, $this->change_TTF(), $text);
+            @\imagettftext($image, $size, $angle, $x, $y - (int)($size / 15), $color, $this->TTF_file, $text);
             $x += (int)($size + ($this->minsize / 5));
             //d('Captcha-Debug');
         }

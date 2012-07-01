@@ -82,7 +82,6 @@ if (true !== session_start()) {
             \Lampcms\Cookie::sendRefferrerCookie();
         }
 
-
         $Tr = $Registry->Tr;
 
         $mapper           = $Registry->Router->getCallback();
@@ -130,8 +129,8 @@ if (true !== session_start()) {
         $a          = $Request->getController();
         $controller = ucfirst($a);
         $ER         = error_reporting(0);
-        if (false === @include($lampcmsClasses . 'Controllers' . DIRECTORY_SEPARATOR . $controller . '.php')) {
-            throw new \Lampcms\Lampcms404Exception('Page you looking for does not exist');
+        if (false === include($lampcmsClasses . 'Controllers' . DIRECTORY_SEPARATOR . $controller . '.php')) {
+            throw new \Lampcms\Lampcms404Exception('@@Page you looking for does not exist@@');
         }
         error_reporting($ER);
         $class = '\Lampcms\\Controllers\\' . $controller;
@@ -181,8 +180,10 @@ if (true !== session_start()) {
 
         session_write_close();
         if ($e instanceof \Lampcms\Lampcms404Exception) {
+            $code = '404';
             header("HTTP/1.0 404 Not Found");
         } else {
+            $code = '500';
             header("HTTP/1.0 500 Exception");
         }
         try {
@@ -195,13 +196,14 @@ if (true !== session_start()) {
              *       send out ajax and then throw \OutOfBoundsException in order to finish request (better than exit())
              */
             if (!($e instanceof \LogicException) && ($code >= 0) && defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7) {
+                $subj = $code.' Error in index.php';
                 if (!is_object($Mailer) || ($e instanceof \Lampcms\Mail\SwiftException) || ($e instanceof \Swift_SwiftException)) {
-                    @mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $extra);
+                    @mail(LAMPCMS_DEVELOPER_EMAIL, $subj, $extra);
                 } else {
                     try {
-                        $Mailer->mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $extra);
+                        $Mailer->mail(LAMPCMS_DEVELOPER_EMAIL, $subj, $extra);
                     } catch ( \Exception $e ) {
-                        @mail(LAMPCMS_DEVELOPER_EMAIL, '500 Error in index.php', $extra);
+                        @mail(LAMPCMS_DEVELOPER_EMAIL, $subj, $extra);
                     }
                 }
             }

@@ -93,7 +93,7 @@ class HTMLStringParser extends HTMLString
      * Opening html tag for highlighted word
      * Should use specific class name so
      * that later these nodes can be easily found
-     * in case we need to 'de-hilighted' the string,
+     * in case we need to 'de-highlighted' the string,
      * meaning we can easily find these by classname
      *
      *
@@ -312,7 +312,7 @@ class HTMLStringParser extends HTMLString
                 /**
                  * Callback function to turn long
                  * text of the url (if longer than 50 chars) into shorter text,
-                 * using 32 chars from beginng + 15 chars
+                 * using 32 chars from beginning + 15 chars
                  * from end of string with ... in between
                  *
                  * The result is the anchor text of link
