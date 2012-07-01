@@ -116,8 +116,8 @@ class PostTweet extends \Lampcms\Event\Observer
             $aTW = $this->Registry->Ini->getSection('TWITTER');
             if (empty($aTW) || empty($aTW['TWITTER_OAUTH_KEY']) || empty($aTW['TWITTER_OAUTH_SECRET'])) {
                 d('Twitter API not enabled on this site');
+
                 return;
-                ;
             }
         } catch (\Lampcms\IniException $e) {
             d($e->getMessage());

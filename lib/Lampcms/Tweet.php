@@ -95,11 +95,13 @@ class Tweet
          */
         $title = $Resource['title'];
 
+        $url = $Resource->getUrl();
+
         /**
          * Short url from bit.ly is guaranteed
          * to be in utf-8
          */
-        $short = $oBitly->getShortUrl($Resource->getUrl());
+        $short = $oBitly->getShortUrl($url);
 
         /**
          * Our own url is in utf8 unless...
@@ -113,7 +115,7 @@ class Tweet
 
         /**
          * Test what the length of tweet will be
-         * if we concatinate title + space + url
+         * if we concatenate title + space + url
          *
          * @var int
          */

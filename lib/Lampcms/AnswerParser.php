@@ -53,6 +53,7 @@
 namespace Lampcms;
 
 use Lampcms\String\HTMLStringParser;
+use Lampcms\Mongo\Schema\Answer as Schema;
 
 /**
  * Class responsible for parsing submitted
@@ -89,6 +90,7 @@ class Answerparser extends LampcmsObject
 
     /**
      * Cache object
+     *
      * @var object of type \Lampcms\Cache\Cache
      */
     protected $Cache;
@@ -159,7 +161,7 @@ class Answerparser extends LampcmsObject
     {
 
         $this->SubmittedAnswer = $o;
-        $this->Question = (null !== $q) ? $q : $this->getQuestion();
+        $this->Question        = (null !== $q) ? $q : $this->getQuestion();
         $this->makeAnswer();
         $this->followQuestion();
         $this->updateQuestion();
@@ -187,16 +189,16 @@ class Answerparser extends LampcmsObject
          * otherwise tidy removes rel="code"
          */
         $aEditorConfig = $this->Registry->Ini->getSection('EDITOR');
-        $tidyConfig = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
-        $Body = $this->SubmittedAnswer->getBody()->tidy($tidyConfig)->safeHtml()->asHtml();
+        $tidyConfig    = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
+        $Body          = $this->SubmittedAnswer->getBody()->tidy($tidyConfig)->safeHtml()->asHtml();
 
         $htmlBody = HTMLStringParser::stringFactory($Body)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->valueOf();
 
         d('after HTMLStringParser: ' . $htmlBody);
 
         $username = $this->SubmittedAnswer->getUserObject()->getDisplayName();
-        $uid = $this->SubmittedAnswer->getUserObject()->getUid();
-        $qid = $this->SubmittedAnswer->getQid();
+        $uid      = $this->SubmittedAnswer->getUserObject()->getUid();
+        $qid      = $this->SubmittedAnswer->getQid();
 
         $hash = hash('md5', \mb_strtolower($htmlBody . $qid));
 
@@ -213,28 +215,28 @@ class Answerparser extends LampcmsObject
         $this->checkForDuplicate($hash);
 
         $aData = array(
-            '_id' => $this->Registry->Resource->create('ANSWER'),
-            'i_qid' => $qid,
-            'i_uid' => $uid,
-            'i_quid' => $this->Question->getOwnerId(),
-            'title' => $this->Question->getTitle(),
-            'hash' => $hash,
-            'username' => $username,
-            'ulink' => '<a href="' . $this->SubmittedAnswer->getUserObject()->getProfileUrl() . '">' . $username . '</a>',
-            'avtr' => $this->SubmittedAnswer->getUserObject()->getAvatarSrc(),
-            'i_words' => $Body->asPlainText()->getWordsCount(),
-            'i_up' => 0,
-            'i_down' => 0,
-            'i_votes' => 0,
-            'i_cat' => $this->Question->getCategoryId(),
-            'b' => $htmlBody,
-            'i_ts' => time(),
-            'i_lm_ts' => time(),
-            'hts' => date('F j, Y g:i a T'),
-            'v_s' => 's',
-            'accepted' => false,
-            'ip' => $this->SubmittedAnswer->getIP(),
-            'app' => 'web'
+            Schema::PRIMARY                                  => $this->Registry->Resource->create('ANSWER'),
+            Schema::QUESTION_ID                              => $qid,
+            Schema::POSTER_ID                                => $uid,
+            Schema::QUESTION_OWNER_ID                        => $this->Question->getOwnerId(),
+            Schema::TITLE                                    => $this->Question->getTitle(),
+            Schema::BODY_HASH                                => $hash,
+            Schema::POSTER_USERNAME                          => $username,
+            Schema::USER_PROFILE_URL                         => '<a href="' . $this->SubmittedAnswer->getUserObject()->getProfileUrl() . '">' . $username . '</a>',
+            Schema::AVATAR_URL                               => $this->SubmittedAnswer->getUserObject()->getAvatarSrc(),
+            Schema::WORDS_COUNT                              => $Body->asPlainText()->getWordsCount(),
+            Schema::UPVOTES_COUNT                            => 0,
+            Schema::DOWNVOTES_COUNT                          => 0,
+            Schema::VOTES_SCORE                              => 0,
+            Schema::CATEGORY_ID                              => $this->Question->getCategoryId(),
+            Schema::BODY                                     => $htmlBody,
+            Schema::CREATED_TIMESTAMP                        => time(),
+            Schema::LAST_MODIFIED_TIMESTAMP                  => time(),
+            Schema::TIME_STRING                              => date('F j, Y g:i a T'),
+            Schema::PLURAL_POSTFIX                           => 's',
+            Schema::IS_ACCEPTED                              => false,
+            Schema::IP_ADDRESS                               => $this->SubmittedAnswer->getIP(),
+            Schema::APP_NAME                                 => 'web'
         );
 
         /**
@@ -273,7 +275,7 @@ class Answerparser extends LampcmsObject
             if ($oNotification->isNotificationCancelled()) {
                 throw new AnswerParserException('@@Sorry, we are unable to process your answer at this time@@');
             }
-        } catch (FilterException $e) {
+        } catch ( FilterException $e ) {
             e('Got filter exception: ' . $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage() . ' ' . $e->getTraceAsString());
             throw new AnswerParserException($e->getMessage());
         }
@@ -316,17 +318,17 @@ class Answerparser extends LampcmsObject
          * of _id in already in the order from oldest to newest
          * (which is a primary key and alwasy indexed anyway)
          */
-        $ans->ensureIndex(array('i_lm_ts' => 1));
-        $ans->ensureIndex(array('i_votes' => 1));
-        $ans->ensureIndex(array('i_uid' => 1));
-        $ans->ensureIndex(array('i_qid' => 1));
-        $ans->ensureIndex(array('hash' => 1), array('unique' => true));
+        $ans->ensureIndex(array(Schema::LAST_MODIFIED_TIMESTAMP => 1));
+        $ans->ensureIndex(array(Schema::VOTES_SCORE => 1));
+        $ans->ensureIndex(array(Schema::POSTER_ID => 1));
+        $ans->ensureIndex(array(Schema::QUESTION_ID => 1));
+        $ans->ensureIndex(array(Schema::BODY_HASH => 1), array('unique' => true));
         /**
          * Index by ip address will help when we need to find
          * all posts from the same ip which we need for
          * flood check
          */
-        $ans->ensureIndex(array('ip' => 1));
+        $ans->ensureIndex(array(Schema::IP_ADDRESS => 1));
 
         return $this;
     }
@@ -346,7 +348,7 @@ class Answerparser extends LampcmsObject
      */
     protected function checkForDuplicate($hash)
     {
-        $a = $this->Registry->Mongo->ANSWERS->findOne(array('hash' => $hash));
+        $a = $this->Registry->Mongo->ANSWERS->findOne(array(Schema::BODY_HASH => $hash));
         if (!empty($a)) {
             throw new AnswerParserException('@@Someone (possibly you) has already added exact same answer for this question. Duplicate answers are not allowed@@');
         }

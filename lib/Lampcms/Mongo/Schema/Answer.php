@@ -110,6 +110,16 @@ class Answer
 
     const DELETED_TIMESTAMP = 'i_del_ts';
 
+    const IP_ADDRESS = 'ip';
+
+    const TIME_STRING = 'hts';
+
+    const APP_NAME = 'app';
+
+    const IS_ACCEPTED = 'accepted';
+
+    const PLURAL_POSTFIX = 'v_s';
+
 
 
 }
