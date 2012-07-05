@@ -82,11 +82,13 @@ if (true !== session_start()) {
             \Lampcms\Cookie::sendRefferrerCookie();
         }
 
-        $Tr = $Registry->Tr;
 
-        $mapper           = $Registry->Router->getCallback();
-        $translator       = $Tr->getCallback();
-        $renderTimeString = $Tr->get('Page rendering time');
+        $Tr = $Registry->Tr;
+        $mapper     = $Registry->Router->getCallback();
+        $translator = $Tr->getCallback();
+        if (true == constant('LAMPCMS_SHOW_RENDER_TIME')) {
+            $renderTimeString = $Tr->get('Page rendering time');
+        }
 
         $callback = function($output) use ($mapper, $translator, $renderTimeString)
         {
@@ -196,7 +198,7 @@ if (true !== session_start()) {
              *       send out ajax and then throw \OutOfBoundsException in order to finish request (better than exit())
              */
             if (!($e instanceof \LogicException) && ($code >= 0) && defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7) {
-                $subj = $code.' Error in index.php';
+                $subj = $code . ' Error in index.php';
                 if (!is_object($Mailer) || ($e instanceof \Lampcms\Mail\SwiftException) || ($e instanceof \Swift_SwiftException)) {
                     @mail(LAMPCMS_DEVELOPER_EMAIL, $subj, $extra);
                 } else {

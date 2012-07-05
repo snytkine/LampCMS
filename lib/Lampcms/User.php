@@ -60,7 +60,13 @@ namespace Lampcms;
  */
 
 use Lampcms\Interfaces\Answer;
+use \Lampcms\Mongo\Schema\User as Schema;
+use \Lampcms\Acl\Role;
 
+/**
+ * Class represents User object
+ * this is also a Mongo\Doc class
+ */
 class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
     Interfaces\User,
     Interfaces\TwitterUser,
@@ -92,17 +98,6 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      */
     protected $avtrSrc;
 
-    /**
-     * This is important to define
-     * because in some rare cases
-     * the value
-     * of $this->collectionName is lost
-     * during serialization/unserialization
-     *
-     *
-     * @var string
-     */
-    //protected $collectionName = 'USERS';
 
     protected $nice = 'NICE';
 
@@ -208,7 +203,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
     {
         $role = $this->getRoleId();
 
-        return (('administrator' === $role) || false !== (\strstr($role, 'moderator')));
+        return ((Role::ADMINISTRATOR === $role) || false !== (\strstr($role, Role::MODERATOR)));
     }
 
     /**
@@ -220,7 +215,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
     public function isAdmin()
     {
 
-        return ('administrator' === $this->getRoleId());
+        return (Role::ADMINISTRATOR === $this->getRoleId());
     }
 
 
@@ -232,7 +227,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      */
     public function getFullName()
     {
-        return $this->offsetGet('fn') . ' ' . $this->offsetGet('mn') . ' ' . $this->offsetGet('ln');
+        return $this->offsetGet(Schema::FIRST_NAME) . ' ' . $this->offsetGet(Schema::MIDDLE_NAME) . ' ' . $this->offsetGet(Schema::LAST_NAME);
     }
 
 
@@ -254,7 +249,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
          */
         $ret = \trim($ret);
 
-        return (!empty($ret)) ? $ret : $this->offsetGet('username');
+        return (!empty($ret)) ? $ret : $this->offsetGet(Schema::USERNAME);
     }
 
 
@@ -299,9 +294,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
         if (!isset($this->avtrSrc)) {
 
-            $srcAvatar = \trim($this->offsetGet('avatar'));
+            $srcAvatar = \trim($this->offsetGet(Schema::AVATAR));
             if (empty($srcAvatar)) {
-                $srcAvatar = \trim($this->offsetGet('avatar_external'));
+                $srcAvatar = \trim($this->offsetGet(Schema::EXTERNAL_AVATAR));
             }
 
             /**
@@ -310,7 +305,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
              * is enabled in !config.ini [GRAVATAR] section
              */
             if (empty($srcAvatar)) {
-                $email     = $this->offsetGet('email');
+                $email     = $this->offsetGet(Schema::EMAIL);
                 $aGravatar = array();
                 try {
                     $aGravatar = $this->getRegistry()->Ini->getSection('GRAVATAR');
@@ -361,7 +356,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
     public function getProfileUrl()
     {
 
-        return '{_WEB_ROOT_}/{_userinfo_}/' . $this->getUid() . '/' . $this->offsetGet('username');
+        return '{_WEB_ROOT_}/{_userinfo_}/' . $this->getUid() . '/' . $this->offsetGet(Schema::USERNAME);
     }
 
 
@@ -378,9 +373,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
     public function getRoleId()
     {
 
-        $role = $this->offsetGet('role');
+        $role = $this->offsetGet(Schema::ROLE);
 
-        return (!empty($role)) ? $role : 'guest';
+        return (!empty($role)) ? $role : Role::GUEST;
     }
 
 
@@ -412,10 +407,10 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
          * of using $this->offsetSet()
          * because it will point back to
          * this function and start
-         * an evil infinite loop untill we will
+         * an evil infinite loop until we will
          * run out of memory
          */
-        parent::offsetSet('role', $role);
+        parent::offsetSet(Schema::ROLE, $role);
 
         return $this;
     }
@@ -686,7 +681,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
         $currentTz = \date_default_timezone_get();
         if (false !== @\date_default_timezone_set($tz)) {
-            parent::offsetSet('tz', $tz);
+            parent::offsetSet(Schema::TIMEZONE, $tz);
         } else {
             e('Unable to set ' . $tz . ' as user timezone');
 
@@ -705,7 +700,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      */
     public function getTimezone()
     {
-        return $this->offsetGet('tz');
+        return $this->offsetGet(Schema::TIMEZONE);
     }
 
 
@@ -724,7 +719,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
         }
 
         if (!$this->isGuest()) {
-            $this->offsetSet('locale', $locale);
+            $this->offsetSet(Schema::LOCALE, $locale);
 
             $this->save();
         }
@@ -735,7 +730,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
     public function getLocale()
     {
-        $locale = $this->offsetGet('locale');
+        $locale = $this->offsetGet(Schema::LOCALE);
 
         return (!empty($locale)) ? $locale : LAMPCMS_DEFAULT_LOCALE;
     }
@@ -749,11 +744,11 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      */
     public function activate()
     {
-        $role = $this->offsetGet('role');
+        $role = $this->offsetGet(Schema::ROLE);
 
         d('activating user ' . $this->getUid() . ' role: ' . $role);
         if (\strstr($role, 'unactivated')) {
-            $this->setRoleId('registered');
+            $this->setRoleId(Role::REGISTERED);
         } else {
             d('Cannot activate this user because the current role is: ' . $role);
         }
@@ -761,6 +756,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
         return $this;
     }
+
 
     /**
      * Check if this user has same userID
@@ -808,17 +804,17 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
             throw new DevException('value of $iPoints must be numeric, was: ' . $iPoints);
         }
 
-        $iRep = $this->offsetGet('i_rep');
+        $iRep = $this->offsetGet(Schema::REPUTATION);
         $iNew = max(1, ($iRep + (int)$iPoints));
 
-        d('setting reputation for user: ' . $this->offsetGet('_id') . ' value: ' . $iNew);
+        d('setting reputation for user: ' . $this->offsetGet(Schema::PRIMARY) . ' value: ' . $iNew);
         /**
          * @todo investigate where reputation is set directly
          *       using assignment operator $User['i_rep'] = $x
          *       and change it to use proper setReputation method
          *       then stop using parent::offsetSet()
          */
-        parent::offsetSet('i_rep', $iNew);
+        parent::offsetSet(Schema::REPUTATION, $iNew);
 
         return $this;
     }
@@ -833,7 +829,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
     public function getReputation()
     {
 
-        return max(1, $this->offsetGet('i_rep'));
+        return max(1, $this->offsetGet(Schema::REPUTATION));
     }
 
 
@@ -848,10 +844,10 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      */
     public function getLocation()
     {
-        $cc    = $this->offsetGet('cc');
-        $cn    = $this->offsetGet('cn');
-        $state = $this->offsetGet('state');
-        $city  = $this->offsetGet('city');
+        $cc    = $this->offsetGet(Schema::COUNTRY_CODE);
+        $cn    = $this->offsetGet(Schema::COUNTRY_NAME);
+        $state = $this->offsetGet(Schema::STATE);
+        $city  = $this->offsetGet(Schema::CITY);
 
         $ret = '';
 
@@ -883,12 +879,12 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      */
     public function setLastActive()
     {
-        $lastActive = $this->offsetGet('i_lm_ts');
+        $lastActive = $this->offsetGet(Schema::LAST_ACTIVITY_TIME);
         d('$lastActive was: ' . $lastActive);
         $now = time();
         if ((($now - $lastActive) > 300) && !$this->isGuest()) {
             d('updating i_lm_ts of user');
-            $this->offsetSet('i_lm_ts', $now);
+            $this->offsetSet(Schema::LAST_ACTIVITY_TIME, $now);
         }
 
         return $this;
@@ -905,7 +901,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      */
     public function getAge()
     {
-        $dob = $this->offsetGet('dob');
+        $dob = $this->offsetGet(Schema::DATA_OF_BIRTH);
         if (empty($dob)) {
             return '';
         }
@@ -920,7 +916,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
     /**
      * Get array of blogs
      *
-     * @return array
+     * @return array|mixed
      */
     public function getTumblrBlogs()
     {
@@ -1292,16 +1288,16 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
     public function offsetSet($index, $newval)
     {
         switch ( $index ) {
-            case 'role':
+            case Schema::ROLE:
                 throw new DevException('User Role cannot be set directly, must be set using setRoleId() method');
                 //$this->setRoleId($newval);
                 break;
 
-            case 'i_rep':
+            case Schema::REPUTATION:
                 throw new DevException('value of i_rep cannot be set directly. Use setReputation() method');
                 break;
 
-            case 'tz':
+            case Schema::TIMEZONE:
             case 'timezone':
                 //$this->setTimezone($newval);
                 throw new DevException('Value of timezone should be set using setTimezone() method');

@@ -53,7 +53,8 @@ namespace Lampcms\Controllers;
 
 use \Lampcms\WebPage;
 use \Lampcms\User;
-
+use \Lampcms\Mongo\Schema\User as Schema;
+use \Lampcms\Acl\Role;
 
 class Activate extends WebPage
 {
@@ -150,7 +151,7 @@ class Activate extends WebPage
     protected function activateUser()
     {
 
-        $aUser = $this->Registry->Mongo->USERS->findOne(array('_id' => (int)$this->aEmail['i_uid']));
+        $aUser = $this->Registry->Mongo->USERS->findOne(array(Schema::PRIMARY => (int)$this->aEmail['i_uid']));
 
         if (empty($aUser)) {
 
@@ -190,7 +191,7 @@ class Activate extends WebPage
     }
 
     /**
-     * @todo translate string
+     *
      *
      */
     protected function setReturn()
@@ -198,7 +199,7 @@ class Activate extends WebPage
 
         $this->aPageVars['title'] = '@@Account activation complete@@';
 
-        $this->aPageVars['body'] = '<div id="tools" class="larger">Account activation complete<br/>The account <b>' . $this->oActivatedUser->username . '</b> now has all the privileges<br/>
+        $this->aPageVars['body'] = '<div id="tools" class="larger">@@Account activation complete@@<br/>The account <b>' . $this->oActivatedUser->username . '</b> now has all the privileges<br/>
 		of a registered user on our website.<br/>
 		<br/>If you not already logged in, please login using<br/>
 		the form above</div>';

@@ -70,4 +70,12 @@ interface TranslatableInterface
      * in the translated string
      */
     public function getVars();
+
+    /**
+     * Should return getString()
+     *
+     * @abstract
+     * @return string
+     */
+    public function __toString();
 }

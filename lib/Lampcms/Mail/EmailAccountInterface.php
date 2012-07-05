@@ -90,4 +90,14 @@ interface EmailAccountInterface
      * @return string
      */
     public function userUserId();
+
+    /**
+     * Return string value of the object
+     * This is necessary to that the object can be
+     * used from the array_unique() method
+     *
+     * @abstract
+     * @return string
+     */
+    public function __toString();
 }

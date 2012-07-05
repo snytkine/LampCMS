@@ -55,12 +55,14 @@ use \Lampcms\Request;
 use \Lampcms\Responder;
 use \Lampcms\String;
 use \Lampcms\Validate;
+use \Lampcms\Mongo\Schema\User as Schema;
+use \Lampcms\Acl\Role;
 
 /**
  * Class to process submissions from the
  * popup modal "quick registration"
  * This modal is used when someone joins via 3rd party auth like
- * via Twitter or FriendConnect and we need to collect email address
+ * via Twitter or LinkedIN and we need to collect email address
  * for that user.
  *
  * It also used for "Quick registration" where we ask for just email
@@ -73,8 +75,6 @@ use \Lampcms\Validate;
  */
 class Join extends Register
 {
-
-    //protected $requireToken = true;
 
     protected $permission = 'register_email';
 
@@ -132,7 +132,7 @@ class Join extends Register
 
         $pwd = String::hashPassword($this->pwd);
 
-        $this->Registry->Viewer->offsetSet('email', $this->email);
+        $this->Registry->Viewer->offsetSet(Schema::EMAIL, $this->email);
 
         /**
          * Only change username IF this is a new registration
@@ -146,14 +146,14 @@ class Join extends Register
          * to change username
          */
         if (!empty($this->Request['username'])) {
-            $username = trim($this->Request['username']);
-            $this->Registry->Viewer->offsetSet('username', $username);
-            $this->Registry->Viewer->offsetSet('username_lc', \mb_strtolower($username));
+            $username = \trim($this->Request['username']);
+            $this->Registry->Viewer->offsetSet(Schema::USERNAME, $username);
+            $this->Registry->Viewer->offsetSet(Schema::USERNAME_LOWERCASE, \mb_strtolower($username));
             /**
              * Set the hashed password but it will only be
              * set if this is a new registration (post-registration)
              */
-            $this->Registry->Viewer->offsetSet('pwd', $pwd);
+            $this->Registry->Viewer->offsetSet(Schema::PASSWORD, $pwd);
         }
 
 
@@ -189,14 +189,14 @@ class Join extends Register
          * has not activated an account
          * and present a reminder as some point.
          */
-        $this->Registry->Viewer->setRoleId('unactivated_external');
+        $this->Registry->Viewer->setRoleId(Role::UNACTIVATED_EXTERNAL);
         $this->Registry->Viewer->save();
 
         /**
          *
          * This is used in Register for sending out email
          */
-        $this->username = $this->Registry->Viewer->offsetGet('username');
+        $this->username = $this->Registry->Viewer->offsetGet(Schema::USERNAME);
 
         return $this;
     }
@@ -209,8 +209,8 @@ class Join extends Register
      * set the main element
      *
      * @todo When we have email newsletters collection form
-     * we will need to send action: modal
-     * and send html for that form!
+     *       we will need to send action: modal
+     *       and send html for that form!
      *
      */
     protected function setReturn()
@@ -242,7 +242,7 @@ class Join extends Register
 
     /**
      * @todo check that this username does not already
-     * exist
+     *       exist
      *
      * @throws \Lampcms\FormException is username is invalid or already taken
      *
@@ -271,15 +271,13 @@ class Join extends Register
 
         $aReserved = \Lampcms\getReservedNames();
 
-        $username = strtolower($this->Request['username']);
-        $aUser = $this->Registry->Mongo->USERS->findOne(array('username_lc' => $username));
+        $username = \mb_strtolower($this->Request['username']);
+        $aUser    = $this->Registry->Mongo->USERS->findOne(array(Schema::USERNAME_LOWERCASE => $username));
 
         if (!empty($aUser) || in_array($username, $aReserved)) {
-            /**
-             * @todo translate string
-              */
-            throw new \Lampcms\FormException('Someone else is already using this username. <br>
-			Please choose a different username and resubmit the form', 'username');
+
+            throw new \Lampcms\FormException('@@Someone else is already using this username@@. <br>
+			@@Please choose a different username and resubmit the form@@', 'username');
         }
 
         /**
@@ -302,7 +300,7 @@ class Join extends Register
     protected function validateEmail()
     {
 
-        $email = strtolower($this->Request['email']);
+        $email = \mb_strtolower($this->Request['email']);
         if (false === Validate::email($email)) {
             throw new \Lampcms\FormException('@@Email address@@ ' . $this->Request['email'] . ' @@is invalid@@<br/>@@Please correct it and resubmit the form@@', 'email');
         }
@@ -311,13 +309,13 @@ class Join extends Register
 
         /**
          * @todo when we have 'join existing account'
-         * form at the bottom then we can also suggest that user
-         * enters username/password to join this "twitter" account
-         * with an existing account
+         *       form at the bottom then we can also suggest that user
+         *       enters username/password to join this "twitter" account
+         *       with an existing account
          */
         if (!empty($ret)) {
             throw new \Lampcms\FormException('<p>Someone else (probably you) is already registered with this email address
-			<p/><p>If you forgot you password, <br/>please use the <a href="{_WEB_ROOT_}/remindpwd/">This link</a> to request a new password<br/>
+			<p/><p>If you forgot you password, <br/>please use the <a href="{_WEB_ROOT_}/{_remindpwd_}/">This link</a> to request a new password<br/>
 			or use different email address to register a new account</p>', 'email');
         }
 

@@ -130,14 +130,14 @@ class Quickreg extends Join
         }
 
         /**
-         * If 3 then reached the limit of attampts
+         * If 3 then reached the limit of attempts
          */
         if (3 === $res) {
-            throw new \Lampcms\CaptchaLimitException('You have reached the limit of image verification attempts');
+            throw new \Lampcms\CaptchaLimitException('@@You have reached the limit of image verification attempts@@');
         }
 
         $aRet = array(
-            'exception' => 'Incorrect image verification text<br/>Please try again',
+            'exception' => '@@Incorrect image verification text@@<br/>@@Please try again@@',
             'fields' => array('private_key'),
             'captcha' => $oCaptcha->getCaptchaArray());
 

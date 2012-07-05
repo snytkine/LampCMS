@@ -52,6 +52,9 @@
 
 namespace Lampcms\Modules\Observers;
 
+use \Lampcms\Mail\TranslatableBody;
+use \Lampcms\Mail\TranslatableSubject;
+use \Lampcms\Mongo\Schema\User as Schema;
 
 /**
  * This class is an observer
@@ -282,13 +285,9 @@ site %5$s and navigating to Settings > Email preferences
     protected $collUsers;
 
     /**
-     * Translator object for "en" locale
-     * Currently messages are set using default locate
-     * translations only (en)
-     *
-     * @var object I18N\Translator
+     * @var function
      */
-    protected $Translator;
+    protected $routerCallback;
 
     /**
      * Factory
@@ -313,7 +312,7 @@ site %5$s and navigating to Settings > Email preferences
      *
      * @param \Lampcms\Registry $Registry
      *
-     * @return \Lampcms\Modules\Observers\EmailNotifier
+     * @return \Lampcms\Event\Observer|\Lampcms\Modules\Observers\EmailNotifier
      */
     public static function factory(\Lampcms\Registry $Registry)
     {
@@ -323,7 +322,7 @@ site %5$s and navigating to Settings > Email preferences
     public function __construct(\Lampcms\Registry $Registry)
     {
         parent::__construct($Registry);
-        $this->Translator = \Lampcms\I18N\Translator::factory($Registry->Cache, 'en');
+
     }
 
     /**
@@ -337,6 +336,7 @@ site %5$s and navigating to Settings > Email preferences
      */
     public function main()
     {
+
         d('get event: ' . $this->eventName);
         switch ( $this->eventName ) {
             case 'onNewQuestion':
@@ -540,7 +540,7 @@ site %5$s and navigating to Settings > Email preferences
         $callable = function() use ($parentCommentOwner, $coll, $subj, $body, $oMailer)
         {
 
-            $aUser = $coll->findOne(array('_id' => $parentCommentOwner, 'ne_fc' => array('$ne' => true)), array('email'));
+            $aUser = $coll->findOne(array('_id' => $parentCommentOwner, 'ne_fc' => array('$ne' => true)), array('email' => true, 'locale' => true));
 
             if (!empty($aUser) && !empty($aUser['email'])) {
                 $oMailer->mail($aUser['email'], $subj, $body, null, false);
@@ -596,13 +596,13 @@ site %5$s and navigating to Settings > Email preferences
 
         $varsBody = array('{username}' => $this->obj['username'],
                           '{title}'    => $this->Question['title'],
-                          '{body}'     =>  $this->Question['intro'],
+                          '{body}'     => $this->Question['intro'],
                           '{link}'     => $this->Question->getUrl());
 
         $varsSubj = array('{tags}' => implode(', ', $this->Question['a_tags']));
 
-        $subj    = sprintf(static::$QUESTION_BY_TAG_SUBJ, implode(', ', $this->Question['a_tags']));
-        $body    = vsprintf(static::$QUESTION_BY_TAG_BODY, array($this->Question['username'], $this->Question['title'], $this->Question['intro'], $this->Question->getUrl(), $this->Registry->Ini->SITE_URL));
+        $subj = sprintf(static::$QUESTION_BY_TAG_SUBJ, implode(', ', $this->Question['a_tags']));
+        $body = vsprintf(static::$QUESTION_BY_TAG_BODY, array($this->Question['username'], $this->Question['title'], $this->Question['intro'], $this->Question->getUrl(), $this->Registry->Ini->SITE_URL));
 
         $coll = $this->collUsers;
         d('before shutdown function in TagFollowers');
@@ -651,7 +651,9 @@ site %5$s and navigating to Settings > Email preferences
     {
 
         $uid = $this->obj->getOwnerId();
+
         d('uid: ' . $uid);
+
         /**
          * In case of Answer use different
          * templates for SUBJ and BODY
@@ -670,21 +672,36 @@ site %5$s and navigating to Settings > Email preferences
         $varsBody = array('{username}' => $this->obj['username'],
                           '{title}'    => $this->Question['title'],
                           '{body}'     => $body,
-                          '{link}'     => $this->obj->getUrl());
+                          '{link}'     => $this->obj->getUrl(),
+                          '{home}'     => $this->Registry->Router->getHomePageUrl());
 
         $varsSubj = array('{username}' => $this->obj['username']);
 
-        //$subj    = sprintf(static::$QUESTION_BY_USER_SUBJ, $updateType, $this->obj['username']);
-        //$body    = vsprintf($tpl, array($this->obj['username'], $this->Question['title'], $body, $this->obj->getUrl(), $this->Registry->Ini->SITE_URL));
-        $subj = $this->Translator->get('email.subject.new_' . $updateType . '_by', $varsSubj);
-        d('subj: ' . $subj);
-
-        $body    = $this->Translator->get($tpl, $varsBody);
-        d('body: '.$body);
+        $subj = new TranslatableSubject('email.subject.new_' . $updateType . '_by', $varsSubj);
+        $body = new TranslatableBody($tpl, $varsBody);
 
         $coll    = $this->collUsers;
         $oMailer = $this->Registry->Mailer;
+        $oMailer->setCache($this->Registry->Cache);
         d('before shutdown function in UserFollowers');
+
+        /**
+         * This callback is not used
+         * was just an idea to pass the callback to
+         * Mailer->mail as a $to value
+         *
+         * @return null
+         */
+        $cursorCallback = function() use ($coll, $uid)
+        {
+            $cur   = $coll->find(array('a_f_u' => $uid, 'ne_fu' => array('$ne' => true)), array(Schema::EMAIL => true, Schema::LOCALE => true));
+            $count = $cur->count();
+            if ($count > 0) {
+
+            }
+
+            return null;
+        };
 
         /**
          * No need to pass $viewerID because
@@ -692,11 +709,11 @@ site %5$s and navigating to Settings > Email preferences
          * so excluding ViewerID is pointless here
          */
 
-        $func = function() use($uid, $tpl, $updateType, $subj, $body, $coll, $oMailer)
+        $func = function() use($uid, $subj, $body, $coll, $oMailer)
         {
 
             $count = 0;
-            $cur   = $coll->find(array('a_f_u' => $uid, 'ne_fu' => array('$ne' => true)), array('email'));
+            $cur   = $coll->find(array('a_f_u' => $uid, 'ne_fu' => array('$ne' => true)), array('email' => true, 'locale' => true));
             $count = $cur->count();
             if ($count > 0) {
 
@@ -780,7 +797,7 @@ site %5$s and navigating to Settings > Email preferences
 
         $username = ('answer' === $updateType) ? $this->obj['username'] : $this->aInfo['username'];
         $url      = ('answer' === $updateType) ? $this->obj->getUrl() : $siteUrl . '/q' . $this->aInfo['i_qid'] . '/#c' . $this->aInfo['_id'];
-        ;
+
         d('url: ' . $url);
 
         $content = ('comment' === $updateType) ? "\n____\n" . \strip_tags($this->aInfo['b']) . "\n" : '';
@@ -841,9 +858,9 @@ site %5$s and navigating to Settings > Email preferences
                  *
                  */
                 if ('comment' !== $updateType) {
-                    $cur = $coll->find(array('_id' => array('$in' => $aFollowers), 'a_f_u' => array('$nin' => array(0 => $viewerID)), 'ne_fq' => array('$ne' => true)), array('email'));
+                    $cur = $coll->find(array('_id' => array('$in' => $aFollowers), 'a_f_u' => array('$nin' => array(0 => $viewerID)), 'ne_fq' => array('$ne' => true)), array('email' => true));
                 } else {
-                    $cur = $coll->find(array('_id' => array('$in' => $aFollowers), 'ne_fq' => array('$ne' => true)), array('email'));
+                    $cur = $coll->find(array('_id' => array('$in' => $aFollowers), 'ne_fq' => array('$ne' => true)), array('email' => true));
                 }
 
                 $count = $cur->count();

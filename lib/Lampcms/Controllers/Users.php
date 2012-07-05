@@ -58,6 +58,7 @@ use Lampcms\WebPage;
 use Lampcms\Paginator;
 use Lampcms\Template\Urhere;
 use Lampcms\Request;
+use \Lampcms\Mongo\Schema\User as Schema;
 
 
 /**
@@ -216,18 +217,18 @@ class Users extends WebPage
                 break;
 
             case $uriParts['SORT_REPUTATION']:
-                $this->sortOrder = array('i_rep' => -1);
+                $this->sortOrder = array(Schema::REPUTATION => -1);
                 $this->pagerPath = '{_users_}/{_SORT_REPUTATION_}';
                 break;
 
             case $uriParts['SORT_NEW']:
-                $this->sortOrder = array('_id' => -1);
+                $this->sortOrder = array(Schema::PRIMARY => -1);
                 $this->pagerPath = '{_users_}/{_SORT_NEW_}';
                 break;
 
 
             case $uriParts['SORT_OLDEST']:
-                $this->sortOrder = array('_id' => 1);
+                $this->sortOrder = array(Schema::PRIMARY => 1);
                 $this->pagerPath = '{_users_}/{_SORT_OLDEST_}';
                 break;
 

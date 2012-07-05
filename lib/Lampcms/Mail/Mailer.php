@@ -55,6 +55,8 @@ namespace Lampcms\Mail;
 use \Lampcms\DevException;
 use \Lampcms\I18n\TranslatableInterface;
 use \Lampcms\I18n\Translator;
+use \Lampcms\Mongo\Schema\User as Schema;
+use \Lampcms\String;
 
 /**
  * Class for sending out emails
@@ -98,12 +100,6 @@ class Mailer
     protected $translatedMessages = array();
 
     /**
-     * @var array keys are locale names
-     * values are translated subject strings
-     */
-    protected $translatedSubjects = array();
-
-    /**
      * Cache object
      * It is needed for instantiating different
      * instances of Translator class (one for each locale)
@@ -112,7 +108,11 @@ class Mailer
      */
     protected $Cache;
 
-    public function __construct(\Lampcms\Config\Ini $Ini, \Lampcms\Cache\Cache $cache)
+    /**
+     * @param \Lampcms\Config\Ini        $Ini
+     * @param \Lampcms\Cache\Cache|null $cache
+     */
+    public function __construct(\Lampcms\Config\Ini $Ini, \Lampcms\Cache\Cache $cache = null)
     {
         $this->Ini        = $Ini;
         $this->adminEmail = $Ini->EMAIL_ADMIN;
@@ -120,6 +120,21 @@ class Mailer
         $this->from       = \Lampcms\String::prepareEmail($this->adminEmail, $this->siteName);
         $this->setupSwiftMailer();
         $this->Cache = $cache;
+    }
+
+
+    public function setCache(\Lampcms\Cache\Cache $cache)
+    {
+        $this->Cache = $cache;
+    }
+
+
+    public function getCache(){
+        if(!is_object($this->Cache)){
+            throw new DevException('Cache object has not been setup. Use setCache() and pass instance of cache before calling method that needs Translator instance (Translator depends on Cache)');
+        }
+
+        return $this->Cache;
     }
 
 
@@ -240,7 +255,7 @@ class Mailer
     public function mail($to, $subject, $body = null, $func = null, $sendLater = true)
     {
 
-        if (!is_string($to) && !is_array($to) && (!is_object($to) || !($to instanceof \Iterator))) {
+        if (!is_string($to) && !is_array($to) && (!is_callable($to)) && (!is_object($to) || !($to instanceof \Iterator))) {
 
             $class = (\is_object($to)) ? \get_class($to) : 'not an object';
 
@@ -251,14 +266,26 @@ class Mailer
             throw new DevException('$body cannot be null if $subject is not instance of \Swift_Message');
         }
 
-        $aTo = (\is_string($to)) ? (array)$to : $to;
+        if (!is_callable($to)) {
+            $aTo = (\is_string($to)) ? (array)$to : $to;
+        } else {
+            d('$to is callable function');
+        }
 
         $fromEmail = $this->adminEmail;
         $fromName  = $this->siteName;
         $Swift     = $this->SwiftMailer;
+        $Cache     = $this->Cache;
 
-        $callable = function() use ($subject, $body, $fromEmail, $fromName, $aTo, $func, $Swift)
+        $callable = function() use ($subject, $body, $fromEmail, $fromName, $aTo, $func, $Swift, $Cache)
         {
+
+            $translatedMessages = array();
+            $translators        = array();
+
+            if (is_callable($aTo)) {
+                $aTo = $aTo();
+            }
 
             $total = (is_array($aTo)) ? count($aTo) : $aTo->count();
 
@@ -275,10 +302,11 @@ class Mailer
                 try {
                     $message = (is_object($subject) && $subject instanceof \Swift_Message) ? $subject : \Swift_Message::newInstance($subject)
                         ->setFrom(array($fromEmail => $fromName))
-                        ->setBody($body);
+                        ->setBody($body)
+                        ->setCharset('utf-8');
                 } catch ( \Exception $e ) {
                     /**
-                     * Do not user error-level loggin because error log e($message)
+                     * Do not use error-level logging because error log e($message)
                      * sends out email to admin.
                      * if we failed to send out email we don't want to attempt to notify
                      * admin by email - it can create infinite loop
@@ -342,7 +370,12 @@ class Mailer
                         continue;
                     }
 
-
+                    /**
+                     * If user has locale and subject or body
+                     * is Translatable then translate message
+                     * and create locale-specific message object
+                     *
+                     */
                     $ER = error_reporting(0);
 
                     $message->setTo($to);
@@ -377,7 +410,10 @@ class Mailer
     }
 
     /**
-     * @todo this has to be done via runLater($callback)
+     * @todo This is unfinished!
+     *       this has to be done via runLater($callback)
+     *
+     *
      *
      * @param EmailAccountInterface $to
      * @param                       $subject
@@ -482,7 +518,10 @@ class Mailer
         $cID = spl_object_hash($cur);
         //$body = $body ."\n\n_______\ncid: ".$cID."\n";
 
-        $aEmails = array();
+        $translated = array();
+        $aEmails    = array();
+        $temp       = array();
+        $locale     = LAMPCMS_DEFAULT_LOCALE;
         foreach ($cur as $a) {
 
             if (is_callable($func)) {
@@ -492,36 +531,75 @@ class Mailer
                 }
             } else {
                 if (!empty($a['email'])) {
-                    $aEmails[] = $a['email'];
+                    if (\array_key_exists(Schema::LOCALE, $a)) {
+                        if (!\in_array($a['email'], $temp)) {
+                            $temp[] = $a['email'];
+                            $locale = $a[Schema::LOCALE];
+                            if (!\array_key_exists($locale, $translated)) {
+                                $translated[$locale] = array();
+                            }
+
+                            if (!\array_key_exists((string)$subject, $translated[$locale])) {
+                                $translated[$locale][(string)$subject] = $this->translate($locale, $subject);
+                            }
+
+                            if (!\array_key_exists((string)$body, $translated[$locale])) {
+                                $translated[$locale][(string)$body] = $this->translate($locale, $body);
+                            }
+
+                            $this->mail($a['email'], $translated[$locale][(string)$subject], $translated[$locale][(string)$body]);
+                        }
+
+                    } else {
+                        $aEmails[] = $a['email'];
+                    }
                 }
             }
 
         }
 
-        $aEmails = \array_unique($aEmails);
-        /**
-         *
-         * @todo if count($aEmails) > 100 then formMail,
-         *       else just \mail()
-         *
-         * Right now we don't have such cgi-based scripts
-         * that can accept the cache key
-         * but it will be the next-best-solution
-         * for a busy site
-         * and the very best solution would be
-         * to form the whole EmailNotifier methods
-         * from the cgi script
-         * and the advanced solution for
-         * sites that have over 10,000 followers per topic
-         * or per some users would be to
-         * form the whole process on a remove server
-         * This is something that we can code on request
-         * as it is not worth the time for just an average site
-         */
-        $this->mail($aEmails, $subject, $body, null, $sendLater);
+        if (!empty($aEmails)) {
+            $aEmails = \array_unique($aEmails);
+
+            /**
+             *
+             * @todo if count($aEmails) > 100 then formMail,
+             *       else just \mail()
+             *
+             * Right now we don't have such cgi-based scripts
+             * that can accept the cache key
+             * but it will be the next-best-solution
+             * for a busy site
+             * and the very best solution would be
+             * to form the whole EmailNotifier methods
+             * from the cgi script
+             * and the advanced solution for
+             * sites that have over 10,000 followers per topic
+             * or per some users would be to
+             * form the whole process on a remove server
+             * This is something that we can code on request
+             * as it is not worth the time for just an average site
+             */
+            $this->mail($aEmails, (string)$subject, (string)$body, null, $sendLater);
+        }
 
     }
 
+
+    protected function translate($locale, $item)
+    {
+        if (is_string($item)) {
+            return $item;
+        }
+
+        if (!is_object($item) || !($item instanceof TranslatableInterface)) {
+            throw new DevException('$item can only be a string or instance of TranslatableInterface. Was: ' . ((!is_object($item)) ? gettype($item) : get_class($item)));
+        }
+
+        $Tr = $this->getTranslator($locale);
+
+        return \Lampcms\Utf8String::leftAlign($Tr->get($item->getString(), $item->getVars()));
+    }
 
     /**
      * This method will take in array of email addresses
@@ -555,6 +633,25 @@ class Mailer
     public function forkMail(array $aTo, $subject, $body)
     {
 
+    }
+
+    /**
+     * Get Translator object for a locale
+     * If it does not exist in translators array create a new one
+     * otherwise reuse the existing one
+     *
+     * @param string $locale
+     *
+     * @return object of type \Lampcms\I18n\Translator
+     */
+    public function getTranslator($locale)
+    {
+        $Cache = $this->getCache();
+        if (!array_key_exists($locale, $this->translators)) {
+            $this->translators[$locale] = \Lampcms\I18n\Translator::factory($Cache, $locale);
+        }
+
+        return $this->translators[$locale];
     }
 
 }

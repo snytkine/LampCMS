@@ -264,8 +264,13 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
      * Add array of messages to current
      * $this->aMessages array
      * New array is merged with $this->aMessages
-     * will override existing values
-     * for same keys as $this->aMessages
+     *
+     * Existing messages will override values
+     * for same keys as passed array
+     * This way when adding default locale catalog
+     * only keys that did not exist in original will
+     * be added from default locale (or from fallback)
+     *
      *
      * @param array $a
      *
@@ -273,7 +278,7 @@ class Translator implements \Serializable, \ArrayAccess, \Lampcms\Interfaces\Tra
      */
     public function addArray(array $a)
     {
-        $this->aMessages = \array_merge($this->aMessages, $a);
+        $this->aMessages = \array_merge($a, $this->aMessages);
 
         return $this;
     }

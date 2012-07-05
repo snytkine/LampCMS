@@ -181,11 +181,12 @@ class DB extends \Lampcms\LampcmsObject
     /**
      * Setter for $this->dbname
      *
-     * @param string name Database name
+     * @param $name
      *
-     * @return object $this
-     * Enter description here ...
+     * @throws \InvalidArgumentException
+     * @internal param \Lampcms\Mongo\name $string Database name
      *
+     * @return \Lampcms\Mongo\object $this Enter description here ...
      */
     public function setDbName($name)
     {
@@ -210,6 +211,7 @@ class DB extends \Lampcms\LampcmsObject
      * By default pass methods to $this->db (MongoDatabase object)
      * @param string $method
      * @param array $args
+     * @return mixed
      */
     public function __call($method, $args)
     {
@@ -268,21 +270,24 @@ class DB extends \Lampcms\LampcmsObject
 
 
     /**
-     * @todo this is dangerous!
-     * it will replace record with arrValues and will not keep
-     * any existing values
-     * the better way would be to use $set operator
-     * MUST make sure tha arrValues include new values AND CURRENT
-     * values that don't have to change. For example, if you
-     * only updating 'lastName', make sure arrValues also
-     * includes 'firstName' with the current value, otherwise
-     * the new object will have only the lastName
+     * @todo     this is dangerous!
+     *           it will replace record with arrValues and will not keep
+     *           any existing values
+     *           the better way would be to use $set operator
+     *           MUST make sure tha arrValues include new values AND CURRENT
+     *           values that don't have to change. For example, if you
+     *           only updating 'lastName', make sure arrValues also
+     *           includes 'firstName' with the current value, otherwise
+     *           the new object will have only the lastName
      *
      * @param string $collName
-     * @param array $arrValues
+     * @param array  $arrValues
      * @param string $whereCol
      * @param string $whereVal
-     * @param string $strErr2 can be passed to be included in logging
+     *
+     * @throws \InvalidArgumentException
+     * @internal param string $strErr2 can be passed to be included in logging
+     * @return bool
      */
     public function updateCollection($collName, array $arrValues, $whereCol, $whereVal)
     {
@@ -362,11 +367,11 @@ class DB extends \Lampcms\LampcmsObject
      * that are present in $values
      *
      * @param string $collName
-     * @param array $values
-     * @param array $cond the condition to match on
-     * @param array $options
+     * @param array  $values
+     * @param array  $cond the condition to match on
+     *
+     * @internal param array $options
      * @return bool
-     * @throws \InvalidArgumentException
      */
     public function upsert($collName, array $values, array $cond)
     {
@@ -388,7 +393,7 @@ class DB extends \Lampcms\LampcmsObject
     }
 
     /**
-     * Flush (comming) all changes to disk
+     * Flush (commit) all changes to disk
      * Usually you would run this method
      * after performing multiple save() or insert
      * operations without the fsync => true option

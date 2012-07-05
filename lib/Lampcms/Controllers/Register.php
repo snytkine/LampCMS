@@ -56,58 +56,28 @@ use \Lampcms\String;
 use \Lampcms\Cookie;
 use \Lampcms\Request;
 use \Lampcms\Captcha\Captcha;
+use \Lampcms\Mongo\Schema\User as Schema;
+use \Lampcms\Acl\Role;
 
 /**
  * Main class for creating new account
  * for a new user who is registered
  * with just email address (no 3rd party API login)
  *
- * @todo move as many methods as possible to
- * a wrapper class so that it could be called
- * not only as a web page Conroller
- * but also from the API
- * Later it will be easy to reuse if we have the API
+ * @todo   move as many methods as possible to
+ *         a wrapper class so that it could be called
+ *         not only as a web page Controller
+ *         but also from the API
+ *         Later it will be easy to reuse if we have the API
  *
  * @author Dmitri Snytkine
  *
  */
 class Register extends WebPage
 {
+
     protected $permission = 'register';
 
-    /**
-     * @todo translate string
-      */
-    const EMAIL_BODY = 'Welcome to %1$s!
-
-IMPORTANT: You Must use the link below to activate your account
-%4$s
-
-This email contains your login information for %1$s
-
-Your login information is as follows:
-
-    Username: %2$s
-    Password: %3$s
-
-
-You are advised to store the above information in a safe place so that you
-do not face any inconvenience in future.
-
-You can change your password after you log in. 
-
-
-	';
-
-    const SUBJECT = 'Your %s login information';
-
-    /**
-     * Message to show upon completed successful
-     * registration
-     *
-     * @var string
-     */
-    const SUCCESS = 'Welcome to our club.<br>Please check your email and activate your account A.S.A.P.<br>(details are in the email)';
 
     protected $layoutID = 1;
 
@@ -135,6 +105,7 @@ You can change your password after you log in.
     /**
      *
      * Email address of new user
+     *
      * @var string
      */
     protected $email;
@@ -148,7 +119,8 @@ You can change your password after you log in.
 
     protected function main()
     {
-        $this->aPageVars['title'] = $this->_('Create New Account');
+        $this->aPageVars['title'] = '@@Create New Account@@';
+
         /**
          * Don't bother with token
          * for this form.
@@ -157,6 +129,7 @@ You can change your password after you log in.
          */
         $this->Form = new \Lampcms\Forms\Regform($this->Registry, false);
         $this->Form->setVar('action', 'register');
+
         /**
          * Set divID to registration because otherwise
          * it is default to 'regform' which causes
@@ -172,10 +145,10 @@ You can change your password after you log in.
          */
         $this->Form->setVar('divID', 'registration');
         $this->Form->setVar('className', 'registration');
-        $this->Form->setVar('header2', $this->_('Create New Account'));
+        $this->Form->setVar('header2', '@@Create New Account@@');
         $this->Form->setVar('button', '<input name="submit" value="@@Register@@" type="submit" class="btn btn-m">');
         $this->Form->setVar('captcha', Captcha::factory($this->Registry->Ini)->getCaptchaBlock());
-        $this->Form->setVar('title', $this->_('Create an Account'));
+        $this->Form->setVar('title', '@@Create an Account@@');
         $this->Form->setVar('titleBar', '');
 
         if ($this->Form->isSubmitted() && $this->Form->validate()) {
@@ -183,10 +156,8 @@ You can change your password after you log in.
                 ->createNewUser()
                 ->createEmailRecord()
                 ->sendActivationEmail();
-            /**
-             * @todo Translate string
-             */
-            $this->aPageVars['body'] = '<div id="tools" class="larger">' . self::SUCCESS . '</div>';
+
+            $this->aPageVars['body'] = '<div id="tools" class="larger">@@Welcome to out site. We have just emailed your your account activation link@@</div>';
         } else {
             $this->aPageVars['body'] = '<div id="userForm" class="frm1">' . $this->Form->getForm() . '</div>';
         }
@@ -202,9 +173,8 @@ You can change your password after you log in.
     protected function getSubmittedValues()
     {
         $this->username = $this->Form->getSubmittedValue('username');
-        ;
-        $this->pwd = \Lampcms\String::makePasswd();
-        $this->email = \mb_strtolower($this->Form->getSubmittedValue('email'));
+        $this->pwd      = \Lampcms\String::makePasswd();
+        $this->email    = \mb_strtolower($this->Form->getSubmittedValue('email'));
 
         return $this;
     }
@@ -220,14 +190,14 @@ You can change your password after you log in.
     {
 
         $coll = $this->Registry->Mongo->USERS;
-        $coll->ensureIndex(array('username_lc' => 1), array('unique' => true));
+        $coll->ensureIndex(array(Schema::USERNAME_LOWERCASE => 1), array('unique' => true));
         /**
          * Cannot make email unique index because external users
          * don't have email, and then value counts as null
          * and multiple null values count as duplicate!
          *
          */
-        $coll->ensureIndex(array('email' => 1));
+        $coll->ensureIndex(array(Schema::EMAIL => 1));
         $coll->ensureIndex(array('role' => 1));
         /**
          * Indexes for managing 3 types
@@ -239,35 +209,36 @@ You can change your password after you log in.
 
         $sid = \Lampcms\Cookie::getSidCookie();
 
-        $aData['username'] = $this->username;
-        $aData['username_lc'] = strtolower($this->username);
-        $aData['email'] = $this->email;
-        $aData['rs'] = (false !== $sid) ? $sid : \Lampcms\String::makeSid();
-        $aData['role'] = $this->getRole();
-        $aData['tz'] = \Lampcms\TimeZone::getTZbyoffset($this->Request->get('tzo'));
-        $aData['pwd'] = String::hashPassword($this->pwd);
-        $aData['i_reg_ts'] = time();
-        $aData['date_reg'] = date('r');
-        $aData['i_fv'] = (false !== $intFv = \Lampcms\Cookie::getSidCookie(true)) ? $intFv : time();
-        $aData['lang'] = $this->Registry->getCurrentLang();
-        $aData['locale'] = $this->Registry->Locale->getLocale();
+        $aData[Schema::USERNAME]               = $this->username;
+        $aData[Schema::USERNAME_LOWERCASE]     = \mb_strtolower($this->username);
+        $aData[Schema::EMAIL]                  = $this->email;
+        $aData[Schema::SID]                    = (false !== $sid) ? $sid : \Lampcms\String::makeSid();
+        $aData[Schema::ROLE]                   = $this->getRole();
+        $aData[Schema::TIMEZONE]               = \Lampcms\TimeZone::getTZbyoffset($this->Request->get('tzo'));
+        $aData[Schema::PASSWORD]               = String::hashPassword($this->pwd);
+        $aData[Schema::REGISTRATION_TIMESTAMP] = time();
+        $aData[Schema::REGISTRATION_TIME]      = date('r');
+        $aData[Schema::FIRST_VISIT_TIMESTAMP]  = (false !== $intFv = \Lampcms\Cookie::getSidCookie(true)) ? $intFv : time();
+        $aData[Schema::LANG]                   = $this->Registry->getCurrentLang();
+        $aData[Schema::LOCALE]                 = $this->Registry->Locale->getLocale();
+
         /**
          * Initial reputation is always 1
+         *
          * @var int
          */
-        $aData['i_rep'] = 1;
-        $aUser = array_merge($this->Registry->Geo->Location->data, $aData);
+        $aData[Schema::REPUTATION] = 1;
+        $aUser                     = \array_merge($this->Registry->Geo->Location->data, $aData);
 
-        d('aUser: ' . print_r($aUser, 1));
+        d('aUser: ' . \json_encode($aUser));
 
         $User = \Lampcms\User::factory($this->Registry, $aUser);
         $User->save();
-        d('id: ' . $User['_id']);
+        d('new user _id: ' . $User['_id']);
 
         $this->processLogin($User);
 
         \Lampcms\PostRegistration::createReferrerRecord($this->Registry, $User);
-
 
         return $this;
     }
@@ -287,7 +258,7 @@ You can change your password after you log in.
     protected function getRole()
     {
 
-        return ($this->Registry->Ini->EMAIL_ADMIN === $this->email) ? 'administrator' : 'unactivated';
+        return ($this->Registry->Ini->EMAIL_ADMIN === $this->email) ? Role::ADMINISTRATOR : Role::UNACTIVATED;
     }
 
 
@@ -300,15 +271,15 @@ You can change your password after you log in.
     {
 
         $coll = $this->Registry->Mongo->EMAILS;
-        $coll->ensureIndex(array('email' => 1), array('unique' => true));
+        $coll->ensureIndex(array(Schema::EMAIL => 1), array('unique' => true));
 
         $a = array(
-            'email' => $this->email,
-            'i_uid' => $this->Registry->Viewer->getUid(),
-            'has_gravatar' => \Lampcms\Gravatar::factory($this->email)->hasGravatar(),
-            'ehash' => hash('md5', $this->email),
-            'i_code_ts' => time(),
-            'code' => \substr(hash('md5', \uniqid(\mt_rand())), 0, 12));
+            Schema::EMAIL        => $this->email,
+            'i_uid'              => $this->Registry->Viewer->getUid(),
+            'has_gravatar'       => \Lampcms\Gravatar::factory($this->email)->hasGravatar(),
+            'ehash'              => \hash('md5', $this->email),
+            'i_code_ts'          => time(),
+            'code'               => \substr(hash('md5', \uniqid(\mt_rand())), 0, 12));
 
         $this->oEmail = \Lampcms\Mongo\Doc::factory($this->Registry, 'EMAILS', $a);
 
@@ -327,10 +298,10 @@ You can change your password after you log in.
     protected function makeActivationLink()
     {
         $routerCallback = $this->Registry->Router->getCallback();
-        $uri = $routerCallback('{_WEB_ROOT_}/{_activate_}');
-        d('uri: '.$uri);
+        $uri            = $routerCallback('{_WEB_ROOT_}/{_activate_}');
+        d('uri: ' . $uri);
 
-        $tpl = $this->Registry->Ini->SITE_URL . $uri.'/%d/%s';
+        $tpl  = $this->Registry->Ini->SITE_URL . $uri . '/%d/%s';
         $link = \sprintf($tpl, $this->oEmail['_id'], $this->oEmail['code']);
         d('activation link: ' . $link);
 
@@ -338,13 +309,34 @@ You can change your password after you log in.
     }
 
 
+    /**
+     * Send registration email to new user
+     * Email will contain activation link
+     * and instructions to activate the account
+     *
+     * @return Register
+     */
     protected function sendActivationEmail()
     {
-        $sActivationLink = $this->makeActivationLink();
-        $siteName = $this->Registry->Ini->SITE_NAME;
-        $body = \vsprintf(self::EMAIL_BODY, array($siteName, $this->username, $this->pwd, $sActivationLink));
-        $subject = sprintf(self::SUBJECT, $this->Registry->Ini->SITE_NAME);
+        $Tr = $this->Registry->Tr;
 
+        $activationLink = $this->makeActivationLink();
+        $siteName       = $this->Registry->Ini->SITE_NAME;
+
+        $body = $Tr->get('email.body.registration', array(
+                '{site_title}' => $siteName,
+                '{username}'   => $this->username,
+                '{password}'   => $this->pwd,
+                '{link}'       => $activationLink)
+        );
+
+        $body = \Lampcms\Utf8String::leftAlign($body, 2);
+
+        $subject = $Tr->get('email.subject.registration', array('{site_title}' => $siteName));
+
+        /**
+         * By default Mailer::mail sends email from shutdown function (returns immediately, sends later)
+         */
         $this->Registry->Mailer->mail($this->email, $subject, $body);
 
         return $this;

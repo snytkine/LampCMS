@@ -51,7 +51,8 @@
 
 namespace Lampcms\Mongo\Schema;
 
-class User{
+class User
+{
 
     const COLLECTION = 'USERS';
 
@@ -59,7 +60,48 @@ class User{
 
     const FIRST_NAME = 'fn';
 
+    const MIDDLE_NAME = 'mn';
+
     const LAST_NAME = 'ln';
+
+    const PASSWORD = 'pwd';
+
+    const AVATAR = 'avatar';
+
+    const EXTERNAL_AVATAR = 'avatar_external';
+    /**
+     * User role
+     *
+     * @var string
+     */
+    const ROLE = 'role';
+
+    const USERNAME = 'username';
+
+    const USERNAME_LOWERCASE = 'username_lc';
+
+    const SID = 'rs';
+
+    /**
+     * @var string value php timezone string
+     */
+    const TIMEZONE = 'tz';
+
+    /**
+     * This is different from registration timestamp
+     * as it uses the value of cookie. This cookie is set at first visit to a site
+     * User may not register on the first visit but this value will be
+     * set during registration
+     */
+    const FIRST_VISIT_TIMESTAMP = 'i_fv_ts';
+
+    const LAST_ACTIVITY_TIME = 'i_lm_ts';
+
+    const REGISTRATION_TIMESTAMP = 'i_reg_ts';
+
+    const REGISTRATION_TIME = 'date_reg';
+
+    const REPUTATION = 'i_rep';
 
     const GENDER = 'gender';
 
@@ -67,9 +109,9 @@ class User{
 
     const DESCRIPTION = 'description';
 
-    const MIDDLE_NAME = 'mn';
-
     const COUNTRY_CODE = 'cc';
+
+    const COUNTRY_NAME = 'cn';
 
     const STATE = 'state';
 

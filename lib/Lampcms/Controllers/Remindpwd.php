@@ -53,6 +53,7 @@ namespace Lampcms\Controllers;
 
 use Lampcms\WebPage;
 use Lampcms\String;
+use \Lampcms\Mongo\Schema\User as Schema;
 
 
 /**
@@ -65,39 +66,6 @@ use Lampcms\String;
  */
 class Remindpwd extends WebPage
 {
-
-    /**
-     * @todo translate string
-     */
-    const EMAIL_BODY = 'Hi there, %1$s
-
-You have requested to reset your password on %2$s because you have forgotten your password. 
-If you did not request this, please ignore it. 
-
-This link expire and become useless in 24 hours time.
-
-To reset your password, please visit the following page:
-
-%3$s
-
-When you visit that page, your password will be reset, and the new password will be emailed to you.
-
-Your username is: %1$s
-
-
-All the best,
-%2$s
-
-	';
-
-    const TPL_SUCCESS = '<div class="frm1">Your username is <b>%1$s</b>
-Please write it down now!
-<br/><br/>
-Your password reset instructions have been emailed<br/> to the address
-associated with your account.</div>';
-
-    const SUBJECT = 'Your password request at %s';
-
     protected $layoutID = 1;
 
     /**
@@ -112,6 +80,7 @@ associated with your account.</div>';
      *
      * Username or email address
      * submitted in forgotten password form
+     *
      * @var string
      */
     protected $login;
@@ -136,6 +105,7 @@ associated with your account.</div>';
     /**
      *
      * Email address of user
+     *
      * @var string
      */
     protected $emailAddress;
@@ -144,6 +114,7 @@ associated with your account.</div>';
      *
      * Secret string will be used in reset
      * password link, sent to user via email
+     *
      * @var string
      */
     protected $randomString;
@@ -157,20 +128,17 @@ associated with your account.</div>';
      */
     protected function main()
     {
-        /**
-         * @todo Translate String
-         *
-         */
-        $this->title = 'Password help';
 
-        $this->Form = new \Lampcms\Forms\Pwd($this->Registry);
+        $this->title = '@@Password help@@';
+
+        $this->Form               = new \Lampcms\Forms\Pwd($this->Registry);
         $this->aPageVars['title'] = $this->title;
 
 
         if ($this->Form->isSubmitted() && $this->Form->validate() && $this->validateUser()) {
             d('cp');
             $this->generateCode()->emailCode();
-            $this->aPageVars['body'] = sprintf(self::TPL_SUCCESS, $this->login);
+            $this->aPageVars['body'] = '<div class="frm1">'.$this->Registry->Tr->get('password_request.success', array('{username}' => $this->login)).'</div>';
         } else {
             $this->aPageVars['body'] = $this->Form->getForm();
         }
@@ -194,31 +162,31 @@ associated with your account.</div>';
         if (false !== \filter_var($this->login, FILTER_VALIDATE_EMAIL)) {
             d('cp');
             $this->byEmail = true;
-            $aEmail = $this->Registry->Mongo->EMAILS->findOne(array('email' => $this->login));
+            $aEmail        = $this->Registry->Mongo->EMAILS->findOne(array(Schema::EMAIL => $this->login));
             if (empty($aEmail)) {
-                $this->Form->setError('login', 'No user with this email address');
+                $this->Form->setError('login', '@@No user with this email address@@');
 
                 return false;
             }
 
             d('$aEmail: ' . print_r($aEmail, 1));
-            $aResult = $this->Registry->Mongo->USERS->findOne(array('_id' => (int)$aEmail['i_uid']));
+            $aResult = $this->Registry->Mongo->USERS->findOne(array(Schema::PRIMARY => (int)$aEmail['i_uid']));
 
         } else {
             if (false === \Lampcms\Validate::username($this->login)) {
                 d('cp');
-                $this->Form->setError('login', 'This username is invalid');
+                $this->Form->setError('login', '@@This username is invalid@@');
 
                 return false;
             }
 
-            $aResult = $this->Registry->Mongo->USERS->findOne(array('username_lc' => $this->login));
+            $aResult = $this->Registry->Mongo->USERS->findOne(array(Schema::USERNAME_LOWERCASE => $this->login));
         }
 
         if (empty($aResult)) {
             d('cp');
 
-            $this->Form->setError('login', 'User Not found');
+            $this->Form->setError('login', '@@User Not found@@');
 
             return false;
         }
@@ -236,7 +204,7 @@ associated with your account.</div>';
          * But how would we do that? We would basically activate
          * a user on first login.
          */
-        d('$aResult: ' . \print_r($aResult, 1));
+        d('$aResult: ' . \json_encode($aResult));
 
         /**
          * If username exists but email does not
@@ -250,13 +218,13 @@ associated with your account.</div>';
         }
 
         /**
-         * @todo if user does not have username
+         * If user does not have username
          * then we should use email address instead
          * user should be able to login using email address!
          *
          */
-        $this->uid = $aResult['_id'];
-        $this->login = (!empty($aResult['username'])) ? $aResult['username'] : $aResult['email'];
+        $this->uid          = $aResult['_id'];
+        $this->login        = (!empty($aResult['username'])) ? $aResult['username'] : $aResult['email'];
         $this->emailAddress = $aResult['email'];
 
         return true;
@@ -276,13 +244,13 @@ associated with your account.</div>';
     {
         d('cp');
         $counter = 0;
-        $done = false;
+        $done    = false;
 
         do {
             $counter++;
-            $aData = array();
-            $aData['_id'] = \strtolower(\Lampcms\String::makeRandomString(12));
-            $aData['i_ts'] = time();
+            $aData          = array();
+            $aData['_id']   = \strtolower(\Lampcms\String::makeRandomString(12));
+            $aData['i_ts']  = time();
             $aData['i_uid'] = $this->uid;
 
             /**
@@ -297,10 +265,9 @@ associated with your account.</div>';
                 $coll->insert($aData, array('fsync' => true));
                 $done = true;
                 d('cp');
-            } catch (\MongoException $e) {
+            } catch ( \MongoException $e ) {
                 d('code already exists, trying again...');
             }
-
 
         } while (!$done && ($counter < 50));
 
@@ -324,13 +291,20 @@ associated with your account.</div>';
      */
     protected function emailCode()
     {
+        $Tr             = $this->Registry->Tr;
         $routerCallback = $this->Registry->Router->getCallback();
-        $uri = $routerCallback('{_WEB_ROOT_}/{_resetpwd_}');
-        d('uri: '.$uri);
+        $uri            = $routerCallback('{_WEB_ROOT_}/{_resetpwd_}');
+        d('uri: ' . $uri);
 
-        $link = $this->Registry->Ini->SITE_URL . $uri.'/' . $this->uid . '/' . $this->randomString;
-        $body = \vsprintf(self::EMAIL_BODY, array($this->login, $this->Registry->Ini->SITE_NAME, $link));
-        $subject = \sprintf(self::SUBJECT, $this->Registry->Ini->SITE_NAME);
+        $link = $this->Registry->Ini->SITE_URL . $uri . '/' . $this->uid . '/' . $this->randomString;
+        $body = $Tr->get('email.body.password_request', array(
+                '{username}'   => $this->login,
+                '{site_title}' => $this->Registry->Ini->SITE_NAME,
+                '{link}'       => $link)
+        );
+
+        $subject = $Tr->get('email.subject.password_request', array('{site_title}' => $this->Registry->Ini->SITE_NAME));
+        d('subject: '.$subject);
 
         $this->Registry->Mailer->mail($this->emailAddress, $subject, $body);
 

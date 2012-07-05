@@ -226,7 +226,7 @@ class Exception extends \Exception
              * @todo if Tr was passed here
              *       then we can translate string
              */
-            $message = (defined('LAMPCMS_DEBUG') && true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occurred. Administrator has been notified or the error. We will fix this as soon as possible'; //$oTr->get('generic_error', 'exceptions');
+            $message = (defined('LAMPCMS_DEBUG') && true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occurred. Administrator has been notified of the error. We will fix this as soon as possible'; //$oTr->get('generic_error', 'exceptions');
 
         }
         /**
@@ -254,7 +254,7 @@ class Exception extends \Exception
         $intCode = ($e instanceof \ErrorException) ? $e->getSeverity() : $e->getCode();
 
         $sLogMessage = 'Exception caught: ' . \get_class($e) . "\n" . $message . "\n" . 'error code: ' . $intCode . "\n" . 'file: ' . $strFile . "\n" . 'line: ' . $intLine . "\n" . 'stack: ' . $sTrace . "\n";
-        d($sLogMessage . "\n" . '$_REQUEST: ' . print_r($_REQUEST, true));
+        d($sLogMessage . "\n" . '$_REQUEST: ' . \print_r($_REQUEST, true));
         if (!empty($_SESSION)) {
             d('$_SESSION: ' . print_r($_SESSION, 1));
         }

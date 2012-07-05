@@ -84,7 +84,7 @@
 </trans-unit>
 <trans-unit id="21">
     <source>forgot_help</source>
-    <target>Пожалуйста, укажите Логин или e-mail, который Вы использовали для входа на сайт. </target>
+    <target>Пожалуйста, укажите Логин или e-mail, который Вы использовали для входа на сайт.</target>
 </trans-unit>
 <trans-unit id="22">
     <source>Username OR Email Address</source>
@@ -288,7 +288,9 @@
 </trans-unit>
 <trans-unit id="72">
     <source>"New password" and "Confirm new password" do not match</source>
-    <target>Ваше новое подтверждение пароля не соответствует вашему новому паролю. Возможно, вы допустили ошибку при наборе. Пожалуйста, наберите и подтверждите свой новый пароль ещё раз</target>
+    <target>Ваше новое подтверждение пароля не соответствует вашему новому паролю. Возможно, вы допустили ошибку при
+        наборе. Пожалуйста, наберите и подтверждите свой новый пароль ещё раз
+    </target>
 </trans-unit>
 <trans-unit id="73">
     <source>Newest</source>
@@ -365,6 +367,167 @@
 <trans-unit id="92">
     <source>Clear Cache</source>
     <target>Обнулить кэш</target>
+</trans-unit>
+<trans-unit id="93">
+    <source>email.body.question_by_user</source>
+    <target><![CDATA[
+                Новый вопрос от {username}:
+                {title}
+
+                -------------
+                {body}
+
+
+                вот ссылка
+                {link}
+                Если можете ответить на вопрос то будем вам очень признательны
+
+                ----
+                Вы получили это письмо потому что вы подписались получать уведомления когда
+                есть новые вопросы от  {username}
+
+                Вы можете изменить подписки на наши уведомления посетив наш сайт
+                {home}
+                Залогиньтесь и нажмите на линк "Настройки"
+            ]]>
+    </target>
+</trans-unit>
+<trans-unit id="94">
+    <source>email.subject.new_question_by</source>
+    <target>Новый вопрос от {username}</target>
+</trans-unit>
+<trans-unit id="95">
+    <source>email.subject.new_answer_by</source>
+    <target>Новый ответ от {username}</target>
+</trans-unit>
+<trans-unit id="96">
+    <source>email.subject.registration</source>
+    <target>Подтвердите вашу регистрацию на {site_title}</target>
+</trans-unit>
+<trans-unit id="97">
+    <source>email.body.registration</source>
+    <target>Добро пожаловать на {site_title}
+
+        Прежде чем вы сможете авторизироваться вам нужно кликнуть на линк
+        чтобы подтвердить регистрацию.
+        ----
+        {link}
+
+        А вот ваш логин и временный пароль
+        ----
+        Логин: {username}
+        Пароль: {password}
+
+        ----
+
+
+        После первого захода на сайт вы сможете сами поменять этот пароль.
+        Для этого нажмите на "Настройки" и "Поменять пароль"
+
+    </target>
+</trans-unit>
+<trans-unit id="98">
+    <source>Welcome to out site. We have just emailed your your account activation link</source>
+    <target>
+        <![CDATA[Добро пожаловать!<br>Мы отправили вам имэйл с временным паролем и инструкцией как подтвердить регистрацию.]]></target>
+</trans-unit>
+<trans-unit id="99">
+    <source>password_request.success</source>
+    <target><![CDATA[
+    Ваш логин: <strong>{username}</strong>
+    <br>
+    Запишите куда-нибудь чтобы не забыть
+    <br><br>
+    Линк для получения нового временного пароля отправлен на ваш имэйл.
+    <br>
+    Важно: линк пригоден только в течении 24 часов
+    <br>
+            ]]></target>
+</trans-unit>
+<trans-unit id="100">
+    <source>email.subject.password_request</source>
+    <target>Замена пароля на {site_title}</target>
+</trans-unit>
+<trans-unit id="101">
+    <source>email.body.password_request</source>
+    <target>Здравствуйте {username}!
+
+        Вы просили изменить пароль на {site_title}
+
+        Для этого вам необходимо кликнуть на линк:
+        ----
+        {link}
+        ----
+        (Этото линк функциональный только 24 часа)
+
+        Когда вы кликнете на этот линк ваш пароль будет изменен и новый временный пароль
+        будет отправлен на ваш имэйл
+
+        ваш логин (запишите чтобы не забыть): {username}
+
+
+        ----
+        Ждем вас на нашем сайте
+        {site_title}
+
+
+    </target>
+</trans-unit>
+<trans-unit id="102">
+    <source>New password was just sent to your email</source>
+    <target>Новый пароль отправлен на ваш адрес: </target>
+</trans-unit>
+<trans-unit id="103">
+    <source>email.subject.new_password</source>
+    <target>Ваш новый пароль на {site_title}</target>
+</trans-unit>
+<trans-unit id="104">
+    <source>email.body.new_password</source>
+    <target>
+        Ваш логин и временный пароль на сайте   {site_title}
+
+        ----
+        Логин: {username}
+        Пароль: {password}
+
+        ----
+        Советуем записать эти данные и хранить в надежном месте
+        чтобы избежать подобных неудобств в будующем
+
+        ----
+        После захода на сайт вы сможете сами поменять этот пароль.
+        Для этого нажмите на "Настройки" и "Поменять пароль"
+        ---
+
+    </target>
+</trans-unit>
+<trans-unit id="105">
+    <source>Password reset</source>
+    <target>Замена пароля</target>
+</trans-unit>
+<trans-unit id="106">
+    <source>email.subject.request_activation</source>
+    <target>Активация логина на {site_title}</target>
+</trans-unit>
+<trans-unit id="107">
+    <source>email.body.request_activation</source>
+    <target>
+        Внимание, это линк который вы просили прислать от {site_title}
+
+        Клинките на этот линк чтобы активировать ваш доступ на сайт
+        ----
+        {link}
+        ----
+
+    </target>
+</trans-unit>
+<trans-unit id="108">
+    <source>Activation instructions have just been emailed to</source>
+    <target>Линк для активации вашего логина отправлен на ваш адрес</target>
+</trans-unit>
+<trans-unit id="109">
+    <source>Request email confirmation</source>
+    <target>Запрос активации логина</target>
 </trans-unit>
 </body>
 </file>

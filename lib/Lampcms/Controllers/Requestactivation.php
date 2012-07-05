@@ -52,31 +52,15 @@
 namespace Lampcms\Controllers;
 
 use Lampcms\WebPage;
+use \Lampcms\Mongo\Schema\User as Schema;
 
+/**
+ * This controller is used when user clicks on "Request activation email" link
+ * The new activation link is generated and emailed to user's email address
+ *
+ */
 class Requestactivation extends WebPage
 {
-    /**
-     * @todo Translate strings (and make these instance variables
-     * instead of constants)
-     */
-    const EMAIL_BODY = 'Welcome to %1$s!
-
-IMPORTANT: You Must use the link below to activate your account
-%2$s
-
-	';
-    /**
-     * @todo
-     * Translate String
-     */
-    const SUBJECT = '%s account activation';
-
-    /**
-     * @todo
-     * Translate String
-     */
-    const SUCCESS = '@@Activation instructions have just been emailed to you to@@ %s';
-
 
     protected $membersOnly = true;
 
@@ -88,17 +72,14 @@ IMPORTANT: You Must use the link below to activate your account
 
     protected function main()
     {
-        /**
-         * @todo
-         * Translate String
-         */
+
         $this->aPageVars['title'] = '@@Request email confirmation@@';
 
         $this->getEmailObject()
             ->makeActivationCode()
             ->sendActivationEmail();
 
-        $this->aPageVars['body'] = '<div id="tools">' . \sprintf(self::SUCCESS, $this->email) . '</div>';
+        $this->aPageVars['body'] = '<div id="tools">@@Activation instructions have just been emailed to@@ ' . $this->email . '</div>';
     }
 
 
@@ -132,7 +113,7 @@ IMPORTANT: You Must use the link below to activate your account
                  */
                 throw new \Lampcms\NoemailException('@@You have not selected any email address for your account yet@@');
             }
-        } catch (\MongoException $e) {
+        } catch ( \MongoException $e ) {
             /**
              * @todo
              * Translate String
@@ -145,15 +126,17 @@ IMPORTANT: You Must use the link below to activate your account
     }
 
 
+    /**
+     * Generate an activation string, make a link
+     *
+     * @return Requestactivation
+     * @throws \Lampcms\NoticeException
+     */
     protected function makeActivationCode()
     {
 
         if ((!empty($this->oEmail['i_vts'])) && $this->oEmail['i_vts'] > 0) {
 
-            /**
-             * @todo
-             * Translate String
-             */
             throw new \Lampcms\NoticeException('@@This account has already been activated@@');
         }
 
@@ -181,16 +164,19 @@ IMPORTANT: You Must use the link below to activate your account
      */
     protected function sendActivationEmail()
     {
-        $tpl = $this->Registry->Ini->SITE_URL . '{_WEB_ROOT_}/{_activate_}/%d/%s';
+        $Tr   = $this->Registry->Tr;
+        $tpl  = $this->Registry->Ini->SITE_URL . '{_WEB_ROOT_}/{_activate_}/%d/%s';
         $link = \sprintf($tpl, $this->oEmail['_id'], $this->oEmail['code']);
         d('$link: ' . $link);
         $callback = $this->Router->getCallback();
-        $link = $callback($link);
+        $link     = $callback($link);
         d('$link after callback: ' . $link);
 
         $siteName = $this->Registry->Ini->SITE_NAME;
-        $body = \vsprintf(self::EMAIL_BODY, array($siteName, $link));
-        $subject = \sprintf(self::SUBJECT, $siteName);
+
+        $body    = $Tr->get('email.body.request_activation', array('{site_title}' => $siteName, '{link}' => $link));
+        $subject = $Tr->get('email.subject.request_activation', array('{site_title}' => $siteName));
+
         $this->Registry->Mailer->mail($this->email, $subject, $body);
 
         return $this;

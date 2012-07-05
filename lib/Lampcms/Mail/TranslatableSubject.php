@@ -52,65 +52,53 @@
 
 namespace Lampcms\Mail;
 
-use Lampcms\Mongo\Schema\User as Schema;
-
-class EmailAccount extends \Lampcms\ArrayDefaults implements EmailAccountInterface
+/**
+ * Subject of email that is yet to be translated
+ * into specific locale
+ * Only the name of translation string is defined
+ * and optionally array of vars that translator object may use
+ *
+ */
+class TranslatableSubject implements \Lampcms\I18n\TranslatableInterface
 {
 
-    protected $defaultValue = '';
+    protected $subject;
 
-    /**
-     * @return string
-     */
-    public function getAddress()
+    protected $vars;
+
+    public function __construct($string, array $vars = null)
     {
-        if ('' === $this->offsetGet(Schema::EMAIL)) {
-            e('"email" key is empty in this email account ' . json_encode($this->getArrayCopy()));
-        }
-
-        return '';
+        $this->subject = $string;
+        $this->vars    = $vars;
     }
 
     /**
-     * @return string
+     * @return string string to be translated
+     * Usually this string exists in in xliff file
+     * as a value of trans-unit/source
+     *
      */
-    public function getLocale()
+    public function getString()
     {
-        $locale = $this->offsetGet(Schema::LOCALE);
-
-        if ('' === $locale) {
-            return LAMPCMS_DEFAULT_LOCALE;
-        }
-
-        return $locale;
+        return $this->subject;
     }
 
     /**
-     * @return string
+     * @return mixed null|array of replacement value to be used
+     * in the translated string
      */
-    public function getFirstName()
+    public function getVars()
     {
-        return $this->offsetGet(Schema::FIRST_NAME);
+        return $this->vars;
     }
 
     /**
+     * Should return getString()
+     *
      * @return string
      */
-    public function getLastName()
-    {
-        return $this->offsetGet(Schema::LAST_NAME);
-    }
-
-    /**
-     * @return string
-     */
-    public function userUserId()
-    {
-        return $this->offsetGet(Schema::PRIMARY);
-    }
-
     public function __toString()
     {
-        return $this->getAddress();
+        return $this->subject;
     }
 }

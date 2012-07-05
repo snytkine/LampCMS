@@ -797,29 +797,5 @@ class String extends LampcmsObject implements \Serializable
         return $this->handleReturn($s);
     }
 
-    /**
-     * This method is used to nicely align
-     * multi-line string to the left with
-     * equal number of spaces on the left in
-     * front of every line
-     *
-     * This function is mostly used to prettify the text
-     * obtained from translation object before it is used
-     * as body of the email.
-     *
-     * @static
-     *
-     * @param     $string
-     * @param int $numSpaces number of spaces to left-pad every line
-     * @param int $lineLen maximum length of every line
-     *
-     * @return string
-     */
-    public static function leftAlign($string, $numSpaces = 0, $lineLen = 70)
-    {
-        $lineLen = $lineLen - $numSpaces;
-
-        return \preg_replace('/^\s*/m', \str_repeat(' ', $numSpaces), \wordwrap($string, $lineLen));
-    }
 
 }

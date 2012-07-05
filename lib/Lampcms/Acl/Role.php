@@ -21,6 +21,21 @@ use \Lampcms\Interfaces\RoleInterface;
  */
 class Role implements RoleInterface
 {
+    const UNACTIVATED = 'unactivated';
+
+    const UNACTIVATED_EXTERNAL = 'unactivated_external';
+
+    const ADMINISTRATOR = 'administrator';
+
+    const MODERATOR = 'moderator';
+
+    const GUEST = 'guest';
+
+    const REGISTERED = 'registered';
+
+
+
+
     /**
      * Unique id of Role
      *
@@ -31,8 +46,10 @@ class Role implements RoleInterface
     /**
      * Sets the Role identifier
      *
-     * @param  string $id
-     * @return void
+     * @param $roleId
+     *
+     * @internal param string $id
+     * @return \Lampcms\Acl\Role
      */
     public function __construct($roleId)
     {

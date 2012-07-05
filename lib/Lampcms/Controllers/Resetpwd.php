@@ -54,6 +54,7 @@ namespace Lampcms\Controllers;
 use \Lampcms\WebPage;
 use \Lampcms\Request;
 use \Lampcms\String;
+use \Lampcms\Mongo\Schema\User as Schema;
 
 /**
  * Class responsible for
@@ -65,22 +66,6 @@ use \Lampcms\String;
  */
 class Resetpwd extends WebPage
 {
-
-    const TPL_SUCCESS = '@@New password was just sent to your email@@ %s';
-
-    const SUBJECT = 'Your %1$s login information';
-
-    const EMAIL_BODY = 'This email contains your login information for %1$s
-
-Your login: %2$s
-Your password is: %3$s
-
-You are advised to store the above information in a safe place so that you
-do not face any inconvenience in future.
-
-You can also change your password after you log in. 
-	';
-
 
     protected $username;
 
@@ -107,7 +92,7 @@ You can also change your password after you log in.
             ->emailPwd();
 
         $this->aPageVars['title'] = '@@Password reset@@';
-        $this->aPageVars['body']  = '<div class="frm1">' . \sprintf(self::TPL_SUCCESS, $this->email) . '</div>';
+        $this->aPageVars['body']  = '<div class="frm1">@@New password was just sent to your email@@ ' . $this->email . '</div>';
     }
 
 
@@ -135,9 +120,9 @@ You can also change your password after you log in.
         $uid = $this->Router->getNumber(1);
 
         $salted  = String::hashPassword($this->newPwd);
-        $newdata = array('$set' => array('pwd' => $salted));
+        $newdata = array('$set' => array(Schema::PASSWORD => $salted));
 
-        $this->Registry->Mongo->USERS->update(array('_id' => (int)$uid), $newdata);
+        $this->Registry->Mongo->USERS->update(array(Schema::PRIMARY => (int)$uid), $newdata);
 
         return $this;
     }
@@ -166,7 +151,7 @@ You can also change your password after you log in.
     protected function validateCode()
     {
         $timeOffset = (time() - 86500);
-        $uid        = $this->Router->getNumber(1); //(int)$this->Request['uid'];
+        $uid        = $this->Router->getNumber(1);
         $hash       = $this->Router->getSegment(2);
 
         $aResult = $this->Registry->Mongo->PASSWORD_CHANGE
@@ -196,7 +181,7 @@ You can also change your password after you log in.
             throw new \Lampcms\NoticeException('@@This password reset link was already used on@@ ' . date('r', $aResult['i_used']));
         }
 
-        $aVal = $this->Registry->Mongo->USERS->findOne(array('_id' => (int)$aResult['i_uid']));
+        $aVal = $this->Registry->Mongo->USERS->findOne(array(Schema::PRIMARY => (int)$aResult['i_uid']));
 
         $this->username = $aVal['username'];
         $this->email    = $aVal['email'];
@@ -219,7 +204,7 @@ You can also change your password after you log in.
     protected function markCodeUsed()
     {
         $newdata = array('$set' => array('i_used' => time()));
-        $hash = $this->Router->getSegment(2);
+        $hash    = $this->Router->getSegment(2);
 
         $this->Registry->Mongo->PASSWORD_CHANGE->update(array('_id' => $hash), $newdata);
 
@@ -235,7 +220,7 @@ You can also change your password after you log in.
      */
     protected function saveFailedAttempt()
     {
-        $ip = Request::getIP();
+        $ip  = Request::getIP();
         $uid = $this->Router->getNumber(1);
 
         $aData = array(
@@ -263,7 +248,7 @@ You can also change your password after you log in.
     {
         $ipHacks  = 0;
         $uidHacks = 0;
-        $uid = $this->Router->getNumber(1);
+        $uid      = $this->Router->getNumber(1);
 
         $timeOffset = time() - 86400;
         $cur        = $this->Registry->Mongo->PASSWORD_CHANGE->find(array('i_ts' > $timeOffset));
@@ -302,8 +287,15 @@ You can also change your password after you log in.
      */
     protected function emailPwd()
     {
-        $body    = \vsprintf(self::EMAIL_BODY, array($this->Registry->Ini->SITE_NAME, $this->username, $this->newPwd));
-        $subject = \sprintf(self::SUBJECT, $this->Registry->Ini->SITE_NAME);
+        $Tr = $this->Registry->Tr;
+
+        $body = $Tr->get('email.body.new_password', array(
+                '{site_title}' => $this->Registry->Ini->SITE_NAME,
+                '{username}'   => $this->username,
+                '{password}'   => $this->newPwd)
+        );
+
+        $subject = $Tr->get('email.subject.new_password', array('{site_title}' => $this->Registry->Ini->SITE_NAME));
 
         $this->Registry->Mailer->mail($this->email, $subject, $body);
 

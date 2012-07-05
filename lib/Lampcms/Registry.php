@@ -182,7 +182,7 @@ class Registry implements Interfaces\LampcmsObject
 
         $this->values['Mailer'] = $this->asShared(function ($c)
         {
-            return new \Lampcms\Mail\Mailer($c->Ini, $c->Cache);
+            return new \Lampcms\Mail\Mailer($c->Ini);
         });
 
         $this->values['Router'] = $this->asShared(function ($c)
