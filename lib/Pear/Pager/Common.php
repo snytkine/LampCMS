@@ -579,15 +579,16 @@ abstract class Common
               }*/
 
         if (empty($this->_pageData)) {
-            d('cp');
+
             $this->_generatePageData();
         }
 
-        d('$this->_pageData: ' . print_r($this->_pageData, 1));
 
         if (!empty($this->_pageData[$pageID])) {
+
             return $this->_pageData[$pageID];
         }
+
         return array();
     }
 

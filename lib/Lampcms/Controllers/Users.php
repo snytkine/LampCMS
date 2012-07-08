@@ -271,8 +271,6 @@ class Users extends WebPage
 
         $this->pagerLinks = $oPaginator->getLinks();
 
-        d('$this->pagerLinks: ' . $this->pagerLinks);
-
         return $this;
     }
 

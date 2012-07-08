@@ -100,8 +100,6 @@ class QuestionInfo extends LampcmsObject
             )
         );
 
-        d('$ret: ' . $ret);
-
         return $ret;
     }
 
@@ -109,9 +107,9 @@ class QuestionInfo extends LampcmsObject
     protected function getTags()
     {
         $aTags = $this->Question['a_tags'];
-        d('aTags: ' . print_r($aTags, 1));
+
         if (empty($aTags) || empty($aTags[0])) {
-            d('empty tags detected');
+
             return '';
         }
 

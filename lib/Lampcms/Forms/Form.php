@@ -195,15 +195,15 @@ class Form extends LampcmsObject
     public function __construct(Registry $Registry, $useToken = true)
     {
         $this->Registry = $Registry;
-        $this->Tr = $Registry->Tr;
+        $this->Tr       = $Registry->Tr;
 
         $this->useToken = $useToken;
-        $tpl = $this->template;
+        $tpl            = $this->template;
         d('tpl: ' . $tpl);
 
         if (isset($tpl)) {
             $this->aVars = $tpl::getVars();
-            d('$this->aVars: ' . \print_r($this->aVars, 1));
+            d('$this->aVars: ' . \json_encode($this->aVars));
         }
 
         if (Request::isPost()) {
@@ -212,7 +212,7 @@ class Form extends LampcmsObject
                 self::validateToken($Registry);
             }
             $this->aUploads = $_FILES;
-            d('$this->aUploads: ' . \print_r($this->aUploads, 1));
+            d('$this->aUploads: ' . \json_encode($this->aUploads));
         } else {
             $this->addToken();
         }
@@ -228,8 +228,8 @@ class Form extends LampcmsObject
      * symbol for translation function.
      *
      * @param string $string string to translate
-     * @param array $vars optional array of replacement vars for
-     * translation
+     * @param array  $vars   optional array of replacement vars for
+     *                       translation
      *
      * @return string translated string
      */
@@ -341,7 +341,7 @@ class Form extends LampcmsObject
     public function getSubmittedValues()
     {
         $aFields = $this->getFields();
-        $a = $this->Registry->Request->getArray();
+        $a       = $this->Registry->Request->getArray();
         d('$aFields: ' . \print_r($aFields, 1) . ' Request->getArray(): ' . \print_r($a, 1) . ' POST: ' . \print_r($_POST, 1));
 
         /**
@@ -357,7 +357,9 @@ class Form extends LampcmsObject
     /**
      *
      * Get value of certain form field
+     *
      * @param string $field
+     *
      * @throws \Lampcms\DevException if $field does not exist in form
      *
      * @return string value of submitted field
@@ -377,6 +379,7 @@ class Form extends LampcmsObject
      * The file is first copied to tmp directory
      *
      * @param string $field
+     *
      * @throws \Lampcms\DevException if move_uploaded_file operation
      * fails
      *
@@ -465,7 +468,9 @@ class Form extends LampcmsObject
     /**
      *
      * Check if certain form field exists in form object
+     *
      * @param string $field
+     *
      * @return bool
      */
     protected function fieldExists($field)
@@ -517,6 +522,7 @@ class Form extends LampcmsObject
      *
      * @param string $field
      * @param string $message
+     *
      * @return \Lampcms\Forms\Form
      */
     public function setError($field, $message)
@@ -543,6 +549,7 @@ class Form extends LampcmsObject
      * The form template MUST have 'formError' variable in it!
      *
      * @param string $errMessage
+     *
      * @return \Lampcms\Forms\Form
      */
     public function setFormError($errMessage)
@@ -565,6 +572,7 @@ class Form extends LampcmsObject
      *
      * @param string $name
      * @param string $value
+     *
      * @throws \InvalidArgumentException
      *
      * @return object $this
@@ -585,6 +593,7 @@ class Form extends LampcmsObject
     /**
      *
      * Magic setter
+     *
      * @param string $name
      * @param string $val
      */
@@ -596,6 +605,7 @@ class Form extends LampcmsObject
 
     /**
      * Getter for $this->aErrors
+     *
      * @return array
      */
     public function getErrors()
@@ -610,19 +620,19 @@ class Form extends LampcmsObject
      * also if aErrors not empty, merge it with aVars
      *
      * @param bool $useSubmittedVars if set to false then
-     * will not update $this->aVars to the values of submitted
-     * values and will reuse the vars that were set initially.
-     * This is useful when form was submitted but then some error
-     * occurred in a script that was parsing the form.
-     * In that case
-     * we often need to setFormError and then use values in form
-     * than were there initially, no using any of the submitted values.
+     *                               will not update $this->aVars to the values of submitted
+     *                               values and will reuse the vars that were set initially.
+     *                               This is useful when form was submitted but then some error
+     *                               occurred in a script that was parsing the form.
+     *                               In that case
+     *                               we often need to setFormError and then use values in form
+     *                               than were there initially, no using any of the submitted values.
      *
      * @return string html parsed form template
      */
     public function getForm($useSubmittedVars = true)
     {
-        d('$this->aVars: ' . print_r($this->aVars, 1));
+        d('$this->aVars: ' . \json_encode($this->aVars));
 
         if ($useSubmittedVars) {
             $this->prepareVars();
@@ -771,7 +781,7 @@ class Form extends LampcmsObject
      * @param Registry $Registry
      *
      * @throws \Lampcms\TokenException
-     * @return \Lampcms\Forms\true on success
+     * @return bool true on success
      */
     public static function validateToken(Registry $Registry)
     {

@@ -66,7 +66,9 @@ use Lampcms\Registry;
  */
 class Doc extends LampcmsArray implements \Serializable
 {
+
     const COLLECTION = '';
+
     /**
      * Object of type Registry
      * We need Registry and not just oMongo
@@ -168,11 +170,12 @@ class Doc extends LampcmsArray implements \Serializable
     /**
      *
      * Static factory method
+     *
      * @param Registry $Registry
-     * @param string $collectionName
-     * @param array $a
-     * @param string $default fallback value for element
-     * that does not exist in this ArrayObject
+     * @param string   $collectionName
+     * @param array    $a
+     * @param string   $default fallback value for element
+     *                          that does not exist in this ArrayObject
      *
      * @return object of this class OR class extending this class
      */
@@ -236,6 +239,7 @@ class Doc extends LampcmsArray implements \Serializable
 
     /**
      * Getter for $this->minAutoIncrement
+     *
      * @return int value of $this->minAutoIncrement
      */
     public function getMinAutoIncrement()
@@ -262,9 +266,9 @@ class Doc extends LampcmsArray implements \Serializable
     public function offsetGet($name)
     {
 
-        $ret = !$this->offsetExists($name) ? null : parent::offsetGet($name);
+        $ret    = !$this->offsetExists($name) ? null : parent::offsetGet($name);
         $prefix = \substr($name, 0, 2);
-        switch ($prefix) {
+        switch ( $prefix ) {
             case 'i_':
             case 'id':
                 $ret = (int)$ret;
@@ -316,7 +320,9 @@ class Doc extends LampcmsArray implements \Serializable
 
     /**
      * Setter for $this->keyColumn
+     *
      * @param string $keyColumn
+     *
      * @return object $this
      */
     public function setKeyColumn($keyColumn)
@@ -331,6 +337,7 @@ class Doc extends LampcmsArray implements \Serializable
      * Setter for $this->collectionName
      *
      * @param string $name
+     *
      * @return \Lampcms\Mongo\Doc (this object)
      */
     public function setCollectionName($name)
@@ -367,7 +374,7 @@ class Doc extends LampcmsArray implements \Serializable
         }
 
         $column = \strtolower(\substr($method, 2));
-        $value = $arguments[0];
+        $value  = $arguments[0];
 
         $a = $this->getRegistry()->Mongo->getCollection($this->collectionName)->findOne(array($column => $value));
 
@@ -384,6 +391,7 @@ class Doc extends LampcmsArray implements \Serializable
 
     /**
      * Getter for $this->md5
+     *
      * @return string
      */
     public function getChecksum()
@@ -414,6 +422,7 @@ class Doc extends LampcmsArray implements \Serializable
      * based on collection name and columnID
      *
      * @param array $a
+     *
      * @return object $this
      */
     public function reload(array $a = array())
@@ -439,14 +448,14 @@ class Doc extends LampcmsArray implements \Serializable
      * deletes the table row from table
      *
      * @todo unfinished. Not sure what to do
-     * after the actual row is deleted?
-     * Probably the best solution is to reset this
-     * to an empty array and set a special flag
+     *       after the actual row is deleted?
+     *       Probably the best solution is to reset this
+     *       to an empty array and set a special flag
      * $this->deleted = true
-     * With this flag the destructor should not
-     * do anything
-     * and attempts to select any value of anything from
-     * this object should result in exception? Maybe....
+     *       With this flag the destructor should not
+     *       do anything
+     *       and attempts to select any value of anything from
+     *       this object should result in exception? Maybe....
      *
      * Basically once the delete() in invoked it deletes
      * the row from the database, so this object
@@ -470,7 +479,7 @@ class Doc extends LampcmsArray implements \Serializable
      */
     protected function setChecksum()
     {
-        $a = $this->getArrayCopy();
+        $a         = $this->getArrayCopy();
         $this->md5 = md5(serialize($a));
         d('just reset checksum to ' . $this->md5 . ' for object ' .
             'object: ' . $this->getClass() . "\n" .
@@ -586,7 +595,7 @@ class Doc extends LampcmsArray implements \Serializable
             $res = $this->getRegistry()->Mongo->insertData($this->collectionName, $aData);
             d('insertData returned res: ' . $res);
 
-        } catch (\MongoException $e) {
+        } catch ( \MongoException $e ) {
             throw new \Lampcms\DevException('LampcmsError Unable to insert document into Mongo. Exception: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
         }
 
@@ -627,13 +636,13 @@ class Doc extends LampcmsArray implements \Serializable
     protected function update()
     {
 
-        $ret = false;
-        $aData = $this->getArrayCopy();
+        $ret      = false;
+        $aData    = $this->getArrayCopy();
         $whereVal = $this->offsetGet($this->keyColumn);
         try {
 
             $ret = $this->getRegistry()->Mongo->updateCollection($this->collectionName, $aData, $this->keyColumn, $whereVal, __METHOD__);
-        } catch (\Exception $e) {
+        } catch ( \Exception $e ) {
             throw new \Lampcms\DevException('Could not update MongoCollection $whereVal: ' . $whereVal . ' $aData: ' . print_r($aData, 1) . ' Exception: ' . $e->getMessage() . ' in ' . $e->getFile() . ' line: ' . $e->getLine());
 
             return false;
@@ -667,6 +676,7 @@ class Doc extends LampcmsArray implements \Serializable
     /**
      * Update data in Table but ONLY
      * of changes to array have been detected
+     *
      * @return object $this
      */
     public function saveIfChanged()
@@ -674,15 +684,15 @@ class Doc extends LampcmsArray implements \Serializable
 
         $a = $this->getArrayCopy();
         if (($this->md5 !== md5(serialize($a)))) {
-            d('Something was changed and not saved in table: ' . $this->collectionName . "\n" .
-                'orig md5: ' . $this->md5 . ' new md5: ' . md5(serialize($a)) . "\n" .
-                'new array: ' . print_r($a, 1) . "\n" .
-                'object: ' . $this->getClass() . "\n" .
-                'hashCode: ' . $this->hashCode());
+            /*            d('Something was changed and not saved in table: ' . $this->collectionName . "\n" .
+         'orig md5: ' . $this->md5 . ' new md5: ' . md5(serialize($a)) . "\n" .
+         'new array: ' . print_r($a, 1) . "\n" .
+         'object: ' . $this->getClass() . "\n" .
+         'hashCode: ' . $this->hashCode());*/
 
             try {
                 $ret = $this->save();
-            } catch (\Exception $e) {
+            } catch ( \Exception $e ) {
                 e('LampcmsError unable to save array exception data: ' . $e->getFile() . ' line: ' . $e->getLine() . ' ' . $e->getMessage());
             }
         } else {
@@ -727,7 +737,7 @@ class Doc extends LampcmsArray implements \Serializable
 
             try {
                 $this->save();
-            } catch (\Exception $e) {
+            } catch ( \Exception $e ) {
                 e('Unable to save array. ' . $e->getFile() . ' line: ' . $e->getLine() . ' ' . $e->getMessage());
             }
         }
@@ -757,6 +767,7 @@ class Doc extends LampcmsArray implements \Serializable
 
     /**
      * Getter for $this->bSaved
+     *
      * @return bool
      */
     public function getSavedFlag()
@@ -766,16 +777,17 @@ class Doc extends LampcmsArray implements \Serializable
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms.ArrayDefaults::serialize()
      * @return string|void
      */
     public function serialize()
     {
-        $a = array('array' => $this->getArrayCopy(),
-            'collectionName' => $this->collectionName,
-            'md5' => $this->md5,
-            'bSaved' => $this->bSaved,
-            'keyColumn' => $this->keyColumn);
+        $a = array('array'          => $this->getArrayCopy(),
+                   'collectionName' => $this->collectionName,
+                   'md5'            => $this->md5,
+                   'bSaved'         => $this->bSaved,
+                   'keyColumn'      => $this->keyColumn);
 
         return serialize($a);
     }
@@ -787,6 +799,7 @@ class Doc extends LampcmsArray implements \Serializable
      * @see Lampcms.ArrayDefaults::unserialize()
      *
      * @param string $serialized
+     *
      * @return void
      */
     public function unserialize($serialized)
@@ -794,8 +807,8 @@ class Doc extends LampcmsArray implements \Serializable
         $a = unserialize($serialized);
         $this->exchangeArray($a['array']);
         $this->collectionName = $a['collectionName'];
-        $this->bSaved = $a['bSaved'];
-        $this->keyColumn = $a['keyColumn'];
-        $this->md5 = $a['md5'];
+        $this->bSaved         = $a['bSaved'];
+        $this->keyColumn      = $a['keyColumn'];
+        $this->md5            = $a['md5'];
     }
 }

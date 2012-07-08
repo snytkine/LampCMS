@@ -165,9 +165,6 @@ class Paginator
             $arrPagerData = $this->oPager->getPageData();
 
 
-            d('$arrPagerData: ' . print_r($arrPagerData, true));
-
-
         } else {
             /**
              * @todo finish this

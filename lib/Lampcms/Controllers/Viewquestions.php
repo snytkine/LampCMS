@@ -201,11 +201,11 @@ class Viewquestions extends WebPage
              * uncache onQuestionVote, onQuestionComment
              */
             case $urlParts['SORT_ACTIVE']:
-                $this->title     = '@@Active Questions@@';
+                $this->title = '@@Active Questions@@';
                 $this->pagerPath .= '/{_SORT_ACTIVE_}';
-                $this->typeDiv   = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'active');
-                $where           = array('i_ts' => array('$gt' => (time() - 604800)));
-                $sort            = array('i_ans' => -1);
+                $this->typeDiv = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'active');
+                $where         = array('i_ts' => array('$gt' => (time() - 604800)));
+                $sort          = array('i_ans' => -1);
                 break;
             /**
              * Most votes but still
@@ -234,8 +234,8 @@ class Viewquestions extends WebPage
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'newest');
         }
 
-        if($this->pageID > 1){
-            $this->title .= ' @@page@@ '.$this->pageID;
+        if ($this->pageID > 1) {
+            $this->title .= ' @@page@@ ' . $this->pageID;
         }
 
         /**
@@ -275,8 +275,6 @@ class Viewquestions extends WebPage
 
         $this->pagerLinks = $Paginator->getLinks();
 
-        d('$this->pagerLinks: ' . $this->pagerLinks);
-
         return $this;
     }
 
@@ -301,17 +299,15 @@ class Viewquestions extends WebPage
     {
 
         $aUserTags = $this->Registry->Viewer['a_f_t'];
-        d('$aUserTags: '.print_r($aUserTags, 1));
+        d('$aUserTags: ' . \json_encode($aUserTags));
         if (!empty($aUserTags)) {
             $s = $this->getSortedRecentTags($aUserTags);
         } else {
             $s = $this->Registry->Cache->get('qrecent');
         }
 
-        d('recent tags: '.$s);
-        $tags = \tplBoxrecent::parse(array('tags'  => $s,
-                                           'title' => '@@Recent Tags@@'));
-        d('cp');
+        $tags = \tplBoxrecent::parse(array('tags'  => $s, 'title' => '@@Recent Tags@@'));
+
         $this->aPageVars['tags'] = $tags;
 
         return $this;
@@ -434,7 +430,7 @@ class Viewquestions extends WebPage
     {
 
         $aFollowed = $this->Registry->Viewer['a_f_t'];
-        d('$aFollowed: ' . print_r($aFollowed, 1));
+        d('$aFollowed: ' . \json_encode($aFollowed));
         if (!empty($aFollowed)) {
 
             $this->aPageVars['side'] = '<div id="usrtags" class="fl cb w90 pl10 mb10"><div class="pad8 lg cb fr rounded3 w90"><h4>@@Tags you follow@@</h4>' .
@@ -471,7 +467,6 @@ class Viewquestions extends WebPage
         d('got ' . $cur->count(true) . ' tag results');
         $aTags = \iterator_to_array($cur);
 
-        d('aTags: ' . \print_r($aTags, 1));
         /**
          * $aTags now looks like array of
          * elements like this one:
@@ -493,9 +488,8 @@ class Viewquestions extends WebPage
                 return (in_array($a['tag'], $aUserTags)) ? -1 : 1;
             });
         }
-        ;
 
-        d('$aTags now: ' . print_r($aTags, 1));
+
         $html = ('unanswered' === $type) ? \tplUnanstags::loop($aTags) : \tplLinktag::loop($aTags);
 
         return '<div class="tags-list">' . $html . '</div>';

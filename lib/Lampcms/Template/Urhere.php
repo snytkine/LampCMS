@@ -128,7 +128,6 @@ class Urhere extends LampcmsObject
             $aVars = \array_merge($aVars, $vars);
         }
 
-        d('template: ' . $template . ' $aVars: ' . print_r($aVars, 1));
 
         if (null !== $func) {
             d('$func is not null');

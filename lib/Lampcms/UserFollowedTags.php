@@ -107,7 +107,6 @@ class UserFollowedTags extends LampcmsObject
 
         $tags = \tplTagLink::loop($aUserTags, false);
 
-        d('tags: ' . $tags);
 
         /**
          * If Viewer is not the same user as user whose profile

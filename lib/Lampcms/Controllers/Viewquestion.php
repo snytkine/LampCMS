@@ -272,7 +272,6 @@ class Viewquestion extends WebPage
         $count  = count($aFlwrs);
         if ($count > 0) {
             $s = \Lampcms\ShowFollowers::factory($this->Registry)->getQuestionFollowers($aFlwrs, $count);
-            d('followers: ' . $s);
             $this->aPageVars['side'] .= '<div class="fr cb w90 lg rounded3 pl10 mb10">' . $s . '</div>';
         }
 
@@ -324,7 +323,6 @@ class Viewquestion extends WebPage
         if (empty($this->aQuestion)) {
             throw new \Lampcms\Lampcms404Exception('@@Question not found@@');
         }
-        d('$this->aQuestion: ' . print_r($this->aQuestion, 1));
 
         /**
          * Only moderators can see ip address

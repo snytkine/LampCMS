@@ -156,8 +156,6 @@ class Renderer
         $this->labelQuestion = $this->Registry->Tr->get('Question');
         $this->labelAnswer = $this->Registry->Tr->get('Answer');
 
-        d('$this->aCategories: ' . print_r($this->aCategories, 1));
-
     }
 
     public function getCategories()

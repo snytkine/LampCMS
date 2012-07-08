@@ -104,7 +104,6 @@ class UserVotesBlock extends LampcmsObject
         }
 
         $ret = \tplUserVotes::parse(array('count' => $total, 'stats' => $s, 'username' => $User->getDisplayName()));
-        d('ret: ' . $ret);
 
         return $ret;
     }
