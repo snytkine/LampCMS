@@ -155,7 +155,7 @@
     </target>
 </trans-unit>
 <trans-unit id="9">
-    <source>email.body.question_by_tag</source>
+    <source>email.body.new_question_tagged</source>
     <target><![CDATA[
                  {username} has asked a question:
                  {title}
@@ -356,6 +356,115 @@
         IMPORTANT: You Must use the link below to activate your account
         ----
         {link}
+
+    </target>
+</trans-unit>
+<trans-unit id="24">
+    <source>email.subject.answer_author</source>
+    <target>{username} commented on your answer</target>
+</trans-unit>
+<trans-unit id="25">
+    <source>email.body.answer_author</source>
+    <target>
+        {username} commented on your answer to a question
+        {title}
+
+        Their comment was:
+        {body}
+
+        ----
+        Visit this url to see the answer with the new comment:
+
+        {link}
+
+        ----
+        You can change your email preferences by signing in to
+        {site_title} using the link below:
+        {home} and navigating to Settings > Email preferences
+
+    </target>
+</trans-unit>
+<trans-unit id="26">
+    <source>email.subject.comment_reply</source>
+    <target>{username} replied to your comment</target>
+</trans-unit>
+<trans-unit id="27">
+    <source>email.body.comment_reply</source>
+    <target>
+        {username} has posted a reply to your comment
+
+        You comment was:
+        ============================
+        {parent_body}
+        ============================
+
+        This is the reply:
+        ============================
+        {body}
+        ============================
+
+        Visit this url to see the answer with the new comment:
+
+        {link}
+
+        ----
+        You can change your email preferences by signing in to
+        site {home} and navigating to Settings > Email preferences
+
+
+    </target>
+</trans-unit>
+<trans-unit id="28">
+    <source>email.subject.question_answer</source>
+    <target>New answer to a question you following</target>
+</trans-unit>
+<trans-unit id="29">
+    <source>email.subject.question_comment</source>
+    <target>New comment to a question you following</target>
+</trans-unit>
+<trans-unit id="30">
+    <source>email.body.question_answer</source>
+    <target>
+        {username} has replied
+        to a question you follow:
+        {title}
+
+        Visit this url
+        {link}
+        to read the reply
+
+        ----
+        You receive this message because you are
+        following this question
+
+        You can change your email preferences by signing in to
+        site {home}
+        and navigating to Settings > Email preferences
+
+    </target>
+</trans-unit>
+<trans-unit id="31">
+    <source>email.body.question_comment</source>
+    <target>
+        {username} has commented
+        to a question you follow:
+        {title}
+
+        The comment was:
+        {body}
+
+        ----
+        Visit this url
+        {link}
+        to read the entire thread
+
+        ----
+        You receive this message because you are
+        following this question
+
+        You can change your email preferences by signing in to
+        site {home}
+        and navigating to Settings > Email preferences
 
     </target>
 </trans-unit>

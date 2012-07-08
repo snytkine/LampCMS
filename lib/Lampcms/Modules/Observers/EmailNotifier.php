@@ -122,147 +122,11 @@ use \Lampcms\Mongo\Schema\User as Schema;
  *         and the factory() must return the instance of
  *         that sub-class instead of this class.
  *
- * @todo   more all the email and subject templates
- *         into the I18N class when such class is ready
- *
  * @author Dmitri Snytkine
  *
  */
 class EmailNotifier extends \Lampcms\Event\Observer
 {
-
-    protected static $QUESTION_BY_USER_BODY = '
-%1$s has asked a question:
-%2$s
-	
--------------
-%3$s
-
-	
-Visit this url %4$s
-to read the entire question
-and try to answer it if you can.
-		
-----
-You receive this message because you are following
-the user %1$s.
-	
-You can change your email preferences by signing in to 
-site %5$s and navigating to Settings > Email Preferences
-
-	';
-
-
-    protected static $ANSWER_BY_USER_BODY = '
-%1$s has answered a question:
-%2$s
-
-
-Visit this url %4$s
-to read the entire question and the answer
-	
-----
-You receive this message because you are following
-the user %1$s.
-
-You can change your email preferences by signing in to 
-site %5$s and navigating to Settings > Email Preferences
-
-	';
-
-
-    protected static $QUESTION_BY_TAG_BODY = '
-%1$s has asked a question:
-%2$s
-
--------------
-%3$s
-
-
-Visit this url %4$s
-to read the entire question
-and try to answer it if you can.
-
-
-----
-You receive this message because question contains one
-of the tags you follow
-
-You can change your email preferences by signing in to 
-site %5$s and navigating to Settings > Email Preferences
-
-';
-
-
-    protected static $QUESTION_FOLLOW_BODY = '
-%1$s has added a new %2$s
-to a question you follow:
-%3$s
-%6$s
-
-Visit this url %4$s
-to read the entire question
-
-----
-You receive this message because you are
-following this question
-
-You can change your email preferences by signing in to 
-site %5$s and navigating to Settings > Email preferences
-
-';
-
-
-    protected static $ANS_COMMENT_BODY = '
-%1$s commented on your answer to a question 
-%2$s
-
-Their comment was:	
-%3$s
-
-Visit this url to see the answer with the new comment:
-
-%4$s
-
-----
-You can change your email preferences by signing in to 
-site %5$s and navigating to Settings > Email preferences
-
-';
-
-
-    protected static $COMMENT_REPLY_BODY = '
-%1$s has posted a reply to your comment
-You comment was:
-============================
-%2$s
-============================
-
-This is the reply:
-============================	
-%3$s
-============================
-
-Visit this url to see the answer with the new comment:
-
-%4$s
-
-----
-You can change your email preferences by signing in to 
-site %5$s and navigating to Settings > Email preferences
-
-';
-
-
-    protected static $ANS_COMMENT_SUBJ = '%s commented on your answer';
-
-    protected static $QUESTION_BY_USER_SUBJ = 'New %s by %s';
-
-    protected static $QUESTION_BY_TAG_SUBJ = 'New question tagged: [%s]';
-
-    protected static $QUESTION_FOLLOW_SUBJ = 'New %s to a question you following';
-
-    protected static $COMMENT_REPLY_SUBJ = '%s replied to your comment';
 
     /**
      * UserID of author
@@ -271,7 +135,9 @@ site %5$s and navigating to Settings > Email preferences
      */
     protected $author_id = 0;
 
-
+    /**
+     * @var \Lampcms\Question object
+     */
     protected $Question;
 
     /**
@@ -365,7 +231,7 @@ site %5$s and navigating to Settings > Email preferences
                 break;
         }
 
-        d('cp');
+        d('done main()');
     }
 
 
@@ -436,19 +302,24 @@ site %5$s and navigating to Settings > Email preferences
      * Notify just the author of the answer
      * exclude the ViewerID
      *
-     * @param \Lampcms\Answer                                   $Answer
-     * @param int                                               $excludeUid
+     * @param \Lampcms\Answer $Answer
+     * @param int             $excludeUid
      *
-     * @return \Lampcms\Modules\Observers\object $this
+     * @return object $this
      */
     protected function notifyAnswerAuthor(\Lampcms\Answer $Answer, $excludeUid = 0)
     {
 
-        $commentorID   = (int)$this->aInfo['i_uid'];
-        $answerOwnerId = $Answer->getOwnerId();
-        $siteUrl       = $this->Registry->Ini->SITE_URL;
+        $routerCallback = $this->Registry->Router->getCallback();
+        $commentorID    = (int)$this->aInfo['i_uid'];
+        $answerOwnerId  = $Answer->getOwnerId();
+        $siteUrl        = $this->Registry->Ini->SITE_URL;
+
         d('$siteUrl: ' . $siteUrl);
-        $commUrl = $siteUrl . '/q' . $this->aInfo['i_qid'] . '/#c' . $this->aInfo['_id'];
+
+        $url = $siteUrl . '{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}' . $this->aInfo['i_qid'] . '/#c' . $this->aInfo['_id'];
+
+        $commUrl = $routerCallback($url);
         d('commUrl: ' . $commUrl);
 
         $ansID = $Answer->getResourceId();
@@ -456,11 +327,23 @@ site %5$s and navigating to Settings > Email preferences
         d('$answerOwnerId: ' . $answerOwnerId);
 
         $coll = $this->collUsers;
-        $subj = sprintf(static::$ANS_COMMENT_SUBJ, $this->aInfo['username']);
-        $body = vsprintf(static::$ANS_COMMENT_BODY, array($this->aInfo['username'], $Answer['title'], \strip_tags($this->aInfo['b']), $commUrl, $siteUrl));
-        d('subj: ' . $subj);
-        d('body: ' . $body);
-        $oMailer = $this->Registry->Mailer;
+
+        $varsBody = array(
+            '{username}'   => $this->aInfo['username'],
+            '{link}'       => $commUrl,
+            '{site_title}' => $this->Registry->Ini->SITE_NAME,
+            '{title}'      => $Answer['title'],
+            '{body}'       => \strip_tags($this->aInfo['b']),
+            '{home}'       => $this->Registry->Router->getHomePageUrl());
+
+        $subj   = new TranslatableSubject('email.subject.answer_author', array('{username}' => $this->aInfo['username']));
+        $body   = new TranslatableBody('email.body.answer_author', $varsBody);
+        $locale = LAMPCMS_DEFAULT_LOCALE;
+
+        d('subj: ' . (string)$subj);
+
+        $Mailer = $this->Registry->Mailer;
+        $Mailer->setCache($this->Registry->Cache);
 
         /**
          * Don not notify if comment made
@@ -471,15 +354,27 @@ site %5$s and navigating to Settings > Email preferences
          * and send use mail() instead of mailFromCursor() on Mailer
          */
         if (($commentorID !== $answerOwnerId) && ($commentorID != $excludeUid)) {
-            $callable = function() use ($commentorID, $answerOwnerId, $coll, $subj, $body, $oMailer, $excludeUid)
+            d('setting up callable function');
+            $callable = function() use ($answerOwnerId, $coll, $subj, $body, $Mailer, $locale)
             {
 
-                $aUser = $coll->findOne(array('_id' => $answerOwnerId, 'ne_fa' => array('$ne' => true)), array('email'));
+                $aUser = $coll->findOne(array('_id' => $answerOwnerId, 'ne_fa' => array('$ne' => true)), array('email' => true, 'locale' => true));
 
                 if (!empty($aUser) && !empty($aUser['email'])) {
-                    $oMailer->mail($aUser['email'], $subj, $body, null, false);
+
+                    if (!empty($aUser['locale'])) {
+                        $locale = $aUser['locale'];
+                    }
+
+                    $subj = $Mailer->translate($locale, $subj);
+                    $body = $Mailer->translate($locale, $body);
+
+                    $Mailer->mail($aUser['email'], $subj, $body, null, false);
                 }
             };
+
+
+            d('adding callable to runLater');
 
             \Lampcms\runLater($callable);
         }
@@ -515,39 +410,65 @@ site %5$s and navigating to Settings > Email preferences
      */
     protected function notifyCommentAuthor(\Lampcms\Interfaces\Post $Resource)
     {
+        $routerCallback = $this->Registry->Router->getCallback();
+        /**
+         * CommentorID is always the ViewerID
+         */
         $commentorID        = (int)$this->aInfo['i_uid'];
         $parentCommentOwner = (int)$this->aInfo['inreply_uid'];
         $siteUrl            = $this->Registry->Ini->SITE_URL;
-        d('$siteUrl: ' . $siteUrl);
-        $commUrl = $siteUrl . '/q' . $Resource->getQuestionId() . '/#c' . $this->aInfo['_id'];
+        $home               = $this->Registry->Router->getHomePageUrl();
+        $locale             = LAMPCMS_DEFAULT_LOCALE;
+
+        $url = $siteUrl . '{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}' . $Resource->getQuestionId() . '/#c' . $this->aInfo['_id'];
+
+        $commUrl = $routerCallback($url);
         d('commUrl: ' . $commUrl);
 
         /**
          * If replied to own comment don't notify self
+         * This will also take care of not notifying
+         * Viewer because if Viewer replied to own comment
+         * this condition check will be true
          */
         if ($parentCommentOwner == $commentorID) {
             return $this;
         }
 
         $coll = $this->collUsers;
-        $subj = sprintf(static::$COMMENT_REPLY_SUBJ, $this->aInfo['username']);
+        $subj = new TranslatableSubject('email.subject.comment_reply', array('{username}' => $this->aInfo['username']));
+        $body = new TranslatableBody('email.body.comment_reply', array(
+                '{username}'    => $this->aInfo['username'],
+                '{parent_body}' => \strip_tags($this->aInfo['parent_body']),
+                '{body}'        => \strip_tags($this->aInfo['b']),
+                '{link}'        => $commUrl,
+                '{home}'        => $home)
+        );
 
-        $body = vsprintf(static::$COMMENT_REPLY_BODY, array($this->aInfo['username'], \strip_tags($this->aInfo['parent_body']), \strip_tags($this->aInfo['b']), $commUrl, $siteUrl));
         d('subj: ' . $subj . ' body: ' . $body);
 
-        $oMailer = $this->Registry->Mailer;
+        $Mailer = $this->Registry->Mailer;
+        $Mailer->setCache($this->Registry->Cache);
 
-        $callable = function() use ($parentCommentOwner, $coll, $subj, $body, $oMailer)
+        $callable = function() use ($parentCommentOwner, $coll, $subj, $body, $Mailer, $locale)
         {
 
             $aUser = $coll->findOne(array('_id' => $parentCommentOwner, 'ne_fc' => array('$ne' => true)), array('email' => true, 'locale' => true));
 
             if (!empty($aUser) && !empty($aUser['email'])) {
-                $oMailer->mail($aUser['email'], $subj, $body, null, false);
+
+                if (!empty($aUser['locale'])) {
+                    $locale = $aUser['locale'];
+                }
+
+                $subj = $Mailer->translate($locale, $subj);
+                $body = $Mailer->translate($locale, $body);
+                $Mailer->mail($aUser['email'], $subj, $body, null, false);
             }
         };
 
         \Lampcms\runLater($callable);
+
     }
 
 
@@ -571,7 +492,7 @@ site %5$s and navigating to Settings > Email preferences
      * @param array $aNewTags array of new tags, if not passed then
      *                        array from $this->Question['a_tags'] will be used. This param
      *                        is used when handling onRetag Event in which case we receive
-     *                        array of "new" tags that have been added as result of retagging
+     *                        array of "new" tags that have been added as result of re-tagging
      *
      * @return object $this
      *
@@ -591,23 +512,27 @@ site %5$s and navigating to Settings > Email preferences
             return $this;
         }
 
+        $homeUrl = $this->Registry->Router->getHomePageUrl();
         $askerID = $this->Question->getOwnerId();
-        $oMailer = $this->Registry->Mailer;
+        $Mailer  = $this->Registry->Mailer;
+        $Mailer->setCache($this->Registry->Cache);
 
-        $varsBody = array('{username}' => $this->obj['username'],
-                          '{title}'    => $this->Question['title'],
-                          '{body}'     => $this->Question['intro'],
-                          '{link}'     => $this->Question->getUrl());
+        $varsBody = array('{username}'   => $this->obj['username'],
+                          '{title}'      => $this->Question['title'],
+                          '{body}'       => $this->Question['intro'],
+                          '{link}'       => $this->Question->getUrl(),
+                          '{site_title}' => $this->Registry->Ini->SITE_NAME,
+                          '{home}'       => $homeUrl
+        );
 
-        $varsSubj = array('{tags}' => implode(', ', $this->Question['a_tags']));
+        $tagsString = \implode(', ', $this->Question['a_tags']);
 
-        $subj = sprintf(static::$QUESTION_BY_TAG_SUBJ, implode(', ', $this->Question['a_tags']));
-        $body = vsprintf(static::$QUESTION_BY_TAG_BODY, array($this->Question['username'], $this->Question['title'], $this->Question['intro'], $this->Question->getUrl(), $this->Registry->Ini->SITE_URL));
-
+        $subj = new TranslatableSubject('email.subject.new_question_tagged', array('{tags}' => $tagsString));
+        $body = new TranslatableBody('email.body.new_question_tagged', $varsBody);
         $coll = $this->collUsers;
         d('before shutdown function in TagFollowers');
 
-        $func = function() use($askerID, $oMailer, $subj, $body, $aTags, $coll)
+        $func = function() use($askerID, $Mailer, $subj, $body, $aTags, $coll)
         {
             /**
              * Find all users who follow any of the tags
@@ -621,16 +546,11 @@ site %5$s and navigating to Settings > Email preferences
                 'ne_ft' => array('$ne' => true)
             );
 
-            $cur   = $coll->find($where, array('email'));
+            $cur   = $coll->find($where, array('email' => true, 'locale' => true));
             $count = $cur->count();
             if ($count > 0) {
 
-                /**
-                 * Passing callback function
-                 * to exclude mailing to those who
-                 * opted out on Email On Followed Tag
-                 */
-                $oMailer->mailFromCursor($cur, $subj, $body);
+                $Mailer->mailFromCursor($cur, $subj, $body);
             }
 
         };
@@ -651,7 +571,6 @@ site %5$s and navigating to Settings > Email preferences
     {
 
         $uid = $this->obj->getOwnerId();
-
         d('uid: ' . $uid);
 
         /**
@@ -680,9 +599,9 @@ site %5$s and navigating to Settings > Email preferences
         $subj = new TranslatableSubject('email.subject.new_' . $updateType . '_by', $varsSubj);
         $body = new TranslatableBody($tpl, $varsBody);
 
-        $coll    = $this->collUsers;
-        $oMailer = $this->Registry->Mailer;
-        $oMailer->setCache($this->Registry->Cache);
+        $coll   = $this->collUsers;
+        $Mailer = $this->Registry->Mailer;
+        $Mailer->setCache($this->Registry->Cache);
         d('before shutdown function in UserFollowers');
 
         /**
@@ -709,30 +628,14 @@ site %5$s and navigating to Settings > Email preferences
          * so excluding ViewerID is pointless here
          */
 
-        $func = function() use($uid, $subj, $body, $coll, $oMailer)
+        $func = function() use($uid, $subj, $body, $coll, $Mailer)
         {
 
-            $count = 0;
             $cur   = $coll->find(array('a_f_u' => $uid, 'ne_fu' => array('$ne' => true)), array('email' => true, 'locale' => true));
             $count = $cur->count();
             if ($count > 0) {
 
-                /**
-                 * Passing callback function
-                 * to exclude mailing to those who
-                 * opted out on Email On Followed User
-                 */
-                $oMailer->mailFromCursor($cur, $subj, $body);
-
-                /**
-                 * , function($a){
-                if(!empty($a['email']) && (!array_key_exists('e_fu', $a) || false !== $a['e_fu'])){
-                return $a['email'];
-                }
-
-                return null;
-                }
-                 */
+                $Mailer->mailFromCursor($cur, $subj, $body);
             }
 
         };
@@ -767,6 +670,9 @@ site %5$s and navigating to Settings > Email preferences
     {
         $viewerID = $this->Registry->Viewer->getUid();
         d('$viewerID: ' . $viewerID);
+
+        $routerCallback = $this->Registry->Router->getCallback();
+
         /**
          *
          * $qid can be passed here
@@ -778,7 +684,7 @@ site %5$s and navigating to Settings > Email preferences
             try {
                 $Question->by_id((int)$qid);
             } catch ( \Exception $e ) {
-                e($e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
+                e('Unable to create Question by _id. Exception: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
                 $Question = null;
             }
         } else {
@@ -786,26 +692,42 @@ site %5$s and navigating to Settings > Email preferences
         }
 
         if (null === $Question) {
+            d('no $Question');
+
             return $this;
         }
 
+        $subj = ('onNewAnswer' === $this->eventName) ? 'email.subject.question_answer' : 'email.subject.question_comment';
+        $body = ('onNewAnswer' === $this->eventName) ? 'email.body.question_answer' : 'email.body.question_comment';
+
+        $siteUrl    = $this->Registry->Ini->SITE_URL;
         $updateType = ('onNewAnswer' === $this->eventName) ? 'answer' : 'comment';
-        $subj       = sprintf(static::$QUESTION_FOLLOW_SUBJ, $updateType);
-        d('cp');
+        $username   = ('onNewAnswer' === $this->eventName) ? $this->obj['username'] : $this->aInfo['username'];
 
-        $siteUrl = $this->Registry->Ini->SITE_URL;
-
-        $username = ('answer' === $updateType) ? $this->obj['username'] : $this->aInfo['username'];
-        $url      = ('answer' === $updateType) ? $this->obj->getUrl() : $siteUrl . '/q' . $this->aInfo['i_qid'] . '/#c' . $this->aInfo['_id'];
+        if ('onNewAnswer' === $this->eventName) {
+            $url = $this->obj->getUrl();
+        } else {
+            $url = $siteUrl . '{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}' . $this->aInfo['i_qid'] . '/#c' . $this->aInfo['_id'];
+            $url = $routerCallback($url);
+        }
 
         d('url: ' . $url);
 
-        $content = ('comment' === $updateType) ? "\n____\n" . \strip_tags($this->aInfo['b']) . "\n" : '';
-        $body    = vsprintf(static::$QUESTION_FOLLOW_BODY, array($username, $updateType, $this->Question['title'], $url, $siteUrl, $content));
-        d('$body: ' . $body);
+        $content = ('onNewAnswer' !== $this->eventName) ? "\n____\n" . \strip_tags($this->aInfo['b']) . "\n" : '';
 
-        $oMailer = $this->Registry->Mailer;
-        d('cp');
+        $varsBody = array('{username}'   => $username,
+                          '{title}'      => $this->Question['title'],
+                          '{body}'       => $content,
+                          '{link}'       => $url,
+                          '{site_title}' => $this->Registry->Ini->SITE_NAME,
+                          '{home}'       => $this->Registry->Router->getHomePageUrl());
+
+        $body = new TranslatableBody($body, $varsBody);
+        $subj = new TranslatableSubject($subj);
+
+        $Mailer = $this->Registry->Mailer;
+        $Mailer->setCache($this->Registry->Cache);
+
         /**
          * MongoCollection USERS
          *
@@ -814,14 +736,13 @@ site %5$s and navigating to Settings > Email preferences
         $coll = $this->collUsers;
         d('before shutdown function for question followers');
 
-
         /**
          * Get array of followers for this question
          */
         $aFollowers = $Question['a_flwrs'];
 
         if (!empty($aFollowers)) {
-            $func = function() use($updateType, $viewerID, $aFollowers, $updateType, $subj, $body, $coll, $oMailer, $excludeUid)
+            $func = function() use($updateType, $viewerID, $aFollowers, $subj, $body, $coll, $Mailer, $excludeUid)
             {
 
                 /**
@@ -849,40 +770,31 @@ site %5$s and navigating to Settings > Email preferences
                 /**
                  * Find all users who follow this question
                  * and
-                 * are not themselves the viewer (a viewer may reply to
-                 * own question and we don't want to notify viewer of that)
+                 * are not also following the Viewer
                  *
                  * In case of comment we should not exclude
-                 * user followers because user followers are NOT
+                 * Viewer followers because Viewer followers are NOT
                  * notified on user comment
                  *
                  */
                 if ('comment' !== $updateType) {
-                    $cur = $coll->find(array('_id' => array('$in' => $aFollowers), 'a_f_u' => array('$nin' => array(0 => $viewerID)), 'ne_fq' => array('$ne' => true)), array('email' => true));
+                    /**
+                     * Condition: Find all users with _id in array of $aFollowers
+                     * AND NOT FOLLOWING viewer (who is the author of this answer)
+                     * because they will also be notified of this answer
+                     * in a separate email that is sent to all followers of Viewer
+                     */
+                    $cur = $coll->find(array('_id' => array('$in' => $aFollowers), 'a_f_u' => array('$nin' => array(0 => $viewerID)), 'ne_fq' => array('$ne' => true)), array('email' => true, 'locale' => true));
                 } else {
-                    $cur = $coll->find(array('_id' => array('$in' => $aFollowers), 'ne_fq' => array('$ne' => true)), array('email' => true));
+                    $cur = $coll->find(array('_id' => array('$in' => $aFollowers), 'ne_fq' => array('$ne' => true)), array('email' => true, 'locale' => true));
                 }
 
                 $count = $cur->count();
 
                 if ($count > 0) {
 
-                    /**
-                     * Passing callback function
-                     * to exclude mailing to those who
-                     * opted out on Email On Followed Question
-                     */
-                    $oMailer->mailFromCursor($cur, $subj, $body);
+                    $Mailer->mailFromCursor($cur, $subj, $body);
 
-                    /**
-                     * , function($a){
-                    if(!empty($a['email']) && (!array_key_exists('e_fq', $a) || false !== $a['e_fq'])){
-                    return $a['email'];
-                    }
-
-                    return null;
-                    }
-                     */
                 }
             };
 

@@ -514,7 +514,7 @@ class Router
      * in !config.ini
      * This callback is used in the output buffer
      *
-     * @return closure a function that will replace
+     * @return \Callable function a function that will replace
      * placeholders in string with the values from URL_PARTS
      * section
      */

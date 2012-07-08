@@ -334,7 +334,7 @@ class Mongo implements \Lampcms\Interfaces\Cache
 
             $value        = serialize($value);
             $isSerialized = true;
-            d('serialized object: ' . $value);
+
 
         } elseif ($this->bCompress && is_array($value)) {
 

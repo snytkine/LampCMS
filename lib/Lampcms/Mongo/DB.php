@@ -77,6 +77,7 @@ class DB extends \Lampcms\LampcmsObject
 
     /**
      * Object MongoDB
+     *
      * @var object of type \MongoDB
      */
     protected $db;
@@ -92,6 +93,7 @@ class DB extends \Lampcms\LampcmsObject
     /**
      *
      * Config/Ini object
+     *
      * @var object Lampcms\Config\Ini
      */
     protected $Ini;
@@ -99,6 +101,7 @@ class DB extends \Lampcms\LampcmsObject
 
     /**
      * Extra options used during insert and save
+     *
      * @var array
      */
     protected $aInsertOption = array('safe' => true);
@@ -126,8 +129,8 @@ class DB extends \Lampcms\LampcmsObject
         }
 
         $this->Ini = $Ini;
-        $aOptions = array('connect' => true);
-        $aConfig = $Ini->getSection('MONGO');
+        $aOptions  = array('connect' => true);
+        $aConfig   = $Ini->getSection('MONGO');
 
 
         $server = $aConfig['server'];
@@ -140,9 +143,31 @@ class DB extends \Lampcms\LampcmsObject
         $this->dbname = (defined('MONGO_DBNAME')) ? constant('MONGO_DBNAME') : $aConfig['db'];
 
         try {
+            /**
+             * Need to lower to error reporting level just for
+             * this method because Mongo may raise notices
+             * that we are not interested in.
+             * We only care about actual exceptions
+              */
+            $ER         = \error_reporting(0);
             $this->conn = new \Mongo($server, $aOptions);
+            \error_reporting($ER);
 
-        } catch (\Exception $e) {
+        } catch ( \MongoConnectionException $e ) {
+            $err = 'MongoConnectionException caught. Unable to connect to Mongo: ' . $e->getMessage();
+            e($err);
+            throw new DevException($err);
+        }
+        catch ( \MongoException $e ) {
+            $err = 'MongoException caught. Unable to connect to Mongo: ' . $e->getMessage();
+            e($err);
+            throw new DevException($err);
+        }
+        catch ( DevException $e ) {
+            $err = 'Unable to connect to Mongo: ' . $e->getMessage();
+            e($err);
+        }
+        catch ( \Exception $e ) {
             /**
              * This will not be a MongoException
              * because mongo connection process will not throw exception,
@@ -170,6 +195,7 @@ class DB extends \Lampcms\LampcmsObject
 
     /**
      * Getter for $this->dbname
+     *
      * @return string name of database used
      */
     public function getDbName()
@@ -186,7 +212,7 @@ class DB extends \Lampcms\LampcmsObject
      * @throws \InvalidArgumentException
      * @internal param \Lampcms\Mongo\name $string Database name
      *
-     * @return \Lampcms\Mongo\object $this Enter description here ...
+     * @return object $this
      */
     public function setDbName($name)
     {
@@ -209,8 +235,10 @@ class DB extends \Lampcms\LampcmsObject
 
     /**
      * By default pass methods to $this->db (MongoDatabase object)
+     *
      * @param string $method
-     * @param array $args
+     * @param array  $args
+     *
      * @return mixed
      */
     public function __call($method, $args)
@@ -258,7 +286,7 @@ class DB extends \Lampcms\LampcmsObject
             $coll = $this->getCollection($collName);
 
             $ret = $coll->insert($aValues, $option);
-        } catch (\MongoException $e) {
+        } catch ( \MongoException $e ) {
             e('Insert() failed: ' . $e->getMessage() . ' values: ' . print_r($aValues, 1) . ' backtrace: ' . $e->getTraceAsString());
 
             return false;
@@ -308,7 +336,7 @@ class DB extends \Lampcms\LampcmsObject
         $coll = $this->getDb()->selectCollection($collName);
         try {
             $ret = $coll->update(array($whereCol => $whereVal), $arrValues, array('fsync' => true));
-        } catch (\MongoException $e) {
+        } catch ( \MongoException $e ) {
             e('Unable to update mongo collection ' . $collName . ' ' . $e->getMessage());
         }
 
@@ -324,9 +352,10 @@ class DB extends \Lampcms\LampcmsObject
      * that are present in $values
      *
      * @param string $collName
-     * @param array $values
-     * @param array $cond the condition to match on
-     * @param array $options
+     * @param array  $values
+     * @param array  $cond the condition to match on
+     * @param array  $options
+     *
      * @return bool
      * @throws \InvalidArgumentException
      */
@@ -351,7 +380,7 @@ class DB extends \Lampcms\LampcmsObject
         $coll = $this->getDb()->selectCollection($collName);
         try {
             $ret = $coll->update($cond, array('$set' => $values), $options);
-        } catch (\MongoCursorException $e) {
+        } catch ( \MongoCursorException $e ) {
             e('Unable to update mongo collection ' . $collName . ' ' . $e->getMessage());
         }
 
@@ -458,6 +487,7 @@ class DB extends \Lampcms\LampcmsObject
      * This is the same name as in php's MongoDB class
      *
      * @param string $collName
+     *
      * @return object
      */
     public function selectCollection($collName)

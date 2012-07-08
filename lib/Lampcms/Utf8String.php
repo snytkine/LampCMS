@@ -141,7 +141,7 @@ class Utf8String extends String
                 throw new \InvalidArgumentException('if $string param is array, it must include non-empty element with "string"');
             }
 
-            $a = $string;
+            $a       = $string;
             $charset = null;
             d('$string: ' . print_r($a, 1) . ' charset: ' . gettype($a['charset']) . ' ' . $a['charset']);
             $string = $a['string'];
@@ -215,7 +215,7 @@ class Utf8String extends String
             throw new \RuntimeException('Unable to detect charset encoding because mbstring extension is not available and a string is not in UTF-8');
         }
 
-        $cs = false;
+        $cs          = false;
         $charsetHint = strtoupper($charsetHint);
         if ('US-ASCII' === $charsetHint) {
             $charsetHint = 'ASCII';
@@ -289,7 +289,7 @@ class Utf8String extends String
              */
             try {
                 $charset = \strtolower(self::guessCharset($utf8string));
-            } catch (\Exception $e) {
+            } catch ( \Exception $e ) {
                 d('unable to guess charset');
                 /**
                  * Unable to guess charset
@@ -308,7 +308,7 @@ class Utf8String extends String
 
                         $utf8string = self::recodeUtf8($utf8string);
                     }
-                } catch (\Exception $e) {
+                } catch ( \Exception $e ) {
                     d('cp ' . $e->getMessage());
                     throw new \RuntimeException('unable to convert encoding');
                 }
@@ -385,7 +385,7 @@ class Utf8String extends String
 
         $mState = 0; // cached expected number of octets after the current octet
         // until the beginning of the next UTF8 character sequence
-        $mUcs4 = 0; // cached Unicode character
+        $mUcs4  = 0; // cached Unicode character
         $mBytes = 1; // cached expected number of octets in the current sequence
 
         //$out = array();
@@ -408,24 +408,24 @@ class Utf8String extends String
                 } else if (0xC0 == (0xE0 & ($in))) {
 
                     // First octet of 2 octet sequence
-                    $mUcs4 = ($in);
-                    $mUcs4 = ($mUcs4 & 0x1F) << 6;
+                    $mUcs4  = ($in);
+                    $mUcs4  = ($mUcs4 & 0x1F) << 6;
                     $mState = 1;
                     $mBytes = 2;
 
                 } else if (0xE0 == (0xF0 & ($in))) {
 
                     // First octet of 3 octet sequence
-                    $mUcs4 = ($in);
-                    $mUcs4 = ($mUcs4 & 0x0F) << 12;
+                    $mUcs4  = ($in);
+                    $mUcs4  = ($mUcs4 & 0x0F) << 12;
                     $mState = 2;
                     $mBytes = 3;
 
                 } else if (0xF0 == (0xF8 & ($in))) {
 
                     // First octet of 4 octet sequence
-                    $mUcs4 = ($in);
-                    $mUcs4 = ($mUcs4 & 0x07) << 18;
+                    $mUcs4  = ($in);
+                    $mUcs4  = ($mUcs4 & 0x07) << 18;
                     $mState = 3;
                     $mBytes = 4;
 
@@ -439,25 +439,27 @@ class Utf8String extends String
                           * Rather than trying to resynchronize, we will carry on until the end
                           * of the sequence and let the later error handling code catch it.
                           */
-                    $mUcs4 = ($in);
-                    $mUcs4 = ($mUcs4 & 0x03) << 24;
+                    $mUcs4  = ($in);
+                    $mUcs4  = ($mUcs4 & 0x03) << 24;
                     $mState = 4;
                     $mBytes = 5;
 
-                } else if (0xFC == (0xFE & ($in))) {
-                    d('cp');
-                    // First octet of 6 octet sequence, see comments for 5 octet sequence.
-                    $mUcs4 = ($in);
-                    $mUcs4 = ($mUcs4 & 1) << 30;
-                    $mState = 5;
-                    $mBytes = 6;
-
                 } else {
-                    d('cp');
-                    /* Current octet is neither in the US-ASCII range nor a legal first
-                          * octet of a multi-octet sequence.
-                          */
-                    return false;
+                    if (0xFC == (0xFE & ($in))) {
+                        d('cp');
+                        // First octet of 6 octet sequence, see comments for 5 octet sequence.
+                        $mUcs4  = ($in);
+                        $mUcs4  = ($mUcs4 & 1) << 30;
+                        $mState = 5;
+                        $mBytes = 6;
+
+                    } else {
+                        d('cp');
+                        /* Current octet is neither in the US-ASCII range nor a legal first
+                        * octet of a multi-octet sequence.
+                        */
+                        return false;
+                    }
                 }
             } else {
 
@@ -466,8 +468,8 @@ class Utf8String extends String
                 if (0x80 == (0xC0 & ($in))) {
                     // Legal continuation.
                     $shift = ($mState - 1) * 6;
-                    $tmp = $in;
-                    $tmp = ($tmp & 0x0000003F) << $shift;
+                    $tmp   = $in;
+                    $tmp   = ($tmp & 0x0000003F) << $shift;
                     $mUcs4 |= $tmp;
 
                     if (0 == --$mState) {
@@ -495,7 +497,7 @@ class Utf8String extends String
                         }
                         //initialize UTF8 cache
                         $mState = 0;
-                        $mUcs4 = 0;
+                        $mUcs4  = 0;
                         $mBytes = 1;
                     }
                 } else {
@@ -517,7 +519,7 @@ class Utf8String extends String
     {
         $mState = 0; // cached expected number of octets after the current octet
         // until the beginning of the next UTF8 character sequence
-        $mUcs4 = 0; // cached Unicode character
+        $mUcs4  = 0; // cached Unicode character
         $mBytes = 1; // cached expected number of octets in the current sequence
 
         $out = array();
@@ -530,24 +532,24 @@ class Utf8String extends String
                 // multi-octet sequence.
                 if (0 == (0x80 & ($in))) {
                     // US-ASCII, pass straight through.
-                    $out[] = $in;
+                    $out[]  = $in;
                     $mBytes = 1;
                 } else if (0xC0 == (0xE0 & ($in))) {
                     // First octet of 2 octet sequence
-                    $mUcs4 = ($in);
-                    $mUcs4 = ($mUcs4 & 0x1F) << 6;
+                    $mUcs4  = ($in);
+                    $mUcs4  = ($mUcs4 & 0x1F) << 6;
                     $mState = 1;
                     $mBytes = 2;
                 } else if (0xE0 == (0xF0 & ($in))) {
                     // First octet of 3 octet sequence
-                    $mUcs4 = ($in);
-                    $mUcs4 = ($mUcs4 & 0x0F) << 12;
+                    $mUcs4  = ($in);
+                    $mUcs4  = ($mUcs4 & 0x0F) << 12;
                     $mState = 2;
                     $mBytes = 3;
                 } else if (0xF0 == (0xF8 & ($in))) {
                     // First octet of 4 octet sequence
-                    $mUcs4 = ($in);
-                    $mUcs4 = ($mUcs4 & 0x07) << 18;
+                    $mUcs4  = ($in);
+                    $mUcs4  = ($mUcs4 & 0x07) << 18;
                     $mState = 3;
                     $mBytes = 4;
                 } else if (0xF8 == (0xFC & ($in))) {
@@ -559,14 +561,14 @@ class Utf8String extends String
                           * Rather than trying to resynchronize, we will carry on until the end
                           * of the sequence and let the later error handling code catch it.
                           */
-                    $mUcs4 = ($in);
-                    $mUcs4 = ($mUcs4 & 0x03) << 24;
+                    $mUcs4  = ($in);
+                    $mUcs4  = ($mUcs4 & 0x03) << 24;
                     $mState = 4;
                     $mBytes = 5;
                 } else if (0xFC == (0xFE & ($in))) {
                     // First octet of 6 octet sequence, see comments for 5 octet sequence.
-                    $mUcs4 = ($in);
-                    $mUcs4 = ($mUcs4 & 1) << 30;
+                    $mUcs4  = ($in);
+                    $mUcs4  = ($mUcs4 & 1) << 30;
                     $mState = 5;
                     $mBytes = 6;
                 } else {
@@ -581,8 +583,8 @@ class Utf8String extends String
                 if (0x80 == (0xC0 & ($in))) {
                     // Legal continuation.
                     $shift = ($mState - 1) * 6;
-                    $tmp = $in;
-                    $tmp = ($tmp & 0x0000003F) << $shift;
+                    $tmp   = $in;
+                    $tmp   = ($tmp & 0x0000003F) << $shift;
                     $mUcs4 |= $tmp;
 
                     if (0 == --$mState) {
@@ -610,7 +612,7 @@ class Utf8String extends String
                         }
                         //initialize UTF8 cache
                         $mState = 0;
-                        $mUcs4 = 0;
+                        $mUcs4  = 0;
                         $mBytes = 1;
                     }
                 } else {
@@ -716,6 +718,7 @@ class Utf8String extends String
      * non english letters from it!
      *
      * @param $asciistring
+     *
      * @return string
      */
     public static function sanitizeAscii($asciistring)
@@ -768,7 +771,7 @@ class Utf8String extends String
             throw new \InvalidArgumentException('$string is not instance of \Lampcms\String class');
         }
 
-        $ret = false;
+        $ret         = false;
         $fromCharset = strtoupper($fromCharset);
         $fromCharset = ('KS_C_5601-1987' !== $fromCharset) ? $fromCharset : 'EUC-KR';
 
@@ -794,9 +797,9 @@ class Utf8String extends String
         if (function_exists('iconv') && ('UTF7-IMAP' !== $fromCharset) && (('UTF-7' !== $fromCharset) && function_exists('mb_convert_encoding'))) {
             /**
              * @todo make sure that the $charset is known to imap
-             * and not some made-up uknown charset. If user puts something like
+             *       and not some made-up uknown charset. If user puts something like
              * 'crap-chars' as value of encoding of xml, then we sure don't want
-             * to even try to convert something that we don't know how to handle
+             *       to even try to convert something that we don't know how to handle
              */
 
             $ret = iconv($fromCharset, "UTF-8//IGNORE", $string);
@@ -804,7 +807,7 @@ class Utf8String extends String
 
         if ((false === $ret) && function_exists('mb_convert_encoding')) {
             $fromCharset = ('UTF-7' !== $fromCharset) ? $fromCharset : 'UTF7-IMAP';
-            $a = mb_list_encodings();
+            $a           = mb_list_encodings();
             if (in_array($fromCharset, $a)) {
                 \mb_internal_encoding("UTF-8");
                 \mb_substitute_character("none");
@@ -824,6 +827,7 @@ class Utf8String extends String
      * Returns number of chars in a string
      * this is not necessarily the number of bytes
      * because string of this class may be multibyte
+     *
      * @return int
      */
     public function length()
@@ -852,10 +856,10 @@ class Utf8String extends String
      * than $max chars but makes sure it cuts
      * only on word boundary
      *
-     * @param int $max max length after which string to be cut
+     * @param int    $max  max length after which string to be cut
      *
      * @param string $link optional link
-     * to be added if string is cut (like link to 'read more')
+     *                     to be added if string is cut (like link to 'read more')
      *
      * @return object of this class
      * representing a newly cut string
@@ -866,7 +870,7 @@ class Utf8String extends String
         $words = \mb_split("\s", $this->string);
 
         $newstring = '';
-        $numwords = 0;
+        $numwords  = 0;
 
         foreach ($words as $word) {
             if ((\mb_strlen($newstring) + 1 + \mb_strlen($word)) < $max) {
@@ -897,6 +901,7 @@ class Utf8String extends String
      * @param $width
      * @param $break
      * @param $cut
+     *
      * @return unknown_type
      */
     public function wordWrap($width = 75, $break = "\n", $cut = false)
@@ -912,9 +917,9 @@ class Utf8String extends String
             $ret = \wordwrap($this->string, $width, $break);
         } else {
             // We first need to explode on $break, not destroying existing (intended) breaks
-            $lines = explode($break, $this->string);
+            $lines     = explode($break, $this->string);
             $new_lines = array(0 => '');
-            $index = 0;
+            $index     = 0;
 
             foreach ($lines as $line) {
                 $words = explode(' ', $line);
@@ -925,7 +930,7 @@ class Utf8String extends String
                     // If cut is true we need to cut the word if it is > width chars
                     if ($cut && (\mb_strlen($word) > $width)) {
                         $words[$i] = \mb_substr($word, $width);
-                        $word = \mb_substr($word, 0, $width);
+                        $word      = \mb_substr($word, 0, $width);
                         $i--;
                     }
 
@@ -973,8 +978,11 @@ class Utf8String extends String
      */
     public static function leftAlign($string, $numSpaces = 0)
     {
-
-        return \preg_replace('/^\s*/m', \str_repeat(' ', $numSpaces), $string);
+        /**
+         * @todo this may not work correctly with different locales
+         *       Different locales may treat the \w differently
+         */
+        return \preg_replace('/^\s*(?=\w+)/m', \str_repeat(' ', $numSpaces), $string);
     }
 
 
@@ -1003,6 +1011,7 @@ class Utf8String extends String
 
     /**
      * UTF-8 safe implementation of ucfirst()
+     *
      * @return unknown_type
      */
     public function ucfirst()
@@ -1034,31 +1043,31 @@ class Utf8String extends String
      * this method does not make sense at all!)
      *
      * @param array $aTidyConfig configuration array
-     * of tidy options. IMPORTANT: boolean options
-     * must be set as true or false (not 'yes' or 'no')
-     * list of tidy config options here:
+     *                           of tidy options. IMPORTANT: boolean options
+     *                           must be set as true or false (not 'yes' or 'no')
+     *                           list of tidy config options here:
      *
      * @return unknown_type
      */
     public function tidy(array $aTidyConfig = null)
     {
         $aTidyConfig = ($aTidyConfig) ? $aTidyConfig : array();
-        $ret = $this->string;
+        $ret         = $this->string;
         if ($this->isHtml()) {
             if (function_exists('tidy_parse_string')) {
                 d('going to use tidy_parse_string');
 
                 $aConfig = array(
-                    'clean' => true,
-                    'output-html' => true,
-                    'show-body-only' => true,
-                    'wrap' => 0,
-                    'output-bom' => false, /* should always set this to no with only exception if output is utf16, which we never intent on doing */
-                    'doctype' => 'omit',
-                    'char-encoding' => 'utf8',
+                    'clean'                       => true,
+                    'output-html'                 => true,
+                    'show-body-only'              => true,
+                    'wrap'                        => 0,
+                    'output-bom'                  => false, /* should always set this to no with only exception if output is utf16, which we never intent on doing */
+                    'doctype'                     => 'omit',
+                    'char-encoding'               => 'utf8',
                     'drop-proprietary-attributes' => true, /* this does not affect invalid attributes, only proprietary. Invalid attributes are always removed */
-                    'bare' => true,
-                    'add-xml-space' => true
+                    'bare'                        => true,
+                    'add-xml-space'               => true
 
                 );
 
@@ -1125,10 +1134,10 @@ class Utf8String extends String
 
             try {
                 $oHTML2TEXT = H2t::factory($this->tidy(array('show-body-only' => false))->valueOf());
-                $ret = $oHTML2TEXT->getText();
-            } catch (\Lampcms\Exception $e) {
+                $ret        = $oHTML2TEXT->getText();
+            } catch ( \Lampcms\Exception $e ) {
                 throw $e;
-            } catch (\Exception $e) {
+            } catch ( \Exception $e ) {
                 /**
                  * strip_tags seems like the best option
                  * its not going to be as nice as converting
@@ -1164,10 +1173,10 @@ class Utf8String extends String
     /**
      *
      * @todo There is a problem with setlocale because
-     * we really need to set locale back
-     * to what it was before after we are done with
-     * this function. So we have to getlocale, remember it
-     * then set it back at end of function (restore the old one)
+     *       we really need to set locale back
+     *       to what it was before after we are done with
+     *       this function. So we have to getlocale, remember it
+     *       then set it back at end of function (restore the old one)
      *
      * Converts the utf-8 string
      * to ASCII charset using translitiration if
@@ -1180,7 +1189,7 @@ class Utf8String extends String
         $ascii = false;
         if (extension_loaded('iconv')) {
             \setlocale(LC_ALL, 'en_US.UTF8');
-            $ER = \error_reporting(0);
+            $ER    = \error_reporting(0);
             $ascii = \iconv("UTF-8", "ASCII//TRANSLIT", $this->string);
             \error_reporting($ER);
         }
@@ -1209,7 +1218,7 @@ class Utf8String extends String
         $ret = false;
         if (extension_loaded('iconv')) {
             \setlocale(LC_ALL, 'en_US.UTF8');
-            $ER = error_reporting(0);
+            $ER  = error_reporting(0);
             $ret = \iconv("UTF-8", "ISO-8859-1//TRANSLIT", $this->string);
             error_reporting($ER);
         }
@@ -1272,18 +1281,18 @@ class Utf8String extends String
      * Truncate HTML string while making sure
      * not to cut in the middle of open html tag
      *
-     * @param int $intCut desired max length of string
+     * @param int    $intCut   desired max length of string
      *
-     * @param string $strLink optional link to add
-     * after the string was cut like 'read more'
+     * @param string $strLink  optional link to add
+     *                         after the string was cut like 'read more'
      *
-     * @param bool $bUseTidy use tidy to fix string after it was
-     * cut. This is very helpful to make sure that even if
-     * the string was cut in the middle of opened html tag,
-     * tidy will repair such string. Also it is helpful to
-     * make sure only the contents of 'body' is returned
-     * without the actual <html><head><body> tags
-     * Without tidy the result may be very bad
+     * @param bool   $bUseTidy use tidy to fix string after it was
+     *                         cut. This is very helpful to make sure that even if
+     *                         the string was cut in the middle of opened html tag,
+     *                         tidy will repair such string. Also it is helpful to
+     *                         make sure only the contents of 'body' is returned
+     *                         without the actual <html><head><body> tags
+     *                         Without tidy the result may be very bad
      *
      * @return object of this type
      */
@@ -1304,11 +1313,11 @@ class Utf8String extends String
 
         $arrText = str_split($strText);
 
-        $intCountOpen = 0;
-        $intCountClose = 0;
-        $intCount = 0;
-        $openTag = false;
-        $strNew = '';
+        $intCountOpen    = 0;
+        $intCountClose   = 0;
+        $intCount        = 0;
+        $openTag         = false;
+        $strNew          = '';
         $arrExcludeChars = array(" ", "\n", "\r", "\f", "\v", "\0");
         foreach ($arrText as $intPos => $strChar) {
             $strNew .= $strChar;
@@ -1334,14 +1343,14 @@ class Utf8String extends String
             }
         }
 
-        $strTmp = mb_substr($strText, 0, ($intPos + 1));
+        $strTmp     = mb_substr($strText, 0, ($intPos + 1));
         $intLastPos = mb_strrpos($strTmp, " ");
 
         if (false === $intLastPos || ($intCount < $intCut)) {
-            $strNew = $strTmp;
+            $strNew     = $strTmp;
             $boolWasCut = false;
         } else {
-            $strNew = trim(mb_substr($strTmp, 0, $intLastPos));
+            $strNew     = trim(mb_substr($strTmp, 0, $intLastPos));
             $boolWasCut = true;
         }
 
@@ -1353,16 +1362,16 @@ class Utf8String extends String
         if ($bUseTidy && function_exists('tidy_parse_string')) {
 
             $aConfig = array(
-                'clean' => true,
-                'output-html' => true,
-                'show-body-only' => true,
-                'wrap' => 0,
-                'output-bom' => false, /* should always set this to no with only exception if output is utf16, which we never intent on doing */
-                'doctype' => 'omit',
-                'char-encoding' => 'utf8',
+                'clean'                       => true,
+                'output-html'                 => true,
+                'show-body-only'              => true,
+                'wrap'                        => 0,
+                'output-bom'                  => false, /* should always set this to no with only exception if output is utf16, which we never intent on doing */
+                'doctype'                     => 'omit',
+                'char-encoding'               => 'utf8',
                 'drop-proprietary-attributes' => true,
-                'bare' => true,
-                'add-xml-space' => true
+                'bare'                        => true,
+                'add-xml-space'               => true
 
             );
 
@@ -1406,8 +1415,8 @@ class Utf8String extends String
     {
 
         $ret = '';
-        $n = hexdec($hexcp);
-        switch (true) {
+        $n   = hexdec($hexcp);
+        switch ( true ) {
             case ($n <= 0x7F):
                 $ret .= chr($n);
                 break;
@@ -1461,9 +1470,9 @@ class Utf8String extends String
     public static function findChar($hexcp)
     {
         $ret = '';
-        $n = hexdec($hexcp);
+        $n   = hexdec($hexcp);
 
-        switch (true) {
+        switch ( true ) {
             case ($n <= 0x7F):
                 $ret .= '\x' . strtoupper(dechex($n));
                 break;
@@ -1497,7 +1506,7 @@ class Utf8String extends String
 
     public function parseMarkdown()
     {
-        $md = new \Lampcms\Markdown();
+        $md  = new \Lampcms\Markdown();
         $ret = $md->transform($this->string);
 
         return $this->handleReturn($ret);
@@ -1527,6 +1536,7 @@ class Utf8String extends String
      * UTF-8 safe strtolower()
      *
      * (non-PHPdoc)
+     *
      * @see Lampcms.String::toLowerCase()
      */
     public function toLowerCase()
@@ -1541,6 +1551,7 @@ class Utf8String extends String
      * UTF-8 safe strtoupper
      *
      * (non-PHPdoc)
+     *
      * @see Lampcms.String::toUpperCase()
      */
     public function toUpperCase()

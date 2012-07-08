@@ -81,7 +81,7 @@ class LoginForm
             );
 
             $_SESSION['welcome'] = \tplWelcome::parse($a, false);
-            d('SESSION[welcome]: ' . $_SESSION['welcome']);
+
         } else {
             d('Welcome menu already existed! ');
         }

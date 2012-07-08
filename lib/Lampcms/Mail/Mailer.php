@@ -586,7 +586,16 @@ class Mailer
     }
 
 
-    protected function translate($locale, $item)
+    /**
+     * Translate the $item into $locale language
+     *
+     * @param string $locale
+     * @param mixed string|object of type TranslatableInterface $item
+     *
+     * @return string translated string
+     * @throws \Lampcms\DevException
+     */
+    public function translate($locale, $item)
     {
         if (is_string($item)) {
             return $item;

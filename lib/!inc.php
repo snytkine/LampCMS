@@ -53,7 +53,7 @@ if (get_magic_quotes_gpc()) {
             unset($process[$key][$k]);
             if (is_array($v)) {
                 $process[$key][stripslashes($k)] = $v;
-                $process[] = &$process[$key][stripslashes($k)];
+                $process[]                       = &$process[$key][stripslashes($k)];
             } else {
                 $process[$key][stripslashes($k)] = stripslashes($v);
             }
@@ -73,19 +73,18 @@ if (function_exists('mb_internal_encoding')) {
 }
 
 
-
 function exception_handler($e)
 {
     $code = $e->getCode();
     if (!($e instanceof \OutOfBoundsException)) {
         try {
-            $err = Lampcms\Responder::makeErrorPage('<strong>Error:</strong> ' . Lampcms\Exception::formatException($e));
+            $err   = Lampcms\Responder::makeErrorPage('<strong>Error:</strong> ' . Lampcms\Exception::formatException($e));
             $extra = (isset($_SERVER)) ? ' $_SERVER: ' . print_r($_SERVER, 1) : ' no extra';
             if (($code >= 0) && defined('LAMPCMS_DEVELOPER_EMAIL') && strlen(trim(constant('LAMPCMS_DEVELOPER_EMAIL'))) > 7) {
                 @mail(LAMPCMS_DEVELOPER_EMAIL, 'ErrorHandle in inc.php', $err . $extra);
             }
             echo nl2br($err);
-        } catch (\Exception $e) {
+        } catch ( \Exception $e ) {
             echo 'Error in Exception handler: : ' . $e->getMessage() . ' line ' . $e->getLine() . $e->getTraceAsString();
         }
     } else {
@@ -182,8 +181,17 @@ function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
          * error reporting mask, then throw an ErrorException
          */
         if ($errLevel & $errno) {
+            /**
+             * Mongo notices are annoying and totally useless anyway
+             * These usually have $errno of 1
+             */
+            if (($errno & (E_ERROR | E_NOTICE | E_WARNING)) && strstr($errstr, 'mongo')) {
+
+                return true;
+            }
 
             throw new \Lampcms\DevException($errstr, null, $errno, $errfile, $errline);
+
         }
     }
 
@@ -198,7 +206,7 @@ $Registry = \Lampcms\Registry::getInstance();
 
 try {
 
-    $Ini = $Registry->Ini;
+    $Ini     = $Registry->Ini;
     $dataDir = $Ini->LAMPCMS_DATA_DIR;
     $dataDir = rtrim($dataDir, '/');
 
@@ -220,7 +228,7 @@ try {
         define('LAMPCMS_DATA_DIR', LAMPCMS_WWW_DIR . 'w' . DIRECTORY_SEPARATOR);
     }
 
-} catch (Lampcms\IniException $e) {
+} catch ( Lampcms\IniException $e ) {
     throw new \OutOfBoundsException($e->getMessage());
 }
 
@@ -242,7 +250,7 @@ if (false === date_default_timezone_set($Ini->SERVER_TIMEZONE)) {
 $myIP = \Lampcms\Request::getIP();
 
 $aMyIPs = $Ini->offsetGet('MY_IP');
-$debug = $Ini->DEBUG; // string '1' in case of true, empty string of false
+$debug  = $Ini->DEBUG; // string '1' in case of true, empty string of false
 
 
 if ($debug || isset($aMyIPs[$myIP]) || defined('SPECIAL_LOG_FILE')) {
@@ -310,6 +318,7 @@ function d($message)
 
 /**
  * Log error message
+ *
  * @param string $message
  */
 function e($message)

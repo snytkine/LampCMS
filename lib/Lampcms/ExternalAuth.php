@@ -52,6 +52,7 @@
 
 namespace Lampcms;
 
+use \Lampcms\Mongo\Schema\User as Schema;
 
 /**
  * Class
@@ -163,12 +164,12 @@ class ExternalAuth extends LampcmsObject
 
         $aUsernames = \array_unique($aUsernames);
 
-        d('$aUsernames: ' . print_r($aUsernames, 1));
+        d('$aUsernames: ' . \json_encode($aUsernames, 1));
 
         for ($i = 0; $i < count($aUsernames); $i++) {
             $name = \mb_strtolower($aUsernames[$i], 'utf-8');
 
-            $res = $coll->findOne(array('username_lc' => $name));
+            $res = $coll->findOne(array(Schema::USERNAME_LOWERCASE => $name));
             d('$res: ' . $res);
             if (empty($res)) {
                 $username = $aUsernames[$i];
@@ -185,7 +186,7 @@ class ExternalAuth extends LampcmsObject
             $i = 1;
             do {
                 $name = \mb_strtolower($aUsernames[0], 'utf-8') . $i;
-                $res = $coll->findOne(array('username_lc' => $name));
+                $res = $coll->findOne(array(Schema::USERNAME_LOWERCASE => $name));
                 if (empty($res)) {
                     $username = $aUsernames[0] . $i;
                 }

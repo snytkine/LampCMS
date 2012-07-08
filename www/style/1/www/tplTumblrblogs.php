@@ -73,7 +73,7 @@ class tplTumblrblogs extends \Lampcms\Template\Fast
 
 
     protected static $tpl = '
-		<form action="/index.php" name="tumblrblogs" method="POST" action="{_WEB_ROOT_}/" accept-charset="utf-8">
+		<form name="tumblrblogs" method="POST" action="{_FORM_ACTION_}" accept-charset="utf-8">
 			<input type="hidden" name="a" value="%5$s">
 			<input type="hidden" name="blogselect" value="1">
 			<input type="hidden" name="token" value="%1$s">

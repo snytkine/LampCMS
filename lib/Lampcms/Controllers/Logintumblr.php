@@ -179,7 +179,7 @@ class Logintumblr extends WebPage
      *
      * @throws \Exception in case something goes wrong during
      * this stage
-     * @return \Lampcms\Controllers\object $this
+     * @return object $this
      */
     protected function step1()
     {
@@ -224,7 +224,7 @@ class Logintumblr extends WebPage
      * to our callback url, which calls this controller
      *
      * @throws \Exception in case something goes wrong with oAuth class
-     * @return \Lampcms\Controllers\object $this
+     * @return object $this
      */
     protected function step2()
     {
@@ -247,7 +247,7 @@ class Logintumblr extends WebPage
              */
             $this->oAuth->setToken($this->Request['oauth_token'], $_SESSION['tumblr_oauth']['oauth_token_secret']);
             $this->aAccessToken = $this->oAuth->getAccessToken(self::ACCESS_TOKEN_URL);
-            d('$this->aAccessToken: ' . print_r($this->aAccessToken, 1));
+            d('$this->aAccessToken: ' . \print_r($this->aAccessToken, 1));
 
             unset($_SESSION['tumblr_oauth']);
 
@@ -290,7 +290,7 @@ class Logintumblr extends WebPage
             }
 
         } catch (\OAuthException $e) {
-            e('OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
+            e('OAuthException: ' . $e->getMessage() . ' ' . \print_r($e, 1));
 
             $err = '@@Something went wrong during authorization. Please try again later@@' . $e->getMessage();
             throw new \Exception($err);
@@ -448,7 +448,7 @@ class Logintumblr extends WebPage
      */
     protected function closeWindow(array $a = array())
     {
-        d('cp a: ' . print_r($a, 1));
+        d('cp a: ' . \print_r($a, 1));
         $js = '';
 
         $tpl = '

@@ -53,6 +53,7 @@
 namespace Lampcms;
 
 use Lampcms\Mongo\Schema\Answer as Schema;
+
 /**
  *
  * Class represents one item
@@ -73,6 +74,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 
     /**
      * (non-PHPdoc)
+     *
      * @see LampcmsResourceInterface::getResourceTypeId()
      * @return string
      */
@@ -170,10 +172,10 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
             parent::offsetSet('a_deleted',
                 array(
                     'username' => $user->getDisplayName(),
-                    'i_uid' => $user->getUid(),
-                    'av' => $user->getAvatarSrc(),
-                    'reason' => $reason,
-                    'hts' => date('F j, Y g:i a T')
+                    'i_uid'    => $user->getUid(),
+                    'av'       => $user->getAvatarSrc(),
+                    'reason'   => $reason,
+                    'hts'      => date('F j, Y g:i a T')
                 )
             );
         }
@@ -186,7 +188,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      *
      * Adds a_edited array of data to Question
      *
-     * @param User $user
+     * @param User   $user
      * @param string $reason reason for editing
      *
      * @return object $this
@@ -204,10 +206,10 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 
         $aEdited[] = array(
             'username' => $user->getDisplayName(),
-            'i_uid' => $user->getUid(),
-            'av' => $user->getAvatarSrc(),
-            'reason' => $reason,
-            'hts' => date('F j, Y g:i a T'));
+            'i_uid'    => $user->getUid(),
+            'av'       => $user->getAvatarSrc(),
+            'reason'   => $reason,
+            'hts'      => date('F j, Y g:i a T'));
 
         parent::offsetSet('a_edited', $aEdited);
 
@@ -217,6 +219,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 
     /**
      * (non-PHPdoc)
+     *
      * @see LampcmsResourceInterface::getOwnerId()
      * @return int id of user who is the author of this answer
      */
@@ -229,6 +232,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 
     /**
      * (non-PHPdoc)
+     *
      * @see LampcmsResourceInterface::getLastModified()
      * @return int last modified timestamp
      */
@@ -270,7 +274,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
             throw \InvalidArgumentException('$inc can only be 1 or -1. Was: ' . $inc);
         }
 
-        $tmp = (int)$this->offsetGet(Schema::UPVOTES_COUNT);
+        $tmp   = (int)$this->offsetGet(Schema::UPVOTES_COUNT);
         $score = (int)$this->offsetGet(Schema::VOTES_SCORE);
         $total = ($score + $inc);
 
@@ -304,7 +308,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
             throw \InvalidArgumentException('$inc can only be 1 or -1. Was: ' . $inc);
         }
 
-        $tmp = (int)$this->offsetGet(Schema::DOWNVOTES_COUNT);
+        $tmp   = (int)$this->offsetGet(Schema::DOWNVOTES_COUNT);
         $score = (int)$this->offsetGet(Schema::VOTES_SCORE);
         $total = ($score - $inc);
 
@@ -323,6 +327,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 
     /**
      * (non-PHPdoc)
+     *
      * @see UpDownRatable::getVotesArray()
      * @return array
      */
@@ -330,8 +335,8 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
     {
 
         $a = array(
-            'up' => $this->offsetGet(Schema::UPVOTES_COUNT),
-            'down' => $this->offsetGet(Schema::DOWNVOTES_COUNT),
+            'up'    => $this->offsetGet(Schema::UPVOTES_COUNT),
+            'down'  => $this->offsetGet(Schema::DOWNVOTES_COUNT),
             'score' => $this->offsetGet(Schema::VOTES_SCORE));
 
         return $a;
@@ -340,6 +345,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 
     /**
      * (non-PHPdoc)
+     *
      * @see UpDownRatable::getScore()
      * @return array|bool|int|mixed|null
      */
@@ -366,9 +372,11 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      */
     public function getUrl($short = false)
     {
-        $url = '{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}'.$this->offsetGet(Schema::QUESTION_ID). '/#ans' . $this->offsetGet(Schema::PRIMARY);
+        $url = '{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}' . $this->offsetGet(Schema::QUESTION_ID) . '/#ans' . $this->offsetGet(Schema::PRIMARY);
 
-        $url = $this->getRegistry()->Ini->SITE_URL.$url;
+        if (!$short) {
+            $url = $this->getRegistry()->Ini->SITE_URL . $url;
+        }
         $callback = $this->Registry->Router->getCallback();
 
         $ret = $callback($url);
@@ -379,6 +387,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.Post::getBody()
      * @return string body of the answer (may contain html)
      */
@@ -390,6 +399,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.Post::getTitle()
      * @return string
      */
@@ -402,6 +412,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
     /**
      *
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.Post::getSeoUrl()
      * @return string empty string
      */
@@ -465,6 +476,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.CommentedResource::getCommentsCount()
      * @return int
      */
@@ -562,6 +574,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
 
     /**
      * Getter for 'comments' element
+     *
      * @return array of comments or empty array if
      * 'comments' element not present in the object
      *
@@ -578,6 +591,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      * a_comments array
      *
      * @param int $id comment id
+     *
      * @throws DevException if param $id is not an integer
      *
      * @return mixed array of one comment | false if comment not found by $id
@@ -663,7 +677,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      */
     public function offsetSet($index, $newval)
     {
-        switch ($index) {
+        switch ( $index ) {
             case 'accepted':
                 throw new DevException('value of accepted cannot be set directly. Use setAccepted() or unsetAccepted() methods');
                 break;

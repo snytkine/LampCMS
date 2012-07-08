@@ -63,7 +63,7 @@ class Loginlinkedin extends WebPage
 
     const AUTHORIZE_URL = 'https://www.linkedin.com/uas/oauth/authenticate';
 
-    //,location:(name) cannot be used together with locationlocation:(country:(code)) it generates duplicate field exception
+    //,location:(name) cannot be used together with location:(country:(code)) it generates duplicate field exception
     const PROFILE_URL = 'http://api.linkedin.com/v1/people/~:(id,first-name,last-name,industry,picture-url,public-profile-url,location,summary,interests,date-of-birth,twitter-accounts,phone-numbers,skills,im-accounts,educations,certifications,languages)';
 
     protected $callback = '{_WEB_ROOT_}/{_loginlinkedin_}';
@@ -133,7 +133,7 @@ class Loginlinkedin extends WebPage
         d('$this->callback'. $this->callback);
 
         if (!extension_loaded('oauth')) {
-            throw new \Exception('Unable to use LinkedIn API because OAuth extension is not available');
+            throw new \Exception('@@Unable to use LinkedIn API because OAuth extension is not available@@');
         }
 
         /**
@@ -187,7 +187,7 @@ class Loginlinkedin extends WebPage
      *
      * @throws \Exception in case something goes wrong during
      * this stage
-     * @return \Lampcms\Controllers\object $this
+     * @return object $this
      */
     protected function step1()
     {
@@ -201,7 +201,7 @@ class Loginlinkedin extends WebPage
 
             $_SESSION['linkedin_oauth'] = $this->oAuth->getRequestToken($requestUrl);
 
-            d('$_SESSION[\'linkedin_oauth\']: ' . print_r($_SESSION['linkedin_oauth'], 1));
+            d('$_SESSION[\'linkedin_oauth\']: ' . \print_r($_SESSION['linkedin_oauth'], 1));
             if (!empty($_SESSION['linkedin_oauth']) && !empty($_SESSION['linkedin_oauth']['oauth_token'])) {
                 d('cp');
                 /**
@@ -237,7 +237,7 @@ class Loginlinkedin extends WebPage
      * to our callback url, which calls this controller
      *
      * @throws \Exception in case something goes wrong with oAuth class
-     * @return \Lampcms\Controllers\object $this
+     * @return object $this
      */
     protected function step2()
     {
@@ -411,7 +411,7 @@ class Loginlinkedin extends WebPage
      *           be parsed for any reason
      * @internal param \Lampcms\Controllers\xml $string xml string received from LinkedIn API
      *
-     * @return \Lampcms\Controllers\object $this
+     * @return object $this
      */
     protected function parseXML($xml)
     {
@@ -587,7 +587,7 @@ class Loginlinkedin extends WebPage
      *
      * @param array $a
      *
-     * @return \Lampcms\Controllers\unknown_type
+     * @return void
      */
     protected function closeWindow(array $a = array())
     {

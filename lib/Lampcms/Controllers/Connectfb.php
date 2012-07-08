@@ -70,6 +70,7 @@ use \Lampcms\Responder;
  */
 class Connectfb extends WebPage
 {
+
     /**
      *
      * Only logged in user can use this controller
@@ -81,6 +82,7 @@ class Connectfb extends WebPage
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms.WebPage::main()
      */
     protected function main()
@@ -89,7 +91,7 @@ class Connectfb extends WebPage
             d('cp');
             $this->Registry->Facebook->connect($this->Registry->Viewer);
             d('cp');
-        } catch (\Lampcms\FacebookAuthException $e) {
+        } catch ( \Lampcms\FacebookAuthException $e ) {
             d('Caught FacebookAuthException');
             /**
              * Something went wrong with cookie validation
@@ -102,7 +104,7 @@ class Connectfb extends WebPage
             }
 
             e('Unable to connect Facebook account. ' . $e->getMessage() . ' in file ' . $e->getFile() . ' on line ' . $e->getLine());
-            throw new \Lampcms\Exception('Unable to connect Facebook account at this time');
+            throw new \Lampcms\Exception('@@Unable to connect Facebook account at this time@@');
         }
 
         d('cp');
@@ -119,8 +121,8 @@ class Connectfb extends WebPage
     {
 
         $aRet = array('setmeta' => array('key' => 'fb', 'val' => '1'),
-            'replace' => array('target' => 'my_fb', 'content' => $this->Registry->Viewer->getFacebookUrl()));
-        d('sending out JSON: ' . print_r($aRet, 1));
+                      'replace' => array('target' => 'my_fb', 'content' => $this->Registry->Viewer->getFacebookUrl()));
+        d('sending out JSON: ' . \json_encode($aRet));
 
         Responder::sendJSON($aRet);
     }

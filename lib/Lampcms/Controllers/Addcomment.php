@@ -130,6 +130,7 @@ class Addcomment extends WebPage
     /**
      * Create object of type Question or Answer
      *
+     * @throws \Lampcms\Exception
      * @return object $this
      */
     protected function getResource()
@@ -151,11 +152,10 @@ class Addcomment extends WebPage
 
         $coll = $this->Registry->Mongo->getCollection($collection);
         $a = $coll->findOne(array('_id' => $rid));
-        d('a: ' . print_r($a, 1));
 
         if (empty($a)) {
 
-            throw new \Lampcms\Exception('Item not found');
+            throw new \Lampcms\Exception('@@Item not found@@');
         }
 
         $class = ('QUESTIONS' === $collection) ? '\\Lampcms\\Question' : '\\Lampcms\\Answer';
@@ -174,8 +174,9 @@ class Addcomment extends WebPage
      * OR someone with enough reputation
      *
      *
+     * @throws \Exception
+     * @throws \Lampcms\Exception
      * @return object $this
-     *
      */
     protected function checkPermission()
     {
@@ -211,6 +212,11 @@ class Addcomment extends WebPage
                  */
                 if ($e instanceof \Lampcms\AccessException) {
 
+                    /**
+                     * @todo
+                     * translate string
+                     *
+                     */
                     throw new \Lampcms\Exception('A minimum reputation score of ' . $this->Registry->Ini->POINTS->COMMENT .
                         ' is required to comment on someone else\'s question or answer.
 					Your current reputation score is ' . $this->Registry->Viewer->getReputation());
@@ -240,10 +246,10 @@ class Addcomment extends WebPage
          * allowed to edit or delete it right away.
          * Javascript that usually dynamically adds these tools
          * is not going to be fired, so these tools
-         * must alreayd be included in the returned html
+         * must already be included in the returned html
          *
          */
-        $aComment['edit_delete'] = '  <span class="ico del ajax" title="Delete">delete</span> <span class="ico edit ajax" title="Edit">edit</span>';
+        $aComment['edit_delete'] = '  <span class="ico del ajax" title="@@delete@@">@@delete@@</span> <span class="ico edit ajax" title="@@edit@@">@@edit@@</span>';
 
         /**
          * Important to add owner_id key
@@ -253,7 +259,7 @@ class Addcomment extends WebPage
          * That ID is then used when figuring out if
          * viewer has permission to add comment.
          * Users with low reputation still always have
-         * premission to add comments to own resources.
+         * permission to add comments to own resources.
          *
          */
         $aComment['owner_id'] = $this->Resource->getOwnerId();

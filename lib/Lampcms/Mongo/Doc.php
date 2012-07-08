@@ -263,8 +263,6 @@ class Doc extends LampcmsArray implements \Serializable
     {
 
         $ret = !$this->offsetExists($name) ? null : parent::offsetGet($name);
-
-        d(' looking for ' . $name . ' getting: ' . \var_export($ret, true));
         $prefix = \substr($name, 0, 2);
         switch ($prefix) {
             case 'i_':
@@ -748,7 +746,7 @@ class Doc extends LampcmsArray implements \Serializable
         if (isset(static::$aDefaults) && !empty(static::$aDefaults)) {
             $a = $this->getArrayCopy();
 
-            $a = \array_merge($aDefaults, $a);
+            //$a = \array_merge($aDefaults, $a);
 
             $this->md5 = \md5(\serialize($a));
             $this->exchangeArray($a);

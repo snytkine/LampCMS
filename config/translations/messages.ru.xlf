@@ -418,9 +418,8 @@
         Логин: {username}
         Пароль: {password}
 
+
         ----
-
-
         После первого захода на сайт вы сможете сами поменять этот пароль.
         Для этого нажмите на "Настройки" и "Поменять пароль"
 
@@ -475,7 +474,7 @@
 </trans-unit>
 <trans-unit id="102">
     <source>New password was just sent to your email</source>
-    <target>Новый пароль отправлен на ваш адрес: </target>
+    <target>Новый пароль отправлен на ваш адрес:</target>
 </trans-unit>
 <trans-unit id="103">
     <source>email.subject.new_password</source>
@@ -484,7 +483,7 @@
 <trans-unit id="104">
     <source>email.body.new_password</source>
     <target>
-        Ваш логин и временный пароль на сайте   {site_title}
+        Ваш логин и временный пароль на сайте {site_title}
 
         ----
         Логин: {username}
@@ -528,6 +527,171 @@
 <trans-unit id="109">
     <source>Request email confirmation</source>
     <target>Запрос активации логина</target>
+</trans-unit>
+<trans-unit id="110">
+    <source>email.subject.answer_author</source>
+    <target>Новый комментарий к вашему ответу от {username}</target>
+</trans-unit>
+<trans-unit id="111">
+    <source>email.body.answer_author</source>
+    <target>
+        На сайте {site_title}
+        появился новый комментарий к вашему ответу от {username}
+
+        К вашему ответу на вопрос
+        {title}
+
+        текст комментария:
+        {body}
+
+        ----
+        Вот линк на этот комментарий
+
+        {link}
+
+        ----
+        Вы получили это письмо потому что вы подписались получать уведомления когда
+        появляются комментарии к вашим вопросам и ответам
+
+        Вы можете изменить подписки на наши уведомления посетив наш сайт
+        {home}
+        Залогиньтесь и нажмите на линк "Настройки"
+
+    </target>
+</trans-unit>
+<trans-unit id="112">
+    <source>email.subject.comment_reply</source>
+    <target>Ответ на ваш комментарий от {username}</target>
+</trans-unit>
+<trans-unit id="113">
+    <source>email.body.comment_reply</source>
+    <target>
+        К вашему комментарию появился ответ от {username}
+
+        Вот ваш комментарий:
+        ============================
+        {parent_body}
+        ============================
+
+        А вот ответ:
+        ============================
+        {body}
+        ============================
+
+        Вот линк на этот комментарий
+        {link}
+
+        ----
+        Вы можете изменить подписки на наши уведомления посетив наш сайт
+        {home}
+        Залогиньтесь и нажмите на линк "Настройки"
+
+    </target>
+</trans-unit>
+<trans-unit id="114">
+    <source>email.subject.question_answer</source>
+    <target>Новый ответ на интересующий вас вопрос</target>
+</trans-unit>
+<trans-unit id="115">
+    <source>email.subject.question_comment</source>
+    <target>Новый комментарий к интересующему вас вопросу</target>
+</trans-unit>
+<trans-unit id="116">
+    <source>email.body.question_answer</source>
+    <target>
+        На сайте {site_title} появился ответ от {username}
+        на интересующий вас вопрос
+        {title}
+
+        ----
+        Вот линк на этот ответ
+        {link}
+
+        ----
+        Вы получили это письмо потому что вы подписались получать уведомления
+        когда появляются ответы и комментарии к интересующим вас вопросам
+
+        Вы можете изменить подписки на наши уведомления посетив наш сайт
+        {home}
+        Залогиньтесь и нажмите на линк "Настройки"
+
+    </target>
+</trans-unit>
+<trans-unit id="117">
+    <source>email.body.question_comment</source>
+    <target>
+        На сайте {site_title} появился комментарий от {username}
+        к интересующему вас вопросу
+        {title}
+
+        ----
+        Текст комментария:
+        {body}
+
+        ----
+        Вот линк
+        {link}
+
+        ----
+        Вы получили это письмо потому что вы подписались получать уведомления
+        когда появляются ответы и комментарии к интересующим вас вопросам
+
+        Вы можете изменить подписки на наши уведомления посетив наш сайт
+        {home}
+        Залогиньтесь и нажмите на линк "Настройки"
+
+    </target>
+</trans-unit>
+<trans-unit id="118">
+    <source>email.body.answer_by_user</source>
+    <target><![CDATA[
+                Новый ответ от {username}:
+                {title}
+
+                ____
+                вот ссылка
+                {link}
+
+                ____
+                Вы получили это письмо потому что вы подписались получать уведомления когда
+                есть новые сообщения от  {username}
+
+                Вы можете изменить подписки на наши уведомления посетив наш сайт
+                {home}
+                Залогиньтесь и нажмите на линк "Настройки"
+            ]]>
+    </target>
+</trans-unit>
+<trans-unit id="119">
+    <source>email.subject.new_question_tagged</source>
+    <target>Новый вопрос с метками : [{tags}]</target>
+</trans-unit>
+<trans-unit id="120">
+    <source>email.body.new_question_tagged</source>
+    <target><![CDATA[
+                На сайте {site_title}
+                новый вопрос от {username}:
+                ____
+                {title}
+
+                ____
+                {body}
+
+                ____
+                вот ссылка
+                {link}
+                Если можете ответить на вопрос то будем вам очень признательны
+
+                ____
+                Вы получили это письмо потому что вы подписались получать уведомления когда
+                появляются новые вопросы с интересующими вас тагами
+
+                ____
+                Вы можете изменить подписки на наши уведомления посетив наш сайт
+                {home}
+                Залогиньтесь и нажмите на линк "Настройки"
+                 ]]>
+    </target>
 </trans-unit>
 </body>
 </file>

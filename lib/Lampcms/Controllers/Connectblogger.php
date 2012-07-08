@@ -133,7 +133,8 @@ class Connectblogger extends WebPage
     protected function main()
     {
         $Request = $this->Registry->Request;
-        d('Request: ' . var_export($Request, true));
+        $routerCallback = $this->Router->getCallback();
+        d('Request: ' . \var_export($Request, true));
 
         if ('1' == $Request->get('blogselect', 's', '')) {
             d('cp');
@@ -143,6 +144,9 @@ class Connectblogger extends WebPage
 
         $this->callback = $this->Registry->Ini->SITE_URL . $this->callback;
         d('$this->callback: ' . $this->callback);
+
+        $this->callback = $routerCallback($this->callback);
+        d('rewritten $this->callback: '.$this->callback);
 
         if (!extension_loaded('oauth')) {
             throw new \Exception('@@Unable to use Blogger API because OAuth extension is not available@@');
@@ -247,20 +251,26 @@ class Connectblogger extends WebPage
      *
      * @throws \Exception in case something goes wrong during
      * this stage
-     * @return \Lampcms\Controllers\object $this
+     * @return object $this
      */
     protected function step1()
     {
+
+
 
         try {
             // State 0 - Generate request token and redirect user to Blogger to authorize
             $url =
             $_SESSION['blogger_oauth'] = $this->oAuth->getRequestToken(self::REQUEST_TOKEN_URL . $this->callback);
 
-            d('$_SESSION[\'blogger_oauth\']: ' . print_r($_SESSION['blogger_oauth'], 1));
+            d('$_SESSION[\'blogger_oauth\']: ' . \print_r($_SESSION['blogger_oauth'], 1));
             if (!empty($_SESSION['blogger_oauth']) && !empty($_SESSION['blogger_oauth']['oauth_token'])) {
 
-                Responder::redirectToPage(self::AUTHORIZE_URL . '?oauth_token=' . $_SESSION['blogger_oauth']['oauth_token'] . '&oauth_callback=' . $this->callback);
+                $url = self::AUTHORIZE_URL . '?oauth_token=' . $_SESSION['blogger_oauth']['oauth_token'] . '&oauth_callback=' . $this->callback;
+                d('url: '.$url);
+
+
+                Responder::redirectToPage($url);
             } else {
                 /**
                  * Here throw regular Exception, not Lampcms\Exception
@@ -270,7 +280,7 @@ class Connectblogger extends WebPage
                 throw new \Exception("@@Failed fetching request token, response was@@: " . $this->oAuth->getLastResponse());
             }
         } catch (\OAuthException $e) {
-            e('OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
+            e('OAuthException: ' . $e->getMessage() . ' ' . \print_r($e, 1));
 
             throw new \Exception('@@Something went wrong during authorization. Please try again later@@' . $e->getMessage());
         }
@@ -286,7 +296,7 @@ class Connectblogger extends WebPage
      *
      * @throws \OutOfBoundsException
      * @throws \Exception in case something goes wrong with oAuth class
-     * @return \Lampcms\Controllers\object $this
+     * @return object $this
      */
     protected function step2()
     {
@@ -301,7 +311,7 @@ class Connectblogger extends WebPage
              * send cookie to remember user
              * and then send out HTML with js instruction to close the popup window
              */
-            d('Looks like we are at step 2 of authentication. Request: ' . print_r($_REQUEST, 1));
+            d('Looks like we are at step 2 of authentication. Request: ' . \print_r($_REQUEST, 1));
 
             /**
              * @todo check first to make sure we do have oauth_token
@@ -315,7 +325,7 @@ class Connectblogger extends WebPage
             d('url: ' . $url);
 
             $this->aAccessToken = $this->oAuth->getAccessToken(self::ACCESS_TOKEN_URL);
-            d('$this->aAccessToken: ' . print_r($this->aAccessToken, 1));
+            d('$this->aAccessToken: ' . \print_r($this->aAccessToken, 1));
 
             unset($_SESSION['blogger_oauth']);
 

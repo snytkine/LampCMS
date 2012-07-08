@@ -305,15 +305,12 @@ class Cache extends \Lampcms\Event\Observer
         if ($callback) {
             d('$callback object is passed');
             $res = $callback->run($this->Registry, $key);
-            d('$res: ' . var_export($res, true));
 
             return $res;
 
         } else {
             $aRes = explode('_', $key, 2);
             $arg  = (array_key_exists(1, $aRes)) ? $aRes[1] : null;
-
-            d('aRes: ' . print_r($aRes, 1));
 
             /**
              * Check that method exists
@@ -322,7 +319,6 @@ class Cache extends \Lampcms\Event\Observer
                 $method = $aRes[0];
                 d('Looking for key: ' . $key . ' Going to use method: ' . $method);
                 $res = \call_user_func(array($this, $method), $arg);
-                d('res: ' . print_r($res, true));
 
                 return $res;
             }
@@ -458,12 +454,10 @@ class Cache extends \Lampcms\Event\Observer
      * or if $key is array, sets multiple items into cache
      * if $key is array, it must be an associative array of $key => $val
      *
-     * @param mixed                       $key   string or associative array
+     * @param mixed    $key   string or associative array
      *
-     * @param \Lampcms\Cache\value|string $val   value to be set into cache
-     *
-     * @param array                       $aTags optionally assign these tags to this
-     *                                           key
+     * @param string   $val
+     * @param array    $aTags optionally assign these tags to this key
      *
      * @return bool
      */
@@ -663,7 +657,7 @@ class Cache extends \Lampcms\Event\Observer
         d('html recent tags: ' . $html);
 
         $ret = '<div class="tags-list">' . $html . '</div>';
-       /* if ($count > $limit) {
+        /* if ($count > $limit) {
             $ret .= '<div class="moretags"><a href="{_WEB_ROOT_}/{_viewqtags_}/{_unanswered_}/"><span rel="in">@@All unanswered tags@@</span></a>';
         }*/
 

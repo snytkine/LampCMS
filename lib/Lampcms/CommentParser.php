@@ -61,7 +61,7 @@ use Lampcms\Interfaces\LampcmsResource;
  * as well as to modifying (editing)
  * the comment
  *
- * @todo finish deleting and modifying methods
+ * @todo   finish deleting and modifying methods
  *
  * @author Dmitri Snytkine
  *
@@ -171,32 +171,32 @@ class CommentParser extends LampcmsObject
     public function add(\Lampcms\Interfaces\SubmittedComment $Comment)
     {
 
-        $this->Comment = $Comment;
+        $this->Comment  = $Comment;
         $this->Resource = $this->Comment->getResource();
         $this->checkCommentsLimit();
 
         $Commentor = $this->Comment->getUserObject();
-        $res_id = $this->Resource->getResourceId();
-        $Body = $this->Comment->getBody();
+        $res_id    = $this->Resource->getResourceId();
+        $Body      = $this->Comment->getBody();
         $this->validateBody($Body);
 
         $body = $Body->valueOf();
-        $uid = $this->Comment->getOwnerId();
+        $uid  = $this->Comment->getOwnerId();
 
-        $this->aComment['_id'] = $this->Comment->getResourceId();
-        $this->aComment['i_res'] = $res_id;
-        $this->aComment['i_qid'] = $this->Comment->getQuestionId();
-        $this->aComment['b'] = $body;
+        $this->aComment['_id']      = $this->Comment->getResourceId();
+        $this->aComment['i_res']    = $res_id;
+        $this->aComment['i_qid']    = $this->Comment->getQuestionId();
+        $this->aComment['b']        = $body;
         $this->aComment['username'] = $Commentor->getDisplayName();
-        $this->aComment['ip'] = $this->Comment->getIP();
-        $this->aComment['i_uid'] = $uid;
-        $this->aComment['i_prnt'] = $this->Comment->getParentId();
-        $this->aComment['coll'] = $this->Comment->getCollectionName();
-        $this->aComment['hash'] = hash('md5', $uid . $res_id . $body);
-        $this->aComment['i_ts'] = time();
-        $this->aComment['ts'] = date('r');
-        $this->aComment['t'] = date('M j \'y \a\\t G:i'); // must escape t with 2 backslashes because \t means tab
-        $this->aComment['avtr'] = $Commentor->getAvatarSrc();
+        $this->aComment['ip']       = $this->Comment->getIP();
+        $this->aComment['i_uid']    = $uid;
+        $this->aComment['i_prnt']   = $this->Comment->getParentId();
+        $this->aComment['coll']     = $this->Comment->getCollectionName();
+        $this->aComment['hash']     = hash('md5', $uid . $res_id . $body);
+        $this->aComment['i_ts']     = time();
+        $this->aComment['ts']       = date('r');
+        $this->aComment['t']        = date('M j \'y \a\\t G:i'); // must escape t with 2 backslashes because \t means tab
+        $this->aComment['avtr']     = $Commentor->getAvatarSrc();
 
 
         /**
@@ -229,7 +229,7 @@ class CommentParser extends LampcmsObject
              *
              */
             $this->aComment['inreply_uid'] = $aParent['i_uid'];
-            $this->aComment['inreplyto'] = $aParent['username'];
+            $this->aComment['inreplyto']   = $aParent['username'];
             /**
              * 's_inreply' is an html fragment
              * used on web page so that
@@ -262,7 +262,7 @@ class CommentParser extends LampcmsObject
         $aGeo = $this->Comment->getExtraData();
         d('aGeo: ' . print_r($aGeo, 1));
         if (!empty($aGeo)) {
-            d('cp');
+            d('have geo data');
             $this->aComment = \array_merge($this->aComment, $aGeo);
         }
 
@@ -276,7 +276,7 @@ class CommentParser extends LampcmsObject
             $this->aComment['cc'] = '';
         }
 
-        d('$aComment ' . print_r($this->aComment, 1));
+        d('$aComment ' . \json_encode($this->aComment));
 
         $this->Registry->Dispatcher->post($this->Comment, 'onBeforeNewComment', $this->aComment);
 
@@ -291,10 +291,11 @@ class CommentParser extends LampcmsObject
              * and keep on the the keys we need in COMMENTS collection
              */
             $aKeys = array('_id', 'hash', 'i_res', 'i_qid', 'i_uid', 'ip', 'i_ts', 'i_prnt', 'coll');
-            $aData = array_intersect_key($this->aComment, array_flip($aKeys));
+            $aData = \array_intersect_key($this->aComment, \array_flip($aKeys));
             $coll->insert($aData, array('fsync' => true));
-        } catch (\MongoException $e) {
-            e('unable to created record in COMMENTS collection ' . $e->getMessage());
+        } catch ( \MongoException $e ) {
+            d('unable to created record in COMMENTS collection ' . $e->getMessage() . ' code: ' . $e->getCode());
+
             throw new AlertException('It looks like you have already posted this comment');
         }
 
@@ -320,18 +321,17 @@ class CommentParser extends LampcmsObject
      */
     protected function validateBody(Utf8String $Body)
     {
+        $minChars = $this->Registry->Ini->MIN_COMMENT_CHARS;
+        $maxChars = $this->Registry->Ini->MAX_COMMENT_CHARS;
 
-        $len = $Body->length();
-        if ($len < 10) {
-            /**
-             * @todo
-             * Translate String
-             */
-            throw new AlertException('@@Comment must be at least 10 characters long@@');
+        $len    = $Body->length();
+        if ($len < $minChars) {
+
+            throw new AlertException('@@Comment is too short. Minimal length is@@'.' '.$minChars);
         }
 
-        if ($len > 600) {
-            throw new AlertException('@@Comment must be at limited to 600 characters@@. Your comment is ' . $len . ' characters-long');
+        if ($len > $maxChars) {
+            throw new AlertException('@@Comment is too long. Maximum number of characters is@@ '.$maxChars);
         }
 
         return $this;
@@ -401,18 +401,18 @@ class CommentParser extends LampcmsObject
      * @todo Update COMMENTS collection
      *
      * @todo better permissions check. Right now deleted or suspender
-     * user may be able to edit own comment is this OK?
+     *       user may be able to edit own comment is this OK?
      *
      * @param \Lampcms\Interfaces\SubmittedComment $Comment
-     * @param mixed (int|null) $viewerID userID of editor IF NOT by moderator
-     * so that we can check the ownership of comment here
+     * @param mixed (int|null)                     $viewerID userID of editor IF NOT by moderator
+     *                                                       so that we can check the ownership of comment here
      *
      * @return object $this
      */
     public function edit(\Lampcms\Interfaces\SubmittedComment $Comment, $viewerID = null)
     {
         $this->Comment = $Comment;
-        $id = $Comment->getResourceId();
+        $id            = $Comment->getResourceId();
 
         $this->findCommentRecord($id)
             ->checkIsOwner($viewerID)
@@ -425,20 +425,20 @@ class CommentParser extends LampcmsObject
         $this->validateBody($Body);
 
         $aComments = $this->Resource->getComments();
-        $bEdited = false;
+        $bEdited   = false;
         if (!empty($aComments)) {
             for ($i = 0; $i < count($aComments); $i += 1) {
                 if ($aComments[$i]['_id'] == $id) {
-                    $oEditor = $this->Comment->getUserObject();
-                    $date = date('r');
-                    $editor = $oEditor->getDisplayName();
+                    $oEditor    = $this->Comment->getUserObject();
+                    $date       = date('r');
+                    $editor     = $oEditor->getDisplayName();
                     $editor_url = $oEditor->getProfileUrl();
-                    $uid = $oEditor->getUid();
+                    $uid        = $oEditor->getUid();
 
                     d('comment found: ' . $i);
                     $aComments[$i]['b'] = $Body->valueOf();
                     $aComments[$i]['e'] = '<a class="ce" href="' . $editor_url . '"><span class="ico edited tu" title="@@This comment was edited by@@ ' . $editor . ' on ' . $date . '"></span></a>';
-                    $bEdited = true;
+                    $bEdited            = true;
                     break;
                 }
             }
@@ -516,7 +516,7 @@ class CommentParser extends LampcmsObject
      */
     protected function touchQuestion()
     {
-       // $this->Resource->touch()->save();
+        // $this->Resource->touch()->save();
         if ($this->Resource instanceof \Lampcms\Question) {
             $this->Resource->touch();
         } elseif ($this->Resource instanceof \Lampcms\Answer) {
@@ -529,7 +529,7 @@ class CommentParser extends LampcmsObject
                  */
                 $this->Registry->Mongo->QUESTIONS
                     ->update(array('_id' => $this->Resource['i_qid']), array('$set' => array('i_etag' => time())));
-            } catch (\MongoException $e) {
+            } catch ( \MongoException $e ) {
                 e('Unable to update question ' . $e->getMessage());
             }
         }
@@ -546,15 +546,15 @@ class CommentParser extends LampcmsObject
      * Posts onBeforeDeleteComment
      * and onDeleteComment events
      *
-     * @param int id id of comment
+     * @param     int       id id of comment
      *
      * @param int $viewerID id of Viewer
-     * If passed then a check is performed to make
-     * sure that comment is owned by this userID and if not,
-     * the exception is thrown.
-     * If it's determined that viewer already has the permission
-     * to delete a comment then don't pass any value for this param
-     * and the check of ownership will not be performed
+     *                      If passed then a check is performed to make
+     *                      sure that comment is owned by this userID and if not,
+     *                      the exception is thrown.
+     *                      If it's determined that viewer already has the permission
+     *                      to delete a comment then don't pass any value for this param
+     *                      and the check of ownership will not be performed
      *
      * @return object $this
      *
@@ -628,6 +628,7 @@ class CommentParser extends LampcmsObject
      *
      *
      * @param int $viewerID value of userid of Viewer
+     *
      * @throws AccessException
      *
      * @return object $this
@@ -686,7 +687,7 @@ class CommentParser extends LampcmsObject
     public function addLike(\Lampcms\Interfaces\SubmittedComment $Comment)
     {
         $this->Comment = $Comment;
-        $id = $Comment->getResourceId();
+        $id            = $Comment->getResourceId();
         d('id: ' . $id);
         $this->Registry->Dispatcher->post($Comment, 'onBeforeCommentLike');
 
@@ -703,12 +704,12 @@ class CommentParser extends LampcmsObject
                 ->getResourceArray()
                 ->addCommentLike($id)
                 ->makeResourceObject();
-        } catch (\LogicException $e) {
+        } catch ( \LogicException $e ) {
             d($e->getMessage());
             return;
         }
 
-        $bEdited = false;
+        $bEdited   = false;
         $aComments = $this->Resource->getComments();
         d('$aComments: ' . print_r($aComments, 1));
 
@@ -758,7 +759,7 @@ class CommentParser extends LampcmsObject
     protected function addCommentLike($resID)
     {
 
-        $uid = $this->Comment->getUserObject()->getUid();
+        $uid     = $this->Comment->getUserObject()->getUid();
         $ownerID = $this->aComment['i_uid'];
 
         if ($uid == $ownerID) {
@@ -780,10 +781,10 @@ class CommentParser extends LampcmsObject
         $id = $uid . '.' . $resID;
 
         $aData = array(
-            '_id' => $id,
-            'i_uid' => $uid,
-            'i_res' => $resID,
-            'i_ts' => time(),
+            '_id'     => $id,
+            'i_uid'   => $uid,
+            'i_res'   => $resID,
+            'i_ts'    => time(),
             'i_owner' => $ownerID
         );
 
@@ -791,7 +792,7 @@ class CommentParser extends LampcmsObject
 
         try {
             $coll->insert($aData, array('safe' => true));
-        } catch (\MongoException $e) {
+        } catch ( \MongoException $e ) {
             d('Unable to add record to COMMENTS_LIKES collection: ' . $e->getMessage());
 
             throw new \LogicException('@@Duplicate Like detected@@');

@@ -74,6 +74,12 @@ MIN_QUESTION_CHARS = 10
 ; Minimum required length of question title
 MIN_TITLE_CHARS = 10
 ;
+; Minimum required length of comment
+MIN_COMMENT_CHARS = 10
+;
+; Maximum length of comment
+MAX_COMMENT_CHARS = 600
+;
 ; Minimum number of words required in question
 MIN_QUESTION_WORDS = 3
 ;

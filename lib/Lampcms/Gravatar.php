@@ -140,7 +140,7 @@ class Gravatar
      * or 'U' for unknown -
      * this is when we cannot determine for sure
      * due to situations like this: gravatar site was
-     * unavailable, so the request timedout
+     * unavailable, so the request timed out
      *
      * Or the server returned the code 200 but
      * gravatar image was an empty string
@@ -152,7 +152,7 @@ class Gravatar
     protected $gravatarExists;
 
     /**
-     * Object HttpRequest holding an http responce
+     * Object HttpRequest holding an http response
      *
      * @var object
      */
@@ -290,7 +290,7 @@ class Gravatar
     public function setRating($rating)
     {
         $aRatings = array('g', 'pg', 'r', 'x');
-        $rating = strtolower($rating);
+        $rating = \strtolower($rating);
 
         if (!in_array($rating, $aRatings)) {
             throw new \InvalidArgumentException('Invalid value of $rating: ' . $rating . ' can only be one of these: ' . implode(' , ', $aRatings));
