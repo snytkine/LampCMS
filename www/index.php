@@ -241,4 +241,3 @@ if (true !== session_start()) {
         fastcgi_finish_request();
     }
 }
-

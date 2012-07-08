@@ -242,7 +242,7 @@ abstract class WebPage extends Base
     protected $action;
 
     /**
-     * @var object \Lampcms\Uri\Router
+     * @var \Lampcms\Uri\Router object
      */
     protected $Router;
 
@@ -436,7 +436,7 @@ abstract class WebPage extends Base
          * To load style selected by user
          *
          */
-        $css                         = (true === LAMPCMS_DEBUG || '@package_version@' === VERSION_ID) ? '/_main.css?t='.time() : '/main.css';
+        $css                         = (true === LAMPCMS_DEBUG || \strstr(VERSION_ID, 'package_version')) ? '/_main.css?t='.time() : '/main.css';
         $this->aPageVars['main_css'] = $Ini->CSS_SITE . '{_DIR_}/style/' . STYLE_ID . '/' . VTEMPLATES_DIR . $css;
 
         $aFacebookConf = $Ini->getSection('FACEBOOK');
@@ -465,7 +465,7 @@ abstract class WebPage extends Base
          */
         $this->addMetaTag('fb', ('' !== (string)$Viewer->getFacebookToken()));
 
-        $js = (true === LAMPCMS_DEBUG || '@package_version@' === VERSION_ID) ? '/qa.js?t='.time() : '/min/qa_' . VERSION_ID . '.js';
+        $js = (true === LAMPCMS_DEBUG || \strstr(VERSION_ID, 'package_version')) ? '/qa.js?t='.time() : '/min/qa_' . VERSION_ID . '.js';
 
         $src = $Ini->JS_SITE . '{_DIR_}/js' . $js;
 
