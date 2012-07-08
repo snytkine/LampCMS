@@ -392,7 +392,7 @@ class HTMLString extends \Lampcms\Dom\Document implements \Lampcms\Interfaces\La
         $this->loadHTML($serialized);
         $this->encoding = 'UTF-8';
         $this->preserveWhiteSpace = true;
-        $this->registerNodeClass('DOMElement', '\Lampcms\Dom\Element');
+        $this->registerNodeClass('DOMElement', '\\Lampcms\\Dom\\Element');
     }
 
 }
