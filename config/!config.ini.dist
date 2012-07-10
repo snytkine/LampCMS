@@ -189,7 +189,7 @@ MAX_AVATAR_UPLOAD_SIZE = 1024000
 LOG_PER_SCRIPT = true
 ; Directory where log files will reside
 ; Must be a writable directory
-; If left blank default will be directory 'log' sibling to www dir.
+; If left blank default will be directory 'logs' sibling to www dir.
 LOG_DIR =
 ;
 ; base url of your main website. Required value! Leading slash not required.
@@ -406,6 +406,24 @@ SORT_OLDEST = oldest
 SORT_BEST = best
 SORT_VIEWS = views
 SORT_REPUTATION = rep
+
+;
+; Conditions for viewquestions controller
+COND_TAGGED = tagged
+COND_NOANSWERS = noanswers
+
+
+
+;
+; Routes are mapping url route (first part of the url directory structure
+; to the controller class
+; This is a 2-way mapping: urls are pointing to controller
+; and during creation of links the the "route" part in used to
+; create a link to controller
+[ROUTES]
+tags = viewqtags
+category = viewcategory
+categories = viewcategories
 
 ;
 ; Options of RTE Editor
