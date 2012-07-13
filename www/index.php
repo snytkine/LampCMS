@@ -88,6 +88,8 @@ if (true !== session_start()) {
         $translator = $Tr->getCallback();
         if (true == constant('LAMPCMS_SHOW_RENDER_TIME')) {
             $renderTimeString = $Tr->get('Page rendering time');
+        } else {
+            $renderTimeString = '';
         }
 
         $callback = function($output) use ($mapper, $translator, $renderTimeString)
