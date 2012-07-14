@@ -191,7 +191,7 @@ class Client
         $aUser = $this->getUserArray($this->fbId);
         if (!empty($aUser)) {
             $this->User = UserFacebook::factory($this->Registry, $aUser);
-            d('existing user $this->User: ' . print_r($this->User->getArrayCopy(), 1));
+            d('existing user $this->User: ' . \json_encode($this->User->getArrayCopy()));
             $this->updateUser();
             d('cp');
 
@@ -275,6 +275,7 @@ class Client
         return $this->User;
     }
 
+
     /**
      * Get the profile from Facebook API
      * for a user identified by a cookie OR
@@ -283,6 +284,7 @@ class Client
      * and set it as $this->aFbUserData
      *
      *
+     * @throws \Lampcms\FacebookAuthException
      * @return object $this
      */
     protected function getFacebookProfile()
@@ -574,7 +576,8 @@ class Client
      * cause any problems in the future.
      *
      *
-     * @param User $User
+     * @param \Lampcms\User $User $User
+     *
      * @return object $this
      */
     public function connect(\Lampcms\User $User)
@@ -606,11 +609,11 @@ class Client
      * $aUser array is the same account as $this->User
      *
      * @param array $aUser
+     *
+     * @throws \Lampcms\DevException
      * @throws \Lampcms\Exception is user from input array
      * is different from $this->User.
-     *
      * @return object $this
-     *
      */
     protected function checkUniqueAccount(array $aUser = null)
     {
@@ -636,37 +639,24 @@ class Client
     }
 
 
-    public function postToWall(array $data)
-    {
-
-        //Posting to
-        try {
-            $result = $facebook->api('/me/feed', 'post', $data);
-            echo __METHOD__ . ' ' . __LINE__ . ' ' . var_export($result, true);
-        } catch (\Exception $e) {
-            echo get_class($e) . ' ' . $e->getMessage();
-        }
-    }
-
-
     /**
      * Post update to user Wall
      *
      *
-     * @param mixed array $aData | string can provide just
-     * a string it will be posted to Facebook User's Wall as a message
-     * it can contain some html code - it's up to Facebook to allow
-     * or disallow certain html tags
+     * @param \Lampcms\Interfaces\FacebookUser $User
+     * @param                                  $aData
+     *
+     * @throws \InvalidArgumentException
+     * @throws \Lampcms\FacebookApiException
+     * @internal param array $mixed $aData | string can provide just
+     *           a string it will be posted to Facebook User's Wall as a message
+     *           it can contain some html code - it's up to Facebook to allow
+     *           or disallow certain html tags
      *
      * @return mixed if successful post to Facebook API
-     * then it will return the string returned by API
-     * This could be raw string of json data - not json decoded yet
-     * or false in case there were some errors
-     *
-     * @throws FacebookApiException in case of errors with
-     * using API or more general \Lampcms\Exception in case there
-     * were some other problems sowhere along the line like
-     * in case with Curl object
+     *           then it will return the string returned by API
+     *           This could be raw string of json data - not json decoded yet
+     *           or false in case there were some errors
      *
      */
     public function postUpdate(\Lampcms\Interfaces\FacebookUser $User, $aData)
@@ -690,7 +680,7 @@ class Client
         }
 
         $aData['access_token'] = $User->getFacebookToken();
-        d('$aData: ' . print_r($aData, 1));
+        d('$aData: ' . \json_encode($aData));
 
         $url = \sprintf(self::WALL_URL, $facebookUid);
         d('cp url: ' . $url);
@@ -702,12 +692,12 @@ class Client
             d('retCode: ' . $retCode . ' resp: ' . $body);
             return $body;
         } catch (\Lampcms\HttpTimeoutException $e) {
-            d('Request to Facebook server timedout');
+            d('Request to Facebook server timed out');
             throw new FacebookApiException('Request to Facebook server timed out. Please try again later');
         } catch (\Lampcms\Http401Exception $e) {
             d('Unauthorized to get data from Facebook, most likely user unjoined the site');
             $User->revokeFacebookConnect();
-            throw new FacebookApiException('Anauthorized with Facebook');
+            throw new FacebookApiException('Authorized with Facebook');
         } catch (\Lampcms\HttpResponseCodeException $e) {
             if (function_exists('e')) {
                 e('LampcmsError Facebook response exception: ' . $e->getHttpCode() . ' ' . $e->getMessage() . ' body: ' . $Curl->getResponseBody());
@@ -717,7 +707,7 @@ class Client
              * of error, maybe authorization failed or something like that,
              * or maybe Facebook server was acting up,
              * in this case it is better to delete cookies
-             * so that we dont go through these steps again.
+             * so that we don't go through these steps again.
              * User will just have to re-do the login fir GFC step
              */
 

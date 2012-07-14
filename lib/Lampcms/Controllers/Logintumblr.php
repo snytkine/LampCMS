@@ -239,7 +239,7 @@ class Logintumblr extends WebPage
              * send cookie to remember user
              * and then send out HTML with js instruction to close the popup window
              */
-            d('Looks like we are at step 2 of authentication. Request: ' . print_r($_REQUEST, 1));
+            d('Looks like we are at step 2 of authentication. Request: ' . \json_encode($_REQUEST));
 
             /**
              * @todo check first to make sure we do have oauth_token
@@ -247,7 +247,7 @@ class Logintumblr extends WebPage
              */
             $this->oAuth->setToken($this->Request['oauth_token'], $_SESSION['tumblr_oauth']['oauth_token_secret']);
             $this->aAccessToken = $this->oAuth->getAccessToken(self::ACCESS_TOKEN_URL);
-            d('$this->aAccessToken: ' . \print_r($this->aAccessToken, 1));
+            d('$this->aAccessToken: ' . \json_encode($this->aAccessToken));
 
             unset($_SESSION['tumblr_oauth']);
 
