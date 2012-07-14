@@ -392,6 +392,14 @@ PAGER_PREFIX = page
 ;
 ; This will be added to pagination links (example: page2.html)
 PAGER_EXT = .html
+
+;
+; Prefix this to id of question
+; for example if this is set to "thread"
+; then url of question will look like
+; /viewquestion/thread5
+QID_PREFIX = quest
+
 ;
 ; Url parts for the "sort by"
 ;
