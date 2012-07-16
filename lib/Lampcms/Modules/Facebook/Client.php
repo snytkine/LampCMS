@@ -315,7 +315,7 @@ class Client
 
         try {
             $this->aFbUserData = $Facebook->api('/me');
-            d('$this->aFbUserData: ' . print_r($this->aFbUserData, 1));
+            d('$this->aFbUserData: ' . \json_encode($this->aFbUserData));
             $token = $Facebook->getAccessToken();
         } catch (FacebookApiException $e) {
             $details = $e->getResult();
@@ -618,7 +618,7 @@ class Client
     protected function checkUniqueAccount(array $aUser = null)
     {
         if (!is_object($this->User) || (!$this->User instanceof \Lampcms\User)) {
-            d('$this->User now set yet');
+            d('$this->User not set yet');
 
             throw new \Lampcms\DevException('$this->User now set yet');
         }

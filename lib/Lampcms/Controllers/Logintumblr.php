@@ -457,7 +457,7 @@ class Logintumblr extends WebPage
 		}
 		if(window.opener){
 		%s
-		setTimeout(myclose, 100); // give opener window time to process login and cancell intervals
+		setTimeout(myclose, 100); // give opener window time to process login and cancel intervals
 		}else{
 			alert("@@This is not a popup window or opener window gone away@@");
 		}';

@@ -52,14 +52,17 @@
 
 namespace Lampcms;
 
+use \Lampcms\Http\Response;
 
 /**
  * Wrapper for curl functions
+ *
  * @author admin
  *
  */
 class Curl extends LampcmsObject
 {
+
     /**
      * Headers returned from the http server
      *
@@ -80,18 +83,21 @@ class Curl extends LampcmsObject
     /**
      * Body of response (usually some html or xml)
      * as returned from the http server
+     *
      * @var srting
      */
     protected $body;
 
     /**
      * Array or response http headers
+     *
      * @var array
      */
     protected $aResponseHeaders = array();
 
     /**
      * Array returned by curl_getinfo()
+     *
      * @var array
      */
     protected $info;
@@ -106,6 +112,7 @@ class Curl extends LampcmsObject
     /**
      *
      * Curl handle object
+     *
      * @var object curl handle
      */
     protected $request;
@@ -143,8 +150,8 @@ class Curl extends LampcmsObject
      * for cookies storage
      *
      * @param string $file must be a full path
-     * if file does not exist php will attempt to create it
-     * and if that fails that DevException is thrown
+     *                     if file does not exist php will attempt to create it
+     *                     and if that fails that DevException is thrown
      *
      * @return \Lampcms\Curl
      * @throws DevException
@@ -170,10 +177,10 @@ class Curl extends LampcmsObject
      * Sets the value for the referrer
      *
      * @param string $url should be a valid url,
-     * ideally it will be the url from which the request
-     * would come in real life. For example when posting
-     * to a login form it's best to set referrer to
-     * the page from where user would normally login
+     *                    ideally it will be the url from which the request
+     *                    would come in real life. For example when posting
+     *                    to a login form it's best to set referrer to
+     *                    the page from where user would normally login
      *
      * When posting to a "send message" form it's best to
      * set the referrer to the page from which user normally
@@ -196,6 +203,7 @@ class Curl extends LampcmsObject
      *
      *
      * @param unknown_type $agent
+     *
      * @throws DevException if $agent is not a string
      *
      * @return object $this
@@ -233,8 +241,8 @@ class Curl extends LampcmsObject
      *
      * @var array
      */
-    protected $aOptions = array('timeout' => 8,
-        'useragent' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.4) Gecko/20091016 Firefox/3.5.4 GTB5');
+    protected $aOptions = array('timeout'   => 8,
+                                'useragent' => 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.4) Gecko/20091016 Firefox/3.5.4 GTB5');
 
 
     /**
@@ -247,7 +255,7 @@ class Curl extends LampcmsObject
      *
      * @param bool $reset
      *
-     * @return \Lampcms\object $this
+     * @return object $this
      */
     public function initCurl($reset = false)
     {
@@ -268,7 +276,7 @@ class Curl extends LampcmsObject
      */
     protected function checkSSL()
     {
-        $version = \curl_version();
+        $version   = \curl_version();
         $supported = ($version['features'] & CURL_VERSION_SSL);
 
         return (bool)$supported;
@@ -303,7 +311,7 @@ class Curl extends LampcmsObject
      * @throws HttpTimeoutException
      * @throws DevException
      * @throws \Exception
-     * @return \Lampcms\object $this
+     * @return object $this
      */
     public function getDocument($url, $since = null, $etag = null, array $aOptions = array())
     {
@@ -356,19 +364,19 @@ class Curl extends LampcmsObject
             $this->setHeaders($aHeaders);
         }
 
-        $response = \curl_exec($this->request);
-        $this->info = \curl_getinfo($this->request);
-        $error = \curl_error($this->request);
-        $error_code = \curl_errno($this->request);
+        $response    = \curl_exec($this->request);
+        $this->info  = \curl_getinfo($this->request);
+        $error       = \curl_error($this->request);
+        $error_code  = \curl_errno($this->request);
         $header_size = \curl_getinfo($this->request, CURLINFO_HEADER_SIZE);
         if (28 === (int)$error_code) {
             throw new HttpTimeoutException($error);
         }
 
         $this->httpResponseCode = \curl_getinfo($this->request, CURLINFO_HTTP_CODE);
-        $this->body = \substr($response, $header_size);
-        $header = \substr($response, 0, $header_size);
-        $headers = \explode("\r\n", \str_replace("\r\n\r\n", '', $header));
+        $this->body             = \substr($response, $header_size);
+        $header                 = \substr($response, 0, $header_size);
+        $headers                = \explode("\r\n", \str_replace("\r\n\r\n", '', $header));
 
         foreach ($headers as $h) {
             if (\preg_match('#(.*?)\:\s(.*)#', $h, $matches)) {
@@ -384,7 +392,9 @@ class Curl extends LampcmsObject
     /**
      * Send DELETE request method to a given url
      * This is useful for certain REST APIs that use DELETE HTTP method
+     *
      * @param string $url
+     *
      * @return object $this
      */
     public function delete($url)
@@ -408,12 +418,12 @@ class Curl extends LampcmsObject
      *
      *
      * @throws Http304Exception|Http400Exception|Http401Exception|Http404Exception|Http500Exception|HttpEmptyBodyException|HttpRedirectException|HttpResponseErrorException
-     * @return \Lampcms\object $this
+     * @return object $this
      */
     public function checkResponse()
     {
 
-        switch ($this->httpResponseCode) {
+        switch ( $this->httpResponseCode ) {
 
             case 200:
             case 201:
@@ -496,6 +506,7 @@ class Curl extends LampcmsObject
      *
      *
      * @param array $aHeaders
+     *
      * @return \Lampcms\Curl
      */
     public function setHeaders(array $aHeaders)
@@ -567,7 +578,7 @@ class Curl extends LampcmsObject
         if (!empty($this->aOptions['formVars'])) {
             $r1 = \curl_setopt($this->request, CURLOPT_POST, true);
             $r2 = \curl_setopt($this->request, CURLOPT_POSTFIELDS, $this->aOptions['formVars']);
-            d('set CURLOPT_POSTFIELDS: ' . print_r($this->aOptions['formVars'], 1) . ' ret: ' . $r2);
+            d('set CURLOPT_POSTFIELDS: ' . \json_encode($this->aOptions['formVars']) . ' ret: ' . $r2);
         }
 
         if (!empty($this->aOptions['method']) && 'DELETE' === \strtoupper($this->aOptions['method'])) {
@@ -662,6 +673,7 @@ class Curl extends LampcmsObject
 
     /**
      * Getter for $this->body
+     *
      * @return string body of http response
      */
     public function getResponseBody()
@@ -688,6 +700,7 @@ class Curl extends LampcmsObject
      * if this header does not exists, will return empty string
      *
      * @param string $sHeader
+     *
      * @return string
      */
     public function getHeader($sHeader)
@@ -735,6 +748,47 @@ class Curl extends LampcmsObject
     {
 
         return $this->aResponseHeaders;
+    }
+
+
+    /**
+     * Convenience method to do a simple
+     * POST request and get response body back
+     *
+     * @param       $url
+     * @param array $postVars
+     *
+     * @return string
+     */
+    public function post($url, array $postVars)
+    {
+
+        $this->getDocument($url, null, null, array('formVars' => $postVars));
+
+        $headers = $this->getResponseHeaders();
+        $body    = $this->getResponseBody();
+        $code    = $this->getHttpResponseCode();
+
+        return new Response($headers, $body, $code);
+    }
+
+    /**
+     * Convenience method to make a GET request
+     *
+     * @param string $url
+     *
+     * @return Http\Response
+     */
+    public function get($url)
+    {
+
+        $this->getDocument($url);
+
+        $headers = $this->getResponseHeaders();
+        $body    = $this->getResponseBody();
+        $code    = $this->getHttpResponseCode();
+
+        return new Response($headers, $body, $code);
     }
 
 }

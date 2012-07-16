@@ -155,7 +155,9 @@ class TimeZone extends \DateTimeZone
      * that matches the offset value (in seconds)
      *
      *
-     * @param $offset number of seconds from GMT
+     * @param $intOffset
+     *
+     * @internal param number $offset of seconds from GMT
      *
      * @return first matching timezone name
      */

@@ -191,6 +191,7 @@ class Register extends WebPage
 
         $coll = $this->Registry->Mongo->USERS;
         $coll->ensureIndex(array(Schema::USERNAME_LOWERCASE => 1), array('unique' => true));
+
         /**
          * Cannot make email unique index because external users
          * don't have email, and then value counts as null

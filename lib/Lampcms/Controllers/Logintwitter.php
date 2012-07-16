@@ -203,7 +203,7 @@ class Logintwitter extends WebPage
      * @throws Exception
      * @throws \Exception in case something goes wrong during
      * this stage
-     * @return \Lampcms\Controllers\object $this
+     * @return object $this
      */
     protected function startOauthDance()
     {
@@ -277,7 +277,7 @@ class Logintwitter extends WebPage
              */
             $this->oAuth->setToken($this->Request['oauth_token'], $_SESSION['oauth']['oauth_token_secret']);
             $aAccessToken = $this->oAuth->getAccessToken(self::ACCESS_TOKEN_URL);
-            d('$aAccessToken: ' . print_r($aAccessToken, 1));
+            d('$aAccessToken: ' . \json_encode($aAccessToken));
 
             unset($_SESSION['oauth']);
 
@@ -375,7 +375,7 @@ class Logintwitter extends WebPage
      *       use same Twitter account by different users
      *
      * @throws \Exception
-     * @return \Lampcms\Controllers\object $this
+     * @return object $this
      */
     protected function createOrUpdate()
     {
@@ -407,7 +407,7 @@ class Logintwitter extends WebPage
              * re-throw as regular exception
              * so that it can be caught and shown in popup window
              */
-            e('@@Unable to process login@@: ' . $e->getMessage());
+            e('Unable to process login: ' . $e->getMessage());
             throw new \Exception($e->getMessage());
         }
 
@@ -496,7 +496,7 @@ class Logintwitter extends WebPage
         $aUser['twitter_uid'] = $this->aUserData['_id'];
         $aUser['i_rep'] = 1;
 
-        $aUser = array_merge($this->Registry->Geo->Location->data, $aUser);
+        $aUser = \array_merge($this->Registry->Geo->Location->data, $aUser);
 
         if (!empty($this->aUserData['url'])) {
             $aUser['url'] = $this->aUserData['url'];
