@@ -199,7 +199,7 @@ class Register extends WebPage
          *
          */
         $coll->ensureIndex(array(Schema::EMAIL => 1));
-        $coll->ensureIndex(array('role' => 1));
+        $coll->ensureIndex(array(Schema::ROLE => 1));
         /**
          * Indexes for managing 3 types
          * of following

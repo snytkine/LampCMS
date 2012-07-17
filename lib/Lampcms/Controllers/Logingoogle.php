@@ -59,6 +59,9 @@ use \Lampcms\Responder;
 use \Lampcms\Mongo\Doc as MongoDoc;
 use \Lampcms\Mongo\Schema\User as Schema;
 use \Lampcms\Acl\Role;
+use \Lampcms\TimeZone;
+use \Lampcms\String;
+use \Lampcms\Utf8String;
 
 class Logingoogle extends WebPage
 {
@@ -131,6 +134,11 @@ class Logingoogle extends WebPage
      * @var string
      */
     protected $email;
+
+    /**
+     * @var string
+     */
+    protected $tempPassword;
 
 
     /**
@@ -345,8 +353,30 @@ class Logingoogle extends WebPage
     protected function updateUser(\Lampcms\User $User)
     {
 
-        $aUser                = array();
-        $aUser[Schema::EMAIL] = $this->email;
+    }
+
+
+    protected function createUser()
+    {
+
+        $this->tempPassword = String::makePasswd();
+        $sid                = (false === ($sid = Cookie::getSidCookie())) ? String::makeSid() : $sid;
+
+        $aUser                                 = array();
+        $aUser[Schema::EMAIL]                  = $this->email;
+        $aData[Schema::REPUTATION]             = 1;
+        $aData[Schema::REGISTRATION_TIMESTAMP] = \time();
+        $aData[Schema::REGISTRATION_TIME]      = \date('r');
+        $aData[Schema::FIRST_VISIT_TIMESTAMP]  = (false !== $intFv = Cookie::getSidCookie(true)) ? $intFv : \time();
+        $aData[Schema::PASSWORD]               = String::hashPassword($this->tempPassword);
+        $aData[Schema::SID]                    = $sid;
+
+        /**
+         * Time zone offset in seconds
+         *
+         * @var int
+         */
+        $tzo = Cookie::get('tzo', 0);
 
         if (!empty($this->userInfo['given_name'])) {
             $aUser[Schema::FIRST_NAME] = $this->userInfo['given_name'];
@@ -364,18 +394,23 @@ class Logingoogle extends WebPage
             $aUser[Schema::URL] = $this->userInfo['link'];
         }
 
-    }
+        if (!empty($this->userInfo['gender'])) {
+            $aUser[Schema::GENDER] = ('male' === $this->userInfo['gender']) ? 'M' : 'F';
+        }
 
+        if (!empty($this->userInfo['name'])) {
+            $username = $this->userInfo['name'];
+        } elseif (!empty($this->userInfo['family_name'])) {
+            $username = (!empty($this->userInfo['family_name']));
+            if (!empty($this->userInfo['family_name'])) {
+                $username = ' ' . $this->userInfo['family_name'];
+            }
+        }
 
-    protected function createUser()
-    {
-        $ln = (!empty($this->aData['ln'])) ? $this->aData['ln'] : '';
 
         $oEA = \Lampcms\ExternalAuth::factory($this->Registry);
-        $u   = $this->aData['fn'] . '_' . $ln;
-        d('$u: ' . $u);
+        $username = $oEA->makeUsername($username);
 
-        $username = $oEA->makeUsername($u);
     }
 
     /**

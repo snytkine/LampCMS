@@ -156,6 +156,11 @@ class Client
      */
     protected $fbId;
 
+    /**
+     * @var string temporary password
+     */
+    protected $tempPassword;
+
     public function __construct(\Lampcms\Registry $Registry)
     {
 
@@ -268,7 +273,7 @@ class Client
              * This is a very unlikely situation, not sure how
              * this could be possible....
              */
-            d('Very unlikely situation occured found uid: but no user in USERS. ');
+            d('Very unlikely situation occurred found uid: but no user in USERS. ');
             $this->createNewUser();
         }
 
