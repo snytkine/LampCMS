@@ -717,10 +717,7 @@ class Logintwitter extends WebPage
     protected function redirectToTwitter($url)
     {
         d('twitter redirect url: ' . $url);
-        /**
-         * @todo translate this string
-         *
-         */
+
         $s = Responder::PAGE_OPEN . Responder::JS_OPEN .
             'setTZOCookie = (function() {
 		getTZO = function() {

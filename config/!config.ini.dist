@@ -719,6 +719,36 @@ en_US = "English (United States)"
 ru_RU = "Russian"
 
 
+; Register your app with Google API
+; here: https://code.google.com/apis/console/
+; Make sure to register the callback url with google
+; It must POINT exactly to your 'logingoogle' controller url
+;
+[GOOGLE_API]
+CLIENT_ID =
+CLIENT_SECRET =
+; Add scopes - these will be shown to user when asking for permission
+; to authorize your app
+; The first 2 scopes are requered - without the email address
+; it's impossible to find if user already registered
+; So leave the first 2 scopes unchanged
+SCOPE[] = https://www.googleapis.com/auth/userinfo.profile
+SCOPE[] = https://www.googleapis.com/auth/userinfo.email
+; This scope is optional if you want to
+; be able to snoop in the user's gmail contants
+; You can download all user's contacts if this is autorized
+; Then can have features to find if user already has any friends registered
+; or when any of the contats registers in the future can match them
+; The downside of asking for this permission is some (maybe many)
+; users will not authorize this type of request
+SCOPE[] = https://www.google.com/m8/feeds/
+;
+; This scope authorizes to send email directly from user's gmail account
+; using oauth2 token in smtp/imap authorization
+; We currently don't use this scope and you should not ask for this permission
+; I only leave it here for possible future use (I don't want to have to search google for this scope again)
+; SCOPE[] = https://mail.google.com/
+
 ;
 ; Point to award user for certain actions
 ; as well as points required to perform certain actions

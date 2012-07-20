@@ -169,7 +169,7 @@ class ApiClient
      * User Oauth Secret
      *
      * Use Oauth Token
-     * We get this when user signsin with LinkedIn
+     * We get this when user signs in with LinkedIn
      * OR when user adds LinkedIn to their account
      * We then get the token, secret from LinkedIn API
      * and store them in the database
@@ -224,13 +224,13 @@ class ApiClient
      * the values of $key and $secret for your app
      * Go here to get yours: here: https://www.linkedin.com/secure/developer
      *
-     * @param string $key API KEY. You get this after you register
-     * your APP with LinkedIn API.
+     * @param string $key    API KEY. You get this after you register
+     *                       your APP with LinkedIn API.
      *
      * @param string $secret APP OAUTH_SECRET You get this from
-     * LinkedIn after registering your APP
+     *                       LinkedIn after registering your APP
      *
-     * @throws RuntimeException in case 'oauth' extension
+     * @throws \RuntimeException in case 'oauth' extension
      * is not enabled on the server
      */
     public function __construct($key, $secret)
@@ -247,8 +247,10 @@ class ApiClient
     /**
      * Set user's oauth token and secret
      *
-     * @param string $token user Oauth token
+     * @param string $token  user Oauth token
      * @param string $secret user Oauth secret
+     *
+     * @throws \InvalidArgumentException
      *
      * @return object $this
      */
@@ -281,19 +283,17 @@ class ApiClient
      * Post the update to LinkedIn "Share" API
      *
      * @param string $comment short message in plaintext format
-     * this is similar to twitter status message. Maximum 700 chars
+     *                        this is similar to twitter status message. Maximum 700 chars
      *
-     * @param string $label This will become the label of the Link
+     * @param string $label   This will become the label of the Link
      *
-     * @param string $url the url of the link
-     * @param string $image optional = may include the full
-     * url of the thumbnail to be used in this update
+     * @param string $url     the url of the link
+     * @param string $image   optional = may include the full
+     *                        url of the thumbnail to be used in this update
      *
-     * @throws \LogicException if $this->User is not set
-     * This will be the same when the current user does not
-     * have the LinkedIn token/secret credentials.
-     *
-     * @throws \Lampcms\Exception in case the post to LinkedIn API fails
+     * @throws \RuntimeException
+     * @throws \UnexpectedValueException
+     * @return string
      */
     public function share($comment, $label, $url, $image = null)
     {
@@ -351,6 +351,7 @@ class ApiClient
      *
      * @param string $header
      * @param string $value
+     * @return \Lampcms\Modules\Linkedin\ApiClient
      */
     public function setHeader($header, $value)
     {
@@ -402,6 +403,8 @@ class ApiClient
      * @param string $format data format if which
      * you want to receive response. xml (default) or
      * json
+     *
+     * @return mixed
      */
     public function getProfile($format = 'xml')
     {
@@ -458,16 +461,14 @@ class ApiClient
      * Run the fetch() from the LinkedIn API
      *
      *
-     * @param string $url url to fetch from
-     * This must be valid API endpoint on LinkedIn API
+     * @param string $url          url to fetch from
+     *                             This must be valid API endpoint on LinkedIn API
      *
-     * @param bool $requireToken if set to true
-     * then will verify that $this->token and $this->secret
-     * has been set prior to calling this method
+     * @param bool   $requireToken if set to true
+     *                             then will verify that $this->token and $this->secret
+     *                             has been set prior to calling this method
      *
-     * @throws \UnexpectedValueException if $this->token
-     * and $this->secret has not yet been set
-     *
+     * @throws \InvalidArgumentException
      * @return mixed false | string - the response returned from API
      */
     protected function fetch($url, $requireToken = false)

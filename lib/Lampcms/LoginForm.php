@@ -200,11 +200,10 @@ class LoginForm
      */
     public static function makeSocialButtons(Registry $Registry)
     {
-        if (empty($_SESSION['social_buttons'])) {
+        if (true || empty($_SESSION['social_buttons'])) {
             $Ini           = $Registry->Ini;
-            $html          = '';
             $socialBtns    = '';
-            $twitterButton = $fbButton = '';
+
 
             /**
              * Facebook
@@ -213,8 +212,7 @@ class LoginForm
                 $aFB = $Ini['FACEBOOK'];
 
                 if (!empty($aFB['APP_ID'])) {
-                    //id="fbsignup"
-                    d('$aFB: ' . print_r($aFB, 1));
+                    d('$aFB: ' . \json_encode($aFB));
                     $socialBtns .= '<img class="ajax fbsignup hand ttt" src="{_IMAGE_SITE_}{_DIR_}/images/f_32.png" width="32" height="32" alt="F" title="@@Sign in with your Facebook account@@">';
 
                 }
@@ -226,7 +224,7 @@ class LoginForm
             if (\extension_loaded('oauth') && isset($Ini->TWITTER)) {
                 $aTW = $Ini['TWITTER'];
                 if (!empty($aTW['TWITTER_OAUTH_KEY']) && !empty($aTW['TWITTER_OAUTH_SECRET'])) {
-                    d('$aTW: ' . print_r($aTW, 1));
+                    d('$aTW: ' . \json_encode($aTW));
                     $socialBtns .= '<img class="ajax twsignin hand ttt" src="{_IMAGE_SITE_}{_DIR_}/images/t_32.png" width="32" height="32" alt="T" title="@@Sign in with Twitter Account@@">';
                 }
             }
@@ -238,8 +236,22 @@ class LoginForm
             if (\extension_loaded('oauth') && isset($Ini->LINKEDIN)) {
                 $aLI = $Ini['LINKEDIN'];
                 if (!empty($aLI['OAUTH_KEY']) && !empty($aLI['OAUTH_SECRET'])) {
-                    d('$aLI: ' . print_r($aLI, 1));
+                    d('$aLI: ' . \json_encode($aLI));
                     $socialBtns .= '<img class="ajax add_linkedin hand ttt" src="{_IMAGE_SITE_}{_DIR_}/images/linkedin_32.png" width="32" height="32" alt="T" title="@@Sign in with LinkedIn Account@@">';
+                }
+            }
+
+
+            /**
+             * Google
+             */
+            if (\extension_loaded('curl') && \Lampcms\Curl::hasSSL() && isset($Ini->GOOGLE_API)) {
+                $aGoogle = $Ini['GOOGLE_API'];
+
+                if (!empty($aGoogle['CLIENT_ID']) && !empty($aGoogle['CLIENT_SECRET'])) {
+                    d('$aGoogle: ' . \json_encode($aGoogle));
+                    $socialBtns .= '<img class="ajax googlelogin hand ttt" src="{_IMAGE_SITE_}{_DIR_}/images/google_32.png" width="32" height="32" alt="F" title="@@Sign in with your Google account@@">';
+
                 }
             }
 

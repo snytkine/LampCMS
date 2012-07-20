@@ -220,7 +220,6 @@ class Register extends WebPage
         $aData[Schema::REGISTRATION_TIMESTAMP] = time();
         $aData[Schema::REGISTRATION_TIME]      = date('r');
         $aData[Schema::FIRST_VISIT_TIMESTAMP]  = (false !== $intFv = \Lampcms\Cookie::getSidCookie(true)) ? $intFv : time();
-        $aData[Schema::LANG]                   = $this->Registry->getCurrentLang();
         $aData[Schema::LOCALE]                 = $this->Registry->Locale->getLocale();
 
         /**
@@ -266,17 +265,20 @@ class Register extends WebPage
     /**
      * Created a new record in EMAILS collection
      *
+     * @param null $userId
+     *
      * @return object $this
      */
-    protected function createEmailRecord()
+    protected function createEmailRecord($userId = null)
     {
 
         $coll = $this->Registry->Mongo->EMAILS;
         $coll->ensureIndex(array(Schema::EMAIL => 1), array('unique' => true));
+        $uid = (\is_numeric($userId)) ? $userId : $this->Registry->Viewer->getUid();
 
-        $a = array(
+        $a   = array(
             Schema::EMAIL        => $this->email,
-            'i_uid'              => $this->Registry->Viewer->getUid(),
+            'i_uid'              => $uid,
             'has_gravatar'       => \Lampcms\Gravatar::factory($this->email)->hasGravatar(),
             'ehash'              => \hash('md5', $this->email),
             'i_code_ts'          => time(),
@@ -286,6 +288,7 @@ class Register extends WebPage
 
         $res = $this->oEmail->save();
         d('$res: ' . $res);
+
 
         return $this;
     }

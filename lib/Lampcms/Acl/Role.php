@@ -33,6 +33,8 @@ class Role implements RoleInterface
 
     const REGISTERED = 'registered';
 
+    const EXTERNAL_USER = 'external_auth';
+
 
 
 

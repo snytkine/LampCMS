@@ -274,7 +274,7 @@ class Curl extends LampcmsObject
      *
      * @return bool true if has SSL support | false if does not
      */
-    protected function checkSSL()
+    public static function hasSSL()
     {
         $version   = \curl_version();
         $supported = ($version['features'] & CURL_VERSION_SSL);
@@ -329,7 +329,7 @@ class Curl extends LampcmsObject
         }
 
 
-        if ('https' === \substr($url, 0, 5) && !$this->checkSSL()) {
+        if ('https' === \substr($url, 0, 5) && !self::hasSSL()) {
             throw new \LogicException('Unable to make request to url: ' . $url . ' because your curl does not have support for  SSL protocol');
         }
 

@@ -83,7 +83,7 @@ class PostRegistration
      */
     public static function createReferrerRecord(Registry $Registry, User $User)
     {
-        $ref = (!empty($_COOKIE['ref'])) ? filter_input(INPUT_COOKIE, 'ref', FILTER_SANITIZE_URL) : '';
+        $ref = (!empty($_COOKIE['ref'])) ? \filter_input(INPUT_COOKIE, 'ref', FILTER_SANITIZE_URL) : '';
         if (!empty($ref)) {
             $a = array('users_id' => $User->getUid(), 'referer_url' => $ref);
             $Registry->Mongo->USER_REFEREF->insert($a);

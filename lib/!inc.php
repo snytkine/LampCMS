@@ -185,7 +185,7 @@ function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
              * Mongo notices are annoying and totally useless anyway
              * These usually have $errno of 1
              */
-            if (($errno & (E_ERROR | E_NOTICE | E_WARNING)) && strstr($errstr, 'mongo')) {
+            if (($errno & (E_ERROR | E_NOTICE | E_WARNING)) && (strstr($errstr, 'mongo') || strstr($errstr, 'pool')) ) {
 
                 return true;
             }

@@ -1866,6 +1866,11 @@ YUI({
                         Twitter.startDance(web_root + '/loginlinkedin', 640, 480);
                         break;
 
+                    case el.test('.googlelogin'):
+                        Y.log('clicked on .googlelogin');
+                        Twitter.startDance(web_root + '/logingoogle/', 640, 480);
+                        break;
+
                     case el.test('.add_blogger'):
                         Y.log('clicked on .add_blogger');
                         Twitter.startDance(web_root + '/connectblogger', 680, 540);
