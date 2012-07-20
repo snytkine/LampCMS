@@ -4,7 +4,7 @@
 /www/bootstrap.php
 /www/sandbox/
 /www/img/tmp/
-logs/.*
+/logs/*.log
 .idea/
 .idea/*/
 *admin.xml
