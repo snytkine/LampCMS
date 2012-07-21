@@ -4,14 +4,14 @@
 /www/bootstrap.php
 /www/sandbox/
 /www/img/tmp/
-/logs/*.log
+/logs/*.lo
 .idea/
 .idea/*/
 *admin.xml
 build.xml
 phpunitbootstrap.php
-*.log
 version.ver
 www/phpinfo.php
 www/phpinfo.htm
+/phplogs/
 
