@@ -176,51 +176,12 @@ class Contacts
                 $name = preg_replace('/[\s]{2,}/', ' ', $name);
                 $name = preg_replace('/([,.]+)/', '', $name);
 
-                $data['name'] = $name;
-                $data['lc_hash'] = \hash('md5', \mb_strtolower($name));
-                echo "\n$name";
+                $data['lc_name'] = \mb_strtolower($name);
+                //echo "\n$name";
             }
         }
 
         // $coll->ensureIndex(array('lc_name_hash' => 1));
     }
 
-
-    protected function parseXml2($uid)
-    {
-        if (empty($this->xml)) {
-            if (function_exists('d')) {
-                d('No xml to parse');
-            }
-
-            return;
-        }
-
-        $SX = new \SimpleXMLElement($this->xml);
-        $SX->registerXPathNamespace('gd', 'http://schemas.google.com/g/2005');
-
-        $emails = array();
-
-        $elements = $SX->xpath('//gd:email');
-
-        if ($elements) {
-            foreach ($elements as $item) {
-
-                $address  = $item->attributes()->address;
-                $address  = \mb_strtolower($address);
-                $emails[] = $address;
-            }
-        }
-
-        if (!empty($emails)) {
-
-            $coll = $this->Mongo->CONTACTS;
-            $coll->ensureIndex(array('i_uid' => 1), array('unique' => true));
-            $coll->ensureIndex(array('emails' => 1));
-
-            $coll->update(array('i_uid' => $uid), array('$addToSet' => array('emails' => array('$each' => $emails))), array('upsert' => true));
-        }
-
-        // $coll->ensureIndex(array('lc_name_hash' => 1));
-    }
 }
