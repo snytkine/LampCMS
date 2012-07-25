@@ -78,17 +78,16 @@ class Import
     protected $dir;
 
     /**
-     *
      * Constructor
-     * @param object $MongoDB Instance of php's MongoDB object
-     * @param string $blocksFile full path to location of blocks .csv file
-     * @param string $locationFile full path to location .csv File
+     *
+     * @param \MongoDB|object $MongoDB      Instance of php's MongoDB object
+     * @param string          $blocksFile   full path to location of blocks .csv file
+     * @param string          $locationFile full path to location .csv File
      */
     public function __construct(\MongoDB $MongoDB, $blocksFile, $locationFile)
     {
-
-        $this->Mongo = $MongoDB;
-        $this->blocksFile = $blocksFile;
+        $this->Mongo        = $MongoDB;
+        $this->blocksFile   = $blocksFile;
         $this->locationFile = $locationFile;
     }
 
@@ -149,6 +148,7 @@ class Import
      * Create GEO_LOCATION collection
      * If one already exists it will be dropped first
      * and then recreated
+     *
      * @throws \Exception
      */
     protected function importLocation()
@@ -160,13 +160,13 @@ class Import
         }
 
         $coll = $this->Mongo->GEO_LOCATION;
-        $row = 0;
+        $row  = 0;
         while (($data = fgetcsv($handle, 1000, ",")) !== false) {
             $num = count($data);
             if ($num > 6 && is_numeric($data[0])) {
                 $a = array(
                     '_id' => (int)$data[0],
-                    'cc' => \utf8_encode($data[1]),
+                    'cc'  => \utf8_encode($data[1]),
                 );
 
                 /**

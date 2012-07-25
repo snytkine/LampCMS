@@ -220,14 +220,7 @@ class Logintwitter extends WebPage
                 $callbackUrl = \urlencode($routerCallback($uri));
                 d('$callbackUrl'. $callbackUrl);
 
-                /**
-                 * A more advanced way is to NOT use Location header
-                 * but instead generate the HTML that contains the onBlur = focus()
-                 * and then redirect with javascript
-                 * This is to prevent from popup window going out of focus
-                 * in case user clicks outsize the popup somehow
-                 */
-                $this->redirectToTwitter(self::AUTHORIZE_URL . '?oauth_token=' . $_SESSION['oauth']['oauth_token'].'&oauth_callback='.$callbackUrl);
+                Responder::redirectToPage(self::AUTHORIZE_URL . '?oauth_token=' . $_SESSION['oauth']['oauth_token'].'&oauth_callback='.$callbackUrl);
             } else {
                 /**
                  * Here throw regular Exception, not Lampcms\Exception
@@ -379,7 +372,6 @@ class Logintwitter extends WebPage
      */
     protected function createOrUpdate()
     {
-        $this->aUserData['utc_offset'] = (!empty($this->aUserData['utc_offset'])) ? $this->aUserData['utc_offset'] : Cookie::get('tzo', 0);
 
         $tid = $this->aUserData['_id']; // it will be string!
         d('$tid: ' . $tid);
@@ -474,6 +466,13 @@ class Logintwitter extends WebPage
     {
 
         $aUser = array();
+        if(!empty($this->aUserData['utc_offset'])){
+            $timezone = \Lampcms\TimeZone::getTZbyoffset($this->aUserData['utc_offset']);
+        } elseif(false !== $tzn = Cookie::get('tzn')){
+            $timezone = $tzn;
+        } else {
+            $timezone = $this->Registry->Ini->SERVER_TIMEZONE;
+        }
 
         $username = $this->makeUsername();
         $sid = Cookie::getSidCookie();
@@ -488,7 +487,7 @@ class Logintwitter extends WebPage
         $aUser['i_reg_ts'] = time();
         $aUser['date_reg'] = date('r');
         $aUser['role'] = 'external_auth';
-        $aUser['tz'] = \Lampcms\TimeZone::getTZbyoffset($this->aUserData['utc_offset']);
+        $aUser['tz'] = $timezone;
         $aUser['rs'] = (false !== $sid) ? $sid : \Lampcms\String::makeSid();
         $aUser['twtr_username'] = $this->aUserData['screen_name'];
         $aUser['oauth_token'] = $this->aUserData['oauth_token'];
@@ -702,46 +701,6 @@ class Logintwitter extends WebPage
         echo $s;
         fastcgi_finish_request();
         exit;
-    }
-
-
-    /**
-     * @todo add YUI Event lib
-     * and some JS to subscribe to blur event
-     * so that onBlur runs not just the first onBlur time
-     * but all the time
-     *
-     * @param string $url of Twitter oauth, including request token
-     * @return void
-     */
-    protected function redirectToTwitter($url)
-    {
-        d('twitter redirect url: ' . $url);
-
-        $s = Responder::PAGE_OPEN . Responder::JS_OPEN .
-            'setTZOCookie = (function() {
-		getTZO = function() {
-		var tzo, nd = new Date();
-		tzo = (0 - (nd.getTimezoneOffset() * 60));
-		return tzo;
-	    }
-		var tzo = getTZO();
-		document.cookie = "tzo="+tzo+";path=/";
-		})();
-		
-		
-		var myredirect = function(){
-			window.location.assign("' . $url . '");
-		};
-			setTimeout(myredirect, 300);
-			' .
-            Responder::JS_CLOSE .
-            '<div class="centered"><a href="' . $url . '">@@If you are not redirected in 2 seconds, click here to authenticate with Twitter@@</a></div>' .
-            Responder::PAGE_CLOSE;
-
-        d('exiting with this $s: ' . $s);
-
-        exit($s);
     }
 
 

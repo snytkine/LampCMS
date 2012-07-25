@@ -208,14 +208,19 @@ class Register extends WebPage
         $coll->ensureIndex(array('a_f_u' => 1));
         $coll->ensureIndex(array('a_f_q' => 1));
 
-        $sid = \Lampcms\Cookie::getSidCookie();
+        $sid = Cookie::getSidCookie();
+        if (false !== $tzn = Cookie::get('tzn')) {
+            $timezone = $tzn;
+        } else {
+            $timezone = $this->Registry->Ini->SERVER_TIMEZONE;
+        }
 
         $aData[Schema::USERNAME]               = $this->username;
         $aData[Schema::USERNAME_LOWERCASE]     = \mb_strtolower($this->username);
         $aData[Schema::EMAIL]                  = $this->email;
         $aData[Schema::SID]                    = (false !== $sid) ? $sid : \Lampcms\String::makeSid();
         $aData[Schema::ROLE]                   = $this->getRole();
-        $aData[Schema::TIMEZONE]               = \Lampcms\TimeZone::getTZbyoffset($this->Request->get('tzo'));
+        $aData[Schema::TIMEZONE]               = $timezone;
         $aData[Schema::PASSWORD]               = String::hashPassword($this->pwd);
         $aData[Schema::REGISTRATION_TIMESTAMP] = time();
         $aData[Schema::REGISTRATION_TIME]      = date('r');
@@ -276,7 +281,7 @@ class Register extends WebPage
         $coll->ensureIndex(array(Schema::EMAIL => 1), array('unique' => true));
         $uid = (\is_numeric($userId)) ? $userId : $this->Registry->Viewer->getUid();
 
-        $a   = array(
+        $a = array(
             Schema::EMAIL        => $this->email,
             'i_uid'              => $uid,
             'has_gravatar'       => \Lampcms\Gravatar::factory($this->email)->hasGravatar(),

@@ -57,9 +57,11 @@ class Ip
 
 
     /**
-     *
      * Constructor
-     * @param \Mongo $Mongo Instance of php's Mongo object
+     *
+     * @param \MongoDB $M
+     *
+     * @internal param \Mongo $Mongo Instance of php's Mongo object
      */
     public function __construct(\MongoDB $M)
     {
@@ -71,6 +73,7 @@ class Ip
      * Get Location object for the ip address
      *
      * @param string $ip ip address
+     *
      * @return object of type Location
      */
     public function getLocation($ip = null)
@@ -113,12 +116,16 @@ class Ip
      *
      * Enter description here ...
      * @param string $name
+     *
+     * @return object of type Location
+     *
      * @throws \RuntimeException if requesting any
      * property other than 'Location'
      */
     public function __get($name)
     {
         if ('Location' === $name) {
+
             return $this->getLocation();
         }
 
@@ -133,6 +140,8 @@ class Ip
      * 64-bit and 32-bit system
      *
      * @param string $ip ipv4 ip address
+     *
+     * @throws \InvalidArgumentException
      * @return mixed int result of ip2long or false if Ip
      * is private
      */

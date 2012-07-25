@@ -84,6 +84,7 @@ require('SDK/facebook.php');
  */
 class Client
 {
+
     /**
      * Url of Facebook Graph API for posting message to wall
      * This is a template url. %s will be replaced with actual facebookID
@@ -100,6 +101,7 @@ class Client
     /**
      *
      * Enter description here ...
+     *
      * @var unknown_type
      */
     protected $Registry;
@@ -109,9 +111,11 @@ class Client
      * Facebook Config array
      * This is array from the [FACEBOOK] section
      * in !config.ini
+     *
      * @var array
      */
     protected $aFBConfig;
+
     /**
      *
      * API Secret.
@@ -129,6 +133,7 @@ class Client
      * App ID for our Facebook API
      * Get this when registering your APP
      * with Facebook
+     *
      * @var string
      */
     protected $appId;
@@ -152,6 +157,7 @@ class Client
      * Facebook ID
      * This is not the username, this is a numeric
      * user id from facebook
+     *
      * @var string
      */
     protected $fbId;
@@ -164,9 +170,9 @@ class Client
     public function __construct(\Lampcms\Registry $Registry)
     {
 
-        $this->Registry = $Registry;
+        $this->Registry  = $Registry;
         $this->aFBConfig = $Registry->Ini->getSection('FACEBOOK');
-        $this->appId = $this->aFBConfig['APP_ID'];
+        $this->appId     = $this->aFBConfig['APP_ID'];
         $this->appSecret = $this->aFBConfig['APP_SECRET'];
     }
 
@@ -211,8 +217,8 @@ class Client
          * And then.... append array of access_token
          *
          * @todo potential problem:
-         * someone registers bogus account with someone else's email
-         * address.
+         *       someone registers bogus account with someone else's email
+         *       address.
          *
          * Then the real owner of that email registers via Facebook
          * We then associate some bogus account with this one
@@ -306,10 +312,10 @@ class Client
 
         try {
             $Facebook = new \Facebook(array(
-                'appId' => $this->appId,
+                'appId'  => $this->appId,
                 'secret' => $this->appSecret
             ));
-        } catch (\Exception $e) {
+        } catch ( \Exception $e ) {
             throw new FacebookAuthException($e->getMessage());
         }
 
@@ -322,7 +328,7 @@ class Client
             $this->aFbUserData = $Facebook->api('/me');
             d('$this->aFbUserData: ' . \json_encode($this->aFbUserData));
             $token = $Facebook->getAccessToken();
-        } catch (FacebookApiException $e) {
+        } catch ( FacebookApiException $e ) {
             $details = $e->getResult();
             e('Error trying to get data from Facebook API: ' . print_r($details, 1));
             throw new FacebookAuthException('Error trying to get data from Facebook API: ' . print_r($details, 1));
@@ -348,12 +354,12 @@ class Client
     {
         d('cp');
 
-        $this->User['fb_id'] = (string)$this->aFbUserData['id'];
+        $this->User['fb_id']    = (string)$this->aFbUserData['id'];
         $this->User['fb_token'] = $this->aFbUserData['token'];
-        $this->User['fn'] = $this->aFbUserData['first_name'];
-        $this->User['ln'] = $this->aFbUserData['last_name'];
-        $extAvatar = $this->User['avatar_external'];
-        $srcAvatar = \trim($this->User->offsetGet('avatar'));
+        $this->User['fn']       = $this->aFbUserData['first_name'];
+        $this->User['ln']       = $this->aFbUserData['last_name'];
+        $extAvatar              = $this->User['avatar_external'];
+        $srcAvatar              = \trim($this->User->offsetGet('avatar'));
 
         if (empty($extAvatar)) {
             $this->User['avatar_external'] = 'http://graph.facebook.com/' . $this->aFbUserData['id'] . '/picture';
@@ -384,7 +390,7 @@ class Client
             d('cp');
             $this->Registry->Dispatcher->post($this->User, 'onUserUpdate');
 
-        } catch (\Exception $e) {
+        } catch ( \Exception $e ) {
             e('Error while saving user: ' . $e->getMessage() . ' file: ' . $e->getFile() . ' on line ' . $e->getLine());
         }
 
@@ -398,13 +404,14 @@ class Client
      * of fb_id in USERS collection
      *
      * @param mixed $fb_id
+     *
      * @return mixed null|array
      *
      */
     protected function getUserArray($fb_id)
     {
         $fb_id = (string)$fb_id;
-        $coll = $this->Registry->Mongo->USERS;
+        $coll  = $this->Registry->Mongo->USERS;
         $coll->ensureIndex(array('fb_id' => 1));
 
         return $coll->findOne(array('fb_id' => $fb_id));
@@ -424,14 +431,14 @@ class Client
             $coll->ensureIndex(array('email' => 1), array('unique' => true));
 
             $a = array(
-                'email' => \mb_strtolower($this->aFbUserData['email']),
-                'i_uid' => $this->User->getUid(),
+                'email'        => \mb_strtolower($this->aFbUserData['email']),
+                'i_uid'        => $this->User->getUid(),
                 'has_gravatar' => \Lampcms\Gravatar::factory($this->aFbUserData['email'])->hasGravatar(),
-                'ehash' => hash('md5', $this->aFbUserData['email'])
+                'ehash'        => hash('md5', $this->aFbUserData['email'])
             );
             try {
                 $o = \Lampcms\Mongo\Doc::factory($this->Registry, 'EMAILS', $a)->insert();
-            } catch (\Exception $e) {
+            } catch ( \Exception $e ) {
                 e('Unable to save email address from Facebook to our EMAILS: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on ' . $e->getLine());
             }
         }
@@ -454,7 +461,7 @@ class Client
      * and then also insert avatar_external into USERS
      *
      * @todo create username for user based on Facebook username
-     * Facebook does not really have username, so we can use fn_ln
+     *       Facebook does not really have username, so we can use fn_ln
      *
      */
     protected function createNewUser()
@@ -465,18 +472,27 @@ class Client
 
         /**
          * Time zone offset in seconds
+         *
          * @var int
          */
-        $tzo = (array_key_exists('timezone', $this->aFbUserData)) ? $this->aFbUserData['timezone'] * 3600 : Cookie::get('tzo', 0);
+        if (array_key_exists('timezone', $this->aFbUserData)) {
+            $timezone = TimeZone::getTZbyoffset($this->aFbUserData['timezone'] * 3600);
+        } elseif (false !== $tzn = Cookie::get('tzn')) {
+            $timezone = $tzn;
+        } else {
+            $timezone = $this->Registry->Ini->SERVER_TIMEZONE;
+        }
 
         /**
          * User language
+         *
          * @var string
          */
         $lang = (!empty($this->aFbUserData['locale'])) ? \strtolower(\substr($this->aFbUserData['locale'], 0, 2)) : $this->Registry->getCurrentLang();
 
         /**
          * User locale
+         *
          * @var string
          */
         $locale = (!empty($this->aFbUserData['locale'])) ? $this->aFbUserData['locale'] : $this->Registry->Locale->getLocale();
@@ -486,20 +502,21 @@ class Client
         /**
          * Sid value use existing cookie val
          * if possible, otherwise create a new one
+         *
          * @var string
          */
         $sid = (false === ($sid = Cookie::getSidCookie())) ? String::makeSid() : $sid;
 
         $displayName = (!empty($this->aFbUserData['name'])) ? $this->aFbUserData['name'] : $this->aFbUserData['first_name'] . ' ' . $this->aFbUserData['last_name'];
-        $username = $extAuth->makeUsername($displayName, true);
+        $username    = $extAuth->makeUsername($displayName, true);
 
 
         if (!array_key_exists('email', $this->aFbUserData)) {
             /**
              * @todo if this becomes a common problem
-             * then we need to ask user for an email address
-             * at step 2 of registration, just like for Twitter users
-             * And the 'role' will then be different like 'unactivated_external'
+             *       then we need to ask user for an email address
+             *       at step 2 of registration, just like for Twitter users
+             *       And the 'role' will then be different like 'unactivated_external'
              */
             e('No email in Facebook data: ' . print_r($this->aFbUserData, 1));
             $email = '';
@@ -512,23 +529,24 @@ class Client
          * newly created record
          */
         $aUser = array(
-            'username' => $username,
-            'username_lc' => \mb_strtolower($username, 'utf-8'),
-            'fn' => $this->aFbUserData['first_name'],
-            'ln' => $this->aFbUserData['last_name'],
-            'rs' => $sid,
-            'email' => $email, //Utf8String::stringFactory($this->aFbUserData['email'])->toLowerCase()->valueOf(),
-            'fb_id' => (string)$this->aFbUserData['id'],
-            'fb_token' => $this->aFbUserData['token'],
-            'pwd' => String::hashPassword($this->tempPassword),
+            'username'        => $username,
+            'username_lc'     => \mb_strtolower($username, 'utf-8'),
+            'fn'              => $this->aFbUserData['first_name'],
+            'ln'              => $this->aFbUserData['last_name'],
+            'rs'              => $sid,
+            'email'           => $email, //Utf8String::stringFactory($this->aFbUserData['email'])->toLowerCase()->valueOf(),
+            'fb_id'           => (string)$this->aFbUserData['id'],
+            'fb_token'        => $this->aFbUserData['token'],
+            'pwd'             => String::hashPassword($this->tempPassword),
             'avatar_external' => 'http://graph.facebook.com/' . $this->aFbUserData['id'] . '/picture',
-            'i_reg_ts' => time(),
-            'date_reg' => date('r'),
-            'role' => 'external_auth',
-            'lang' => $lang,
-            'i_rep' => 1,
-            'tz' => TimeZone::getTZbyoffset($tzo),
-            'i_fv' => (false !== $intFv = Cookie::getSidCookie(true)) ? $intFv : time());
+            'i_reg_ts'        => time(),
+            'date_reg'        => date('r'),
+            'role'            => 'external_auth',
+            'lang'            => $lang,
+            'locale'          => $locale,
+            'i_rep'           => 1,
+            'tz'              => $timezone,
+            'i_fv'            => (false !== $intFv = Cookie::getSidCookie(true)) ? $intFv : time());
 
         if (!empty($this->aFbUserData['gender'])) {
             $aUser['gender'] = ('male' === $this->aFbUserData['gender']) ? 'M' : 'F';
@@ -671,10 +689,10 @@ class Client
             throw new \InvalidArgumentException('Invalid data type of $aData: ' . \gettype($aData));
         }
 
-        $Curl = new \Lampcms\Curl;
+        $Curl  = new \Lampcms\Curl;
         $aData = \is_array($aData) ? $aData : array('message' => $aData);
 
-        $facebookUid = $User->getFacebookUid();
+        $facebookUid   = $User->getFacebookUid();
         $facebookToken = $User->getFacebookToken();
         d('$facebookUid: ' . $facebookUid . ' $facebookToken: ' . $facebookToken);
 
@@ -693,17 +711,17 @@ class Client
         try {
             $Curl->getDocument($url, null, null, array('formVars' => $aData))->checkResponse();
             $retCode = $Curl->getHttpResponseCode();
-            $body = $Curl->getResponseBody();
+            $body    = $Curl->getResponseBody();
             d('retCode: ' . $retCode . ' resp: ' . $body);
             return $body;
-        } catch (\Lampcms\HttpTimeoutException $e) {
+        } catch ( \Lampcms\HttpTimeoutException $e ) {
             d('Request to Facebook server timed out');
             throw new FacebookApiException('Request to Facebook server timed out. Please try again later');
-        } catch (\Lampcms\Http401Exception $e) {
+        } catch ( \Lampcms\Http401Exception $e ) {
             d('Unauthorized to get data from Facebook, most likely user unjoined the site');
             $User->revokeFacebookConnect();
             throw new FacebookApiException('Authorized with Facebook');
-        } catch (\Lampcms\HttpResponseCodeException $e) {
+        } catch ( \Lampcms\HttpResponseCodeException $e ) {
             if (function_exists('e')) {
                 e('LampcmsError Facebook response exception: ' . $e->getHttpCode() . ' ' . $e->getMessage() . ' body: ' . $Curl->getResponseBody());
             }
@@ -717,7 +735,7 @@ class Client
              */
 
             throw new FacebookApiException('Error during authentication with Facebook server');
-        } catch (\Exception $e) {
+        } catch ( \Exception $e ) {
             if (function_exists('e')) {
                 e('Unable to post: ' . $e->getMessage() . ' code: ' . $e->getCode());
             }

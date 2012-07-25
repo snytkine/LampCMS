@@ -295,7 +295,7 @@ class Join extends Register
      * Check that this email does not already exist
      *
      * @throws \Lampcms\FormException
-     * @return \Lampcms\Controllers\object $this
+     * @return object $this
      */
     protected function validateEmail()
     {

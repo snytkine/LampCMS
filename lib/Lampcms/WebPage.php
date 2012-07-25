@@ -53,6 +53,7 @@
 namespace Lampcms;
 
 use \Lampcms\Forms\Form;
+use \Lampcms\Cookie;
 
 /**
  * This abstract class is responsible for generating
@@ -158,7 +159,7 @@ abstract class WebPage extends Base
      *
      * @var mixed string or array of strings
      */
-    protected $lastJs;
+    protected $lastJs = array();
 
 
     /**
@@ -427,16 +428,16 @@ abstract class WebPage extends Base
         $this->aPageVars['comments_timeout']     = $Ini->COMMENT_EDIT_TIME;
         $this->aPageVars['layoutID']             = $this->layoutID;
         $this->aPageVars['DISABLE_AUTOCOMPLETE'] = $Ini->DISABLE_AUTOCOMPLETE;
-        $this->aPageVars['VERSION_ID']            = VERSION_ID;
+        $this->aPageVars['VERSION_ID']           = VERSION_ID;
         $this->aPageVars['home']                 = $this->_('Home');
 
         /**
          * @todo later can change to something like
          * $this->Registrty->Viewer->getStyleID()
-         * To load style selected by user
+         *       To load style selected by user
          *
          */
-        $css                         = (true === LAMPCMS_DEBUG || \strstr(VERSION_ID, 'package_version')) ? '/_main.css?t='.time() : '/main.css';
+        $css                         = (true === LAMPCMS_DEBUG || \strstr(VERSION_ID, 'package_version')) ? '/_main.css?t=' . time() : '/main.css';
         $this->aPageVars['main_css'] = $Ini->CSS_SITE . '{_DIR_}/style/' . STYLE_ID . '/' . VTEMPLATES_DIR . $css;
 
         $aFacebookConf = $Ini->getSection('FACEBOOK');
@@ -465,7 +466,7 @@ abstract class WebPage extends Base
          */
         $this->addMetaTag('fb', ('' !== (string)$Viewer->getFacebookToken()));
 
-        $js = (true === LAMPCMS_DEBUG || \strstr(VERSION_ID, 'package_version')) ? '/qa.js?t='.time() : '/min/qa_' . VERSION_ID . '.js';
+        $js = (true === LAMPCMS_DEBUG || \strstr(VERSION_ID, 'package_version')) ? '/qa.js?t=' . time() : '/min/qa_' . VERSION_ID . '.js';
 
         $src = $Ini->JS_SITE . '{_DIR_}/js' . $js;
 
@@ -488,6 +489,7 @@ abstract class WebPage extends Base
      * Add JavaScript for Facebook UI to the page
      *
      * @param string $appId value from !config.ini 'FACEBOOK' -> 'APP_ID'
+     *
      * @return \Lampcms\WebPage (this object)
      */
     protected function addFacebookJs($appId)
@@ -724,9 +726,18 @@ abstract class WebPage extends Base
      */
     protected function addLastJs()
     {
+        /**
+         * If browser does not have tzn cookie then include
+         * the tz.js script - it sets the timezone cookie.
+         *
+         */
+        if (false === Cookie::get('tzn')) {
+            $this->lastJs[] = '{_DIR_}/js/min/tz.js';
+        }
+
         if (!empty($this->lastJs)) {
             foreach ((array)$this->lastJs as $val) {
-                $this->aPageVars['last_js'] .= CRLF . sprintf('<script type="text/javascript" src="%s"></script>', $val);
+                $this->aPageVars['last_js'] .= CRLF . '<script type="text/javascript" src="'.$val.'"></script>';
             }
         }
 

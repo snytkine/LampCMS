@@ -331,4 +331,22 @@ const GEO_LOCATION = 'GEO_LOCATION';
  */
 const CATEGORY = 'CATEGORY';
 
+/**
+ * Contacts collection
+ * Holds contacts of user
+ * we import contacts from users google account,
+ * from Twitter -> names of friends (people being followed by this user)
+ * From Facebook 'friends'
+ * From LinkedIn 'contacts'
+ */
+const CONTACTS = 'CONTACTS';
+
+/**
+ * Contacts collection
+ * Holds contacts of user
+ * we import contacts from users google account,
+ *
+ */
+const EMAIL_CONTACTS = 'EMAIL_CONTACTS';
+
 

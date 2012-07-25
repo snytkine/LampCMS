@@ -52,6 +52,7 @@
 
 namespace Lampcms\Modules\Google;
 
+
 /**
  * Class for working with Google Contacts
  * using Oauth2 authentication
@@ -59,11 +60,37 @@ namespace Lampcms\Modules\Google;
 class Contacts
 {
 
+    /**
+     * Template of the URL to call to get list of contacts
+     *
+     * @var string
+     */
+    const API_URL = 'https://www.google.com/m8/feeds/contacts/default/full?oauth_token=%s&max-results=%d';
+
+    /**
+     * @var \Lampcms\Mongo\DB object
+     */
     protected $Mongo;
 
-    public function __construct(\Lampcms\Mongo\DB $Mongo)
+    /**
+     * @var string xml received from API Contains contacts elements
+     */
+    protected $xml = '';
+
+    /**
+     * @var int value of _id of User
+     */
+    protected $uid;
+
+    /**
+     * @var \Lampcms\Curl object
+     */
+    protected $Curl;
+
+    public function __construct(\Lampcms\Mongo\DB $Mongo, \Lampcms\Curl $Curl)
     {
         $this->Mongo = $Mongo;
+        $this->Curl  = $Curl;
     }
 
     /**
@@ -72,13 +99,128 @@ class Contacts
      *
      * Under keys: emails and lc_name_hash
      *
-     * @param int    $uid      user ID
-     * @param string $token    Oauth2 token
-     *                         must have scope https://www.google.com/m8/feeds/
-     *                         or import will fail
+     * @param int       $uid      user ID
+     * @param string    $token    Oauth2 token
+     *                            must have scope https://www.google.com/m8/feeds/
+     *                            or import will fail
+     * @param int       $limit    maximum contact to import (default 1000)
      */
-    public function import($uid, $token)
+    public function import($uid, $token, $limit = 1000)
     {
+        $this->xml = null;
+        $uri       = \sprintf(self::API_URL, $token, $limit);
+        try {
+            $Response  = $this->Curl->get($uri);
+            $this->xml = $Response->getBody();
 
+        } catch ( \Exception $e ) {
+            if (function_exists('d')) {
+                d('Unable to get contacts from Google API. Exception: ' . get_class($e) .
+                    ' Message: ' . $e->getMessage() .
+                    ' code ' . $e->getCode .
+                    ' in ' . $e->getFile() .
+                    ' line: ' . $e->getLine());
+            }
+
+        }
+
+        $this->parseXml($uid);
+
+    }
+
+
+    protected function parseXml($uid)
+    {
+        if (empty($this->xml)) {
+            if (function_exists('d')) {
+                d('No xml to parse');
+            }
+
+            return;
+        }
+
+        $SX = new \SimpleXMLElement($this->xml);
+        $SX->registerXPathNamespace('gd', 'http://schemas.google.com/g/2005');
+        $SX->registerXPathNamespace('atom', 'http://www.w3.org/2005/Atom');
+
+        $emails = array();
+        $names = array();
+
+        $elements = $SX->xpath('//gd:email');
+        $titles  = $SX->xpath('//atom:entry/atom:title[normalize-space(text()) != ""]');
+
+        if ($elements) {
+            foreach ($elements as $item) {
+
+                $address  = $item->attributes()->address;
+                $address  = \mb_strtolower($address);
+                $emails[] = $address;
+            }
+        }
+
+
+        if (!empty($emails)) {
+
+            $coll = $this->Mongo->CONTACTS;
+            $coll->ensureIndex(array('i_uid' => 1), array('unique' => true));
+            $coll->ensureIndex(array('emails' => 1));
+
+            $coll->update(array('i_uid' => $uid), array('$addToSet' => array('emails' => array('$each' => $emails))), array('upsert' => true));
+            unset($emails);
+        }
+
+        if($titles){
+            foreach($titles as $title){
+                $data = array();
+                $name = (string)$title;
+                $name = preg_replace('/[\s]{2,}/', ' ', $name);
+                $name = preg_replace('/([,.]+)/', '', $name);
+
+                $data['name'] = $name;
+                $data['lc_hash'] = \hash('md5', \mb_strtolower($name));
+                echo "\n$name";
+            }
+        }
+
+        // $coll->ensureIndex(array('lc_name_hash' => 1));
+    }
+
+
+    protected function parseXml2($uid)
+    {
+        if (empty($this->xml)) {
+            if (function_exists('d')) {
+                d('No xml to parse');
+            }
+
+            return;
+        }
+
+        $SX = new \SimpleXMLElement($this->xml);
+        $SX->registerXPathNamespace('gd', 'http://schemas.google.com/g/2005');
+
+        $emails = array();
+
+        $elements = $SX->xpath('//gd:email');
+
+        if ($elements) {
+            foreach ($elements as $item) {
+
+                $address  = $item->attributes()->address;
+                $address  = \mb_strtolower($address);
+                $emails[] = $address;
+            }
+        }
+
+        if (!empty($emails)) {
+
+            $coll = $this->Mongo->CONTACTS;
+            $coll->ensureIndex(array('i_uid' => 1), array('unique' => true));
+            $coll->ensureIndex(array('emails' => 1));
+
+            $coll->update(array('i_uid' => $uid), array('$addToSet' => array('emails' => array('$each' => $emails))), array('upsert' => true));
+        }
+
+        // $coll->ensureIndex(array('lc_name_hash' => 1));
     }
 }

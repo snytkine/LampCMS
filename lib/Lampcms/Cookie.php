@@ -236,7 +236,15 @@ class Cookie
 
         $val = \filter_input(INPUT_COOKIE, $cookieName, FILTER_SANITIZE_STRING, FILTER_FLAG_STRIP_LOW);
 
-        return (empty($val)) ? $fallbackVal : $val;
+        if(empty($val)){
+            return $fallbackVal;
+        }
+
+       if('tzn' === $cookieName){
+           $val = \urldecode($val);
+       }
+
+        return $val;
     }
 
 

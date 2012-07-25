@@ -54,9 +54,13 @@ namespace Lampcms\Controllers;
 use \Lampcms\WebPage;
 use \Lampcms\Responder;
 use \Lampcms\Request;
+use \Lampcms\Cookie;
+use \Lampcms\Mongo\Schema\User as Schema;
+use \Lampcms\Acl\Role;
 
 class Loginlinkedin extends WebPage
 {
+
     const REQUEST_TOKEN_URL = 'https://api.linkedin.com/uas/oauth/requestToken?oauth_callback=';
 
     const ACCESS_TOKEN_URL = 'https://api.linkedin.com/uas/oauth/accessToken';
@@ -130,7 +134,7 @@ class Loginlinkedin extends WebPage
 
         $routerCallback = $this->Registry->Router->getCallback();
         $this->callback = $routerCallback($this->callback);
-        d('$this->callback'. $this->callback);
+        d('$this->callback' . $this->callback);
 
         if (!extension_loaded('oauth')) {
             throw new \Exception('@@Unable to use LinkedIn API because OAuth extension is not available@@');
@@ -142,9 +146,9 @@ class Loginlinkedin extends WebPage
          * with existing account.
          *
          * @todo check that user does not already have
-         * Twitter credentials and if yes then call
-         * closeWindows as it would indicate that user
-         * is already connected with Twitter
+         *       Twitter credentials and if yes then call
+         *       closeWindows as it would indicate that user
+         *       is already connected with Twitter
          */
         if ($this->isLoggedIn()) {
             $this->bConnect = true;
@@ -160,7 +164,7 @@ class Loginlinkedin extends WebPage
         try {
             $this->oAuth = new \OAuth($this->aTm['OAUTH_KEY'], $this->aTm['OAUTH_SECRET'], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
             $this->oAuth->enableDebug();
-        } catch (\OAuthException $e) {
+        } catch ( \OAuthException $e ) {
             e('OAuthException: ' . $e->getMessage());
 
             throw new \Exception('@@Something went wrong during authorization. Please try again later@@' . $e->getMessage());
@@ -204,14 +208,8 @@ class Loginlinkedin extends WebPage
             d('$_SESSION[\'linkedin_oauth\']: ' . \print_r($_SESSION['linkedin_oauth'], 1));
             if (!empty($_SESSION['linkedin_oauth']) && !empty($_SESSION['linkedin_oauth']['oauth_token'])) {
                 d('cp');
-                /**
-                 * A more advanced way is to NOT use Location header
-                 * but instead generate the HTML that contains the onBlur = focus()
-                 * and then redirect with javascript
-                 * This is to prevent from popup window going out of focus
-                 * in case user clicks outsize the popup somehow
-                 */
-                $this->redirectToSite(self::AUTHORIZE_URL . '?oauth_token=' . $_SESSION['linkedin_oauth']['oauth_token']);
+
+                Responder::redirectToPage(self::AUTHORIZE_URL . '?oauth_token=' . $_SESSION['linkedin_oauth']['oauth_token']);
             } else {
                 /**
                  * Here throw regular Exception, not Lampcms\Exception
@@ -221,7 +219,7 @@ class Loginlinkedin extends WebPage
 
                 throw new \Exception("Failed fetching request token, response was: " . $this->oAuth->getLastResponse());
             }
-        } catch (\OAuthException $e) {
+        } catch ( \OAuthException $e ) {
             e('OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
 
             throw new \Exception('Something went wrong during authorization. Please try again later' . $e->getMessage());
@@ -256,7 +254,7 @@ class Loginlinkedin extends WebPage
 
             /**
              * @todo check first to make sure we do have oauth_token
-             * on REQUEST, else close the window
+             *       on REQUEST, else close the window
              */
             $this->oAuth->setToken($this->Request['oauth_token'], $_SESSION['linkedin_oauth']['oauth_token_secret']);
 
@@ -292,7 +290,7 @@ class Loginlinkedin extends WebPage
 
             $this->closeWindow();
 
-        } catch (\OAuthException $e) {
+        } catch ( \OAuthException $e ) {
             e('OAuthException: ' . $e->getMessage());
 
             $err = '@@Something went wrong during authorization. Please try again later@@' . $e->getMessage();
@@ -325,7 +323,7 @@ class Loginlinkedin extends WebPage
 
         try {
             $this->processLogin($this->User);
-        } catch (\Lampcms\LoginException $e) {
+        } catch ( \Lampcms\LoginException $e ) {
             /**
              * re-throw as regular exception
              * so that it can be caught and show in popup window
@@ -352,27 +350,32 @@ class Loginlinkedin extends WebPage
 
         d('$this->aData: ' . print_r($this->aData, 1));
 
+        if (false !== $tzn = Cookie::get('tzn')) {
+            $timezone = $tzn;
+        } else {
+            $timezone = $this->Registry->Ini->SERVER_TIMEZONE;
+        }
+
         $ln = (!empty($this->aData['ln'])) ? $this->aData['ln'] : '';
 
         $oEA = \Lampcms\ExternalAuth::factory($this->Registry);
-        $u = $this->aData['fn'] . '_' . $ln;
+        $u   = $this->aData['fn'] . '_' . $ln;
         d('$u: ' . $u);
 
         $username = $oEA->makeUsername($u);
-        $sid = \Lampcms\Cookie::getSidCookie();
+        $sid      = \Lampcms\Cookie::getSidCookie();
         d('sid is: ' . $sid);
 
-        $this->aData['username'] = $username;
-        $this->aData['username_lc'] = \mb_strtolower($username, 'utf-8');
-
-        $this->aData['i_reg_ts'] = time();
-        $this->aData['date_reg'] = date('r');
-        $this->aData['role'] = 'external_auth';
-
-        $this->aData['rs'] = (false !== $sid) ? $sid : \Lampcms\String::makeSid();
-        $this->aData['i_rep'] = 1;
-        $this->aData['lang'] = $this->Registry->getCurrentLang();
-        $this->aData['locale'] = $this->Registry->Locale->getLocale();
+        $this->aData[Schema::USERNAME]               = $username;
+        $this->aData[Schema::USERNAME_LOWERCASE]     = \mb_strtolower($username, 'utf-8');
+        $this->aData[Schema::REGISTRATION_TIMESTAMP] = time();
+        $this->aData[Schema::REGISTRATION_TIME]      = date('r');
+        $this->aData[Schema::ROLE]                   = Role::EXTERNAL_USER;
+        $this->aData[Schema::SID]                    = (false !== $sid) ? $sid : \Lampcms\String::makeSid();
+        $this->aData[Schema::REPUTATION]             = 1;
+        $this->aData[Schema::LANG]                   = $this->Registry->getCurrentLang();
+        $this->aData[Schema::LOCALE]                 = $this->Registry->Locale->getLocale();
+        $this->aData[Schema::TIMEZONE]               = $timezone;
 
         if (empty($this->aData['cc']) && empty($this->aData['city'])) {
             $this->aData = array_merge($this->Registry->Geo->Location->data, $this->aData);
@@ -484,8 +487,8 @@ class Loginlinkedin extends WebPage
      * don't already exist in User
      *
      * @post-condition: $this->User object is updated
-     * with the valued from $this->aData AND $this->aAccessToken
-     * and then saved using save()
+     *                with the valued from $this->aData AND $this->aAccessToken
+     *                and then saved using save()
      *
      * @return $this
      */
@@ -560,12 +563,12 @@ class Loginlinkedin extends WebPage
      * using linkedin_id key
      *
      * @todo make linkedin_id a unique index
-     * This will add extra protection against
-     * allowing more than one user to have same
-     * linked-in account
+     *       This will add extra protection against
+     *       allowing more than one user to have same
+     *       linked-in account
      *
      * @param string $lid LinkedIn id - from LinkedIn website
-     * It is a string, not an integer!
+     *                    It is a string, not an integer!
      *
      * @return mixed null | array of user data
      *
@@ -620,49 +623,6 @@ class Loginlinkedin extends WebPage
         echo $s;
         fastcgi_finish_request();
         exit;
-    }
-
-
-    /**
-     * @todo add YUI Event lib
-     * and some JS to subscribe to blur event
-     * so that onBlur runs not just the first onBlur time
-     * but all the time
-     *
-     * @param string $url of linkedin oauth, including request token
-     * @return void
-     */
-    protected function redirectToSite($url)
-    {
-        d('linkedin redirect url: ' . $url);
-        /**
-         * @todo translate this string
-         *
-         */
-        $s = Responder::PAGE_OPEN . Responder::JS_OPEN .
-            'setTZOCookie = (function() {
-		getTZO = function() {
-		var tzo, nd = new Date();
-		tzo = (0 - (nd.getTimezoneOffset() * 60));
-		return tzo;
-	    }
-		var tzo = getTZO();
-		document.cookie = "tzo="+tzo+";path=/";
-		})();
-		
-		
-		var myredirect = function(){
-			window.location.assign("' . $url . '");
-		};
-			setTimeout(myredirect, 300);
-			' .
-            Responder::JS_CLOSE .
-            '<div class="centered"><a href="' . $url . '">@@If you are not redirected in 2 seconds, click here to authenticate with LinkedIn@@</a></div>' .
-            Responder::PAGE_CLOSE;
-
-        d('exiting with this $s: ' . $s);
-
-        exit($s);
     }
 
 }

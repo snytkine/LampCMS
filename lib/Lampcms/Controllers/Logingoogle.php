@@ -424,6 +424,12 @@ class Logingoogle extends Register
 
         $sid = (false === ($sid = Cookie::getSidCookie())) ? String::makeSid() : $sid;
 
+        if (false !== $tzn = Cookie::get('tzn')) {
+            $timezone = $tzn;
+        } else {
+            $timezone = $this->Registry->Ini->SERVER_TIMEZONE;
+        }
+
         $aUser                                 = array();
         $aUser[Schema::EMAIL]                  = $this->email;
         $aUser[Schema::REPUTATION]             = 1;
@@ -433,13 +439,6 @@ class Logingoogle extends Register
         $aUser[Schema::SID]                    = $sid;
         $aUser['google_id']                    = (string)$this->userInfo['id'];
         $aUser['google_token']                 = $this->token;
-
-        /**
-         * Time zone offset in seconds
-         *
-         * @var int
-         */
-        $tzo = Cookie::get('tzo', 0);
 
         if (!empty($this->userInfo['given_name'])) {
             $aUser[Schema::FIRST_NAME] = $this->userInfo['given_name'];
@@ -477,7 +476,7 @@ class Logingoogle extends Register
         $aUser[Schema::USERNAME]           = $username;
         $aUser[Schema::USERNAME_LOWERCASE] = \mb_strtolower($username);
         $aUser[Schema::ROLE]               = Role::EXTERNAL_USER;
-        $aUser[Schema::TIMEZONE]           = TimeZone::getTZbyoffset($tzo);
+        $aUser[Schema::TIMEZONE]           = $timezone;
         $aUser[Schema::EXTERNAL_AVATAR]    = $this->userInfo['picture'] . '?sz=50';
 
         $aUser = \array_merge($this->Registry->Geo->Location->data, $aUser);
@@ -496,27 +495,19 @@ class Logingoogle extends Register
             e('Unable to create email record: ' . $e->getMessage());
         }
 
+        $this->addContacts($User->getUid());
         $this->Registry->Dispatcher->post($User, 'onNewUser');
 
         return $User;
     }
 
 
-    /**
-     * Get user's contacts
-     *
-     */
-    protected function getContacts()
+    protected function addContacts($uid)
     {
-        if (in_array('https://www.google.com/m8/feeds/', $this->scopes)) {
-            $token = \json_decode($this->token);
-            if (isset($token->access_token)) {
-                $url = 'https://www.google.com/m8/feeds/contacts/default/full?oauth_token=' . $token->access_token . '&start-index=2&sortorder=descending';
-                $xml = \file_get_contents('https://www.google.com/m8/feeds/contacts/default/full?oauth_token=' . $token->access_token . '&start-index=2&sortorder=descending&max-results=1000');
+        $Curl          = new \Lampcms\Curl;
+        $ContactParser = new \Lampcms\Modules\Google\Contacts($this->Registry->Mongo, $Curl);
 
-
-            }
-        }
+        $ContactParser->import($uid, $this->tokenObject->access_token);
     }
 
 

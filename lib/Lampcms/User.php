@@ -710,7 +710,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
             throw new \InvalidArgumentException('Param $locale must be a string');
         }
 
-        $locale = str_replace('-', '_', $locale);
+        $locale = \str_replace('-', '_', $locale);
 
         if (2 !== strlen($locale) && (!preg_match('/[a-z]{2}_[A-Z]{2}/', $locale))) {
             $err = 'Param $locale is invalid. Must be in a form on "en_US" format (2 letter lang followed by underscore followed by 2-letter country';
@@ -728,6 +728,9 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
     }
 
 
+    /**
+     * @return string locale name, falls back to default locale
+     */
     public function getLocale()
     {
         $locale = $this->offsetGet(Schema::LOCALE);
