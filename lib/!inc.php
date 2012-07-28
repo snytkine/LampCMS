@@ -217,8 +217,6 @@ try {
     define('LAMPCMS_DEFAULT_LOCALE', $Ini->DEFAULT_LOCALE);
     define('LAMPCMS_TR_DIR', $Ini->TRANSLATIONS_DIR);
     define('LAMPCMS_COOKIE_DOMAIN', $Ini->COOKIE_DOMAIN);
-    //define('LAMPCMS_IMAGE_SITE', $Ini->IMAGE_SITE);
-    //define('LAMPCMS_AVATAR_IMG_SITE', $Ini->AVATAR_IMG_SITE);
     define('LAMPCMS_CATEGORIES', (int)$Ini->CATEGORIES);
     define('LAMPCMS_SHOW_RENDER_TIME', (bool)$Ini->SHOW_TIMER);
 

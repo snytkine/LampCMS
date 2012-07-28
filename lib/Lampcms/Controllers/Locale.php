@@ -104,7 +104,7 @@ class Locale extends WebPage
 
         $_SESSION['locale'] = $locale;
         $this->Registry->Locale->set($locale);
-        Cookie::set('locale', $locale);
+        Cookie::set('locale', $locale, 126144000);
         if (!empty($_SESSION['langs'])) {
             unset($_SESSION['langs']);
         }

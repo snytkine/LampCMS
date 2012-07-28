@@ -374,6 +374,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
             'i_uid'    => $user->getUid(),
             'av'       => $user->getAvatarSrc(),
             'reason'   => $reason,
+            'i_ts'     => time(),
             'hts'      => date('F j, Y g:i a T'));
 
         parent::offsetSet('a_edited', $aEdited);

@@ -109,12 +109,8 @@ class Locale extends \Lampcms\LampcmsObject
              */
             if (!$this->Registry->Viewer->isGuest()) {
                 $this->locale = $this->Registry->Viewer->offsetGet('locale');
-            } elseif (isset($_COOKIE) && !empty($_COOKIE['locale'])) {
-                $this->locale = $_COOKIE['locale'];
-            }
-
-            if (empty($locale)) {
-                $this->locale = LAMPCMS_DEFAULT_LOCALE;
+            } else {
+                $this->locale = \Lampcms\Cookie::get('locale', LAMPCMS_DEFAULT_LOCALE);
             }
 
             if (isset($_SESSION)) {
@@ -135,6 +131,8 @@ class Locale extends \Lampcms\LampcmsObject
      * php's Locale class if php has intl extension loaded
      *
      * @param \Lampcms\Registry $o
+     *
+     * @return object of this class
      */
     public static function factory(\Lampcms\Registry $o)
     {
@@ -217,6 +215,8 @@ class Locale extends \Lampcms\LampcmsObject
      *
      *
      * @param string $locale
+     *
+     * @return bool
      */
     public function set($locale)
     {

@@ -161,7 +161,7 @@ class Contacts
 
         if (!empty($emails)) {
 
-            $coll = $this->Mongo->CONTACTS;
+            $coll = $this->Mongo->EMAIL_CONTACTS;
             $coll->ensureIndex(array('i_uid' => 1), array('unique' => true));
             $coll->ensureIndex(array('emails' => 1));
 
@@ -169,15 +169,17 @@ class Contacts
             unset($emails);
         }
 
+        /**
+         * @todo
+         * unfinished. Names not yet added to any collections
+         */
         if($titles){
             foreach($titles as $title){
-                $data = array();
                 $name = (string)$title;
                 $name = preg_replace('/[\s]{2,}/', ' ', $name);
                 $name = preg_replace('/([,.]+)/', '', $name);
 
-                $data['lc_name'] = \mb_strtolower($name);
-                //echo "\n$name";
+                $names[] = \mb_strtolower($name);
             }
         }
 

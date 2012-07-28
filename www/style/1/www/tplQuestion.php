@@ -78,6 +78,8 @@ class tplQuestion extends Lampcms\Template\Fast
             $a['sticky'] = ' sticky';
         }
 
+        $a['hts'] = date('Y-m-d H:i:s', $a['i_ts']);
+
         if (!empty($a['a_comments'])) {
             /**
              * Closure function

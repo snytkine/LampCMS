@@ -51,6 +51,8 @@ class tplQrecent extends Lampcms\Template\Fast
             $a['last_poster'] = '<div class="lastposter fl cb">@@Latest answer by@@: ' . $a['a_latest'][0]['u'] . '<br>
 			<span title="' . $a['a_latest'][0]['t'] . '" class="ts">' . $reltime . '</span></div>';
         }
+
+        $a['hts'] = date('Y-m-d H:i:s', $a['i_ts']);
     }
 
     protected static $vars = array(

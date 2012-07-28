@@ -741,7 +741,7 @@ SCOPE[] = https://www.googleapis.com/auth/userinfo.email
 ; or when any of the contats registers in the future can match them
 ; The downside of asking for this permission is some (maybe many)
 ; users will not authorize this type of request
-SCOPE[] = https://www.google.com/m8/feeds/
+;SCOPE[] = https://www.google.com/m8/feeds/
 ;
 ; This scope authorizes to send email directly from user's gmail account
 ; using oauth2 token in smtp/imap authorization

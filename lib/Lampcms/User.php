@@ -652,7 +652,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      */
     public function setTime()
     {
-        $tz = $this->offsetGet('tz');
+        $tz = $this->offsetGet(Schema::TIMEZONE);
         if (!empty($tz)) {
             if (false === @\date_default_timezone_set($tz)) {
                 d('Error: wrong value of timezone: ' . $tz);

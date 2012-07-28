@@ -63,6 +63,8 @@ class tplAnswer extends Lampcms\Template\Fast
 
     protected static function func(&$a)
     {
+        $a['hts'] = date('Y-m-d H:i:s', $a['i_ts']);
+
         if (array_key_exists('a_edited', $a)) {
             $aEdited = end($a['a_edited']);
             $aEdited['edited'] = $a['edited'];

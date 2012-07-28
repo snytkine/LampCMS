@@ -502,12 +502,26 @@ class Logingoogle extends Register
     }
 
 
+    /**
+     * Import user's contacts from Google account
+     * We will be able to use contacts to match new users
+     * with existing members they may already know
+     *
+     * @param int $uid _id of newly created user
+     */
     protected function addContacts($uid)
     {
-        $Curl          = new \Lampcms\Curl;
-        $ContactParser = new \Lampcms\Modules\Google\Contacts($this->Registry->Mongo, $Curl);
+        if (\in_array('https://www.google.com/m8/feeds/', $this->scopes)) {
+            $Curl          = new \Lampcms\Curl;
+            $ContactParser = new \Lampcms\Modules\Google\Contacts($this->Registry->Mongo, $Curl);
+            $accessToken = $this->tokenObject->access_token;
 
-        $ContactParser->import($uid, $this->tokenObject->access_token);
+            $func = function() use ($ContactParser, $uid, $accessToken){
+                $ContactParser->import($uid, $accessToken);
+            };
+
+            \Lampcms\runLater($func);
+        }
     }
 
 
