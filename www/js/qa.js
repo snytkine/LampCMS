@@ -728,7 +728,7 @@ oSL.Regform = (function () {
                 isDefault:true
             },
             {
-                text:"Go to Profile editor -->",
+                text: oSL.translate("Go to Profile editor") + " -->",
                 handler:function () {
                     alert('go to profile');
                 }
@@ -1371,7 +1371,7 @@ YUI({
                 if (myinput1 && '' !== myinput1) {
                     imgId = getYTVidId(myinput1);
                     if (false === imgId) {
-                        alert(oSL.translate("URL of YouTube Video does not look correct"));
+                        alert($_("URL of YouTube Video does not look correct"));
 
                         return;
                     }
@@ -2452,8 +2452,8 @@ YUI({
                         removeTitle();
                         removeTags();
                         if (data.redirect) {
-                            getAlerter('<h3>' + oSL.translate("Success") + '</h3>')
-                                .set("bodyContent", oSL.translate("Item saved. Redirecting to") + ' <br><a href="' + data.redirect + '">' + data.redirect + '</a>')
+                            getAlerter('<h3>' + $_("Success") + '</h3>')
+                                .set("bodyContent", $_("Item saved. Redirecting to") + ' <br><a href="' + data.redirect + '">' + data.redirect + '</a>')
                                 .show();
 
                             Y.later(1000, this, function () {
@@ -2589,7 +2589,7 @@ YUI({
             tags = form.one("#id_tags");
             reason = form.one("#id_reason");
             if (reason && (1 > reason.get("value").length)) {
-                alert(oSL.translate("You must include reason for editing"));
+                alert($_("You must include reason for editing"));
                 e.halt();
                 return;
             }
@@ -3063,7 +3063,7 @@ YUI({
                      * Listen to "Clear" button click
                      */
                     editor.toolbar.on('clearClick', function () {
-                        if (confirm(oSL.translate("Are you sure you want to reset the Editor?"))) {
+                        if (confirm($_("Are you sure you want to reset the Editor?"))) {
                             editor.setEditorHTML('<br>');
                             write('Editor content cleared..');
                         }
@@ -3073,10 +3073,10 @@ YUI({
 
                 editor.on('windowRender', function () {
                     var body = document.createElement('div');
-                    body.innerHTML = '<p>' + oSL.translate("Paste Link to YouTube Video here") + '</p>';
+                    body.innerHTML = '<p>' + $_("Paste Link to YouTube Video here") + '</p>';
                     body.innerHTML += '<p>Click "Share" button on YouTube Video page<br>then copy the link from there and paste it into this form</p>';
-                    body.innerHTML += '<div id="media_control"><form>' + oSL.translate("URL") + ' <input id="embed_url" type="text" value="" size="30" style="font-size: 1.5em; padding: 2px;"></form></div>';
-                    body.innerHTML += '<br><div id="media_cont" class="fl cb" style="margin-left: 35px;"><button id="btn_addvideo" type="button" style="padding: 4px; font-size: 1em; cursor: pointer;">' + oSL.translate("Add YouTube Video") + '</button></div><br>';
+                    body.innerHTML += '<div id="media_control"><form>' + $_("URL") + ' <input id="embed_url" type="text" value="" size="30" style="font-size: 1.5em; padding: 2px;"></form></div>';
+                    body.innerHTML += '<br><div id="media_cont" class="fl cb" style="margin-left: 35px;"><button id="btn_addvideo" type="button" style="padding: 4px; font-size: 1em; cursor: pointer;">' + $_("Add YouTube Video") + '</button></div><br>';
                     body.className = 'pad10';
                     editor._windows.insertmedia = {
                         body:body
@@ -3108,9 +3108,9 @@ YUI({
                                 Y.one("#id_tags").set('value', tags);
                             }
                         }
-                        write(oSL.translate("Loaded content draft from Local Storage"));
+                        write($_("Loaded content draft from Local Storage"));
                     } else {
-                        write(oSL.translate("Editor ready"));
+                        write($_("Editor ready"));
                     }
                     editor.render();
                 });
@@ -3187,17 +3187,17 @@ YUI({
                     + '<input type="hidden" name="token" value="' + getToken() + '">'
                     + '<input type="hidden" name="qid" value="' + getMeta('qid') + '">'
                     + '<input type="hidden" name="rtype" value="{rtype}">'
-                    + '<input type="radio" name="reason" value="Spam"><label> ' + oSL.translate("Spam") + '</label><br>'
-                    + '<input type="radio" name="reason" value="Inappropriate"><label> ' + oSL.translate("Inappropriate") + '</label><br>'
+                    + '<input type="radio" name="reason" value="Spam"><label> ' + $_("Spam") + '</label><br>'
+                    + '<input type="radio" name="reason" value="Inappropriate"><label> ' + $_("Inappropriate") + '</label><br>'
                     + '<hr>'
-                    + '<label for="id_note">' + oSL.translate("Comments?") + '</label>'
+                    + '<label for="id_note">' + $_("Comments?") + '</label>'
                     + '<textarea name="note" cols="40" rows="2" style="display: block;"></textarea>'
-                    + '<input type="submit" class="btn" value="' + oSL.translate("Report") + '">'
+                    + '<input type="submit" class="btn" value="' + $_("Report") + '">'
                     + '</form>'
                     + '</div>';
 
                 form = Y.Lang.sub(form, o);
-                oAlert = getAlerter('<h3>' + oSL.translate("Report to moderator") + '</h3>');
+                oAlert = getAlerter('<h3>' + $_("Report to moderator") + '</h3>');
                 oAlert.set("bodyContent", form);
                 oAlert.show();
             }
@@ -3213,18 +3213,18 @@ YUI({
                     + '<input type="hidden" name="a" value="close">'
                     + '<input type="hidden" name="token" value="' + getToken() + '">'
                     + '<input type="hidden" name="qid" value="' + qid + '">'
-                    + '<input type="radio" name="reason" value="Not a question" checked><label>' + oSL.translate("Not a real question") + '</label><br>'
-                    + '<input type="radio" name="reason" value="Off topic"><label>' + oSL.translate("Off Topic") + '</label><br>'
-                    + '<input type="radio" name="reason" value="Unproductive debate"><label>' + oSL.translate("Turned into unproductive debate") + '</label><br>'
-                    + '<input type="radio" name="reason" value="Duplicate"><label>' + oSL.translate("Duplicate question") + '</label><br>'
+                    + '<input type="radio" name="reason" value="Not a question" checked><label>' + $_("Not a real question") + '</label><br>'
+                    + '<input type="radio" name="reason" value="Off topic"><label>' + $_("Off Topic") + '</label><br>'
+                    + '<input type="radio" name="reason" value="Unproductive debate"><label>' + $_("Turned into unproductive debate") + '</label><br>'
+                    + '<input type="radio" name="reason" value="Duplicate"><label>' + $_("Duplicate question") + '</label><br>'
                     + '<hr>'
-                    + '<label for="id_note">' + oSL.translate("Comments?") + '</label>'
+                    + '<label for="id_note">' + $_("Comments?") + '</label>'
                     + '<textarea name="note" cols="40" rows="2" style="display: block;"></textarea>'
-                    + '<input type="submit" class="btn" value="'+oSL.translate("Close this question")+'">'
+                    + '<input type="submit" class="btn" value="'+$_("Close this question")+'">'
                     + '</form>'
                     + '</div>';
 
-                oAlert = getAlerter('<h3>' + oSL.translate("Close this question") + '</h3>');
+                oAlert = getAlerter('<h3>' + $_("Close this question") + '</h3>');
                 oAlert.set("bodyContent", form);
                 oAlert.show();
             }
@@ -3249,14 +3249,14 @@ YUI({
                     + '<input type="hidden" name="token" value="' + getToken() + '">'
                     + '<input type="hidden" name="qid" value="' + getMeta('qid') + '">'
                     + '<hr>'
-                    + '<label for="id_note">' + oSL.translate("At least one tag, max 5 tags separated by spaces") + '</label>'
+                    + '<label for="id_note">' + $_("At least one tag, max 5 tags separated by spaces") + '</label>'
                     + '<input type="text" class="ta1" id="id_retag" size="40" name="tags" value="' + sTags + '"></input>'
                     + '<br>'
-                    + '<input type="submit" class="btn" value="' + oSL.translate("Save") + '">'
+                    + '<input type="submit" class="btn" value="' + $_("Save") + '">'
                     + '</form>'
                     + '</div>';
 
-                oAlert = getAlerter('<h3>' + oSL.translate("Edit Tags") + '</h3>');
+                oAlert = getAlerter('<h3>' + $_("Edit Tags") + '</h3>');
                 oAlert.set("bodyContent", form);
                 initTagInput(Y.one("#id_retag"));
                 oAlert.show();
@@ -3267,7 +3267,7 @@ YUI({
 
         var deleteComment = function (resID) {
             var comment, f, myform, cfg, request;
-            if (confirm(oSL.translate("Really delete this comment?"))) {
+            if (confirm($_("Really delete this comment?"))) {
                 comment = Y.one("#comment-" + resID);
                 if (comment) {
                     myform = '<form name="form_del" action="'+ getMeta('form_action') + '">'
@@ -3304,7 +3304,7 @@ YUI({
                 }
 
                 if (isModerator()) {
-                    banCheckbox = '<br><input type="checkbox" name="ban"><label> ' + oSL.translate("Ban poster") + '</label><br>';
+                    banCheckbox = '<br><input type="checkbox" name="ban"><label> ' + $_("Ban poster") + '</label><br>';
                 }
                 form = '<div id="div_del" style="text-align: left">'
                     + '<form name="form_del" action="'+ getMeta('web_root') + '/">'
@@ -3314,15 +3314,15 @@ YUI({
                     + '<input type="hidden" name="qid" value="' + getMeta('qid') + '">'
                     + '<input type="hidden" name="rtype" value="{rtype}">'
                     + '<hr>'
-                    + '<label for="id_note">' + oSL.translate("Reason for delete") + '</label>'
+                    + '<label for="id_note">' + $_("Reason for delete") + '</label>'
                     + '<textarea name="note" cols="40" rows="2" style="display: block;"></textarea>'
                     + banCheckbox
-                    + '<br><input type="submit" class="btn" value="' + oSL.translate("Delete") + '">'
+                    + '<br><input type="submit" class="btn" value="' + $_("Delete") + '">'
                     + '</form>'
                     + '</div>';
 
                 form = Y.Lang.sub(form, o);
-                oAlert = getAlerter('<h3>' + oSL.translate("Delete item") + '</h3>');
+                oAlert = getAlerter('<h3>' + $_("Delete item") + '</h3>');
                 oAlert.set("bodyContent", form);
                 oAlert.show();
             }
@@ -3366,7 +3366,7 @@ YUI({
                                 formID:resID,
                                 token:getToken(),
                                 parentID:'0',
-                                comment: oSL.translate("comment"),
+                                comment: $_("comment"),
                                 commentTip:commentTip,
                                 web_root: getMeta('web_root')
                             }
@@ -3453,7 +3453,7 @@ YUI({
                             resID:resID,
                             formID:parentID,
                             token:getToken(),
-                            comment:oSL.translate("Reply"),
+                            comment:$_("Reply"),
                             commentTip:commentTip,
                             web_root: getMeta('web_root'),
                             parentID:parentID});
@@ -3507,7 +3507,7 @@ YUI({
                     + '<textarea name="com_body" cols="60" rows="4" class="com_bo" style="display: block; padding: 2px;">' + content + '</textarea>'
                     + '</td>'
                     + '<td class="com_button" valign="top">'
-                    + '<input type="submit" name="doit" class="btn_comment" value="' + oSL.translate("Save") + '">'
+                    + '<input type="submit" name="doit" class="btn_comment" value="' + $_("Save") + '">'
                     + '</td>'
                     + '</tr>'
                     + commentTip
@@ -3532,11 +3532,11 @@ YUI({
                 + '<br>and ban all IP addresses ever used by that user</p>'
                 + '<p>Proceed only if you absolutely sure you want to do this'
                 + '<hr>'
-                + '<input type="submit" class="btn_shred" value="' + oSL.translate("Shred User") + '">'
+                + '<input type="submit" class="btn_shred" value="' + $_("Shred User") + '">'
                 + '</form>'
                 + '</div>';
 
-            oAlert = getAlerter('<h3>' + oSL.translate("Shred User") + '</h3>');
+            oAlert = getAlerter('<h3>' + $_("Shred User") + '</h3>');
             oAlert.set("bodyContent", form);
             oAlert.show();
         };
@@ -3551,10 +3551,10 @@ YUI({
         ensureLogin = function (bForceAlert) {
             var message;
             if (bForceAlert || !isLoggedIn()) {
-                message = '<div class="larger"><p>' + oSL.translate("You must login to perform this action") + '</p>'
-                    + '<p>' + oSL.translate("Please login or") + ' <a class="close" href="#" onClick=oSL.getQuickRegForm(); return false;>' +  oSL.translate("Click here to register") + '</a></div>';
+                message = '<div class="larger"><p>' + $_("You must login to perform this action") + '</p>'
+                    + '<p>' + $_("Please login or") + ' <a class="close" href="#" onClick=oSL.getQuickRegForm(); return false;>' +  $_("Click here to register") + '</a></div>';
 
-                getAlerter(oSL.translate("Please Login")).set("bodyContent", message).show();
+                getAlerter($_("Please Login")).set("bodyContent", message).show();
 
                 return false;
             }
@@ -3654,16 +3654,16 @@ YUI({
                     //Y.log('this is: ' + this);
                     if (this.test('.question')) {
                         if (isModerator() || this.test('.uid-' + getViewerId()) || (500 < getReputation())) {
-                            this.append(' <span class="ico retag ajax" title="' + oSL.translate("Retag") + '">' + oSL.translate("Retag") + '</span>');
+                            this.append(' <span class="ico retag ajax" title="' + $_("Retag") + '">' + $_("Retag") + '</span>');
                         }
                         if (!Y.one('#closed') && (isModerator() || this.test('.uid-' + getViewerId()) )) {
-                            this.append(' <span class="ico close ajax"  title="' + oSL.translate("close") + '">' + oSL.translate("close") + '</span>');
+                            this.append(' <span class="ico close ajax"  title="' + $_("close") + '">' + $_("close") + '</span>');
                         }
                         if ('administrator' === getMeta('role')) {
                             if (!this.test('.sticky')) {
-                                this.append(' <span class="ico stick ajax"  title="' + oSL.translate("Stick") + '">' + oSL.translate("Stick") + '</span>');
+                                this.append(' <span class="ico stick ajax"  title="' + $_("Stick") + '">' + $_("Stick") + '</span>');
                             } else {
-                                this.append(' <span title="' + oSL.translate("Unstick") + '" class="ico unstick ajax">' + oSL.translate("Unstick") + '</span>');
+                                this.append(' <span title="' + $_("Unstick") + '" class="ico unstick ajax">' + $_("Unstick") + '</span>');
                             }
                         }
                     }
@@ -3681,7 +3681,7 @@ YUI({
                          * where 1234 is also id of viewer  + getViewerId()
                          */
                         if (isModerator() || this.test('.uid-' + getViewerId())) {
-                            this.append(' <span title="' + oSL.translate("Delete") + ' " class="ico del ajax">' + oSL.translate("Delete") + '</span>');
+                            this.append(' <span title="' + $_("Delete") + ' " class="ico del ajax">' + $_("Delete") + '</span>');
                         }
 
                         /**
@@ -3691,7 +3691,7 @@ YUI({
                          * is older than 5 minutes // || isEditable(this)
                          */
                         if (!this.test('.com_tools') || isEditable(this)) {
-                            this.append(' <span  title="' + oSL.translate("Edit") + ' " class="ico edit ajax">' + oSL.translate("Edit") + '</span>');
+                            this.append(' <span  title="' + $_("Edit") + ' " class="ico edit ajax">' + $_("Edit") + '</span>');
                         }
                     }
 
@@ -3841,7 +3841,7 @@ YUI({
             }
 
             if (!header) {
-                header = oSL.translate("Alert");
+                header = $_("Alert");
             }
             oAlerter.set("headerContent", '<h3>' + header + '</h3>');
 
@@ -3969,7 +3969,7 @@ YUI({
                 this.popupWindow = window.open(u, 'twitterWindow', popupParams);
                 hideLoading();
                 if (!this.popupWindow) {
-                    alert(oSL.translate("Unable to open login window. Please make sure to disable popup blockers in your browser"));
+                    alert($_("Unable to open login window. Please make sure to disable popup blockers in your browser"));
                     return;
                 }
 
