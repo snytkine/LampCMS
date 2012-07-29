@@ -85,7 +85,7 @@ class tplComment extends \Lampcms\Template\Fast
 		<div class="com_1 fl cb1">
 			<div class="fl com_left">
 				<div class="fr com_like votebtns">
-					<a id="c_like_%1$s" title="I Like this comment!" class="ajax ttt thumbup c_like" href="#">@@Good@@</a>
+					<a id="c_like_%1$s" title="@@I Like this comment@@" class="ajax ttt thumbup c_like" href="#">@@Good@@</a>
 				</div>
 				<div class="c_likes fr">%10$s</div>
 			</div>

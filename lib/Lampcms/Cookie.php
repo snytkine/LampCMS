@@ -252,12 +252,14 @@ class Cookie
      * Returns value of first visit extracted
      * from sid cookie or false if sid cookie not present
      *
-     * @param bool|\Lampcms\if $bFirstVisitOnly if set to true then return
+     * @param bool $bFirstVisitOnly
+     *
+     * @internal                                param \Lampcms\if $bool $bFirstVisitOnly if set to true then return
      *                                          only the value of first visit, otherwise
      *                                          return the value of sid cookie
      *
      * @return mixed int timestamp of first visit
-     * or false if value not found in cookie
+     *                                          or false if value not found in cookie
      */
     public static function getSidCookie($bFirstVisitOnly = false)
     {

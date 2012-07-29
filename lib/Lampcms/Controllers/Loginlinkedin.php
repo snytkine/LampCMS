@@ -252,11 +252,14 @@ class Loginlinkedin extends WebPage
              */
             d('We are at step 2 of authentication. Request: ' . print_r($_REQUEST, 1));
 
+            $token = $this->Request['oauth_token'];
+            d('$token: '.$token);
+
             /**
              * @todo check first to make sure we do have oauth_token
              *       on REQUEST, else close the window
              */
-            $this->oAuth->setToken($this->Request['oauth_token'], $_SESSION['linkedin_oauth']['oauth_token_secret']);
+            $this->oAuth->setToken($token, $_SESSION['linkedin_oauth']['oauth_token_secret']);
 
             $ver = $this->Registry->Request->get('oauth_verifier', 's', '');
             d(' $ver: ' . $ver);

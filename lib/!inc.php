@@ -233,11 +233,16 @@ try {
 
 $Mailer = $Registry->Mailer;
 /**
- * First thing is to set our timezone
+ * No longer setting timezone here
+ * it is recommended to set default timezone in php.ini
+ * The actual value of timezone will be set per-user
+ * based on timezone selected in settings or in case
+ * of non-logged in user by value of cookie 'tzn' OR
+ * as a last resort a value of SERVER_TIMEZONE setting
  */
-if (false === date_default_timezone_set($Ini->SERVER_TIMEZONE)) {
+/*if (false === date_default_timezone_set($Ini->SERVER_TIMEZONE)) {
     throw new \Lampcms\DevException('Invalid name of  "SERVER_TIMEZONE" in !config.ini constant. The list of valid timezone names can be found here: http://us.php.net/manual/en/timezones.php');
-}
+}*/
 
 /**
  * The DEBUG is automatically enabled for

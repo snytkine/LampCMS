@@ -270,9 +270,11 @@ abstract class WebPage extends Base
             ->setLocale()
             ->loginByFacebookCookie()
             ->loginBySid()
+            ->setTimeZone()
             ->initPageVars()
             ->addJoinForm()
-            ->addLangForm();
+            ->addLangForm()
+            ->addJsTranslations();
 
         Cookie::sendFirstVisitCookie();
         d('cp');
@@ -302,6 +304,44 @@ abstract class WebPage extends Base
         $this->Registry->Dispatcher->post($this, 'onPageView', $this->aPageVars);
 
         //\Lampcms\Log::dump();
+    }
+
+
+    /**
+     * Set default timezone
+     * Only if Viewer is not logged in because for logged in user
+     * the timezone is automatically set when Viewer is created
+     * in Registry
+     *
+     * @return object $this
+     *
+     * @throws DevException
+     */
+    protected function setTimeZone()
+    {
+        if (!$this->isLoggedIn()) {
+            if (false !== $tzn = Cookie::get('tzn')) {
+                $timezone = $tzn;
+            } else {
+                $timezone = $this->Registry->Ini->SERVER_TIMEZONE;
+            }
+
+            d('Setting timezone for not logged in user to: ' . $timezone);
+
+            if (false === \date_default_timezone_set($this->Registry->Ini->SERVER_TIMEZONE)) {
+
+                if (isset($tzn)) {
+                    $err = 'Invalid name of  timezone: ' . $tzn;
+                    Cookie::delete('tzn');
+                } else {
+                    $err = 'Invalid name of  timezone: ' . $timezone . ' Check "SERVER_TIMEZONE" in !config.ini constant. The list of valid timezone names can be found here: http://us.php.net/manual/en/timezones.php';
+                }
+
+                throw new \Lampcms\DevException($err);
+            }
+        }
+
+        return $this;
     }
 
 
@@ -737,7 +777,7 @@ abstract class WebPage extends Base
 
         if (!empty($this->lastJs)) {
             foreach ((array)$this->lastJs as $val) {
-                $this->aPageVars['last_js'] .= CRLF . '<script type="text/javascript" src="'.$val.'"></script>';
+                $this->aPageVars['last_js'] .= CRLF . '<script type="text/javascript" src="' . $val . '"></script>';
             }
         }
 
@@ -1100,6 +1140,22 @@ abstract class WebPage extends Base
     {
         d('cp');
         $this->aPageVars['langsForm'] = $this->Registry->Locale->getOptions();
+
+        return $this;
+    }
+
+
+    /**
+     * Add Javascript translations object
+     * ONLY if the current locale is NOT English
+     *
+     * @return WebPage
+     */
+    protected function addJsTranslations()
+    {
+        if (!isset($_SESSION['locale']) || 0 !== stripos($_SESSION['locale'], 'en')) {
+            $this->aPageVars['js_strings'] = \tplTranslations::parse(array(), false);
+        }
 
         return $this;
     }

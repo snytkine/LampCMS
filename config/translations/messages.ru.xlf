@@ -693,6 +693,226 @@
                  ]]>
     </target>
 </trans-unit>
+<trans-unit id="121">
+    <source>Categories</source>
+    <target>Категории</target>
+</trans-unit>
+<trans-unit id="122">
+    <source>You must include reason for editing</source>
+    <target>Надо указать причину редактирования</target>
+</trans-unit>
+<trans-unit id="123">
+    <source>Item saved. Redirecting to</source>
+    <target>Вопрос сохранен</target>
+</trans-unit>
+<trans-unit id="124">
+    <source>Return to page</source>
+    <target>Оставайтесь на этой странице </target>
+</trans-unit>
+<trans-unit id="125">
+    <source>Go to Profile editor</source>
+    <target>Изменить персональные данные</target>
+</trans-unit>
+<trans-unit id="126">
+    <source>Report to moderator</source>
+    <target>Пожаловаться администрации</target>
+</trans-unit>
+<trans-unit id="127">
+    <source>Close this question</source>
+    <target>Закрыть этот вопрос</target>
+</trans-unit>
+<trans-unit id="128">
+    <source>URL of YouTube Video does not look correct</source>
+    <target>Неправильный формат линка на Ютуб</target>
+</trans-unit>
+<trans-unit id="129">
+    <source>Edit Tags</source>
+    <target>Изменить таги</target>
+</trans-unit>
+<trans-unit id="130">
+    <source>Delete item</source>
+    <target>Удалить этот вопрос</target>
+</trans-unit>
+<trans-unit id="131">
+    <source>Shred User</source>
+    <target>Ликвидировать юзера</target>
+</trans-unit>
+<trans-unit id="132">
+    <source>You must login to perform this action</source>
+    <target>Для данного действия необходимо авторизироваться</target>
+</trans-unit>
+<trans-unit id="133">
+    <source>Submit</source>
+    <target>Отправить</target>
+</trans-unit>
+<trans-unit id="134">
+    <source>Cancel</source>
+    <target>Отменить</target>
+</trans-unit>
+<trans-unit id="135">
+    <source>Please login or</source>
+    <target>Залогиньтесь или</target>
+</trans-unit>
+<trans-unit id="136">
+    <source>Click here to register</source>
+    <target>кликните сюда и зарегистрируйтесь</target>
+</trans-unit>
+<trans-unit id="137">
+    <source>Please enter your information</source>
+    <target>Заполните форму</target>
+</trans-unit>
+<trans-unit id="138">
+    <source>Do you want to continue?</source>
+    <target>Будете продолжать процесс регистрации?</target>
+</trans-unit>
+<trans-unit id="139">
+    <source>Continue registration</source>
+    <target>Продолжаем</target>
+</trans-unit>
+<trans-unit id="140">
+    <source>Exit registration</source>
+    <target>Нет</target>
+</trans-unit>
+<trans-unit id="141">
+    <source>Are you sure?</source>
+    <target>Подтвердите</target>
+</trans-unit>
+<trans-unit id="142">
+    <source>Email address appears to be invalid</source>
+    <target>Такой адрес не катит, что-то в нем не так</target>
+</trans-unit>
+<trans-unit id="143">
+    <source>Please enter a valid Email</source>
+    <target>Пожалуйста введите правильный имэйл адрес</target>
+</trans-unit>
+<trans-unit id="144">
+    <source>Please enter email address</source>
+    <target>Введите ваш адрес электронной почты</target>
+</trans-unit>
+<trans-unit id="145">
+    <source>Please enter Username</source>
+    <target>Введите ваш логин</target>
+</trans-unit>
+<trans-unit id="146">
+    <source>Please enter the text from image</source>
+    <target>Введите текст с картинки</target>
+</trans-unit>
+<trans-unit id="147">
+    <source>Unable to open login window. Please make sure to disable popup blockers in your browser</source>
+    <target>Не получается открыть новое окно. Отключите попап блокер.</target>
+</trans-unit>
+<trans-unit id="148">
+    <source>Delete</source>
+    <target>Удалить</target>
+</trans-unit>
+<trans-unit id="149">
+    <source>close</source>
+    <target>закрыть</target>
+</trans-unit>
+<trans-unit id="150">
+    <source>Please login</source>
+    <target>Необходимо авторизироваться</target>
+</trans-unit>
+<trans-unit id="151">
+    <source>Stick</source>
+    <target>Прилипить</target>
+</trans-unit>
+<trans-unit id="152">
+    <source>Unstick</source>
+    <target>Отлипить</target>
+</trans-unit>
+<trans-unit id="153">
+    <source>Edit</source>
+    <target>Редактировать</target>
+</trans-unit>
+<trans-unit id="154">
+    <source>Spam</source>
+    <target>Спам</target>
+</trans-unit>
+<trans-unit id="155">
+    <source>Not a real question</source>
+    <target>Не вопрос</target>
+</trans-unit>
+<trans-unit id="156">
+    <source>Off Topic</source>
+    <target>Не по теме</target>
+</trans-unit>
+<trans-unit id="157">
+    <source>Turned into unproductive debate</source>
+    <target>Отошли от темы</target>
+</trans-unit>
+<trans-unit id="158">
+    <source>Duplicate question</source>
+    <target>Такой вопрос уже есть</target>
+</trans-unit>
+<trans-unit id="159">
+    <source>Ban poster</source>
+    <target>Забанить автора</target>
+</trans-unit>
+<trans-unit id="160">
+    <source>Reason for delete</source>
+    <target>Причина для удаления</target>
+</trans-unit>
+<trans-unit id="161">
+    <source>Inappropriate</source>
+    <target>Непристойно</target>
+</trans-unit>
+<trans-unit id="162">
+    <source>Comments?</source>
+    <target>Комментарий?</target>
+</trans-unit>
+<trans-unit id="163">
+    <source>Really delete this comment?</source>
+    <target>Действительно удалить этот комментарий?</target>
+</trans-unit>
+<trans-unit id="164">
+    <source>At least one tag, max 5 tags separated by spaces</source>
+    <target>От 1 до 5 тагов</target>
+</trans-unit>
+<trans-unit id="165">
+    <source>Report</source>
+    <target>Уведомить</target>
+</trans-unit>
+<trans-unit id="166">
+    <source>Success</source>
+    <target>Успешно</target>
+</trans-unit>
+<trans-unit id="167">
+    <source>Tweet sent</source>
+    <target>Твит отправлен</target>
+</trans-unit>
+<trans-unit id="168">
+    <source>Tweet not sent</source>
+    <target>Твит не отправлен</target>
+</trans-unit>
+<trans-unit id="169">
+    <source>Invite Your Friends</source>
+    <target>Пригласить друзей</target>
+</trans-unit>
+<trans-unit id="170">
+    <source>comment</source>
+    <target>Добавить</target>
+</trans-unit>
+<trans-unit id="171">
+    <source>I Like this comment</source>
+    <target>Классный комментарий</target>
+</trans-unit>
+<trans-unit id="172">
+    <source>Flag this comment as inappropriate</source>
+    <target>Пожаловаться администратору</target>
+</trans-unit>
+<trans-unit id="173">
+    <source>Retag</source>
+    <target>Изменить таги</target>
+</trans-unit>
+<trans-unit id="174">
+    <source>Flag this question as inappropriate</source>
+    <target>Пожаловаться администратору</target>
+</trans-unit>
+<trans-unit id="175">
+    <source>Flag this answer as inappropriate</source>
+    <target>Пожаловаться администратору</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

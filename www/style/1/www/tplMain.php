@@ -92,7 +92,8 @@ class tplMain extends Lampcms\Template\Fast
         'langsForm' => '', //41
         'home' => 'Home', // 42
         'category' => '', //43
-        'keywords' => '' //44
+        'keywords' => '', //44
+        'js_strings' => '' // 45
     );
 
     protected static $tpl = '<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -186,9 +187,9 @@ class tplMain extends Lampcms\Template\Fast
 %13$s
 %21$s
 <script type="text/javascript" src="%35$s"></script>
-<!-- GFC JS -->
 
 %22$s
+%45$s
 </body>
 </html>';
 

@@ -64,7 +64,7 @@ class tplLoginblock extends Lampcms\Template\Fast
 	<tr>
 	<td colspan="2">@@Password@@<br>
 	<input type="password" name="pwd" class="inpwd" id="pwd" size="10" tabindex="42"><br>
-	<a href="{_WEB_ROOT_}/{_remindpwd_}/" class="forgot">@@Forgot password@@?</a>
+	<a href="{_WEB_ROOT_}/{_remindpwd_}/" class="forgot">@@Forgot password?@@</a>
 	</td></tr>
 	<tr>
 	<td class="chkRemember" align="left" nowrap><label for="chkRemember">

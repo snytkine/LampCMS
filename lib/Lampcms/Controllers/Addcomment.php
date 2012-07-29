@@ -249,7 +249,7 @@ class Addcomment extends WebPage
          * must already be included in the returned html
          *
          */
-        $aComment['edit_delete'] = '  <span class="ico del ajax" title="@@delete@@">@@delete@@</span> <span class="ico edit ajax" title="@@edit@@">@@edit@@</span>';
+        $aComment['edit_delete'] = '  <span class="ico del ajax" title="@@Delete@@">@@Delete@@</span> <span class="ico edit ajax" title="@@Edit@@">@@Edit@@</span>';
 
         /**
          * Important to add owner_id key

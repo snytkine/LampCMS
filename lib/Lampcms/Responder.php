@@ -54,6 +54,7 @@ namespace Lampcms;
 
 class Responder
 {
+
     const PAGE_OPEN = '<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
 <html>
 <head>
@@ -118,8 +119,13 @@ class Responder
         }
 
         $contentType = "Content-Type: text/json; charset=UTF-8";
-        $res = \json_encode($aJSON);
-
+        $res         = \json_encode($aJSON);
+        /**
+         * Must set error_reporting to 0 to deal with
+         * those mongo notices. Any notice or error
+         * will render the json text invalid
+         */
+        error_reporting(0);
         d('Sending json: ' . $res);
         header("HTTP/1.1 " . $httpCode . " OK");
         header($contentType);
@@ -174,7 +180,7 @@ class Responder
     public static function sendJsonPage(array $aJson)
     {
         $header = "Content-Type: text/html";
-        $json = json_encode($aJson);
+        $json   = json_encode($aJson);
 
         $result = self::PAGE_OPEN . self::JS_OPEN . '
 		if(parent && parent.oSL && (parent.oSL.oFrm && parent.oSL.oFrm.fParseResponce) ){
@@ -201,6 +207,7 @@ class Responder
      * <div>
      *
      * @param string $sError
+     *
      * @return string Error message to put inside
      * the page
      */
@@ -231,7 +238,7 @@ class Responder
 
         \session_write_close();
         header("Location: " . $url);
-        fastcgi_finish_request();
+        \fastcgi_finish_request();
         throw new \OutOfBoundsException;
     }
 
