@@ -148,7 +148,7 @@ class Twitter extends LampcmsObject
      *
      * @param \Lampcms\TwitterUser $User
      *
-     * @return \Lampcms\object $this
+     * @return object $this
      */
     public function setUser(\Lampcms\TwitterUser $User)
     {
@@ -362,7 +362,7 @@ class Twitter extends LampcmsObject
      *
      * @internal param \Lampcms\TwitterUserInterface $intStatusId
      * @internal param $User
-     * @return \Lampcms\unknown_type
+     * @return
      */
     public function updateFavorites($statusId, $isDelete = false)
     {
@@ -411,7 +411,7 @@ class Twitter extends LampcmsObject
      * @param null $secret
      *
      * @internal param \Lampcms\TwitterUserInterface $User
-     * @return \Lampcms\object $this
+     * @return object $this
      */
     public function setOAuthTokens($token = null, $secret = null)
     {

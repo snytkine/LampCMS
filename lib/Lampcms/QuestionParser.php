@@ -423,7 +423,11 @@ class QuestionParser extends LampcmsObject
                 try {
                     $o->parse($Question);
                 } catch (\Exception $e) {
-                    // @todo error_log()
+
+                    if(function_exists('d')){
+                        d('Error: Unable to add tags: '.$e->getMessage().' in '.$e->getFile().' on '.$e->getLine());
+                    }
+
                 }
             };
             d('cp');

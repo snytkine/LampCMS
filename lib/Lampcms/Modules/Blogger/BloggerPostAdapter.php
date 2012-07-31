@@ -111,8 +111,9 @@ class BloggerPostAdapter
      * Make object Entry
      * from object Post (which can be Answer or Question)
      *
-     * @param Post $post object of type Post which
-     * can be Answer or Question
+     * @param Lampcms\Interfaces\Post $o
+     *
+     * @return object of type Entry
      */
     public function makeEntry(Post $o)
     {
@@ -129,11 +130,12 @@ class BloggerPostAdapter
 
 
     /**
-     *
-     * Setup values in $this->oTumblrPost using
+     * Setup values
      * values of Question
      *
      * @param Question $o
+     *
+     * @return object $this
      */
     protected function makeQuestionPost(Question $o)
     {
@@ -165,16 +167,17 @@ class BloggerPostAdapter
 
 
     /**
-     *
-     * Setup values in $this->oTumblrPost using
+     * Setup values
      * values of Answer
      *
      * @param Answer $o
+     *
+     * @return object $this
      */
     protected function makeAnswerPost(Answer $o)
     {
         d('cp');
-        $qlink = $this->Registry->Ini->SITE_URL . '/q' . $o->getQuestionId() . '/';
+        $qlink = $o->getUrl();
 
         /**
          * @todo Translate string

@@ -121,11 +121,12 @@ class TumblrPostAdapter extends LampcmsObject
 
 
     /**
-     *
      * Setup values in $this->oTumblrPost using
      * values of Question
      *
      * @param Question $o
+     *
+     * @return object $this
      */
     protected function makeQuestionPost(Question $o)
     {
@@ -160,20 +161,20 @@ class TumblrPostAdapter extends LampcmsObject
 
 
     /**
-     *
      * Setup values in $this->oTumblrPost using
      * values of Answer
      *
      * @param Answer $o
+     *
+     * @return object $this
      */
     protected function makeAnswerPost(Answer $o)
     {
-        //d('cp');
         $this->oTumblrPost = new TumblrPost();
-        $qlink = $this->Registry->Ini->SITE_URL . '/q' . $o->getQuestionId() . '/';
+        $qlink = $o->getUrl();
 
         /**
-         * @todo Translate string
+         * @todo Translate string(s)
          *
          * @var string
          */
@@ -181,7 +182,6 @@ class TumblrPostAdapter extends LampcmsObject
         $body = sprintf($tpl, $qlink, $this->Registry->Ini->SITE_NAME);
 
         $body .= $o->getBody();
-        //d('body: '.$body);
 
         $title = 'My answer to "' . $o->getTitle() . '"';
 

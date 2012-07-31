@@ -341,10 +341,13 @@ class Logingoogle extends Register
 
         if (null === $User) {
             $User = $this->createUser();
+
         }
+
 
         try {
             $this->processLogin($User);
+            Cookie::sendLoginCookie($User->getUid(), $User->rs);
             $this->Registry->Dispatcher->post($this, 'onGoogleLogin');
             $this->closeWindow();
         } catch ( \Lampcms\LoginException $e ) {

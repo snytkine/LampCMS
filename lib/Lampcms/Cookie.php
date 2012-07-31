@@ -63,7 +63,7 @@ class Cookie
 
     /**
      * Function for setting or deleting login cookie
-     * the value of the s cookie is an md5 hash of user password
+     * the value of the s cookie is a hash of user password
      * the value of the uid cookie is the userID
      *
      * @param integer $intUserId userID

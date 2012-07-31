@@ -112,7 +112,6 @@ class PostTumblr extends \Lampcms\Event\Observer
                 d('Tumblr API not enabled on this site');
 
                 return;
-                ;
             }
         } catch (\Lampcms\IniException $e) {
             d('Ini Exception: ' . $e->getMessage());
