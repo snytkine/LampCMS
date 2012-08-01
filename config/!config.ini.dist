@@ -39,7 +39,7 @@ collection = "C_Cache"
 [CONSTANTS]
 ; set to true when debugging to enable
 ; debug log and raise error reporting level
-DEBUG = true
+DEBUG = false
 ;
 ; Directory where translations files
 ; are going to be stored
@@ -203,7 +203,7 @@ LAMPCMS_DATA_DIR =
 POSTFIX_PATH = /usr/sbin/sendmail
 ;
 ; email address of developer. 
-; Developer will be notified of php errors and various bad situations on the site //message@ptd.net
+; Developer will be notified of php errors and various bad situations on the site
 EMAIL_DEVELOPER = "me@me.me"
 ; email address of admin. Required value!
 ; Admin will also be notified on important events and errors

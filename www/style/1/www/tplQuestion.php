@@ -165,7 +165,7 @@ class tplQuestion extends Lampcms\Template\Fast
 		<div id="meme">
 				<script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>
 				<a href="http://twitter.com/share" class="twitter-share-button"
-				data-via="devcomments" data-related="snytkine:For Great tips for php and JavaScript developers"
+				data-via="snytkine" data-related="snytkine:Open source discussion forum"
 				data-count="vertical">Tweet</a>
 		</div>
 		<div id="fbshare"><fb:like layout="button_count" width="120" font="verdana"></fb:like></div>
