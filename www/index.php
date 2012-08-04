@@ -58,14 +58,6 @@ require 'bootstrap.php';
 
 require LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . '!inc.php';
 
-require($lampcmsClasses . 'Base.php');
-require($lampcmsClasses . 'WebPage.php');
-require($lampcmsClasses . 'Forms' . DIRECTORY_SEPARATOR . 'Form.php');
-require($lampcmsClasses . 'Cookie.php');
-require($lampcmsClasses . 'LoginForm.php');
-require($lampcmsClasses . 'Uri' . DIRECTORY_SEPARATOR . 'UriString.php');
-require($lampcmsClasses . 'Uri' . DIRECTORY_SEPARATOR . 'Router.php');
-
 
 if (true !== session_start()) {
     /**

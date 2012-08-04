@@ -38,6 +38,8 @@
 
 error_reporting(E_ALL | E_DEPRECATED);
 
+require 'SwiftMailer/lib/swift_required.php';
+
 $Mailer = null;
 /**
  * For those
@@ -108,7 +110,6 @@ set_exception_handler('exception_handler');
 
 $lampcmsClasses = LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . 'Lampcms' . DIRECTORY_SEPARATOR;
 
-require 'SwiftMailer/lib/swift_required.php';
 require $lampcmsClasses . 'Interfaces' . DIRECTORY_SEPARATOR . 'All.php';
 require $lampcmsClasses . 'Exception.php';
 require $lampcmsClasses . 'Object.php';
@@ -126,6 +127,15 @@ require $lampcmsClasses . 'User.php'; // User is always used
 require $lampcmsClasses . 'SplClassLoader.php';
 require $lampcmsClasses . 'Registry.php';
 require $lampcmsClasses . 'Template' . DIRECTORY_SEPARATOR . 'Fast.php';
+
+
+require($lampcmsClasses . 'Base.php');
+require($lampcmsClasses . 'WebPage.php');
+require($lampcmsClasses . 'Forms' . DIRECTORY_SEPARATOR . 'Form.php');
+require($lampcmsClasses . 'Cookie.php');
+require($lampcmsClasses . 'LoginForm.php');
+require($lampcmsClasses . 'Uri' . DIRECTORY_SEPARATOR . 'UriString.php');
+require($lampcmsClasses . 'Uri' . DIRECTORY_SEPARATOR . 'Router.php');
 
 /**
  * Custom error handle
