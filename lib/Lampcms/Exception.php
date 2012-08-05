@@ -236,7 +236,9 @@ class Exception extends \Exception
          * the error is then generated and the original string may before part of that
          * error message
          */
-        $message = \htmlspecialchars($message);
+        if (!($e instanceof \Lampcms\UnactivatedException)) {
+            $message = \htmlspecialchars($message);
+        }
 
         $aArgs   = ($e instanceof \Lampcms\Exception) ? $e->getArgs() : null;
         $message = (!empty($aArgs)) ? \vsprintf($message, $aArgs) : $message;
@@ -728,7 +730,7 @@ class HttpResponseCodeException extends HttpResponseErrorException
      * @param Exception                                               $message
      * @param int                                                     $httpCode      http response code as received from http server
      * @param int                                                     $code          arbitrary code, usually used to indicate the level of error
-     * @param \Lampcms\Exception|null|object $prevException object of type Exception containing the
+     * @param \Lampcms\Exception|null|object                          $prevException object of type Exception containing the
      *                                                                               previous (inner) Exception
      *
      * @return \Lampcms\HttpResponseCodeException
