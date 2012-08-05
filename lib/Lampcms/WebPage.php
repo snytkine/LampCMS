@@ -498,11 +498,11 @@ abstract class WebPage extends Base
         $this->aPageVars['rep']         = $Viewer->getReputation();
         $this->aPageVars['version_id']  = Form::generateToken();
         /**
-         * meta 'tw' will be set to string "1" if user has conneted Twitter
+         * meta 'tw' will be set to string "1" if user has connected Twitter
          */
         $this->addMetaTag('tw', ('' !== (string)$Viewer->getTwitterSecret()));
         /**
-         * meta 'tw' will be set to string "1" if user has conneted Facebook
+         * meta 'tw' will be set to string "1" if user has connected Facebook
          */
         $this->addMetaTag('fb', ('' !== (string)$Viewer->getFacebookToken()));
 
@@ -511,14 +511,6 @@ abstract class WebPage extends Base
         $src = $Ini->JS_SITE . '{_DIR_}/js' . $js;
 
         $this->aPageVars['JS'] = $src;
-        /**
-         * @todo
-         *  also add twitter id or username or just 'yes'
-         *  of viewer so that we know viewer has twitter account
-         *  and is capable of using twitter from our API
-         *  Also we can ask use to add Twitter account
-         *  if we know he does not have one connected yet
-         */
 
         return $this;
     }

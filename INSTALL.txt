@@ -5,9 +5,7 @@ go to our support forum http://support.lampcms.com
 
 Unzip packaged zip file
 
-
 Copy the directory to the root directory of your website.
-
 
 You will have this directory structure:
 
@@ -17,7 +15,7 @@ You will have this directory structure:
 /www
 
 
-Configure your webserver to make www directory your site's root directory.
+Configure your webserver to point your site's root directory to the www directory
 
 
 * Note: Inside the www directory there is a phptest.php file. It's recommended that you run it from your web browser. 
@@ -53,7 +51,7 @@ It's a pretty large config file, most of the settings are optional and there are
 
 There are some required settings you must define:
 
-all settings in the [MONGO] section are important – define connection to your mongo server
+all settings in the [MONGO] section are important - define connection to your mongo server
 
 
 [DB] section is for MySQL connection and is optional. MySQL server can be used as a search provider because MySQL has decent full text indexing. 
@@ -70,11 +68,11 @@ EMAIL_DEVELOPER
 EMAIL_ADMIN
 EMAIL_DOMAIN
 
-SALT – any random string, read comments, this value should be saved somewhere and kept in safe place 
+SALT - any random string, read comments, this value should be saved somewhere and kept in safe place
 your members will not be able to login back to site if you loose this setting.
 
 
-COOKIE_SALT – similar to SALT but for cookies
+COOKIE_SALT - similar to SALT but for cookies
 
 
 [EMAIL_SERVER] section has important setting to define your own email transport. On Linux server it's usually a path to sendmail, 
@@ -94,7 +92,7 @@ If you setup rewrite rules then you must also change the value of FILE (in the [
 to an empty value. Just read comments above the FILE setting.
 
 
-If you want to run multiple sites using the same Lampcms library rememer that each site needs own copy 
+If you want to run multiple sites using the same Lampcms library remember that each site needs own copy
 of www directory with all files, including own bootstrap.php and own config directory.
 
 Optionally you can move config directory to any location you want and in bootstrap just define a path to it.
