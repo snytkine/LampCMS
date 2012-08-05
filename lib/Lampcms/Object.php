@@ -52,7 +52,6 @@
 
 namespace Lampcms;
 
-//const JS_MIN_ID = '@package_version@';
 const VERSION_ID = '@package_version@';
 
 const LF   = "\n";

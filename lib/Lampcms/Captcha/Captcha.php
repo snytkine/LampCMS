@@ -345,7 +345,7 @@ class Captcha
         d("Captcha-Debug: The available GD-Library has major version " . $this->gd_version);
 
         $this->tempfolder = LAMPCMS_DATA_DIR . 'img' . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR;
-        $this->TTF_folder = LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR;
+        $this->TTF_folder = 'fonts' . DIRECTORY_SEPARATOR;
 
         d('$this->tempfolder: ' . $this->tempfolder . ' $this->TTF_folder: ' . $this->TTF_folder);
 

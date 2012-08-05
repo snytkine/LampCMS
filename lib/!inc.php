@@ -36,9 +36,8 @@
  *
  */
 
-error_reporting(E_ALL | E_DEPRECATED);
+//error_reporting(E_ALL | E_DEPRECATED);
 
-require 'SwiftMailer/lib/swift_required.php';
 
 $Mailer = null;
 /**
@@ -108,34 +107,42 @@ if (!function_exists('fastcgi_finish_request')) {
 
 set_exception_handler('exception_handler');
 
-$lampcmsClasses = LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . 'Lampcms' . DIRECTORY_SEPARATOR;
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Interfaces' . DIRECTORY_SEPARATOR . 'All.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Exception.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Object.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'String.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Utf8String.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Responder.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Mail' . DIRECTORY_SEPARATOR . 'Mailer.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Mongo' . DIRECTORY_SEPARATOR . 'Collections.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Config' . DIRECTORY_SEPARATOR . 'Ini.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Log.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Request.php';
 
-require $lampcmsClasses . 'Interfaces' . DIRECTORY_SEPARATOR . 'All.php';
-require $lampcmsClasses . 'Exception.php';
-require $lampcmsClasses . 'Object.php';
-require $lampcmsClasses . 'String.php';
-require $lampcmsClasses . 'Utf8String.php';
-require $lampcmsClasses . 'Responder.php';
-require $lampcmsClasses . 'Mongo' . DIRECTORY_SEPARATOR . 'Collections.php';
-require $lampcmsClasses . 'Config' . DIRECTORY_SEPARATOR . 'Ini.php';
-require $lampcmsClasses . 'Log.php';
-require $lampcmsClasses . 'Request.php';
-
-require $lampcmsClasses . DIRECTORY_SEPARATOR . 'Mongo' . DIRECTORY_SEPARATOR . 'DB.php';
-require $lampcmsClasses . DIRECTORY_SEPARATOR . 'Mongo' . DIRECTORY_SEPARATOR . 'Doc.php'; // User extends it
-require $lampcmsClasses . 'User.php'; // User is always used
-require $lampcmsClasses . 'SplClassLoader.php';
-require $lampcmsClasses . 'Registry.php';
-require $lampcmsClasses . 'Template' . DIRECTORY_SEPARATOR . 'Fast.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Mongo' . DIRECTORY_SEPARATOR . 'DB.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Mongo' . DIRECTORY_SEPARATOR . 'Doc.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Mongo' . DIRECTORY_SEPARATOR . 'Schema' . DIRECTORY_SEPARATOR . 'User.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Event' . DIRECTORY_SEPARATOR . 'Dispatcher.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Event' . DIRECTORY_SEPARATOR . 'Observer.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Locale' . DIRECTORY_SEPARATOR . 'Locale.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'User.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Acl' . DIRECTORY_SEPARATOR . 'Acl.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Acl' . DIRECTORY_SEPARATOR . 'RoleRegistry.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Acl' . DIRECTORY_SEPARATOR . 'Role.php';
+//require 'Lampcms' . DIRECTORY_SEPARATOR . 'SplClassLoader.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Registry.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Template' . DIRECTORY_SEPARATOR . 'Fast.php';
 
 
-require($lampcmsClasses . 'Base.php');
-require($lampcmsClasses . 'WebPage.php');
-require($lampcmsClasses . 'Forms' . DIRECTORY_SEPARATOR . 'Form.php');
-require($lampcmsClasses . 'Cookie.php');
-require($lampcmsClasses . 'LoginForm.php');
-require($lampcmsClasses . 'Uri' . DIRECTORY_SEPARATOR . 'UriString.php');
-require($lampcmsClasses . 'Uri' . DIRECTORY_SEPARATOR . 'Router.php');
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Base.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'WebPage.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Forms' . DIRECTORY_SEPARATOR . 'Form.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Cookie.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'LoginForm.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Uri' . DIRECTORY_SEPARATOR . 'UriString.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Uri' . DIRECTORY_SEPARATOR . 'Router.php';
+
+
 
 /**
  * Custom error handle
@@ -195,7 +202,7 @@ function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
              * Mongo notices are annoying and totally useless anyway
              * These usually have $errno of 1
              */
-            if (($errno & (E_ERROR | E_NOTICE | E_WARNING)) && (strstr($errstr, 'mongo') || strstr($errstr, 'pool')) ) {
+            if (($errno & (E_ERROR | E_NOTICE | E_WARNING)) && (strstr($errstr, 'mongo') || strstr($errstr, 'pool'))) {
 
                 return true;
             }
@@ -209,8 +216,6 @@ function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
 }
 
 $old_error_handler = set_error_handler("LampcmsErrorHandler");
-// autoloader here
-require LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . 'autoload.php';
 
 $Registry = \Lampcms\Registry::getInstance();
 
