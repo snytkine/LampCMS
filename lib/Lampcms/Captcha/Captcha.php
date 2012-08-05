@@ -103,15 +103,6 @@ class Captcha
     protected $TTF_folder;
 
     /**
-     *  A List with available TrueTypeFonts for random char-creation.
-     *
-     * @type   mixed[array|string]
-     * @access public
-     *
-     **/
-    protected $TTF_RANGE = array('BLOODGUT.TTF');
-
-    /**
      *  How many chars the generated text should have
      *
      * @type   integer
@@ -339,14 +330,13 @@ class Captcha
         $this->Ini = $Ini;
 
         $aConfig = (!empty($config)) ? $config : $Ini->getSection('CAPTCHA');
-        d('Captcha config: ' . print_r($aConfig, 1));
+        d('Captcha config: ' . \json_encode($aConfig));
 
 
         d("Captcha-Debug: The available GD-Library has major version " . $this->gd_version);
 
         $this->tempfolder = LAMPCMS_DATA_DIR . 'img' . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR;
-        //$this->TTF_folder = 'fonts' . DIRECTORY_SEPARATOR;
-        $this->TTF_file = __DIR__ . '/font.ttf';
+        $this->TTF_file = LAMPCMS_CONFIG_DIR. DIRECTORY_SEPARATOR .'fonts' . DIRECTORY_SEPARATOR . 'font.ttf';
 
         d('$this->tempfolder: ' . $this->tempfolder . ' $this->TTF_folder: ' . $this->TTF_folder);
 
