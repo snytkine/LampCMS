@@ -1,0 +1,105 @@
+Follow the instructions below to install Lampcms
+If you followed the instructions but still having problems
+go to our support forum http://support.lampcms.com
+
+
+Unzip packaged zip file
+
+
+Copy the directory to the root directory of your website.
+
+
+You will have this directory structure:
+
+/config
+/lib
+/logs
+/www
+
+
+Configure your webserver to make www directory your site's root directory.
+
+
+* Note: Inside the www directory there is a phptest.php file. It's recommended that you run it from your web browser. 
+It will check to see that your server has all the requirements to run Lampcms and will report if anything is missing on your server.
+
+
+
+Actual Installation
+====================
+
+
+Set writable permissions for the /logs directory
+
+Set writable permissions for the /www/w directory
+
+
+In www directory rename bootstrap.dist.php
+
+For the most basic installation (if you are not interested in running multiple sites using a single instance of Lampcms library) 
+you don't even have to edit the bootstrap.php file
+
+
+Now inside config directory
+
+Rename !config.ini.dist to !config.ini
+
+Rename acl.ini.dist to acl.ini
+
+
+Edit !config.ini file
+
+It's a pretty large config file, most of the settings are optional and there are good comments for each option.
+
+There are some required settings you must define:
+
+all settings in the [MONGO] section are important – define connection to your mongo server
+
+
+[DB] section is for MySQL connection and is optional. MySQL server can be used as a search provider because MySQL has decent full text indexing. 
+Using MySQL as search/index provide you will be able to have a working search form and also MySQL powers 'similar questions' generation.
+
+
+Other settings you must define for your site are:
+
+SITE_NAME
+SITE_TITLE
+SERVER_TIMEZONE
+SITE_URL
+EMAIL_DEVELOPER
+EMAIL_ADMIN
+EMAIL_DOMAIN
+
+SALT – any random string, read comments, this value should be saved somewhere and kept in safe place 
+your members will not be able to login back to site if you loose this setting.
+
+
+COOKIE_SALT – similar to SALT but for cookies
+
+
+[EMAIL_SERVER] section has important setting to define your own email transport. On Linux server it's usually a path to sendmail, 
+on Windows you need to define SMTP server and login/password for your SMTP server.
+
+
+You don't have to change anything else unless you want to and understand all the comments.
+
+If you want to configure rewrite rules on your webserver for having nice static-looking urls (without having to always point to index.php file) 
+you should read RewriteRules.txt file and can use it for Apache webserver or lighttpd.conf for Lighttpd server.
+
+
+We don't have rules for Nginx server yet, but you will probably figure it out if you using Nginx.
+
+
+If you setup rewrite rules then you must also change the value of FILE (in the [URI_PARTS] section of !config.ini) 
+to an empty value. Just read comments above the FILE setting.
+
+
+If you want to run multiple sites using the same Lampcms library rememer that each site needs own copy 
+of www directory with all files, including own bootstrap.php and own config directory.
+
+Optionally you can move config directory to any location you want and in bootstrap just define a path to it.
+
+
+
+
+
