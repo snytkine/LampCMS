@@ -78,7 +78,7 @@ class SiteMap extends LampcmsObject
      * Object of type \Lampcms\Mongo\Doc
      * that holds array of latest IDs
      *
-     * @var object \Lampcms\Mongo\Doc
+     * @var object Lampcms\Mongo\Doc
      */
     protected $oLatest;
 
@@ -123,7 +123,7 @@ class SiteMap extends LampcmsObject
 
     /**
      * Name of sitemap of this file
-     * It will be eithre supplied to the run() method
+     * It will be either supplied to the run() method
      * or generated based on today date like sitemap_20100808.xml
      *
      * @var string
@@ -188,6 +188,7 @@ class SiteMap extends LampcmsObject
      * Create root object for the new
      * sitemap
      *
+     * @throws DevException
      * @return object $this
      */
     protected function makeSXEObject()
@@ -234,6 +235,7 @@ class SiteMap extends LampcmsObject
     /**
      * Save newly generated sitemap file
      *
+     * @throws DevException
      * @return object $this
      */
     protected function saveNewMapFile()
@@ -275,6 +277,7 @@ class SiteMap extends LampcmsObject
      * and add the latest just created sitemap to it
      * and then resave it
      *
+     * @throws DevException
      * @return object $this
      */
     protected function updateIndexFile()
@@ -354,7 +357,7 @@ class SiteMap extends LampcmsObject
                 d('going to ping ' . $key . ' url: ' . $pingUrl);
 
                 $oHttp->getDocument($url);
-                $code = $oHttp->getHttpResponseCode()->checkResponse();
+                $code = $oHttp->getHttpResponseCode();//->checkResponse();
                 d('pinged ' . $key . ' response code: ' . $code);
 
             } catch (\Exception $e) {
