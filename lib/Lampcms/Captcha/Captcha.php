@@ -710,7 +710,7 @@ class Captcha
         }
 
         if ($in) {
-            return (int)substr(strip_tags($_POST['hncaptcha']), ($this->secretposition - 1), 1);
+            return (int)substr(\strip_tags($_POST['hncaptcha']), ($this->secretposition - 1), 1);
         } else {
             $a = "";
             $b = "";
@@ -784,9 +784,8 @@ class Captcha
         }
 
         d("public key WHICH USED for generate private key $public");
-        d("\$this->public_key " . $this->public_key);
 
-        $key = substr(md5($this->key . $public), 16 - $this->chars / 2, $this->chars);
+        $key = \substr(md5($this->key . $public), 16 - $this->chars / 2, $this->chars);
         /**
          * 0 will be replaced with Z
          * because 0 renders badly in our font
@@ -838,7 +837,6 @@ class Captcha
      * of any form
      *
      * @return string html block with Captcha
-     * @todo Translate string of label
      */
     public function getCaptchaBlock()
     {

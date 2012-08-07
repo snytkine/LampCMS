@@ -56,7 +56,7 @@
  * loaded and instead a phar's own stub file
  * has all the necessary initialization functions
  */
+set_include_path(LAMPCMS_LIB_DIR . PATH_SEPARATOR . get_include_path());
 require 'SwiftMailer/lib/swift_required.php';
 require 'autoload.php';
-$oLoader->setIncludePath(LAMPCMS_LIB_DIR);
 require '!inc.php';

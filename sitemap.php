@@ -43,8 +43,6 @@ require 'www/bootstrap.php';
  * or better from cron daily
  *
  */
-
-require LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . '!inc.php';
 try {
     $o = \Lampcms\SiteMap::factory($Registry);
     $o->run();
