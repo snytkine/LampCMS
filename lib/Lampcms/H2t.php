@@ -121,7 +121,7 @@ class H2t
      */
     protected function __construct()
     {
-        if (!extension_loaded('xsl')) {
+        if (!\extension_loaded('xsl')) {
 
             throw new Exception('php_xsl extension not loaded. If you are on Windows, please uncomment ;extension=php_xsl.dll in your php.ini');
         }
@@ -203,17 +203,18 @@ class H2t
     }
 
 
+    /**
+     * @return H2t
+     * @throws HTML2TextException if unable to load plaintext.xsl file
+     * which is a xsl template file and is expected to be in the lib/Lampcms directory
+     *
+     */
     protected function makeXslProcessor()
     {
         $xsl = new \DOMDocument;
-        $tpl = LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . $this->templateFile;
-        if (!is_file($tpl)) {
-            throw new HTML2TextException('XSL template not found here: ' . $tpl);
-        }
-
-
-        if (!$xsl->load($tpl)) {
-            throw new HTML2TextException('Unable to load xsl template: ' . $this->templateFile);
+        if (!$xsl->load(__DIR__.DIRECTORY_SEPARATOR.'plaintext.xsl')) {
+            $err = !is_file('plaintext.xsl') ? ' plaintext.xsl file not found' : 'Unable to load xsl template plaintext.xsl';
+            throw new HTML2TextException($err);
         }
 
         $this->oXSL = new \XSLTProcessor;
@@ -225,7 +226,7 @@ class H2t
 
 
     /**
-     * Performes the transformation
+     * Performs the transformation
      * and sets the $this->sOutput
      * wraps text so that lines
      * are not wider than 75 chars

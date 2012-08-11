@@ -56,22 +56,7 @@ define('INIT_TIMESTAMP', microtime());
 define('INDEX_FILE', pathinfo(__FILE__, PATHINFO_BASENAME)); //
 require 'bootstrap.php';
 
-require LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . '!inc.php';
-
-require($lampcmsClasses . 'Base.php');
-require($lampcmsClasses . 'WebPage.php');
-require($lampcmsClasses . 'Forms' . DIRECTORY_SEPARATOR . 'Form.php');
-require($lampcmsClasses . 'Cookie.php');
-require($lampcmsClasses . 'LoginForm.php');
-require($lampcmsClasses . 'Uri' . DIRECTORY_SEPARATOR . 'UriString.php');
-require($lampcmsClasses . 'Uri' . DIRECTORY_SEPARATOR . 'Router.php');
-
-
 if (true !== session_start()) {
-    /**
-     * @todo
-     * Translate String
-     */
     echo ('Unable to start the program due to the session start error');
 } else {
 
@@ -81,7 +66,6 @@ if (true !== session_start()) {
             d('No Viewer is $_SESSION');
             \Lampcms\Cookie::sendRefferrerCookie();
         }
-
 
         $Tr = $Registry->Tr;
         $mapper     = $Registry->Router->getCallback();
@@ -132,11 +116,6 @@ if (true !== session_start()) {
         $Request    = $Registry->Request;
         $a          = $Request->getController();
         $controller = ucfirst($a);
-        $ER         = error_reporting(0);
-        if (false === include($lampcmsClasses . 'Controllers' . DIRECTORY_SEPARATOR . $controller . '.php')) {
-            throw new \Lampcms\Lampcms404Exception('@@Page you looking for does not exist@@');
-        }
-        error_reporting($ER);
         $class = '\Lampcms\\Controllers\\' . $controller;
 
         header('Content-Type: text/html; charset=utf-8');

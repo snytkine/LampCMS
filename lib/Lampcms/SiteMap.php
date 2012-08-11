@@ -74,6 +74,7 @@ namespace Lampcms;
  */
 class SiteMap extends LampcmsObject
 {
+
     /**
      * Object of type \Lampcms\Mongo\Doc
      * that holds array of latest IDs
@@ -123,7 +124,7 @@ class SiteMap extends LampcmsObject
 
     /**
      * Name of sitemap of this file
-     * It will be either supplied to the run() method
+     * It will be eithre supplied to the run() method
      * or generated based on today date like sitemap_20100808.xml
      *
      * @var string
@@ -149,9 +150,9 @@ class SiteMap extends LampcmsObject
     protected $aLatestIds = array();
 
 
-    protected $aPingUrls = array('bing' => 'http://www.bing.com/webmaster/ping.aspx?siteMap=%s',
-        'google' => 'http://www.google.com/webmasters/sitemaps/ping?sitemap=%s',
-        'yahoo' => 'http://search.yahooapis.com/SiteExplorerService/V1/updateNotification?appid=YahooDemo&url=%s');
+    protected $aPingUrls = array('bing'   => 'http://www.bing.com/webmaster/ping.aspx?siteMap=%s',
+                                 'google' => 'http://www.google.com/webmasters/sitemaps/ping?sitemap=%s',
+                                 'yahoo'  => 'http://search.yahooapis.com/SiteExplorerService/V1/updateNotification?appid=YahooDemo&url=%s');
 
 
     public function __construct(Registry $o)
@@ -175,9 +176,9 @@ class SiteMap extends LampcmsObject
     protected function getLatestIds()
     {
 
-        $oMongo = $this->Registry->Mongo;
-        $aLatest = $oMongo->getCollection('SITEMAP_LATEST')->findOne();
-        $aLatest = (!$aLatest) ? array() : $aLatest;
+        $oMongo        = $this->Registry->Mongo;
+        $aLatest       = $oMongo->getCollection('SITEMAP_LATEST')->findOne();
+        $aLatest       = (!$aLatest) ? array() : $aLatest;
         $this->oLatest = new \Lampcms\Mongo\Doc($this->Registry, 'SITEMAP_LATEST', $aLatest);
 
         return $this;
@@ -204,24 +205,32 @@ class SiteMap extends LampcmsObject
     public function addNewQuestions()
     {
 
-        $id = (int)$this->oLatest['i_qid'];
+        $id = 1; //(int)$this->oLatest['i_qid'];
         d('latest QID: ' . $id);
         $urlPrefix = $this->Registry->Ini->SITE_URL . '/';
-        $oMongo = $this->Registry->Mongo;
-        $coll = $oMongo->getCollection('QUESTIONS');
-        $cursor = $coll->find(array('_id' => array('$gt' => $id)), array('_id', 'url', 'i_ts'))->limit(12000);
+        $oMongo    = $this->Registry->Mongo;
+        $coll      = $oMongo->getCollection('QUESTIONS');
+        $cursor    = $coll->find(array('_id' => array('$gt' => $id)), array('_id', 'url', 'i_ts'))->limit(12000);
 
         d('cursor: ' . get_class($cursor));
         if ($cursor && ($cursor instanceof \MongoCursor) && ($cursor->count() > 0)) {
             d('cursor count: ' . $cursor->count());
+            $i = 0;
+
             foreach ($cursor as $aMessage) {
                 if (!empty($aMessage)) {
-                    $loc = $urlPrefix . 'q' . $aMessage['_id'] . '/' . $aMessage['url'];
+
+                    $i++;
+                    $loc     = $urlPrefix . 'q' . $aMessage['_id'] . '/' . $aMessage['url'];
                     $lastmod = date('Y-m-d', $aMessage['i_ts']);
 
                     $this->addUrl($loc, $lastmod, 'yearly');
 
                     $this->oLatest['i_qid'] = $aMessage['_id'];
+
+                    if ($i > 3) {
+                        break;
+                    }
                 }
             }
         }
@@ -242,7 +251,7 @@ class SiteMap extends LampcmsObject
     {
 
         $this->siteMapName = (null !== $this->siteMapName) ? $this->siteMapName : 'sitemap_' . date('Ymd') . '.xml';
-        $xmlFile = LAMPCMS_DATA_DIR . 'sitemap/' . $this->siteMapName;
+        $xmlFile           = LAMPCMS_DATA_DIR . 'sitemap/' . $this->siteMapName;
 
         /**
          * If this sitemap file already exists then we
@@ -256,7 +265,7 @@ class SiteMap extends LampcmsObject
          */
         if (file_exists($xmlFile)) {
             $this->siteMapName = time() . '_' . $this->siteMapName;
-            $xmlFile = LAMPCMS_DATA_DIR . 'sitemap/' . $this->siteMapName;
+            $xmlFile           = LAMPCMS_DATA_DIR . 'sitemap/' . $this->siteMapName;
         }
 
         d('xmlFile: ' . $xmlFile);
@@ -283,6 +292,8 @@ class SiteMap extends LampcmsObject
     protected function updateIndexFile()
     {
         $file = LAMPCMS_DATA_DIR . $this->rootMapFilePath;
+        $siteUrl = $this->Registry->Ini->SITE_URL;
+
         if (file_exists($file)) {
             if (!is_writable($file)) {
                 throw new DevException('file: ' . $file . ' is not writable');
@@ -298,7 +309,7 @@ class SiteMap extends LampcmsObject
         }
 
         $oMap = $this->oSXEIndexMap->addChild('sitemap');
-        $oMap->addChild('loc', $this->Registry->Ini->SITE_URL . '/w/sitemap/' . $this->siteMapName);
+        $oMap->addChild('loc', $siteUrl . '/w/sitemap/' . $this->siteMapName);
         $oMap->addChild('lastmod', date('c'));
 
         if (false === $this->oSXEIndexMap->asXml($file)) {
@@ -313,8 +324,9 @@ class SiteMap extends LampcmsObject
      * Accepts array with keys like
      * url, lastmod, howOften
      * and appends them as DOM Elements to root
+     *
      * @param string $url
-     * @param string $time must be in W3C Datetime format!
+     * @param string $time       must be in W3C Datetime format!
      * @param string $changefreq change frequency: one of these values:
      *
      *  always
@@ -348,19 +360,21 @@ class SiteMap extends LampcmsObject
     protected function pingSearchSites()
     {
 
-        $oHttp = new Curl();
-        $url = $this->Registry->Ini->SITE_URL . '/w/sitemap/' . $this->siteMapName;
+        return;
+
+        $Http = new Curl();
+        $url  = $this->Registry->Ini->SITE_URL . '/w/sitemap/' . $this->siteMapName;
 
         foreach ($this->aPingUrls as $key => $val) {
             try {
                 $pingUrl = sprintf($val, $url);
                 d('going to ping ' . $key . ' url: ' . $pingUrl);
 
-                $oHttp->getDocument($url);
-                $code = $oHttp->getHttpResponseCode();//->checkResponse();
+                $Http->getDocument($url);
+                $code = $Http->getHttpResponseCode();
                 d('pinged ' . $key . ' response code: ' . $code);
 
-            } catch (\Exception $e) {
+            } catch ( \Exception $e ) {
                 $err = 'Unable to ping ' . $key . ' got error: ' . $e->getMessage();
                 e('Error: ' . $err);
             }

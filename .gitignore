@@ -9,6 +9,7 @@
 .idea/*/
 *admin.xml
 build.xml
+phar_stub.php
 phpunitbootstrap.php
 version.ver
 www/phpinfo.php

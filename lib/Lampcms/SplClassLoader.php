@@ -71,9 +71,13 @@ namespace Lampcms;
  */
 class SplClassLoader
 {
+
     private $_fileExtension = '.php';
+
     private $_namespace;
+
     private $_includePath;
+
     private $_namespaceSeparator = '\\';
 
 
@@ -81,37 +85,13 @@ class SplClassLoader
      * Creates a new <tt>SplClassLoader</tt> that loads classes of the
      * specified namespace.
      *
-     * @todo use constant LAMPCMS_LIB_DIR if $includePath not passed
-     *
      * @param string $ns The namespace to use.
      * @param string $includePath
      */
-    public function __construct($ns = null, $includePath = LAMPCMS_LIB_DIR)
+    public function __construct($ns = null, $includePath = null)
     {
-        $this->_namespace = $ns;
+        $this->_namespace   = $ns;
         $this->_includePath = $includePath;
-    }
-
-
-    /**
-     * Sets the namespace separator used by classes in the namespace of this class loader.
-     *
-     * @param string $sep The separator to use.
-     */
-    public function setNamespaceSeparator($sep)
-    {
-        $this->_namespaceSeparator = $sep;
-    }
-
-
-    /**
-     * Gets the namespace seperator used by classes in the namespace of this class loader.
-     *
-     * @return void
-     */
-    public function getNamespaceSeparator()
-    {
-        return $this->_namespaceSeparator;
     }
 
 
@@ -182,28 +162,38 @@ class SplClassLoader
      *
      * @param string $className The name of the class to load.
      *
+     * @throws Lampcms404Exception if requetes class is a controller
+     * and class file cannot be loaded. The cause of this is usually request
+     * for a page that points to a controller that does not exist. We treat it as
+     * a 404 error
+     *
      * @throws \OutOfBoundsException if class file not found or cannot be included
+     *
      * @return void
      */
     public function loadClass($className)
     {
         if (null === $this->_namespace || $this->_namespace . $this->_namespaceSeparator === \substr($className, 0, \strlen($this->_namespace . $this->_namespaceSeparator))) {
-            $fileName = '';
+            $fileName  = '';
             $namespace = '';
             if (false !== ($lastNsPos = \strripos($className, $this->_namespaceSeparator))) {
                 $namespace = \substr($className, 0, $lastNsPos);
                 $className = \substr($className, $lastNsPos + 1);
-                $fileName = \str_replace($this->_namespaceSeparator, DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
+                $fileName  = \str_replace($this->_namespaceSeparator, DIRECTORY_SEPARATOR, $namespace) . DIRECTORY_SEPARATOR;
             }
 
             $fileName .= \str_replace('_', DIRECTORY_SEPARATOR, $className) . $this->_fileExtension;
 
             $reqfile = ($this->_includePath !== null ? $this->_includePath . DIRECTORY_SEPARATOR : '') . $fileName;
 
-            if (defined('LAMPCMS_DEBUG') && true === constant('LAMPCMS_DEBUG')) {
+            if ('Lampcms\Controllers' === $namespace) {
+                if (false === @include($reqfile)) {
+                    throw new \Lampcms\Lampcms404Exception('@@Page you looking for does not exist@@');
+                }
+            } elseif (defined('LAMPCMS_DEBUG') && true === constant('LAMPCMS_DEBUG')) {
                 if (false === @include($reqfile)) {
                     $arrBacktrace = debug_backtrace(false);
-                    $err = '<strong>File not found</strong>: ' . $reqfile . "\nBacktrace: " . print_r($arrBacktrace, 1);
+                    $err          = '<strong>File not found</strong>: ' . $reqfile . "\nBacktrace: " . print_r($arrBacktrace, 1);
                     throw new \OutOfBoundsException($err);
                 }
             } else {

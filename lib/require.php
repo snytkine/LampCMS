@@ -49,59 +49,14 @@
  *
  */
 
-
 /**
- * Autoloader for vtemplates
- *
- * @param $className
- *
- * @internal param string $classname
- * @return bool
+ * This is a bootstrap to load
+ * all required files when run in non-phar mode
+ * When run from a phar archive this file is not
+ * loaded and instead a phar's own stub file
+ * has all the necessary initialization functions
  */
-function templateLoader($className)
-{
-
-
-    /**
-     * This is important
-     * This autoloader will be the first
-     * one in the __autoload stack (we pass true as 3rd arg
-     * to spl_autoload_register())
-     *
-     * Since this autoload can only
-     * handle template files, any file
-     * not starting with 'tpl' is not
-     * the responsibility of this loader
-     * and we must return false to save further
-     * pointless processing.
-     */
-    if (0 !== strpos($className, 'tpl')) {
-
-        return false;
-    }
-
-    $styleId = (defined('STYLE_ID')) ? STYLE_ID : '1';
-    $dir = (defined('VTEMPLATES_DIR')) ? VTEMPLATES_DIR : 'www';
-
-    $file = LAMPCMS_WWW_DIR . 'style' . DIRECTORY_SEPARATOR . $styleId . DIRECTORY_SEPARATOR . $dir . DIRECTORY_SEPARATOR . $className . '.php';
-
-
-    /**
-     * Smart fallback to www dir
-     * if template does not exist in mobile version
-     * But if template file also does not exist in www
-     * and in mobile dir, then it will raise an error
-     * beause we using require this time instead in include  && ('www' !== $dir)
-     */
-    if ((false === @include($file)) && ('www' !== $dir)) {
-
-        require LAMPCMS_WWW_DIR . 'style' . DIRECTORY_SEPARATOR . $styleId . DIRECTORY_SEPARATOR . 'www' . DIRECTORY_SEPARATOR . $className . '.php';
-    }
-
-    return true;
-}
-
-require 'Lampcms'.DIRECTORY_SEPARATOR.'SplClassLoader.php';
-$oLoader = new Lampcms\SplClassLoader();
-$oLoader->register();
-spl_autoload_register('templateLoader', false, true);
+set_include_path(LAMPCMS_LIB_DIR . PATH_SEPARATOR . get_include_path());
+require 'SwiftMailer/lib/swift_required.php';
+require 'autoload.php';
+require '!inc.php';

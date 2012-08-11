@@ -103,15 +103,6 @@ class Captcha
     protected $TTF_folder;
 
     /**
-     *  A List with available TrueTypeFonts for random char-creation.
-     *
-     * @type   mixed[array|string]
-     * @access public
-     *
-     **/
-    protected $TTF_RANGE = array('BLOODGUT.TTF');
-
-    /**
      *  How many chars the generated text should have
      *
      * @type   integer
@@ -252,7 +243,7 @@ class Captcha
     /** @private **/
     private $nb_noise; // number of background-noise-characters
     /** @private **/
-    private $TTF_file; // holds the current selected TrueTypeFont
+    private $TTF_file = 'font.ttf'; // holds the current selected TrueTypeFont
     /** @private **/
     private $buttontext;
 
@@ -339,13 +330,13 @@ class Captcha
         $this->Ini = $Ini;
 
         $aConfig = (!empty($config)) ? $config : $Ini->getSection('CAPTCHA');
-        d('Captcha config: ' . print_r($aConfig, 1));
+        d('Captcha config: ' . \json_encode($aConfig));
 
 
         d("Captcha-Debug: The available GD-Library has major version " . $this->gd_version);
 
         $this->tempfolder = LAMPCMS_DATA_DIR . 'img' . DIRECTORY_SEPARATOR . 'tmp' . DIRECTORY_SEPARATOR;
-        $this->TTF_folder = LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . 'fonts' . DIRECTORY_SEPARATOR;
+        $this->TTF_file = LAMPCMS_CONFIG_DIR. DIRECTORY_SEPARATOR .'fonts' . DIRECTORY_SEPARATOR . 'font.ttf';
 
         d('$this->tempfolder: ' . $this->tempfolder . ' $this->TTF_folder: ' . $this->TTF_folder);
 
@@ -389,32 +380,7 @@ class Captcha
             e("What do you think I mean with min and max? Switch minsize with maxsize.");
         }
 
-        // check TrueTypeFonts
-        if (is_array($this->TTF_RANGE)) {
-            d("Check given TrueType-Array! (" . count($this->TTF_RANGE) . ")");
-            $temp = array();
-            foreach ($this->TTF_RANGE as $k => $v) {
-                if (is_readable($this->TTF_folder . $v)) {
-                    $temp[] = $v;
-                }
-            }
-            $this->TTF_RANGE = $temp;
-            d("Valid TrueType-files: (" . count($this->TTF_RANGE) . ")");
-            if (count($this->TTF_RANGE) < 1) {
-                throw new \Lampcms\Exception('No Truetypefont available for the CaptchaClass.');
-            }
-        } else {
-            d("Check given TrueType-File! (" . $this->TTF_RANGE . ")");
-            if (!is_readable($this->TTF_folder . $this->TTF_RANGE)) {
-                throw new DevException('No Truetypefont available or TTF folder not readable ');
-            }
-        }
-
-        // select first TrueTypeFont
-        $this->change_TTF();
         d("Set current TrueType-File: (" . $this->TTF_file . ")");
-
-
         // get number of noise-chars for background if is enabled
         $this->nb_noise = $this->noise ? ($this->chars * $this->noisefactor) : 0;
         d("Set number of noise characters to: (" . $this->nb_noise . ")");
@@ -504,7 +470,7 @@ class Captcha
         $private_key = $this->generate_private();
         d("Captcha-Debug: Generate private key: ($private_key)");
 
-        // create Image and set the apropriate function depending on GD-Version & websafecolor-value
+        // create Image and set the appropriate function depending on GD-Version & websafecolor-value
         if ($this->gd_version >= 2 && !$this->websafecolors) {
             $func1 = '\\imagecreatetruecolor';
             $func2 = '\\imagecolorallocate';
@@ -520,7 +486,7 @@ class Captcha
 
         // Set Backgroundcolor
         $this->random_color(224, 255);
-        $back = @imagecolorallocate($image, $this->r, $this->g, $this->b);
+        $back = @\imagecolorallocate($image, $this->r, $this->g, $this->b);
         \imagefilledrectangle($image, 0, 0, $this->lx, $this->ly, $back);
         d("Captcha-Debug: We allocate one color for Background: (" . $this->r . "-" . $this->g . "-" . $this->b . ")");
 
@@ -536,22 +502,15 @@ class Captcha
             d("Captcha-Debug: Fill background with noise: (" . $this->nb_noise . ")");
             for ($i = 0; $i < $this->nb_noise; $i++) {
                 //d('Captcha-Debug');
-                srand((double)microtime() * 1000000);
-                $size = intval(rand((int)($this->minsize / 2.3), (int)($this->maxsize / 1.7)));
-                srand((double)microtime() * 1000000);
-                $angle = intval(rand(0, 360));
-                srand((double)microtime() * 1000000);
-                $x = intval(rand(0, $this->lx));
-                srand((double)microtime() * 1000000);
-                $y = intval(rand(0, (int)($this->ly - ($size / 5))));
+
+                $size  = (int)(\mt_rand((int)($this->minsize / 2.3), (int)($this->maxsize / 1.7)));
+                $angle = (int)(\mt_rand(0, 360));
+                $x     = (int)(\mt_rand(0, $this->lx));
+                $y     = (int)(\mt_rand(0, (int)($this->ly - ($size / 5))));
                 $this->random_color(160, 224);
-                //d('Captcha-Debug');
                 $color = $func2($image, $this->r, $this->g, $this->b);
-                //d('Captcha-Debug');
-                srand((double)microtime() * 1000000);
-                $text = chr(intval(rand(45, 250)));
-                //d('Captcha-Debug: $text:  ' . $text);
-                if (false === \imagettftext($image, $size, $angle, $x, $y, $color, $this->change_TTF(), $text)) {
+                $text  = chr((int)(\mt_rand(45, 250)));
+                if (false === \imagettftext($image, $size, $angle, $x, $y, $color, $this->TTF_file, $text)) {
 
                     throw new DevException('Your php does not support imagettftext operation OR your fonts file did not upload correctly (hint: did you upload them in text mode instead of binary?). You should disable captcha support in !config.ini');
                 }
@@ -576,16 +535,13 @@ class Captcha
 
         // generate Text
         d("Captcha-Debug: Fill foreground with chars and shadows: (" . $this->chars . ")");
-        for ($i = 0, $x = intval(rand($this->minsize, $this->maxsize)); $i < $this->chars; $i++) {
+        for ($i = 0, $x = (int)(\mt_rand($this->minsize, $this->maxsize)); $i < $this->chars; $i++) {
             //d('Captcha-Debug');
-            $text = strtoupper(substr($private_key, $i, 1));
+            $text = \strtoupper(\substr($private_key, $i, 1));
             //d('Captcha-Debug: $text:  '.$text);
-            srand((double)microtime() * 1000000);
-            $angle = intval(rand(($this->maxrotation * -1), $this->maxrotation));
-            srand((double)microtime() * 1000000);
-            $size = intval(rand($this->minsize, $this->maxsize));
-            srand((double)microtime() * 1000000);
-            $y = intval(rand((int)($size * 1.5), (int)($this->ly - ($size / 7))));
+            $angle = (int)(\mt_rand(($this->maxrotation * -1), $this->maxrotation));
+            $size = (int)(\mt_rand($this->minsize, $this->maxsize));
+            $y = (int)(\mt_rand((int)($size * 1.5), (int)($this->ly - ($size / 7))));
             $this->random_color(0, 127);
             //d('Captcha-Debug');
             $color = $func2($image, $this->r, $this->g, $this->b);
@@ -593,14 +549,14 @@ class Captcha
             $this->random_color(0, 127);
             $shadow = $func2($image, $this->r + 127, $this->g + 127, $this->b + 127);
             //d('Captcha-Debug');
-            @\imagettftext($image, $size, $angle, $x + (int)($size / 15), $y, $shadow, $this->change_TTF(), $text);
+            @\imagettftext($image, $size, $angle, $x + (int)($size / 15), $y, $shadow, $this->TTF_file, $text);
             @\imagettftext($image, $size, $angle, $x, $y - (int)($size / 15), $color, $this->TTF_file, $text);
             $x += (int)($size + ($this->minsize / 5));
             //d('Captcha-Debug');
         }
 
-        d('$image: ' . gettype($image) . ' image file: ' . $this->get_filename() . ' $this->jpegquality: ' . $this->jpegquality);
-        if (true !== imagejpeg($image, $this->get_filename(), $this->jpegquality)) {
+        d('$image: ' . \gettype($image) . ' image file: ' . $this->get_filename() . ' $this->jpegquality: ' . $this->jpegquality);
+        if (true !== \imagejpeg($image, $this->get_filename(), $this->jpegquality)) {
             e('error writing captcha image');
             throw new DevException('Unable to save captcha-image to ' . $this->get_filename());
         }
@@ -611,7 +567,7 @@ class Captcha
         }
 
         //d('Captcha-Debug');
-        if (true !== imagedestroy($image)) {
+        if (true !== \imagedestroy($image)) {
             e("Captcha-Debug: Destroy Imagestream fails.");
         }
         //d('Captcha-Debug');
@@ -649,31 +605,9 @@ class Captcha
      */
     protected function random_color($min, $max)
     {
-        srand((double)microtime() * 1000000);
-        $this->r = intval(rand($min, $max));
-        srand((double)microtime() * 1000000);
-        $this->g = intval(rand($min, $max));
-        srand((double)microtime() * 1000000);
-        $this->b = intval(rand($min, $max));
-
-    }
-
-
-    /**
-     *
-     * Enter description here ...
-     */
-    protected function change_TTF()
-    {
-        if (is_array($this->TTF_RANGE)) {
-            srand((float)microtime() * 10000000);
-            $key            = array_rand($this->TTF_RANGE);
-            $this->TTF_file = $this->TTF_folder . $this->TTF_RANGE[$key];
-        } else {
-            $this->TTF_file = $this->TTF_folder . $this->TTF_RANGE;
-        }
-
-        return $this->TTF_file;
+        $this->r = (int)(mt_rand($min, $max));
+        $this->g = (int)(mt_rand($min, $max));
+        $this->b = (int)(mt_rand($min, $max));
     }
 
 
@@ -776,17 +710,15 @@ class Captcha
         }
 
         if ($in) {
-            return (int)substr(strip_tags($_POST['hncaptcha']), ($this->secretposition - 1), 1);
+            return (int)substr(\strip_tags($_POST['hncaptcha']), ($this->secretposition - 1), 1);
         } else {
             $a = "";
             $b = "";
             for ($i = 1; $i < $this->secretposition; $i++) {
-                srand((double)microtime() * 1000000);
-                $a .= $s[intval(rand(1, $this->maxtry))];
+                $a .= $s[(int)(\mt_rand(1, $this->maxtry))];
             }
             for ($i = 0; $i < (32 - $this->secretposition); $i++) {
-                srand((double)microtime() * 1000000);
-                $b .= $s[intval(rand(1, $this->maxtry))];
+                $b .= $s[(int)(\mt_rand(1, $this->maxtry))];
             }
 
             return $a . $this->current_try . $b;
@@ -825,7 +757,7 @@ class Captcha
 
         $gdv = $gd_info['GD Version'];
         d('$gdv: ' . $gdv);
-        $Version = preg_replace('/[[:alpha:][:space:]()]+/', '', $gdv);
+        $Version = \preg_replace('/[[:alpha:][:space:]()]+/', '', $gdv);
         d('Version: ' . $Version);
 
         if (version_compare($Version, 2.0) < 0) {
@@ -852,15 +784,14 @@ class Captcha
         }
 
         d("public key WHICH USED for generate private key $public");
-        d("\$this->public_key " . $this->public_key);
 
-        $key = substr(md5($this->key . $public), 16 - $this->chars / 2, $this->chars);
+        $key = \substr(md5($this->key . $public), 16 - $this->chars / 2, $this->chars);
         /**
          * 0 will be replaced with Z
          * because 0 renders badly in our font
          *
          */
-        $key = str_replace('0', 'Z', $key);
+        $key = \str_replace('0', 'Z', $key);
 
         return $key;
     }
@@ -906,12 +837,11 @@ class Captcha
      * of any form
      *
      * @return string html block with Captcha
-     * @todo Translate string of label
      */
     public function getCaptchaBlock()
     {
         $aVals = $this->getCaptchaArray();
-        d('got captcha vals: ' . print_r($aVals, 1));
+        d('got captcha vals: ' . \json_encode($aVals));
 
         $s = \tplCaptcha::parse($aVals, false);
 
