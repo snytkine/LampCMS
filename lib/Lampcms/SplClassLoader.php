@@ -82,7 +82,7 @@ class SplClassLoader
 
 
     /**
-     * Creates a new <tt>SplClassLoader</tt> that loads classes of the
+     * Creates a new SplClassLoader that loads classes of the
      * specified namespace.
      *
      * @param string $ns The namespace to use.

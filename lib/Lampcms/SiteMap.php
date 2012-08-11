@@ -147,6 +147,20 @@ class SiteMap extends LampcmsObject
      */
     protected $oSXEIndexMap;
 
+    /**
+     * @var object Lampcms\Uri\Router
+     */
+    protected $Router;
+
+    /**
+     * @var string base url of the website. This will include
+     * a sub-directory if website is installed in a sub-directory
+     */
+    protected $baseUrl;
+
+    /**
+     * @var array
+     */
     protected $aLatestIds = array();
 
 
@@ -155,11 +169,27 @@ class SiteMap extends LampcmsObject
                                  'yahoo'  => 'http://search.yahooapis.com/SiteExplorerService/V1/updateNotification?appid=YahooDemo&url=%s');
 
 
+    /**
+     * Constructor
+     *
+     * @param Registry $o
+     */
     public function __construct(Registry $o)
     {
         $this->Registry = $o;
+        $this->Router   = $o->Router;
+        $mapper         = $this->Router->getCallback();
+        $siteUrl        = $o->Ini->SITE_URL;
+        $tpl            = $siteUrl . '{_DIR_}';
+        $this->baseUrl  = $mapper($tpl);
     }
 
+
+    /**
+     * Main entry point of this object
+     *
+     * @param null $fileName
+     */
     public function run($fileName = null)
     {
 
@@ -173,9 +203,14 @@ class SiteMap extends LampcmsObject
             ->pingSearchSites();
     }
 
+    /**
+     * Get the object representing the latest question
+     * that was included in previously generated site map
+     *
+     * @return object $this
+     */
     protected function getLatestIds()
     {
-
         $oMongo        = $this->Registry->Mongo;
         $aLatest       = $oMongo->getCollection('SITEMAP_LATEST')->findOne();
         $aLatest       = (!$aLatest) ? array() : $aLatest;
@@ -202,35 +237,32 @@ class SiteMap extends LampcmsObject
     }
 
 
+    /**
+     * Append new urls to sitemap
+     * Skip questions that are mark as deleted
+     *
+     * @return object $this
+     */
     public function addNewQuestions()
     {
-
-        $id = 1; //(int)$this->oLatest['i_qid'];
+        $id = (int)$this->oLatest['i_qid'];
         d('latest QID: ' . $id);
-        $urlPrefix = $this->Registry->Ini->SITE_URL . '/';
-        $oMongo    = $this->Registry->Mongo;
-        $coll      = $oMongo->getCollection('QUESTIONS');
-        $cursor    = $coll->find(array('_id' => array('$gt' => $id)), array('_id', 'url', 'i_ts'))->limit(12000);
+        $oMongo = $this->Registry->Mongo;
+        $coll   = $oMongo->getCollection('QUESTIONS');
+        $cursor = $coll->find(array('_id' => array('$gt' => $id)), array('_id', 'url', 'i_ts', 'i_del_ts'))->limit(12000);
 
         d('cursor: ' . get_class($cursor));
         if ($cursor && ($cursor instanceof \MongoCursor) && ($cursor->count() > 0)) {
             d('cursor count: ' . $cursor->count());
-            $i = 0;
 
             foreach ($cursor as $aMessage) {
-                if (!empty($aMessage)) {
+                if (!empty($aMessage) && empty($aMessage['i_del_ts'])) {
 
-                    $i++;
-                    $loc     = $urlPrefix . 'q' . $aMessage['_id'] . '/' . $aMessage['url'];
+                    $loc     = $this->Router->getQuestionUrl($aMessage['_id'], $aMessage['url']);
                     $lastmod = date('Y-m-d', $aMessage['i_ts']);
 
                     $this->addUrl($loc, $lastmod, 'yearly');
-
                     $this->oLatest['i_qid'] = $aMessage['_id'];
-
-                    if ($i > 3) {
-                        break;
-                    }
                 }
             }
         }
@@ -284,7 +316,7 @@ class SiteMap extends LampcmsObject
     /**
      * Append the main sitemap index file
      * and add the latest just created sitemap to it
-     * and then resave it
+     * and then re-save it
      *
      * @throws DevException
      * @return object $this
@@ -292,7 +324,6 @@ class SiteMap extends LampcmsObject
     protected function updateIndexFile()
     {
         $file = LAMPCMS_DATA_DIR . $this->rootMapFilePath;
-        $siteUrl = $this->Registry->Ini->SITE_URL;
 
         if (file_exists($file)) {
             if (!is_writable($file)) {
@@ -309,7 +340,7 @@ class SiteMap extends LampcmsObject
         }
 
         $oMap = $this->oSXEIndexMap->addChild('sitemap');
-        $oMap->addChild('loc', $siteUrl . '/w/sitemap/' . $this->siteMapName);
+        $oMap->addChild('loc', $this->baseUrl . '/w/sitemap/' . $this->siteMapName);
         $oMap->addChild('lastmod', date('c'));
 
         if (false === $this->oSXEIndexMap->asXml($file)) {
@@ -359,11 +390,8 @@ class SiteMap extends LampcmsObject
      */
     protected function pingSearchSites()
     {
-
-        return;
-
         $Http = new Curl();
-        $url  = $this->Registry->Ini->SITE_URL . '/w/sitemap/' . $this->siteMapName;
+        $url  = $this->baseUrl . '/w/sitemap/' . $this->siteMapName;
 
         foreach ($this->aPingUrls as $key => $val) {
             try {
@@ -384,5 +412,3 @@ class SiteMap extends LampcmsObject
     }
 }
 
-
-?>
