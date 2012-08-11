@@ -67,7 +67,6 @@ if (true !== session_start()) {
             \Lampcms\Cookie::sendRefferrerCookie();
         }
 
-
         $Tr = $Registry->Tr;
         $mapper     = $Registry->Router->getCallback();
         $translator = $Tr->getCallback();

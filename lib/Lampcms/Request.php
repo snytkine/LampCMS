@@ -604,11 +604,15 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
     public static function getCleanControllerName($name)
     {
         $expression = '/^[[:alpha:]\-]{1,32}$/';
+        /**
+         * @todo maybe we can allow non-alpha chars in uri
+         * We can try to allow controller names be encoded in utf8?
+         */
         if (!\filter_var($name, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $expression)))) {
-            throw new \InvalidArgumentException('Invalid value of controller name. It can only contain letters and a hyphen and be limited to 20 characters in total was: ' . \htmlentities($name));
+            throw new \InvalidArgumentException('Invalid value of controller name. It can only contain letters and a hyphen and be limited to 32 characters in total was: ' . \htmlentities($name));
         }
 
-        return \strtolower($name);
+        return \mb_strtolower($name);
     }
 
 }

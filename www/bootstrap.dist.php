@@ -69,6 +69,8 @@
  * (same folders that are included in the Lampcms distribution)
  * for example something like this "/var/lampcms/lib" on Linux
  * or something like this 'C:\lampcms\lib' on Windows
+ *
+ * This is NOT IMPORTANT when running from the phar archive (see below)
  */
 //define('LAMPCMS_LIB_DIR', ''); 
 
@@ -85,6 +87,16 @@
 //define('LAMPCMS_CONFIG_DIR', ''); 
 
 
+
+/**
+ * If using phar-based setup
+ * make sure to point to full path of where
+ * lampcms.phar is located
+ *
+ * and uncomment the line below
+ */
+//define('LAMPCMS_PHAR', true);
+
 /**
  * DO NOT REMOVE OR EDIT
  * ANY OF THE LINES BELOW!
@@ -99,3 +111,10 @@ define('LAMPCMS_WWW_DIR', realpath(__DIR__).DIRECTORY_SEPARATOR);
 if(!defined('LAMPCMS_CONFIG_DIR')){
     define('LAMPCMS_CONFIG_DIR', realpath(dirname(__DIR__)).DIRECTORY_SEPARATOR.'config');
 }
+
+if (defined('LAMPCMS_PHAR')) {
+    require LAMPCMS_PHAR;
+} else {
+    require LAMPCMS_LIB_DIR . DIRECTORY_SEPARATOR . 'require.php';
+}
+
