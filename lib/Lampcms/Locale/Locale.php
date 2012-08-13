@@ -235,6 +235,7 @@ class Locale extends \Lampcms\LampcmsObject
         for ($i = 0; $i <= count($locales); $i += 1) {
             if (false !== $locale = @setlocale(LC_ALL, $locales[$i])) {
                 d(' $locale: ' . $locale);
+                $res = true;
                 break;
             }
         }

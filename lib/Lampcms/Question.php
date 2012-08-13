@@ -757,7 +757,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
             's_inreply',
             'b',
             't',
-            'ts',
+            'i_ts',
             'cc',
             'cn',
             'reg',

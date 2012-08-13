@@ -77,8 +77,13 @@ class tplU3 extends Lampcms\Template\Fast
 
         $lastActive = (!empty($a['i_lm_ts'])) ? $a['i_lm_ts'] : $a['i_reg_ts'];
         $registered = $a['i_reg_ts'];
-        $a['since'] = \Lampcms\TimeAgo::format(new \DateTime(date('r', $registered)));
-        $a['last_seen'] = \Lampcms\TimeAgo::format(new \DateTime(date('r', $lastActive)));
+        if (!isset($_SESSION['locale']) || 0 === strncmp('en', $_SESSION['locale'], 2)) {
+            $a['since']     = \Lampcms\TimeAgo::format(new \DateTime(date('r', $registered)));
+            $a['last_seen'] = \Lampcms\TimeAgo::format(new \DateTime(date('r', $lastActive)));
+        } else {
+            $a['since']     = \Lampcms\TimeFormatter::formatTime($_SESSION['locale'], $registered);
+            $a['last_seen'] = \Lampcms\TimeFormatter::formatTime($_SESSION['locale'], $lastActive);
+        }
 
         if ('deleted' == $a['role']) {
             $a['deleted'] = 'deleted';
@@ -87,17 +92,17 @@ class tplU3 extends Lampcms\Template\Fast
 
 
     protected static $vars = array(
-        '_id' => '', //1
-        'displayName' => '', //2
-        'i_rep' => '', //3
-        'avatar' => '', //4
-        'username' => '', //5
-        'since' => '', //6
+        '_id'          => '', //1
+        'displayName'  => '', //2
+        'i_rep'        => '', //3
+        'avatar'       => '', //4
+        'username'     => '', //5
+        'since'        => '', //6
         'registered_l' => '@@Registered@@', //7
-        'last_seen_l' => '@@Last seen@@', //8
-        'last_seen' => '', //9
+        'last_seen_l'  => '@@Last seen@@', //8
+        'last_seen'    => '', //9
         'reputation_l' => '@@Current User Reputation score@@', //10
-        'deleted' => '' //11
+        'deleted'      => '' //11
     );
 
 

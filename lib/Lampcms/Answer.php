@@ -447,7 +447,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
             's_inreply',
             'b',
             't',
-            'ts',
+            'i_ts',
             'cc',
             'cn',
             'reg',

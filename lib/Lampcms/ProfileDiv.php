@@ -133,7 +133,7 @@ class ProfileDiv extends LampcmsObject
             'name'         => $this->User->getDisplayName(),
             'genderLabel'  => '@@Gender@@',
             'gender'       => $this->getGender(),
-            'since'        => date('F j, Y', $this->User->i_reg_ts),
+            'since'        => TimeFormatter::formatTime($this->Registry->Locale->getLocale(), $this->User->i_reg_ts, TimeFormatter::LONG, TimeFormatter::NONE),
             'lastActivity' => TimeAgo::format(new \DateTime(date('r', $lastActive))),
             'website'      => $this->User->getUrl(),
             'twitter'      => '<div id="my_tw">' . $this->getTwitterAccount($isSameUser) . '</div>',

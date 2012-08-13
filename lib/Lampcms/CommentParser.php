@@ -288,7 +288,7 @@ class CommentParser extends LampcmsObject
         try {
             /**
              * Remove unnecessary elements from $this->aComment array
-             * and keep on the the keys we need in COMMENTS collection
+             * and keep only the the keys we need in COMMENTS collection
              */
             $aKeys = array('_id', 'hash', 'i_res', 'i_qid', 'i_uid', 'ip', 'i_ts', 'i_prnt', 'coll');
             $aData = \array_intersect_key($this->aComment, \array_flip($aKeys));
@@ -296,7 +296,7 @@ class CommentParser extends LampcmsObject
         } catch ( \MongoException $e ) {
             d('unable to created record in COMMENTS collection ' . $e->getMessage() . ' code: ' . $e->getCode());
 
-            throw new AlertException('It looks like you have already posted this comment');
+            throw new AlertException('@@It looks like you have already posted this comment@@');
         }
 
         $this->Resource->addComment($this);

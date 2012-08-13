@@ -68,48 +68,54 @@ namespace Lampcms;
  */
 class TimeAgo
 {
+
     public static function format(\DateTime $start, \DateTime $end = null)
     {
+        if (!isset($_SESSION['locale']) || (0 === strncmp('en', $_SESSION['locale'], 2))) {
 
-        $end = (!$end) ? new \DateTime() : $end;
+            $end = (!$end) ? new \DateTime() : $end;
 
-        $interval = $end->diff($start);
-        $doPlural = function($nb, $str)
-        {
-            return $nb > 1 ? $str . 's' : $str;
-        }; // adds plurals
+            $interval = $end->diff($start);
+            $doPlural = function($nb, $str)
+            {
+                return $nb > 1 ? $str . 's' : $str;
+            }; // adds plurals
 
-        $format = array();
-        if ($interval->y !== 0) {
-            $format[] = "%y " . $doPlural($interval->y, "year");
-        }
-        if ($interval->m !== 0) {
-            $format[] = "%m " . $doPlural($interval->m, "month");
-        }
-        if ($interval->d !== 0) {
-            $format[] = "%d " . $doPlural($interval->d, "day");
-        }
-        if ($interval->h !== 0) {
-            $format[] = "%h " . $doPlural($interval->h, "hour");
-        }
-        if ($interval->i !== 0) {
-            $format[] = "%i " . $doPlural($interval->i, "minute");
-        }
-        if ($interval->s !== 0) {
-            if (!count($format)) {
-                return "less than a minute ago";
-            } else {
-                $format[] = "%s " . $doPlural($interval->s, "second");
+            $format = array();
+            if ($interval->y !== 0) {
+                $format[] = "%y " . $doPlural($interval->y, "year");
             }
-        }
+            if ($interval->m !== 0) {
+                $format[] = "%m " . $doPlural($interval->m, "month");
+            }
+            if ($interval->d !== 0) {
+                $format[] = "%d " . $doPlural($interval->d, "day");
+            }
+            if ($interval->h !== 0) {
+                $format[] = "%h " . $doPlural($interval->h, "hour");
+            }
+            if ($interval->i !== 0) {
+                $format[] = "%i " . $doPlural($interval->i, "minute");
+            }
+            if ($interval->s !== 0) {
+                if (!count($format)) {
+                    return "less than a minute ago";
+                } else {
+                    $format[] = "%s " . $doPlural($interval->s, "second");
+                }
+            }
 
-        // We use the two biggest parts
-        if (count($format) > 1) {
-            $format = array_shift($format) . " and " . array_shift($format) . ' ago';
+            // We use the two biggest parts
+            if (count($format) > 1) {
+                $format = array_shift($format) . " and " . array_shift($format) . ' ago';
+            } else {
+                $format = array_pop($format) . ' ago';
+            }
+
+            return $interval->format($format);
         } else {
-            $format = array_pop($format) . ' ago';
-        }
 
-        return $interval->format($format);
+            return TimeFormatter::formatTime($_SESSION['locale'], $start->getTimestamp());
+        }
     }
 }
