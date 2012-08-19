@@ -304,7 +304,18 @@ FLAGGED_LIMIT = 10
 ;
 ; Max number of recent tags in recent tags block
 MAX_RECENT_TAGS = 30
-
+; 0 = no not validate, assume that input is valid utf8
+; 1 = assume that input is utf8 (do not attempt to detect encoding)
+; 2 = validate
+; 4 = sanitize
+; 6 = assume that input is utf-8 but also validate and sanitize (this is the default)
+; 8 = If input is not valid utf-8 then attempt to detect input encoding and convert to utf-8
+; If you notice that some of the chars do not look
+; correct on your site try to set this to 0 and see if it
+; fixes the problem. Then slowly increase the level
+; to find where the problem with chars re-coding occurs.
+;
+UTF8_INPUT = 6
 
 
 ;

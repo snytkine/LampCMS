@@ -234,6 +234,7 @@ try {
     define('LAMPCMS_COOKIE_DOMAIN', $Ini->COOKIE_DOMAIN);
     define('LAMPCMS_CATEGORIES', (int)$Ini->CATEGORIES);
     define('LAMPCMS_SHOW_RENDER_TIME', (bool)$Ini->SHOW_TIMER);
+    define('LAMPCMS_UTF8_INPUT', (int)$Ini->UTF8_INPUT);
 
     if (!empty($dataDir)) {
         define('LAMPCMS_DATA_DIR', $dataDir . DIRECTORY_SEPARATOR);
