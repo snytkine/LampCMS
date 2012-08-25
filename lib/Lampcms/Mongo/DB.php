@@ -324,7 +324,7 @@ class DB extends \Lampcms\LampcmsObject
         }
 
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $collName)) {
-            throw new \InvalidArgumentException('Invalid collection name: ' . $collName . ' Colletion name can only contain alphanumeric chars and underscores');
+            throw new \InvalidArgumentException('Invalid collection name: ' . $collName . ' Collection name can only contain alphanumeric chars and underscores');
         }
 
         $whereCol = \filter_var($whereCol, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);

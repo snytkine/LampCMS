@@ -126,8 +126,6 @@ class Utf8BaseString extends String
         }
 
         parent::__construct($string, $returnMode);
-        mb_regex_encoding("UTF-8");
-        mb_internal_encoding("UTF-8");
 
         /**
          * @todo if have iconv, also set its' encoding to utf-8

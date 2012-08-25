@@ -210,8 +210,10 @@ class Locale extends \Lampcms\LampcmsObject
 
     /**
      * Sets locale in Viewer object
-     * and also in this object as well as
-     * system-wide setlocale()
+     * No longer using setlocale() because
+     * it is very dangerous function
+     * (problem with Turkey locale - interferes with php class names that contain "I" letter
+     * because in Turkish encoding it has different char meaning)
      *
      *
      * @param string $locale
@@ -221,26 +223,10 @@ class Locale extends \Lampcms\LampcmsObject
     public function set($locale)
     {
         d(' $locale: ' . $locale);
-        $res = false;
-        $locales = array(
-            \str_replace('_', '-', $locale),
-            \str_replace('-', '_', $locale),
-            \strtolower(\substr($locale, 0, 2))
-        );
 
         $this->locale = $locale;
 
         $this->Registry->Viewer->setLocale($locale);
-
-        for ($i = 0; $i <= count($locales); $i += 1) {
-            if (false !== $locale = @setlocale(LC_ALL, $locales[$i])) {
-                d(' $locale: ' . $locale);
-                $res = true;
-                break;
-            }
-        }
-
-        return $res;
     }
 
 

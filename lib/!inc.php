@@ -73,6 +73,10 @@ if (function_exists('mb_internal_encoding')) {
     mb_internal_encoding("UTF-8");
 }
 
+if (function_exists('mb_regex_encoding')) {
+    mb_regex_encoding("UTF-8");
+}
+
 
 function exception_handler($e)
 {
@@ -141,7 +145,6 @@ require 'Lampcms' . DIRECTORY_SEPARATOR . 'Cookie.php';
 require 'Lampcms' . DIRECTORY_SEPARATOR . 'LoginForm.php';
 require 'Lampcms' . DIRECTORY_SEPARATOR . 'Uri' . DIRECTORY_SEPARATOR . 'UriString.php';
 require 'Lampcms' . DIRECTORY_SEPARATOR . 'Uri' . DIRECTORY_SEPARATOR . 'Router.php';
-
 
 
 /**
