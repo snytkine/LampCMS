@@ -130,8 +130,7 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
             throw new \Lampcms\DevException($err);
         }
 
-        $location = \str_replace('\\', '/', __DIR__) . '/schema/xml.xsd';
-        d('$location: ' . $location);
+        $location = \str_replace('\\', '/', LAMPCMS_CONFIG_DIR. DIRECTORY_SEPARATOR) .'xml.xsd';
 
         $parts = \explode('/', $location);
 
@@ -139,7 +138,7 @@ class XliffCatalog implements \Lampcms\Interfaces\Translator, \Serializable
         $location = 'file:///' . $drive . implode('/', \array_map('rawurlencode', $parts));
         d('$location: ' . $location);
 
-        $source = \file_get_contents(__DIR__ . '/schema/xliff-core-1.2-strict.xsd');
+        $source = \file_get_contents(LAMPCMS_CONFIG_DIR. DIRECTORY_SEPARATOR . 'xliff-core-1.2-strict.xsd');
         $source = \str_replace('http://www.w3.org/2001/xml.xsd', $location, $source);
 
         if (!@$oDom->schemaValidateSource($source)) {
