@@ -103,6 +103,17 @@ COMMENT_EDIT_TIME = 5
 ; in seconds
 COMMENTS_FLOOD_TIME = 30
 ;
+; Show comment time in a relative time format.
+; Set to "1" to enable or "0" to disable (disabled by default)
+; Instead of date/time time of comment will show something like: 2 days 1 hours ago
+; This feature will add a few milliseconds to page rendering time
+; Also relative time works for English language only.
+; For non-English locales the international time formatter will be
+; used in intl extensio is enabled.
+; When This is set to 0 (default) the simple php date() function is
+; used to format time which is this is fastest option.
+COMMENTS_FORMAT_TIME = 0
+;
 ; time to wait between posting
 ; questions and answers in minutes
 ;

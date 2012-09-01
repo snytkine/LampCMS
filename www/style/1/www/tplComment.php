@@ -59,23 +59,34 @@
 class tplComment extends \Lampcms\Template\Fast
 {
 
+    protected static function func(&$a)
+    {
+        if (isset($a['i_ts'])) {
+            if (1 == LAMPCMS_COMMENTS_FORMAT_TIME) {
+                $a['t'] = \Lampcms\TimeAgo::format(new \DateTime('@' . $a['i_ts']));
+            } else {
+                $a['t'] = \date('M j, Y h:i A', $a['i_ts']);
+            }
+        }
+    }
+
     protected static $vars = array(
-        '_id' => '', //1
-        'b' => '', //2
-        'ts' => '', //3
-        'username' => '', //4
-        'i_uid' => '', //5
-        't' => '', //6
-        'i_prnt' => 0, //7
-        'b_owner' => '', //8
+        '_id'         => '', //1
+        'b'           => '', //2
+        'ts'          => '', //3
+        'username'    => '', //4
+        'i_uid'       => '', //5
+        't'           => '', //6
+        'i_prnt'      => 0, //7
+        'b_owner'     => '', //8
         'edit_delete' => '', //9
-        'i_likes' => '', // 10
-        'e' => '', //11
-        'owner_id' => '0', //12
+        'i_likes'     => '', // 10
+        'e'           => '', //11
+        'owner_id'    => '0', //12
         'resource_id' => '0', //13
-        's_inreply' => '', //14
-        'reply' => '@@Reply@@', //15
-        'reply_t' => '@@Reply to this comment@@' //16
+        's_inreply'   => '', //14
+        'reply'       => '@@Reply@@', //15
+        'reply_t'     => '@@Reply to this comment@@' //16
     );
 
 

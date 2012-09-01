@@ -112,6 +112,11 @@ class TimeFormatter
      */
     public static function formatTime($locale, $timestamp, $dateFormat = self::LONG, $timeFormat = self::SHORT)
     {
+        /**
+         * If NO intl extension OR locale is en_US then use php's date() function
+         * to format.
+         *  || 0 === strncmp('en', $_SESSION['locale'])
+         */
         if (\extension_loaded('intl')) {
             $map       = self::getIntlFormatMap();
             $df        = $map[$dateFormat];
