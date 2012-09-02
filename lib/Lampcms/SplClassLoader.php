@@ -184,7 +184,11 @@ class SplClassLoader
 
             $fileName .= \str_replace('_', DIRECTORY_SEPARATOR, $className) . $this->_fileExtension;
 
-            $reqfile = ($this->_includePath !== null ? $this->_includePath . DIRECTORY_SEPARATOR : '') . $fileName;
+            if ('Lampcms\Plugins' === $namespace) {
+                $reqfile = LAMPCMS_CONFIG_DIR . DIRECTORY_SEPARATOR . 'Plugins' . DIRECTORY_SEPARATOR . $className . $this->_fileExtension;
+            } else {
+                $reqfile = ($this->_includePath !== null ? $this->_includePath . DIRECTORY_SEPARATOR : '') . $fileName;
+            }
 
             if ('Lampcms\Controllers' === $namespace) {
                 if (false === @include($reqfile)) {

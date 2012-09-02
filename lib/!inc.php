@@ -115,6 +115,7 @@ require 'Lampcms' . DIRECTORY_SEPARATOR . 'Interfaces' . DIRECTORY_SEPARATOR . '
 require 'Lampcms' . DIRECTORY_SEPARATOR . 'Exception.php';
 require 'Lampcms' . DIRECTORY_SEPARATOR . 'Object.php';
 require 'Lampcms' . DIRECTORY_SEPARATOR . 'String.php';
+require 'Lampcms' . DIRECTORY_SEPARATOR . 'Utf8BaseString.php';
 require 'Lampcms' . DIRECTORY_SEPARATOR . 'Utf8String.php';
 require 'Lampcms' . DIRECTORY_SEPARATOR . 'Responder.php';
 require 'Lampcms' . DIRECTORY_SEPARATOR . 'Mail' . DIRECTORY_SEPARATOR . 'Mailer.php';

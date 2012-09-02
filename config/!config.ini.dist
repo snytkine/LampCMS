@@ -612,6 +612,10 @@ online = "\\Lampcms\\Modules\\Observers\\Online"
 ; and most resource-intensive last
 ; Make sure Names are Unique - cannot use same filter name twice!
 [INPUT_FILTERS]
+;
+; This is a Demo plugin you can uncomment it to enable
+; just to see how it works.
+; demo = "\\Lampcms\\Plugins\\SponsorMessage"
 ipFilter= "\\Lampcms\\Modules\\Observers\\IpFilter"
 floodCheck = "\\Lampcms\\Modules\\Observers\\FloodCheck"
 questionSimilar = "\\Lampcms\\Modules\\Observers\\Similars"
