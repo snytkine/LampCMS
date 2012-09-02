@@ -64,7 +64,7 @@ namespace Lampcms\Captcha;
  * @author Dmitri Snytkine
  *
  */
-class Stub extends \Lampcms\Stub
+class CaptchaStub extends \Lampcms\Stub
 {
     public function validate_submit()
     {

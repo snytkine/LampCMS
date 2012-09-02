@@ -289,7 +289,7 @@ class Captcha
      *
      * @param \Lampcms\Config\Ini object
      *
-     * @return \Lampcms\Captcha\Captcha|\Lampcms\Captcha\Stub
+     * @return \Lampcms\Captcha\Captcha|\Lampcms\Captcha\CaptchaStub
      */
     public static function factory(\Lampcms\Config\Ini $Ini)
     {
@@ -299,7 +299,7 @@ class Captcha
         if (!empty($aConfig['disabled'])) {
             d('Captcha disabled by administrator. Using Captcha Stub instead');
 
-            return new Stub();
+            return new CaptchaStub();
         }
 
         try {
@@ -557,18 +557,18 @@ class Captcha
 
         d('$image: ' . \gettype($image) . ' image file: ' . $this->get_filename() . ' $this->jpegquality: ' . $this->jpegquality);
         if (true !== \imagejpeg($image, $this->get_filename(), $this->jpegquality)) {
-            e('error writing captcha image');
-            throw new DevException('Unable to save captcha-image to ' . $this->get_filename());
+            e('error writing captcha image. Make sure your www/w directory and ALL subdirectory have writable permission');
+            throw new DevException('Unable to save captcha-image to ' . $this->get_filename().' Make sure your www/w directory and ALL subdirectory have writable permission');
         }
 
         if (!file_exists($this->get_filename())) {
-            e('Captcha-Debug unable to save captcha file to ' . $this->get_filename());
-            throw new DevException('Unable to save captcha-image to ' . $this->get_filename());
+            e('Unable to save captcha file to ' . $this->get_filename().' Make sure your www/w directory and ALL subdirectory have writable permission');
+            throw new DevException('Unable to save captcha-image to ' . $this->get_filename().' Make sure your www/w directory and ALL subdirectory have writable permission');
         }
 
         //d('Captcha-Debug');
         if (true !== \imagedestroy($image)) {
-            e("Captcha-Debug: Destroy Imagestream fails.");
+            e("Captcha-Debug: Destroy GD Image Resource failed.");
         }
         //d('Captcha-Debug');
     }
