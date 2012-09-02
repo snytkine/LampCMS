@@ -312,14 +312,19 @@ EOD;
      * and locale passed in not english language locale then attempt to
      * translate each timezone name into the language of locale
      *
-     * @param string $locale The timezone names will be translated
-     *                       to language of the locale
+     * @param string $locale    The timezone names will be translated
+     *                          to language of the locale
+     *
+     * @param bool   $translate if this flag is false then do not translate
+     *                          having this flag allow to skip translation and return original html
+     *
      *
      * @return string html string with timezone options
      */
-    public static function getMenuOptions($locale = 'en_US')
+    public static function getMenuOptions($locale = 'en_US', $translate = true)
     {
-        if ((0 === \strncasecmp('en', $locale, 2)) || !\extension_loaded('intl')) {
+        if (!$translate || (0 === \strncasecmp('en', $locale, 2)) || !\extension_loaded('intl')) {
+            d('using default menu');
             return self::MENU;
         }
 
@@ -338,6 +343,7 @@ EOD;
      */
     protected static function translateOptions($locale)
     {
+        d('locale: ' . $locale);
         $ts        = time();
         $Formatter = new \IntlDateFormatter($locale, \IntlDateFormatter::NONE, \IntlDateFormatter::NONE, "UTC", NULL, 'vvvv');
         $ret       = \preg_replace_callback('/value="([a-zA-Z_\/]+)">([^<]*)</', function($matches) use ($Formatter, $ts)

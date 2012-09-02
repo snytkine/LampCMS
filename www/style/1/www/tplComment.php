@@ -62,8 +62,9 @@ class tplComment extends \Lampcms\Template\Fast
     protected static function func(&$a)
     {
         if (isset($a['i_ts'])) {
-            if (1 == LAMPCMS_COMMENTS_FORMAT_TIME) {
-                $a['t'] = \Lampcms\TimeAgo::format(new \DateTime('@' . $a['i_ts']));
+            $locale = $_SESSION['locale'];
+            if (0 !== strncmp('en', $locale, 2)) {
+                $a['t'] = \Lampcms\TimeFormatter::formatTime($locale, $a['i_ts']);
             } else {
                 $a['t'] = \date('M j, Y h:i A', $a['i_ts']);
             }
@@ -86,7 +87,8 @@ class tplComment extends \Lampcms\Template\Fast
         'resource_id' => '0', //13
         's_inreply'   => '', //14
         'reply'       => '@@Reply@@', //15
-        'reply_t'     => '@@Reply to this comment@@' //16
+        'reply_t'     => '@@Reply to this comment@@', //16
+        'i_ts'        => '' // 17
     );
 
 
@@ -111,7 +113,7 @@ class tplComment extends \Lampcms\Template\Fast
 			</div>
 			<div class="com_tools controls uid-%5$s" id="res_%1$s">
 				<div class="com_auth usr usr_%5$s fl"><a href="{_WEB_ROOT_}/{_userinfo_}/%5$s/" class="iu usr-%5$s commentor%8$s">%4$s</a></div>
-				<div title="%3$s" class="com_ts ts fl">%6$s</div>
+				<div title="%3$s" class="com_ts ts fl" lampcms:ts="%17$s">%6$s</div>
 				%11$s
 				%9$s		
 			</div>	

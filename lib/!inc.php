@@ -238,7 +238,6 @@ try {
     define('LAMPCMS_CATEGORIES', (int)$Ini->CATEGORIES);
     define('LAMPCMS_SHOW_RENDER_TIME', (bool)$Ini->SHOW_TIMER);
     define('LAMPCMS_UTF8_INPUT', (int)$Ini->UTF8_INPUT);
-    define('LAMPCMS_COMMENTS_FORMAT_TIME', $Ini->COMMENTS_FORMAT_TIME);
 
     if (!empty($dataDir)) {
         define('LAMPCMS_DATA_DIR', $dataDir . DIRECTORY_SEPARATOR);

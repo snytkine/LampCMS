@@ -196,7 +196,8 @@ class Editprofile extends WebPage
 
     protected function getTimeZonesMenu(){
 
-        $menu = \Lampcms\TimeZone::getMenuOptions($this->User->getLocale());
+        $translate = $this->Registry->Ini->ENABLE_TIMEZONE_TRANSLATION;
+        $menu = \Lampcms\TimeZone::getMenuOptions($this->Registry->Locale->getLocale(), (bool)$translate);
         $current = $this->User->getTimezone();
 
         return \str_replace('value="'.$current.'"', 'value="'.$current.'" selected="selected"', $menu );

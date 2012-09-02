@@ -71,14 +71,14 @@ class tplQuestion extends Lampcms\Template\Fast
              */
             $aEdited = end($a['a_edited']);
 
-            $a['edits'] = \tplEditedby::parse($aEdited, false);
+            $a['edits'] = \tplEditedby::parse($aEdited);
         }
 
         if (!empty($a['i_sticky'])) {
             $a['sticky'] = ' sticky';
         }
 
-        $a['hts'] = date('Y-m-d H:i:s', $a['i_ts']);
+        $a['hts'] = \Lampcms\TimeFormatter::formatTime($_SESSION['locale'], $a['i_ts']);
 
         if (!empty($a['a_comments'])) {
             /**

@@ -63,13 +63,13 @@ class tplAnswer extends Lampcms\Template\Fast
 
     protected static function func(&$a)
     {
-        $a['hts'] = date('Y-m-d H:i:s', $a['i_ts']);
+        $a['hts'] = \Lampcms\TimeFormatter::formatTime($_SESSION['locale'], $a['i_ts']);
 
         if (array_key_exists('a_edited', $a)) {
             $aEdited = end($a['a_edited']);
             $aEdited['edited'] = $a['edited'];
 
-            $a['edits'] = \tplEditedby::parse($aEdited, false);
+            $a['edits'] = \tplEditedby::parse($aEdited);
         }
 
         if (!empty($a['i_del_ts'])) {
@@ -77,7 +77,7 @@ class tplAnswer extends Lampcms\Template\Fast
         }
 
         if (!empty($a['a_deleted'])) {
-            $a['deletedby'] = \tplDeletedby::parse($a['a_deleted'], false);
+            $a['deletedby'] = \tplDeletedby::parse($a['a_deleted']);
         }
 
         if (!empty($a['a_comments'])) {

@@ -117,7 +117,7 @@ class TimeFormatter
          * to format.
          *  || 0 === strncmp('en', $_SESSION['locale'])
          */
-        if (\extension_loaded('intl')) {
+        if (\extension_loaded('intl') && $locale !== '') {
             $map       = self::getIntlFormatMap();
             $df        = $map[$dateFormat];
             $tf        = $map[$timeFormat];
