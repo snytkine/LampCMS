@@ -51,7 +51,22 @@ It's a pretty large config file, most of the settings are optional and there are
 
 There are some required settings you must define:
 
-all settings in the [MONGO] section are important - define connection to your mongo server
+EMAIL_ADMIN
+The value of EMAIL_ADMIN must be your own email address enclosed in double quotes
+For example:
+EMAIL_ADMIN = "myname@myemail.com"
+
+This setting is very important because in order to create an admin account
+for your new LampCMS website you need to just register a new account and use the same
+email address as you set in EMAIL_ADMIN setting.
+When a new account is created and email address matches the EMAIL_ADMIN that account
+is automatically granted admin rights.
+
+You should also set the value of EMAIL_DEVELOPER email address. The error messages will be
+emailed to that address when something does not work correctly on your site. For example if database
+connection is down you will at least be notified about it.
+
+All settings in the [MONGO] section are important - define connection to your mongo server
 
 
 [DB] section is for MySQL connection and is optional. MySQL server can be used as a search provider because MySQL has decent full text indexing. 
