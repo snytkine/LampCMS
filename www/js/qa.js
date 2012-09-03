@@ -962,7 +962,6 @@ oSL.Regform = (function () {
 })();
 
 // include.js
-
 YUI({
     /*filter: 'raw',
      gallery : 'gallery-2010.08.18-17-12'*/
@@ -978,8 +977,7 @@ YUI({
              * Storage for already resolved
              * answers tab
              */
-            loader, //
-            yUploader,
+                loader, //
             getMeta, //
             setMeta, //
             getToken, //
@@ -1026,85 +1024,6 @@ YUI({
                     res.set('innerHTML', str);
                 }
             }, //
-            yuiImgUploader = function(rte, upload_url, upload_image_name) {
-            // customize the editor img button
-                var editor_name = 'id_qbody';
-                console.log( "Adding Click Listener");
-                console.log( "rte: " + (typeof rte));
-                rte.addListener('toolbarLoaded',function() {
-                console.log( "1035 click");
-                rte.toolbar.addListener ( 'insertimageClick', function(o) {
-                    var imgPanel;
-                        console.log( "1037 click");
-                    try {
-                        imgPanel=new YAHOO.util.Element(editor_name + '-panel');
-                        imgPanel.on ( 'contentReady', function() {
-
-                        //Y.one('#' + editor_name + '-panel').on ( 'contentReady', function() {
-                            console.log('1043 on contentReady');
-                            try {
-                                var Dom=YAHOO.util.Dom;
-
-                                if (!Y.one("#" + editor_name + '_insertimage_upload'))
-                                {
-                                    console.log( "1046 click");
-                                    /*var label=document.createElement('label');
-                                    label.innerHTML='<strong>Upload:</strong>'+
-                                        '<input type="file" id="' +
-                                        editor_name + '_insertimage_upload" name="'+upload_image_name+
-                                        '" size="10" style="width: 300px" />'+
-                                        '</label>';*/
-
-                                    var label = Y.Node.create('<label><strong>Upload:</strong><input type="file" id="' +
-                                        editor_name + '_insertimage_upload" name="'+ upload_image_name + '" size="10" style="width: 300px" /></label>');
-
-                                    var img_elem=Dom.get(editor_name + '_insertimage_url');
-                                    Dom.getAncestorByTagName(img_elem, 'form').encoding = 'multipart/form-data';
-                                    Y.one('#' + editor_name + '_insertimage_url').insert(label, 'after');
-
-
-                                    YAHOO.util.Event.on ( editor_name + '_insertimage_upload', 'change', function(ev) {
-                                        YAHOO.util.Event.stopEvent(ev); // no default click action
-                                        $CONN.setForm ( img_elem.form, true, true );
-                                        var c=$CONN.asyncRequest(
-                                            'POST', upload_url, {
-                                                upload:function(r){
-                                                    try {
-                                                        // strip pre tags if they got added somehow
-                                                        resp=r.responseText.replace( /<pre>/i, '').replace ( /<\/pre>/i, '');
-                                                        var o=eval('('+resp+')');
-                                                        if (o.status=='UPLOADED') {
-                                                            Dom.get(editor_name + '_insertimage_upload').value='';
-                                                            Dom.get(editor_name + '_insertimage_url').value=o.image_url;
-                                                            // tell the image panel the url changed
-                                                            // hack instead of fireEvent('blur')
-                                                            // which for some reason isn't working
-                                                            Dom.get(editor_name + '_insertimage_url').focus();
-                                                            Dom.get(editor_name + '_insertimage_upload').focus();
-                                                        } else {
-                                                            alert ( "Upload Failed: "+o.status );
-                                                        }
-
-                                                    } catch ( eee ) {
-                                                        console.log( "1080 Error " + eee.message );
-                                                    }
-                                                }
-                                            }
-                                        );
-                                        return false;
-                                    });
-                                }
-                            }
-                            catch ( ee ) { console.log( "1089 Error" + ee.message ); }
-
-                        });
-                    } catch ( e ) {
-                        console.log( '1093 Error' + e.message );
-                    }
-                });
-            });
-
-        },
             /**
              * Template for
              * comment form and for
@@ -2363,7 +2282,7 @@ YUI({
             },
 
 
-            // A function handler to use for successful requests:
+        // A function handler to use for successful requests:
             handleSuccess = function (ioId, o, args) {
                 hideLoading();
                 Y.log("args from Y.io: " + Y.dump(args));
@@ -2957,8 +2876,7 @@ YUI({
                         ]
                     }
                 });
-                console.log('2952 editor: ' + (typeof editor));
-                yuiImgUploader(editor, '/img_uploader.php', 'image');
+
                 /**
                  * Original code from YUI2 Editor has genocidal behaviour in
                  * Chrome. Replacing it now!
@@ -3002,7 +2920,7 @@ YUI({
                 };
 
 
-                editor.on('MytoolbarLoaded', function () {
+                editor.on('toolbarLoaded', function () {
 
                     Y.log('2507 this is ' + this, 'warn'); // Editor
 
@@ -3112,7 +3030,7 @@ YUI({
                          *       cleanHTML actually does this! none of the built in
                          *       filters seem to work. Probably the swapTag() is the one
                          *       that messes everything up and strips all whitespaces
-                         *       and line breaks and then it's too late to fix it as all
+                         *       and linebreaks and then it's too late to fix it as all
                          *       formatting is gone
                          *
                          */
@@ -3244,7 +3162,7 @@ YUI({
                         previewDiv.set('innerHTML', getEditedText());
                     }
 
-                    // activate highlighter here
+                    // activate hightlighter here
                     // dp.sh.ClipboardSwf = '/js/min/clipboard.swf';
                     if ((typeof dp !== 'undefined') && dp.SyntaxHighlighter) {
                         dp.SyntaxHighlighter.HighlightAll('codepreview');
