@@ -1039,25 +1039,29 @@ YUI({
                     try {
                         imgPanel=new YAHOO.util.Element(editor_name + '-panel');
                         imgPanel.on ( 'contentReady', function() {
+
+                        //Y.one('#' + editor_name + '-panel').on ( 'contentReady', function() {
+                            console.log('1043 on contentReady');
                             try {
                                 var Dom=YAHOO.util.Dom;
 
                                 if (!Y.one("#" + editor_name + '_insertimage_upload'))
                                 {
                                     console.log( "1046 click");
-                                    var label=document.createElement('label');
+                                    /*var label=document.createElement('label');
                                     label.innerHTML='<strong>Upload:</strong>'+
                                         '<input type="file" id="' +
                                         editor_name + '_insertimage_upload" name="'+upload_image_name+
                                         '" size="10" style="width: 300px" />'+
-                                        '</label>';
+                                        '</label>';*/
+
+                                    var label = Y.Node.create('<label><strong>Upload:</strong><input type="file" id="' +
+                                        editor_name + '_insertimage_upload" name="'+ upload_image_name + '" size="10" style="width: 300px" /></label>');
 
                                     var img_elem=Dom.get(editor_name + '_insertimage_url');
                                     Dom.getAncestorByTagName(img_elem, 'form').encoding = 'multipart/form-data';
+                                    Y.one('#' + editor_name + '_insertimage_url').insert(label, 'after');
 
-                                    Dom.insertAfter(
-                                        label,
-                                        img_elem.parentNode);
 
                                     YAHOO.util.Event.on ( editor_name + '_insertimage_upload', 'change', function(ev) {
                                         YAHOO.util.Event.stopEvent(ev); // no default click action
