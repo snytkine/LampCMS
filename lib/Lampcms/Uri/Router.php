@@ -105,6 +105,15 @@ class Router
      */
     protected $controller;
 
+    /**
+     * If controller has an alias in the [ROUTES]
+     * then this will be set to the value of
+     * the actual uri segment that was called (the alias value of controller)
+     *
+     * @var string
+     */
+    protected $controllerAlias;
+
 
     /**
      * In case uri string contains pagination
@@ -434,8 +443,8 @@ class Router
                  * Do case-insensitive search for a matching route
                  */
                 if (($route === \strtolower($this->uri)) || (0 === \strncasecmp($route . '/', $this->uri, ($strlen + 1)))) {
-
-                    $this->controller = $controller;
+                    $this->controllerAlias = $route;
+                    $this->controller      = $controller;
 
                     if (\strlen($this->uri) > $strlen) {
                         $this->makeSegments(\substr($this->uri, $strlen));
@@ -478,6 +487,14 @@ class Router
         return $this;
     }
 
+
+    public function getCalledControllerName(){
+        if(isset($this->controllerAlias)){
+            return $this->controllerAlias;
+        }
+
+        return $this->controller;
+    }
 
     /**
      * Explode the $uri string and create the
@@ -558,9 +575,9 @@ class Router
                  * This type of replace is used for generating
                  * links that will be used inside email
                  * or inside tweet or post to blog/linked-in, etc.
-                  */
-                if($fullUrl){
-                    $s = str_replace('{_WEB_ROOT_}', $siteUrl.'{_WEB_ROOT_}', $s);
+                 */
+                if ($fullUrl) {
+                    $s = str_replace('{_WEB_ROOT_}', $siteUrl . '{_WEB_ROOT_}', $s);
                 }
 
                 /**
@@ -611,7 +628,8 @@ class Router
      * @return string full url of QA site (including web directory if installed in non-root directory
      * and including /index.php if not using server-side rewrite rules)
      */
-    public function getHomePageUrl(){
+    public function getHomePageUrl()
+    {
         $uri    = $this->Ini->SITE_URL . '{_WEB_ROOT_}';
         $mapper = $this->getCallback();
         $ret    = $mapper($uri);

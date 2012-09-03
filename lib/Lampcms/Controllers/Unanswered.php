@@ -229,6 +229,8 @@ class Unanswered extends Viewquestions
 
         if (empty($this->aTags)) {
 
+            $cname = $this->Router->getCalledControllerName();
+
             /**
              * And now a workaround
              * for the genocidal RewriteRule bug
@@ -254,7 +256,7 @@ class Unanswered extends Viewquestions
                  * $r is something like this: /tagged/tag%2B%2B/
                  */
                 $r = $_SERVER['REQUEST_URI'];
-                $m = \preg_match('/\/tagged\/([^\/]+)([\/]{0,1})/i', $r, $matches);
+                $m = \preg_match('/\/'.$cname.'\/([^\/]+)([\/]{0,1})/i', $r, $matches);
                 d('matches: ' . print_r($matches, 1));
                 if ($matches && !empty($matches[1])) {
                     $tags = $matches[1];
