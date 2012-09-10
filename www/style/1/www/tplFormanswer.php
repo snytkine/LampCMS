@@ -83,7 +83,7 @@ class tplFormanswer extends Lampcms\Template\Fast
             %13$s
             </div>
             <div class="form_el">
-            	<input id="dostuff" name="submit" type="submit" value="%5$s" %8$s class="btn btn-m"> 
+            	<input id="dostuff" name="ans_submit" type="submit" value="%5$s" %8$s class="btn btn-m">
             </div>
             <!-- // el submit -->
 		</form>

@@ -66,16 +66,19 @@ class Path
     /**
      * It is used to verify or create the path of the file (using HEX logic)
      *
-     * @param int $intResourceId  resource id
-     * the path will be created based on this integer
+     * @param int    $intResourceId  resource id
+     *                               the path will be created based on this integer
      *
      * @param string $destinationDir directory in which
-     * the path will be created.
+     *                               the path will be created.
      *
+     * @param bool   $bReturnFullPath
+     *
+     * @throws \Lampcms\DevException
+     * @throws \InvalidArgumentException
      * @return string a hex path (without file extension)
      * OR a full path, including the destinationDir prefix
      * if $bReturnFullPath param is true
-     *
      */
     public static final function prepare($intResourceId, $destinationDir = '', $bReturnFullPath = false)
     {
@@ -87,19 +90,18 @@ class Path
         /**
          * Resource id is converted to hex number
          */
-        $destinationDir = \trim((string)$destinationDir);
-        $strHex = dechex((int)$intResourceId);
-        $strHex = strtoupper($strHex);
-        $arrTemp = array();
-        $intCount = 0;
-        $strPath = '';
+        $destinationDir    = \trim((string)$destinationDir);
+        $strHex            = dechex((int)$intResourceId);
+        $strHex            = strtoupper($strHex);
+        $arrTemp           = array();
+        $intCount          = 0;
+        $strPath           = '';
         $strFullPathToOrig = '';
         do {
             $intCount++;
             $intRes = preg_match("/([0-9A-F]{1,2})([0-9A-F]*)/", $strHex, $arrTemp);
-            //$strHex = $arrTemp[2];
-            //d('$strHex: '.$strHex);
-            d('$arrTemp: ' . print_r($arrTemp, 1));
+
+            d('$arrTemp: ' . \json_encode($arrTemp));
 
             $strPath .= '' . $arrTemp[1];
             if ($arrTemp && ('' !== $arrTemp[2])) {
@@ -127,10 +129,46 @@ class Path
 
 
     /**
+     * Create directory based on current time, using Year, Month, Date format
+     * for example 2012/11/24
+     *
+     * @param string     $basePath       path to directory in which to
+     *                                   create desired directory structure
+     * @param bool       $returnFullPath if true then return full path, including $basePath,
+     *                                   otherwise return only the created directory structure
+     *
+     * @return string full path or relative path to created directory
+     *
+     * @throws \Lampcms\DevException if unable to create directory
+     */
+    public static function prepareByTimestamp($basePath, $returnFullPath = true)
+    {
+        $D    = new \DateTime('now');
+        $path = $D->format('Y') . DIRECTORY_SEPARATOR . $D->format('m') . DIRECTORY_SEPARATOR . $D->format('d');
+
+        $fullPath = $basePath . DIRECTORY_SEPARATOR . $path;
+        if (!file_exists($fullPath)) {
+            $res = @mkdir($fullPath, 0777, true);
+        } else {
+            $res = true;
+        }
+
+        $path .= DIRECTORY_SEPARATOR;
+
+        if (!$res) {
+            throw new \Lampcms\DevException('Unable to create directory: ' . $path);
+        }
+
+        return ($returnFullPath) ? $fullPath : $path;
+    }
+
+
+    /**
      * Converts the hex path to integer
      * for example:
      * 3E/A
      * is converted to 1002
+     *
      * @param string $hex
      * a hex-like path
      *

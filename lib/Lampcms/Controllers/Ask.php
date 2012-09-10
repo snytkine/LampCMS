@@ -72,10 +72,22 @@ class Ask extends Askform
     {
         $this->aPageVars['title'] = '@@Ask a question@@';
 
-        //$a = $this->Registry->Request->getArray();
-        //d('request: '.print_r($a, 1).' POST: '.print_r($_POST, 1));
+        if (!empty($_FILES) && \is_uploaded_file($_FILES['image']['tmp_name'])) {
+            /**
+             * Pre-validate
+             * Make sure upload is not a non-image
+             */
+            /**
+             * Post onImageUpload event
+             * There will be a flood check observer which will record
+             * image upload to DB, check for flood condition and may
+             * cancel the event in case a flood is detected
+             */
+            $this->Form = new \Lampcms\Forms\ImageUpload($this->Registry);
+        } else {
 
-        $this->makeForm();
+            $this->makeForm();
+        }
 
         if ($this->Form->validate()) {
             $this->process();
@@ -99,6 +111,9 @@ class Ask extends Askform
      */
     protected function process()
     {
+        if ($this->Form instanceof \Lampcms\Forms\ImageUpload) {
+            return $this->processUpload();
+        }
 
         $formVals = $this->Form->getSubmittedValues();
         d('formVals: ' . print_r($formVals, 1));
@@ -109,9 +124,56 @@ class Ask extends Askform
             d('title: ' . $Question['title']);
 
             Responder::redirectToPage($Question->getUrl());
-        } catch (QuestionParserException $e) {
+        } catch ( QuestionParserException $e ) {
             $this->Form->setFormError($e->getMessage());
             $this->showFormWithErrors();
+        }
+    }
+
+
+    protected function processUpload()
+    {
+        try {
+            $file = $this->Form->getUploadedFile('image');
+            if (empty($file)) {
+                $res = array('upload' => false, 'error' => '@@No files uploaded@@');
+
+            } else {
+                /**
+                 * Have upload.
+                 * attempt to resize it.
+                 */
+                try {
+                    $ImageParser = new \Lampcms\Image\ImageUploadParser($this->Registry, $this->Registry->Viewer, $file);
+                    $url         = $ImageParser->parse();
+
+                    $res = array('upload' => true, 'url' => $this->Registry->Ini->SITE_URL .'{_DIR_}/w/img/'.$url);
+
+                } catch ( \Exception $e ) {
+                    e('Image Upload Failed: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on ' . $e->getLine());
+                    if ( ($e instanceof \Lampcms\ImageException) || ($e instanceof \Lampcms\AccessException)) {
+                        $error = $e->getMessage();
+                    } else {
+                        $error = '@@Upload failed@@';
+                    }
+
+                    $res = array('upload' => false, 'error' => $error);
+                }
+
+                /**
+                 * Need to set Error reporting to NOT include notice
+                 * because any type of notice including MongoDB generates notices will ruin the json string
+                 */
+                error_reporting(E_ALL & ~E_NOTICE);
+                $ret = \json_encode($res);
+                echo $ret;
+                fastcgi_finish_request();
+                exit;
+
+            }
+            // return json string with uploaded image
+        } catch ( \Exception $e ) {
+            // something did not work during the upload
         }
     }
 

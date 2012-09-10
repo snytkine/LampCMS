@@ -99,9 +99,10 @@ class EditorGD extends Editor
      *
      * @param $sPath a path to image
      *
-     * @throws Lampcms\ImageException if unable to load
+     * @throws \Lampcms\ImageException if unable to load
      * image from path or image is not one of the supported
      * formats
+     * @throws \UnexpectedValueException if file in sPath is not an image
      *
      * @return object $this
      */
@@ -110,12 +111,12 @@ class EditorGD extends Editor
 
         d('$sPath: ' . $sPath);
         if (false === $this->aOrigSize = @\getimagesize($sPath)) {
-            throw new \Lampcms\ImageException('Unable to parse uploaded file. Possibly unsupported image format or not an image');
+            throw new \UnexpectedValueException('@@Unable to parse uploaded file. Possibly unsupported image format or not an image@@');
         }
 
         d('$aOrigSize:  ' . print_r($this->aOrigSize, true));
 
-        switch ($this->aOrigSize['mime']) {
+        switch ( $this->aOrigSize['mime'] ) {
             case 'image/jpeg':
                 $this->origType = 'jpeg';
                 if (!function_exists('imagecreatefromjpeg')) {
@@ -166,7 +167,7 @@ class EditorGD extends Editor
     {
         Validate::type($hdlGD, array('resource' => 'gd'));
         d('setting new $this->hdlOrig resource');
-        $this->hdlOrig = $hdlGd;
+        $this->hdlOrig = $hdlGD;
 
         return $this;
     }
@@ -207,26 +208,24 @@ class EditorGD extends Editor
      * Saves image stored as GD resource
      * into a file
      *
-     * @param resource $hdlImg resource of type 'gd'
+     * @param string   $strDestination a full path to
+     *                                 file in which the image should be saved
      *
-     * @param string $strDestination a full path to
-     * file in which the image should be saved
+     * @param resource $hdlImg         resource of type 'gd'
      *
-     * @param int $intCompression compression level
-     * this is only used for jpeg images
+     * @param bool|int $intCompression compression level
+     *                                 this is only used for jpeg images
      *
-     * @param bool $bPreserveAlpha
+     * @param bool     $bPreserveAlpha
      *
-     * @param bool $bKeepResource is set to true, then don't destroy
-     * the GD resource after saving image to a file, otherwise
-     * the GD resource is destroyed after image is saved
+     * @param bool     $bKeepResource  is set to true, then don't destroy
+     *                                 the GD resource after saving image to a file, otherwise
+     *                                 the GD resource is destroyed after image is saved
      *
      *
      * @throws \Lampcms\ImageException if image could not
      * be saved in destination
-     *
      * @return object $this
-     *
      */
     public function save($strDestination, $hdlImg = null, $intCompression = false, $bPreserveAlpha = false, $bKeepResource = false)
     {
@@ -253,9 +252,9 @@ class EditorGD extends Editor
          * Save image
          *
          * @todo add compression option for png images, which is different from
-         * jpg compression - has levels 1 - 9
+         *       jpg compression - has levels 1 - 9
          *  ( ('png' === $this->origType) && (false !== $intCompression)){
-         *  do stuff here first recalculate compression based so that level 75 becomes 8 for example
+         *       do stuff here first recalculate compression based so that level 75 becomes 8 for example
          *  }
          */
         if (('jpeg' === $this->origType) && (false !== $intCompression)) {
@@ -275,7 +274,7 @@ class EditorGD extends Editor
 
         } else {
             if (false === \imagegif($hdlImg, $strDestination)) {
-                throw new \Lampcms\ImageException('Error Unable to save image to  ' . $strDestination . ' $strFunction: ' . $strFunction);
+                throw new \Lampcms\ImageException('Error Unable to save image to  ' . $strDestination);
             }
         }
 
@@ -301,10 +300,11 @@ class EditorGD extends Editor
      * based on user's setting of % cut, then pass them here
      * for thumb to be created
      *
-     * @param int $intMaxWidth maximum width of thumnail
+     * @param int $intMaxWidth  maximum width of thumbnail
      *
      * @param int $intMaxHeight maximum height of thumbnail
      *
+     * @throws \InvalidArgumentException
      * @return object $this
      */
     public function scale($intMaxWidth, $intMaxHeight)
@@ -401,15 +401,17 @@ class EditorGD extends Editor
      * and calculate the resize factor
      * based on maxWidth and maxHeight
      *
+     * @param $intMaxWidth
+     * @param $intMaxHeight
+     *
      * @return mixed false if no resize is necessary
      * or array with 2 values 0 => new_width and 1 => new_height
      *
      * Also sets the $this->factor value
-     *
      */
-    protected function getFactor($intMaxWidth, $intMaxHeight)
+    public function getFactor($intMaxWidth, $intMaxHeight)
     {
-        $intCropWidth = $this->aOrigSize[0];
+        $intCropWidth  = $this->aOrigSize[0];
         $intCropHeight = $this->aOrigSize[1];
 
         /**
@@ -437,8 +439,8 @@ class EditorGD extends Editor
              * then we crop by width
              */
             d('cp');
-            $new_height = round(($intMaxWidth / $intCropWidth) * $intCropHeight, 0);
-            $new_width = $intMaxWidth;
+            $new_height   = round(($intMaxWidth / $intCropWidth) * $intCropHeight, 0);
+            $new_width    = $intMaxWidth;
             $this->factor = $intCropWidth / $new_width;
         } else {
 
@@ -446,8 +448,8 @@ class EditorGD extends Editor
              * crop by height
              */
             d('cp');
-            $new_width = round(($intMaxHeight / $intCropHeight) * $intCropWidth, 0);
-            $new_height = $intMaxHeight;
+            $new_width    = round(($intMaxHeight / $intCropHeight) * $intCropWidth, 0);
+            $new_height   = $intMaxHeight;
             $this->factor = $intCropHeight / $new_height;
         }
 
@@ -467,7 +469,7 @@ class EditorGD extends Editor
             throw new \Lampcms\ImageException('Cannot show image because $this->hdlWork is empty');
         }
 
-        switch ($this->origType) {
+        switch ( $this->origType ) {
             case 'jpeg':
                 $f = 'imagejpeg';
                 break;
@@ -526,8 +528,8 @@ class EditorGD extends Editor
      * Creates new GD resource
      * of defined intWidth and intHeight
      * takes clues from hdlOrig about what type
-     * of GD resource to create and wheather or not
-     * to set transparancy
+     * of GD resource to create and whether or not
+     * to set transparency
      */
     protected function createGDResource($intWidth = 0, $intHeight = 0, $bTrueColor = false)
     {
@@ -537,7 +539,7 @@ class EditorGD extends Editor
             throw new \Lampcms\ImageException('$intWidth and $intHeight must be numeric. Supplied value were $intWidth: ' . $intWidth . ' $intHeight: ' . $intHeight);
         }
 
-        $intWidth = ($intWidth > 0) ? $intWidth : $this->aOrigSize[0];
+        $intWidth  = ($intWidth > 0) ? $intWidth : $this->aOrigSize[0];
         $intHeight = ($intHeight > 0) ? $intHeight : $this->aOrigSize[1];
 
         /**
@@ -597,14 +599,17 @@ class EditorGD extends Editor
      * or from bottom in case of portrait
      *
      * @param int $intWidth the width of the desired
-     * square result (height is the same)
+     *                      square result (height is the same)
      *
      * (non-PHPdoc)
+     *
      * @see Lampcms\Image.Editor::makeSquare()
+     *
+     * @return object $this
      */
     public function makeSquare($intWidth)
     {
-        $src_x = 0;
+        $src_x    = 0;
         $intWidth = (int)$intWidth;
 
         /**

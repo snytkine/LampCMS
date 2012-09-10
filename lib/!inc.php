@@ -211,7 +211,7 @@ function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
                 return true;
             }
 
-            throw new \Lampcms\DevException($errstr, null, $errno, $errfile, $errline);
+            throw new \Lampcms\DevException($errstr.' in '.$errfile.' on line: '.$errline, null, $errno );
 
         }
     }

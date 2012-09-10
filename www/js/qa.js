@@ -1026,85 +1026,109 @@ YUI({
                     res.set('innerHTML', str);
                 }
             }, //
-            yuiImgUploader = function(rte, upload_url, upload_image_name) {
-            // customize the editor img button
+            yuiImgUploader = function(rte, upload_image_name) {
+                // customize the editor img button
                 var editor_name = 'id_qbody';
                 console.log( "Adding Click Listener");
                 console.log( "rte: " + (typeof rte));
                 rte.addListener('toolbarLoaded',function() {
-                console.log( "1035 click");
-                rte.toolbar.addListener ( 'insertimageClick', function(o) {
-                    var imgPanel;
+                    console.log( "1035 click");
+                    rte.toolbar.addListener ( 'insertimageClick', function(o) {
+                        var imgPanel;
                         console.log( "1037 click");
-                    try {
-                        imgPanel=new YAHOO.util.Element(editor_name + '-panel');
-                        imgPanel.on ( 'contentReady', function() {
+                        try {
+                            imgPanel=new YAHOO.util.Element(editor_name + '-panel');
+                            imgPanel.on ( 'contentReady', function() {
 
-                        //Y.one('#' + editor_name + '-panel').on ( 'contentReady', function() {
-                            console.log('1043 on contentReady');
-                            try {
-                                var Dom=YAHOO.util.Dom;
+                                //Y.one('#' + editor_name + '-panel').on ( 'contentReady', function() {
+                                console.log('1043 on contentReady');
+                                try {
+                                    var Dom=YAHOO.util.Dom;
 
-                                if (!Y.one("#" + editor_name + '_insertimage_upload'))
-                                {
-                                    console.log( "1046 click");
-                                    /*var label=document.createElement('label');
-                                    label.innerHTML='<strong>Upload:</strong>'+
-                                        '<input type="file" id="' +
-                                        editor_name + '_insertimage_upload" name="'+upload_image_name+
-                                        '" size="10" style="width: 300px" />'+
-                                        '</label>';*/
+                                    if (!Y.one("#" + editor_name + '_insertimage_upload'))
+                                    {
+                                        console.log( "1046 click");
 
-                                    var label = Y.Node.create('<label><strong>Upload:</strong><input type="file" id="' +
-                                        editor_name + '_insertimage_upload" name="'+ upload_image_name + '" size="10" style="width: 300px" /></label>');
+                                        var label = Y.Node.create('<label><strong>Upload:</strong><input type="file" id="' +
+                                            editor_name + '_insertimage_upload" name="'+ upload_image_name + '" size="10" style="width: 300px" /></label>');
 
-                                    var img_elem=Dom.get(editor_name + '_insertimage_url');
-                                    Dom.getAncestorByTagName(img_elem, 'form').encoding = 'multipart/form-data';
-                                    Y.one('#' + editor_name + '_insertimage_url').insert(label, 'after');
+                                        var img_elem=Y.one("#" + editor_name + '_insertimage_url');
+                                        var myForm = img_elem.ancestor('form');
+                                        myForm.set('encoding', 'multipart/form-data');
 
+                                        Y.one('#' + editor_name + '_insertimage_url').insert(label, 'after');
 
-                                    YAHOO.util.Event.on ( editor_name + '_insertimage_upload', 'change', function(ev) {
-                                        YAHOO.util.Event.stopEvent(ev); // no default click action
-                                        $CONN.setForm ( img_elem.form, true, true );
-                                        var c=$CONN.asyncRequest(
-                                            'POST', upload_url, {
-                                                upload:function(r){
-                                                    try {
-                                                        // strip pre tags if they got added somehow
-                                                        resp=r.responseText.replace( /<pre>/i, '').replace ( /<\/pre>/i, '');
-                                                        var o=eval('('+resp+')');
-                                                        if (o.status=='UPLOADED') {
-                                                            Dom.get(editor_name + '_insertimage_upload').value='';
-                                                            Dom.get(editor_name + '_insertimage_url').value=o.image_url;
-                                                            // tell the image panel the url changed
-                                                            // hack instead of fireEvent('blur')
-                                                            // which for some reason isn't working
-                                                            Dom.get(editor_name + '_insertimage_url').focus();
-                                                            Dom.get(editor_name + '_insertimage_upload').focus();
-                                                        } else {
-                                                            alert ( "Upload Failed: "+o.status );
-                                                        }
-
-                                                    } catch ( eee ) {
-                                                        console.log( "1080 Error " + eee.message );
-                                                    }
+                                        YAHOO.util.Event.on ( editor_name + '_insertimage_upload', 'change', function(ev) {
+                                            var complete;
+                                            YAHOO.util.Event.stopEvent(ev); // no default click action
+                                            var cfg = {
+                                                method: 'POST',
+                                                form: {
+                                                    id: myForm,
+                                                    upload: true
                                                 }
-                                            }
-                                        );
-                                        return false;
-                                    });
+                                            };
+
+                                            console.log('1072 before uploading');
+
+                                            complete = function(id, o, args) {
+                                                var id = id; // Transaction ID.
+                                                var data = o.responseText; // Response data.
+                                                var oJSON;
+                                                console.log('upload complete. ' + data);
+                                                try{
+                                                oJSON = Y.JSON.parse(data);
+
+                                                    if(oJSON.hasOwnProperty('upload')){
+                                                        console.log('uploaded: ' + oJSON['upload'] + ' has url: ' + oJSON.hasOwnProperty('url'));
+                                                        if(oJSON['upload'] != true){
+                                                            if(oJSON.hasOwnProperty('error')){
+                                                                alert(oJSON['error']);
+                                                            } else {
+                                                                alert($_('Upload failed'));
+                                                            }
+                                                        } else{
+                                                            if(!oJSON.hasOwnProperty('url')){
+                                                                alert($_('Upload failed'));
+                                                            } else {
+                                                                Y.one("#" + editor_name + '_insertimage_upload').set('value', '');
+                                                                Y.one("#" +editor_name + '_insertimage_url').set('value', oJSON['url']);
+                                                                // tell the image panel the url changed
+                                                                // hack instead of fireEvent('blur')
+                                                                // which for some reason isn't working
+                                                                Dom.get(editor_name + '_insertimage_url').focus();
+                                                                Dom.get(editor_name + '_insertimage_upload').focus();
+                                                            }
+                                                        }
+                                                    }
+
+
+                                                } catch (e){
+                                                    alert($_('Upload failed. Invalid response received from server'));
+                                                }
+                                            };
+
+                                            // Subscribe to event "io:complete", and pass an array
+                                            // as an argument to the event handler "complete".
+                                            Y.on('io:complete', complete, Y);
+
+                                            var request = Y.io(getMeta('web_root'), cfg);
+                                            console.log('1082 after upload');
+
+                                            return false;
+                                        });
+                                    }
                                 }
-                            }
-                            catch ( ee ) { console.log( "1089 Error" + ee.message ); }
+                                catch ( ee ) { console.log( "1089 Error" + ee.message ); }
 
-                        });
-                    } catch ( e ) {
-                        console.log( '1093 Error' + e.message );
-                    }
+                            });
+                        } catch ( e ) {
+                            console.log( '1093 Error' + e.message );
+                        }
+                    });
                 });
-            });
 
-        },
+            },
             /**
              * Template for
              * comment form and for
@@ -2958,7 +2982,7 @@ YUI({
                     }
                 });
                 console.log('2952 editor: ' + (typeof editor));
-                yuiImgUploader(editor, '/img_uploader.php', 'image');
+                yuiImgUploader(editor, 'image');
                 /**
                  * Original code from YUI2 Editor has genocidal behaviour in
                  * Chrome. Replacing it now!
@@ -3002,7 +3026,7 @@ YUI({
                 };
 
 
-                editor.on('MytoolbarLoaded', function () {
+                editor.on('toolbarLoaded', function () {
 
                     Y.log('2507 this is ' + this, 'warn'); // Editor
 

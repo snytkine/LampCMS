@@ -117,7 +117,7 @@ class tplFormask extends Lampcms\Template\Simple
             {socials}
             </div>
             <div class="form_el">
-            	<input id="dostuff" name="submit" type="submit" value="{submit}" {disabled} class="btn btn-m"> 
+            	<input id="dostuff" name="my_submit" type="submit" value="{submit}" {disabled} class="btn btn-m">
             </div>
             <!-- // el submit -->
 		</form>

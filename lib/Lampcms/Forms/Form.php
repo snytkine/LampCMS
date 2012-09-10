@@ -746,12 +746,12 @@ class Form extends LampcmsObject
         if (!\array_key_exists('secret', $_SESSION)) {
 
             $token = \uniqid(\mt_rand());
-            //$_SESSION['secret'] = $token;
+
             $_SESSION['secret'] = \hash('md5', $token);
         }
 
         return $_SESSION['secret'];
-        //return hash('md5', $_SESSION['secret'].get_called_class());
+
     }
 
 
