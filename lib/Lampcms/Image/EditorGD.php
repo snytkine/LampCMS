@@ -261,7 +261,7 @@ class EditorGD extends Editor
 
             $intCompression = (!empty($intCompression)) ? $intCompression : $this->oSettings->QUALITY_COMPRESSION_WORK;
             if (false === \imagejpeg($hdlImg, $strDestination, $intCompression)) {
-                throw new \Lampcms\ImageException('Error Unable to save image to  ' . $strDestination);
+                throw new \Lampcms\ImageException('Unable to save image to  ' . $strDestination);
             }
 
         } elseif (('png' === $this->origType) && (false !== $intCompression)) {
@@ -269,12 +269,12 @@ class EditorGD extends Editor
             $intCompression = ceil((100 - $intCompression) / 10);
             d('$intCompression: ' . $intCompression);
             if (false === \imagepng($hdlImg, $strDestination, $intCompression)) {
-                throw new \Lampcms\ImageException('Error Unable to save image to  ' . $strDestination);
+                throw new \Lampcms\ImageException('Unable to save image to  ' . $strDestination);
             }
 
         } else {
             if (false === \imagegif($hdlImg, $strDestination)) {
-                throw new \Lampcms\ImageException('Error Unable to save image to  ' . $strDestination);
+                throw new \Lampcms\ImageException('Unable to save image to  ' . $strDestination);
             }
         }
 

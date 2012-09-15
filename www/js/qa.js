@@ -186,6 +186,7 @@ oSL = {
      * @param book
      *            bAsElement if passed and is true then return the actual
      *            DOMElement for that meta tag instead of just the value
+     * @return mixed false if meta not found or string value of meta
      */
     getMeta:function (sMetaName, bAsElement) {
 
@@ -2982,7 +2983,9 @@ YUI({
                     }
                 });
                 console.log('2952 editor: ' + (typeof editor));
+                if(false !== getMeta('imgupload')){
                 yuiImgUploader(editor, 'image');
+                }
                 /**
                  * Original code from YUI2 Editor has genocidal behaviour in
                  * Chrome. Replacing it now!

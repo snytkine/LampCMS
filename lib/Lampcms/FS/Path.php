@@ -132,28 +132,40 @@ class Path
      * Create directory based on current time, using Year, Month, Date format
      * for example 2012/11/24
      *
-     * @param string     $basePath       path to directory in which to
-     *                                   create desired directory structure
-     * @param bool       $returnFullPath if true then return full path, including $basePath,
-     *                                   otherwise return only the created directory structure
-     *
-     * @return string full path or relative path to created directory
+     * @param string       $basePath       path to directory in which to
+     *                                     create desired directory structure
+     * @param string       $subDir         sub directory name. For image uploads subdirectories
+     *                                     are names by userID, for example /176/ for user 176
+     * @param bool         $returnFullPath if true then return full path, including $basePath,
+     *                                     otherwise return only the created directory structure
      *
      * @throws \Lampcms\DevException if unable to create directory
+     * @return string full path or relative path to created directory
+     *
      */
-    public static function prepareByTimestamp($basePath, $returnFullPath = true)
+    public static function prepareByTimestamp($basePath, $subDir = null, $returnFullPath = true)
     {
         $D    = new \DateTime('now');
         $path = $D->format('Y') . DIRECTORY_SEPARATOR . $D->format('m') . DIRECTORY_SEPARATOR . $D->format('d');
 
+        if(is_string($subDir)){
+            $subDir = \trim($subDir, '/\\');
+            $basePath .= DIRECTORY_SEPARATOR.$subDir;
+            if(!\file_exists($basePath)){
+                if(false === @mkdir($basePath)){
+                    throw new \Lampcms\DevException('Unable to create directory: ' . $basePath);
+                }
+            }
+        }
+
         $fullPath = $basePath . DIRECTORY_SEPARATOR . $path;
-        if (!file_exists($fullPath)) {
+        if (!\file_exists($fullPath)) {
             $res = @mkdir($fullPath, 0777, true);
         } else {
             $res = true;
         }
 
-        $path .= DIRECTORY_SEPARATOR;
+        $path = $subDir.DIRECTORY_SEPARATOR.$path.DIRECTORY_SEPARATOR;
 
         if (!$res) {
             throw new \Lampcms\DevException('Unable to create directory: ' . $path);

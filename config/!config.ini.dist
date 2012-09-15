@@ -470,12 +470,38 @@ categories = viewcategories
 ; This is very useful for programming - related Q&A Sites
 ; but totally unnecessary for non-programming sites,
 ; so it's disabled by default
-ENABLE_CODE_EDITOR = false;
+ENABLE_CODE_EDITOR = false
 ;
 ; Add "YouTube" button to editor
 ; to allow adding youtube videos
 ; to Questions and Answers
-ENABLE_YOUTUBE = true;
+ENABLE_YOUTUBE = true
+;
+; Maximum file size allowed for image upload
+; in megabytes default is 2 meaning 2 Megabytes
+;
+; To disable image upload functionality
+; set this to 0 or leave empty
+;
+IMAGE_UPLOAD_FILE_SIZE = 2
+;
+; Define maximum width,height (comma separated)
+; If uploaded image is larger than these limits,
+; it will be re-sized
+;
+IMAGE_UPLOAD_W_X = "400,300"
+
+;
+; Uploads are allowed by logged in users
+; Set the min reputation score required to be
+; able to upload images
+IMAGE_UPLOAD_MIN_REPUTATION = 1
+;
+; Number of seconds user has to wait between uploads
+; Resizing image is CPU and memory intensive.
+; This setting helps prevent upload flood
+;
+MIN_UPLOAD_INTERVAL = 30
 
 [CAPTCHA]
 ; to disable captcha for any reason

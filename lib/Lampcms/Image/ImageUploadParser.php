@@ -54,7 +54,13 @@ namespace Lampcms\Image;
 
 use Lampcms\FS\Path;
 use Lampcms\AccessException;
+use Lampcms\ImageException;
+use Lampcms\Image\PermissionHelper;
+use Lampcms\Mongo\Schema\User as Schema;
 
+/**
+ * Class for parsing uploaded images
+ */
 class ImageUploadParser
 {
 
@@ -74,37 +80,31 @@ class ImageUploadParser
         $this->EditorOptions = $Registry->Ini->getSection('EDITOR');
     }
 
-
+    /**
+     * Parse uploaded file
+     *
+     * @return string relative web path to uploaded image
+     */
     public function parse()
     {
-
         return $this->checkPermission()
             ->checkUploadFlood()
             ->checkFileSize()
             ->resize();
-
     }
 
-
+    /**
+     * Check to make sure Viewer has permission
+     * to upload images
+     * Permission is based on user group and reputation
+     *
+     * @return ImageUploadParser
+     * @throws \Lampcms\AccessException
+     */
     protected function checkPermission()
     {
-
-        if (empty($this->EditorOptions['IMAGE_UPLOAD_FILE_SIZE'])) {
+        if (false === PermissionHelper::getMaxFileSize($this->Registry, $this->User)) {
             throw new AccessException('@@Image upload not allowed@@');
-        }
-
-        $Acl = $this->Registry->Acl;
-
-        if (!$Acl->isAllowed($this->User->getRoleId(), null, 'upload_image')) {
-            throw new AccessException('@@Your account does not have permission to upload images@@');
-        }
-
-        $minReputation = (int)$this->EditorOptions['IMAGE_UPLOAD_MIN_REPUTATION'];
-        $rep           = $this->User->getReputation();
-
-        if ($rep < $minReputation) {
-            throw new AccessException($this->Registry->Tr->get('Minimum reputation of {min} is required to upload images. Your reputation is {reputation}',
-                array('{min}' => $minReputation, '{rep}' => $rep)));
         }
 
         return $this;
@@ -112,20 +112,40 @@ class ImageUploadParser
 
 
     /**
-     * @todo check difference in seconds between now and previous file upload for
-     *       this user. Use MIN_IMAGE_UPLOAD_INTERVAL setting
+     * Use MIN_IMAGE_UPLOAD_INTERVAL setting
+     * to check for upload flood condition
+     *
+     * @throws \Lampcms\AccessException if user has uploaded another file
+     * less than MIN_IMAGE_UPLOAD_INTERVAL seconds ago
+     *
      * @return ImageUploadParser
      */
     protected function checkUploadFlood()
     {
+        $lastUploadTime = $this->User[Schema::LAST_UPLOAD_TIME];
+        if (!empty($lastUploadTime)) {
+            $interval = $this->EditorOptions['MIN_UPLOAD_INTERVAL'];
+            if (!empty($interval)) {
+
+                if ((time() - $lastUploadTime) < $interval) {
+                    throw new AccessException('@@Uploading too fast. Please wait few seconds and try again@@');
+                }
+            }
+        }
 
         return $this;
     }
 
-
+    /**
+     * check file size of uploaded file
+     * if too large then throw exception
+     * Maximum upload size is defined in settings
+     *
+     * @return ImageUploadParser
+     * @throws \Lampcms\AccessException
+     */
     protected function checkFileSize()
     {
-
         $fileSize = @filesize($this->file);
         if ($fileSize > (1024 * 1024 * $this->EditorOptions['IMAGE_UPLOAD_FILE_SIZE'])) {
             $res = @unlink($this->file);
@@ -138,26 +158,64 @@ class ImageUploadParser
     }
 
 
+    /**
+     * Resize uploaded image if necessary
+     * if image dimensions are smaller than defined
+     * in settings then just save the original
+     * and return path to saved image
+     *
+     * @return mixed string path to saved image
+     *
+     * @throws \Lampcms\ImageException
+     * @throws \Lampcms\DevException
+     */
     protected function resize()
     {
 
         $Editor = \Lampcms\Image\Editor::factory($this->Registry);
         $Editor->loadImage($this->file);
+
+        /**
+         * If we get here it means file was an image
+         * update USER collection to insert i_last_upload_ts timestamp
+         *       will be used to check upload flood
+         *       do this now before the actual resize/save
+         *       in case resize does not work the upload will still
+         *       be counted
+         */
+        $this->User[Schema::LAST_UPLOAD_TIME] = time();
+        $this->User->save();
+
         $basePath = LAMPCMS_DATA_DIR . 'img';
 
-        $fileName = $this->User->getUid() . '_' . time();
+        $fileName = time();
         $fileExt  = $Editor->getExtension();
 
-        $destFolder = Path::prepareByTimestamp($basePath, false);
+        $destFolder = Path::prepareByTimestamp($basePath, 'u' . $this->User->getUid(), false);
         $origPath   = $destFolder . $fileName . $fileExt;
+
         if (!copy($this->file, LAMPCMS_DATA_DIR . 'img' . DIRECTORY_SEPARATOR . $origPath)) {
             throw new \Lampcms\DevException('Unable to copy orig file from ' . $this->file . ' to ' . LAMPCMS_DATA_DIR . 'img' . DIRECTORY_SEPARATOR . $origPath);
         }
 
-        /**
-         * @todo update USER collection to insert i_last_upload_ts timestamp
-         * will be used to check upload flood
-         */
+        $max = $this->EditorOptions['IMAGE_UPLOAD_W_X'];
+        list($w, $h) = explode(',', $max);
+
+        $scaleSize = $Editor->getFactor(trim($w), trim($h));
+        if ($scaleSize) {
+            $resizedPath = $destFolder . $fileName . '_ws' . $fileExt;
+            try {
+                $Editor->scale($w, $h)->save(LAMPCMS_DATA_DIR . 'img' . DIRECTORY_SEPARATOR . $resizedPath);
+
+                return \str_replace(DIRECTORY_SEPARATOR, '/', $resizedPath);
+
+            } catch ( \Exception $e ) {
+                e('Unable to resize and save uploaded image. ' . $e->getMessage() . ' ' . $e->getFile() . ' on ' . $e->getLine());
+
+                throw new ImageException('@@Unable to resize image@@');
+            }
+        }
+
         return \str_replace(DIRECTORY_SEPARATOR, '/', $origPath);
     }
 }

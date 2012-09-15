@@ -70,10 +70,10 @@ namespace Lampcms\String;
  * because it takes Utf8String object as input
  *
  * @Important always use HTMLStringParser::factory(Utf8string $s)
- * to instantiate this object!
- * Never instantiate with the new keyword!
+ *            to instantiate this object!
+ *            Never instantiate with the new keyword!
  *
- * @author Dmitri Snytkine
+ * @author    Dmitri Snytkine
  *
  */
 class HTMLStringParser extends HTMLString
@@ -115,6 +115,14 @@ class HTMLStringParser extends HTMLString
      * @var int
      */
     protected $linkified = 0;
+
+    /**
+     * @var array array of 'src' attributes for all
+     * images that appear to be uploaded images
+     * (images that are just pointing to external images
+     * on the internet will not be included)
+     */
+    protected $images = array();
 
 
     /**
@@ -167,7 +175,7 @@ class HTMLStringParser extends HTMLString
      *
      *
      * @param array $aWords array of words that should
-     * be highlighted in this html document
+     *                      be highlighted in this html document
      *
      * @return object $this
      */
@@ -215,7 +223,7 @@ class HTMLStringParser extends HTMLString
         d("\nNode name: " . $o->nodeName . ' type: ' . $o->nodeType . ' value: ' . $o->nodeValue);
 
 
-        $nodeName = strtolower($o->nodeName);
+        $nodeName = \strtolower($o->nodeName);
         /**
          * Skip nodes that are already the "a" node (link)
          * and skip tags that are already <em> or <i> tags
@@ -223,13 +231,13 @@ class HTMLStringParser extends HTMLString
         if (!\in_array($nodeName, $this->aExcluded) && !\in_array($nodeName, array('em', 'i'))) {
             if (XML_TEXT_NODE == $o->nodeType) {
 
-                d('passing node to hiInNode');
+                d('passing node to hilightNode');
                 /**
                  * Now replace the Node $o with the
                  * new CDATA node (CDATA node will simulate innerHTML)
                  */
                 if (\mb_eregi('\b(' . $this->pattern . ')\b', $o->nodeValue)) {
-                    $ret = \mb_eregi_replace('\b(' . $this->pattern . ')\b', '<' . $this->hlTag . ' class="' . $this->hlClass . '">' . '\\1' . '</' . $this->hlTag . '>', $o->nodeValue);
+                    $ret   = \mb_eregi_replace('\b(' . $this->pattern . ')\b', '<' . $this->hlTag . ' class="' . $this->hlClass . '">' . '\\1' . '</' . $this->hlTag . '>', $o->nodeValue);
                     $CDATA = $o->ownerDocument->createCDATASection($ret);
                     $o->parentNode->replaceChild($CDATA, $o);
                     $this->bCDATA = true;
@@ -261,7 +269,7 @@ class HTMLStringParser extends HTMLString
      */
     public function unhilight()
     {
-        $xp = new \DOMXpath($this);
+        $xp    = new \DOMXpath($this);
         $query = '//' . $this->hlTag . '[@class=\'' . $this->hlClass . '\']';
         $Nodes = $xp->query($query);
 
@@ -269,7 +277,7 @@ class HTMLStringParser extends HTMLString
 
         if ($Nodes && $Nodes->length > 0) {
             for ($i = 0; $i < $Nodes->length; $i += 1) {
-                $node = $Nodes->item($i);
+                $node     = $Nodes->item($i);
                 $textNode = $this->createTextNode($node->nodeValue);
                 $node->parentNode->replaceChild($textNode, $node);
             }
@@ -295,6 +303,7 @@ class HTMLStringParser extends HTMLString
      * has child node (usually it does)
      *
      * @param \DOMNode $o
+     *
      * @return \Lampcms\String\HTMLStringParser
      */
     public function linkify(\DOMNode $o = null)
@@ -370,8 +379,8 @@ class HTMLStringParser extends HTMLString
      * and want to add rel="nofollow" to all links
      *
      * @param bool $setTargetBlank if set to true (default)
-     * also ensures that all links also have target="_blank"
-     * attribute
+     *                             also ensures that all links also have target="_blank"
+     *                             attribute
      *
      * @return object $this
      */
@@ -403,7 +412,7 @@ class HTMLStringParser extends HTMLString
      */
     public function parseCodeTags()
     {
-        $aCode = $this->getElementsByTagName('code');
+        $aCode    = $this->getElementsByTagName('code');
         $numItems = $aCode->length;
         if (!$aCode || 0 == $numItems) {
             d('no code elements');
@@ -425,6 +434,64 @@ class HTMLStringParser extends HTMLString
 
 
     /**
+     * Find all img elements in this document
+     * if they look like
+     *
+     * @return HTMLStringParser (this object)
+     */
+    public function parseImages()
+    {
+
+        $ImgNodes = $this->getElementsByTagName('img');
+        $numItems = $ImgNodes->length;
+        for ($i = 0; $i < $numItems; $i += 1) {
+            $node = $ImgNodes->item($i);
+            $src  = $node->getAttribute('src');
+            if (\preg_match('/\/(?:u[0-9]+)\/(?:[0-9]{4})\/(?:[0-9]{2})\/(?:[0-9]{2})\/[0-9]{10,12}(_ws){0,1}\.(jpg|png|gif)$/', $src, $matches)) {
+                $this->images[] = $matches[0];
+
+                /**
+                 * If src end with _ws.jpg (or gif or png) it
+                 * means this is path to resized image
+                 */
+                if ("" !== $matches[1]) {
+
+                    /**
+                     * The image is resized version
+                     * Need to create link to original
+                     * and point link to original
+                     * and make img tag of web-site the value of the
+                     * link element
+                     * Also add 'website' class to link
+                     * so that we can add onClick listener to these
+                     * and show original in some type of modal
+                     */
+                    $linkNode = $this->createElement('a')
+                        ->addAttribute('href', str_replace('_ws', '', $src))
+                        ->addAttribute('target', '_blank')
+                        ->addAttribute('class', 'websize');
+                    $Img      = $node->parentNode->replaceChild($linkNode, $node);
+                    $Img->addAttribute('border', '0');
+                    $linkNode->appendChild($Img);
+                }
+            }
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * @return array array of paths to uploaded images
+     * these paths are not full, only relative to the /w/img/ web dir
+     */
+    public function getImages()
+    {
+        return $this->images;
+    }
+
+
+    /**
      * Truncate this html string so that total text
      * will be cut to under $maxLen
      * It will remove all DOMDlements from this object
@@ -433,9 +500,10 @@ class HTMLStringParser extends HTMLString
      * the ...
      *
      * @todo unfinished
-     * This is the best and the safest way to truncate the html string
+     *       This is the best and the safest way to truncate the html string
      *
      * @param int $maxLen
+     *
      * @return bool true if html string was truncated
      */
     public function truncate($maxLen)

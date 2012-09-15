@@ -49,10 +49,35 @@
  *
  */
 
+namespace Lampcms\Mongo\Schema;
 
-namespace Lampcms\Dom;
-
-class Exception extends \Lampcms\Exception
+class Question extends Answer
 {
-}
+    const COLLECTION = 'QUESTIONS';
 
+    const INTRO = 'intro';
+
+    const URL = 'url';
+
+    const TAGS_ARRAY = 'a_tags';
+
+    const TITLE_ARRAY = 'a_title';
+
+    const STATUS = 'status';
+
+    const TAGS_HTML = 'tags_html';
+
+    const CREDITS = 'credits';
+
+    const NUM_FAVORITES = 'i_favs';
+
+    const NUM_VIEWS = 'i_views';
+
+    const NUM_ANSWERS = 'i_ans';
+
+    const NUM_FOLLOWERS = 'i_flwrs';
+
+    const APP_ID = 'app_id';
+
+    const APP_LINK = 'app_link';
+}

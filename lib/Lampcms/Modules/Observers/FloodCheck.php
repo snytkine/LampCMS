@@ -116,7 +116,6 @@ class FloodCheck extends \Lampcms\Event\Observer
     {
         d('cp');
         if (!$this->Registry->Viewer->isModerator()) {
-            d('cp');
             $uid = $this->Registry->Viewer->getUid();
             $timeout = (int)$this->Registry->Ini->COMMENTS_FLOOD_TIME;
             d('timeout: ' . $timeout);
@@ -130,7 +129,7 @@ class FloodCheck extends \Lampcms\Event\Observer
                  * @todo
                  * Translate string
                  */
-                throw new \Lampcms\AccessException('You are posting too fast.<br>You must wait ' . $timeout . ' seconds between comments');
+                throw new \Lampcms\AccessException('@@You are posting too fast@@<br>You must wait ' . $timeout . ' seconds between comments');
             }
         }
     }
@@ -153,7 +152,7 @@ class FloodCheck extends \Lampcms\Event\Observer
 
 
             if (!empty($byIP)) {
-                throw new \Lampcms\FilterException('You are posting too fast. Please wait ' . $this->minutesToWait . ' minutes between posting');
+                throw new \Lampcms\FilterException('@@You are posting too fast@@. Please wait ' . $this->minutesToWait . ' minutes between posting');
             }
         }
 
@@ -170,7 +169,7 @@ class FloodCheck extends \Lampcms\Event\Observer
                 ->findOne(array('i_uid' => $this->obj['i_uid'], 'i_ts' => array('$gt' => $since)), array('i_ts', 'hts'));
 
             if (!empty($byUid)) {
-                throw new \Lampcms\FilterException('You are posting too fast. Please wait ' . $this->minutesToWait . ' minutes between posting');
+                throw new \Lampcms\FilterException('@@You are posting too fast@@. Please wait ' . $this->minutesToWait . ' minutes between posting');
             }
         }
 

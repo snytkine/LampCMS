@@ -131,8 +131,19 @@ class Ask extends Askform
     }
 
 
+    /**
+     * Process uploaded image
+     * and return full url to saved/resized image
+     */
     protected function processUpload()
     {
+
+        /**
+         * Need to set Error reporting to NOT include notice
+         * because any type of notice including MongoDB generates notices will ruin the json string
+         */
+        error_reporting(E_ALL & ~E_NOTICE);
+
         try {
             $file = $this->Form->getUploadedFile('image');
             if (empty($file)) {
@@ -146,12 +157,15 @@ class Ask extends Askform
                 try {
                     $ImageParser = new \Lampcms\Image\ImageUploadParser($this->Registry, $this->Registry->Viewer, $file);
                     $url         = $ImageParser->parse();
-
-                    $res = array('upload' => true, 'url' => $this->Registry->Ini->SITE_URL .'{_DIR_}/w/img/'.$url);
+                    /**
+                     * {_DIR_} will be replaced by output buffer callback
+                     * to actual value of root directory
+                     */
+                    $res = array('upload' => true, 'url' =>  '{_IMAGE_SITE_}{_DIR_}/w/img/' . $url);
 
                 } catch ( \Exception $e ) {
                     e('Image Upload Failed: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on ' . $e->getLine());
-                    if ( ($e instanceof \Lampcms\ImageException) || ($e instanceof \Lampcms\AccessException)) {
+                    if (($e instanceof \Lampcms\ImageException) || ($e instanceof \Lampcms\AccessException)) {
                         $error = $e->getMessage();
                     } else {
                         $error = '@@Upload failed@@';
@@ -160,20 +174,21 @@ class Ask extends Askform
                     $res = array('upload' => false, 'error' => $error);
                 }
 
-                /**
-                 * Need to set Error reporting to NOT include notice
-                 * because any type of notice including MongoDB generates notices will ruin the json string
-                 */
-                error_reporting(E_ALL & ~E_NOTICE);
-                $ret = \json_encode($res);
-                echo $ret;
-                fastcgi_finish_request();
-                exit;
-
             }
-            // return json string with uploaded image
+
+            $ret = \json_encode($res);
+            echo $ret;
+            fastcgi_finish_request();
+            exit;
+
         } catch ( \Exception $e ) {
             // something did not work during the upload
+            d('Image upload failed ' . $e->getMessage() . ' in ' . $e->getFile() . ' in ' . $e->getLine());
+            $res = array('upload' => false, 'error' => '@@Image upload failed@@');
+            $ret = \json_encode($res);
+            echo $ret;
+            fastcgi_finish_request();
+            exit;
         }
     }
 

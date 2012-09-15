@@ -65,6 +65,7 @@ use \Lampcms\Forms\Answerform;
 use \Lampcms\QuestionInfo;
 use \Lampcms\Responder;
 use \Lampcms\SocialCheckboxes;
+use Lampcms\Image\PermissionHelper;
 
 /**
  * Controller for displaying
@@ -218,7 +219,7 @@ class Viewquestion extends WebPage
     {
         $urlSlug      = $this->Router->getSegment(2, 's', '');
         $questionSlug = $this->Question['url'];
-        if (\strtolower($urlSlug) !== \strtolower($questionSlug) ) {
+        if (\strtolower($urlSlug) !== \strtolower($questionSlug)) {
             $url = $this->Question->getUrl();
             throw new \Lampcms\RedirectException($url);
         }
@@ -297,6 +298,14 @@ class Viewquestion extends WebPage
         $this->addMetaTag('etag', $this->Question['i_etag']);
         $this->addMetaTag('min_com_rep', $this->Registry->Ini->POINTS->COMMENT);
         $this->addMetaTag('comment', $this->Registry->Viewer->isAllowed('comment'));
+
+        try {
+            if (false !== $maxImgSize = PermissionHelper::getMaxFileSize($this->Registry, $this->Registry->Viewer)) {
+                $this->addMetaTag('imgupload', $maxImgSize);
+            }
+        } catch ( \Lampcms\AccessException $e ) {
+            // do nothing. This means image upload not allowed for this user or for this site
+        }
 
         return $this;
     }

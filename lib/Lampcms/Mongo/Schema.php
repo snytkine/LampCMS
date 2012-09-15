@@ -80,4 +80,6 @@ class Schema{
     const LOCALE = 'locale';
 
     const EMAIL = 'email';
+
+    const UPLOADED_IMAGES = 'a_img';
 }
