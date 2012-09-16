@@ -54,7 +54,7 @@ namespace Lampcms;
 
 
 use Lampcms\String\HTMLStringParser;
-
+use Lampcms\Mongo\Schema\Question as Schema;
 
 /**
  *
@@ -173,8 +173,8 @@ class QuestionParser extends LampcmsObject
          * otherwise tidy removes rel="code"
          */
         $aEditorConfig = $this->Registry->Ini->getSection('EDITOR');
-        $tidyConfig = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
-        $Body = $this->Submitted->getBody()->tidy($tidyConfig)->safeHtml()->asHtml();
+        $tidyConfig    = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
+        $Body          = $this->Submitted->getBody()->tidy($tidyConfig)->safeHtml()->asHtml();
 
         /**
          *
@@ -184,16 +184,18 @@ class QuestionParser extends LampcmsObject
          * make sure all links are nofollow
          *
          */
-        $htmlBody = HTMLStringParser::stringFactory($Body)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->hilightWords($aTags)->valueOf();
+        $HtmlDoc  = HTMLStringParser::stringFactory($Body)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->hilightWords($aTags)->parseImages();
+        $aImages  = $HtmlDoc->getImages();
+        $htmlBody = $HtmlDoc->valueOf();
         d('after HTMLStringParser: ' . $htmlBody);
 
-        $uid = $this->Submitted->getUserObject()->getUid();
+        $uid  = $this->Submitted->getUserObject()->getUid();
         $hash = hash('md5', strtolower($htmlBody . json_encode($aTags)));
 
         /**
          * @todo can parse forMakrdown now but ideally
-         * parseMarkdown() would be done inside Utf8string
-         * as well as parseSmilies
+         *       parseMarkdown() would be done inside Utf8string
+         *       as well as parseSmilies
          *
          * @todo later can also parse for smilies here
          *
@@ -201,48 +203,51 @@ class QuestionParser extends LampcmsObject
         $this->checkForDuplicate($uid, $hash);
 
         $username = $this->Submitted->getUserObject()->getDisplayName();
-        $time = time();
+        $time     = time();
         /**
          *
          * @var array
          */
         $aData = array(
-            '_id' => $this->Registry->Resource->create('QUESTION'),
-            'title' => $oTitle->valueOf(),
-            /*'title_hash' => hash('md5', strtolower(trim($title)) ),*/
-            'b' => $htmlBody,
-            'hash' => $hash,
-            'intro' => $this->Submitted->getBody()->asPlainText()->truncate(150)->valueOf(),
-            'url' => $this->Submitted->getTitle()->toASCII()->makeLinkTitle()->valueOf(),
-            'i_words' => $this->Submitted->getBody()->asPlainText()->getWordsCount(),
-            'i_uid' => $uid,
-            'username' => $username,
-            'ulink' => '<a href="' . $this->Submitted->getUserObject()->getProfileUrl() . '">' . $username . '</a>',
-            'avtr' => $this->Submitted->getUserObject()->getAvatarSrc(),
-            'i_up' => 0,
-            'i_down' => 0,
-            'i_votes' => 0,
-            'i_favs' => 0,
-            'i_views' => 0,
-            'i_cat' => $this->Submitted->getCategoryId(),
-            'a_tags' => $aTags,
-            'a_title' => TitleTokenizer::factory($oTitle)->getArrayCopy(),
-            'status' => 'unans',
-            'tags_html' => \tplQtags::loop($aTags, false),
-            'credits' => '',
-            'i_ts' => $time,
-            'hts' => date('F j, Y g:i a T'),
-            'i_lm_ts' => $time,
-            'i_ans' => 0,
-            'ans_s' => 's',
-            'v_s' => 's',
-            'f_s' => 's',
-            'ip' => $this->Submitted->getIP(),
-            'app' => $this->Submitted->getApp(),
-            'app_id' => $this->Submitted->getAppId(),
-            'app_link' => $this->Submitted->getAppLink(),
-            'i_flwrs' => 1 // initially question has 1 follower - its author
+            Schema::PRIMARY                   => $this->Registry->Resource->create('QUESTION'),
+            Schema::TITLE                     => $oTitle->valueOf(),
+            Schema::BODY                      => $htmlBody,
+            Schema::BODY_HASH                 => $hash,
+            Schema::INTRO                     => $this->Submitted->getBody()->asPlainText()->truncate(150)->valueOf(),
+            Schema::URL                       => $this->Submitted->getTitle()->toASCII()->makeLinkTitle()->valueOf(),
+            Schema::WORDS_COUNT               => $this->Submitted->getBody()->asPlainText()->getWordsCount(),
+            Schema::POSTER_ID                 => $uid,
+            Schema::POSTER_USERNAME           => $username,
+            Schema::USER_PROFILE_URL          => '<a href="' . $this->Submitted->getUserObject()->getProfileUrl() . '">' . $username . '</a>',
+            Schema::AVATAR_URL                => $this->Submitted->getUserObject()->getAvatarSrc(),
+            Schema::UPVOTES_COUNT             => 0,
+            Schema::DOWNVOTES_COUNT           => 0,
+            Schema::VOTES_SCORE               => 0,
+            Schema::NUM_FAVORITES             => 0,
+            Schema::NUM_VIEWS                 => 0,
+            Schema::CATEGORY_ID               => $this->Submitted->getCategoryId(),
+            Schema::TAGS_ARRAY                => $aTags,
+            Schema::TITLE_ARRAY               => TitleTokenizer::factory($oTitle)->getArrayCopy(),
+            Schema::STATUS                    => 'unans',
+            Schema::TAGS_HTML                 => \tplQtags::loop($aTags, false),
+            Schema::CREDITS                   => '',
+            Schema::CREATED_TIMESTAMP         => $time,
+            Schema::TIME_STRING               => date('F j, Y g:i a T'),
+            Schema::LAST_MODIFIED_TIMESTAMP   => $time,
+            Schema::NUM_ANSWERS               => 0,
+            'ans_s'                           => 's',
+            'v_s'                             => 's',
+            'f_s'                             => 's',
+            Schema::IP_ADDRESS                => $this->Submitted->getIP(),
+            Schema::APP_NAME                  => $this->Submitted->getApp(),
+            Schema::APP_ID                    => $this->Submitted->getAppId(),
+            Schema::APP_LINK                  => $this->Submitted->getAppLink(),
+            Schema::NUM_FOLLOWERS             => 1 // initially question has 1 follower - its author
         );
+
+        if (!empty($aImages)) {
+            $aData[Schema::UPLOADED_IMAGES] = $aImages;
+        }
 
         /**
          * Submitted question object may provide
@@ -284,7 +289,7 @@ class QuestionParser extends LampcmsObject
             if ($oNotification->isNotificationCancelled()) {
                 throw new QuestionParserException('@@Sorry, we are unable to process your question at this time@@.');
             }
-        } catch (FilterException $e) {
+        } catch ( FilterException $e ) {
             e('Got filter exteption: ' . $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage() . ' ' . $e->getTraceAsString());
             throw new QuestionParserException($e->getMessage());
         }
@@ -350,8 +355,8 @@ class QuestionParser extends LampcmsObject
          * in case of deleting a spam.
          *
          * @todo should store ip as LONG
-         * using ip2long and don't worry
-         * about "sign" problem on 32 bit php
+         *       using ip2long and don't worry
+         *       about "sign" problem on 32 bit php
          *
          *
          */
@@ -359,6 +364,7 @@ class QuestionParser extends LampcmsObject
 
         /**
          * Index a_f_q in USERS (array of followed question ids)
+         *
          * @todo move this to when the user is created!
          */
         $this->Registry->Mongo->USERS->ensureIndex(array('a_f_q' => 1));
@@ -415,17 +421,17 @@ class QuestionParser extends LampcmsObject
     protected function addTags()
     {
 
-        $o = Qtagscounter::factory($this->Registry);
+        $o        = Qtagscounter::factory($this->Registry);
         $Question = $this->Question;
         if (count($Question['a_tags']) > 0) {
             $callable = function() use($o, $Question)
             {
                 try {
                     $o->parse($Question);
-                } catch (\Exception $e) {
+                } catch ( \Exception $e ) {
 
-                    if(function_exists('d')){
-                        d('Error: Unable to add tags: '.$e->getMessage().' in '.$e->getFile().' on '.$e->getLine());
+                    if (function_exists('d')) {
+                        d('Error: Unable to add tags: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on ' . $e->getLine());
                     }
 
                 }
@@ -447,7 +453,7 @@ class QuestionParser extends LampcmsObject
     protected function addRelatedTags()
     {
 
-        $Related = Relatedtags::factory($this->Registry);
+        $Related  = Relatedtags::factory($this->Registry);
         $Question = $this->Question;
         if (count($Question['a_tags']) > 0) {
             d('cp');
@@ -455,7 +461,7 @@ class QuestionParser extends LampcmsObject
             {
                 try {
                     $Related->addTags($Question);
-                } catch (\Exception $e) {
+                } catch ( \Exception $e ) {
                     // cannot do much here, only error_log may be
                     // safe to use
                 }
@@ -479,7 +485,7 @@ class QuestionParser extends LampcmsObject
     {
         if ('accptd' !== $this->Question['status']) {
             if (count($this->Question['a_tags']) > 0) {
-                $o = new UnansweredTags($this->Registry);
+                $o        = new UnansweredTags($this->Registry);
                 $Question = $this->Question;
                 $callable = function() use ($o, $Question)
                 {
@@ -504,7 +510,7 @@ class QuestionParser extends LampcmsObject
     {
 
         $UserTags = UserTags::factory($this->Registry);
-        $uid = $this->Submitted->getUserObject()->getUid();
+        $uid      = $this->Submitted->getUserObject()->getUid();
         $Question = $this->Question;
         if (count($Question['a_tags']) > 0) {
             $callable = function() use ($UserTags, $uid, $Question)

@@ -71,7 +71,7 @@ class TimeAgo
 
     public static function format(\DateTime $start, \DateTime $end = null)
     {
-        if (!isset($_SESSION['locale']) || (0 === strncmp('en', $_SESSION['locale'], 2))) {
+        if (!isset($_SESSION['locale']) || (0 === \strncmp('en', $_SESSION['locale'], 2))) {
 
             $end = (!$end) ? new \DateTime() : $end;
 
@@ -100,16 +100,14 @@ class TimeAgo
             if ($interval->s !== 0) {
                 if (!count($format)) {
                     return "less than a minute ago";
-                } else {
-                    $format[] = "%s " . $doPlural($interval->s, "second");
                 }
             }
 
             // We use the two biggest parts
             if (count($format) > 1) {
-                $format = array_shift($format) . " and " . array_shift($format) . ' ago';
+                $format = \array_shift($format) . " and " . \array_shift($format) . ' ago';
             } else {
-                $format = array_pop($format) . ' ago';
+                $format = \array_pop($format) . ' ago';
             }
 
             return $interval->format($format);

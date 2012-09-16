@@ -311,7 +311,7 @@ class Base extends LampcmsObject
                         'notConfirmed' => $Tr->get('not validated'),
                         'sendLink' => $Tr->get('send me validation link'))) . '<br>';
                 } else {
-                    $err = '@@You have not confirmed email address@@<br><a href="{_WEB_ROOT_}/settings/">@@Request activation email@@' . '</a><br>';
+                    $err = '@@You have not confirmed email address@@<br><a href="{_WEB_ROOT_}/{_settings_}/">@@Request activation email@@' . '</a><br>';
                 }
 
                 throw new UnactivatedException($err);

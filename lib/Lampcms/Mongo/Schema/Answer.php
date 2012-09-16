@@ -120,6 +120,6 @@ class Answer
 
     const PLURAL_POSTFIX = 'v_s';
 
-
+    const UPLOADED_IMAGES = 'a_img';
 
 }

@@ -49,10 +49,65 @@
  *
  */
 
+namespace Lampcms\Image;
 
-namespace Lampcms\Dom;
+use Lampcms\AccessException;
 
-class Exception extends \Lampcms\Exception
+/**
+ * Helper class to determine if user is allowed
+ * to have image upload feature
+ * This class/function is used when
+ * generating Ask form page and
+ * View question page because that page
+ * has an Answer form.
+ *
+ */
+class PermissionHelper
 {
-}
 
+    /**
+     * If User has permission to upload images
+     * based on user group and reputation
+     * and if Image upload is not disabled in !config.ini
+     * by the way of setting IMAGE_UPLOAD_FILE_SIZE to 0
+     * then return the value of IMAGE_UPLOAD_FILE_SIZE
+     * OR false if user should not be allowed to upload image
+     *
+     * @static
+     *
+     * @param \Lampcms\Registry $Registry
+     * @param \Lampcms\User     $User
+     *
+     * @throws \Lampcms\AccessException is User group is not allowed to upload images
+     * or if user does not have enough reputation to upload images
+     *
+     * @return mixed false | int max upload size in Megabytes
+     */
+    public static function getMaxFileSize(\Lampcms\Registry $Registry, \Lampcms\User $User)
+    {
+        $ImgUploadOptions = $Registry->Ini->getSection('EDITOR');
+        $maxSize          = $ImgUploadOptions['IMAGE_UPLOAD_FILE_SIZE'];
+
+        if (empty($maxSize)) {
+
+            throw new AccessException('@@Image upload is disabled by administrator@@');
+        }
+
+        $Acl = $Registry->Acl;
+
+        if (!$Acl->isAllowed($User->getRoleId(), null, 'upload_image')) {
+
+            throw new AccessException('@@You do not have permissions to upload images@@');
+        }
+
+        $minReputation = (int)$ImgUploadOptions['IMAGE_UPLOAD_MIN_REPUTATION'];
+        $rep           = $User->getReputation();
+
+        if ($rep < $minReputation) {
+
+            throw new AccessException('@@You do not have enough reputation points to upload images@@');
+        }
+
+        return $maxSize;
+    }
+}

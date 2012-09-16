@@ -49,10 +49,25 @@
  *
  */
 
+namespace Lampcms\Forms;
 
-namespace Lampcms\Dom;
+/**
+ * Uploader:
 
-class Exception extends \Lampcms\Exception
+getWebImage($userId, $tmpImage)
+insertinto USER_UPLOADS
+get new ID?
+check for flood condition
+resizeIfNeeded - get the path to ORIG or Web size image
+
+May be better to create directory based on Year/Month/Day and file name based on uid + ts
+
+Then we will know when image was uploaded but how do we delete it? Need some way
+to associate image with a resource.
+ */
+class ImageUpload extends Form
 {
-}
 
+    protected $aVars = array('image' => 'image');
+
+}

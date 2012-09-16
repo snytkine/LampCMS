@@ -130,24 +130,25 @@ abstract class Editor extends \Lampcms\LampcmsObject
      * Sets the hdlOrig if sImgPath is provided by calling
      * the loadImage() method
      *
-     * @param object $oGlobal object
+     * @param \Lampcms\Registry $Registry
      *
-     * @param string $sImgPath a path to image
-     * which will be used to load original image
+     * @throws \Lampcms\Exception
+     * @internal param object $oGlobal object
      *
-     * @param bool $bUseGDis set to true,
-     * then use GD functions even if magickwand or imagick
-     * extensions are available
+     * @internal param string $sImgPath a path to image
+     *           which will be used to load original image
      *
-     * @param object $oStatus object of type clsStatus
-     * This is used to keep sending out status messages
-     * to browser while
-     * image is being processed
+     * @internal param bool $bUseGDis set to true,
+     *           then use GD functions even if magickwand or imagick
+     *           extensions are available
+     *
+     * @internal param object $oStatus object of type clsStatus
+     *           This is used to keep sending out status messages
+     *           to browser while
+     *           image is being processed
      *
      * @return object $this
      *
-     * @throws LampcmsImageException if sub-class could
-     * not be instantiated for any reason
      */
     public static final function factory(\Lampcms\Registry $Registry)
     {
@@ -161,7 +162,6 @@ abstract class Editor extends \Lampcms\LampcmsObject
         }
 
         throw new \Lampcms\Exception('Unable to parse images because neither GD nor Imagick extensions are available');
-
     }
 
 
@@ -187,6 +187,8 @@ abstract class Editor extends \Lampcms\LampcmsObject
     abstract public function scale($intWidth, $intHeight);
 
     abstract public function makeSquare($intWidth);
+
+    abstract public function getFactor($intMaxWidth, $intMaxHeight);
 
     //abstract public function addAvatar(\Lampcms\User $User, $pathToImage);
 

@@ -113,7 +113,7 @@ class tplFormedit extends Lampcms\Template\Fast
             <!-- // el tags -->
             
             <div class="form_el">
-            	<input id="dostuff" name="submit" type="submit" value="%14$s" class="btn btn-m"> 
+            	<input id="dostuff" name="my_submit" type="submit" value="%14$s" class="btn btn-m">
             </div>
             <!-- // el submit -->
 		</form>

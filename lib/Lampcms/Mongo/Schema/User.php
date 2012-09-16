@@ -126,4 +126,6 @@ class User
     const LOCALE = 'locale';
 
     const EMAIL = 'email';
+
+    const LAST_UPLOAD_TIME = 'i_ts_upld';
 }

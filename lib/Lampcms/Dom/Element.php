@@ -60,8 +60,8 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
      *
      * This works OK
      *
-     * @param DOMNode $node do not pass this param manually
-     * it is here only for recursively calling this function
+     * @param \DOMNode|\Lampcms\Dom\Node $node    do not pass this param manually
+     *                                            it is here only for recursively calling this function
      *
      * @return object $this node
      */
@@ -118,17 +118,18 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
      * Element
      *
      * @param string $xml
-     * @param bool $bReplace if true then remove
-     * all child nodes first. This will have an effect of
-     * replacing all child nodes with the content
-     * of the $xml string
+     * @param bool   $bReplace if true then remove
+     *                         all child nodes first. This will have an effect of
+     *                         replacing all child nodes with the content
+     *                         of the $xml string
      *
+     * @throws Exception
      * @return object $this
      */
     public function appendXml($xml, $bReplace = false)
     {
         if (!is_string($xml)) {
-            throw new \Lampcms\Dom\XMLException('param $xml must be a string. Was: ' . gettype($xml));
+            throw new Exception('param $xml must be a string. Was: ' . gettype($xml));
         }
 
         $oDF = $this->ownerDocument->createDocumentFragment();
@@ -152,8 +153,10 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
      * contents of $cdata as CData value
      *
      * @param string $cdata html string which will
-     * become the content of CDATA
-     * @param string $ns namespace
+     *                      become the content of CDATA
+     * @param string $ns    namespace
+     *
+     * @return \Lampcms\Dom\Element
      */
     public function addCData($cdata, $ns = 'http://purl.org/rss/1.0/modules/content/')
     {
@@ -172,7 +175,8 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
      * Sets attribute of this element
      *
      * @param string $name attribute name
-     * @param string $val attribute value
+     * @param string $val  attribute value
+     *
      * @return object $this
      */
     public function addAttribute($name, $val = null)
@@ -187,8 +191,8 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
     /**
      * Adds array of attributes in one operation
      *
-     * @param array $aAttributes must be assiciative array where
-     * keys are attribute keys and values are simple values
+     * @param array $aAttributes must be associative array where
+     *                           keys are attribute keys and values are simple values
      *
      * @return object $this
      */
@@ -206,7 +210,7 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
      * Strips all white space nodes
      * from the node
      *
-     * @param object $node
+     * @param \DOMNode|object $node
      * object of type DOMNode
      * if not provided, then the $this->oDomDoc is used
      *
@@ -239,11 +243,12 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
      * created
      *
      * @param string $name name of element
+     *
      * @return object of type DOMNode
      */
     public function getOne($name)
     {
-        $e = $this->getElementsByTagName($name);
+        $e  = $this->getElementsByTagName($name);
         $el = ($e->length > 0) ? $e->item(0) : $this->addChild($name);
 
         return $el;
@@ -256,18 +261,20 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
      *
      * @param string $name
      * @param string $value
+     * @param null   $ns
+     *
      * @return object of type clsDomElement
      * the newly added child element
      */
     public function addChild($name, $value = null, $ns = null)
     {
         return $this->appendChild(new static($name, $value, $ns));
-
     }
 
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.LampcmsObject::hashCode()
      */
     public function hashCode()
@@ -278,6 +285,7 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.LampcmsObject::getClass()
      */
     public function getClass()
@@ -288,6 +296,7 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
 
     /**
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.LampcmsObject::__toString()
      */
     public function __toString()
@@ -297,14 +306,16 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
 
 
     /**
-     * Get the first element that matches the tagname
+     * Get the first element that matches the tag name
      * if element does not exist and $create param is true,
      * then create one and append it
      * as child of this element
      *
      *
      * @param string $name
-     * @param bool $create
+     * @param bool   $create
+     *
+     * @return \DOMNode|null|object
      */
     public function getElementByTagName($name, $create = false)
     {
@@ -322,6 +333,10 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
      *
      *
      * @param array $a
+     *
+     * @throws \Lampcms\DevException
+     *
+     * @return \Lampcms\Dom\Element
      */
     public function addArray(array $a)
     {
@@ -343,7 +358,6 @@ class Element extends \DOMElement implements \Lampcms\Interfaces\LampcmsObject
                 throw new \Lampcms\DevException('Invalid type of $val. Must be string or int or array. Was: ' . gettype($val));
             }
         }
-
 
         return $this;
     }

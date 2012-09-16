@@ -58,6 +58,7 @@ use Lampcms\RegBlockQuickReg;
 use Lampcms\RegBlock;
 use Lampcms\Template\Urhere;
 use Lampcms\LoginForm;
+use Lampcms\Image\PermissionHelper;
 
 /**
  * Class for displaying the "Ask question" Form
@@ -84,6 +85,7 @@ class Askform extends WebPage
     /**
      *
      * Layout 1 means no side columns - just one main area
+     *
      * @var int
      */
     protected $layoutID = 1;
@@ -93,6 +95,7 @@ class Askform extends WebPage
      * Main entry point
      * for this class
      * (non-PHPdoc)
+     *
      * @see WebPage::main()
      */
     protected function main()
@@ -122,6 +125,14 @@ class Askform extends WebPage
         $this->addMetaTag('tm', (null !== $this->Registry->Viewer->getTumblrToken()));
         $this->addMetaTag('blgr', (null !== $this->Registry->Viewer->getBloggerToken()));
         $this->addMetaTag('linkedin', (null !== $this->Registry->Viewer->getLinkedInToken()));
+
+        try {
+            if (false !== $maxImgSize = PermissionHelper::getMaxFileSize($this->Registry, $this->Registry->Viewer)) {
+                $this->addMetaTag('imgupload', $maxImgSize);
+            }
+        } catch ( \Lampcms\AccessException $e ) {
+            // do nothing. This means image upload not allowed for this user or for this site
+        }
 
         return $this;
     }
@@ -166,7 +177,7 @@ class Askform extends WebPage
     protected function makeTopTabs()
     {
 
-        $tabs = Urhere::factory($this->Registry)->get('tplToptabs', $this->qtab);
+        $tabs                       = Urhere::factory($this->Registry)->get('tplToptabs', $this->qtab);
         $this->aPageVars['topTabs'] = $tabs;
 
         return $this;
@@ -212,7 +223,7 @@ class Askform extends WebPage
     {
 
         if (!$this->isLoggedIn()) {
-            $this->Form->qbody = $this->_('Please login to post your question');
+            $this->Form->qbody    = $this->_('Please login to post your question');
             $this->Form->com_hand = ' com_hand';
             $this->Form->readonly = 'readonly="readonly"';
             $this->Form->disabled = ' disabled="disabled"';

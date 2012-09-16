@@ -192,7 +192,9 @@ class Answerparser extends LampcmsObject
         $tidyConfig    = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
         $Body          = $this->SubmittedAnswer->getBody()->tidy($tidyConfig)->safeHtml()->asHtml();
 
-        $htmlBody = HTMLStringParser::stringFactory($Body)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->valueOf();
+        $HtmlDoc = HTMLStringParser::stringFactory($Body)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->parseImages();
+        $aImages = $HtmlDoc->getImages();
+        $htmlBody = $HtmlDoc->valueOf();
 
         d('after HTMLStringParser: ' . $htmlBody);
 
@@ -238,6 +240,10 @@ class Answerparser extends LampcmsObject
             Schema::IP_ADDRESS                               => $this->SubmittedAnswer->getIP(),
             Schema::APP_NAME                                 => 'web'
         );
+
+        if(!empty($aImages)){
+            $aData[Schema::UPLOADED_IMAGES] = $aImages;
+        }
 
         /**
          * Submitted answer object may provide
