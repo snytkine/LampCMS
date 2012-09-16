@@ -128,7 +128,7 @@ class ImageUploadParser
             if (!empty($interval)) {
 
                 if ((time() - $lastUploadTime) < $interval) {
-                    throw new AccessException('@@Uploading too fast. Please wait few seconds and try again@@');
+                    throw new AccessException('@@Uploading too fast. Please wait a few seconds and try again@@');
                 }
             }
         }
