@@ -218,6 +218,35 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
         return (Role::ADMINISTRATOR === $this->getRoleId());
     }
 
+    /**
+     * Check if user is on probation
+     * this means user can still post Questions
+     * and Answers but posts by this user
+     * will not appear visible to everyone untill
+     * they are approved by moderator or admin
+     *
+     * @return bool
+     */
+    public function isOnProbation()
+    {
+        $role = $this->getRoleId();
+
+        if ($role == Role::PROBATION) {
+            return true;
+        }
+
+        /**
+         * Moderators and admins are never on probation
+         */
+        if (((Role::ADMINISTRATOR === $role) || false !== (\strstr($role, Role::MODERATOR)))) {
+            return false;
+        }
+
+        $Ini = $this->getRegistry()->Ini;
+
+        return ($this->offsetGet(Schema::APPROVED_COUNTER) < $Ini->NEW_POSTS_MODERATION);
+    }
+
 
     /**
      * Get full name of user

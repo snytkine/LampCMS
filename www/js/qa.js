@@ -992,6 +992,7 @@ YUI({
             MysubmitForm, //
             Editcat, //
             showDeleteForm, //
+            approveItem, //
             showRetagForm, //
             showShredForm, //
             showCommentForm, //
@@ -2085,6 +2086,18 @@ YUI({
                                 rtype = (ancestor.test('.question')) ? 'q' : 'a';
                                 showDeleteForm({'rid':resID, 'rtype':rtype});
                             }
+                        }
+
+                        break;
+
+                    case el.test('.approve'):
+                        ancestor = el.ancestor("div.controls");
+                        if (ancestor) {
+                            resID = ancestor.get('id');
+                            resID = resID.substr(4);
+
+                                rtype = (ancestor.test('.question')) ? 'q' : 'a';
+                                approveItem(resID, rtype, ancestor);
                         }
 
                         break;
@@ -3435,6 +3448,37 @@ YUI({
                 oAlert.show();
             }
         };
+
+        /**
+         * Post ajax request to server
+         *
+         * @param rtype resource type 'q' for question or 'a' for answer
+         * @param rid resource ID
+         */
+        approveItem = function(rid, rtype, elem){
+
+            var cfg, request, form = '<form name="form_approve" action="'+ getMeta('web_root') + '/">'
+                + '<input type="hidden" name="a" value="approve">'
+                + '<input type="hidden" name="rtype" value="' + rtype + '">'
+                + '<input type="hidden" name="rid" value="' + rid + '">'
+                + '<input type="hidden" name="token" value="' + getToken() + '">';
+
+            form = Y.one('body').appendChild(form);
+
+            cfg = {
+                method:'POST',
+                /*form:{
+                    id:form
+                }*/
+                data: 'a=approve&rid='+rid+'&rtype='+rtype+'&token='+getToken()
+            };
+
+            console.log('3476 data: ' + cfg.data);
+            showLoading(elem);
+
+            request = Y.io(getMeta('web_root'), cfg);
+        }
+
         /**
          * Same as comment form but for the
          * reply to a comment

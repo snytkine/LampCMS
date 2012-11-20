@@ -56,6 +56,7 @@ namespace Lampcms\Controllers;
 use Lampcms\WebPage;
 use Lampcms\Paginator;
 use Lampcms\Template\Urhere;
+use Lampcms\Mongo\Schema\Question as Schema;
 
 /**
  * Controller for generating questions view
@@ -130,7 +131,6 @@ class Viewquestions extends WebPage
 
     protected function main()
     {
-
         $this->setPageID()
             ->getCursor()
             ->paginate()
@@ -164,6 +164,8 @@ class Viewquestions extends WebPage
      */
     protected function getCursor()
     {
+        $coll = $this->Registry->Mongo->QUESTIONS;
+
         $this->PER_PAGE = $this->Registry->Ini->PER_PAGE_QUESTIONS;
 
         $urlParts = $this->Registry->Ini->getSection('URI_PARTS');
@@ -176,8 +178,9 @@ class Viewquestions extends WebPage
          * meaning most recent should be on top
          *
          */
-        $sort = array('i_sticky' => -1,
-                      'i_lm_ts'  => -1);
+        $sort = array(Schema::STICKY                   => -1,
+                      Schema::LAST_MODIFIED_TIMESTAMP  => -1
+        );
 
         $this->title = '@@Questions@@';
 
@@ -204,8 +207,8 @@ class Viewquestions extends WebPage
                 $this->title = '@@Active Questions@@';
                 $this->pagerPath .= '/{_SORT_ACTIVE_}';
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'active');
-                $where         = array('i_ts' => array('$gt' => (time() - 604800)));
-                $sort          = array('i_ans' => -1);
+                $where         = array(Schema::CREATED_TIMESTAMP => array('$gt' => (time() - 604800)));
+                $sort          = array(Schema::NUM_ANSWERS => -1);
                 break;
             /**
              * Most votes but still
@@ -220,8 +223,8 @@ class Viewquestions extends WebPage
                 d('cp');
                 $this->title   = '@@Questions with highest votes in past 7 days@@';
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'voted');
-                $where         = array('i_ts' => array('$gt' => (time() - 604800)));
-                $sort          = array('i_votes' => -1);
+                $where         = array(Schema::CREATED_TIMESTAMP => array('$gt' => (time() - 604800)));
+                $sort          = array(Schema::VOTES_SCORE => -1);
                 break;
 
             /**
@@ -241,17 +244,28 @@ class Viewquestions extends WebPage
         /**
          * Exclude deleted items
          */
-        $where['i_del_ts'] = null;
-
+        //$where['i_del_ts'] = null;
 
         /**
-         * For efficiently explicitly specify which
+         * Important!
+         * Starting from version 0.2 no longer using i_del_ts to indicate
+         * deleted items, instead using the RESOURCE_STATUS_ID ('i_status' field)
+         * and it must be set to 1
+         * 1 means normal post, 2 means pending, 4 means deleted
+         */
+        if ($this->Registry->Viewer->isModerator()) {
+           $where[Schema::RESOURCE_STATUS_ID] = array('$lt' => Schema::DELETED);
+        } else {
+            $where[Schema::RESOURCE_STATUS_ID] = Schema::POSTED;
+        }
+
+        /**
+         * For efficiency explicitly specify which
          * doc fields to select or at least tell
          * which NOT to select, for example we don't need
          * a_edited and a_title
-         *
          */
-        $this->Cursor = $this->Registry->Mongo->QUESTIONS->find($where, $this->aFields);
+        $this->Cursor = $coll->find($where, $this->aFields);
         d('$this->Cursor: ' . gettype($this->Cursor));
         $this->Cursor->sort($sort);
 
@@ -333,7 +347,6 @@ class Viewquestions extends WebPage
 
     protected function makeTopTabs()
     {
-
         $tabs                       = Urhere::factory($this->Registry)->get('tplToptabs', $this->qtab);
         $this->aPageVars['topTabs'] = $tabs;
 
@@ -343,7 +356,6 @@ class Viewquestions extends WebPage
 
     protected function makeQlistHeader()
     {
-
         $this->aPageVars['qheader'] = '<h1>' . $this->title . '</h1>';
 
         return $this;
@@ -352,7 +364,6 @@ class Viewquestions extends WebPage
 
     protected function makeQlistBody()
     {
-
         $uid         = $this->Registry->Viewer->getUid();
         $in          = '';
         $categories  = null;
@@ -371,7 +382,7 @@ class Viewquestions extends WebPage
                 $a['dot'] = '<div class="fr pad2"><span class="ico person ttt" title="@@You have contributed to this question@@">&nbsp;</span></div>';
             }
 
-            if (!empty($a['a_flwrs']) && in_array($uid, $a['a_flwrs'])) {
+            if (!empty($a['a_flwrs']) && \in_array($uid, $a['a_flwrs'])) {
 
                 $a['following_q'] = '<div class="fr pad2"><span class="icoc check ttt" title="@@You are following this question@@">&nbsp;</span></div>';
             }

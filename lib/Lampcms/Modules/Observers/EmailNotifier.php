@@ -203,9 +203,18 @@ class EmailNotifier extends \Lampcms\Event\Observer
     public function main()
     {
 
+        /**
+         * @todo must write function to handle onApprovedAnswer
+         * cannot just use onNewAnswer for onApprovedAnswer event
+         * because the Viewer is NOT the same user who posted an Answer - a
+         * Viewer in this case is a Moderator who approved Answer and we need
+         * the Answer posted id. So we need to extract uid of posted
+         * first and then pass it to notifyQuestionFollowers
+         */
         d('get event: ' . $this->eventName);
         switch ( $this->eventName ) {
             case 'onNewQuestion':
+            case 'onApprovedQuestion':
                 $this->collUsers = $this->Registry->Mongo->USERS;
                 $this->Question  = $this->obj;
                 $this->notifyUserFollowers();
@@ -581,7 +590,7 @@ class EmailNotifier extends \Lampcms\Event\Observer
         $tpl        = 'email.body.answer_by_user';
         $updateType = 'answer';
         $body       = '';
-        if ('onNewQuestion' === $this->eventName) {
+        if ('onNewQuestion' === $this->eventName || 'onApprovedQuestion' === $this->eventName) {
 
             $body       = $this->obj['intro'];
             $tpl        = 'email.body.question_by_user';
@@ -627,7 +636,6 @@ class EmailNotifier extends \Lampcms\Event\Observer
          * user already cannot possibly be following himself
          * so excluding ViewerID is pointless here
          */
-
         $func = function() use($uid, $subj, $body, $coll, $Mailer)
         {
 
@@ -674,10 +682,8 @@ class EmailNotifier extends \Lampcms\Event\Observer
         $routerCallback = $this->Registry->Router->getCallback();
 
         /**
-         *
          * $qid can be passed here
          * OR in can be extracted from $this->Question
-         *
          */
         if ($qid) {
             $Question = new \Lampcms\Question($this->Registry);
@@ -697,14 +703,14 @@ class EmailNotifier extends \Lampcms\Event\Observer
             return $this;
         }
 
-        $subj = ('onNewAnswer' === $this->eventName) ? 'email.subject.question_answer' : 'email.subject.question_comment';
-        $body = ('onNewAnswer' === $this->eventName) ? 'email.body.question_answer' : 'email.body.question_comment';
+        $subj = ('onNewAnswer' === $this->eventName || 'onApprovedAnswer' === $this->eventName ) ? 'email.subject.question_answer' : 'email.subject.question_comment';
+        $body = ('onNewAnswer' === $this->eventName || 'onApprovedAnswer' === $this->eventName) ? 'email.body.question_answer' : 'email.body.question_comment';
 
         $siteUrl    = $this->Registry->Ini->SITE_URL;
-        $updateType = ('onNewAnswer' === $this->eventName) ? 'answer' : 'comment';
-        $username   = ('onNewAnswer' === $this->eventName) ? $this->obj['username'] : $this->aInfo['username'];
+        $updateType = ('onNewAnswer' === $this->eventName || 'onApprovedAnswer' === $this->eventName) ? 'answer' : 'comment';
+        $username   = ('onNewAnswer' === $this->eventName || 'onApprovedAnswer' === $this->eventName) ? $this->obj['username'] : $this->aInfo['username'];
 
-        if ('onNewAnswer' === $this->eventName) {
+        if ('onNewAnswer' === $this->eventName || 'onApprovedAnswer' === $this->eventName) {
             $url = $this->obj->getUrl();
         } else {
             $url = $siteUrl . '{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}' . $this->aInfo['i_qid'] . '/#c' . $this->aInfo['_id'];

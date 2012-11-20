@@ -178,7 +178,6 @@ class IndexerMySQL implements Indexer
             }
 
         }
-        //d('res: '.$res);
 
         return $this;
     }

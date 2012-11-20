@@ -83,7 +83,8 @@ class tplQrecent extends Lampcms\Template\Fast
         'following_tag' => '', //25
         'following_q' => '', //26
         'toggle' => '@@Toggle Unread/Read Status@@', // 27
-        'category' => '' //28
+        'category' => '', //28
+        'i_status' => ''//29
     );
 
     protected static $tpl = '
@@ -108,7 +109,7 @@ class tplQrecent extends Lampcms\Template\Fast
         %26$s
      </div>
     <!-- //statsdiv -->
-    <div class="smmry">
+    <div class="smmry istatus%29$s">
         <div class="fl"><a href="{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}%1$s/%5$s" class="ql%19$s pri%21$s">%7$s</a></div>
         <div class="fl cb intro">%6$s</div>
         <div class="fl cb tgs">%9$s</div>

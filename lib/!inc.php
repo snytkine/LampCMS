@@ -93,7 +93,7 @@ function exception_handler($e)
             echo 'Error in Exception handler: : ' . $e->getMessage() . ' line ' . $e->getLine() . $e->getTraceAsString();
         }
     } else {
-        echo('Got exit signal in error_handler from ' . $e->getTraceAsString());
+        echo('Got exit signal in error_handler. Exception: '.get_class($e).' Error ' . $e->getMessage().' in:  '.$e->getFile().' line: '.$e->getLine()."\n<br>Trace: ".$e->getTraceAsString());
     }
 }
 
@@ -278,7 +278,9 @@ $debug  = $Ini->DEBUG; // string '1' in case of true, empty string of false
 
 if ($debug || isset($aMyIPs[$myIP]) || defined('SPECIAL_LOG_FILE')) {
     define('LAMPCMS_DEBUG', true);
-    error_reporting(E_ALL | E_DEPRECATED); // E_ALL | E_DEPRECATED
+    //error_reporting(E_ALL | E_DEPRECATED); // E_ALL | E_DEPRECATED
+    //error_reporting(E_ALL ^ E_NOTICE ^ E_WARNING);
+    error_reporting((E_ALL | E_DEPRECATED) & ~E_NOTICE);
     ini_set('display_errors', 1);
     ini_set('display_startup_errors', 1);
     ini_set('warn_plus_overloading', 1);
@@ -302,7 +304,8 @@ if ($debug || isset($aMyIPs[$myIP]) || defined('SPECIAL_LOG_FILE')) {
     ini_set('session.gc_divisor', "1");
 } else {
     define('LAMPCMS_DEBUG', false);
-    error_reporting(E_ALL ^ E_WARNING);
+    //error_reporting(E_ALL ^ E_WARNING);
+    error_reporting(E_ALL & ~(E_WARNING | E_NOTICE));
     ini_set('display_errors', 0);
     ini_set('display_startup_errors', 0);
     ini_set('warn_plus_overloading', 0);

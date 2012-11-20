@@ -49,65 +49,63 @@
  *
  */
 
-
 namespace Lampcms\Mongo\Schema;
 
-class Answer extends Resource
+/**
+ * Constants defined here are for
+ * defining status id for Question and Answer
+ *
+ */
+class Resource
 {
-    const COLLECTION = 'ANSWERS';
 
-    const QUESTION_ID = 'i_qid';
+    const PRIMARY = '_id';
 
-    const POSTER_USERNAME = 'username';
+    const POSTER_ID = 'i_uid';
 
-    const QUESTION_OWNER_ID = 'i_quid';
+    const CATEGORY_ID = 'i_cat';
 
-    const AVATAR_URL = 'avtr';
-
-    const USER_PROFILE_URL = 'ulink';
-
-    const WORDS_COUNT = 'i_words';
-
-    const BODY = 'b';
-
-    const TITLE = 'title';
-
-    const COMMENTS_ARRAY = 'a_comments';
-
-    const COMMENTS_COUNT = 'i_comments';
+    const IP_ADDRESS = 'ip';
 
     /**
-     * Hash is md5 of html body . question_id
-     * This way no 2 answers can be the same for the same
-     * question, while two exact same answers are possible
-     * for different questions
+     * This field is a Status id of Question or Answer
+     * This indicates POSTED, PENDING or DELETED status
+     * type is integer
      */
-    const BODY_HASH = 'hash';
+    const RESOURCE_STATUS_ID = 'i_status';
 
-    const COUNTRY_CODE = 'cc';
+    /**
+     * ID of user (moderator) who approved this resource
+     *
+     */
+    const APPROVED_BY_ID = 'i_approved_by';
 
-    const COUNTRY_NAME = 'cn';
+    const APPROVED_BY_USERNAME = 'approved_by';
 
-    const STATE = 'state';
+    /**
+     * Timestamp of when resource
+     * was set as approved
+     */
+    const APPROVED_TIMESTAMP = 'i_approved_ts';
 
-    const CITY = 'city';
 
-    const VOTES_SCORE = 'i_votes';
+    const CREATED_TIMESTAMP = 'i_ts';
 
-    const UPVOTES_COUNT = 'i_up';
+    const DELETED_TIMESTAMP = 'i_del_ts';
 
-    const DOWNVOTES_COUNT = 'i_down';
+    /**
+     * Status of normal Question or answer
+     */
+    const POSTED = 1;
 
-    const LAST_MODIFIED_TIMESTAMP = 'i_lm_ts';
+    /**
+     * Status of pending Question or Answer
+     */
+    const PENDING = 2;
 
-    const TIME_STRING = 'hts';
-
-    const APP_NAME = 'app';
-
-    const IS_ACCEPTED = 'accepted';
-
-    const PLURAL_POSTFIX = 'v_s';
-
-    const UPLOADED_IMAGES = 'a_img';
-
+    /**
+     * Status of deleted Question or Answer
+     */
+    const DELETED = 4;
 }
+

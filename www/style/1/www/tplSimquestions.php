@@ -74,8 +74,8 @@ class tplSimquestions extends Lampcms\Template\Fast
         'qid' => '',
         'url' => '',
         'intro' => '',
-        'title' => '',
-        'hts' => '');
+        'title' => ''
+    );
 
-    protected static $tpl = '<div class="simq"><a href="{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}%1$s/%2$s" title="%3$s">%4$s</a><br><span class="ts" title="%5$s">%5$s</span><br></div>';
+    protected static $tpl = '<div class="simq"><a href="{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}%1$s/%2$s" title="%3$s">%4$s</a><br></div>';
 }

@@ -83,7 +83,7 @@ class Mailer
     /**
      * Ini object
      *
-     * @var object \Lampcms\Ini
+     * @var object Lampcms\Ini
      */
     protected $Ini;
 
@@ -255,7 +255,7 @@ class Mailer
     public function mail($to, $subject, $body = null, $func = null, $sendLater = true)
     {
 
-        if (!is_string($to) && !is_array($to) && (!is_callable($to)) && (!is_object($to) || !($to instanceof \Iterator))) {
+        if (!is_string($to) && !is_array($to) && (!is_callable($to)) && (!is_object($to) || !($to instanceof \Iterator)) ) {
 
             $class = (\is_object($to)) ? \get_class($to) : 'not an object';
 
@@ -266,8 +266,10 @@ class Mailer
             throw new DevException('$body cannot be null if $subject is not instance of \Swift_Message');
         }
 
-        if (!is_callable($to)) {
-            $aTo = (\is_string($to)) ? (array)$to : $to;
+        if(\is_string($to)){
+            $aTo = array($to);
+        } elseif(\is_array($to)){
+            $aTo = $to;
         } else {
             d('$to is callable function');
         }
@@ -283,7 +285,7 @@ class Mailer
             $translatedMessages = array();
             $translators        = array();
 
-            if (is_callable($aTo)) {
+            if (!is_array($aTo) && is_callable($aTo)) {
                 $aTo = $aTo();
             }
 
@@ -300,7 +302,7 @@ class Mailer
                 $failedRecipients = array();
                 $numSent          = 0;
                 try {
-                    $message = (is_object($subject) && $subject instanceof \Swift_Message) ? $subject : \Swift_Message::newInstance($subject)
+                    $message = (is_object($subject) && ($subject instanceof \Swift_Message) ) ? $subject : \Swift_Message::newInstance($subject)
                         ->setFrom(array($fromEmail => $fromName))
                         ->setBody($body)
                         ->setCharset('utf-8');
@@ -390,12 +392,14 @@ class Mailer
                          */
                         d('Unable to send email: ' . $e->getMessage() . ' Exception: ' . get_class($e));
                     }
-                    d('sent ' . $numSent . ' emails');
+
                     if (!empty($failedRecipients)) {
                         d('Failed recipients: ' . json_encode($failedRecipients));
                     }
                     error_reporting($ER);
                 }
+
+                d('sent ' . $numSent . ' emails');
             }
 
         };
@@ -531,10 +535,17 @@ class Mailer
                 }
             } else {
                 if (!empty($a['email'])) {
-                    if (\array_key_exists(Schema::LOCALE, $a)) {
+                    /**
+                     * If subject or body should be translated
+                     * then make sure to include 'locale' in array
+                     * of fields requested from Mongo USERS collection
+                     * This is the only hint for this class that we
+                     * want item to be translated into user's locale
+                     */
+                    if (\array_key_exists('locale', $a)) {
                         if (!\in_array($a['email'], $temp)) {
                             $temp[] = $a['email'];
-                            $locale = $a[Schema::LOCALE];
+                            $locale = $a['locale'];
                             if (!\array_key_exists($locale, $translated)) {
                                 $translated[$locale] = array();
                             }
@@ -547,7 +558,7 @@ class Mailer
                                 $translated[$locale][(string)$body] = $this->translate($locale, $body);
                             }
 
-                            $this->mail($a['email'], $translated[$locale][(string)$subject], $translated[$locale][(string)$body]);
+                            $this->mail($a['email'], $translated[$locale][(string)$subject], $translated[$locale][(string)$body], null, $sendLater);
                         }
 
                     } else {

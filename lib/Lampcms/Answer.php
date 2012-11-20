@@ -169,6 +169,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
             }
 
             parent::offsetSet('i_del_ts', time());
+            parent::offsetSet(Schema::RESOURCE_STATUS_ID, Schema::DELETED);
             parent::offsetSet('a_deleted',
                 array(
                     'username' => $user->getDisplayName(),
@@ -215,6 +216,30 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
         parent::offsetSet('a_edited', $aEdited);
 
         return $this;
+    }
+
+    /**
+     * Approve pending resource
+     *
+     * @param User $Moderator User object of user who approved this Question
+     *
+     * @return mixed true if status was changed|int status code of question
+     */
+    public function setApprovedStatus(\Lampcms\User $Moderator)
+    {
+        $status = $this->offsetGet(Schema::RESOURCE_STATUS_ID);
+        if ($status === Schema::PENDING) {
+            $this->offsetSet(Schema::RESOURCE_STATUS_ID, Schema::POSTED);
+            $this->offsetSet(Schema::APPROVED_BY_ID, $Moderator->getUid());
+            $this->offsetSet(Schema::APPROVED_BY_USERNAME, $Moderator->getDisplayName());
+            $this->offsetSet(Schema::APPROVED_TIMESTAMP, time());
+            $this->touch(true);
+            $this->save();
+
+            return true;
+        }
+
+        return $status;
     }
 
 

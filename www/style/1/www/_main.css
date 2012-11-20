@@ -7981,6 +7981,11 @@ div.com_flag {
     background-position: -192px -96px;
 }
 
+
+.controls span.approve {
+    background-position: -64px -144px;
+}
+
 span.del {
     background-position: -32px -192px;
 }
@@ -9771,4 +9776,19 @@ div.categ_title a {
 
 div.onesub {
     margin-right: 1em;
+}
+
+.pending {
+    width: 95%;
+    background-color: #FFC;
+    padding: 1em;
+    border: 1px solid black;
+    margin-bottom: 1em;
+    font-weight: bold;
+}
+/*
+* Q/A Div with pending status
+*/
+.istatus2 {
+    background-color: #C0C0C0 !important;
 }

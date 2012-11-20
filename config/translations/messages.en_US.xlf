@@ -468,6 +468,62 @@
 
     </target>
 </trans-unit>
+<trans-unit id="32">
+    <source>email.body.new_question_moderation</source>
+    <target>
+        {username} has posted a new question
+        {title}
+
+        The into:
+        {body}
+
+        ----
+
+        Please review the question and approve or delete it
+        ----
+        Here is url
+        {link}
+
+        ----
+        You receive this message because you are
+        a moderator. If you no longer wish to be a moderator
+        please contact site administrator and request to
+        be removed from moderators
+
+    </target>
+</trans-unit>
+<trans-unit id="33">
+    <source>email.body.new_answer_moderation</source>
+    <target>
+        {username} has posted a new answer to question:
+        {title}
+
+        Question body with stripped html tags:
+        {body}
+
+        ----
+
+        Please review the answer and approve or delete it
+
+        ----
+        Here is the url
+        {link}
+
+        You receive this message because you are
+        a moderator. If you no longer wish to be a moderator
+        please contact site administrator and request to
+        be removed from moderators
+
+    </target>
+</trans-unit>
+<trans-unit id="34">
+    <source>email.subject.new_answer_moderation</source>
+    <target>New answer requires moderation</target>
+</trans-unit>
+<trans-unit id="35">
+    <source>email.subject.new_question_moderation</source>
+    <target>New question requires moderation</target>
+</trans-unit>
 </body>
 </file>
 </xliff>

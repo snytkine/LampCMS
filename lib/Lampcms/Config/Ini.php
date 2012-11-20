@@ -93,16 +93,20 @@ class Ini extends \Lampcms\LampcmsArray
             $iniFile = CONFIG_FILE_PATH;
         }
 
-
         $this->iniFile = (!empty($iniFile)) ? $iniFile : \rtrim(constant('LAMPCMS_CONFIG_DIR'), ' /\\') . DIRECTORY_SEPARATOR . '!config.ini';
+
+        if(!\file_exists($this->iniFile)){
+            throw new IniException('Ini file not found at this location: ' . $this->iniFile);
+        }
 
         $aIni = \parse_ini_file($this->iniFile, true);
 
         if (empty($aIni)) {
-            throw new IniException('Unable to parse ini file: ' . $this->iniFile . ' probably a syntax error in file');
+            throw new IniException('Unable to parse ini file: ' . $this->iniFile . ' probably a syntax error in file of file does not exist');
         }
 
-        parent::__construct($aIni);
+        //parent::__construct($aIni);
+        $this->exchangeArray($aIni);
     }
 
 
@@ -121,7 +125,7 @@ class Ini extends \Lampcms\LampcmsArray
     public function getVar($name)
     {
         if (!$this->offsetExists('CONSTANTS')) {
-            throw new IniException('"CONSTANTS" section of ini file is missing');
+            throw new IniException('"CONSTANTS" section is missing in !config.ini file: '.$this->iniFile. ' config: '.\print_r($this->getArrayCopy(), true));
         }
 
         $aConstants = $this->offsetGet('CONSTANTS');

@@ -128,4 +128,42 @@ class User
     const EMAIL = 'email';
 
     const LAST_UPLOAD_TIME = 'i_ts_upld';
+
+    /**
+     * Users having this flag set to true
+     * will have their Questions and Answers and Comments
+     * set to PENDING status, requiring moderation
+     * The purpose of this flag is to allow admin or moderator
+     * to put user in probation, usually after some warnings about
+     * TOS violation.
+     *
+     */
+    const PROBATION_FLAG = 'b_prob';
+
+    /**
+     * Counter of approved posts
+     * This counter initially set to 0
+     * and increments when user post
+     * is approved by moderator
+     * This counter is used for moderation feature
+     * new user must reach certain number of posts
+     * before moderation is no longer required.
+     * The threshold is defined in !config.ini in NEW_POSTS_MODERATION
+     */
+    const APPROVED_COUNTER = 'i_ok';
+
+    /**
+     * Counter of warnings user received
+     * for violating TOS
+     */
+    const WARNINGS_COUNT = 'i_warn';
+
+    /**
+     * Array of warnings user received
+     * array of objects, each one has
+     * username, userid of moderator,
+     * date/time (human readable) and
+     * text of warning
+     */
+    const WARNINGS = 'a_warn';
 }

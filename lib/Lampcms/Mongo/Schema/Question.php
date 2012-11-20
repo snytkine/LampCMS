@@ -73,6 +73,8 @@ class Question extends Answer
 
     const NUM_VIEWS = 'i_views';
 
+    const STICKY = 'i_sticky';
+
     const NUM_ANSWERS = 'i_ans';
 
     const NUM_FOLLOWERS = 'i_flwrs';
@@ -80,4 +82,6 @@ class Question extends Answer
     const APP_ID = 'app_id';
 
     const APP_LINK = 'app_link';
+
+    const ETAG = 'i_etag';
 }

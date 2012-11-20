@@ -161,7 +161,7 @@ class QuestionParser extends LampcmsObject
      */
     protected function makeQuestion()
     {
-
+        $Ini    = $this->Registry->Ini;
         $oTitle = $this->Submitted->getTitle()->htmlentities()->trim();
 
         $username = $this->Submitted->getUserObject()->getDisplayName();
@@ -172,7 +172,7 @@ class QuestionParser extends LampcmsObject
          * Must pass array('drop-proprietary-attributes' => false)
          * otherwise tidy removes rel="code"
          */
-        $aEditorConfig = $this->Registry->Ini->getSection('EDITOR');
+        $aEditorConfig = $Ini->getSection('EDITOR');
         $tidyConfig    = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
         $Body          = $this->Submitted->getBody()->tidy($tidyConfig)->safeHtml()->asHtml();
 
@@ -201,9 +201,16 @@ class QuestionParser extends LampcmsObject
          *
          */
         $this->checkForDuplicate($uid, $hash);
-
-        $username = $this->Submitted->getUserObject()->getDisplayName();
+        $Poster   = $this->Submitted->getUserObject();
+        $username = $Poster->getDisplayName();
         $time     = time();
+
+        /**
+         * If NEW_POSTS_MODERATION in !config.ini is > 0 then
+         * check if viewer requires new posts to be moderated
+         */
+        $resourceStatus = ($Ini->NEW_POSTS_MODERATION > 0 && $Poster->isOnProbation()) ? Schema::PENDING : Schema::POSTED;
+
         /**
          *
          * @var array
@@ -218,8 +225,8 @@ class QuestionParser extends LampcmsObject
             Schema::WORDS_COUNT               => $this->Submitted->getBody()->asPlainText()->getWordsCount(),
             Schema::POSTER_ID                 => $uid,
             Schema::POSTER_USERNAME           => $username,
-            Schema::USER_PROFILE_URL          => '<a href="' . $this->Submitted->getUserObject()->getProfileUrl() . '">' . $username . '</a>',
-            Schema::AVATAR_URL                => $this->Submitted->getUserObject()->getAvatarSrc(),
+            Schema::USER_PROFILE_URL          => '<a href="' . $Poster->getProfileUrl() . '">' . $username . '</a>',
+            Schema::AVATAR_URL                => $Poster->getAvatarSrc(),
             Schema::UPVOTES_COUNT             => 0,
             Schema::DOWNVOTES_COUNT           => 0,
             Schema::VOTES_SCORE               => 0,
@@ -242,7 +249,8 @@ class QuestionParser extends LampcmsObject
             Schema::APP_NAME                  => $this->Submitted->getApp(),
             Schema::APP_ID                    => $this->Submitted->getAppId(),
             Schema::APP_LINK                  => $this->Submitted->getAppLink(),
-            Schema::NUM_FOLLOWERS             => 1 // initially question has 1 follower - its author
+            Schema::NUM_FOLLOWERS             => 1, // initially question has 1 follower - its author
+            Schema::RESOURCE_STATUS_ID        => $resourceStatus
         );
 
         if (!empty($aImages)) {
@@ -260,7 +268,7 @@ class QuestionParser extends LampcmsObject
          */
         $aExtraData = $this->Submitted->getExtraData();
         d('$aExtraData: ' . print_r($aExtraData, 1));
-        if (is_array($aExtraData) && !empty($aExtraData)) {
+        if (\is_array($aExtraData) && !empty($aExtraData)) {
             $aData = array_merge($aData, $aExtraData);
         }
 
@@ -269,7 +277,7 @@ class QuestionParser extends LampcmsObject
         /**
          * Post onBeforeNewQuestion event
          * and watch for filter either cancelling the event
-         * or throwing FilterException (prefferred way because
+         * or throwing FilterException (preferred way because
          * a specific error message can be passed in FilterException
          * this way)
          *
@@ -290,7 +298,7 @@ class QuestionParser extends LampcmsObject
                 throw new QuestionParserException('@@Sorry, we are unable to process your question at this time@@.');
             }
         } catch ( FilterException $e ) {
-            e('Got filter exteption: ' . $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage() . ' ' . $e->getTraceAsString());
+            e('Got filter exception: ' . $e->getFile() . ' ' . $e->getLine() . ' ' . $e->getMessage() . ' ' . $e->getTraceAsString());
             throw new QuestionParserException($e->getMessage());
         }
 
@@ -303,7 +311,12 @@ class QuestionParser extends LampcmsObject
         $this->Question->insert();
         $this->followQuestion();
 
-        $this->Registry->Dispatcher->post($this->Question, 'onNewQuestion');
+        if ($resourceStatus === Schema::POSTED) {
+            $this->Registry->Dispatcher->post($this->Question, 'onCategoryUpdate');
+            $this->Registry->Dispatcher->post($this->Question, 'onNewQuestion');
+        } elseif ($resourceStatus === Schema::PENDING) {
+            $this->Registry->Dispatcher->post($this->Question, 'onNewPendingQuestion');
+        }
 
         return $this;
     }
@@ -339,15 +352,16 @@ class QuestionParser extends LampcmsObject
     protected function ensureIndexes()
     {
         $quest = $this->Registry->Mongo->QUESTIONS;
-        $quest->ensureIndex(array('i_sticky' => 1));
-        $quest->ensureIndex(array('i_ts' => 1));
-        $quest->ensureIndex(array('i_votes' => 1));
-        $quest->ensureIndex(array('i_ans' => 1));
-        $quest->ensureIndex(array('a_tags' => 1));
-        $quest->ensureIndex(array('i_uid' => 1));
-        $quest->ensureIndex(array('hash' => 1));
-        $quest->ensureIndex(array('a_title' => 1));
-        $quest->ensureIndex(array('i_cat' => 1));
+        $quest->ensureIndex(array(Schema::STICKY => 1));
+        $quest->ensureIndex(array(Schema::CREATED_TIMESTAMP => 1));
+        $quest->ensureIndex(array(Schema::VOTES_SCORE => 1));
+        $quest->ensureIndex(array(Schema::NUM_ANSWERS => 1));
+        $quest->ensureIndex(array(Schema::TAGS_ARRAY => 1));
+        $quest->ensureIndex(array(Schema::POSTER_ID => 1));
+        $quest->ensureIndex(array(Schema::BODY_HASH => 1));
+        $quest->ensureIndex(array(Schema::TITLE_ARRAY => 1));
+        $quest->ensureIndex(array(Schema::CATEGORY_ID => 1));
+        $quest->ensureIndex(array(Schema::RESOURCE_STATUS_ID => 1));
 
         /**
          * Need ip index to use flood filter by ip
@@ -360,7 +374,7 @@ class QuestionParser extends LampcmsObject
          *
          *
          */
-        $quest->ensureIndex(array('ip' => 1));
+        $quest->ensureIndex(array(Schema::IP_ADDRESS => 1));
 
         /**
          * Index a_f_q in USERS (array of followed question ids)
@@ -386,7 +400,7 @@ class QuestionParser extends LampcmsObject
      */
     protected function checkForDuplicate($uid, $hash)
     {
-        $a = $this->Registry->Mongo->QUESTIONS->findOne(array('i_uid' => $uid, 'hash' => $hash));
+        $a = $this->Registry->Mongo->QUESTIONS->findOne(array(Schema::POSTER_ID => $uid, Schema::BODY_HASH => $hash));
         if (!empty($a)) {
             $err = 'You have already asked exact same question  <span title="' . $a['hts'] . '" class="ts" rel="time">on ' . $a['hts'] .
                 '</span><br><a class="link" href="{_WEB_ROOT_}/{_viewquestion_}/' . $a['_id'] . '/' . $a['url'] . '">' . $a['title'] . '</a><br>
@@ -407,7 +421,13 @@ class QuestionParser extends LampcmsObject
     protected function addToSearchIndex()
     {
 
-        IndexerFactory::factory($this->Registry)->indexQuestion($this->Question);
+        /**
+         * Do NOT add 'PENDING' question to search index
+         * Only add question with status 'POSTED'
+         */
+        if ($this->Question[Schema::RESOURCE_STATUS_ID] === Schema::POSTED) {
+            IndexerFactory::factory($this->Registry)->indexQuestion($this->Question);
+        }
 
         return $this;
     }
@@ -483,7 +503,7 @@ class QuestionParser extends LampcmsObject
      */
     protected function addUnansweredTags()
     {
-        if ('accptd' !== $this->Question['status']) {
+        if ('accptd' !== $this->Question[Schema::STATUS]) {
             if (count($this->Question['a_tags']) > 0) {
                 $o        = new UnansweredTags($this->Registry);
                 $Question = $this->Question;

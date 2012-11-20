@@ -21,6 +21,7 @@ use \Lampcms\Interfaces\RoleInterface;
  */
 class Role implements RoleInterface
 {
+
     const UNACTIVATED = 'unactivated';
 
     const UNACTIVATED_EXTERNAL = 'unactivated_external';
@@ -35,8 +36,11 @@ class Role implements RoleInterface
 
     const EXTERNAL_USER = 'external_auth';
 
-
-
+    /**
+     * probation role means user is new user (or put on probation by admin)
+     * These users require approval of their posts by admin/moderator
+      */
+    const PROBATION = 'probation';
 
     /**
      * Unique id of Role
@@ -74,6 +78,7 @@ class Role implements RoleInterface
      * Added by Dmitri Snytkine specifically for
      * Lampcms project
      * (non-PHPdoc)
+     *
      * @see Lampcms\Interfaces.RoleInterface::setRoleId()
      */
     public function setRoleId($role)

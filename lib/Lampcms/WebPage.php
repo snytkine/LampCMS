@@ -969,7 +969,7 @@ abstract class WebPage extends Base
             $this->aPageVars['layoutID'] = 1;
             $this->aPageVars['body']     = \tplException::parse(array('message' => \nl2br($err),
                                                                       'class'   => $class,
-                                                                      'title'   => $this->_('Alert')));
+                                                                      'title'   => '@@Alert@@'));
 
         } catch ( \OutOfBoundsException $e ) {
             throw $e;

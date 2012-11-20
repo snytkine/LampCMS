@@ -224,7 +224,7 @@ class Relatedtags extends LampcmsObject
          * all empty vals
          */
         $aTemp = \array_filter($aTemp);
-        d('after filter: ' . print_r($aTemp, 1));
+        d('after filter: ' . \json_encode($aTemp));
 
         \arsort($aTemp, SORT_NUMERIC);
         /**

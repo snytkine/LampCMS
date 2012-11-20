@@ -60,6 +60,10 @@ upload_image = A
 ;regular member
 [virtual]
 parent_id = registered
+
+; user on probation - requires approval of all posts
+[probation]
+parent_id = registered
          
 ;
 ;can moderate some resources 
@@ -77,6 +81,7 @@ ban_user = A
 unban_user = A
 close_question = A
 edit_any_comment = A
+approve_pending = A
 
 
             

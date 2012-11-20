@@ -49,65 +49,49 @@
  *
  */
 
+namespace Lampcms\Controllers;
 
-namespace Lampcms\Mongo\Schema;
+use \Lampcms\WebPage;
+use \Lampcms\User;
+use \Lampcms\Request;
+use \Lampcms\Responder;
 
-class Answer extends Resource
+class Approve extends WebPage
 {
-    const COLLECTION = 'ANSWERS';
 
-    const QUESTION_ID = 'i_qid';
+    protected $membersOnly = true;
 
-    const POSTER_USERNAME = 'username';
+    protected $requireToken = true;
 
-    const QUESTION_OWNER_ID = 'i_quid';
+    protected $bRequirePost = true;
 
-    const AVATAR_URL = 'avtr';
+    protected $aRequired = array('rid', 'rtype');
 
-    const USER_PROFILE_URL = 'ulink';
+    protected $Moderator;
 
-    const WORDS_COUNT = 'i_words';
+    public function main()
+    {
+        $this->Moderator = new \Lampcms\Moderator($this->Registry);
 
-    const BODY = 'b';
+        $this->Moderator->approveResource($this->Request['rid'], $this->Request['rtype']);
+        $this->returnResult();
 
-    const TITLE = 'title';
+    }
 
-    const COMMENTS_ARRAY = 'a_comments';
 
-    const COMMENTS_COUNT = 'i_comments';
+    protected function returnResult()
+    {
 
-    /**
-     * Hash is md5 of html body . question_id
-     * This way no 2 answers can be the same for the same
-     * question, while two exact same answers are possible
-     * for different questions
-     */
-    const BODY_HASH = 'hash';
+        if (Request::isAjax()) {
 
-    const COUNTRY_CODE = 'cc';
+            $ret           = array('alert' => '@@Approved@@');
+            $ret['reload'] = 1000;
 
-    const COUNTRY_NAME = 'cn';
+            Responder::sendJSON($ret);
+            exit;
+        }
 
-    const STATE = 'state';
-
-    const CITY = 'city';
-
-    const VOTES_SCORE = 'i_votes';
-
-    const UPVOTES_COUNT = 'i_up';
-
-    const DOWNVOTES_COUNT = 'i_down';
-
-    const LAST_MODIFIED_TIMESTAMP = 'i_lm_ts';
-
-    const TIME_STRING = 'hts';
-
-    const APP_NAME = 'app';
-
-    const IS_ACCEPTED = 'accepted';
-
-    const PLURAL_POSTFIX = 'v_s';
-
-    const UPLOADED_IMAGES = 'a_img';
+       Responder::redirectToPage();
+    }
 
 }

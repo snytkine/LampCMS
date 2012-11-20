@@ -856,6 +856,8 @@ interface Post extends LampcmsResource
     public function getUrl($short = false);
 
     public function getBody();
+
+    public function setApprovedStatus(\Lampcms\User $Moderator);
 }
 
 /**

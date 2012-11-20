@@ -192,14 +192,14 @@ class Answerparser extends LampcmsObject
         $tidyConfig    = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
         $Body          = $this->SubmittedAnswer->getBody()->tidy($tidyConfig)->safeHtml()->asHtml();
 
-        $HtmlDoc = HTMLStringParser::stringFactory($Body)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->parseImages();
-        $aImages = $HtmlDoc->getImages();
+        $HtmlDoc  = HTMLStringParser::stringFactory($Body)->parseCodeTags()->linkify()->importCDATA()->setNofollow()->parseImages();
+        $aImages  = $HtmlDoc->getImages();
         $htmlBody = $HtmlDoc->valueOf();
 
         d('after HTMLStringParser: ' . $htmlBody);
-
-        $username = $this->SubmittedAnswer->getUserObject()->getDisplayName();
-        $uid      = $this->SubmittedAnswer->getUserObject()->getUid();
+        $Poster   = $this->SubmittedAnswer->getUserObject();
+        $username = $Poster->getDisplayName();
+        $uid      = $Poster->getUid();
         $qid      = $this->SubmittedAnswer->getQid();
 
         $hash = hash('md5', \mb_strtolower($htmlBody . $qid));
@@ -215,6 +215,8 @@ class Answerparser extends LampcmsObject
          *
          */
         $this->checkForDuplicate($hash);
+
+        $resourceStatus = ($Poster->isOnProbation()) ? Schema::PENDING : Schema::POSTED;
 
         $aData = array(
             Schema::PRIMARY                                  => $this->Registry->Resource->create('ANSWER'),
@@ -238,10 +240,11 @@ class Answerparser extends LampcmsObject
             Schema::PLURAL_POSTFIX                           => 's',
             Schema::IS_ACCEPTED                              => false,
             Schema::IP_ADDRESS                               => $this->SubmittedAnswer->getIP(),
+            Schema::RESOURCE_STATUS_ID                       => $resourceStatus,
             Schema::APP_NAME                                 => 'web'
         );
 
-        if(!empty($aImages)){
+        if (!empty($aImages)) {
             $aData[Schema::UPLOADED_IMAGES] = $aImages;
         }
 
@@ -294,7 +297,16 @@ class Answerparser extends LampcmsObject
 
         $this->Answer->insert();
         d('cp');
-        $this->Registry->Dispatcher->post($this->Answer, 'onNewAnswer', array('question' => $this->Question));
+        /**
+         * post onCategoryUpdate only if status NOT PENDING
+         */
+        if ($resourceStatus !== Schema::PENDING) {
+            $this->Registry->Dispatcher->post($this->Question, 'onCategoryUpdate');
+            $this->Registry->Dispatcher->post($this->Answer, 'onNewAnswer', array('question' => $this->Question));
+        } elseif ($resourceStatus === Schema::PENDING) {
+            $this->Registry->Dispatcher->post($this->Answer, 'onNewPendingAnswer');
+        }
+
         d('cp');
         /**
          * Reuse $uid since we already resolved it here,
@@ -455,7 +467,7 @@ class Answerparser extends LampcmsObject
     public function getQuestion()
     {
         if (!isset($this->Question)) {
-            $a = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => $this->SubmittedAnswer->getQid()));
+            $a = $this->Registry->Mongo->QUESTIONS->findOne(array(Schema::PRIMARY => $this->SubmittedAnswer->getQid()));
 
             if (empty($a)) {
                 e('Cannot find question with _id: ' . $this->Answer['qid']);

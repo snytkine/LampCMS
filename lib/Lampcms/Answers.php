@@ -52,6 +52,7 @@
 
 namespace Lampcms;
 
+use Lampcms\Mongo\Schema\Answer as Schema;
 
 /**
  * Class responsible for creating
@@ -81,7 +82,6 @@ class Answers extends LampcmsObject
     public function __construct(Registry $Registry)
     {
         $this->Registry = $Registry;
-
     }
 
 
@@ -108,7 +108,7 @@ class Answers extends LampcmsObject
     public function getAnswers(Question $Question, $result = 'html')
     {
 
-        $qid    = $Question['_id'];
+        $qid    = $Question[Schema::PRIMARY];
         $url    = $Question['url'];
         $pageID = $this->Registry->Router->getPageID();
         d('url: ' . $url . ' $pageID: ' . $pageID);
@@ -134,7 +134,11 @@ class Answers extends LampcmsObject
             throw new Exception('Invalid value of param "cond" was: ' . $cond);
         }
 
-        $where = array('i_qid' => $qid);
+        $where = array(Schema::QUESTION_ID => $qid);
+        /**
+         * Important as of version 0.2 no longer using i_del_ts
+         * as indicator of deleted status - instead using i_status
+         */
         if (!$this->Registry->Viewer->isModerator()) {
             d('not moderator');
             $where['i_del_ts'] = null;
@@ -146,12 +150,12 @@ class Answers extends LampcmsObject
                  * Accepted answer will always be the first one,
                  * then most recently modified
                  */
-                $sort = array('accepted' => -1,
-                              'i_lm_ts'  => -1);
+                $sort = array(Schema::IS_ACCEPTED              => -1,
+                              Schema::LAST_MODIFIED_TIMESTAMP  => -1);
                 break;
 
             case $urlParts['SORT_OLDEST']:
-                $sort = array('i_ts' => 1);
+                $sort = array(Schema::CREATED_TIMESTAMP => 1);
                 break;
 
             case $urlParts['SORT_BEST']:
@@ -160,8 +164,8 @@ class Answers extends LampcmsObject
                  * Accepted answer will be first
                  * then most highly voted
                  */
-                $sort = array('accepted' => -1,
-                              'i_votes'  => -1);
+                $sort = array(Schema::IS_ACCEPTED => -1,
+                              Schema::VOTES_SCORE  => -1);
         }
 
         $cursor = $this->Registry->Mongo->ANSWERS->find($where, $aFields);
@@ -175,7 +179,7 @@ class Answers extends LampcmsObject
 
         $pagerLinks = $oPager->getLinks();
 
-        $ownerId  = $Question['i_uid'];
+        $ownerId  = $Question[Schema::POSTER_ID];
         $showLink = (($ownerId > 0) && ($this->Registry->Viewer->isModerator() || $ownerId == $this->Registry->Viewer->getUid()));
 
         $noComments = ($noComments) ? ' nocomments' : '';

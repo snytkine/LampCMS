@@ -153,7 +153,7 @@ if (true !== session_start()) {
 
         if (!empty($errMessage)) {
             echo '<div class="exit_error">' . $errMessage . '</div>';
-            d('Got exit signal from ' . $e->getTraceAsString());
+            d('Got exit message '.$errMessage.' from ' .$e->getFile().' on '.$e->getLine().' trace: ' . $e->getTraceAsString());
         }
         fastcgi_finish_request();
 

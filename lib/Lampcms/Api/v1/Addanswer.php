@@ -128,7 +128,7 @@ class Addanswer extends Api
          * @todo Translate string
          */
         if (empty($aQuestion)) {
-            throw new \Lampcms\HttpResponseCodeException('Question not found', 404);
+            throw new \Lampcms\HttpResponseCodeException('@@Question not found@@', 404);
         }
 
         if (!empty($aQuestion['i_del_ts'])) {

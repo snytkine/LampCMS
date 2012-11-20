@@ -356,8 +356,7 @@ class MySQL implements Search
 				qid, 
 				title, 
 				url, 
-				intro, 
-				DATE_FORMAT(ts, '%M %e, %Y') as hts
+				intro
 				FROM question_title
 				WHERE 
 				qid != :qid

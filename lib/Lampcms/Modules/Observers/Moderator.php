@@ -49,65 +49,76 @@
  *
  */
 
+namespace Lampcms\Modules\Observers;
 
-namespace Lampcms\Mongo\Schema;
+use \Lampcms\Mail\TranslatableBody;
+use \Lampcms\Mail\TranslatableSubject;
+use \Lampcms\Mongo\Schema\Resource as Schema;
 
-class Answer extends Resource
+/**
+ * This observer listens to onNewQuestion/onNewAnswer
+ * and notifies moderators that a new item was posted
+ * that requires moderation
+ */
+class Moderator extends \Lampcms\Event\Observer
 {
-    const COLLECTION = 'ANSWERS';
 
-    const QUESTION_ID = 'i_qid';
+    public function main()
+    {
 
-    const POSTER_USERNAME = 'username';
+        switch ( $this->eventName ) {
+            case 'onNewPendingQuestion':
+            case 'onNewPendingAnswer':
+                $this->notifyModerators();
+                break;
+        }
 
-    const QUESTION_OWNER_ID = 'i_quid';
+    }
 
-    const AVATAR_URL = 'avtr';
 
-    const USER_PROFILE_URL = 'ulink';
+    protected function notifyModerators()
+    {
+        /**
+         * Proceed ONLY when Question or Answer has
+         * a PENDING status
+         */
+        d('need to notify moderators of pending item');
 
-    const WORDS_COUNT = 'i_words';
+        $coll   = $this->Registry->Mongo->USERS;
+        $Mailer = $this->Registry->Mailer;
+        $Mailer->setCache($this->Registry->Cache);
 
-    const BODY = 'b';
+        if ('onNewPendingQuestion' == $this->eventName) {
+            $subj = new TranslatableSubject('email.subject.new_question_moderation');
+            $tpl  = 'email.body.new_question_moderation';
+            $vars = array('{username}' => $this->obj['username'],
+                          '{title}'    => $this->obj['title'],
+                          '{body}'     => $this->obj['intro'],
+                          '{link}'     => $this->obj->getUrl()
+            );
+            $body = new TranslatableBody($tpl, $vars);
+        } else {
+            $subj = new TranslatableSubject('email.subject.new_answer_moderation');
+            $tpl  = 'email.body.new_answer_moderation';
+            $vars = array('{username}' => $this->obj['username'],
+                          '{title}'    => $this->obj->getTitle(),
+                          '{body}'     => \strip_tags($this->obj['b']),
+                          '{link}'     => $this->obj->getUrl());
+            $body = new TranslatableBody($tpl, $vars);
+        }
 
-    const TITLE = 'title';
+        $func = function() use($subj, $body, $coll, $Mailer)
+        {
+            $cur   = $coll->find(array('role' => array('$in' => array('moderator', 'administrator'))), array('email' => true, 'locale' => true));
+            $count = $cur->count();
+            if ($count > 0) {
+                $Mailer->mailFromCursor($cur, $subj, $body);
+            }
+        };
 
-    const COMMENTS_ARRAY = 'a_comments';
+        \Lampcms\runLater($func);
 
-    const COMMENTS_COUNT = 'i_comments';
-
-    /**
-     * Hash is md5 of html body . question_id
-     * This way no 2 answers can be the same for the same
-     * question, while two exact same answers are possible
-     * for different questions
-     */
-    const BODY_HASH = 'hash';
-
-    const COUNTRY_CODE = 'cc';
-
-    const COUNTRY_NAME = 'cn';
-
-    const STATE = 'state';
-
-    const CITY = 'city';
-
-    const VOTES_SCORE = 'i_votes';
-
-    const UPVOTES_COUNT = 'i_up';
-
-    const DOWNVOTES_COUNT = 'i_down';
-
-    const LAST_MODIFIED_TIMESTAMP = 'i_lm_ts';
-
-    const TIME_STRING = 'hts';
-
-    const APP_NAME = 'app';
-
-    const IS_ACCEPTED = 'accepted';
-
-    const PLURAL_POSTFIX = 'v_s';
-
-    const UPLOADED_IMAGES = 'a_img';
+        return $this;
+    }
 
 }

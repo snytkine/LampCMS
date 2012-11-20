@@ -107,6 +107,11 @@ class tplAnswer extends Lampcms\Template\Fast
 
             $a['comments_html'] = tplComment::loop($a['a_comments'], true, $f);
         }
+
+        if($a['i_status'] === 2){
+            $a['moderate'] = '<span class="cb fl pending">@@This answer is pending moderator approval@@</span>';
+            $a['approve'] = '<span class="ico ttt approve ajax" title="@@Approve this answer@@"> </span>';
+        }
     }
 
     protected static $vars = array(
@@ -132,7 +137,10 @@ class tplAnswer extends Lampcms\Template\Fast
         'i_comments' => '0', // 20
         'nocomments' => '', //21
         'i_lm_ts' => '0', // 22
-        'add_comment' => '@@add comment@@' //23
+        'add_comment' => '@@add comment@@', //23
+        'moderate' => '', //24
+        'approve' => '', //25
+        'i_status' => '' //26
     );
 
 
@@ -154,10 +162,12 @@ class tplAnswer extends Lampcms\Template\Fast
 		</td>
 
 		<td class="td_answer">
-		<div class="ans_body" id="ansbody-%1$s">%2$s</div>
+		<div class="ans_body" id="ansbody-%1$s">
+		%24$s
+		%2$s</div>
 
 		<div class="answer controls uid-%7$s" id="res_%1$s">
-		   	<span class="ico flag ttt ajax" title="@@Flag this answer as inappropriate@@">@@flag@@</span>%19$s
+		   	<span class="ico flag ttt ajax" title="@@Flag this answer as inappropriate@@">@@flag@@</span>%25$s %19$s
 		</div>
 		<!-- // -->
 		<table class="foot">

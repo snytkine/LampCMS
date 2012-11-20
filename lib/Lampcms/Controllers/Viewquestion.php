@@ -65,7 +65,8 @@ use \Lampcms\Forms\Answerform;
 use \Lampcms\QuestionInfo;
 use \Lampcms\Responder;
 use \Lampcms\SocialCheckboxes;
-use Lampcms\Image\PermissionHelper;
+use \Lampcms\Image\PermissionHelper;
+use \Lampcms\Mongo\Schema\Question as Schema;
 
 /**
  * Controller for displaying
@@ -340,15 +341,14 @@ class Viewquestion extends WebPage
             unset($this->aQuestion['ip']);
         }
 
-        $deleted = (!empty($this->aQuestion['i_del_ts'])) ? ' deleted' : false;
+        $deleted = (
+            (isset($this->aQuestion[Schema::RESOURCE_STATUS_ID]) && $this->aQuestion[Schema::RESOURCE_STATUS_ID] === Schema::DELETED) ||
+                !empty($this->aQuestion[Schema::DELETED_TIMESTAMP])
 
-        /**
-         * Guests will have to see filtered
-         * content
-         */
-        if (!$this->isLoggedIn()) {
-            $this->aQuestion['b'] = Badwords::filter($this->aQuestion['b'], true);
-        }
+        ) ? ' deleted' : false;
+
+
+        $this->aQuestion['pending'] = isset($this->aQuestion[Schema::RESOURCE_STATUS_ID]) && $this->aQuestion[Schema::RESOURCE_STATUS_ID] === Schema::PENDING;
 
         $this->Question = new Question($this->Registry, $this->aQuestion);
 
@@ -362,12 +362,32 @@ class Viewquestion extends WebPage
              * will be able to view deleted item
              * This will add 'deleted' class to question table
              */
-
             $this->aQuestion['deleted'] = $deleted;
             if (!empty($this->aQuestion['a_deleted'])) {
                 $this->aQuestion['deletedby'] = \tplDeletedby::parse($this->aQuestion['a_deleted'], false);
                 d('deletedby: ' . $this->aQuestion['deletedby']);
             }
+        }
+
+        /**
+         * Only Moderator or Owner can see pending questions
+         * A notice is added to the question indicating it's pending approval
+         * Moderators will be able to approve it.
+         * Author will be able to edit it.
+         * Others will get 404 error
+         */
+        if ($this->aQuestion['pending']) {
+            if (!$isModerator && !\Lampcms\isOwner($this->Registry->Viewer, $this->Question)) {
+                throw new \Lampcms\Lampcms404Exception('@@Question not found@@');
+            }
+        }
+
+        /**
+         * Guests will have to see filtered
+         * content
+         */
+        if (!$this->isLoggedIn()) {
+            $this->aQuestion['b'] = Badwords::filter($this->aQuestion['b'], true);
         }
 
         if ($this->noComments) {

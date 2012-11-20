@@ -113,7 +113,7 @@ class Updator
                 )
             );
 
-            $this->Mongo->CATEGORY->update(array('id' => $id), $update, array("upsert" => true));
+            $this->Mongo->CATEGORY->update(array('id' => $id), $update, array('upsert' => true));
         }
 
         return $this;

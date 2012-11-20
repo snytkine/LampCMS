@@ -140,6 +140,18 @@ PER_PAGE_USERS = 15
 ; This will be used in some page as title as well as in some emails as 'From' name
 SITE_TITLE = "LampCms Q and A site"
 SITE_NAME ="LampCMS project"
+;
+; Minimum number of posts (Questions and/or Answers)
+; that user must make in order by bypass moderation queue
+;
+; By default user must have the first 2 posts
+; approved by moderators
+;
+; Set this to 0 to NOT require moderation of the first "N" number of posts
+; from new users
+;
+NEW_POSTS_MODERATION = 2
+
 ;Default language
 DEFAULT_LANG = en
 ; Default locale
@@ -645,6 +657,20 @@ online = "\\Lampcms\\Modules\\Observers\\Online"
 ipFilter= "\\Lampcms\\Modules\\Observers\\IpFilter"
 floodCheck = "\\Lampcms\\Modules\\Observers\\FloodCheck"
 questionSimilar = "\\Lampcms\\Modules\\Observers\\Similars"
+;
+; Notifies moderators when new question or answer is posted
+; that requires moderation (this is a case when a new users
+; posts first couple of questions)
+; You can comment this out if you not using moderation feature
+; but it's also safe (and recommended) to lease this uncommented because
+; this observer will not do anything if moderation is not enabled
+;
+Moderator = "\\Lampcms\\Modules\\Observers\\Moderator"
+
+; EmailNotifier can take long to run
+; it's best to put this filter as the last filter
+;
+EmailNotifier = "\\Lampcms\\Modules\\Observers\\EmailNotifier"
 
 ; If twitter filter is enabled (not commented out here)
 ; then a checkbox to "Post to Twitter" will be
@@ -695,10 +721,6 @@ questionSimilar = "\\Lampcms\\Modules\\Observers\\Similars"
 ; the LinkedIn API
 ;linkedin = "\\Lampcms\\Modules\\Linkedin\\Share"
 
-; EmailNotifier can take long to run
-; it's best to put this filter as the last filter
-; 
-EmailNotifier = "\\Lampcms\\Modules\\Observers\\EmailNotifier"
 
 ; bit.ly use used for shortening urls
 ; this is useful when posting questions/answers

@@ -94,8 +94,11 @@
  * lampcms.phar is located
  *
  * and uncomment the line below
+ * If LAMPCMS_PHAR path is defined then you don't even need to
+ * upload the 'lib' directory - just a single lampcms.phar file
+ * includes every class from the 'lib' directory
  */
-//define('LAMPCMS_PHAR', true);
+//define('LAMPCMS_PHAR', '/full/path/to/lampcms.phar');
 
 /**
  * DO NOT REMOVE OR EDIT

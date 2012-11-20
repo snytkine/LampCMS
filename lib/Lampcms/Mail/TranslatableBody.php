@@ -62,14 +62,26 @@ namespace Lampcms\Mail;
 class TranslatableBody implements \Lampcms\I18n\TranslatableInterface
 {
 
+    /**
+     * @var string
+     */
     protected $body;
 
+    /**
+     * @var array
+     */
     protected $vars;
 
-    public function __construct($string, array $vars = null){
+    /**
+     * @param string      $string this is a template
+     * @param array $vars this is replacement vars array
+     */
+    public function __construct($string, array $vars = null)
+    {
         $this->body = $string;
         $this->vars = $vars;
     }
+
     /**
      * @return string string to be translated
      * Usually this string exists in in xliff file

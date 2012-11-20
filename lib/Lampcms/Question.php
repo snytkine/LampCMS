@@ -52,6 +52,7 @@
 
 namespace Lampcms;
 
+use Lampcms\Mongo\Schema\Question as Schema;
 
 /**
  *
@@ -107,7 +108,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
     public function getResourceId()
     {
 
-        return $this->offsetGet('_id');
+        return $this->offsetGet(Schema::PRIMARY);
     }
 
 
@@ -116,10 +117,9 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      * objects that expect a Resource but not necessarily know
      * if Resource is going to be Question or Answer
      *
-     * @todo Add Interface for this and implement it in Question
-     *       and Answer
      *
      * (non-PHPdoc)
+     *
      * @see  Lampcms\Interfaces.Resource::getResourceId()
      * @return array|bool|int|mixed|null
      */
@@ -138,7 +138,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
     public function getDeletedTime()
     {
 
-        return $this->offsetGet('i_del_ts');
+        return $this->offsetGet(Schema::DELETED_TIMESTAMP);
     }
 
 
@@ -151,7 +151,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
     public function getOwnerId()
     {
 
-        return (int)$this->offsetGet('i_uid');
+        return (int)$this->offsetGet(Schema::POSTER_ID);
     }
 
 
@@ -164,7 +164,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
     public function getLastModified()
     {
 
-        return $this->offsetGet('i_lm_ts');
+        return $this->offsetGet(Schema::LAST_MODIFIED_TIMESTAMP);
     }
 
 
@@ -176,9 +176,9 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      */
     public function getEtag()
     {
-        $ret = $this->offsetGet('i_etag');
+        $ret = $this->offsetGet(Schema::ETAG);
 
-        return (!empty($ret)) ? $ret : $this->offsetGet('i_lm_ts');
+        return (!empty($ret)) ? $ret : $this->offsetGet(Schema::LAST_MODIFIED_TIMESTAMP);
     }
 
 
@@ -193,12 +193,12 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
     public function getUrl($short = false)
     {
 
-        $url = '{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}'.$this->offsetGet('_id');
-        if(!$short){
-            $url .= '/'.$this->offsetGet('url');
+        $url = '{_WEB_ROOT_}/{_viewquestion_}/{_QID_PREFIX_}' . $this->offsetGet(Schema::PRIMARY);
+        if (!$short) {
+            $url .= '/' . $this->offsetGet('url');
         }
 
-        $url = $this->getRegistry()->Ini->SITE_URL.$url;
+        $url      = $this->getRegistry()->Ini->SITE_URL . $url;
         $callback = $this->Registry->Router->getCallback();
 
         $ret = $callback($url);
@@ -333,6 +333,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
             }
 
             parent::offsetSet('i_del_ts', time());
+            parent::offsetSet(Schema::RESOURCE_STATUS_ID, Schema::DELETED);
             parent::offsetSet('a_deleted',
                 array(
                     'username' => $user->getDisplayName(),
@@ -537,9 +538,9 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
     {
         $time = time();
 
-        $this->offsetSet('i_etag', $time);
+        $this->offsetSet(Schema::ETAG, $time);
         if (!$etagOnly) {
-            $this->offsetSet('i_lm_ts', $time);
+            $this->offsetSet(Schema::LAST_MODIFIED_TIMESTAMP, $time);
         }
 
         return $this;
@@ -588,7 +589,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
          */
         $viewerId = (0 === $viewerId) ? session_id() : $viewerId;
 
-        $ownerID = $this->offsetGet('i_uid');
+        $ownerID = $this->offsetGet(Schema::POSTER_ID);
 
         d('$viewerId: ' . $viewerId . ' $ownerID: ' . $ownerID);
 
@@ -598,7 +599,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
             return $this;
         }
 
-        $iViews = $this->offsetGet('i_views');
+        $iViews = $this->offsetGet(Schema::NUM_VIEWS);
 
         /**
          * If this is the first view, we will cheat a little
@@ -613,12 +614,15 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
         $collViews = $this->getRegistry()->Mongo->QUESTION_VIEWS;
         $collViews->ensureIndex(array('uid' => 1,
                                       'qid' => 1), array('unique' => true));
-        $qid = (int)$this->offsetGet('_id');
+
+        $qid = (int)$this->offsetGet(Schema::PRIMARY);
+
         try {
             $collViews->insert(array('qid'  => $qid,
                                      'uid'  => $viewerId,
                                      'i_ts' => time()), array('safe' => true));
-            parent::offsetSet('i_views', ($iViews + (int)$inc));
+
+            parent::offsetSet(Schema::NUM_VIEWS, ($iViews + (int)$inc));
 
             /**
              * If new value is NOT 1 then set
@@ -651,12 +655,12 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
             throw new \InvalidArgumentException('$inc can only be 1 or -1. Was: ' . $inc);
         }
 
-        $tmp   = (int)$this->offsetGet('i_up');
-        $score = (int)$this->offsetGet('i_votes');
+        $tmp   = (int)$this->offsetGet(Schema::UPVOTES_COUNT);
+        $score = (int)$this->offsetGet(Schema::VOTES_SCORE);
         $total = ($score + $inc);
 
-        parent::offsetSet('i_up', max(0, ($tmp + $inc)));
-        parent::offsetSet('i_votes', $total);
+        parent::offsetSet(Schema::UPVOTES_COUNT, max(0, ($tmp + $inc)));
+        parent::offsetSet(Schema::VOTES_SCORE, $total);
 
         /**
          * Plural extension handling
@@ -685,15 +689,15 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
             throw new \InvalidArgumentException('$inc can only be 1 or -1. Was: ' . $inc);
         }
 
-        $tmp   = (int)$this->offsetGet('i_down');
-        $score = (int)$this->offsetGet('i_votes');
+        $tmp   = (int)$this->offsetGet(Schema::DOWNVOTES_COUNT);
+        $score = (int)$this->offsetGet(Schema::VOTES_SCORE);
         $total = ($score - $inc);
 
-        parent::offsetSet('i_down', max(0, ($tmp + $inc)));
+        parent::offsetSet(Schema::DOWNVOTES_COUNT, max(0, ($tmp + $inc)));
         /**
          * Question can have negative score, so we allow it!
          */
-        parent::offsetSet('i_votes', $total);
+        parent::offsetSet(Schema::VOTES_SCORE, $total);
 
         /**
          * Plural extension handling
@@ -1196,6 +1200,30 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
     public function getUsername()
     {
         return $this->offsetGet('username');
+    }
+
+    /**
+     * Approve pending resource
+     *
+     * @param User $Moderator User object of user who approved this Question
+     *
+     * @return mixed true if status was changed|int status code of question
+     */
+    public function setApprovedStatus(\Lampcms\User $Moderator)
+    {
+        $status = $this->offsetGet(Schema::RESOURCE_STATUS_ID);
+        if ($status === Schema::PENDING) {
+            $this->offsetSet(Schema::RESOURCE_STATUS_ID, Schema::POSTED);
+            $this->offsetSet(Schema::APPROVED_BY_ID, $Moderator->getUid());
+            $this->offsetSet(Schema::APPROVED_BY_USERNAME, $Moderator->getDisplayName());
+            $this->offsetSet(Schema::APPROVED_TIMESTAMP, time());
+            $this->touch(true);
+            $this->save();
+
+            return true;
+        }
+
+        return $status;
     }
 
     /**
