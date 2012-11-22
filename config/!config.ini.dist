@@ -172,7 +172,7 @@ SERVER_TIMEZONE = America/Chicago
 ;Set this to true if you dont want to use cache
 ;or if you think cache is causing problems
 ;or if you are developing new feature
-;of if you dont have memcache at all
+;of if you dont have cache at all
 ;
 SKIP_CACHE = false
 ;
@@ -185,7 +185,7 @@ SKIP_CACHE = false
 ;of oursite.com, then you
 ;should set this value
 ;
-COOKIE_DOMAIN = 
+COOKIE_DOMAIN = ".oursite.com"
 ;
 ; system path to temporary directory. Must we writable to php
 ; if not sure - leave blank

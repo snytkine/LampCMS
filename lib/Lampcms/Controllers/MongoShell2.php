@@ -60,7 +60,7 @@ use \Lampcms\Request;
  * a form where admin can enter shell command to
  * execute on mongo server
  */
-class MongoShell extends WebPage
+class Mongoshell extends WebPage
 {
 
     /**
