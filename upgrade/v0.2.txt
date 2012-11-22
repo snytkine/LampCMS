@@ -1,0 +1,15 @@
+# Mongo shell to upgrade from 0.1 to 0.2
+#
+# DO NOT run these if you already running version Lampcms 0.2 or above
+#
+# INSTRUCTIONS: login as administrator to your Lampcms installation
+# Click on Settings
+# You should see the "Update Mongo Database" link
+# If you don't see that link then you do not have the permission
+# Add this permission to your acl.ini file - for administrator group only!
+# run_mongo_shell = A
+# -------------- COPY LINES BELOW AND PASTE IN THE FORM, press submit -----------
+db.QUESTIONS.update({i_status: null}, {$set : {i_status: 1}}, false, true);
+db.QUESTIONS.update({i_del_ts: {'$exists' : true}}, {$set : {i_status: 2}}, false, true);
+db.ANSWERS.update({i_status: null}, {$set : {i_status: 1}}, false, true);
+db.ANSWERS.update({i_del_ts: {'$exists' : true}}, {$set : {i_status: 2}}, false, true);
