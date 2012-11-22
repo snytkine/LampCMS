@@ -43,7 +43,8 @@ class tplSettings extends \Lampcms\Template\Fast
         'confirmation' => '', // 1
         'profileUrl' => '{_WEB_ROOT_}/{_editprofile_}/', //2
         'clearCache' => '', //3
-        'editCategories' => '' //4
+        'editCategories' => '', //4
+        'updateMongo' => '' // 5
     );
 
 
@@ -64,5 +65,6 @@ class tplSettings extends \Lampcms\Template\Fast
 		</div> 
 		%3$s
 		%4$s
+		%5$s
 	</div>';
 }

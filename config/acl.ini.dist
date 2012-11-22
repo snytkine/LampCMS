@@ -110,6 +110,20 @@ make_sticky = A
 edit_any_profile = A
 clear_cache = A
 edit_category = A
+; ATTENTION
+; run_mongo_shell is the most dangerous permission
+; It allows to run mongo shell command
+; from inside the web form.
+; The purpose of this feature is to be able
+; to run necessary database updates when a new feature
+; is released that requires modification to existing records
+; which is a pretty rare event.
+; Badly formatted mongo shell command or a malicious command
+; can modify any or all records in the database or completely
+; wipe out the data.
+; DO NOT GIVE THIS PERMISSION to anyone other than administrator account!
+;
+run_mongo_shell = A
            
 ;
 ;user caught spamming

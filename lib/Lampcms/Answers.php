@@ -72,7 +72,7 @@ class Answers extends LampcmsObject
     /**
      * Mongo cursor
      *
-     * @var object \MongoCursor
+     * @var object MongoCursor
      */
     protected $Cursor;
 
@@ -140,8 +140,10 @@ class Answers extends LampcmsObject
          * as indicator of deleted status - instead using i_status
          */
         if (!$this->Registry->Viewer->isModerator()) {
-            d('not moderator');
-            $where['i_del_ts'] = null;
+            d('not moderator. Get only questions with status 1');
+            $where[Schema::RESOURCE_STATUS_ID] = Schema::POSTED;
+        } else {
+            $where[Schema::RESOURCE_STATUS_ID] < Schema::DELETED;
         }
 
         switch ( $cond ) {
@@ -164,7 +166,7 @@ class Answers extends LampcmsObject
                  * Accepted answer will be first
                  * then most highly voted
                  */
-                $sort = array(Schema::IS_ACCEPTED => -1,
+                $sort = array(Schema::IS_ACCEPTED  => -1,
                               Schema::VOTES_SCORE  => -1);
         }
 

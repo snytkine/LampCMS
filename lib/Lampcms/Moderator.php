@@ -56,13 +56,25 @@ use \Lampcms\IndexerFactory;
 use \Lampcms\Mongo\Schema\Resource as ResourceSchema;
 use \Lampcms\Mongo\Schema\User as UserSchema;
 
+/**
+ * Helper class for approving
+ * a pending question and answer by a moderator
+ * This is not a controller, this class is
+ * called from a controller or from an api controller
+ *
+ */
 class Moderator extends Base
 {
 
-    protected $Poster;
-
+    /**
+     * @var object Question or Answer
+     */
     protected $Resource;
 
+    /**
+     * @var object Question when approving an Answer
+     * we need a parent Question object to post it to event dispatcher
+     */
     protected $Question;
 
 
@@ -130,7 +142,7 @@ class Moderator extends Base
                 }
                 $this->Registry->Dispatcher->post($this->Resource, 'onApprovedQuestion');
             } else {
-                $this->Registry->Dispatcher->post($this->Resource, 'onApprovedAnswer', array('question' => $this->getQuestion($this->Resource->getQid())));
+                $this->Registry->Dispatcher->post($this->Resource, 'onApprovedAnswer', array('question' => $this->getQuestion($this->Resource->getQuestionId())));
             }
 
             d('Approval complete for resource type ' . $type . ' id: ' . $id);
@@ -156,10 +168,10 @@ class Moderator extends Base
     protected function getQuestion($qid)
     {
         if (!isset($this->Question)) {
-            $a = $this->Registry->Mongo->QUESTIONS->findOne(array(Schema::PRIMARY => $qid));
+            $a = $this->Registry->Mongo->QUESTIONS->findOne(array(ResourceSchema::PRIMARY => $qid));
 
             if (empty($a)) {
-                e('Cannot find question with _id: ' . $this->Answer['qid']);
+                e('Cannot find question with _id: ' . $qid);
 
                 throw new Exception('@@Unable to find parent question for this answer@@');
             }

@@ -334,7 +334,7 @@ class Base extends LampcmsObject
      * throws in guest tries to access it
      *
      * @throws MustLoginException
-     * @return \Lampcms\object $this
+     * @return object $this
      */
     protected function checkLoginStatus()
     {

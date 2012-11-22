@@ -75,6 +75,5 @@ class Clearcache extends WebPage
         $this->Registry->Cache->flush();
 
         $this->aPageVars['body'] = '<div id="tools">@@Cache Cleared@@</div>';
-
     }
 }

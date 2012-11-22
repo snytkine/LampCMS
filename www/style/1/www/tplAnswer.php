@@ -139,8 +139,7 @@ class tplAnswer extends Lampcms\Template\Fast
         'i_lm_ts' => '0', // 22
         'add_comment' => '@@add comment@@', //23
         'moderate' => '', //24
-        'approve' => '', //25
-        'i_status' => '' //26
+        'approve' => '' //25
     );
 
 
