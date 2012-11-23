@@ -237,7 +237,7 @@ class Register extends WebPage
 
         d('aUser: ' . \json_encode($aUser));
 
-        $User = \Lampcms\User::factory($this->Registry, $aUser);
+        $User = \Lampcms\User::userFactory($this->Registry, $aUser);
         $User->save();
         d('new user _id: ' . $User['_id']);
 

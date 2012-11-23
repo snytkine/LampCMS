@@ -302,7 +302,7 @@ class Vote extends WebPage
          *
          */
         try {
-            \Lampcms\User::factory($this->Registry)->by_id($uid)
+            \Lampcms\User::userFactory($this->Registry)->by_id($uid)
                 ->setReputation($this->calculatePoints())
                 ->save();
         } catch ( \Exception $e ) {

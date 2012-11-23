@@ -55,13 +55,13 @@ use \Lampcms\WebPage;
 use \Lampcms\Request;
 use \Lampcms\Responder;
 use \Lampcms\Question;
-
+use \Lampcms\Mongo\Schema\Question as Schema;
 
 /**
  * Controller for processing the 'Accept as best answer'
  * vote
  *
- * @todo require POST method for this
+ * @todo   require POST method for this
  *
  * @author Dmitri Snytkine
  *
@@ -76,6 +76,7 @@ class Accept extends WebPage
     /**
      *
      * Question object
+     *
      * @var Object Question for which answer is accepted
      */
     protected $Question;
@@ -138,6 +139,7 @@ class Accept extends WebPage
      * post onBeforeAcceptAnswer event
      * and if notification is cancelled by observer
      * then throw Exception
+     *
      * @throws \Lampcms\Exception
      * @return object $this
      */
@@ -175,14 +177,13 @@ class Accept extends WebPage
      */
     protected function checkVoteHack()
     {
-
         if (!$this->Registry->Viewer->isModerator()) {
             $timeOffset = time() - 172800; // 2 days
 
             $cur = $this->Registry->Mongo->VOTE_HACKS->find(array('i_ts' => array('$gt' => $timeOffset)));
 
             if ($cur && $cur->count(true) > 0) {
-                $ip = Request::getIP();
+                $ip  = Request::getIP();
                 $uid = $this->Registry->Viewer->getUid();
 
                 foreach ($cur as $aRec) {
@@ -208,9 +209,9 @@ class Accept extends WebPage
      */
     protected function getAnswer()
     {
-        $id = $this->Router->getNumber(1);
-        $aAnswer = $this->Registry->Mongo->ANSWERS->findOne(array('_id' => $id));
-        d('$aAnswer: ' . \print_r($aAnswer, 1));
+        $id      = $this->Router->getNumber(1);
+        $aAnswer = $this->Registry->Mongo->ANSWERS->findOne(array(Schema::PRIMARY => $id));
+        d('$aAnswer: ' . \json_encode($aAnswer));
 
         if (empty($aAnswer)) {
             throw new \Lampcms\Exception('Answer not found by id: ' . $id);
@@ -238,10 +239,10 @@ class Accept extends WebPage
      */
     protected function getQuestion()
     {
-        $id = $this->Router->getNumber(1);
-        $aQuestion = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => $this->Answer->getQuestionId()));
+        $id        = $this->Router->getNumber(1);
+        $aQuestion = $this->Registry->Mongo->QUESTIONS->findOne(array(Schema::PRIMARY => $this->Answer->getQuestionId()));
 
-        d('$aQuestion: ' . print_r($aQuestion, 1));
+        d('$aQuestion: ' . \json_encode($aQuestion));
 
         if (empty($aQuestion)) {
             throw new \Lampcms\Exception('Question not found for this answer: ' . $id);
@@ -300,7 +301,7 @@ class Accept extends WebPage
      */
     protected function updateQuestion()
     {
-        $ansID = $this->Question['i_sel_ans'];
+        $ansID = $this->Question[Schema::SELECTED_ANSWER_ID];
         d('$ansID: ' . $ansID);
 
         if (!empty($ansID)) {
@@ -343,8 +344,11 @@ class Accept extends WebPage
      */
     protected function getOldAnswer()
     {
-        $this->aOldAnswer = $this->Registry->Mongo->ANSWERS->findOne(array('_id' => $this->Question['i_sel_ans']));
-        d('old answer: ' . print_r($this->aOldAnswer, 1));
+        $this->aOldAnswer = $this->Registry->Mongo->ANSWERS->findOne(array(
+                Schema::PRIMARY => $this->Question[Schema::SELECTED_ANSWER_ID]
+            )
+        );
+        d('old answer: ' . \json_encode($this->aOldAnswer));
 
         return $this;
     }
@@ -371,20 +375,20 @@ class Accept extends WebPage
      * owns the old answer
      *
      * @todo check current score and make sure
-     * it will not become negative after we deduct
-     * some points
+     *       it will not become negative after we deduct
+     *       some points
      *
      * @return object $this
      */
     protected function updateOldAnswerer()
     {
         if (!empty($this->aOldAnswer)) {
-            $uid = $this->aOldAnswer['i_uid'];
+            $uid = $this->aOldAnswer[Schema::POSTER_ID];
             if (!empty($uid)) {
                 try {
-                    \Lampcms\User::factory($this->Registry)->by_id($uid)->setReputation((0 - $this->Registry->Ini->POINTS->BEST_ANSWER))->save();
+                    \Lampcms\User::userFactory($this->Registry)->by_id($uid)->setReputation((0 - $this->Registry->Ini->POINTS->BEST_ANSWER))->save();
 
-                } catch (\MongoException $e) {
+                } catch ( \MongoException $e ) {
                     e('unable to update reputation for old answerer ' . $e->getMessage());
                 }
             }
@@ -408,7 +412,7 @@ class Accept extends WebPage
         $uid = $this->Answer->getOwnerId();
         d('$this->Answer->getOwnerId():. ' . $uid);
 
-        if (!empty($uid) && ($this->Question['i_uid'] == $uid)) {
+        if (!empty($uid) && ($this->Question[Schema::POSTER_ID] == $uid)) {
             d('Answered own question, this does not count towards reputation');
 
             return $this;
@@ -416,7 +420,7 @@ class Accept extends WebPage
 
         try {
             $this->Registry->Mongo->USERS->update(array('_id' => $uid), array('$inc' => array("i_rep" => $this->Registry->Ini->POINTS->BEST_ANSWER)));
-        } catch (\MongoException $e) {
+        } catch ( \MongoException $e ) {
             e('unable to increase reputation for answerer ' . $e->getMessage());
         }
 
@@ -452,17 +456,17 @@ class Accept extends WebPage
      * Insert record into VOTE_HACKS collection
      *
      * @todo move this to external class and make
-     * this method static, accepting only Registry
+     *       this method static, accepting only Registry
      * @return \Lampcms\Controllers\Accept
      */
     protected function recordVoteHack()
     {
         $coll = $this->Registry->Mongo->VOTE_HACKS;
-        $coll->ensureIndex(array('i_ts' => 1));
+        $coll->ensureIndex(array(Schema::CREATED_TIMESTAMP => 1));
         $aData = array(
-            'i_uid' => $this->Registry->Viewer->getUid(),
-            'i_ts' => time(),
-            'ip' => Request::getIP());
+            Schema::POSTER_ID => $this->Registry->Viewer->getUid(),
+            Schema::CREATED_TIMESTAMP  => time(),
+            Schema::IP_ADDRESS    => Request::getIP());
 
         $coll->save($aData);
 
@@ -479,7 +483,6 @@ class Accept extends WebPage
      */
     protected function redirect()
     {
-
         Responder::redirectToPage($this->Question->getUrl());
     }
 }

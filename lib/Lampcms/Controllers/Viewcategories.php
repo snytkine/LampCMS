@@ -80,8 +80,7 @@ class Viewcategories extends Viewquestions
 
     protected function main()
     {
-
-        $this->aPageVars['title'] = $this->_('Categories');
+        $this->aPageVars['title'] = '@@Categories@@';
 
         $this->makeTopTabs()
             ->makeQlistHeader()
@@ -94,7 +93,7 @@ class Viewcategories extends Viewquestions
 
     protected function makeQlistBody()
     {
-        $this->title             = $this->_('Categories');
+        $this->title             = '@@Categories@@';
         $Renderer                = new Renderer($this->Registry);
         $this->aPageVars['body'] = $Renderer->getNestedDivs();
 

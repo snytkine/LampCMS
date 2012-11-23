@@ -59,6 +59,7 @@ use Lampcms\Paginator;
 use Lampcms\Template\Urhere;
 use Lampcms\Utf8String;
 use Lampcms\TagsTagsTokenizer;
+use Lampcms\Mongo\Schema\Question as Schema;
 
 /**
  * Controller to view unanswered questions
@@ -144,7 +145,7 @@ class Unanswered extends Viewquestions
          * meaning most recent should be on top
          *
          */
-        $sort = array('i_ts' => -1);
+        $sort = array(Schema::CREATED_TIMESTAMP => -1);
 
         $this->title = '@@Questions with no accepted answer@@';
 
@@ -163,13 +164,13 @@ class Unanswered extends Viewquestions
             case $urlParts['COND_NOANSWERS']:
                 $this->title = '@@Questions with no answers@@';
                 $this->pagerPath .= '/{_COND_NOANSWERS_}';
-                $where         = array('i_ans' => 0);
+                $where         = array(Schema::NUM_ANSWERS => 0);
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQuntypes', 'noanswer');
                 break;
 
             case $urlParts['COND_TAGGED']:
-                $where = array('i_sel_ans' => null,
-                               'a_tags'    => array('$all' => $this->getTags()));
+                $where = array(Schema::SELECTED_ANSWER_ID => null,
+                               Schema::TAGS_ARRAY         => array('$all' => $this->getTags()));
                 $this->pagerPath .= '/{_COND_TAGGED_}' . $this->rawTags;
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQuntypes', 'newest');
                 $this->makeFollowTagButton();
@@ -188,14 +189,18 @@ class Unanswered extends Viewquestions
              */
             default:
                 $this->title   = '@@Questions with no accepted answer@@';
-                $where         = array('i_sel_ans' => null);
+                $where         = array(Schema::SELECTED_ANSWER_ID => null);
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQuntypes', 'newest');
         }
 
         /**
          * Exclude deleted items
          */
-        $where['i_del_ts'] = null;
+        if ($this->Registry->Viewer->isModerator()) {
+            $where[Schema::RESOURCE_STATUS_ID] = array('$lt' => Schema::DELETED);
+        } else {
+            $where[Schema::RESOURCE_STATUS_ID] = Schema::POSTED;
+        }
 
         $this->Cursor = $this->Registry->Mongo->QUESTIONS->find($where, $this->aFields);
         $this->count  = $this->Cursor->count(true);
@@ -256,8 +261,8 @@ class Unanswered extends Viewquestions
                  * $r is something like this: /tagged/tag%2B%2B/
                  */
                 $r = $_SERVER['REQUEST_URI'];
-                $m = \preg_match('/\/'.$cname.'\/([^\/]+)([\/]{0,1})/i', $r, $matches);
-                d('matches: ' . print_r($matches, 1));
+                $m = \preg_match('/\/' . $cname . '\/([^\/]+)([\/]{0,1})/i', $r, $matches);
+                d('matches: ' . \json_encode($matches));
                 if ($matches && !empty($matches[1])) {
                     $tags = $matches[1];
 
@@ -289,8 +294,8 @@ class Unanswered extends Viewquestions
              */
             $this->tags = \str_replace(array('<', '>'), array('&lt;', '&gt;'), $this->tags);
 
-           // $this->rawTags = $tags; //TagsTokenizer::factory($Utf8Tags)->getArrayCopy();
-            $this->title   = $this->tags;
+            // $this->rawTags = $tags; //TagsTokenizer::factory($Utf8Tags)->getArrayCopy();
+            $this->title = $this->tags;
 
             if (empty($this->tags)) {
                 return array();
@@ -312,7 +317,7 @@ class Unanswered extends Viewquestions
              */
             $this->aTags = TagsTokenizer::factory($Utf8Tags)->getArrayCopy();
 
-            d('aTags: ' . \print_r($this->aTags, 1));
+            d('aTags: ' . \json_encode($this->aTags));
         }
 
         return $this->aTags;

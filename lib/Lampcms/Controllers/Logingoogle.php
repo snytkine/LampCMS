@@ -177,7 +177,6 @@ class Logingoogle extends Register
      */
     protected function main()
     {
-
         if (is_array($_GET) && !empty($_GET['error'])) {
             d('Received error response from Google API: ' . $_GET['error']);
 
@@ -272,7 +271,6 @@ class Logingoogle extends Register
         }
 
         return $this;
-
     }
 
 
@@ -326,7 +324,7 @@ class Logingoogle extends Register
             d('found user id by email address. uid: ' . $res['i_uid']);
 
             $aUser = $this->Registry->Mongo->USERS->findOne(array(Schema::PRIMARY => $res['i_uid']));
-            $User  = User::factory($this->Registry, $aUser);
+            $User  = User::userFactory($this->Registry, $aUser);
             $this->updateUser($User);
         }
 
@@ -334,7 +332,7 @@ class Logingoogle extends Register
             $a = $this->Registry->Mongo->USERS->findOne(array(Schema::EMAIL => $this->email));
             if (!empty($a)) {
                 d('found user id by email address. uid: ' . $a['_id']);
-                $User = User::factory($this->Registry, $a);
+                $User = User::userFactory($this->Registry, $a);
                 $this->updateUser($User);
             }
         }
@@ -379,7 +377,6 @@ class Logingoogle extends Register
      */
     protected function updateUser(\Lampcms\User $User)
     {
-
         $User['google_id'] = (string)$this->userInfo['id'];
 
         /**
@@ -424,7 +421,6 @@ class Logingoogle extends Register
      */
     protected function createUser()
     {
-
         $sid = (false === ($sid = Cookie::getSidCookie())) ? String::makeSid() : $sid;
 
         if (false !== $tzn = Cookie::get('tzn')) {
@@ -486,7 +482,7 @@ class Logingoogle extends Register
 
         d('creating new googlge aUser: ' . \json_encode($aUser));
 
-        $User = User::factory($this->Registry, $aUser);
+        $User = User::userFactory($this->Registry, $aUser);
         $User->save();
         d('new user _id: ' . $User['_id']);
 

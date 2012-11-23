@@ -72,8 +72,6 @@ class Answer extends Resource
 
     const TITLE = 'title';
 
-    const COMMENTS_ARRAY = 'a_comments';
-
     const COMMENTS_COUNT = 'i_comments';
 
     /**

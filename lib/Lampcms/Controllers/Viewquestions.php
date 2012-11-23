@@ -242,11 +242,6 @@ class Viewquestions extends WebPage
         }
 
         /**
-         * Exclude deleted items
-         */
-        //$where['i_del_ts'] = null;
-
-        /**
          * Important!
          * Starting from version 0.2 no longer using i_del_ts to indicate
          * deleted items, instead using the RESOURCE_STATUS_ID ('i_status' field)

@@ -63,8 +63,6 @@ class Question extends Answer
 
     const TITLE_ARRAY = 'a_title';
 
-    const STATUS = 'status';
-
     const TAGS_HTML = 'tags_html';
 
     const CREDITS = 'credits';
@@ -77,7 +75,7 @@ class Question extends Answer
 
     const NUM_ANSWERS = 'i_ans';
 
-    const NUM_FOLLOWERS = 'i_flwrs';
+    const SELECTED_ANSWER_ID = 'i_sel_ans';
 
     const APP_ID = 'app_id';
 

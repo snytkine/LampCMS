@@ -369,7 +369,7 @@ class Doc extends LampcmsArray implements \Serializable
      */
     public function __call($method, $arguments)
     {
-        if ('by' !== substr(strtolower($method), 0, 2)) {
+        if ('by' !== \substr(\strtolower($method), 0, 2)) {
             throw new \InvalidArgumentException('Unknown method: ' . $method);
         }
 

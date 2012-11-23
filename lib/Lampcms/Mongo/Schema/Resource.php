@@ -67,6 +67,8 @@ class Resource
 
     const IP_ADDRESS = 'ip';
 
+    const STATUS = 'status';
+
     /**
      * This field is a Status id of Question or Answer
      * This indicates POSTED, PENDING or DELETED status
@@ -92,6 +94,20 @@ class Resource
     const CREATED_TIMESTAMP = 'i_ts';
 
     const DELETED_TIMESTAMP = 'i_del_ts';
+
+    /**
+     * Array of followers
+     * this is array of integers (user ids)
+     */
+    const FOLLOWERS = 'a_flwrs';
+
+
+    const COMMENTS_ARRAY = 'a_comments';
+
+    /**
+     * count of followers
+     */
+    const NUM_FOLLOWERS = 'i_flwrs';
 
     /**
      * Status of normal Question or answer

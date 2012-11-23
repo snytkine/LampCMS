@@ -70,8 +70,6 @@ namespace Lampcms;
  */
 class UserFacebook extends UserExternal
 {
-
-
     /**
      * Return HTML code for avatar image (with full path)
      * @param string $sSize type of avatar: large, medium, tiny
@@ -87,6 +85,5 @@ class UserFacebook extends UserExternal
         $strAvatar .= '<img width="14" height="14" class="iconfb" alt="Facebook Connect User" src="{_IMAGE_SITE_}{_DIR_}/images/fb-user.gif">';
 
         return $strAvatar;
-
     }
 }

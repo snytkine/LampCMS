@@ -107,7 +107,6 @@ class Answers extends LampcmsObject
      */
     public function getAnswers(Question $Question, $result = 'html')
     {
-
         $qid    = $Question[Schema::PRIMARY];
         $url    = $Question['url'];
         $pageID = $this->Registry->Router->getPageID();
@@ -211,6 +210,5 @@ class Answers extends LampcmsObject
         $answers = \tplAnswer::loop($cursor, true, $func) . $pagerLinks;
 
         return $answers;
-
     }
 }

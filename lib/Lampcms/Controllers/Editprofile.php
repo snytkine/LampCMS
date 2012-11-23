@@ -142,7 +142,7 @@ class Editprofile extends WebPage
              * check Viewer permission here
              */
             $this->checkAccessPermission('edit_any_profile');
-            $this->User = \Lampcms\User::factory($this->Registry)->by_id($uid);
+            $this->User = \Lampcms\User::userFactory($this->Registry)->by_id($uid);
         } else {
             $this->User = $this->Registry->Viewer;
         }

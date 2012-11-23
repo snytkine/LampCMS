@@ -132,7 +132,7 @@ class Userinfo extends WebPage
             throw new \Lampcms\Lampcms404Exception('@@User not found@@');
         }
 
-        $this->User               = User::factory($this->Registry, $a);
+        $this->User               = User::userFactory($this->Registry, $a);
         $this->aPageVars['title'] = $this->User->getDisplayName();
 
         return $this;
@@ -192,9 +192,7 @@ class Userinfo extends WebPage
      */
     protected function addQuestions()
     {
-
         /**
-         *
          * html of parsed questions and pagination links
          * at the bottom all wrapped inside <div class="user_tags">
          *
@@ -233,7 +231,6 @@ class Userinfo extends WebPage
      */
     protected function addAnswers()
     {
-
         /**
          *
          * html of parsed answers and pagination links
@@ -287,7 +284,6 @@ class Userinfo extends WebPage
      */
     protected function addTags()
     {
-
         $this->aPageVars['body'] .= UserTagsBlock::get($this->Registry, $this->User);
 
         return $this;
@@ -303,9 +299,7 @@ class Userinfo extends WebPage
      */
     protected function addFollowedTags()
     {
-
         $this->aPageVars['body'] .= UserFollowedTags::get($this->Registry, $this->User);
-
 
         return $this;
     }

@@ -136,10 +136,6 @@ class QuestionParser extends LampcmsObject
 
         $this->makeQuestion()
             ->addToSearchIndex()
-            ->addTags()
-            ->addUnansweredTags()
-            ->addRelatedTags()
-            ->updateCategory()
             ->addUserTags();
 
         d('Parsing done, returning question');
@@ -312,6 +308,10 @@ class QuestionParser extends LampcmsObject
         $this->followQuestion();
 
         if ($resourceStatus === Schema::POSTED) {
+            $this->updateCategory()
+                ->addTags()
+                ->addUnansweredTags()
+                ->addRelatedTags();
             $this->Registry->Dispatcher->post($this->Question, 'onCategoryUpdate');
             $this->Registry->Dispatcher->post($this->Question, 'onNewQuestion');
         } elseif ($resourceStatus === Schema::PENDING) {

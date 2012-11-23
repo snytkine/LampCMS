@@ -108,7 +108,6 @@ class Edit extends WebPage
 
     protected function main()
     {
-
         $this->getResource()
             ->configureEditor()
             ->checkPermission()
@@ -213,7 +212,7 @@ class Edit extends WebPage
      * Create object of type Question or Answer
      *
      * @throws \Lampcms\Exception
-     * @return \Lampcms\Controllers\object $this
+     * @return object $this
      */
     protected function getResource()
     {

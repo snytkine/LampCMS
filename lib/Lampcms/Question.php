@@ -81,7 +81,6 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
     public function __construct(Registry $Registry, array $a = null)
     {
-
         $a = ($a) ? $a : array();
         parent::__construct($Registry, 'QUESTIONS', $a);
     }
@@ -107,7 +106,6 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      */
     public function getResourceId()
     {
-
         return $this->offsetGet(Schema::PRIMARY);
     }
 
@@ -137,7 +135,6 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      */
     public function getDeletedTime()
     {
-
         return $this->offsetGet(Schema::DELETED_TIMESTAMP);
     }
 
@@ -150,7 +147,6 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      */
     public function getOwnerId()
     {
-
         return (int)$this->offsetGet(Schema::POSTER_ID);
     }
 
@@ -163,7 +159,6 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      */
     public function getLastModified()
     {
-
         return $this->offsetGet(Schema::LAST_MODIFIED_TIMESTAMP);
     }
 
@@ -215,7 +210,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      */
     public function getBody()
     {
-        return $this->offsetGet('b');
+        return $this->offsetGet(Schema::BODY);
     }
 
 
@@ -227,7 +222,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      */
     public function getTitle()
     {
-        return $this->offsetGet('title');
+        return $this->offsetGet(Schema::TITLE);
     }
 
     /**
@@ -235,7 +230,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      */
     public function getCategoryId()
     {
-        return $this->offsetGet('i_cat');
+        return $this->offsetGet(Schema::CATEGORY_ID);
     }
 
 
@@ -273,8 +268,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      */
     public function getAnswerCount()
     {
-
-        return $this->offsetGet('i_ans');
+        return $this->offsetGet(Schema::NUM_ANSWERS);
     }
 
 
@@ -325,14 +319,13 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      */
     public function setDeleted(User $user, $reason = null)
     {
-
         if (0 === $this->getDeletedTime()) {
 
             if ($reason) {
                 $reason = \strip_tags((string)$reason);
             }
 
-            parent::offsetSet('i_del_ts', time());
+            parent::offsetSet(Schema::DELETED_TIMESTAMP, time());
             parent::offsetSet(Schema::RESOURCE_STATUS_ID, Schema::DELETED);
             parent::offsetSet('a_deleted',
                 array(
@@ -360,7 +353,6 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      */
     public function setEdited(User $user, $reason = '')
     {
-
         if (!empty($reason)) {
             $reason = \strip_tags((string)$reason);
         }
@@ -399,17 +391,16 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      */
     public function retag(User $user, array $tags)
     {
-
-        parent::offsetSet('a_tags', $tags);
+        parent::offsetSet(Schema::TAGS_ARRAY, $tags);
         parent::offsetSet('tags_html', \tplQtags::loop($tags, false));
 
-        $b = $this->offsetGet('b');
+        $b = $this->offsetGet(Schema::BODY);
         d('b: ' . $b);
 
         $oHtmlParser = \Lampcms\String\HTMLStringParser::stringFactory(Utf8String::stringFactory($b, 'utf-8', true));
         $body        = $oHtmlParser->unhilight()->hilightWords($tags)->valueOf();
 
-        $this->offsetSet('b', $body);
+        $this->offsetSet(Schema::BODY, $body);
 
         $this->setEdited($user, 'Retagged')->touch();
 
@@ -451,11 +442,11 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
          * the count of unanswered tags, which
          * is done via UnansweredTags object
          */
-        if ('accptd' !== $this->offsetGet('status')) {
+        if ('accptd' !== $this->offsetGet(Schema::STATUS)) {
             UnansweredTags::factory($this->Registry)->remove($this);
         }
 
-        parent::offsetSet('status', 'accptd');
+        parent::offsetSet(Schema::STATUS, 'accptd');
         d('setting status to accptd');
 
         $this->touch(false);
@@ -484,7 +475,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
             throw new \InvalidArgumentException('Param $inc must be an integer. was: ' . gettype($inc));
         }
 
-        $iAns = $this->offsetGet('i_ans');
+        $iAns = $this->offsetGet(Schema::NUM_ANSWERS);
         d('$iAns ' . $iAns);
 
         /**
@@ -498,7 +489,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
         $newCount = max(0, ($iAns + $inc));
         d('$newCount: ' . $newCount);
 
-        parent::offsetSet('i_ans', $newCount);
+        parent::offsetSet(Schema::NUM_ANSWERS, $newCount);
 
         /**
          * Change the status to answrd
@@ -508,9 +499,9 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
          * make the question 'answered'
          */
         if ($newCount < 1) {
-            parent::offsetSet('status', 'unans');
+            parent::offsetSet(Schema::STATUS, 'unans');
         } elseif ('unans' === $this->offsetGet('status')) {
-            parent::offsetSet('status', 'answrd');
+            parent::offsetSet(Schema::STATUS, 'answrd');
         }
 
         /**
@@ -719,9 +710,9 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
     {
 
         $a = array(
-            'up'    => $this->offsetGet('i_up'),
-            'down'  => $this->offsetGet('i_down'),
-            'score' => $this->offsetGet('i_votes'));
+            'up'    => $this->offsetGet(Schema::UPVOTES_COUNT),
+            'down'  => $this->offsetGet(Schema::DOWNVOTES_COUNT),
+            'score' => $this->offsetGet(Schema::VOTES_SCORE));
 
         return $a;
     }
@@ -735,7 +726,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      */
     public function getScore()
     {
-        return $this->offsetGet('i_votes');
+        return $this->offsetGet(Schema::VOTES_SCORE);
     }
 
 
@@ -772,14 +763,14 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
         );
 
         $aComments = $this->getComments();
-        d('aComments: ' . print_r($aComments, 1));
+        d('aComments: ' . \json_encode($aComments));
         /**
          * Only keep the keys that we need
          * get rid of keys like hash, i_res
          * because we don't need them here
          */
         $aComment = $Comment->getArrayCopy();
-        $aComment = array_intersect_key($aComment, array_flip($aKeys));
+        $aComment = \array_intersect_key($aComment, \array_flip($aKeys));
 
         $aComments[] = $aComment;
 
@@ -830,7 +821,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
         $commentsCount = $this->getCommentsCount();
         d('$commentsCount ' . $commentsCount);
 
-        parent::offsetSet('i_comments', ($commentsCount + $count));
+        parent::offsetSet(Schema::COMMENTS_COUNT, ($commentsCount + $count));
 
         return $this;
     }
@@ -872,12 +863,12 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
         $newCount = count($aComments);
         if (0 === $newCount) {
-            $this->offsetUnset('a_comments');
+            $this->offsetUnset(Schema::COMMENTS_ARRAY);
         } else {
             $this->setComments($aComments);
         }
 
-        parent::offsetSet('i_comments', $newCount);
+        parent::offsetSet(Schema::COMMENTS_COUNT, $newCount);
 
         return $this;
     }
@@ -980,10 +971,10 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
         $uid = (is_int($User)) ? $User : $User->getUid();
 
-        $aFollowers = $this->offsetGet('a_flwrs');
+        $aFollowers = $this->offsetGet(Schema::FOLLOWERS);
         if (!in_array($uid, $aFollowers)) {
             $aFollowers[] = $uid;
-            $this->offsetSet('a_flwrs', $aFollowers);
+            $this->offsetSet(Schema::FOLLOWERS, $aFollowers);
             $this->save();
         }
 
@@ -1010,11 +1001,11 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
         $uid = (is_int($User)) ? $User : $User->getUid();
 
-        $aFollowers = $this->offsetGet('a_flwrs');
+        $aFollowers = $this->offsetGet(Schema::FOLLOWERS);
         if (false !== $key = array_search($uid, $aFollowers)) {
             d('cp unsetting key: ' . $key);
             array_splice($aFollowers, $key, 1);
-            $this->offsetSet('a_flwrs', $aFollowers);
+            $this->offsetSet(Schema::FOLLOWERS, $aFollowers);
             $this->save();
         }
 
@@ -1103,10 +1094,10 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
          * this question is technically unanswered again
          */
         if ((true === $Answer['accepted']) &&
-            ($id === $this->offsetGet('i_sel_ans'))
+            ($id === $this->offsetGet(Schema::SELECTED_ANSWER_ID))
         ) {
-            parent::offsetSet('status', 'answrd');
-            $this->offsetUnset('i_sel_ans');
+            parent::offsetSet(Schema::STATUS, 'answrd');
+            $this->offsetUnset(Schema::SELECTED_ANSWER_ID);
             $this->offsetUnset('i_sel_uid');
             UnansweredTags::factory($this->Registry)->set($this);
         }
@@ -1129,7 +1120,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      */
     public function getComments()
     {
-        return $this->offsetGet('a_comments');
+        return $this->offsetGet(Schema::COMMENTS_ARRAY);
     }
 
 
@@ -1174,8 +1165,8 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
      */
     public function setComments(array $aComments)
     {
-        parent::offsetSet('a_comments', $aComments);
-        parent::offsetSet('i_comments', count($aComments));
+        parent::offsetSet(Schema::COMMENTS_ARRAY, $aComments);
+        parent::offsetSet(Schema::COMMENTS_COUNT, count($aComments));
 
         return $this;
     }
@@ -1202,6 +1193,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
         return $this->offsetGet('username');
     }
 
+
     /**
      * Approve pending resource
      *
@@ -1225,6 +1217,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
 
         return $status;
     }
+
 
     /**
      * This method prevents setting some

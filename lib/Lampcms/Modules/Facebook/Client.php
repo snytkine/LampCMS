@@ -169,7 +169,6 @@ class Client
 
     public function __construct(\Lampcms\Registry $Registry)
     {
-
         $this->Registry  = $Registry;
         $this->aFBConfig = $Registry->Ini->getSection('FACEBOOK');
         $this->appId     = $this->aFBConfig['APP_ID'];
@@ -201,7 +200,7 @@ class Client
 
         $aUser = $this->getUserArray($this->fbId);
         if (!empty($aUser)) {
-            $this->User = UserFacebook::factory($this->Registry, $aUser);
+            $this->User = UserFacebook::userFactory($this->Registry, $aUser);
             d('existing user $this->User: ' . \json_encode($this->User->getArrayCopy()));
             $this->updateUser();
             d('cp');
@@ -270,7 +269,7 @@ class Client
          * to "active" FB user by adding valid FB token to User object
          */
         if (!empty($aUser)) {
-            $this->User = UserFacebook::factory($this->Registry, $aUser);
+            $this->User = UserFacebook::userFactory($this->Registry, $aUser);
             d('existing user $this->User: ' . print_r($this->User->getArrayCopy(), 1));
             $this->updateUser();
 
@@ -564,7 +563,7 @@ class Client
 
         d('aUser: ' . print_r($aUser, 1));
 
-        $this->User = UserFacebook::factory($this->Registry, $aUser);
+        $this->User = UserFacebook::userFactory($this->Registry, $aUser);
         $this->User->insert();
 
         d('$this->User after insert: ' . print_r($this->User->getArrayCopy(), 1));
@@ -684,7 +683,6 @@ class Client
      */
     public function postUpdate(\Lampcms\Interfaces\FacebookUser $User, $aData)
     {
-
         if (!is_string($aData) && !is_array($aData)) {
             throw new \InvalidArgumentException('Invalid data type of $aData: ' . \gettype($aData));
         }

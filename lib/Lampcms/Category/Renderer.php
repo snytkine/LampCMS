@@ -202,7 +202,7 @@ class Renderer
 
     public function getByFilter($func)
     {
-        $a = array_filter($this->aCategories, $func);
+        $a = \array_filter($this->aCategories, $func);
 
         return $a;
     }
@@ -396,7 +396,7 @@ class Renderer
                  * has been deleted but the item not removed
                  * from a_sub array (normally this does not happend, but just in case must check)
                  */
-                if (array_key_exists($id, $this->aCategories)) {
+                if (\array_key_exists($id, $this->aCategories)) {
                     $ret .= $this->getSelectOption($this->aCategories[$id], ($level + 1));
                 }
             }
@@ -424,9 +424,9 @@ class Renderer
     {
         if (!empty($this->aCategories[$id]) && !empty($this->aCategories[$id]['a_sub'])) {
 
-            $subKeys = array_flip($this->aCategories[$id]['a_sub']);
+            $subKeys = \array_flip($this->aCategories[$id]['a_sub']);
 
-            $ret = array_intersect_key($this->aCategories, $subKeys);
+            $ret = \array_intersect_key($this->aCategories, $subKeys);
             if ($activeOnly) {
                 return array_filter($ret, function($var)
                 {
@@ -443,14 +443,13 @@ class Renderer
 
     public function _getNestedDivs(array $categories = null)
     {
-
         $categories = ($categories) ? $categories : $this->aCategories;
 
         $ret = '<div class="cats2">';
         foreach ($categories as $c) {
             if ($c['b_active']) {
                 if (!empty($c['a_sub'])) {
-                    $subs = \array_intersect_key($this->aCategories, array_flip($c['a_sub']));
+                    $subs = \array_intersect_key($this->aCategories, \array_flip($c['a_sub']));
                     $ret .= $this->getNestedDivs($subs);
                 } else {
                     $ret .= \tplCategoryDiv::parse($c);
@@ -478,7 +477,6 @@ class Renderer
      */
     public function getNestedDivs(array $categories = null, $parentId = 0, $level = 0)
     {
-
         $categories = ($categories) ? $categories : $this->aCategories;
 
         $ret = '<div class="cats_w fl cb" id="parent_' . $parentId . '">';
@@ -500,7 +498,6 @@ class Renderer
                 $tpl = ($c['i_level'] < $this->maxDetailedLevel) ? 'tplCategoryDiv' : 'tplCategoryMinDiv';
 
                 $ret .= $tpl::parse($c, true);
-
 
             }
         }

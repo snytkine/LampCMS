@@ -53,6 +53,7 @@
 namespace Lampcms;
 
 use \Lampcms\IndexerFactory;
+use \Lampcms\Category\Updator;
 use \Lampcms\Mongo\Schema\Resource as ResourceSchema;
 use \Lampcms\Mongo\Schema\User as UserSchema;
 
@@ -126,14 +127,22 @@ class Moderator extends Base
         }
 
         if ('q' === $type) {
-            $this->Resource = new Question($this->Registry, $a);
+            $this->Question = $this->Resource = new Question($this->Registry, $a);
         } else {
             $this->Resource = new Answer($this->Registry, $a);
+            $this->Question = $this->getQuestion($this->Resource->getQuestionId());
         }
 
         if (true === $res = $this->Resource->setApprovedStatus($this->Registry->Viewer)) {
+
             $this->updatePoster();
+            $this->updateCategory($type);
+
             if ('q' === $type) {
+                $this->addTags()
+                    ->addUnansweredTags()
+                    ->addRelatedTags();
+
                 try {
                     IndexerFactory::factory($this->Registry)->indexQuestion($this->Resource);
                 } catch ( \Exception $e ) {
@@ -142,7 +151,14 @@ class Moderator extends Base
                 }
                 $this->Registry->Dispatcher->post($this->Resource, 'onApprovedQuestion');
             } else {
-                $this->Registry->Dispatcher->post($this->Resource, 'onApprovedAnswer', array('question' => $this->getQuestion($this->Resource->getQuestionId())));
+                /**
+                 * Need update etag of Question otherwise
+                 * upon page reload the browser will show cached
+                 * version of question with this answer still showing
+                 * with the "pending" notice
+                 */
+                $this->updateQuestion();
+                $this->Registry->Dispatcher->post($this->Resource, 'onApprovedAnswer', array('question' => $this->Question));
             }
 
             d('Approval complete for resource type ' . $type . ' id: ' . $id);
@@ -198,6 +214,144 @@ class Moderator extends Base
             d('Result of updating poster account: ' . $res);
         } catch ( \MongoException $e ) {
             e('Unable to increase user\'s approved items count ' . $e->getMessage());
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Update count of answers in a category
+     *
+     * @param string $type 'q' means to update questions count, 'a' to update
+     *                     answers count in category
+     *
+     * @return \Lampcms\QuestionParser
+     */
+    protected function updateCategory($type = 'q')
+    {
+        $Updator = new Updator($this->Registry->Mongo);
+        if ('q' === $type) {
+            $Updator->addQuestion($this->Resource);
+        } else {
+            $Updator->addAnswer($this->Resource);
+        }
+
+        $this->Registry->Cache->__unset('categories');
+
+        return $this;
+    }
+
+    /**
+     * Increase answer count
+     * for question.
+     * Also set Last Answerer details
+     * and add Answerer User to list
+     * of Question contributors
+     * (this is for the dot-folders feature)
+     *
+     * The increaseAnswerCount will also update
+     * the last modified timestamp for question
+     *
+     * @return object $this
+     */
+    protected function updateQuestion()
+    {
+        d('cp');
+        $uid = $this->Resource->getOwnerId();
+        d('uid of answer: '.$uid);
+        $User = \Lampcms\User::userFactory($this->Registry)->by_id($uid);
+        d('$User id: '.$User->getUid());
+        $this->Question->updateAnswerCount();
+        $this->Question->addContributor($User);
+        $this->Question->setLatestAnswer($User, $this->Resource);
+        $this->Question->touch();
+        $this->Question->save();
+
+        return $this;
+    }
+
+
+    /**
+     * Update QUESTION_TAGS tags counter
+     *
+     * @return object $this
+     */
+    protected function addTags()
+    {
+        $o        = Qtagscounter::factory($this->Registry);
+        $Question = $this->Question;
+        if (count($Question['a_tags']) > 0) {
+            $callable = function() use($o, $Question)
+            {
+                try {
+                    $o->parse($Question);
+                } catch ( \Exception $e ) {
+
+                    if (function_exists('d')) {
+                        d('Error: Unable to add tags: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on ' . $e->getLine());
+                    }
+
+                }
+            };
+            d('cp');
+            runLater($callable);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Calculates related tags
+     * via shutdown function
+     *
+     * @return object $this
+     */
+    protected function addRelatedTags()
+    {
+        $Related  = Relatedtags::factory($this->Registry);
+        $Question = $this->Question;
+        if (count($Question['a_tags']) > 0) {
+            d('cp');
+            $callable = function() use ($Related, $Question)
+            {
+                try {
+                    $Related->addTags($Question);
+                } catch ( \Exception $e ) {
+                    // cannot do much here, only error_log may be
+                    // safe to use
+                }
+            };
+            runLater($callable);
+        }
+        d('cp');
+
+        return $this;
+    }
+
+
+    /**
+     * Skip if $this->Question['status'] is accptd
+     * which would be the case when question came from API
+     * and is already answered
+     *
+     * @return object $this
+     */
+    protected function addUnansweredTags()
+    {
+        if ('accptd' !== $this->Question[ResourceSchema::STATUS]) {
+            if (count($this->Question['a_tags']) > 0) {
+                $o        = new UnansweredTags($this->Registry);
+                $Question = $this->Question;
+                $callable = function() use ($o, $Question)
+                {
+                    $o->set($Question);
+                };
+                d('cp');
+                runLater($callable);
+            }
+            d('cp');
         }
 
         return $this;

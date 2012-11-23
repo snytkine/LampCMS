@@ -384,7 +384,7 @@ class Logintwitter extends WebPage
             $this->connect($tid);
 
         } elseif (!empty($aUser)) {
-            $this->User = $User = \Lampcms\UserTwitter::factory($this->Registry, $aUser);
+            $this->User = $User = \Lampcms\UserTwitter::userFactory($this->Registry, $aUser);
             $this->updateUser();
         } else {
             $this->isNewAccount = true;
@@ -464,7 +464,6 @@ class Logintwitter extends WebPage
 
     protected function createNewUser()
     {
-
         $aUser = array();
         if(!empty($this->aUserData['utc_offset'])){
             $timezone = \Lampcms\TimeZone::getTZbyoffset($this->aUserData['utc_offset']);
@@ -507,7 +506,7 @@ class Logintwitter extends WebPage
 
         d('aUser: ' . print_r($aUser, 1));
 
-        $this->User = \Lampcms\UserTwitter::factory($this->Registry, $aUser);
+        $this->User = \Lampcms\UserTwitter::userFactory($this->Registry, $aUser);
 
         /**
          * This will mark this userobject is new user
@@ -570,7 +569,6 @@ class Logintwitter extends WebPage
         $this->User->save();
 
         return $this;
-
     }
 
 
@@ -583,7 +581,6 @@ class Logintwitter extends WebPage
      */
     protected function postTweetStatus()
     {
-
         $sToFollow = $this->aTW['TWITTER_USERNAME'];
         $follow = (!empty($sToFollow)) ? ' #follow @' . $sToFollow : '';
         $siteName = $this->Registry->Ini->SITE_TITLE;
@@ -624,7 +621,6 @@ class Logintwitter extends WebPage
      */
     protected function updateTwitterUserRecord()
     {
-
         $this->Registry->Mongo->USERS_TWITTER->save($this->aUserData);
 
         return $this;
@@ -641,7 +637,6 @@ class Logintwitter extends WebPage
      */
     protected function getUserByTid($tid)
     {
-
         $coll = $this->Registry->Mongo->USERS;
         $coll->ensureIndex(array('twitter_uid' => 1));
 
@@ -720,14 +715,12 @@ class Logintwitter extends WebPage
      */
     protected function makeUsername()
     {
-
         $res = $this->Registry->Mongo->USERS->findOne(array('username_lc' => \mb_strtolower($this->aUserData['screen_name'])));
 
         $ret = (empty($res)) ? $this->aUserData['screen_name'] : '@' . $this->aUserData['screen_name'];
         d('ret: ' . $ret);
 
         return $ret;
-
     }
 
 }

@@ -131,7 +131,6 @@ class Loginlinkedin extends WebPage
      */
     protected function main()
     {
-
         $routerCallback = $this->Registry->Router->getCallback();
         $this->callback = $routerCallback($this->callback);
         d('$this->callback' . $this->callback);
@@ -195,7 +194,6 @@ class Loginlinkedin extends WebPage
      */
     protected function step1()
     {
-
         $requestUrl = self::REQUEST_TOKEN_URL . $this->callback;
 
         try {
@@ -306,7 +304,6 @@ class Loginlinkedin extends WebPage
 
     protected function createOrUpdate()
     {
-
         $aUser = $this->getUserByLinkedInId($this->aData['linkedin_id']);
 
         if (!empty($this->bConnect)) {
@@ -316,7 +313,7 @@ class Loginlinkedin extends WebPage
             $this->updateUser();
 
         } elseif (!empty($aUser)) {
-            $this->User = \Lampcms\UserLinkedin::factory($this->Registry, $aUser);
+            $this->User = \Lampcms\UserLinkedin::userFactory($this->Registry, $aUser);
             $this->updateUser(); // only update token, secret, linkedin url
         } else {
             $this->isNewAccount = true;
@@ -350,7 +347,6 @@ class Loginlinkedin extends WebPage
      */
     protected function createNewUser()
     {
-
         d('$this->aData: ' . print_r($this->aData, 1));
 
         if (false !== $tzn = Cookie::get('tzn')) {
@@ -384,7 +380,7 @@ class Loginlinkedin extends WebPage
             $this->aData = array_merge($this->Registry->Geo->Location->data, $this->aData);
         }
 
-        $this->User = \Lampcms\UserLinkedin::factory($this->Registry, $this->aData);
+        $this->User = \Lampcms\UserLinkedin::userFactory($this->Registry, $this->aData);
 
         /**
          * This will mark this userobject is new user
@@ -597,8 +593,6 @@ class Loginlinkedin extends WebPage
      */
     protected function closeWindow(array $a = array())
     {
-        //exit;
-
         d('cp a: ' . print_r($a, 1));
         $js = '';
 

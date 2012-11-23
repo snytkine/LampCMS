@@ -87,7 +87,6 @@ class Activate extends WebPage
 
     protected function main()
     {
-
         $this->timeLimit = $this->Registry->Ini->VALIDATION_CODE_EXPIRATION;
 
         $this->getEmailRecord()
@@ -150,7 +149,6 @@ class Activate extends WebPage
      */
     protected function activateUser()
     {
-
         $aUser = $this->Registry->Mongo->USERS->findOne(array(Schema::PRIMARY => (int)$this->aEmail['i_uid']));
 
         if (empty($aUser)) {
@@ -158,8 +156,7 @@ class Activate extends WebPage
             throw new \Lampcms\Exception('@@Unable to find user, please create a new account@@');
         }
 
-
-        $this->oActivatedUser = User::factory($this->Registry, $aUser);
+        $this->oActivatedUser = User::userFactory($this->Registry, $aUser);
         $role = $this->oActivatedUser->getRoleId();
         /**
          * If User's role is NOT 'unactivated' then
@@ -196,9 +193,10 @@ class Activate extends WebPage
      */
     protected function setReturn()
     {
-
         $this->aPageVars['title'] = '@@Account activation complete@@';
-
+        /**
+         * @todo translate string
+         */
         $this->aPageVars['body'] = '<div id="tools" class="larger">@@Account activation complete@@<br/>The account <b>' . $this->oActivatedUser->username . '</b> now has all the privileges<br/>
 		of a registered user on our website.<br/>
 		<br/>If you not already logged in, please login using<br/>

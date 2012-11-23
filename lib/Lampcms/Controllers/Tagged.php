@@ -53,7 +53,7 @@ namespace Lampcms\Controllers;
 
 use \Lampcms\RedirectException;
 use \Lampcms\Relatedtags;
-
+use \Lampcms\Mongo\Schema\Question as Schema;
 
 /**
  * Controller for rendering page
@@ -127,10 +127,18 @@ class Tagged extends Unanswered
          * meaning most recent should be on top
          *
          */
-        $sort = array('i_ts' => -1);
+        $sort = array(Schema::CREATED_TIMESTAMP => -1);
 
-        $where = array('a_tags' => array('$all' => $this->aTags));
-        $where['i_del_ts'] = null;
+        $where = array(Schema::TAGS_ARRAY => array('$all' => $this->aTags));
+        /**
+         * Exclude deleted items
+         */
+        if ($this->Registry->Viewer->isModerator()) {
+            $where[Schema::RESOURCE_STATUS_ID] = array('$lt' => Schema::DELETED);
+        } else {
+            $where[Schema::RESOURCE_STATUS_ID] = Schema::POSTED;
+        }
+
         $replaced = array(
             'tags' => \str_replace(' ', ' + ', $this->tags),
             'text' => '@@Tagged@@'

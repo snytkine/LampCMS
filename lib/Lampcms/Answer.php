@@ -119,7 +119,6 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      */
     public function getResourceId()
     {
-
         return $this->offsetGet(Schema::PRIMARY);
     }
 
@@ -128,11 +127,10 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      * (non-PHPdoc)
      *
      * @see LampcmsResourceInterface::getDeletedTime()
-     * @return int|\Lampcms\int (0 if this answer is not deleted)
+     * @return int (0 if this answer is not deleted)
      */
     public function getDeletedTime()
     {
-
         return $this->offsetGet(Schema::DELETED_TIMESTAMP);
     }
 
@@ -168,7 +166,7 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
                 $reason = \strip_tags((string)$reason);
             }
 
-            parent::offsetSet('i_del_ts', time());
+            parent::offsetSet(Schema::DELETED_TIMESTAMP, time());
             parent::offsetSet(Schema::RESOURCE_STATUS_ID, Schema::DELETED);
             parent::offsetSet('a_deleted',
                 array(
@@ -251,7 +249,6 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      */
     public function getOwnerId()
     {
-
         return $this->offsetGet(Schema::POSTER_ID);
     }
 
@@ -264,7 +261,6 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      */
     public function getLastModified()
     {
-
         return $this->offsetGet(Schema::LAST_MODIFIED_TIMESTAMP);
     }
 
@@ -377,7 +373,6 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      */
     public function getScore()
     {
-
         return $this->offsetGet(Schema::VOTES_SCORE);
     }
 
@@ -539,10 +534,10 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
         /**
          * Must use parent::offsetSet because
          * $this->offsetSet will point back to this
-         * method and enter infinite loop untill
+         * method and enter infinite loop until
          * we run out of memory
          */
-        parent::offsetSet('i_comments', ($commentsCount + $count));
+        parent::offsetSet(Schema::COMMENTS_COUNT, ($commentsCount + $count));
 
         return $this;
     }
@@ -607,7 +602,6 @@ class Answer extends \Lampcms\Mongo\Doc implements Interfaces\Answer, Interfaces
      */
     public function getComments()
     {
-
         return $this->offsetGet(Schema::COMMENTS_ARRAY);
     }
 

@@ -164,8 +164,6 @@ class Answerparser extends LampcmsObject
         $this->Question        = (null !== $q) ? $q : $this->getQuestion();
         $this->makeAnswer();
         $this->followQuestion();
-        $this->updateQuestion();
-        $this->updateCategory();
 
         return $this->Answer;
     }
@@ -301,6 +299,8 @@ class Answerparser extends LampcmsObject
          * post onCategoryUpdate only if status NOT PENDING
          */
         if ($resourceStatus !== Schema::PENDING) {
+            $this->updateCategory();
+            $this->updateQuestion();
             $this->Registry->Dispatcher->post($this->Question, 'onCategoryUpdate');
             $this->Registry->Dispatcher->post($this->Answer, 'onNewAnswer', array('question' => $this->Question));
         } elseif ($resourceStatus === Schema::PENDING) {

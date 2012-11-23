@@ -184,7 +184,7 @@ class Delete extends WebPage
             $uid = $this->Resource['i_uid'];
             d('uid: ' . $uid);
 
-            $User = \Lampcms\User::factory($this->Registry)->by_id($uid);
+            $User = \Lampcms\User::userFactory($this->Registry)->by_id($uid);
             $q = $this->Registry->Mongo->QUESTIONS->find(array('i_uid' => $uid, 'i_del_ts' => null));
             $a = $this->Registry->Mongo->ANSWERS->find(array('i_uid' => $uid, 'i_del_ts' => null));
 
@@ -246,7 +246,7 @@ class Delete extends WebPage
         d('ban: ' . $ban);
 
         if (!empty($ban) && $this->checkAccessPermission('ban_user')) {
-            $User = User::factory($this->Registry)->by_id($this->Resource->getOwnerId());
+            $User = User::userFactory($this->Registry)->by_id($this->Resource->getOwnerId());
             $User->setRoleId('suspended');
             $User->save();
 

@@ -56,6 +56,8 @@ use Lampcms\WebPage;
 use Lampcms\Paginator;
 use Lampcms\Template\Urhere;
 
+use Lampcms\Mongo\Schema\Question as QuestionSchema;
+
 /**
  * Generate page to view
  * questions that belong to one
@@ -84,14 +86,14 @@ class Viewcategory extends Unanswered
         $this->slug = $this->Registry->Router->getSegment(1, 's');
         $this->pageID = (int)$this->Request->getPageID();
         $this->pagerPath = '{_viewcategory_}/' . $this->slug;
-        $this->counterTaggedText = $this->_('Questions in this category');
+        $this->counterTaggedText = '@@Questions in this category@@';
 
         $this->getCategory()
             ->getCursor()
             ->paginate()
             ->sendCacheHeaders();
 
-        $this->aPageVars['title'] = $this->_('Category') . ' :: ' . $this->aCategory['title'];
+        $this->aPageVars['title'] = '@@Category@@ :: ' . $this->aCategory['title'];
         $this->makeTopTabs()
             ->makeQlistHeader()
             ->makeCounterBlock()
@@ -118,16 +120,20 @@ class Viewcategory extends Unanswered
         return $this;
     }
 
+
     protected function getCursor()
     {
+        $sort = array(QuestionSchema::CREATED_TIMESTAMP => -1);
+        $where = array(QuestionSchema::CATEGORY_ID => $this->aCategory['id']);
 
-        $sort = array('i_ts' => -1);
-
-        $where = array('i_cat' => $this->aCategory['id']);
         /**
          * Exclude deleted items
          */
-        $where['i_del_ts'] = null;
+        if ($this->Registry->Viewer->isModerator()) {
+            $where[QuestionSchema::RESOURCE_STATUS_ID] = array('$lt' => QuestionSchema::DELETED);
+        } else {
+            $where[QuestionSchema::RESOURCE_STATUS_ID] = QuestionSchema::POSTED;
+        }
 
         $this->Cursor = $this->Registry->Mongo->QUESTIONS->find($where, $this->aFields);
         $this->count = $this->Cursor->count(true);
@@ -135,6 +141,7 @@ class Viewcategory extends Unanswered
 
         return $this;
     }
+
 
     /**
      * (non-PHPdoc)
@@ -149,7 +156,7 @@ class Viewcategory extends Unanswered
         $subs = '';
         $subCategories = $Renderer->getSubCategoriesOf($this->aCategory['id']);
         if (!empty($subCategories)) {
-            $subs = \tplSubcategories::parse(array($this->_('Sub categories'), \tplSubcategory::loop($subCategories)), false);
+            $subs = \tplSubcategories::parse(array('@@Sub categories@@', \tplSubcategory::loop($subCategories)), false);
         }
 
         $this->aPageVars['qheader'] = $breadCrumb . $subs;

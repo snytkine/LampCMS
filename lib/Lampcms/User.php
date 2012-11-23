@@ -110,8 +110,30 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
      * @param array                    $a
      *
      * @return object of this class
+     * @deprecated
+     *
      */
-    public static function factory(Registry $Registry, array $a = array())
+    public static function _factory(Registry $Registry, array $a = array())
+    {
+        $o = new static($Registry, 'USERS', $a);
+
+        return $o;
+    }
+
+    /**
+     * Factory method
+     * this method replaces factory() because
+     * factory() is not compatable
+     * with the super class factory static method
+     *
+     * @static
+     *
+     * @param Registry $Registry
+     * @param array    $a
+     *
+     * @return User object of this class or sub-class
+     */
+    public static function userFactory(Registry $Registry, array $a = array())
     {
         $o = new static($Registry, 'USERS', $a);
 

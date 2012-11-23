@@ -131,7 +131,6 @@ class FollowManager extends LampcmsObject
         d('qid: ' . $qid . ' $uid: ' . $uid);
         $this->Registry->Dispatcher->post($User, 'onBeforeQuestionFollow', array('qid' => $qid));
 
-
         if (is_object($Question)) {
             $Question->addFollower($uid);
         } else {
@@ -213,7 +212,7 @@ class FollowManager extends LampcmsObject
      * @throws Exception
      * @internal param int $id
      *
-     * @return \Lampcms\object $this
+     * @return object $this
      */
     protected function checkQuestionExists($qid)
     {
@@ -319,7 +318,7 @@ class FollowManager extends LampcmsObject
      * @param int                  $userid id user being followed (followee)
      *
      * @throws \InvalidArgumentException
-     * @return \Lampcms\object $this
+     * @return object $this
      */
     public function followUser(User $User, $userid)
     {
@@ -348,7 +347,6 @@ class FollowManager extends LampcmsObject
         $this->Registry->Mongo->USERS->update(array('_id' => $userid), array('$inc' => array('i_flwrs' => 1)));
 
         return $this;
-
     }
 
 
@@ -363,7 +361,6 @@ class FollowManager extends LampcmsObject
      */
     public function unfollowUser(User $User, $userid)
     {
-
         if (!is_int($userid)) {
             throw new \InvalidArgumentException('$userid must be an integer');
         }

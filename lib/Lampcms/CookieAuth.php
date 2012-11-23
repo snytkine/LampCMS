@@ -78,14 +78,10 @@ class CookieAuth extends UserAuth
      * Value of sid cookie
      * @var string
      */
-
     protected $sid;
 
     public function authByCookie()
     {
-
-        //d('$_COOKIE: '.print_r($_COOKIE, 1));
-
         $User = $this->checkRequiredCookies()
             ->validateCookieSalt()
             ->checkSidFormat()
@@ -112,7 +108,6 @@ class CookieAuth extends UserAuth
      */
     protected function getSidUser()
     {
-
         $arrResult = $this->Registry->Mongo->USERS->findOne(array('_id' => $this->uid));
 
         if (empty($arrResult)) {
@@ -122,7 +117,7 @@ class CookieAuth extends UserAuth
             throw new CookieAuthException('no user by uid cookie');
         }
 
-        return User::factory($this->Registry, $arrResult);
+        return User::userFactory($this->Registry, $arrResult);
     }
 
 
@@ -132,11 +127,10 @@ class CookieAuth extends UserAuth
      * are present in request
      *
      * @throws CookieAuthException
-     * @return \Lampcms\object $this
+     * @return object $this
      */
     protected function checkRequiredCookies()
     {
-
         if (!isset($_COOKIE) || empty($_COOKIE['uid']) || empty($_COOKIE['sid'])) {
 
             throw new CookieAuthException('No uid or sid cookie');
@@ -209,7 +203,7 @@ class CookieAuth extends UserAuth
      * banned for hack attempts
      *
      * @throws CookieAuthException
-     * @return \Lampcms\object $this
+     * @return object $this
      */
     protected function checkForBannedIP()
     {
@@ -246,7 +240,7 @@ class CookieAuth extends UserAuth
      * 'sid' cookie is a valid hex number
      *
      * @throws CookieAuthException
-     * @return \Lampcms\object $this
+     * @return object $this
      */
     protected function checkSidFormat()
     {
@@ -256,7 +250,6 @@ class CookieAuth extends UserAuth
 
             throw new CookieAuthException('"sid" cookie is not 48 chars long');
         }
-
 
         /**
          * Check value of sid cookie
@@ -282,7 +275,7 @@ class CookieAuth extends UserAuth
      * in the last 60 minutes
      *
      * @throws CookieAuthException
-     * @return \Lampcms\object $this
+     * @return object $this
      */
     protected function checkMultipleSidLoginErrors()
     {
@@ -338,7 +331,6 @@ class CookieAuth extends UserAuth
      */
     protected function compareSids($stored)
     {
-
         return ($stored === $this->sid);
     }
 }

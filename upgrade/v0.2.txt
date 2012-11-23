@@ -10,6 +10,6 @@
 # run_mongo_shell = A
 # -------------- COPY LINES BELOW AND PASTE IN THE FORM, press submit -----------
 db.QUESTIONS.update({i_status: null}, {$set : {i_status: 1}}, false, true);
-db.QUESTIONS.update({i_del_ts: {'$exists' : true}}, {$set : {i_status: 2}}, false, true);
+db.QUESTIONS.update({i_del_ts: {'$exists' : true}}, {$set : {i_status: 3}}, false, true);
 db.ANSWERS.update({i_status: null}, {$set : {i_status: 1}}, false, true);
-db.ANSWERS.update({i_del_ts: {'$exists' : true}}, {$set : {i_status: 2}}, false, true);
+db.ANSWERS.update({i_del_ts: {'$exists' : true}}, {$set : {i_status: 3}}, false, true);

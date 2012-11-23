@@ -563,6 +563,15 @@ class Cache extends \Lampcms\Event\Observer
      * Handle events
      * (non-PHPdoc)
      *
+     * @todo should write extra function that will
+     * register the shutdown function to unset specific key
+     * This way the unsetting of key will be done after
+     * other shutdown functions have completed
+     * The reason is that some functions are run via runLater()
+     * so it's possible that we unset the key before all the shutdown
+     * functions have finished running. This will result in
+     * unsetting cache keys before the new values are available
+     *
      * @see Lampcms.Observer::main()
      */
     protected function main()
@@ -571,12 +580,14 @@ class Cache extends \Lampcms\Event\Observer
             case 'onNewQuestions':
             case 'onNewQuestion':
             case 'onResourceDelete':
+            case 'onApprovedQuestion':
                 $this->__unset('qunanswered');
                 $this->__unset('qrecent');
                 break;
 
             case 'onNewAnswer':
             case 'onAcceptAnswer':
+            case 'onApprovedAnswer':
                 $this->__unset('qunanswered');
                 break;
 

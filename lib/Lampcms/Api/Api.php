@@ -365,7 +365,7 @@ abstract class Api extends \Lampcms\Base
             $this->initBasicAuthUser($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
         } else {
             d('No user credentials in request. Using basic quest user');
-            $this->Registry->Viewer = ApiUser::factory($this->Registry);
+            $this->Registry->Viewer = ApiUser::userFactory($this->Registry);
         }
 
         d('Viewer id: ' . $this->Registry->Viewer->getUid());
@@ -382,8 +382,6 @@ abstract class Api extends \Lampcms\Base
      */
     protected function initBasicAuthUser($username, $pwd)
     {
-
-
         try {
             $UserAuth = new UserAuth($this->Registry);
             $User = $UserAuth->validateLogin($username, $pwd, '\Lampcms\\Api\\UserBasicAuth');
