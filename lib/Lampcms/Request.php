@@ -110,6 +110,20 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
     protected $ini;
 
     /**
+     * Array of all request headers
+     *
+     * @var array
+     */
+    protected static $aHeaders;
+
+    /**
+     * json-encoded string of self::$aHeaders
+     *
+     * @var string
+     */
+    protected static $sHeaders;
+
+    /**
      * Constructor
      *
      * @param Uri\Router $router
@@ -122,8 +136,8 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
         $this->router = $router;
         $this->ini    = $ini;
         //$a            = (null === $a) ? array() : $a;
-        if(!$a){
-            if(self::isPost()){
+        if (!$a) {
+            if (self::isPost()) {
                 $a = $_POST;
             } else {
                 /**
@@ -134,6 +148,56 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
         }
 
         parent::__construct($a);
+    }
+
+
+    /**
+     * Get array of all request headers
+     *
+     * @static
+     * @return array
+     */
+    public static function getAllHeaders()
+    {
+        if (!isset(self::$aHeaders)) {
+            if (\function_exists('apache_request_headers')) {
+                self::$aHeaders = \apache_request_headers();
+            } else {
+
+                foreach ($_SERVER as $name => $value) {
+                    if (mb_substr($name, 0, 5) == 'HTTP_') {
+                        $name           = str_replace(' ', '-', ucwords(mb_strtolower(str_replace('_', ' ', mb_substr($name, 5)))));
+                        $headers[$name] = $value;
+                    } else {
+                        if ($name == 'CONTENT_TYPE') {
+                            $headers['Content-Type'] = $value;
+                        } else {
+                            if ($name == 'CONTENT_LENGTH') {
+                                $headers['Content-Length'] = $value;
+                            }
+                        }
+                    }
+                }
+
+                self::$aHeaders = $headers;
+            }
+
+        }
+
+        return self::$aHeaders;
+    }
+
+
+    public static function getAllHeadersAsString()
+    {
+        if (!isset(self::$sHeaders)) {
+            $a = self::getAllHeaders();
+            if (!empty($a)) {
+                self::$sHeaders = \json_encode($a);
+            }
+        }
+
+        return self::$sHeaders;
     }
 
 
@@ -176,7 +240,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
 
         $val = (!$this->offsetExists($name)) ? $default : $this->offsetGet($name);
 
-        switch ($type) {
+        switch ( $type ) {
 
             case 'b':
                 $val = (bool)$val;
@@ -282,9 +346,9 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
      * Changing offsetGet does not affect get()
      *
      * @todo if requesting 'a' then use getController()
-     * which will use Router for GET request OR will
-     * use getFiltered('a')
-     * do the same for pageID
+     *       which will use Router for GET request OR will
+     *       use getFiltered('a')
+     *       do the same for pageID
      *
      * @param string $offset
      *
@@ -309,7 +373,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
         if (!$this->offsetExists($offset)) {
             if ('a' === $offset) {
 
-                return  $this->ini->DEFAULT_CONTROLLER;
+                return $this->ini->DEFAULT_CONTROLLER;
 
             } elseif ('pageID' === $offset) {
                 return 1;
@@ -606,7 +670,7 @@ class Request extends LampcmsArray implements Interfaces\LampcmsObject
         $expression = '/^[[:alpha:]\-]{1,32}$/';
         /**
          * @todo maybe we can allow non-alpha chars in uri
-         * We can try to allow controller names be encoded in utf8?
+         *       We can try to allow controller names be encoded in utf8?
          */
         if (!\filter_var($name, FILTER_VALIDATE_REGEXP, array('options' => array('regexp' => $expression)))) {
             throw new \InvalidArgumentException('Invalid value of controller name. It can only contain letters and a hyphen and be limited to 32 characters in total was: ' . \htmlentities($name));

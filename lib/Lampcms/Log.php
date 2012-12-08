@@ -317,6 +317,7 @@ class Log
             $msg .= "\n" . 'HTTP_REFERER: ' . self::getServerVar('HTTP_REFERER');
             $msg .= "\n" . '-----------------------------------------------------';
             $msg .= "\n" . 'REMOTE_ADDR/IP: ' . self::getServerVar('REMOTE_ADDR');
+            $msg .= PHP_EOL. 'REQUEST HEADERS: '.Request::getAllHeadersAsString();
 
             if (Request::isPost()) {
                 $msg .= "\n" . '-----------------------------------------------------';
