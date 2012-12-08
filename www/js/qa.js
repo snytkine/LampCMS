@@ -1121,7 +1121,9 @@ YUI({
                                         });
                                     }
                                 }
-                                catch ( ee ) { console.log( "1089 Error" + ee.message ); }
+                                catch ( ee ) {
+                                    console.log( "1089 Error" + ee.message );
+                                }
 
                             });
                         } catch ( e ) {
@@ -1272,7 +1274,7 @@ YUI({
                  */
                 var input = (el) ? el : Y.one("#id_tags");
                 if (input) {
-                    Y.log('got id_tags');
+                    console.log('got id_tags');
                     Y.one(input).plug(Y.Plugin.TokenInput, {delimiter:' '})
 
                     /**
@@ -1300,11 +1302,10 @@ YUI({
              * replaced with their mini markdown code
              */
                 mmdDecode = function (s) {
-                //Y.log('got string to decode: ' + s);
+
                 var bold, ret, em = /(\<em>|\<\/em>)/g;
                 bold = /(\<strong>|\<\/strong>)/g;
                 ret = s.replace(em, '_');
-                //Y.log('ret: ' + ret, 'warn');
                 ret = ret.replace(bold, '**');
 
                 return ret;
@@ -1366,13 +1367,13 @@ YUI({
                 var myID, getID, path, a = parseUri(url), //
                     re = /(?:v=)([^&\?]*)(?:[&]*)/gi;
                 path = a['path'];
-                Y.log('1186 path: ' + path);
+                console.log('1370 path: ' + path);
                 if (path.length < 2 || (-1 === path.indexOf('/'))) {
                     return false;
                 }
 
                 path = path.substr(1);
-                Y.log('1192 path: ' + path);
+                console.log('1376 path: ' + path);
                 /**
                  * Now path can be: 'watch' = old url, must extract
                  * from query string v=-Tb5w0rtRcA
@@ -1382,23 +1383,23 @@ YUI({
 
                 if ('watch' !== path) {
                     if (/(\?|&)/.test(path)) {
-                        Y.log('path contains &?');
+                        console.log('path contains &?');
                         return false;
                     }
 
                     return path;
                 } else if (!a.hasOwnProperty('query') || !a['query'] || a['query'].length < 3) {
-                    Y.log('no "query"');
+                    console.log('no "query"');
                     return false;
                 } else {
 
                     myID = re.exec(a['query']);
                     if (!myID || myID.length < 2 || myID[1].length < 1) {
-                        Y.log('1212 unable to extract');
+                        console.log('1212 unable to extract');
                         return false;
                     }
 
-                    Y.log('1219 got vidID: ' + myID[1]);
+                    console.log('1219 got vidID: ' + myID[1]);
                     return myID[1];
                 }
             },
@@ -1517,11 +1518,11 @@ YUI({
              * replaced with their mini markdown code
              */
                 mmdEncode = function (s) {
-                //Y.log('got string to decode: ' + s);
+
                 var bold, ret, em = /(\<em>|\<\/em>)/g;
                 bold = /(\<strong>|\<\/strong>)/g;
                 ret = s.replace(em, '_');
-                //Y.log('ret: ' + ret, 'warn');
+
                 ret = ret.replace('/(\*\*)([^\*]+)(\*\*)/g', '<strong>\\2</strong>');
 
                 return ret;
@@ -1537,15 +1538,11 @@ YUI({
              */
                 incrementVoteCounter = function (qid) {
                 var ret;
-                //Y.log('qid: ' + qid, 'warn');
+
                 if (!oVotes.hasOwnProperty(qid)) {
-
                     oVotes[qid] = 1;
-
                 } else {
-
                     oVotes[qid] = (oVotes[qid] + 1);
-
                 }
 
                 ret = (oVotes[qid] < 5);
@@ -1574,7 +1571,7 @@ YUI({
                 if (node && (node instanceof Y.Node)) {
                     loader.set("centered", node);
                 } else {
-                    Y.log('centering inside viewpoint ');
+                    console.log('centering inside viewpoint ');
                     loader.set("centered", true);
                 }
                 loader.set("constrain", true);
@@ -1619,12 +1616,12 @@ YUI({
                 setReadLinks = function () {
                 var uid, eDivs, stored, oStorage = Y.StorageLite, eQlist = Y.one('.qlist');
                 if (!eQlist) {
-                    Y.log('1318 not on this page', 'warn');
+                    console.log('1318 not on this page');
                     return;
                 }
                 eDivs = eQlist.all('.qs');
                 if (!eDivs || eDivs.size() === 0) {
-                    Y.log('no divs .qs', 'warn');
+                    console.log('no divs .qs');
                     return;
                 }
                 uid = getViewerId();
@@ -1635,11 +1632,10 @@ YUI({
                     etag = this.getAttribute('lampcms:i_etag');
                     stored = oStorage.getItem(qid + '_' + uid);
 
-                    //Y.log('stored for key: ' +qid+ ' is: ' + Y.dump(stored), 'warn');
                     if (stored) {
-                        //Y.log('have item for this question for this user: ' + stored);
+
                         if (stored === etag) {
-                            //Y.log('this is read item ' + qid);
+
                             this.one('a.ql').addClass('read');
                             span = this.one('span.ru');
                             if (span) {
@@ -1746,22 +1742,22 @@ YUI({
              */
                 handleLikeComment = function (el) {
                 var parent, likesdiv, likes, id = el.get('id');
-                //Y.log('liked comment id: ' + id);
+
                 if (el.test('.thumbupon')) {
-                    //Y.log('already liked this comment');
+
                     return;
                 }
                 el.addClass('thumbupon');
                 id = id.substr(7);
-                //Y.log('processing like count for comment: ' + id);
+
 
                 parent = el.ancestor("div");
-                //Y.log('parent" ' + parent);
+
                 likesdiv = parent.next(".c_likes");
                 likes = likesdiv.get("text");
 
                 likes = (!likes) ? 0 : parseInt(likes, 10);
-                //Y.log('likes: ' + likes);
+
                 likesdiv.set("text", (likes + 1));
                 Y.io(getMeta('web_root') + '/likecomment/' + id);
 
@@ -1770,7 +1766,7 @@ YUI({
              * Show QuickReg modal window
              */
                 getQuickRegForm = function () {
-                Y.log('Getting oSL.getQuickRegForm', 'warn');
+                console.log('Getting oSL.getQuickRegForm');
                 oSL.getQuickRegForm();
             },
             /**
@@ -1781,7 +1777,7 @@ YUI({
                 initFbInvite = function (target) {
                 var siteTitle, siteUrl, siteDescription, caption;
                 if (typeof FB === 'undefined') {
-                    //Y.log('No FB object', 'error');
+                    console.log('1780 No FB object');
                     return;
                 }
 
@@ -1789,7 +1785,7 @@ YUI({
                 siteUrl = getMeta('site_url');
                 siteDescription = target.get('title');
                 caption = getMeta('site_description');
-                //Y.log('target title: ' + siteDescription);
+
                 FB.ui({
                     method:'stream.publish',
                     message:'I joined this site with Facebook Connect button. You should check it out too',
@@ -1833,17 +1829,15 @@ YUI({
              * comment form
              */
                 handleCommentForm = function (e) {
-                //Y.log('handling handleCommentForm');
 
                 var body, cfg, request, numChars, form = e.currentTarget;
                 e.halt();
                 e.preventDefault();
-                //Y.log('handleModalForm el is: ' + form);
 
                 body = form.one("textarea[name=com_body]");
                 numChars = body.get("value").length;
                 if (body && (numChars < 10 )) {
-                    //Y.log('comment form body too short');
+
                     alert('Comment must be at least 10 characters long');
                     return;
                 }
@@ -1882,7 +1876,7 @@ YUI({
                     el = e.currentTarget,
                     web_root = getMeta('web_root'),
                     target = e.target;
-                Y.log('el is ' + el + ' id is: ' + el.get('id') + ' target: ' + target + ' tagName: ' + el.get('tagName'));
+                console.log('1879 el is ' + el + ' id is: ' + el.get('id') + ' target: ' + target + ' tagName: ' + el.get('tagName'));
                 id = el.get('id');
 
                 //e.halt();
@@ -1929,28 +1923,28 @@ YUI({
                         break;
 
                     case el.test('.twsignin'):
-                        Y.log('clicked on twsignin.');
-                        //Y.log('Twitter: ' + Twitter);
+                        console.log('clicked on twsignin.');
+
                         Twitter.startDance();
                         break;
 
                     case el.test('.add_tumblr'):
-                        Y.log('clicked on .add_tumblr');
+                        console.log('clicked on .add_tumblr');
                         Twitter.startDance(web_root + '/logintumblr', 680, 540);
                         break;
 
                     case el.test('.add_linkedin'):
-                        Y.log('clicked on .add_linkedin');
+                        console.log('clicked on .add_linkedin');
                         Twitter.startDance(web_root + '/loginlinkedin', 640, 480);
                         break;
 
                     case el.test('.googlelogin'):
-                        Y.log('clicked on .googlelogin');
+                        console.log('clicked on .googlelogin');
                         Twitter.startDance(web_root + '/logingoogle/', 640, 480);
                         break;
 
                     case el.test('.add_blogger'):
-                        Y.log('clicked on .add_blogger');
+                        console.log('clicked on .add_blogger');
                         Twitter.startDance(web_root + '/connectblogger', 680, 540);
                         break;
 
@@ -1958,7 +1952,7 @@ YUI({
                         (function () {
                             var div, parentDiv, id = el.get('id');
                             id = id.substr(8);
-                            Y.log('id: ' + id);
+                            console.log('id: ' + id);
                             parentDiv = Y.one("#comment-" + id);
                             div = el.ancestor('div.com_wrap');
                             if (parentDiv) {
@@ -2003,11 +1997,11 @@ YUI({
 
                         if ((typeof FB !== 'undefined') && fbappid && FB.getAuthResponse()) {
                             FB.logout(function (response) {
-                                Y.log('FB response ' + Y.dump(response));
+                                console.log('FB response ' + Y.dump(response));
                                 fbcookie = "fbsr_" + fbappid;
-                                Y.log('removing fbcookie: ' + fbcookie);
+                                console.log('removing fbcookie: ' + fbcookie);
                                 Y.Cookie.remove(fbcookie);
-                                Y.log('FB Session after logout: ' + Y.dump(FB.getAuthResponse()), 'warn');
+                                console.log('FB Session after logout: ' + Y.dump(FB.getAuthResponse()));
                                 window.location.assign(web_root + '/logout/');
                             });
 
@@ -2119,7 +2113,7 @@ YUI({
                                 }
                             } else {
                                 restype = (ancestor.test('.question')) ? 'q' : 'a';
-                                //Y.log('restype: ' + restype + ' resID: ' + resID);
+
                                 window.location.assign(web_root + '/edit/' + resID + '/' + restype);
                             }
                         }
@@ -2160,12 +2154,12 @@ YUI({
                 var href, qpages;
                 qpages = el.ancestor("div.qpages");
                 if (!el.hasAttribute('href')) {
-                    //Y.log('723 no href');
+
                     return;
                 }
 
                 href = el.getAttribute('href');
-                //Y.log('href: ' + href);
+
                 if (qpages) {
                     showLoading(qpages);
                     Y.io(href);
@@ -2190,9 +2184,9 @@ YUI({
                     qtype = Y.one("#qtypes"), //	
                     eTab = el.ancestor("div").next("div.sortable") || Y.one(".sortable");
                 sortby = sortby.substr(5);
-                Y.log('sortby: ' + sortby);
+                console.log('sortby: ' + sortby);
                 if (el.test(".qtype_current")) {
-                    Y.log('1818 Clicked on already current tab. No soup for you');
+                    console.log('1818 Clicked on already current tab. No soup for you');
                     return;
                 }
                 /**
@@ -2200,15 +2194,15 @@ YUI({
                  * not the one that triggered this event
                  */
                 curTab = el.ancestor("div").one(".qtype_current");
-                Y.log('curTab: ' + curTab);
+                console.log('curTab: ' + curTab);
                 if (curTab) {
                     curTabId = curTab.get("id");
-                    Y.log('1826 curTabId: ' + curTabId);
+                    console.log('2200 curTabId: ' + curTabId);
                     if (!oCTabs.hasOwnProperty(curTabId)) {
-                        Y.log('1828 adding current contents of .paginated to oCAnsers');
-                        Y.log('1835 next sortable eTab: ' + eTab);
+                        console.log('1828 adding current contents of .paginated to oCAnsers');
+                        console.log('1835 next sortable eTab: ' + eTab);
                         oCTabs[curTabId] = eTab.getContent();
-                        Y.log('1838 oCTabs[curTabId] now: ' + oCTabs[curTabId]);
+                        console.log('1838 oCTabs[curTabId] now: ' + oCTabs[curTabId]);
                     }
                 }
                 /**
@@ -2227,15 +2221,15 @@ YUI({
                  * fetch it via XHR
                  */
                 if (oCTabs.hasOwnProperty(sortby) && oCTabs[sortby].length > 0) {
-                    Y.log('1856 Youth gots it already');
+                    console.log('2224 already resolved and cached');
                     eTab.setContent(oCTabs[sortby]);
                     foldGroup.fetch();
                 } else {
                     showLoading(eTab);
-                    //Y.log('after setting form qid: ' + qid);
+
                     //qid = getMeta('qid'),
                     href = el.getAttribute('href');
-                    Y.log('href: ' + href);
+                    console.log('href: ' + href);
 
                     href = ('#' === href) ? getMeta('web_root') + '/getanswers/' + getMeta('qid') + '/sort/' + sortby : href;
                     Y.io(href, {'arguments':{'sortby':sortby}});
@@ -2250,23 +2244,23 @@ YUI({
                 if (!ensureLogin()) {
                     return;
                 }
-                //Y.log('el: ' + el);
+
                 el.removeClass('unfollow');
                 var viewerDiv, title, controls, id, resID, ftype = 'q', follow = 'on', form, //
                     oLabels = {'q':'question', 'u':'user', 't':'tag'};
                 resID = el.getAttribute('lampcms:follow');
                 ftype = el.getAttribute('lampcms:ftype');
                 viewerDiv = Y.one("#flwr_" + getViewerId());
-                //Y.log('resID ' + resID  + ' ftype: ' + ftype);
+
                 if (el.test('.following')) {
                     // check if viewer is trying to unfollow own question
                     controls = Y.one('#res_' + resID);
-                    //Y.log('controls: ' + controls);
+
                     if (controls) {
-                        //Y.log('got controls for qid: ' + resID);
+
                         if (controls.test('.uid-' + getViewerId())) {
                             if (!confirm('Are you sure you want to unfollow your own question?')) {
-                                //Y.log('Unfollow cancelled');
+
                                 el.one('span.icoc').removeClass('del').addClass('check');
                                 el.one('span.flabel').set('text', 'Following');
                                 return;
@@ -2305,7 +2299,7 @@ YUI({
                     + '<input type="hidden" name="token" value="' + getToken() + '">';
 
                 form = Y.one('body').appendChild(form);
-                //Y.log('before setting form ');
+
                 cfg = {
                     method:'POST',
                     form:{
@@ -2313,9 +2307,7 @@ YUI({
                     }
                 };
 
-                //Y.log('after setting form ');
                 request = Y.io(getMeta('web_root'), cfg);
-                //Y.log('request: ' + request);
 
                 return;
             },
@@ -2324,13 +2316,13 @@ YUI({
              * that has 'mo' class
              */
                 handleOver = function (e) {
-                Y.log('2133 hovering');
+                console.log('2133 hovering');
                 var id, parent, el = e.currentTarget;
                 switch (true) {
                     case el.test('.inreply'):
                         id = el.get('id');
                         id = id.substr(8);
-                        Y.log('id: ' + id);
+                        console.log('id: ' + id);
                         if (Y.one("#comment-" + id)) {
                             Y.one("#comment-" + id).addClass('parent_comment');
                         }
@@ -2357,7 +2349,7 @@ YUI({
                     case el.test('.inreply'):
                         id = el.get('id');
                         id = id.substr(8);
-                        Y.log('id: ' + id);
+                        console.log('2352 id: ' + id);
                         if (Y.one("#comment-" + id)) {
                             Y.one("#comment-" + id).removeClass('parent_comment');
                         }
@@ -2378,7 +2370,7 @@ YUI({
                 if (els) {
 
                     els.each(function () {
-                        //Y.log('revealing stuff. this is: ' + this);
+
                         /**
                          * If element has class 'owner'
                          * this means it should be revealed only to the
@@ -2387,13 +2379,13 @@ YUI({
                          * where {ownerID} must match the ViewerID
                          */
                         if (this.test('.owner')) {
-                            //Y.log('got owner class');
+
                             if (this.test('.oid-' + getViewerId())) {
-                                //Y.log('got owner matched viewer, revealing');
+                                console.log('got owner matched viewer, revealing');
                                 this.removeClass('hidden');
                             }
                         } else {
-                            //Y.log('no gots owner');
+
                             this.removeClass('hidden');
                         }
                     });
@@ -2404,7 +2396,7 @@ YUI({
             // A function handler to use for successful requests:
             handleSuccess = function (ioId, o, args) {
                 hideLoading();
-                Y.log("args from Y.io: " + Y.dump(args));
+                console.log("2399 args from Y.io: " + Y.dump(args));
                 var data, target, paginated, scoreDiv, comDivID, eDiv, eRepliesDiv, sContentType = Y.Lang.trim(o.getResponseHeader("Content-Type"));
                 if ('text/json; charset=UTF-8' !== sContentType) {
                     alert('Invalid Content-Type header: ' + sContentType);
@@ -2419,9 +2411,6 @@ YUI({
                     alert('No text in response');
                     return;
                 }
-
-                //Y.log('Content-Type: ' + sContentType, "info");
-                //Y.log("The success handler was called.  Id: " + ioId + ".", "info", "example");
 
                 /**
                  * Parse json find 'replies' div under the comments div if not already
@@ -2459,7 +2448,7 @@ YUI({
                 }
 
                 if (data.replace && data.replace.target && data.replace.content) {
-                    Y.log('got something to replace in ' + data.replace.target);
+                    console.log('got something to replace in ' + data.replace.target);
                     Y.one("#" + data.replace.target).set('innerHTML', data.replace.content);
                     foldGroup.fetch();
                     initTooltip();
@@ -2469,7 +2458,7 @@ YUI({
 
 
                 if (data.reload) {
-                    //Y.log('have data.reload');
+
                     if (data.reload > 0) {
                         Y.later(data.reload, this, function () {
                             window.location.reload(true);
@@ -2480,7 +2469,7 @@ YUI({
                 }
 
                 if (data.formError) {
-                    //Y.log('Form Error: ' + data.formError);
+
                     /**
                      * @todo write setFormError function to test if we have div with
                      *       form_err id then set its innerHTML otherwise just alert
@@ -2507,7 +2496,7 @@ YUI({
 
                 if (data.paginated) {
                     paginated = Y.one(".paginated");
-                    //Y.log('paginated: ' + paginated);
+
                     if (paginated) {
                         paginated.setContent(data.paginated);
                         /**
@@ -2523,7 +2512,7 @@ YUI({
 
 
                 if (data.comment && data.comment.res && data.comment.html) {
-                    Y.log('got comment: ' + Y.dump(data.comment));
+                    console.log('2515 got comment: ' + Y.dump(data.comment));
 
                     /**
                      * If data.comment has id
@@ -2532,7 +2521,6 @@ YUI({
                      * otherwise it is a new comment
                      */
                     if (data.comment.id && Y.one('#comment-' + data.comment.id)) {
-                        //Y.log('this is an edit');
                         Y.one('#comment-' + data.comment.id).replace(data.comment.html);
                     } else {
                         /**
@@ -2556,9 +2544,8 @@ YUI({
                 }
 
                 if (data.vote && data.vote.hasOwnProperty('v') && data.vote.rid) {
-                    //Y.log(data.vote.rid);
+
                     scoreDiv = Y.one('#score' + data.vote.rid);
-                    //Y.log('scoreDiv ' + scoreDiv);
 
                     if (scoreDiv) {
                         scoreDiv.set('innerHTML', data.vote.v);
@@ -2608,7 +2595,6 @@ YUI({
                 saveTitle = function () {
                 var title = Y.one("#id_title");
                 if (title) {
-                    //Y.log('2201 saving title to storage: ' + title.get('value'), 'warn');
                     Y.StorageLite.setItem('title', title.get('value'));
                 }
             }, //
@@ -2665,13 +2651,13 @@ YUI({
                     if (o.hasOwnProperty(field)) {
                         eErr = (Y.one("#" + field + "_e"));
                         if (eErr) {
-                            //Y.log('got err: ' + eErr);
+
                             eErr.set('text', o[field]);
                         } else {
-                            //Y.log('no element eErr, looking for .form_error');
+
                             eErr = Y.one(".form_error");
                             if (eErr) {
-                                //Y.log('youth gots eFormErr: ' + eFormErr);
+
                                 eErr.set('text', o[field]);
                             }
                         }
@@ -2687,7 +2673,7 @@ YUI({
 
             handleFailure = function (ioId, o) {
                 hideLoading();
-                //Y.log("The failure handler was called.  Id: " + ioId + ".", "info", "example");
+
                 alert('Error occurred. Server returned status ' + o.status + ' response: ' + o.statusText);
             };
 
@@ -2735,7 +2721,6 @@ YUI({
              */
             form.one("textarea[name=qbody]").set("value", mbody);
 
-            //Y.log('1117 mbody: ' + mbody);
 
             cfg = {
                 method:'POST',
@@ -3044,7 +3029,7 @@ YUI({
 
                 editor.on('toolbarLoaded', function () {
 
-                    Y.log('2507 this is ' + this, 'warn'); // Editor
+                    console.log('3032 this is ' + this); // Editor
 
                     this.on('afterNodeChange', function (o) {
                         var ytbtn = this.toolbar.getButtonByValue('insertmedia'),
@@ -3076,9 +3061,9 @@ YUI({
                     }, this, true);
 
                     editor.toolbar.on('insertmediaClick', function () {
-                        Y.log('this is: ' + this);
+                        console.log('this is: ' + this);
                         var el = editor._getSelectedElement();
-                        Y.log('2618 el: ' + el);
+                        console.log('3066 el: ' + el);
                         if (YAHOO.util.Dom.hasClass(el, 'yui-media')) {
                             editor.currentElement = [el];
                             _handleMediaWindow.call(editor);
@@ -3112,7 +3097,7 @@ YUI({
                      *
                      */
                     editor.toolbar.on('codestyleClick', function (ev) {
-                        Y.log('2606 codestyleClick', 'warn');
+                        console.log('3100 codestyleClick');
                         var escaped, //
                             html, //
                             sel = this._getSelection(), //
@@ -3120,7 +3105,7 @@ YUI({
                             el = editor._getSelectedElement(), //
                             codetype = ev.button.value.toLowerCase();
 
-                        Y.log('2613 sel: ' + sel.toString(), 'warn');
+                        console.log('3108 sel: ' + sel.toString());
                         /**
                          * Need to escape html to turn html
                          * into entities! otherwise html is just html tags
@@ -3131,7 +3116,7 @@ YUI({
                          * will get messed up down the line!
                          */
                         escaped = Y.Escape.html(sel.toString());
-                        Y.log('2619 escaped: ' + escaped, 'warn');
+                        console.log('3119 escaped: ' + escaped);
                         /**
                          * Case 1. User selected nocode and was inside the pre element.
                          * This means we must de-pre the selection
@@ -3244,7 +3229,6 @@ YUI({
                 getEditedText = function () {
                     var i, pre, holder, html = editor.getEditorHTML();
                     html = editor.cleanHTML(html);
-                    //Y.log(' got html from editor: ' + html);
 
                     /**
                      * Lines below are part of code editing
@@ -3357,12 +3341,12 @@ YUI({
             var oAlert, form, oTags, sTags = '';
             if (ensureLogin()) {
                 oTags = Y.all('td.td_question > div.tgs a');
-                //Y.log('oTags count: ' + oTags.size());
+
                 oTags.each(function () {
                     sTags += this.get('text') + ' ';
                 });
                 sTags = Y.Lang.trimRight(sTags);
-                //Y.log('sTags: ' + sTags);
+
 
                 form = '<div id="div_flag" style="text-align: left">'
                     + '<form name="form_flag" id="id_flag" action="'+ getMeta('form_action') + '">'
@@ -3397,7 +3381,7 @@ YUI({
                         + '<input type="hidden" name="token" value="' + getToken() + '">';
 
                     f = comment.appendChild(myform);
-                    //Y.log('f is: ' + f);
+
                     cfg = {
                         method:'POST',
                         form:{
@@ -3500,8 +3484,8 @@ YUI({
             rep = getReputation();
             vid = getViewerId();
             minrep = getMeta('min_com_rep');
-            Y.log('rep: ' + rep + ' minrep: ' + minrep);
-            //Y.log('rid' + el.get('id'));
+            console.log('3487 rep: ' + rep + ' minrep: ' + minrep);
+
             if (ensureLogin()) {
                 //if( isModerator() || (reputation > 0) || el.test('.uid-' + getViewerId())){
                 if (('1' === getMeta('comment')) || (getMeta('asker_id') == vid) || (rep > minrep) || el.test('.uid-' + vid)) {
@@ -3531,7 +3515,7 @@ YUI({
                             form.show('fadeIn');
                         } else {
                             form.hide('fadeOut', null, function (o) {
-                                Y.log('3280 fadeout o is: ' + o + ' this is: ' + this, 'warn'); // this HTMLForm element
+                                +('3280 fadeout o is: ' + o + ' this is: ' + this, 'warn');
                             });
                         }
                     }
@@ -3567,16 +3551,16 @@ YUI({
             var minrep, vid, form, rep, resID, parentDiv, parentID;
             rep = getReputation();
             vid = getViewerId();
-            Y.log('3248 vid: ' + vid);
-            Y.log('askerid: ' + getMeta('asker_id'));
+            console.log('3248 vid: ' + vid);
+            console.log('askerid: ' + getMeta('asker_id'));
             minrep = getMeta('min_com_rep');
-            Y.log('rep: ' + rep + ' minrep: ' + minrep);
+            console.log('rep: ' + rep + ' minrep: ' + minrep);
             parentDiv = el.ancestor("div.com_wrap");
-            Y.log('parendDiv' + parentDiv);
+            console.log('parendDiv' + parentDiv);
             resID = parentDiv.ancestor("div.comments").get('id');
-            Y.log('3252 resID: ' + resID);
+            console.log('3252 resID: ' + resID);
             resID = resID.substr(9);
-            Y.log('3254 resID: ' + resID);
+            console.log('3254 resID: ' + resID);
             //return;
             if (ensureLogin()) {
                 /**
@@ -3593,9 +3577,9 @@ YUI({
                  */
                 if (('1' === getMeta('comment')) || (getMeta('asker_id') == vid) || (rep > minrep) || el.test('.uid-' + vid)) {
                     parentID = el.get('id');
-                    Y.log('3322 parentID: ' + parentID); //
+                    console.log('3580 parentID: ' + parentID);
                     parentID = parentID.substr(8);
-                    Y.log('3259 parentID: ' + parentID); //
+                    console.log('3582 parentID: ' + parentID);
 
                     form = Y.one('#comm_wrap_' + parentID);
                     if (!form) {
@@ -3639,14 +3623,11 @@ YUI({
              * older than 5 minutes
              */
             wrapDiv = Y.one("#comment-" + resID);
-            //Y.log('wrapDiv: ' + wrapDiv);
+
             if (wrapDiv) {
                 body = wrapDiv.one('.com_b');
                 content = body.get('innerHTML');
-                //Y.log('body: ' + body);
-                //Y.log('text: ' + content);
                 content = mmdDecode(content);
-                //Y.log('1555 mmdDecoded: ' + content);
 
                 form = '<div id="comm_wrap_' + resID + '" class="fl cb">'
                     + '<form action="'+ getMeta('form_action' )+ '" id="edit-comment-' + resID + '" class="comform" method="post">'
@@ -3672,7 +3653,7 @@ YUI({
 
         showShredForm = function (uid) {
             var id = uid.substr(5);
-            //Y.log('uid: ' +id);
+            console.log('uid: ' +id);
             form = '<div id="div_del" style="text-align: left">'
                 + '<form name="form_shred" id="id_shred" action="'+ getMeta('web_root') + '/">'
                 + '<input type="hidden" name="a" value="shred">'
@@ -3731,11 +3712,11 @@ YUI({
 
         getViewerId = function () {
             var uid;
-            //Y.log('starting getViewerId');
+
             if (null === viewerId) {
-                //Y.log('viewerId not set');
+
                 uid = getMeta('session_uid');
-                //Y.log('uid: ' + uid);
+
                 viewerId = (!uid) ? 0 : parseInt(uid, 10);
             }
 
@@ -3747,9 +3728,7 @@ YUI({
          * user has the session-tid meta tag set to value of twitter userid
          */
         isLoggedIn = function () {
-
             var ret, uid = getViewerId();
-            //Y.log('isLoggedIn uid: ' + uid);
             ret = (uid && (uid !== '') && (uid !== '0'));
 
             return ret;
@@ -3799,11 +3778,11 @@ YUI({
         addAdminControls = function () {
 
             var controls = Y.all('div.controls');
-            //Y.log('controls ' + controls);
+
             if (controls) {
-                //Y.log('adding adminControls');
+
                 controls.each(function () {
-                    //Y.log('this is: ' + this);
+
                     if (this.test('.question')) {
                         if (isModerator() || this.test('.uid-' + getViewerId()) || (500 < getReputation())) {
                             this.append(' <span class="ico retag ajax" title="' + $_("Retag") + '">' + $_("Retag") + '</span>');
@@ -3862,17 +3841,16 @@ YUI({
         isEditable = function (controls) {
 
             var timeOfComment, timeDiff, maxDiff;
-            //Y.log('controls passed to isEditable: ' + controls);
 
             if (isModerator()) {
-                //Y.log('isEditable does not apply to moderators');
+
                 return true;
             }
 
             maxDiff = getMeta('comments_timeout');
-            //Y.log('maxDiff: ' + maxDiff);
+
             if (!maxDiff) {
-                //Y.log('unable to resolve comments_timeout meta tag');
+
                 return true;
             }
 
@@ -3882,20 +3860,20 @@ YUI({
             maxDiff = maxDiff * 60000;
             timeOfComment = controls.one('div.com_ts').get('title');
             if (!timeOfComment) {
-                //Y.log('unable to resolve timeOfComment meta tag');
+
                 return true;
             }
 
             timeOfComment = new Date(timeOfComment);
             timeDiff = ((new Date()).getTime() - timeOfComment.getTime());
-            Y.log('3042 timeDiff: ' + timeDiff);
+            console.log('3042 timeDiff: ' + timeDiff);
 
             if (timeDiff > maxDiff) {
-                Y.log('comment is older than maxDiff', 'warn');
+                console.log('comment is older than maxDiff', 'warn');
 
                 return false;
             }
-            Y.log('Comment is editable');
+            console.log('Comment is editable');
 
             return true;
 
@@ -3907,7 +3885,7 @@ YUI({
          * using Facebook Javascript API
          */
         initFBSignup = function () {
-            Y.log('initFBSignup');
+            console.log('initFBSignup');
             var callback, fbPerms;
             if (typeof FB !== 'undefined') {
                 fbPerms = getMeta('fbperms');
@@ -3915,7 +3893,7 @@ YUI({
                     fbPerms = '';
                 }
 
-                Y.log('fbPerms: ' + fbPerms);
+                console.log('fbPerms: ' + fbPerms);
 
                 /**
                  * If user is logged in then this is a request
@@ -3929,31 +3907,31 @@ YUI({
                  */
                 if (isLoggedIn()) {
                     callback = function (response) {
-                        Y.log('Connecting Facebook account', 'warn');
+
                         if (response.authResponse) {
-                            Y.log('FB Signed in response: ' + Y.dump(response));
+                            console.log('FB Signed in response: ' + Y.dump(response));
                             if (response.status === 'connected') {
                                 showLoading(null, 'Connecting<br>Facebook account');
                                 Y.io(getMeta('web_root') + '/connectfb');
                             } else {
-                                Y.log('No permissions from Facebook', 'error');
+                                console.log('No permissions from Facebook');
                             }
                         }
                     };
                 } else {
-                    Y.log('before logging it to facebook');
+                    console.log('before logging it to facebook');
                     callback = function (response) {
                         if (response.authResponse && response.status === 'connected') {
-                            Y.log('FB Signed in response: ' + Y.dump(response));
+                            console.log('FB Signed in response: ' + Y.dump(response));
                             window.top.location.reload(true);
                         } else {
-                            Y.log('Facebook login did not work', 'error');
+                            console.log('Facebook login did not work');
                         }
                     };
                 }
 
                 FB.login(callback, {scope:fbPerms});
-                Y.log('after login to facebook');
+                console.log('after login to facebook');
             }
 
             return;
@@ -4002,15 +3980,15 @@ YUI({
 
         getMeta = function (metaName, asNode) {
             var ret, node;
-            //Y.log('looking for meta: ' + metaName + ' oMetas ' + oMetas);
+
             if (!oMetas[metaName]) {
                 node = Y.one('meta[name=' + metaName + ']');
-                //Y.log('meta node for meta ' + metaName+ ' is: ' + node);
+
                 oMetas[metaName] = node;
             }
 
             if (!oMetas[metaName]) {
-                //Y.log('no value in oMetas.metaName for ' + metaName);
+
                 return false;
             }
 
@@ -4019,7 +3997,6 @@ YUI({
             }
 
             ret = oMetas[metaName].get('content');
-            //Y.log('ret: ' + ret);
 
             return ret;
 
@@ -4034,7 +4011,7 @@ YUI({
          */
         checkExtApi = function (el) {
             var web_root = getMeta('web_root');
-            Y.log('3126 is Checked: ' + el.get('checked'));
+            console.log('3126 is Checked: ' + el.get('checked'));
             if ((el.get('tagName') === 'INPUT') && el.get('checked')) {
                 saveToStorage();
                 switch (true) {
@@ -4047,17 +4024,17 @@ YUI({
                         break;
 
                     case ((el.get('id') === 'api_tumblr') && ('1' !== getMeta('tm'))):
-                        Y.log('3222 api_tumblr');
+                        console.log('3222 api_tumblr');
                         Twitter.startDance(web_root + '/logintumblr', 800, 540);
                         break;
 
                     case ((el.get('id') === 'api_linkedin') && ('1' !== getMeta('linkedin'))):
-                        Y.log('3879 api_linkedin');
+                        console.log('3879 api_linkedin');
                         Twitter.startDance(web_root + '/loginlinkedin', 640, 480);
                         break;
 
                     case ((el.get('id') === 'api_blogger') && ('1' !== getMeta('blgr'))):
-                        Y.log('3227 api_blogger');
+                        console.log('3227 api_blogger');
                         Twitter.startDance(web_root + '/connectblogger', 680, 540);
                         break;
 
@@ -4095,8 +4072,6 @@ YUI({
             startDance:function (url, w, h) {
                 var u, mydomain, popupParams, height, width, web_root = getMeta('web_root'); //
                 showLoading();
-                //Y.log('1084 starting oAuth dance this is: ' + this, 'window'); // Object Twitter
-
 
                 width = (w) ? w : 800;
                 height = (h) ? h : 800;
@@ -4142,7 +4117,6 @@ YUI({
                 }
 
                 this.oInterval = window.setInterval(this.checkLogin, 500);
-                //Y.log('1085 this.oInterval ' + this.oInterval, 'warn');
             },
 
             /**
@@ -4174,9 +4148,8 @@ YUI({
              */
             cancelIntervals:function () {
 
-                //Y.log('Cancelling pending intervals this: ' + this, 'window');
                 if (this.oInterval) {
-                    //Y.log(' 1131 killing interval');
+
                     window.clearInterval(this.oInterval);
                     this.oInterval = null;
                 }
@@ -4206,7 +4179,7 @@ YUI({
         };
 
         if (TTT2 && TTT2.size() > 0) {
-            //Y.log('TTT2 dom nodes: ' + TTT2._nodes, 'warn');
+
             ttB2 = new YAHOO.widget.Tooltip("ttB2", {
                 context:TTT2._nodes,
                 autodismissdelay:5500,
@@ -4332,7 +4305,7 @@ YUI({
         if (Y.hasOwnProperty('categoryEditor')) {
             Y.categoryEditor.Editor();
         } else {
-            Y.log('no cat editor here');
+            console.log('no cat editor here');
         }
 
         /**
@@ -4374,12 +4347,12 @@ YUI({
 
         if (Y.one('#regdiv')) {
             dnd = Y.Cookie.get("dnd");
-            Y.log('dnd: ' + dnd);
+            console.log('dnd: ' + dnd);
             /**
              * Don't show regform if use has 'dnd' (do not disturb) cookie
              */
             if (!dnd) {
-                //Y.log('going to show regform');
+
                 oSL.Regform.getInstance().show();
             }
         }
