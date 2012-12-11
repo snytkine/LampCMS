@@ -327,7 +327,7 @@ class Client
             $this->aFbUserData = $Facebook->api('/me');
             d('$this->aFbUserData: ' . \json_encode($this->aFbUserData));
             $token = $Facebook->getAccessToken();
-        } catch ( FacebookApiException $e ) {
+        } catch ( \Exception $e ) {
             $details = $e->getResult();
             e('Error trying to get data from Facebook API: ' . print_r($details, 1));
             throw new FacebookAuthException('Error trying to get data from Facebook API: ' . print_r($details, 1));

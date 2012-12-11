@@ -641,6 +641,8 @@ abstract class WebPage extends Base
 
         } catch ( FacebookAuthException $e ) {
             d('Facebook login failed. ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
+        } catch ( \Exception $e ) {
+            d('Exception during Facebook login. ' . \get_class($e) . '  ' . $e->getMessage() . ' ' . $e->getFile() . ' ' . $e->getLine());
         }
 
         return $this;
