@@ -305,7 +305,12 @@ class Log
 
         $msg = $message;
 
-        if (isset($_SERVER) && is_array($_SERVER)) {
+        $ua = self::getServerVar('HTTP_USER_AGENT');
+        /**
+         * Do NOT send out any errors generated from MSIE 6.0 browsers
+         *
+         */
+        if (isset($_SERVER) && is_array($_SERVER) && (false === \strstr($ua, 'MSIE 6.0'))) {
             $msg .= "\n" . '-----------------------------------------------------';
             $msg .= "\n" . 'HTTP_HOST: ' . self::getServerVar('HTTP_HOST');
             $msg .= "\n" . 'SCRIPT_NAME: ' . self::getServerVar('SCRIPT_NAME');
@@ -313,37 +318,37 @@ class Log
             $msg .= "\n" . 'REQUEST_URI: ' . self::getServerVar('REQUEST_URI');
             $msg .= "\n" . 'SCRIPT_FILENAME: ' . self::getServerVar('SCRIPT_FILENAME');
             $msg .= "\n" . '-----------------------------------------------------';
-            $msg .= "\n" . 'HTTP_USER_AGENT: ' . self::getServerVar('HTTP_USER_AGENT');
+            $msg .= "\n" . 'HTTP_USER_AGENT: ' . $ua;
             $msg .= "\n" . 'HTTP_REFERER: ' . self::getServerVar('HTTP_REFERER');
             $msg .= "\n" . '-----------------------------------------------------';
             $msg .= "\n" . 'REMOTE_ADDR/IP: ' . self::getServerVar('REMOTE_ADDR');
-            $msg .= PHP_EOL. 'REQUEST HEADERS: '.Request::getAllHeadersAsString();
+            $msg .= PHP_EOL . 'REQUEST HEADERS: ' . Request::getAllHeadersAsString();
 
             if (Request::isPost()) {
                 $msg .= "\n" . '-----------------------------------------------------';
                 $msg .= "\n" . 'POST: ' . \print_r($_POST, true);
             }
-        }
 
-        /**
-         * Add high priority to email headers
-         * for error messages of certain types (real errors, no notices)
-         */
-        $headers  = 'X-Mailer: LogObserver' . "\n" . 'X-Priority: 1' . "\n" . 'Importance: High' . "\n" . 'X-MSMail-Priority: High';
-        /**
-         * Attempt to use Mailer object, then fallback to php's mail()
-         */
-        $ER = error_reporting(0);
-        if (is_object($Mailer)) {
-            try {
-                $Mailer->mail($devEmail, self::EMAIL_SUBJECT, $msg, null, false);
-            } catch ( \Exception $e ) {
+            /**
+             * Add high priority to email headers
+             * for error messages of certain types (real errors, no notices)
+             */
+            $headers = 'X-Mailer: LogObserver' . "\n" . 'X-Priority: 1' . "\n" . 'Importance: High' . "\n" . 'X-MSMail-Priority: High';
+            /**
+             * Attempt to use Mailer object, then fallback to php's mail()
+             */
+            $ER = error_reporting(0);
+            if (is_object($Mailer)) {
+                try {
+                    $Mailer->mail($devEmail, self::EMAIL_SUBJECT, $msg, null, false);
+                } catch ( \Exception $e ) {
+                    @mail($devEmail, self::EMAIL_SUBJECT, $msg, $headers);
+                }
+            } else {
                 @mail($devEmail, self::EMAIL_SUBJECT, $msg, $headers);
             }
-        } else {
-            @mail($devEmail, self::EMAIL_SUBJECT, $msg, $headers);
+            error_reporting($ER);
         }
-        error_reporting($ER);
 
         return;
     }
@@ -359,7 +364,7 @@ class Log
      */
     protected static function getServerVar($var)
     {
-        return (array_key_exists($var, $_SERVER)) ? $_SERVER[$var] : '';
+        return (\array_key_exists($var, $_SERVER)) ? $_SERVER[$var] : '';
     }
 
 

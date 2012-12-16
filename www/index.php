@@ -67,7 +67,7 @@ if (true !== session_start()) {
             \Lampcms\Cookie::sendRefferrerCookie();
         }
 
-        $Tr = $Registry->Tr;
+        $Tr         = $Registry->Tr;
         $mapper     = $Registry->Router->getCallback();
         $translator = $Tr->getCallback();
         if (true == constant('LAMPCMS_SHOW_RENDER_TIME')) {
@@ -116,7 +116,7 @@ if (true !== session_start()) {
         $Request    = $Registry->Request;
         $a          = $Request->getController();
         $controller = ucfirst($a);
-        $class = '\Lampcms\\Controllers\\' . $controller;
+        $class      = '\Lampcms\\Controllers\\' . $controller;
 
         header('Content-Type: text/html; charset=utf-8');
         echo new $class($Registry);
@@ -153,7 +153,7 @@ if (true !== session_start()) {
 
         if (!empty($errMessage)) {
             echo '<div class="exit_error">' . $errMessage . '</div>';
-            d('Got exit message '.$errMessage.' from ' .$e->getFile().' on '.$e->getLine().' trace: ' . $e->getTraceAsString());
+            d('Got exit message ' . $errMessage . ' from ' . $e->getFile() . ' on ' . $e->getLine() . ' trace: ' . $e->getTraceAsString());
         }
         fastcgi_finish_request();
 
@@ -172,6 +172,11 @@ if (true !== session_start()) {
         try {
 
             $extra = (isset($_SERVER)) ? ' $_SERVER: ' . print_r($_SERVER, 1) : ' no server';
+            try {
+                $extra .= "\n\nREQUEST HEADERS: " . \Lampcms\Request::getAllHeadersAsString() . "\n";
+            } catch ( \Exception $e ) {
+                // Unable to use Lampcms\Request class for some reason. Nothing we can do here
+            }
             $extra .= "\nException class: " . get_class($e) . "\nMessage:" . $e->getMessage() . "\n in file: " . $e->getFile() . "\n line: " . $e->getLine() . "\n trace: " . $e->getTraceAsString();
             /**
              * @mail must be here before the Lampcms\Exception::formatException
