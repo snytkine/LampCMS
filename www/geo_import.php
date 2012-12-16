@@ -68,7 +68,7 @@ if (!defined('BR')) {
  * http://www.maxmind.com/app/geolitecity
  *
  * Choose to download GeoLite City in csv format
- * then unzip the downloade zip file
+ * then unzip the downloaded zip file
  * and copy the 2 .csv files in this directory
  * (2 files will approximately 150MB total)
  *
@@ -93,7 +93,7 @@ if (!defined('BR')) {
  *
  * If you want to later upgrade to latest files from MaxMind site
  * just upload the new .csv files and run this script again - it will
- * drop the previously impored DB collections and import new files.
+ * drop the previously imported DB collections and import new files.
  *
  *
  *
