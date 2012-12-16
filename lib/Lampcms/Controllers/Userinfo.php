@@ -153,7 +153,20 @@ class Userinfo extends WebPage
      */
     protected function checkUsername()
     {
-        $supplied = $this->Router->getSegment(2, 's', 'a');
+        /**
+         * In order to be able to have utf-8 chars in username
+         * we must extract the raw value of last segment
+         * and then urldecode it.
+          */
+        if (!empty($_SERVER) && !empty($_SERVER['REQUEST_URI'])) {
+            $r        = $_SERVER['REQUEST_URI'];
+            $pos      = \strrpos($r, '/');
+            $supplied = \substr($r, $pos + 1);
+            $supplied = \urldecode($supplied);
+        } else {
+            d('bad news. $_SERVER[\'REQUEST_URI\'] not available on this web server. Defaulting to old way of extracting username');
+            $supplied = $this->Router->getSegment(2, 's', 'a');
+        }
 
         if (!empty($supplied)) {
             $username = $this->User->username;
