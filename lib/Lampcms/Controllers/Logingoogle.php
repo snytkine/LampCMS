@@ -216,7 +216,7 @@ class Logingoogle extends Register
         }
 
         if (!isset($_SESSION[self::STATE_KEY])) {
-            throw new \Lampcms\DevException('$_SESSION[self::STATE_KEY] value not set');
+            throw new \Lampcms\DevException('$_SESSION['.self::STATE_KEY.'] value not set');
         }
 
         if ($_GET['state'] !== $_SESSION[self::STATE_KEY]) {
