@@ -146,7 +146,7 @@ class Twitter extends LampcmsObject
     /**
      * Setter for $this->User
      *
-     * @param \Lampcms\TwitterUser $User
+     * @param \Lampcms\Interfaces\TwitterUser|\Lampcms\TwitterUser $User
      *
      * @return object $this
      */
@@ -521,7 +521,7 @@ class Twitter extends LampcmsObject
             $aDebug = $this->oAuth->getLastResponseInfo();
             d('debug: ' . print_r($aDebug, 1));
 
-            e('OAuthException: ' . $e->getMessage() . ' e: ' . print_r($e, 1));
+            e('OAuthException: ' . $e->getMessage());
             /**
              * Should NOT throw TwitterException because
              * we are not sure it was actually due to authorization
