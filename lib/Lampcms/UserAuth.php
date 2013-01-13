@@ -87,13 +87,16 @@ class UserAuth extends LampcmsObject
      * @return object of type User
      *
      * @param string $sUsername username OR
-     * email address entered in login form
+     *                          email address entered in login form
      *
      * @param string $sPassword password entered in login form
      *
      * @param string $className a full name of user class. Will return
-     * user of this class (this class should extend User class)
-     * Include namespace!
+     *                          user of this class (this class should extend User class)
+     *                          Include namespace!
+     *
+     * @throws WrongUserException
+     * @throws WrongPasswordException
      */
     public function validateLogin($sUsername, $sPassword, $className = '\Lampcms\\User')
     {
@@ -170,19 +173,21 @@ class UserAuth extends LampcmsObject
     /**
      * Get arr of UserInfo from
      * cache
+     *
      * @return array array of user data
      *
      * @param string $sUsername username to look for
      *
-     * @todo allow user to also login by email address
-     * Must detect email address and then user uemail_ key instead
+     * @param        $sPassword
+     * @param        $className
      *
-     * @throws LampcmsLoginException
-     * in case user does not exist
+     * @throws WrongUserException
+     * @todo allow user to also login by email address
+     *       Must detect email address and then user uemail_ key instead
+     *
      */
     protected function getUser($sUsername, $sPassword, $className)
     {
-
         d('$sUsername: ' . $sUsername . ' $className: ' . $className);
         /**
          * @todo
@@ -209,7 +214,7 @@ class UserAuth extends LampcmsObject
 
         }
 
-        return $className::factory($this->Registry, $arrResult);
+        return $className::userFactory($this->Registry, $arrResult);
     }
 
 
@@ -224,7 +229,7 @@ class UserAuth extends LampcmsObject
      * @return object of type User
      *
      * @throws LampcmsLoginException in case
-     * some other object cancells the 'onBeforeLogin'
+     * some other object cancels the 'onBeforeLogin'
      * notification
      */
     public function __validateLogin($sUsername, $sPassword)
@@ -240,12 +245,13 @@ class UserAuth extends LampcmsObject
      * make user wait 5 minutes since the latest attempt
      * before he can try again.
      *
-     * @param $strUsername
+     * @param $sUsername
+     *
+     * @throws MultiLoginException
+     * @internal param $strUsername
      *
      * @return bool true on success
      *
-     * @throws LampcmsMultiLoginException in case
-     * multiple login error detected form this $sUsername
      */
     protected function checkMultipleLoginErrors($sUsername)
     {
@@ -306,12 +312,9 @@ class UserAuth extends LampcmsObject
      * come from ip address that was previously
      * banned for hack attempts
      *
+     * @throws MultiLoginException
      * @return object $this
      *
-     * @throws LampcmsCookieAuthException
-     * if request came from ip address that
-     * was banned for attempting to hack
-     * login by cookie
      */
     protected function checkForBannedIP()
     {
@@ -340,14 +343,16 @@ class UserAuth extends LampcmsObject
      *
      * @param string $username
      * @param string $pwd
-     * @param bool $username_exists
+     * @param bool   $username_exists
      * @param string $strIp
-     * @param bool $bByCookie login was done using
-     * cookies uid and sid
+     * @param string $login_type
+     *
+     * @internal param bool $bByCookie login was done using
+     *           cookies uid and sid
      *
      * @return bool false
-     * by returning false we can use the result of this method
-     * as a return of fnLogin
+     *           by returning false we can use the result of this method
+     *           as a return of fnLogin
      */
     protected function logLoginError($username, $pwd = '', $username_exists = true, $strIp = null,
                                      $login_type = 'www')
