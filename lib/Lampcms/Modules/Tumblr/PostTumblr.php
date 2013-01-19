@@ -149,6 +149,7 @@ class PostTumblr extends \Lampcms\Event\Observer
     protected function post()
     {
 
+        d('begin post to Tumblr');
         try {
 
             $oTumblr = new ApiClient($this->Registry);
@@ -161,7 +162,9 @@ class PostTumblr extends \Lampcms\Event\Observer
 
             $reward = $this->Registry->Ini->POINTS->SHARED_CONTENT;
             $Resource = $this->obj;
+            d('cp');
             $oAdapter = new TumblrPostAdapter($this->Registry);
+            d('cp');
 
         } catch (\Exception $e) {
             d('Unable to post to Tumblr because of this exception: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
@@ -177,6 +180,10 @@ class PostTumblr extends \Lampcms\Event\Observer
             try {
                 $result = $oTumblr->add($oAdapter->get($Resource));
             } catch (\Exception $e) {
+
+                if(function_exists('d')){
+                    d('Unable to post to Tumblr: '. $e->getMessage());
+                }
 
                 return;
             }

@@ -93,10 +93,11 @@ class ApiClient extends LampcmsObject
 
 
     /**
-     * Constructory
+     * Constructor
      *
      * @param Registry $Registry
-     * @throws \Lampcms\Exception
+     *
+     * @throws Exception
      * @throws \Lampcms\DevException
      * @throws \Lampcms\Exception
      */
@@ -108,9 +109,9 @@ class ApiClient extends LampcmsObject
 
         $this->Registry = $Registry;
         $this->aConfig = $Registry->Ini->offsetGet('TUMBLR');
-        d('$this->aConfig: ' . print_r($this->aConfig, 1));
+        d('$this->aConfig: ' . \json_encode($this->aConfig));
         if (empty($this->aConfig) || empty($this->aConfig['OAUTH_KEY']) || empty($this->aConfig['OAUTH_SECRET'])) {
-            throw new DevException('Missing configuration parameters for TUMBLR API');
+            throw new \Lampcms\DevException('Missing configuration parameters for TUMBLR API');
         }
 
         $this->setUser($Registry->Viewer);
@@ -124,7 +125,7 @@ class ApiClient extends LampcmsObject
         } catch (\OAuthException $e) {
             e('OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
 
-            throw new Exception('Something went wrong during Tumblr authorization. This has nothing to do with your account. Please try again later' . $e->getMessage());
+            throw new \Lampcms\Exception('Something went wrong during Tumblr authorization. This has nothing to do with your account. Please try again later' . $e->getMessage());
         }
     }
 
@@ -134,6 +135,7 @@ class ApiClient extends LampcmsObject
      * of $User has tumblr oauth token
      *
      * @param TumblrUser $User
+     * @return bool|\Lampcms\Modules\Tumblr\ApiClient
      */
     public function setUser(TumblrUser $User)
     {
@@ -163,9 +165,10 @@ class ApiClient extends LampcmsObject
     /**
      * Add content to Tumblr
      * @todo finish this to handle posting
-     * of link, photo, autio, video
+     * of link, photo, audio, video
      *
      * @param TumblrContent $post
+     * @return string
      */
     public function add(TumblrContent $post)
     {
@@ -284,7 +287,7 @@ class ApiClient extends LampcmsObject
             $aDebug = $this->oAuth->getLastResponseInfo();
             d('debug: ' . print_r($aDebug, 1));
 
-            e('OAuthException: ' . $e->getMessage());
+            d('OAuthException: ' . $e->getMessage());
             /**
              * Should NOT throw Exception because
              * we are not sure it was actually due to authorization
@@ -294,7 +297,6 @@ class ApiClient extends LampcmsObject
         }
 
         return $this->getResponse();
-
     }
 
 
