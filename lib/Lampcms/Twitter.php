@@ -515,7 +515,7 @@ class Twitter extends LampcmsObject
             $this->oAuth->setAuthType($authType);
             $this->setOAuthTokens();
             d('fetching: ' . $this->url . ' data: ' . print_r($aData, 1));
-            $this->oAuth->fetch($this->url, $aData);
+            $this->oAuth->fetch($this->url, $aData, OAUTH_HTTP_METHOD_POST);
 
         } catch ( \OAuthException $e ) {
             $aDebug = $this->oAuth->getLastResponseInfo();
