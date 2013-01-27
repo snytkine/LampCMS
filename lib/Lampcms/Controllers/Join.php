@@ -62,7 +62,7 @@ use \Lampcms\Acl\Role;
  * Class to process submissions from the
  * popup modal "quick registration"
  * This modal is used when someone joins via 3rd party auth like
- * via Twitter or LinkedIN and we need to collect email address
+ * via Twitter and we need to collect email address
  * for that user.
  *
  * It also used for "Quick registration" where we ask for just email
@@ -205,7 +205,7 @@ class Join extends Register
     /**
      * For Ajax based submission
      * send back Ajax object
-     * For regula form submission
+     * For regular form submission
      * set the main element
      *
      * @todo When we have email newsletters collection form
@@ -215,6 +215,10 @@ class Join extends Register
      */
     protected function setReturn()
     {
+        /**
+         * @todo
+         * Translate string - get string from Translation object
+         */
         $tpl = '
 	<h1>Welcome to %s!</h1>
 	<p class="larger">We have just emailed you 
@@ -266,7 +270,7 @@ class Join extends Register
 
         if (false === Validate::username($this->Request['username'])) {
 
-            throw new \Lampcms\FormException('Invalid username. Username can only contain English letters, numbers and a hyphen (but cannot start or end with the hyphen)', 'username');
+            throw new \Lampcms\FormException('@@Invalid username. Username can only contain English letters, numbers and a hyphen (but cannot start or end with the hyphen)@@', 'username');
         }
 
         $aReserved = \Lampcms\getReservedNames();

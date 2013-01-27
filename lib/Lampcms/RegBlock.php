@@ -56,7 +56,7 @@ namespace Lampcms;
 /**
  * Class for generating html of the registration block
  * with registration form
- * This html block is usually shown inside the modale window
+ * This html block is usually shown inside the modal window
  *
  *
  * @author Dmitri Snytkine
@@ -90,9 +90,9 @@ class RegBlock extends LampcmsObject
     protected $Registry;
 
     /**
-     * Object of tyle User
+     * Object of type User
      * or any subclass
-     * representing currenly logged in user
+     * representing currently logged in user
      *
      * @var object
      */
@@ -108,7 +108,6 @@ class RegBlock extends LampcmsObject
 
     public function __construct(Registry $Registry)
     {
-
         $this->Registry = $Registry;
         $this->oViewer = $Registry->Viewer;
     }
@@ -156,7 +155,7 @@ class RegBlock extends LampcmsObject
         $this->prepareVars()
             ->setUsernameVars()
             ->addUsernameBlock();
-        d('cp $this->aVars ' . print_r($this->aVars, 1));
+        d('cp $this->aVars ' . \json_encode($this->aVars));
         $ret = \tplRegform::parse($this->aVars);
         d('$ret: ' . $ret);
 

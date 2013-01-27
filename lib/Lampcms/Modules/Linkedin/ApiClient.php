@@ -64,7 +64,7 @@ namespace Lampcms\Modules\Linkedin;
  *
  * Your own 'd' function should (not required but really should)
  * have a method to automatically get the file and line number of calling object/method
- * This is usually acheived by using something like this:
+ * This is usually achieved by using something like this:
  * $arrBacktrace = debug_backtrace(false);
  * then parsing the $arrBacktrace to extract the element of the calling
  * object/method

@@ -281,7 +281,7 @@ class ApiClient extends LampcmsObject
 
             $this->oAuth->setToken($token, $secret);
             //d('fetching: '.self::API_WRITE_URL.' data: '.print_r($data, 1));
-            $this->oAuth->fetch(self::API_WRITE_URL, $data);
+            $this->oAuth->fetch(self::API_WRITE_URL, $data, OAUTH_HTTP_METHOD_POST);
 
         } catch (\OAuthException $e) {
             $aDebug = $this->oAuth->getLastResponseInfo();

@@ -151,7 +151,6 @@ class Logintwitter extends WebPage
      */
     protected function main()
     {
-
         if (!extension_loaded('oauth')) {
             throw new \Lampcms\Exception('@@Unable to use Twitter API because OAuth extension is not available@@');
         }

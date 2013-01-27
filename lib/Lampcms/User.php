@@ -1414,7 +1414,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
 
     /**
-     * Get html for the link to tumblr blog
+     * Get html for the link to LinkedIN profile
      *
      * @return string html of link
      */
@@ -1437,7 +1437,7 @@ class User extends \Lampcms\Mongo\Doc implements Interfaces\RoleInterface,
 
         $tpl = '<a href="%s" class="linkedin" rel="nofollow" target="_blank">%s</a>';
 
-        return (empty($url)) ? '' : \sprintf($tpl, $url, 'LinkedIn Profile');
+        return (empty($url)) ? '' : \sprintf($tpl, $url, '@@LinkedIn Profile@@');
     }
 
 

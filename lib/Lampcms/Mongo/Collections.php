@@ -64,8 +64,8 @@ namespace Lampcms\Mongo;
      *
      * By using these constants instead of directly
      * using the names of collections developers have
-     * a way of preventing inadvertantly
-     * misspeling of a collection name
+     * a way of preventing inadvertently
+     * misspelling of a collection name
      *
      * If you designing a custom module that will be
      * requiring creation of a new Mongo Collection
@@ -109,7 +109,6 @@ const ONLINE = 'ONLINE';
  * of guests and keep count
  * of guests online
  *
- * @var unknown_type
  */
 const GUESTS = 'GUESTS';
 
@@ -196,7 +195,6 @@ const LOGIN_ERROR = 'LOGIN_ERROR';
  * It also keeps Geo location data
  * for each login as well as useragent.
  * The data can be used for datamining
- * @var unknown_type
  */
 const LOGIN_LOG = 'LOGIN_LOG';
 
@@ -230,7 +228,7 @@ const REPORTED_ITEMS = 'REPORTED_ITEMS';
  * Even time a new Question or Answer is created,
  * a record is created in this collection and the
  * auto-increment value is generated for it.
- * Every Question and Answer has it's privary key _id equals
+ * Every Question and Answer has it's primary key _id equals
  * to corresponding key in the collection.
  *
  * This collection holds values of _id and string value of type

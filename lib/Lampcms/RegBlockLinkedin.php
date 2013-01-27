@@ -76,7 +76,7 @@ class RegBlockLinkedin extends RegBlockTwitter
      */
     protected function makeBlockExternal()
     {
-        d('oViewer: ' . print_r($this->oViewer, 1));
+        d('oViewer: ' . print_r($this->oViewer->getArrayCopy(), 1));
 
         $aVals = array(
             'LinkedIn',

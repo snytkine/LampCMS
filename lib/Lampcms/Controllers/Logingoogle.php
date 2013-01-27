@@ -319,6 +319,11 @@ class Logingoogle extends Register
     {
         $User        = null;
         $this->email = \mb_strtolower($this->userInfo['email']);
+        /**
+         * @todo this can be refactored for php 5.4
+         * Search EMAILS collection
+         * try to find user that has this email address
+         */
         $res         = $this->Registry->Mongo->EMAILS->findOne(array(Schema::EMAIL => $this->email), array('i_uid' => true));
         if (!empty($res) && !empty($res['i_uid'])) {
             d('found user id by email address. uid: ' . $res['i_uid']);
@@ -328,6 +333,10 @@ class Logingoogle extends Register
             $this->updateUser($User);
         }
 
+        /**
+         * Was Not able to find user by search EMAILS collection
+         * Search USERS collection by email address
+         */
         if (null === $User) {
             $a = $this->Registry->Mongo->USERS->findOne(array(Schema::EMAIL => $this->email));
             if (!empty($a)) {
@@ -339,7 +348,6 @@ class Logingoogle extends Register
 
         if (null === $User) {
             $User = $this->createUser();
-
         }
 
 

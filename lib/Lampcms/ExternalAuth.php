@@ -87,18 +87,18 @@ use \Lampcms\Mongo\Schema\User as Schema;
  * After new user is create post onNewUser event, also login the new user
  * and set uid cookie
  *
- * @todo we may add extra method so that IF user is new to us,
- * and is posted by AJAX then we send back special html of json object
- * so that a popup will be generated asking user to complete one last step:
- * provide an email address and possibly pick a username in case we have
- * a name collision or in case username is no provided by auth provider
- * like Facebook or GFC don't seem to provide username at all
- * we will tell user that they need to confirm their membership by
- * following special account activation link that we will email to them.
- * this is standard.
- * That prompt will send data to us via AJAX and will have a real time email
- * validation progress bar so the receiving php script will do the usual sleep(5) 4 times
- * and keep checking bounces.
+ * @todo   we may add extra method so that IF user is new to us,
+ *         and is posted by AJAX then we send back special html of json object
+ *         so that a popup will be generated asking user to complete one last step:
+ *         provide an email address and possibly pick a username in case we have
+ *         a name collision or in case username is no provided by auth provider
+ *         like Facebook or GFC don't seem to provide username at all
+ *         we will tell user that they need to confirm their membership by
+ *         following special account activation link that we will email to them.
+ *         this is standard.
+ *         That prompt will send data to us via AJAX and will have a real time email
+ *         validation progress bar so the receiving php script will do the usual sleep(5) 4 times
+ *         and keep checking bounces.
  *
  * @author Dmitri Snytkine
  *
@@ -108,6 +108,7 @@ class ExternalAuth extends LampcmsObject
 
     /**
      * Constructor
+     *
      * @param Registry $Registry
      */
     public function __construct(Registry $Registry)
@@ -125,6 +126,7 @@ class ExternalAuth extends LampcmsObject
      *
      * The result is that we will use the value of
      * Twitter username as our username OR the
+     *
      * @username
      *       if username is already taken
      *
@@ -152,14 +154,14 @@ class ExternalAuth extends LampcmsObject
         }
 
         $coll = $this->Registry->Mongo->USERS;
-        $res = null;
+        $res  = null;
 
-        $username = null;
+        $username   = null;
         $aUsernames = array(
             preg_replace('/\s+/', '_', $displayName),
-            preg_replace('/\s+/', '', $displayName),
             preg_replace('/\s+/', '.', $displayName),
-            preg_replace('/\s+/', '-', $displayName)
+            preg_replace('/\s+/', '-', $displayName),
+            preg_replace('/\s+/', '', $displayName),
         );
 
         $aUsernames = \array_unique($aUsernames);
@@ -170,7 +172,7 @@ class ExternalAuth extends LampcmsObject
             $name = \mb_strtolower($aUsernames[$i], 'utf-8');
 
             $res = $coll->findOne(array(Schema::USERNAME_LOWERCASE => $name));
-            d('$res: ' . $res);
+            d('$res: ' . \var_export($res, 1));
             if (empty($res)) {
                 $username = $aUsernames[$i];
                 break;
@@ -186,11 +188,12 @@ class ExternalAuth extends LampcmsObject
             $i = 1;
             do {
                 $name = \mb_strtolower($aUsernames[0], 'utf-8') . $i;
-                $res = $coll->findOne(array(Schema::USERNAME_LOWERCASE => $name));
+                $res  = $coll->findOne(array(Schema::USERNAME_LOWERCASE => $name));
                 if (empty($res)) {
                     $username = $aUsernames[0] . $i;
                 }
-                d('$res: ' . $res);
+                d('$res: ' . \var_export($res, 1));
+                $i += 1;
             } while (null === $username);
         }
 

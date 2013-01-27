@@ -61,14 +61,21 @@ use \Lampcms\Acl\Role;
 class Loginlinkedin extends WebPage
 {
 
-    const REQUEST_TOKEN_URL = 'https://api.linkedin.com/uas/oauth/requestToken?oauth_callback=';
+    const REQUEST_TOKEN_URL = 'https://api.linkedin.com/uas/oauth/requestToken?scope=r_basicprofile+r_emailaddress+rw_nus&oauth_callback=';
 
     const ACCESS_TOKEN_URL = 'https://api.linkedin.com/uas/oauth/accessToken';
 
     const AUTHORIZE_URL = 'https://www.linkedin.com/uas/oauth/authenticate';
 
     //,location:(name) cannot be used together with location:(country:(code)) it generates duplicate field exception
-    const PROFILE_URL = 'http://api.linkedin.com/v1/people/~:(id,first-name,last-name,industry,picture-url,public-profile-url,location,summary,interests,date-of-birth,twitter-accounts,phone-numbers,skills,im-accounts,educations,certifications,languages)';
+    const PROFILE_URL = 'http://api.linkedin.com/v1/people/~:(id,first-name,last-name,picture-url,public-profile-url,location,summary,interests,date-of-birth,phone-numbers,skills,educations,certifications,languages)';
+
+    //const PROFILE_URL = 'http://api.linkedin.com/v1/people/~';
+
+    /**
+     * URL TO GET email address of user
+     */
+    const EMAIL_URL = 'http://api.linkedin.com/v1/people/~/email-address';
 
     protected $callback = '{_WEB_ROOT_}/{_loginlinkedin_}';
 
@@ -118,6 +125,18 @@ class Loginlinkedin extends WebPage
      */
     protected $aData;
 
+    /**
+     * Email address from LinkedIn profile
+     *
+     * @var string
+     */
+    protected $email = '';
+
+    /**
+     * @var object object type User (may be LinkedinUser or just plain User)
+     */
+    protected $User;
+
 
     /**
      * The main purpose of this class is to
@@ -141,13 +160,8 @@ class Loginlinkedin extends WebPage
 
         /**
          * If user is logged in then this is
-         * a request to connect Twitter Account
+         * a request to connect LinedIN Account
          * with existing account.
-         *
-         * @todo check that user does not already have
-         *       Twitter credentials and if yes then call
-         *       closeWindows as it would indicate that user
-         *       is already connected with Twitter
          */
         if ($this->isLoggedIn()) {
             $this->bConnect = true;
@@ -176,7 +190,6 @@ class Loginlinkedin extends WebPage
          * in session and redirect to linkedin authorization page
          */
         if (empty($_SESSION['linkedin_oauth']) || empty($this->Request['oauth_token'])) {
-
             $this->step1();
         } else {
             $this->step2();
@@ -214,11 +227,10 @@ class Loginlinkedin extends WebPage
                  * so that it will be caught ONLY by the index.php and formatted
                  * on a clean page, without any template
                  */
-
                 throw new \Exception("Failed fetching request token, response was: " . $this->oAuth->getLastResponse());
             }
         } catch ( \OAuthException $e ) {
-            e('OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
+            e('OAuthException: ' . $e->getMessage());
 
             throw new \Exception('Something went wrong during authorization. Please try again later' . $e->getMessage());
         }
@@ -248,10 +260,10 @@ class Loginlinkedin extends WebPage
              * send cookie to remember user
              * and then send out HTML with js instruction to close the popup window
              */
-            d('We are at step 2 of authentication. Request: ' . print_r($_REQUEST, 1));
+            d('We are at step 2 of authentication. $_REQUEST: ' . print_r($_REQUEST, 1));
 
             $token = $this->Request['oauth_token'];
-            d('$token: '.$token);
+            d('$token: ' . $token);
 
             /**
              * @todo check first to make sure we do have oauth_token
@@ -259,21 +271,31 @@ class Loginlinkedin extends WebPage
              */
             $this->oAuth->setToken($token, $_SESSION['linkedin_oauth']['oauth_token_secret']);
 
+            /**
+             * Get 'oauth_verifier' request param which was sent from LinkedIn
+             */
             $ver = $this->Registry->Request->get('oauth_verifier', 's', '');
-            d(' $ver: ' . $ver);
-            $url = (empty($var)) ? self::ACCESS_TOKEN_URL : self::ACCESS_TOKEN_URL . '?oauth_verifier=' . $ver;
+            d('$ver: ' . $ver);
+            if (empty($ver)) {
+                $ver = null;
+            }
+
+            $url = self::ACCESS_TOKEN_URL;
             d('url: ' . $url);
 
-            $this->aAccessToken = $this->oAuth->getAccessToken($url);
+            $this->aAccessToken = $this->oAuth->getAccessToken($url, null, $ver);
             d('$this->aAccessToken: ' . print_r($this->aAccessToken, 1));
+            $this->setTokenExpirationTime();
 
             unset($_SESSION['linkedin_oauth']);
 
             $this->oAuth->setToken($this->aAccessToken['oauth_token'], $this->aAccessToken['oauth_token_secret']);
 
+            d('getting profile from PROFILE_URL');
             $this->oAuth->fetch(self::PROFILE_URL);
             $resp = $this->oAuth->getLastResponse();
             $this->parseXML($resp);
+            $this->getEmailAddress();
 
             $this->createOrUpdate();
 
@@ -294,7 +316,7 @@ class Loginlinkedin extends WebPage
         } catch ( \OAuthException $e ) {
             e('OAuthException: ' . $e->getMessage());
 
-            $err = '@@Something went wrong during authorization. Please try again later@@' . $e->getMessage();
+            $err = '@@Something went wrong during authorization. Please try again later@@ ' . $e->getMessage();
             throw new \Exception($err);
         }
 
@@ -302,103 +324,19 @@ class Loginlinkedin extends WebPage
     }
 
 
-    protected function createOrUpdate()
-    {
-        $aUser = $this->getUserByLinkedInId($this->aData['linkedin_id']);
-
-        if (!empty($this->bConnect)) {
-            d('this is connect action');
-
-            $this->User = $this->Registry->Viewer;
-            $this->updateUser();
-
-        } elseif (!empty($aUser)) {
-            $this->User = \Lampcms\UserLinkedin::userFactory($this->Registry, $aUser);
-            $this->updateUser(); // only update token, secret, linkedin url
-        } else {
-            $this->isNewAccount = true;
-            $this->createNewUser();
-        }
-
-
-        try {
-            $this->processLogin($this->User);
-        } catch ( \Lampcms\LoginException $e ) {
-            /**
-             * re-throw as regular exception
-             * so that it can be caught and show in popup window
-             */
-            e('Unable to process login: ' . $e->getMessage());
-            throw new \Exception($e->getMessage());
-        }
-
-        $this->Registry->Dispatcher->post($this, 'onLinkedinLogin');
-
-        return $this;
-    }
-
-
     /**
-     * Create new record in the USERS collection
-     * also set the $this->User to the newly created
-     * instance of UserLinkedin object
-     *
-     *
+     * LinkedIn returns expiration times in the number of seconds from now format
+     * Must convert these values into unix timestamp now.
      */
-    protected function createNewUser()
+    protected function setTokenExpirationTime()
     {
-        d('$this->aData: ' . print_r($this->aData, 1));
-
-        if (false !== $tzn = Cookie::get('tzn')) {
-            $timezone = $tzn;
-        } else {
-            $timezone = $this->Registry->Ini->SERVER_TIMEZONE;
+        if (isset($this->aAccessToken['oauth_expires_in'])) {
+            $this->aAccessToken['oauth_expires_in'] = time() + $this->aAccessToken['oauth_expires_in'];
         }
 
-        $ln = (!empty($this->aData['ln'])) ? $this->aData['ln'] : '';
-
-        $oEA = \Lampcms\ExternalAuth::factory($this->Registry);
-        $u   = $this->aData['fn'] . '_' . $ln;
-        d('$u: ' . $u);
-
-        $username = $oEA->makeUsername($u);
-        $sid      = \Lampcms\Cookie::getSidCookie();
-        d('sid is: ' . $sid);
-
-        $this->aData[Schema::USERNAME]               = $username;
-        $this->aData[Schema::USERNAME_LOWERCASE]     = \mb_strtolower($username, 'utf-8');
-        $this->aData[Schema::REGISTRATION_TIMESTAMP] = time();
-        $this->aData[Schema::REGISTRATION_TIME]      = date('r');
-        $this->aData[Schema::ROLE]                   = Role::EXTERNAL_USER;
-        $this->aData[Schema::SID]                    = (false !== $sid) ? $sid : \Lampcms\String::makeSid();
-        $this->aData[Schema::REPUTATION]             = 1;
-        $this->aData[Schema::LANG]                   = $this->Registry->getCurrentLang();
-        $this->aData[Schema::LOCALE]                 = $this->Registry->Locale->getLocale();
-        $this->aData[Schema::TIMEZONE]               = $timezone;
-
-        if (empty($this->aData['cc']) && empty($this->aData['city'])) {
-            $this->aData = array_merge($this->Registry->Geo->Location->data, $this->aData);
+        if (isset($this->aAccessToken['oauth_authorization_expires_in'])) {
+            $this->aAccessToken['oauth_authorization_expires_in'] = time() + $this->aAccessToken['oauth_authorization_expires_in'];
         }
-
-        $this->User = \Lampcms\UserLinkedin::userFactory($this->Registry, $this->aData);
-
-        /**
-         * This will mark this userobject is new user
-         * and will be persistent for the duration of this session ONLY
-         * This way we can know it's a newly registered user
-         * and ask the user to provide email address but only
-         * during the same session
-         */
-        $this->User->setNewUser();
-        d('isNewUser: ' . $this->User->isNewUser());
-        $this->User->save();
-
-        \Lampcms\PostRegistration::createReferrerRecord($this->Registry, $this->User);
-
-        $this->Registry->Dispatcher->post($this->User, 'onNewUser');
-
-        return $this;
-
     }
 
 
@@ -417,7 +355,6 @@ class Loginlinkedin extends WebPage
      */
     protected function parseXML($xml)
     {
-
         d('xml: ' . $xml);
 
         $oXML = new \Lampcms\Dom\Document();
@@ -429,7 +366,7 @@ class Loginlinkedin extends WebPage
 
         $lid = $oXML->evaluate('string(/person/id[1])'); // it will be string!
         if (!$lid) {
-            throw new \Lampcms\Exception('Unable to get LinkedIn ID');
+            throw new \Lampcms\DevException('Unable to get LinkedIn ID from xml: ' . $xml);
         }
 
         $this->aData['linkedin_id'] = (string)$lid;
@@ -467,10 +404,220 @@ class Loginlinkedin extends WebPage
         );
 
         if ('' !== $url = $oXML->evaluate('string(/person/public-profile-url[1])')) {
+            d('profile url: ' . $url);
             $this->aData['linkedin']['url'] = $url;
         }
 
         d('$this->aData: ' . print_r($this->aData, 1));
+
+        return $this;
+    }
+
+
+    /**
+     * Get email address from LinkedIN API
+     *
+     */
+    protected function getEmailAddress()
+    {
+        $this->oAuth->fetch(self::EMAIL_URL);
+        $resp = $this->oAuth->getLastResponse();
+
+        /**
+         * May return empty element
+         *
+         * $resp: <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+         * <email-address />
+         *
+         */
+        d('EMAIL ADDRESS RESPONSE: ' . $resp);
+
+        //$aDebug = $this->oAuth->getLastResponseInfo();
+        //d('debug: ' . print_r($aDebug, 1));
+
+        $oXML = new \Lampcms\Dom\Document();
+        if (false === $oXML->loadXML($resp)) {
+            $err = 'Unexpected Error parsing email address response XML';
+            e($err);
+
+            return;
+        }
+
+        $email = $oXML->evaluate('string(/email-address[1])');
+        d('email: ' . $email);
+
+        if (!empty($email)) {
+            $this->email = \mb_strtolower($email);
+        }
+    }
+
+
+    protected function createOrUpdate()
+    {
+        $aUser = $this->getUserByLinkedInId($this->aData['linkedin_id']);
+
+        if (!empty($this->bConnect)) {
+            d('this is connect action');
+
+            $this->User = $this->Registry->Viewer;
+            $this->updateUser();
+
+        } elseif (!empty($aUser)) {
+            /**
+             * This means user previously joined with LInkedIn
+             * and now logged back in with Linked in button again
+             */
+            $this->User = \Lampcms\UserLinkedin::userFactory($this->Registry, $aUser);
+            $this->updateUser(); // only update token, secret, linkedin url
+        } else {
+
+
+            /**
+             * Try to find user by email address from
+             * LinkedIN profile
+             */
+            $User = $this->findUserByEmail();
+            if (is_object($User) && ($User instanceof \Lampcms\User)) {
+                /**
+                 * set $this->bConnect to true because this is a connection
+                 * of existing user with the new linkedin credentials
+                 */
+                $this->bConnect = true;
+                $this->User     = $User;
+                $this->updateUser();
+            } else {
+                d('User not found by email address');
+                $this->isNewAccount = true;
+                $this->createNewUser();
+            }
+        }
+
+
+        try {
+            $this->processLogin($this->User);
+        } catch ( \Lampcms\LoginException $e ) {
+            /**
+             * re-throw as regular exception
+             * so that it can be caught and show in popup window
+             */
+            e('Unable to process login: ' . $e->getMessage());
+            throw new \Exception($e->getMessage());
+        }
+
+        $this->Registry->Dispatcher->post($this, 'onLinkedinLogin');
+
+        return $this;
+    }
+
+
+    /**
+     * Attempt to find existing user by email address
+     * Search in EMAILS collection first, then if not found, in USERS collection
+     * If record is found creates User object and returns it
+     *
+     * @return mixed null | User object
+     */
+    protected function findUserByEmail()
+    {
+        $User = null;
+
+        /**
+         * Search EMAILS collection
+         * try to find user that has this email address
+         */
+        $res = $this->Registry->Mongo->EMAILS->findOne(array(Schema::EMAIL => $this->email), array('i_uid' => true));
+        if (!empty($res) && !empty($res['i_uid'])) {
+            d('found user id by email address. uid: ' . $res['i_uid']);
+
+            $aUser = $this->Registry->Mongo->USERS->findOne(array(Schema::PRIMARY => $res['i_uid']));
+            $User  = \Lampcms\User::userFactory($this->Registry, $aUser);
+        }
+
+        /**
+         * Was Not able to find user by search EMAILS collection
+         * Search USERS collection by email address
+         */
+        if (null === $User) {
+            $a = $this->Registry->Mongo->USERS->findOne(array(Schema::EMAIL => $this->email));
+            if (!empty($a)) {
+                d('found user id by email address. uid: ' . $a['_id']);
+                $User = \Lampcms\User::userFactory($this->Registry, $a);
+            }
+        }
+
+        d('User not found by email: ' . $this->email);
+
+        return $User;
+    }
+
+
+    /**
+     * Create new record in the USERS collection
+     * also set the $this->User to the newly created
+     * instance of UserLinkedin object
+     *
+     *
+     */
+    protected function createNewUser()
+    {
+        d('creating new user');
+
+        /**
+         * Need to call /people/~/email-address to get email address
+         * and /people/~ to get data that includes avatar among other things
+         */
+
+        if (false !== $tzn = Cookie::get('tzn')) {
+            $timezone = $tzn;
+        } else {
+            $timezone = $this->Registry->Ini->SERVER_TIMEZONE;
+        }
+
+        $ln = (!empty($this->aData['ln'])) ? $this->aData['ln'] : '';
+
+        $oEA = \Lampcms\ExternalAuth::factory($this->Registry);
+
+        $u = $this->aData['fn'] . ' ' . $ln;
+        d('$u: ' . $u);
+
+        $username = $oEA->makeUsername($u);
+        $sid      = \Lampcms\Cookie::getSidCookie();
+        d('sid is: ' . $sid);
+
+        $this->aData[Schema::USERNAME]               = $username;
+        $this->aData[Schema::USERNAME_LOWERCASE]     = \mb_strtolower($username, 'utf-8');
+        $this->aData[Schema::REGISTRATION_TIMESTAMP] = time();
+        $this->aData[Schema::REGISTRATION_TIME]      = date('r');
+        $this->aData[Schema::ROLE]                   = Role::EXTERNAL_USER;
+        $this->aData[Schema::SID]                    = (false !== $sid) ? $sid : \Lampcms\String::makeSid();
+        $this->aData[Schema::REPUTATION]             = 1;
+        $this->aData[Schema::LANG]                   = $this->Registry->getCurrentLang();
+        $this->aData[Schema::LOCALE]                 = $this->Registry->Locale->getLocale();
+        $this->aData[Schema::TIMEZONE]               = $timezone;
+        if (!empty($this->email)) {
+            $this->aData[Schema::EMAIL] = $this->email;
+        }
+
+        if (empty($this->aData['cc']) && empty($this->aData['city'])) {
+            $this->aData = array_merge($this->Registry->Geo->Location->data, $this->aData);
+        }
+
+        $this->User = \Lampcms\UserLinkedin::userFactory($this->Registry, $this->aData);
+
+        /**
+         * This will mark this user object is new user
+         * and will be persistent for the duration of this session ONLY
+         * This way we can know it's a newly registered user
+         * and ask the user to provide email address but only
+         * during the same session
+         */
+        $this->User->setNewUser();
+        d('isNewUser: ' . $this->User->isNewUser());
+        $this->User->save();
+
+        \Lampcms\PostRegistration::createReferrerRecord($this->Registry, $this->User);
+
+        $this->Registry->Dispatcher->post($this->User, 'onNewUser');
 
         return $this;
     }
@@ -498,22 +645,76 @@ class Loginlinkedin extends WebPage
         /**
          * Special case:
          * if connecting user and another user
-         * already exists with the same linkedin_id
-         * then we will still allow to add linkedin key
+         * already exists with the same Linkedin_id
+         * then we will still allow to add Linkedin key
          * to this Viewer's profile
-         * but will NOT add the linkedin_id to the Viewer object
+         * but will NOT add the Linkedin_id to the Viewer object
          * This is because otherwise we will have 2 users
-         * with the same value of linkedin_id and then
+         * with the same value of Linkedin_id and then
          * when logging in with LinkedIN we will not know
          * which user to login. This is why we will enforce uniqueness
-         * of linkedin_id key here
+         * of Linkedin_id key here
          */
         if ($this->bConnect) {
+            /**
+             * Do we have another user with the same linkedin_id?
+             */
             $a = $this->Registry->Mongo->USERS->findOne(array('linkedin_id' => $this->aData['linkedin_id']), array('_id' => 1));
+
+            /**
+             * If not then add linkedin_id to user being connected (which is current Viewer object)
+             */
             if (empty($a)) {
                 $this->User['linkedin_id'] = $this->aData['linkedin_id'];
+            } else {
+                /**
+                 * If found another user with the same linkedin_id
+                 * DO NOT add linkedin_id to user being connected!
+                 * This is because we cannot have 2 users with the same linkedin_id
+                 * The connected user will still get the ['linkedin'] element
+                 * added to user object and it will contain oath token and secret
+                 */
             }
+
+            /**
+             *
+             * If user does not have email address or email
+             * is not activated
+             * then add value of $this->email
+             * and switch unactivated status to activated!
+             */
+            $currentEmail  = $this->User[Schema::EMAIL];
+            $currentStatus = $this->User[Schema::ROLE];
+            d('currentEmail: ' . $currentEmail . ' currentStatus: ' . $currentStatus);
+
+            /**
+             * If Linking in existing user and user does not have email address
+             * for any reason then add email address from LinkedIN profile
+             *
+             * If User has email address but status in unactivated for any reason
+             * then change status to Role::REGISTERED or Role::EXTERNAL_USER
+             */
+            if (empty($currentEmail)) {
+                if (!empty($this->email)) {
+                    d('User did not have email address. Adding one from LinkedIn account');
+                    $this->User[Schema::EMAIL] = $this->email;
+                }
+            } elseif ($currentStatus === Role::UNACTIVATED && $currentEmail === $this->email) {
+                d('User had unactivated email address. Setting status to REGISTERED');
+                $this->User->setRoleId(Role::REGISTERED);
+            } elseif ($currentStatus === Role::UNACTIVATED_EXTERNAL && $currentEmail === $this->email) {
+                d('User had unactivated email address. Setting status to EXTERNAL_USER');
+                $this->User->setRoleId(Role::EXTERNAL_USER);
+            }
+
         } else {
+            /**
+             * This is not a connect situation - this is a new user
+             * OR it may be a case of existing linkedIN user logging in
+             * with LinkedIN login button in which case
+             * this->User already has the same linkedin_id so setting it again
+             * to the same value is not a problem
+             */
             $this->User['linkedin_id'] = $this->aData['linkedin_id'];
         }
 
@@ -527,29 +728,30 @@ class Loginlinkedin extends WebPage
          * the value by editing profile.
          */
         if (empty($avtr) && !empty($this->aData['avatar_external'])) {
-            $this->User['avatar_external'] = $this->aData['avatar_external'];
+            $this->User[Schema::EXTERNAL_AVATAR] = $this->aData['avatar_external'];
         }
 
-        if (null === $this->User['description'] && !empty($this->aData['description'])) {
-            $this->User['description'] = $this->aData['description'];
+        if (null === $this->User[Schema::DESCRIPTION] && !empty($this->aData['description'])) {
+            $this->User[Schema::DESCRIPTION] = $this->aData['description'];
         }
 
-        if (null === $this->User['cc'] && !empty($this->aData['cc'])) {
-            $this->User['cc'] = $this->aData['cc'];
+        if (null === $this->User[Schema::COUNTRY_CODE] && !empty($this->aData['cc'])) {
+            $this->User[Schema::COUNTRY_CODE] = $this->aData['cc'];
         }
 
-        if (null === $this->User['city'] && !empty($this->aData['city'])) {
-            $this->User['city'] = $this->aData['city'];
+        if (null === $this->User[Schema::CITY] && !empty($this->aData['city'])) {
+            $this->User[Schema::CITY] = $this->aData['city'];
         }
 
         /**
          * Always update the 'linkedin' element
          * of user record. It contains 2 keys: tokens
          * with is array holding oauth tokens
-         * and optionally 'url' with linkenin profile url
+         * and optionally 'url' with Linkedin profile url
          *
          */
         $this->User['linkedin'] = $this->aData['linkedin'];
+
 
         $this->User->save();
 

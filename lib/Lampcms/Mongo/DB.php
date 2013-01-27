@@ -279,7 +279,7 @@ class DB extends \Lampcms\LampcmsObject
         }
 
         if (!preg_match('/^[A-Za-z0-9_]+$/', $collName)) {
-            throw new \InvalidArgumentException('Invalid collection name: ' . $collName . ' Colletion name can only contain alphanumeric chars and underscores');
+            throw new \InvalidArgumentException('Invalid collection name: ' . $collName . ' Collection name can only contain alphanumeric chars and underscores');
         }
 
         try {
@@ -366,7 +366,7 @@ class DB extends \Lampcms\LampcmsObject
         }
 
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $collName)) {
-            throw new \InvalidArgumentException('Invalid collection name: ' . $collName . ' Colletion name can only contain alphanumeric chars and underscores');
+            throw new \InvalidArgumentException('Invalid collection name: ' . $collName . ' Collection name can only contain alphanumeric chars and underscores');
         }
 
         $ret = false;
