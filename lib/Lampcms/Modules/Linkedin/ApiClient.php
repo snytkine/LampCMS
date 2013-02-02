@@ -60,7 +60,7 @@ namespace Lampcms\Modules\Linkedin;
  * prior to using this class
  * the 'd' function should implement the basic
  * logging functionality to log debugging messages
- * to some type of log (usually file but may be to db or to firebig)
+ * to some type of log (usually file but may be to db or to firebug)
  *
  * Your own 'd' function should (not required but really should)
  * have a method to automatically get the file and line number of calling object/method
@@ -116,7 +116,7 @@ if (!function_exists('e')) {
  * @author Dmitri Snytkine
  *
  * @todo feel free to contribute by adding method
- * for JobSearch, JobLoockup, PeopleSearch, CompanySearch API calls
+ * for JobSearch, Job Look up, PeopleSearch, CompanySearch API calls
  *
  */
 class ApiClient
@@ -239,7 +239,7 @@ class ApiClient
             throw new \RuntimeException('Cannot use this class because php extension "oauth" is not loaded');
         }
 
-        $this->oAuth = new \OAuth($key, $secret, OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
+        $this->oAuth = new \OAuth($key, $secret); //, OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI
         $this->oAuth->enableDebug();
     }
 
@@ -302,10 +302,8 @@ class ApiClient
             throw new \UnexpectedValueException('Cannot use API because $this->token and $this->token were not set. Run setUserToken($token, $secret) before using this method');
         }
 
-        $method = 'POST';
         $img = (!empty($image)) ? '<submitted-image-url>' . $image . '</submitted-image-url>' : '';
         $xml = \vsprintf(self::TPL_SHARE, array($comment, $label, $url, $img));
-        //d('$xml: '.$xml);
 
         try {
             /**
@@ -322,18 +320,12 @@ class ApiClient
             $headers = array('Content-Type' => 'text/xml; charset=UTF-8');
 
             $this->oAuth->setToken($this->token, $this->secret);
-            $this->oAuth->fetch(self::API_SHARE, $xml, $method, $headers);
+            $this->oAuth->fetch(self::API_SHARE, $xml, OAUTH_HTTP_METHOD_POST, $headers);
 
         } catch (\OAuthException $e) {
             $aDebug = $this->oAuth->getLastResponseInfo();
             //d('debug: '.print_r($aDebug, 1));
 
-            //e('OAuthException: '.$e->getMessage());
-            /**
-             * Should NOT throw Exception because
-             * we are not sure it was actually due to authorization
-             * or maby Tumblr was bugged down or something else
-             */
             throw new \RuntimeException('Something went wrong during connection with Linkedin. Please try again later' . $e->getMessage());
         }
 
@@ -473,7 +465,6 @@ class ApiClient
      */
     protected function fetch($url, $requireToken = false)
     {
-
         $ret = false;
 
         if (!\is_string($url) || empty($url)) {
@@ -485,7 +476,7 @@ class ApiClient
         }
 
         try {
-            $this->oAuth->fetch(self::PROFILE_URL, null, 'GET', $this->aHeaders);
+            $this->oAuth->fetch(self::PROFILE_URL, null, OAUTH_HTTP_METHOD_GET, $this->aHeaders);
             $ret = $this->oAuth->getLastResponse();
         } catch (\Exception $e) {
             $aDebug = $this->oAuth->getLastResponseInfo();

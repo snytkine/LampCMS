@@ -112,7 +112,7 @@ class Share extends \Lampcms\Event\Observer
                 d('linkedin API not enabled on this site');
 
                 return;
-                ;
+
             }
         } catch (\Lampcms\IniException $e) {
             d('Ini Exception: ' . $e->getMessage());
@@ -122,6 +122,7 @@ class Share extends \Lampcms\Event\Observer
 
         if (null === $this->Registry->Viewer->getLinkedinToken()) {
             d('User does not have linkedin token');
+
             return;
         }
 
@@ -175,6 +176,9 @@ class Share extends \Lampcms\Event\Observer
             try {
                 $oLI->share($comment, $label, $url);
             } catch (\Exception $e) {
+                if(function_exists('d')){
+                    d('Unable to post to LinkedIN: '.$e->getMessage());
+                }
                 return;
             }
 

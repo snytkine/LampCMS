@@ -61,7 +61,7 @@ use \Lampcms\Acl\Role;
 class Loginlinkedin extends WebPage
 {
 
-    const REQUEST_TOKEN_URL = 'https://api.linkedin.com/uas/oauth/requestToken?scope=r_basicprofile+r_emailaddress+rw_nus&oauth_callback=';
+    const REQUEST_TOKEN_URL = 'https://api.linkedin.com/uas/oauth/requestToken?scope=r_basicprofile+r_emailaddress+rw_nus';
 
     const ACCESS_TOKEN_URL = 'https://api.linkedin.com/uas/oauth/accessToken';
 
@@ -175,7 +175,7 @@ class Loginlinkedin extends WebPage
         $this->aTm = $this->Registry->Ini['LINKEDIN'];
 
         try {
-            $this->oAuth = new \OAuth($this->aTm['OAUTH_KEY'], $this->aTm['OAUTH_SECRET'], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
+            $this->oAuth = new \OAuth($this->aTm['OAUTH_KEY'], $this->aTm['OAUTH_SECRET']);
             $this->oAuth->disableSSLChecks();
             $this->oAuth->enableDebug();
         } catch ( \OAuthException $e ) {
@@ -209,14 +209,12 @@ class Loginlinkedin extends WebPage
      */
     protected function step1()
     {
-        $requestUrl = self::REQUEST_TOKEN_URL . $this->callback;
-
+        d('cp');
         try {
-            // State 0 - Generate request token and redirect user to linkedin to authorize
 
-            d('requestUrl: ' . $requestUrl);
-
-            $_SESSION['linkedin_oauth'] = $this->oAuth->getRequestToken($requestUrl);
+            $_SESSION['linkedin_oauth'] = $this->oAuth->getRequestToken(self::REQUEST_TOKEN_URL, $this->callback);
+            $aDebug                     = $this->oAuth->getLastResponseInfo();
+            d('debug: ' . print_r($aDebug, 1));
 
             d('$_SESSION[\'linkedin_oauth\']: ' . \print_r($_SESSION['linkedin_oauth'], 1));
             if (!empty($_SESSION['linkedin_oauth']) && !empty($_SESSION['linkedin_oauth']['oauth_token'])) {
@@ -288,7 +286,7 @@ class Loginlinkedin extends WebPage
             d('url: ' . $url);
 
             $this->aAccessToken = $this->oAuth->getAccessToken($url, null, $ver);
-            d('$this->aAccessToken: ' . print_r($this->aAccessToken, 1));
+            d('$this->aAccessToken: ' . \print_r($this->aAccessToken, 1));
             $this->setTokenExpirationTime();
 
             unset($_SESSION['linkedin_oauth']);
@@ -296,9 +294,10 @@ class Loginlinkedin extends WebPage
             $this->oAuth->setToken($this->aAccessToken['oauth_token'], $this->aAccessToken['oauth_token_secret']);
 
             d('getting profile from PROFILE_URL');
-            $this->oAuth->fetch(self::PROFILE_URL);
+            $this->oAuth->fetch(self::PROFILE_URL, null, OAUTH_HTTP_METHOD_GET, array('Connection'=> 'close'));
             $aDebug = $this->oAuth->getLastResponseInfo();
-            d('debug: ' . print_r($aDebug, 1));
+            d('debug: ' . \print_r($aDebug, 1));
+
             $resp = $this->oAuth->getLastResponse();
             $this->parseXML($resp);
             $this->getEmailAddress();
@@ -427,34 +426,39 @@ class Loginlinkedin extends WebPage
      */
     protected function getEmailAddress()
     {
-        $this->oAuth->fetch(self::EMAIL_URL);
-        $resp = $this->oAuth->getLastResponse();
+        d('cp');
+        try {
+            $this->oAuth->fetch(self::EMAIL_URL, null, OAUTH_HTTP_METHOD_GET, array('Connection'=> 'close'));
+            $resp = $this->oAuth->getLastResponse();
 
-        /**
-         * May return empty element
-         *
-         * $resp: <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-         * <email-address />
-         *
-         */
-        d('EMAIL ADDRESS RESPONSE: ' . $resp);
+            /**
+             * May return empty element
+             *
+             * $resp: <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+             * <email-address />
+             *
+             */
+            d('EMAIL ADDRESS RESPONSE: ' . $resp);
+            ;
 
-        //$aDebug = $this->oAuth->getLastResponseInfo();
-        //d('debug: ' . print_r($aDebug, 1));
+            $oXML = new \Lampcms\Dom\Document();
+            if (false === $oXML->loadXML($resp)) {
+                $err = 'Unexpected Error parsing email address response XML';
+                e($err);
 
-        $oXML = new \Lampcms\Dom\Document();
-        if (false === $oXML->loadXML($resp)) {
-            $err = 'Unexpected Error parsing email address response XML';
-            e($err);
+                return;
+            }
 
-            return;
-        }
+            $email = $oXML->evaluate('string(/email-address[1])');
+            d('email: ' . $email);
 
-        $email = $oXML->evaluate('string(/email-address[1])');
-        d('email: ' . $email);
-
-        if (!empty($email)) {
-            $this->email = \mb_strtolower($email);
+            if (!empty($email)) {
+                $this->email = \mb_strtolower($email);
+            }
+        } catch ( \OAuthException $e ) {
+            e('Unable to fetch email address. OAuthException: ' . $e->getMessage());
+            $aDebug = $this->oAuth->getLastResponseInfo();
+            d('debug: ' . print_r($aDebug, 1));
         }
     }
 

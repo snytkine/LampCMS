@@ -225,7 +225,7 @@ class Logintwitter extends WebPage
             // State 0 - Generate request token and redirect user to Twitter to authorize
             $_SESSION['oauth'] = $this->oAuth->getRequestToken(self::REQUEST_TOKEN_URL, $callbackUrl);
             $aDebug            = $this->oAuth->getLastResponseInfo();
-            d('debug: ' . print_r($aDebug, 1));
+            d('debug: ' . \print_r($aDebug, 1));
 
             d('$_SESSION[\'oauth\']: ' . print_r($_SESSION['oauth'], 1));
             if (!empty($_SESSION['oauth']) && !empty($_SESSION['oauth']['oauth_token'])) {
