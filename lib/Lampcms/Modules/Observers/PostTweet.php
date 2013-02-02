@@ -141,6 +141,8 @@ class PostTweet extends \Lampcms\Event\Observer
         switch ($this->eventName) {
             case 'onNewQuestion':
             case 'onNewAnswer':
+            case 'onApprovedQuestion';
+            case 'onApprovedAnswer':
                 $this->tweet();
                 break;
         }

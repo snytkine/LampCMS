@@ -63,13 +63,15 @@ use Lampcms\Interfaces\TwitterUser;
 class Twitter extends LampcmsObject
 {
 
-    const URL_VERIFY_CREDENTIALS = 'http://api.twitter.com/1/account/verify_credentials.json';
+    const URL_VERIFY_CREDENTIALS = 'https://api.twitter.com/1.1/account/verify_credentials.json';
 
-    const URL_STATUS = 'http://api.twitter.com/1/statuses/update.json';
+    const URL_STATUS = 'https://api.twitter.com/1.1/statuses/update.json';
 
-    const URL_FAVORITE = 'http://api.twitter.com/1/favorites/%s/%s.json';
+    const URL_FAVORITE = 'https://api.twitter.com/1.1/favorites/create.json';
 
-    const URL_FOLLOW = 'http://api.twitter.com/1/friendships/create/%s.json';
+    const URL_FAVORITE_DESTROY = 'https://api.twitter.com/1.1/favorites/destroy.json';
+
+    const URL_FOLLOW = 'https://api.twitter.com/1.1/friendships/create.json';
 
 
     /**
@@ -132,7 +134,8 @@ class Twitter extends LampcmsObject
 
         try {
             d('cp');
-            $this->oAuth = new \OAuth($this->aTwitterConfig['TWITTER_OAUTH_KEY'], $this->aTwitterConfig['TWITTER_OAUTH_SECRET'], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
+            $this->oAuth = new \OAuth($this->aTwitterConfig['TWITTER_OAUTH_KEY'], $this->aTwitterConfig['TWITTER_OAUTH_SECRET']); // , OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI
+            $this->oAuth->disableSSLChecks(); // this is required when running on localhost or with older curl version
             $this->oAuth->enableDebug(); // This will generate debug output in your error_log
             d('cp');
         } catch ( \OAuthException $e ) {
@@ -146,7 +149,7 @@ class Twitter extends LampcmsObject
     /**
      * Setter for $this->User
      *
-     * @param \Lampcms\Interfaces\TwitterUser|\Lampcms\TwitterUser $User
+     * @param \Lampcms\TwitterUser $User
      *
      * @return object $this
      */
@@ -238,12 +241,16 @@ class Twitter extends LampcmsObject
 
         try {
             $this->oAuth->setToken($sToken, $sSecret);
-            $this->oAuth->fetch(self::URL_VERIFY_CREDENTIALS);
+            $this->oAuth->fetch(self::URL_VERIFY_CREDENTIALS, null, OAUTH_HTTP_METHOD_GET, array('Connection'=> 'close'));
 
             return $this->getResponse($User);
 
         } catch ( \OAuthException $e ) {
-            e('LampcmsError OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
+            e('LampcmsError OAuthException: ' . $e->getMessage());
+            $aDebug = $this->oAuth->getLastResponseInfo();
+            d('debug: ' . print_r($aDebug, 1));
+            $lastResponseHeaders = $this->oAuth->getLastResponseHeaders();
+            d('$lastResponseHeaders: ' . $lastResponseHeaders);
             /**
              * Should NOT throw LampcmsTwitterAuthException because
              * we are not sure it was actually due to authorization
@@ -274,7 +281,7 @@ class Twitter extends LampcmsObject
      *
      * @internal param object $User
      *
-     * @username ,
+     * @username
      *           where username is the author of the referenced tweet, within the update.
      *
      * @return array of data returned by Twitter
@@ -368,9 +375,9 @@ class Twitter extends LampcmsObject
     {
 
         d('$statusId: ' . $statusId);
-        $action    = ($isDelete) ? 'destroy' : 'create';
+        $action    = ($isDelete) ? self::URL_FAVORITE : self::URL_FAVORITE_DESTROY;
         $args      = array('id' => $statusId);
-        $this->url = sprintf(self::URL_FAVORITE, $action, $statusId);
+        $this->url = $action;
 
         return $this->postApi($args);
     }
@@ -380,26 +387,36 @@ class Twitter extends LampcmsObject
      * Set the authenticated user to follow
      * another user (usually to follow our own account)
      *
-     * @param string $twitterUserId username or twitter user ID
+     * @param string $twitterUserId username or twitter user ID (WITHOUT THE @ sign in front or username!)
      *                              if not set then we will use the one from !config.inc
      *                              TWITTER -> TWITTER_USERNAME
      *
-     * @throws DevException
+     * @param bool   $isUserID      if true indicates that $twitterUserId is actually the id otherwise it is a twitter screen name
+     *
      * @return array
      */
-    public function followUser($twitterUserId = null)
+    public function followUser($twitterUserId = null, $isUserID = false)
     {
         if (empty($twitterUserId)) {
             $twitterUserId = $this->aTwitterConfig['TWITTER_USERNAME'];
         }
 
         if (empty($twitterUserId)) {
-            throw new DevException('No Twitter user to follow');
+            /**
+             * If no user to follow then nothing to do
+             */
+            return;
         }
 
-        $this->url = sprintf(self::URL_FOLLOW, $twitterUserId);
+        $this->url = self::URL_FOLLOW;
+        $postData  = array('follow' => true);
+        if ($isUserID) {
+            $postData['user_id'] = $twitterUserId;
+        } else {
+            $postData['screen_name'] = $twitterUserId;
+        }
 
-        return $this->apiPost();
+        return $this->apiPost($postData);
     }
 
 
@@ -441,7 +458,7 @@ class Twitter extends LampcmsObject
      */
     protected function getResponse()
     {
-        $aData = json_decode($this->oAuth->getLastResponse(), 1);
+        $aData = \json_decode($this->oAuth->getLastResponse(), 1);
 
         $aDebug = $this->oAuth->getLastResponseInfo();
         d('debug: ' . print_r($aDebug, 1));
@@ -509,10 +526,10 @@ class Twitter extends LampcmsObject
              * so that we will be using the POST method
              * when sending data to Twitter API
              */
-            $authType = constant('OAUTH_AUTH_TYPE_FORM');
-            d('$authType: ' . $authType);
+            //$authType = constant('OAUTH_AUTH_TYPE_FORM');
+            //d('$authType: ' . $authType);
 
-            $this->oAuth->setAuthType($authType);
+            //$this->oAuth->setAuthType($authType);
             $this->setOAuthTokens();
             d('fetching: ' . $this->url . ' data: ' . print_r($aData, 1));
             $this->oAuth->fetch($this->url, $aData, OAUTH_HTTP_METHOD_POST);
@@ -533,22 +550,6 @@ class Twitter extends LampcmsObject
         $aResponse = $this->getResponse();
         d('Twitter returned data: ' . print_r($aResponse, 1));
 
-        /**
-         * Now we should update user object since we just got back
-         * the fresh profile data
-         */
-        if (!empty($aResponse) && !empty($aResponse['user'])) {
-            /**
-             * @todo
-             * This does not look right. It may override
-             * the avatar_external from facebook. We should
-             * not really do this unless we store separate external
-             * avatars per service like twitter, facebook, etc.
-             */
-            //$this->User['avatar_external'] = $aResponse['user']['profile_image_url'];
-            //$this->User->saveIfChanged();
-
-        }
 
         return $aResponse;
     }

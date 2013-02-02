@@ -77,6 +77,8 @@ class Logintwitter extends WebPage
 
     const AUTHORIZE_URL = 'https://api.twitter.com/oauth/authorize';
 
+    const VERIFY_CREDENTIALS_URL = 'https://api.twitter.com/1.1/account/verify_credentials.json';
+
 
     /**
      * Array of data returned from Twitter
@@ -161,9 +163,9 @@ class Logintwitter extends WebPage
          * with existing account.
          *
          * @todo check that user does not already have
-         * Twitter credentials and if yes then call
-         * closeWindows as it would indicate that user
-         * is already connected with Twitter
+         *       Twitter credentials and if yes then call
+         *       closeWindows as it would indicate that user
+         *       is already connected with Twitter
          */
         if ($this->isLoggedIn()) {
             $this->bConnect = true;
@@ -174,9 +176,10 @@ class Logintwitter extends WebPage
         $this->aTW = $this->Registry->Ini['TWITTER'];
 
         try {
-            $this->oAuth = new \OAuth($this->aTW['TWITTER_OAUTH_KEY'], $this->aTW['TWITTER_OAUTH_SECRET'], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
+            $this->oAuth = new \OAuth($this->aTW['TWITTER_OAUTH_KEY'], $this->aTW['TWITTER_OAUTH_SECRET']); // , OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_AUTHORIZATION
+            $this->oAuth->disableSSLChecks();
             $this->oAuth->enableDebug(); // This will generate debug output in your error_log
-        } catch (\OAuthException $e) {
+        } catch ( \OAuthException $e ) {
             e('OAuthException: ' . $e->getMessage());
 
             throw new \Lampcms\Exception('@@Something went wrong during authorization. Please try again later@@' . $e->getMessage());
@@ -208,18 +211,27 @@ class Logintwitter extends WebPage
     {
 
         try {
+            $uri            = $this->Registry->Ini->SITE_URL . '{_WEB_ROOT_}/{_logintwitter_}';
+            $routerCallback = $this->Registry->Router->getCallback();
+            $callbackUrl    = $routerCallback($uri);
+            /**
+             * urlencode() is not longer necessary since now callback url is passed in header
+             * but if you are having problems with this method try to uncomment urlencode() line below
+             * This behaviour may depend on version of php oauth extension
+             */
+            //$callbackUrl = \urlencode($callbackUrl);
+            d('$callbackUrl' . $callbackUrl);
+
             // State 0 - Generate request token and redirect user to Twitter to authorize
-            $_SESSION['oauth'] = $this->oAuth->getRequestToken(self::REQUEST_TOKEN_URL);
+            $_SESSION['oauth'] = $this->oAuth->getRequestToken(self::REQUEST_TOKEN_URL, $callbackUrl);
+            $aDebug            = $this->oAuth->getLastResponseInfo();
+            d('debug: ' . print_r($aDebug, 1));
 
             d('$_SESSION[\'oauth\']: ' . print_r($_SESSION['oauth'], 1));
             if (!empty($_SESSION['oauth']) && !empty($_SESSION['oauth']['oauth_token'])) {
-
-                $uri = $this->Registry->Ini->SITE_URL.'{_WEB_ROOT_}/{_logintwitter_}';
-                $routerCallback = $this->Registry->Router->getCallback();
-                $callbackUrl = \urlencode($routerCallback($uri));
-                d('$callbackUrl'. $callbackUrl);
-
-                Responder::redirectToPage(self::AUTHORIZE_URL . '?oauth_token=' . $_SESSION['oauth']['oauth_token'].'&oauth_callback='.$callbackUrl);
+                $authorizeUrl = self::AUTHORIZE_URL . '?oauth_token=' . $_SESSION['oauth']['oauth_token'];
+                d('redirecting to url: ' . $authorizeUrl);
+                Responder::redirectToPage($authorizeUrl);
             } else {
                 /**
                  * Here throw regular Exception, not Lampcms\Exception
@@ -229,8 +241,10 @@ class Logintwitter extends WebPage
 
                 throw new \Exception("@@Failed fetching request token, response was@@: " . $this->oAuth->getLastResponse());
             }
-        } catch (\OAuthException $e) {
-            e('OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
+        } catch ( \OAuthException $e ) {
+            e('OAuthException: ' . $e->getMessage());
+            $aDebug = $this->oAuth->getLastResponseInfo();
+            d('debug: ' . print_r($aDebug, 1));
 
             throw new \Exception('@@Something went wrong during authorization. Please try again later@@' . $e->getMessage());
         }
@@ -243,6 +257,7 @@ class Logintwitter extends WebPage
      * Step 2 in oAuth process
      * this is when Twitter redirected the user back
      * to our callback url, which calls this controller
+     *
      * @return object $this
      *
      * @throws Exception in case something goes wrong with oAuth class
@@ -250,6 +265,7 @@ class Logintwitter extends WebPage
     protected function finishOauthDance()
     {
 
+        d('Looks like we are at step 2 of authentication. Request: ' . print_r($_REQUEST, 1));
         try {
             /**
              * This is a callback (redirected back from twitter page
@@ -260,15 +276,22 @@ class Logintwitter extends WebPage
              * send cookie to remember user
              * and then send out HTML with js instruction to close the popup window
              */
-            d('Looks like we are at step 2 of authentication. Request: ' . print_r($_REQUEST, 1));
+            /**
+             * Get 'oauth_verifier' request param which was sent from LinkedIn
+             */
+            $ver = $this->Registry->Request->get('oauth_verifier', 's', '');
+            d('$ver: ' . $ver);
+            if (empty($ver)) {
+                $ver = null;
+            }
 
             // State 1 - Handle callback from Twitter and get and store an access token
             /**
              * @todo check first to make sure we do have oauth_token
-             * on REQUEST, else close the window
+             *       on REQUEST, else close the window
              */
             $this->oAuth->setToken($this->Request['oauth_token'], $_SESSION['oauth']['oauth_token_secret']);
-            $aAccessToken = $this->oAuth->getAccessToken(self::ACCESS_TOKEN_URL);
+            $aAccessToken = $this->oAuth->getAccessToken(self::ACCESS_TOKEN_URL, null, $ver);
             d('$aAccessToken: ' . \json_encode($aAccessToken));
 
             unset($_SESSION['oauth']);
@@ -291,7 +314,11 @@ class Logintwitter extends WebPage
              *
              */
             $this->oAuth->setToken($aAccessToken['oauth_token'], $aAccessToken['oauth_token_secret']);
-            $this->oAuth->fetch('http://api.twitter.com/1/account/verify_credentials.json');
+            $this->oAuth->fetch(self::VERIFY_CREDENTIALS_URL, null, OAUTH_HTTP_METHOD_GET, array('Connection'=> 'close'));
+            $aDebug = $this->oAuth->getLastResponseInfo();
+            d('debug: ' . \print_r($aDebug, 1));
+            $lastResponseHeaders = $this->oAuth->getLastResponseHeaders();
+            d('$lastResponseHeaders: ' . $lastResponseHeaders);
 
             if (false === $this->aUserData = \json_decode($this->oAuth->getLastResponse(), true)) {
                 e('Unable to json_decode data returned by Twitter API: ' . $this->oAuth->getLastResponse());
@@ -303,10 +330,8 @@ class Logintwitter extends WebPage
                 unset($this->aUserData['status']);
             }
 
-            d('json: ' . var_export($this->aUserData, true));
+            d('json: ' . \print_r($this->aUserData, true));
 
-            $aDebug = $this->oAuth->getLastResponseInfo();
-            d('debug: ' . print_r($aDebug, 1));
 
             $this->aUserData = \array_merge($this->aUserData, $aAccessToken);
             d('$this->aUserData ' . \print_r($this->aUserData, 1));
@@ -328,19 +353,22 @@ class Logintwitter extends WebPage
                 $this->Registry->Viewer['b_tw'] = true;
             }
 
-            $this->closeWindow();
+            //$this->closeWindow();
 
-        } catch (\OAuthException $e) {
-            e('OAuthException: ' . $e->getMessage() . ' ' . print_r($e, 1));
+        } catch ( \OAuthException $e ) {
+            e('OAuthException: ' . $e->getMessage());
+            $aDebug = $this->oAuth->getLastResponseInfo();
+            d('debug: ' . print_r($aDebug, 1));
+            $lastResponseHeaders = $this->oAuth->getLastResponseHeaders();
+            d('$lastResponseHeaders: ' . $lastResponseHeaders);
 
-            /*
-                /**
-                * Cannot throw exception because then it would be
-                * displayed as regular page, with login block
-                * but the currently opened window is a popup window
-                * for showing twitter oauth page and we don't need
-                * a login form or any other elements of regular page there
-                */
+            /**
+             * Cannot throw exception because then it would be
+             * displayed as regular page, with login block
+             * but the currently opened window is a popup window
+             * for showing twitter oauth page and we don't need
+             * a login form or any other elements of regular page there
+             */
             $err = '@@Something went wrong during authorization. Please try again later@@' . $e->getMessage();
             exit(\Lampcms\Responder::makeErrorPage($err));
         }
@@ -393,7 +421,7 @@ class Logintwitter extends WebPage
 
         try {
             $this->processLogin($this->User);
-        } catch (\Lampcms\LoginException $e) {
+        } catch ( \Lampcms\LoginException $e ) {
             /**
              * re-throw as regular exception
              * so that it can be caught and shown in popup window
@@ -434,7 +462,7 @@ class Logintwitter extends WebPage
                 $name .= ' ' . $aUser['fn'];
             }
             $trimmed = \trim($name);
-            $name = (!empty($trimmed)) ? \trim($name) : $aUser['username'];
+            $name    = (!empty($trimmed)) ? \trim($name) : $aUser['username'];
 
             /**
              * This error message will appear inside the
@@ -463,35 +491,36 @@ class Logintwitter extends WebPage
 
     protected function createNewUser()
     {
+        d('cp');
         $aUser = array();
-        if(!empty($this->aUserData['utc_offset'])){
+        if (!empty($this->aUserData['utc_offset'])) {
             $timezone = \Lampcms\TimeZone::getTZbyoffset($this->aUserData['utc_offset']);
-        } elseif(false !== $tzn = Cookie::get('tzn')){
+        } elseif (false !== $tzn = Cookie::get('tzn')) {
             $timezone = $tzn;
         } else {
             $timezone = $this->Registry->Ini->SERVER_TIMEZONE;
         }
 
         $username = $this->makeUsername();
-        $sid = Cookie::getSidCookie();
+        $sid      = Cookie::getSidCookie();
         d('sid is: ' . $sid);
 
-        $aUser['username'] = $username;
-        $aUser['username_lc'] = \mb_strtolower($username, 'utf-8');
-        $aUser['fn'] = $this->aUserData['name'];
+        $aUser['username']        = $username;
+        $aUser['username_lc']     = \mb_strtolower($username, 'utf-8');
+        $aUser['fn']              = $this->aUserData['name'];
         $aUser['avatar_external'] = $this->aUserData['profile_image_url'];
 
-        $aUser['lang'] = $this->aUserData['lang'];
-        $aUser['i_reg_ts'] = time();
-        $aUser['date_reg'] = date('r');
-        $aUser['role'] = 'external_auth';
-        $aUser['tz'] = $timezone;
-        $aUser['rs'] = (false !== $sid) ? $sid : \Lampcms\String::makeSid();
-        $aUser['twtr_username'] = $this->aUserData['screen_name'];
-        $aUser['oauth_token'] = $this->aUserData['oauth_token'];
+        $aUser['lang']               = $this->aUserData['lang'];
+        $aUser['i_reg_ts']           = time();
+        $aUser['date_reg']           = date('r');
+        $aUser['role']               = 'external_auth';
+        $aUser['tz']                 = $timezone;
+        $aUser['rs']                 = (false !== $sid) ? $sid : \Lampcms\String::makeSid();
+        $aUser['twtr_username']      = $this->aUserData['screen_name'];
+        $aUser['oauth_token']        = $this->aUserData['oauth_token'];
         $aUser['oauth_token_secret'] = $this->aUserData['oauth_token_secret'];
-        $aUser['twitter_uid'] = $this->aUserData['_id'];
-        $aUser['i_rep'] = 1;
+        $aUser['twitter_uid']        = $this->aUserData['_id'];
+        $aUser['i_rep']              = 1;
 
         $aUser = \array_merge($this->Registry->Geo->Location->data, $aUser);
 
@@ -537,9 +566,9 @@ class Logintwitter extends WebPage
     protected function updateUser($bUpdateAvatar = true)
     {
         d('adding Twitter credentials to User object');
-        $this->User['oauth_token'] = $this->aUserData['oauth_token'];
+        $this->User['oauth_token']        = $this->aUserData['oauth_token'];
         $this->User['oauth_token_secret'] = $this->aUserData['oauth_token_secret'];
-        $this->User['twitter_uid'] = $this->aUserData['_id'];
+        $this->User['twitter_uid']        = $this->aUserData['_id'];
         if (!empty($this->aUserData['screen_name'])) {
             $this->User['twtr_username'] = $this->aUserData['screen_name'];
         }
@@ -581,29 +610,42 @@ class Logintwitter extends WebPage
     protected function postTweetStatus()
     {
         $sToFollow = $this->aTW['TWITTER_USERNAME'];
-        $follow = (!empty($sToFollow)) ? ' #follow @' . $sToFollow : '';
-        $siteName = $this->Registry->Ini->SITE_TITLE;
+        d('$sToFollow: ' . $sToFollow);
+        if (empty($sToFollow)) {
+            return $this;
+        }
+
+        $follow             = (!empty($sToFollow)) ? ' #follow @' . $sToFollow : '';
+        $siteName           = $this->Registry->Ini->SITE_TITLE;
         $ourTwitterUsername = $this->Registry->Ini->SITE_URL . $follow;
 
         $oTwitter = new Twitter($this->Registry);
 
         if (!empty($ourTwitterUsername)) {
-            register_shutdown_function(function() use ($oTwitter, $siteName, $ourTwitterUsername)
+            register_shutdown_function(function() use ($oTwitter, $siteName, $ourTwitterUsername, $sToFollow)
             {
                 try {
-                    $oTwitter->followUser();
-
-                } catch (\Lampcms\TwitterException $e) {
+                    $oTwitter->followUser($sToFollow);
+                } catch ( \Exception $e ) {
                     $message = 'Error in: ' . $e->getFile() . ' line: ' . $e->getLine() . ' message: ' . $e->getMessage();
-                    //d($message);
+                    if (function_exists('d')) {
+                        d($message);
+                    }
                 }
 
+                /**
+                 * Auto-posting tweet on user signup is a bad idea
+                 * and may anger some users.
+                 * Don't do this unless you really need this feature!
+                 */
                 /*try{
                      $oTwitter->postMessage('I Joined '.$siteName. ' '.$stuff);
 
-                     } catch (\Lampcms\TwitterException $e){
+                     } catch (\Exception $e){
                      $message = 'Exception in: '.$e->getFile(). ' line: '.$e->getLine().' message: '.$e->getMessage();
-
+                        if (function_exists('d')) {
+                            d($message);
+                        }
                      }*/
             });
         }
@@ -705,7 +747,9 @@ class Logintwitter extends WebPage
      * otherwise returns twitter username
      *
      * The result is that we will use the value of
-     * Twitter username as our username OR the @username
+     * Twitter username as our username OR the
+     *
+     * @username
      * if username is already taken
      *
      * @return string the value of username that will

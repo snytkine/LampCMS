@@ -125,7 +125,6 @@ class Answerparser extends LampcmsObject
      */
     public function getSubmittedAnswer()
     {
-
         return $this->SubmittedAnswer;
     }
 
@@ -138,7 +137,6 @@ class Answerparser extends LampcmsObject
      */
     public function getAnswer()
     {
-
         return $this->Answer;
     }
 
@@ -159,7 +157,6 @@ class Answerparser extends LampcmsObject
      */
     public function parse(SubmittedAnswer $o, Question $q = null)
     {
-
         $this->SubmittedAnswer = $o;
         $this->Question        = (null !== $q) ? $q : $this->getQuestion();
         $this->makeAnswer();

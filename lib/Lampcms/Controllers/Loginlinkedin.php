@@ -176,10 +176,12 @@ class Loginlinkedin extends WebPage
 
         try {
             $this->oAuth = new \OAuth($this->aTm['OAUTH_KEY'], $this->aTm['OAUTH_SECRET'], OAUTH_SIG_METHOD_HMACSHA1, OAUTH_AUTH_TYPE_URI);
+            $this->oAuth->disableSSLChecks();
             $this->oAuth->enableDebug();
         } catch ( \OAuthException $e ) {
             e('OAuthException: ' . $e->getMessage());
-
+            $aDebug = $this->oAuth->getLastResponseInfo();
+            d('debug: ' . print_r($aDebug, 1));
             throw new \Exception('@@Something went wrong during authorization. Please try again later@@' . $e->getMessage());
         }
 
@@ -231,6 +233,8 @@ class Loginlinkedin extends WebPage
             }
         } catch ( \OAuthException $e ) {
             e('OAuthException: ' . $e->getMessage());
+            $aDebug = $this->oAuth->getLastResponseInfo();
+            d('debug: ' . print_r($aDebug, 1));
 
             throw new \Exception('Something went wrong during authorization. Please try again later' . $e->getMessage());
         }
@@ -293,6 +297,8 @@ class Loginlinkedin extends WebPage
 
             d('getting profile from PROFILE_URL');
             $this->oAuth->fetch(self::PROFILE_URL);
+            $aDebug = $this->oAuth->getLastResponseInfo();
+            d('debug: ' . print_r($aDebug, 1));
             $resp = $this->oAuth->getLastResponse();
             $this->parseXML($resp);
             $this->getEmailAddress();
@@ -315,7 +321,8 @@ class Loginlinkedin extends WebPage
 
         } catch ( \OAuthException $e ) {
             e('OAuthException: ' . $e->getMessage());
-
+            $aDebug = $this->oAuth->getLastResponseInfo();
+            d('debug: ' . print_r($aDebug, 1));
             $err = '@@Something went wrong during authorization. Please try again later@@ ' . $e->getMessage();
             throw new \Exception($err);
         }
