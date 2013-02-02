@@ -353,7 +353,7 @@ class Logintwitter extends WebPage
                 $this->Registry->Viewer['b_tw'] = true;
             }
 
-            //$this->closeWindow();
+            $this->closeWindow();
 
         } catch ( \OAuthException $e ) {
             e('OAuthException: ' . $e->getMessage());
