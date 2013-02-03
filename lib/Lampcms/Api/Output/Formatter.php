@@ -53,6 +53,7 @@
 namespace Lampcms\Api\Output;
 
 use Lampcms\Api\Exception as APIException;
+use Lampcms\DevException;
 
 
 abstract class Formatter
@@ -141,7 +142,6 @@ abstract class Formatter
         if ($data instanceof \MongoCursor) {
             $data = \iterator_to_array($data);
         }
-
 
         $this->aData = $data;
     }

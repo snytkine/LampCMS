@@ -297,6 +297,7 @@ abstract class Api extends \Lampcms\Base
      * specific APP ID, in which case that value (from OAuth2 token)
      * will override this value
      *
+     * @throws \Lampcms\HttpResponseCodeException
      * @return object this
      */
     protected function setClientAppId()
@@ -316,7 +317,7 @@ abstract class Api extends \Lampcms\Base
              */
             $this->Registry->clientAppId = $this->Request->get('apikey', 's', null);
             /**
-             * Check here if the API idenditied by this API key
+             * Check here if the API idendified by this API key
              * isValid or has been suspended of deleted
              */
             if (!empty($this->Registry->clientAppId)) {
@@ -539,7 +540,6 @@ abstract class Api extends \Lampcms\Base
     {
         d('this->rateLimit: ' . $this->rateLimit . ' $this->accessCounter: ' . $this->accessCounter);
 
-
         $this->Registry->Response->addHeader('X-RateLimit-Limit', $this->rateLimit);
         $this->Registry->Response->addHeader('X-RateLimit-Remaining', ($this->rateLimit - $this->accessCounter));
         /**
@@ -565,11 +565,14 @@ abstract class Api extends \Lampcms\Base
 
 
     /**
-     * Exeptions are returned to client in the form
+     * Exceptions are returned to client in the form
      * of a message in the 'error' element
      * Appropriate http response code is used
      *
      * @param \Exception $e
+     *
+     * @throws \Exception
+     * @return void
      */
     protected function handleException(\Exception $e)
     {
@@ -605,6 +608,7 @@ abstract class Api extends \Lampcms\Base
      * Check Request object for required params
      * as well as for required form token
      *
+     * @throws \Lampcms\HttpResponseCodeException
      * @return object $this
      */
     protected function initParams()

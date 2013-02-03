@@ -183,8 +183,6 @@ class Questions extends Api
 
     protected function main()
     {
-
-
         $this->setQuestionType()
             ->setTags()
             ->setTagsCondition()
@@ -282,7 +280,6 @@ class Questions extends Api
      */
     protected function setOutput()
     {
-
         $data = array('total' => $this->count,
             'page' => $this->pageID,
             'perpage' => $this->limit,

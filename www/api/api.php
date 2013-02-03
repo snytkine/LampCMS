@@ -50,10 +50,9 @@
  */
 
 
-include '../../!inc.php';
-
-require($lampcmsClasses . 'Base.php');
-require($lampcmsClasses . 'Api' . DIRECTORY_SEPARATOR . 'Api.php');
+include '../bootstrap.php';
+define('API_LIB_DIR', LAMPCMS_LIB_DIR.DIRECTORY_SEPARATOR.'Lampcms'.DIRECTORY_SEPARATOR.'Api'.DIRECTORY_SEPARATOR);
+require(API_LIB_DIR . 'Api.php');
 
 try {
 
@@ -64,7 +63,7 @@ try {
     d('a: ' . $a . ' $Request: ' . print_r($Request->getArray(), 1));
     $controller = ucfirst($a);
 
-    include($lampcmsClasses . 'Api' . DIRECTORY_SEPARATOR . 'v' . $v . DIRECTORY_SEPARATOR . $controller . '.php');
+    include(API_LIB_DIR . 'v' . $v . DIRECTORY_SEPARATOR . $controller . '.php');
     $class = '\Lampcms\\Api\\v' . $v . '\\' . $controller;
     d('class: ' . $class);
 

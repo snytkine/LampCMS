@@ -72,8 +72,11 @@ class Xml extends Formatter
     {
         $Doc = new Document();
         $Doc->loadXML('<root/>');
-
-        $Doc->documentElement->addArray($this->aData);
+        try {
+            $Doc->documentElement->addArray($this->aData);
+        } catch ( \Exception $e ) {
+            e('XML formatting exception: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on ' . $e->getLine());
+        }
 
         return $Doc->saveXML();
     }
