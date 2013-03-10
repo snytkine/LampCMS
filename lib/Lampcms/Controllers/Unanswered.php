@@ -170,7 +170,7 @@ class Unanswered extends Viewquestions
 
             case $urlParts['COND_TAGGED']:
                 $where = array(Schema::SELECTED_ANSWER_ID => null,
-                               Schema::TAGS_ARRAY         => array('$all' => $this->getTags()));
+                               Schema::TAGS_ARRAY         => array('$all' => $this->getTags($urlParts['COND_TAGGED'])));
                 $this->pagerPath .= '/{_COND_TAGGED_}' . $this->rawTags;
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQuntypes', 'newest');
                 $this->makeFollowTagButton();
@@ -227,14 +227,24 @@ class Unanswered extends Viewquestions
      * runs value of Request through urldecode because
      * unicode tags would be percent-encoded in the url
      *
+     * @param string $unasweredSortSection flag indicated that request is for
+     * unanswered tagged items not just tagged items.
+     * If a string is passed it's a value of the COND_TAGGED in the URI_PARTS section in !config.ini
+     * This would mean that
+     * structure of the uri is in the form of {_UNANSWERED_}/{_COND_TAGGED_}/all+tags+here
+     *
      * @return array of tags passed in query string
      */
-    protected function getTags()
+    protected function getTags($unasweredSortSection = null)
     {
 
         if (empty($this->aTags)) {
 
             $cname = $this->Router->getCalledControllerName();
+            if($unasweredSortSection){
+               $cname .= '/'. $unasweredSortSection;
+            }
+            $cname = \preg_quote($cname, '/');
 
             /**
              * And now a workaround
@@ -294,7 +304,6 @@ class Unanswered extends Viewquestions
              */
             $this->tags = \str_replace(array('<', '>'), array('&lt;', '&gt;'), $this->tags);
 
-            // $this->rawTags = $tags; //TagsTokenizer::factory($Utf8Tags)->getArrayCopy();
             $this->title = $this->tags;
 
             if (empty($this->tags)) {
