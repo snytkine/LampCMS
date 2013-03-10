@@ -135,9 +135,16 @@ abstract class Api extends \Lampcms\Base
      */
     protected $aRequired = array();
 
-
+    /**
+     * Is set to true in sub-class
+     * then if request type is not POST
+     * an exception will be thrown
+     * and will result in returning
+     * HTTP error with code 405
+     *
+     * @var bool
+     */
     protected $bRequirePost = false;
-
 
     /**
      * Request object
@@ -204,11 +211,11 @@ abstract class Api extends \Lampcms\Base
      * Access id is a string that consists of
      * YearMonthDate_appID_userID
      * For example: 20111011_2342235_23423
-     * This string uniquele identifies each
+     * This string uniquely identifies each
      * user accessing the API on a specific day
      *
      * Enter description here ...
-     * @var unknown_type
+     * @var string
      */
     protected $accessId;
 
@@ -352,7 +359,6 @@ abstract class Api extends \Lampcms\Base
     protected function initClientUser()
     {
 
-
         /**
          * @todo when OAuth2 is supported then route to
          * initOAuth2User if OAuth2 token is present in request
@@ -417,7 +423,7 @@ abstract class Api extends \Lampcms\Base
 
     /**
      * Make accessId - a unique
-     * idendifier for the current request
+     * identifier for the current request
      * based on date + appID (or ip address) and
      * Viewer ID
      *
@@ -443,7 +449,7 @@ abstract class Api extends \Lampcms\Base
      * Limit is based on type of authentication:
      * Anonymous user gets lowest limit
      * Registered APP gets higher limit
-     * Authenticated user (via OAuth2) gets hights limit
+     * Authenticated user (via OAuth2) gets hits limit
      *
      * @throws \Lampcms\HttpResponseCodeException with http code 400
      * if daily rate access limit has been exceeded

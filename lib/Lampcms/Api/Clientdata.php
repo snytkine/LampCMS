@@ -68,7 +68,6 @@ class Clientdata extends \Lampcms\Mongo\Doc
 
     public function __construct(\Lampcms\Registry $Registry)
     {
-
         parent::__construct($Registry, 'API_CLIENTS');
     }
 
@@ -118,7 +117,7 @@ class Clientdata extends \Lampcms\Mongo\Doc
     /**
      * Return array of key->value
      * only return certain keys that should
-     * be displayed on the Cliend info page
+     * be displayed on the Client info page
      * This includes api_key, name
      * In case of OAuth2 sub-class show
      * app token as well as urls for end-points
