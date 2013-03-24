@@ -1164,6 +1164,7 @@ YUI({
                     var tags, html = editor.saveHTML();
                     saveTitle();
                     saveTags();
+                    rememberCategory();
                     Y.StorageLite.setItem(getStorageKey(), html);
                     write('Draft saved..');
                 });
@@ -2556,6 +2557,7 @@ YUI({
                         Y.StorageLite.removeItem(getStorageKey());
                         removeTitle();
                         removeTags();
+                        removeCategId();
                         if (data.redirect) {
                             getAlerter('<h3>' + $_("Success") + '</h3>')
                                 .set("bodyContent", $_("Item saved. Redirecting to") + ' <br><a href="' + data.redirect + '">' + data.redirect + '</a>')
@@ -2598,6 +2600,18 @@ YUI({
                     Y.StorageLite.setItem('title', title.get('value'));
                 }
             }, //
+            rememberCategory = function(e){
+                var id, menu = Y.one("#categories_menu");
+                if(menu){
+                    id = menu.get('value');
+                }
+                if(id){
+                    Y.StorageLite.setItem('categ_id', id);
+                }
+            },
+            removeCategId = function(){
+                Y.StorageLite.removeItem('categ_id');
+            },
             /**
              * Save value of "tags" from "tags" input to
              * Storage
@@ -2630,7 +2644,7 @@ YUI({
                 removeTags = function () {
                 var tags = Y.one("#id_tags");
                 if (tags) {
-                    Y.StorageLite.removeItem('nuts');
+                    Y.StorageLite.removeItem('tags');
                 }
             }, //
             /**
@@ -3200,18 +3214,26 @@ YUI({
                 }
 
                 Y.StorageLite.on('storage-lite:ready', function () {
-                    var title, tags, editorValue, body = Y.one('#id_qbody');
+                    var title, tags, categ_id, categOption, editorValue, body = Y.one('#id_qbody');
                     editorValue = Y.StorageLite.getItem(getStorageKey());
                     if (body && !Y.one('#iedit') && null !== editorValue && '' !== editorValue) {
                         body.set('value', editorValue);
                         if (Y.one("#id_title")) {
                             title = Y.StorageLite.getItem('title');
                             tags = Y.StorageLite.getItem('tags');
+                            categ_id = Y.StorageLite.getItem('categ_id');
                             if (title) {
                                 Y.one("#id_title").set('value', title);
                             }
-                            if (title) {
+                            if (tags) {
+                                console.log('setting tags: ' + tags);
                                 Y.one("#id_tags").set('value', tags);
+                            }
+                            if(categ_id){
+                                categOption = Y.one('#categories_menu > option[value="' + categ_id + '"]');
+                                if(categOption){
+                                    categOption.set('selected', 'selected');
+                                }
                             }
                         }
                         write($_("Loaded content draft from Local Storage"));
@@ -4279,8 +4301,8 @@ YUI({
             //return;
             window.location.assign(url);
 
-
         }
+
 
         /*if(Y.one('#id_locale')){
          var oMenuButtonLang = new YAHOO.widget.Button({ 
@@ -4301,12 +4323,14 @@ YUI({
 
         Y.on('submit', MysubmitForm, '.qa_form');
         Y.on('change', changeLang, '#id_locale');
-        //Y.on('submit', Editcat, '#id_edit_category');
+
         if (Y.hasOwnProperty('categoryEditor')) {
             Y.categoryEditor.Editor();
         } else {
             console.log('no cat editor here');
         }
+
+        //Y.on('change', rememberCategory, "#categories_menu");
 
         /**
          * Listening the clicks on links inside #lastdiv
