@@ -193,16 +193,6 @@ COOKIE_DOMAIN = ".oursite.com"
 ;
 TEMP_DIR = 
 ;
-;Some configuration constants
-;Leave blank if you host images, css and js
-;on the same server as this program,
-;otherwise defile the full path to domain + dir
-;where the files reside, without the '/' at the end
-;
-IMAGE_SITE = ""
-CSS_SITE = ""
-JS_SITE = ""
-AVATAR_IMG_SITE = ""
 ;size of square avatar in pixels
 AVATAR_SQUARE_SIZE= 40
 ;maximum allowed file size of
@@ -422,6 +412,13 @@ FILE = /index.php
 ;Important: if you hosting image, avatars, js, css of separate server
 ;then make sure the directory structure on those servers is the same
 ;as on Lampcms.
+;
+; IMPORTANT: If using virtual hosting
+; and hosting multiple domains
+; then point each of these settings
+; to your virtual domain. For example:
+; IMAGE_SITE = "http://mysite.lampcms.com" (same as the SITE_URL value above) and do
+; the same for CSS_SITE, JS_SITE, AVATAR_IMG_SITE
 ;
 IMAGE_SITE =
 CSS_SITE =

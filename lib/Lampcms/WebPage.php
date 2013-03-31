@@ -478,7 +478,7 @@ abstract class WebPage extends Base
          *
          */
         $css                         = (true === LAMPCMS_DEBUG || \strstr(VERSION_ID, 'package_version')) ? '/_main.css?t=' . time() : '/main.css';
-        $this->aPageVars['main_css'] = $Ini->CSS_SITE . '{_DIR_}/style/' . STYLE_ID . '/' . VTEMPLATES_DIR . $css;
+        $this->aPageVars['main_css'] = '{_CSS_SITE_}{_DIR_}/style/' . STYLE_ID . '/' . VTEMPLATES_DIR . $css;
 
         $aFacebookConf = $Ini->getSection('FACEBOOK');
 
@@ -508,7 +508,7 @@ abstract class WebPage extends Base
 
         $js = (true === LAMPCMS_DEBUG || \strstr(VERSION_ID, 'package_version')) ? '/qa.js?t=' . time() : '/min/qa_' . VERSION_ID . '.js';
 
-        $src = $Ini->JS_SITE . '{_DIR_}/js' . $js;
+        $src = '{_JS_SITE_}{_DIR_}/js' . $js;
 
         $this->aPageVars['JS'] = $src;
 
