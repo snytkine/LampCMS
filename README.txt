@@ -53,7 +53,7 @@ The design of MongoDB
 makes it very easy to "just add another server" 
 with almost no downtime.
 
-More info here: http://www.lampcms.com/features/
+More info here: http://www.lampcms.com/features.htm
 
 
 
@@ -67,13 +67,13 @@ MongoDB database
 
 MySQL database (yes, MySQL too, but only for one table)
 
-More on requirements here: More info here: http://www.lampcms.com/requirements/
+More on requirements here: More info here: http://www.lampcms.com/documentation.htm#requirements
 
 
 INSTALLATION
 ==============
 
-Installation instructions are here: http://www.lampcms.com/installation/
+Installation instructions are here: http://www.lampcms.com/documentation.htm#installation
 
 
 LICENSE

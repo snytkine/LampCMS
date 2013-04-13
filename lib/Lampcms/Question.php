@@ -975,6 +975,14 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
         if (!in_array($uid, $aFollowers)) {
             $aFollowers[] = $uid;
             $this->offsetSet(Schema::FOLLOWERS, $aFollowers);
+            /**
+             * Call touch() in order to reset value of etag
+             * the reason for this is that when user clicks 'follow' and refreshes
+             * the page (reload in browser) we need to show a new version and not
+             * the cached version in order to show the updated follow button
+             *
+             */
+            $this->touch(true);
             $this->save();
         }
 
@@ -1006,6 +1014,14 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
             d('cp unsetting key: ' . $key);
             array_splice($aFollowers, $key, 1);
             $this->offsetSet(Schema::FOLLOWERS, $aFollowers);
+            /**
+             * Call touch() in order to reset value of etag
+             * the reason for this is that when user clicks 'follow' and refreshes
+             * the page (reload in browser) we need to show a new version and not
+             * the cached version in order to show the updated follow button
+             *
+             */
+            $this->touch(true);
             $this->save();
         }
 
