@@ -52,6 +52,8 @@
 
 namespace Lampcms;
 
+use Lampcms\Mongo\Schema\Question as Schema;
+
 class FollowManager extends LampcmsObject
 {
     /**
@@ -116,7 +118,7 @@ class FollowManager extends LampcmsObject
     {
         d('cp');
         $coll = $this->Registry->Mongo->QUESTIONS;
-        $coll->ensureIndex(array('a_flwrs' => 1), array('safe' => true));
+        $coll->ensureIndex(array(Schema::FOLLOWERS => 1));
 
         if (!is_int($Question) && (!is_object($Question) || !($Question instanceof Question))) {
             throw new DevException('$Question can only be instance of Question class or an integer representing question id');
@@ -141,8 +143,7 @@ class FollowManager extends LampcmsObject
              * using $addToSet Mongo operator, it
              * ensures that if will NOT add duplicate value
              */
-            $coll->ensureIndex(array('a_flwrs', 1));
-            $coll->update(array('_id' => $qid), array('$addToSet' => array('a_flwrs' => $uid)));
+            $coll->update(array('_id' => $qid), array('$addToSet' => array(Schema::FOLLOWERS => $uid), '$set' => array(Schema::ETAG => time()) ) );
         }
 
         $this->Registry->Dispatcher->post($User, 'onQuestionFollow', array('qid' => $qid));
@@ -170,7 +171,7 @@ class FollowManager extends LampcmsObject
     public function unfollowQuestion(User $User, $Question)
     {
         $coll = $this->Registry->Mongo->QUESTIONS;
-        $coll->ensureIndex(array('a_flwrs' => 1));
+        $coll->ensureIndex(array(Schema::FOLLOWERS => 1));
 
         if (!is_int($Question) && (!is_object($Question) || !($Question instanceof Question))) {
             throw new DevException('$Question can only be instance of Question class or an integer representing question id');
@@ -194,7 +195,7 @@ class FollowManager extends LampcmsObject
              * using $addToSet Mongo operator, it
              * ensures that if will NOT add duplicate value
              */
-            $coll->update(array('_id' => $qid), array('$pull' => array('a_flwrs' => $uid)));
+            $coll->update(array('_id' => $qid), array('$pull' => array(Schema::FOLLOWERS => $uid), '$set' => array(Schema::ETAG => time()) ));
         }
 
         $this->Registry->Dispatcher->post($User, 'onQuestionUnfollow', array('qid' => $qid));
@@ -217,7 +218,7 @@ class FollowManager extends LampcmsObject
     protected function checkQuestionExists($qid)
     {
 
-        $a = $this->Registry->Mongo->QUESTIONS->findOne(array('_id' => (int)$qid), array('_id'));
+        $a = $this->Registry->Mongo->QUESTIONS->findOne(array(Schema::PRIMARY => (int)$qid), array('_id'));
         if (empty($a)) {
             throw new Exception('Question with id ' . $qid . ' not found');
         }
