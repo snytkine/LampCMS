@@ -95,7 +95,7 @@ class Ini extends \Lampcms\LampcmsArray
 
         $this->iniFile = (!empty($iniFile)) ? $iniFile : \rtrim(constant('LAMPCMS_CONFIG_DIR'), ' /\\') . DIRECTORY_SEPARATOR . '!config.ini';
 
-        if(!\file_exists($this->iniFile)){
+        if (!\file_exists($this->iniFile)) {
             throw new IniException('Ini file not found at this location: ' . $this->iniFile);
         }
 
@@ -125,7 +125,7 @@ class Ini extends \Lampcms\LampcmsArray
     public function getVar($name)
     {
         if (!$this->offsetExists('CONSTANTS')) {
-            throw new IniException('"CONSTANTS" section is missing in !config.ini file: '.$this->iniFile. ' config: '.\print_r($this->getArrayCopy(), true));
+            throw new IniException('"CONSTANTS" section is missing in !config.ini file: ' . $this->iniFile . ' config: ' . \print_r($this->getArrayCopy(), true));
         }
 
         $aConstants = $this->offsetGet('CONSTANTS');
@@ -191,16 +191,10 @@ class Ini extends \Lampcms\LampcmsArray
              * sub-domain
              */
             case 'THUMB_IMG_SITE':
-            case 'ALBUM_THUMB_SITE':
             case 'ORIG_IMG_SITE':
-            case 'LAMPCMS_AVATAR_IMG_SITE':
-            case 'IMG_SITE':
-            case 'JS_SITE':
-            case 'CSS_SITE':
                 $ret = (empty($aConstants[$name])) ? $this->__get('SITE_URL') : \rtrim($aConstants[$name], '/');
                 break;
 
-            case 'WWW_DIR':
             case 'EMAIL_ADMIN':
                 if (empty($aConstants[$name])) {
                     throw new IniException($name . ' param in ' . $this->iniFile . ' file has not been set! Please make sure it is set');
@@ -328,6 +322,27 @@ class Ini extends \Lampcms\LampcmsArray
         return $this;
     }
 
+    /**
+     * Get the value of $var from section named $section
+     *
+     * @param string $section name of section that supposed to contain $var
+     * @param string $var     name of variable to get from section
+     *
+     * @return string value of $var from section name $section
+     * @throws \Lampcms\IniException if either section does not exist
+     * or section does not contain variable name $var
+     */
+    public function getSectionVar($section, $var)
+    {
+        $a = $this->getSection($section);
+
+        if (!array_key_exists($var, $a)) {
+            throw new IniException($var . ' does not exist in section: ' . $section);
+        }
+
+        return $a[$var];
+    }
+
 
     /**
      * Creates and returns array of
@@ -341,33 +356,22 @@ class Ini extends \Lampcms\LampcmsArray
      */
     public function getSiteConfigArray()
     {
-        $a = array();
+        $a         = array();
+        $aUriParts = $this->getSection('URI_PARTS');
 
-        if ('' !== $albThum = $this->ALBUM_THUMB_SITE) {
-            $a['ALBUM_THUMB_SITE'] = $albThum;
-        }
-
-        if ('' !== $imgThum = $this->THUMB_IMG_SITE) {
-            $a['THUMB_IMG'] = $imgThum;
-        }
-
-        if ('' !== $imgSite = $this->IMG_SITE) {
+        if ('' !== $imgSite = $aUriParts['IMAGE_SITE']) {
             $a['IMG_SITE'] = $imgSite;
         }
 
-        if ('' !== $origSite = $this->ORIG_IMG_SITE) {
-            $a['ORIG_IMG_SITE'] = $origSite;
-        }
-
-        if ('' !== $avatarSite = $this->LAMPCMS_AVATAR_IMG_SITE) {
+        if ('' !== $avatarSite = $aUriParts['AVATAR_IMG_SITE']) {
             $a['LAMPCMS_AVATAR_IMG_SITE'] = $avatarSite;
         }
 
-        if ('' !== $cssSite = $this->CSS_SITE) {
+        if ('' !== $cssSite = $aUriParts['CSS_SITE']) {
             $a['CSS_SITE'] = $cssSite;
         }
 
-        if ('' !== $jsSite = $this->JS_SITE) {
+        if ('' !== $jsSite = $aUriParts['JS_SITE']) {
             $a['JS_SITE'] = $jsSite;
         }
 

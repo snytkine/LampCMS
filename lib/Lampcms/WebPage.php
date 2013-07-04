@@ -52,8 +52,8 @@
 
 namespace Lampcms;
 
-use \Lampcms\Forms\Form;
-use \Lampcms\Cookie;
+use Lampcms\Cookie;
+use Lampcms\Forms\Form;
 
 /**
  * This abstract class is responsible for generating
@@ -791,7 +791,7 @@ abstract class WebPage extends Base
         try {
             if ($this->Registry->Ini->SHOW_FLAGS) {
 
-                $this->extraCss[] = $this->Registry->Ini->CSS_SITE . '{_DIR_}/css/flags.css';
+                $this->extraCss[] = $this->Registry->Ini->getSectionVar('URI_PARTS', 'CSS_SITE') . '{_DIR_}/css/flags.css';
             }
         } catch ( \Lampcms\IniException $e ) {
             e($e->getMessage());

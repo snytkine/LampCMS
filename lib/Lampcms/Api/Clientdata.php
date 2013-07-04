@@ -74,13 +74,15 @@ class Clientdata extends \Lampcms\Mongo\Doc
 
     /**
      * Factory method
+     *
      * @todo when support for OAuth2 is added
-     * then we will check if OAuth2 is enable - return
-     * OAuth2 sub-class.
-     * It will have extra methods
-     * to return and save extra data
+     *       then we will check if OAuth2 is enable - return
+     *       OAuth2 sub-class.
+     *       It will have extra methods
+     *       to return and save extra data
      *
      * @param \Lampcms\Registry $Registry
+     *
      * @return \Lampcms\Api\Clientdata|object
      */
     public static function factory(\Lampcms\Registry $Registry)
@@ -104,7 +106,7 @@ class Clientdata extends \Lampcms\Mongo\Doc
     {
         $s = $this->offsetGet('icon');
 
-        $s = (empty($s)) ? '{_IMAGE_SITE_}{_DIR_}/images/app2.png' : LAMPCMS_AVATAR_IMG_SITE . \Lampcms\PATH_WWW_IMG_AVATAR_SQUARE . $s;
+        $s = (empty($s)) ? '{_IMAGE_SITE_}{_DIR_}/images/app2.png' : '{_IMAGE_SITE_}{_DIR_}' . \Lampcms\PATH_WWW_IMG_AVATAR_SQUARE . $s;
 
         if (!$asHtml) {
             return $s;
@@ -130,9 +132,9 @@ class Clientdata extends \Lampcms\Mongo\Doc
     {
         $ret = array(
             'Application' => $this->offsetGet('app_name'),
-            'About' => '<span class="pre">' . $this->offsetGet('about') . '</span>',
-            'Icon' => $this->getIcon(true),
-            'API Key' => $this->offsetGet('api_key'));
+            'About'       => '<span class="pre">' . $this->offsetGet('about') . '</span>',
+            'Icon'        => $this->getIcon(true),
+            'API Key'     => $this->offsetGet('api_key'));
 
         return $ret;
     }
