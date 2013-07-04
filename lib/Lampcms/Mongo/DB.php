@@ -319,6 +319,7 @@ class DB extends \Lampcms\LampcmsObject
      */
     public function updateCollection($collName, array $arrValues, $whereCol, $whereVal)
     {
+
         if (!is_string($collName)) {
             throw new \InvalidArgumentException('$name must be a string. Was: ' . gettype($collName));
         }
@@ -326,6 +327,8 @@ class DB extends \Lampcms\LampcmsObject
         if (!preg_match('/^[a-zA-Z0-9_]+$/', $collName)) {
             throw new \InvalidArgumentException('Invalid collection name: ' . $collName . ' Collection name can only contain alphanumeric chars and underscores');
         }
+
+        $collName = $this->prefix.$collName;
 
         $whereCol = \filter_var($whereCol, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
         $whereCol = \str_replace(';', '', $whereCol);
@@ -376,6 +379,8 @@ class DB extends \Lampcms\LampcmsObject
         }
 
         $options['multiple'] = true;
+
+        $collName = $this->prefix.$collName;
 
         $coll = $this->getDb()->selectCollection($collName);
         try {
