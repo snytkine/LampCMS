@@ -54,7 +54,7 @@ ignore_user_abort(true);
 set_time_limit(1200);
 
 
-require '../!inc.php';
+require 'bootstrap.php';
 
 if (!defined('BR')) {
     define('BR', "\n<BR>");
@@ -100,12 +100,11 @@ if (!defined('BR')) {
  */
 $start = microtime(true);
 $blocksFile = 'GeoLiteCity-Blocks.csv';
-
 $locationFile = 'GeoLiteCity-Location.csv';
 
 // DO NOT EDIT ANYTHING BELOW
-
 $dir = dirname(__FILE__);
+
 //
 $b = $dir . DIRECTORY_SEPARATOR . $blocksFile;
 $l = $dir . DIRECTORY_SEPARATOR . $locationFile;
@@ -121,4 +120,5 @@ if (!is_readable($b)) {
 $Importer = new \Lampcms\Geo\Import($Registry->Mongo->getDb(), $b, $l);
 $Importer->run();
 $end = microtime(true);
-echo BR . 'Importing done in ' . ($end - $start) . ' seconds';
+echo  '<p>Importing done in ' . ($end - $start) . ' seconds</p>';
+echo '</div></body></html>';

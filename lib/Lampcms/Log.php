@@ -291,7 +291,7 @@ class Log
      *
      * @param string $message message to send to developers
      *
-     * @return
+     * @return void
      */
     protected static function notifyDeveloper($message)
     {

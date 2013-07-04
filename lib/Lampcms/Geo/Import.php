@@ -55,6 +55,9 @@ namespace Lampcms\Geo;
 class Import
 {
 
+    const PAGE_OPEN = '<html><head><title>GEO IP DATABASE IMPORT IN PROGRESS</title></head><body><div id="main_body">';
+
+
     /**
      * Object of type MongoDB
      *
@@ -120,8 +123,13 @@ class Import
         $coll = $this->Mongo->GEO_BLOCKS;
         $coll->ensureIndex(array('s' => 1));
         $coll->ensureIndex(array('e' => 1));
+        \ob_implicit_flush(true);
+        @ob_end_flush();
+        echo self::PAGE_OPEN . '<p>Starting the import process.</p> <p>Be patient, it may take about 10 minutes (or more), depending on your server</p></br>';
+        echo str_repeat(" ", 1024) . "\n";
+        @flush();
+        @ob_flush();
 
-        echo '<br>Starting the import process. Be patient, it may take about 5-10 minutes, depending on your server.';
 
         $row = 0;
         while (($data = fgetcsv($handle, 1000, ",")) !== false) {
@@ -140,6 +148,9 @@ class Import
         }
 
         echo '<br>Imported ' . number_format($row) . ' rows to GEO_BLOCKS collection';
+        echo str_repeat(" ", 1024) . "\n";
+        @flush();
+        @ob_flush();
     }
 
 
@@ -153,10 +164,14 @@ class Import
      */
     protected function importLocation()
     {
+        echo '<p>Now Importing GEO LOCATIONS.... </p>';
+        echo str_repeat(' ', 1024) . "\n";
+        @flush();
+        @ob_flush();
+
         $handle = fopen($this->locationFile, 'r');
         if (false === $handle) {
             throw new \Exception('Unable to read file: ' . $this->locationFile);
-
         }
 
         $coll = $this->Mongo->GEO_LOCATION;
@@ -197,6 +212,6 @@ class Import
             }
         }
 
-        echo '<br>Imported ' . number_format($row) . ' rows to GEO_LOCATION collection';
+        echo '<br>Imported ' . number_format($row) . ' rows to GEO_LOCATION collection<br>';
     }
 }
