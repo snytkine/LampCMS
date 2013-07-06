@@ -147,7 +147,7 @@ class Exception extends \Exception
         //$bHtml = ($e instanceof \Lampcms\Exception) ? $e->getHtmlFlag() : false;
 
         if ($e instanceof \Lampcms\DevException) {
-            $sMessage = ((defined('LAMPCMS_DEBUG')) && true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occured'; //$oTr->get('generic_error', 'exceptions');
+            $sMessage = ((defined('LAMPCMS_DEBUG')) && true === LAMPCMS_DEBUG) ? $e->getMessage() : 'Error occurred'; //$oTr->get('generic_error', 'exceptions');
         }
 
         $sMessage = strip_tags($sMessage);

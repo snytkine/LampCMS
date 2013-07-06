@@ -148,14 +148,14 @@ class Renderer
     {
         $this->Registry = $Registry;
         $c = $this->Registry->Cache->categories;
-        if (is_array($c)) {
+        if (\is_array($c)) {
             $this->aCategories = $c;
         }
+
         $this->maxDetailedLevel = $this->Registry->Ini->CATEGORY_DETAILED_LEVEL;
         $this->latestQuestion = $this->Registry->Tr->get('Latest Question');
         $this->labelQuestion = $this->Registry->Tr->get('Question');
         $this->labelAnswer = $this->Registry->Tr->get('Answer');
-
     }
 
     public function getCategories()
@@ -349,7 +349,7 @@ class Renderer
             return '';
         }
 
-        $id = "categories_menu";
+        $id = 'categories_menu';
         $this->selectedId = $selected;
         if ($addEmptyItem && $required && 0 === $selected) {
             $required = ' required';

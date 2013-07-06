@@ -53,19 +53,21 @@
 namespace Lampcms\Controllers;
 
 
-use \Lampcms\String\HTMLStringParser;
-use \Lampcms\Responder;
-use \Lampcms\Request;
-use \Lampcms\Utf8String;
+use Lampcms\Mongo\Schema\Answer as AnswerSchema;
+use Lampcms\Mongo\Schema\Question as QuestionSchema;
+use Lampcms\Request;
+use Lampcms\Responder;
+use Lampcms\String\HTMLStringParser;
+use Lampcms\Utf8String;
 
 /**
  * Controller for processing "Edit"
  * form for editing Question or Answer
  *
- * @todo should move the parsing to
- * new class so the whole parsing thing
- * can later be used from the API and not just
- * from this controller.
+ * @todo   should move the parsing to
+ *         new class so the whole parsing thing
+ *         can later be used from the API and not just
+ *         from this controller.
  *
  * @author Dmitri Snytkine
  *
@@ -125,6 +127,19 @@ class Editor extends Edit
      *
      * Process submitted form values
      *
+     * edge cases with category: if category was required
+     *       when question was posted but now it's optional
+     *       then it's possible to change the category from selected one
+     *       to empty (no category) by simply selecting the "no category"
+     *       in the drop down menu. Also if category support was removed completely
+     *       by admin by setting CATEGORIES to empty in !config.ini
+     *       then submitted value will be empty - in this case we don't want to
+     *       update an existing category with an empty one. So the only way we can
+     *       accept the empty category is when CATEGORIES are optional and empty value is submitted
+     *
+     *
+     *
+     *
      * @return \Lampcms\Controllers\Editor
      */
     protected function process()
@@ -134,28 +149,53 @@ class Editor extends Edit
         $formVals = $this->Form->getSubmittedValues();
         d('formVals: ' . print_r($formVals, 1));
 
-        $this->Resource['b'] = $this->makeBody($formVals['qbody']);
-        $this->Resource['i_words'] = $this->Body->asPlainText()->getWordsCount();
+        $this->Resource[QuestionSchema::BODY]        = $this->makeBody($formVals['qbody']);
+        $this->Resource[QuestionSchema::WORDS_COUNT] = $this->Body->asPlainText()->getWordsCount();
 
         /**
          * @important Don't attempt to edit the value of title
-         * for the answer since it technically does not have the title
-         * If we don't skip this step for Answer then title
-         * of answer will be removed
+         *            for the answer since it technically does not have the title
+         *            If we don't skip this step for Answer then title
+         *            of answer will be removed
          */
         if ($this->Resource instanceof \Lampcms\Question) {
-            $oTitle = $this->makeTitle($formVals['title']);
-            $title = $oTitle->valueOf();
-            $this->Resource['title'] = $title;
-            $this->Resource['url'] = $oTitle->toASCII()->makeLinkTitle()->valueOf();
-            $this->Resource['a_title'] = \Lampcms\TitleTokenizer::factory($oTitle)->getArrayCopy();
+            $origTitle      = $this->Resource[QuestionSchema::TITLE];
+            $origCategoryId = $this->Resource[QuestionSchema::CATEGORY_ID];
+            d('$origTitle: ' . $origTitle . ' $origCategoryId: ' . $origCategoryId);
+
+            $oTitle     = $this->makeTitle($formVals['title']);
+            $title      = $oTitle->valueOf();
+            $categoryId = \array_key_exists('category', $formVals) ? $formVals['category'] : 0;
+            $categoryId = (int)$categoryId;
+
+            $this->Resource[QuestionSchema::TITLE]       = $title;
+            $this->Resource[QuestionSchema::URL]         = $oTitle->toASCII()->makeLinkTitle()->valueOf();
+            $this->Resource[QuestionSchema::TITLE_ARRAY] = \Lampcms\TitleTokenizer::factory($oTitle)->getArrayCopy();
 
             /**
-             * @todo
+             *
              * Need to update 'title' of all answers to this question
              * But first check to see if title has actually changed
+             *
+             * ONLY if Question status is POSTED (don't do anything for pending)
+             *
              */
+            if ($this->Resource[QuestionSchema::RESOURCE_STATUS_ID] === QuestionSchema::POSTED) {
+                if ($origTitle !== $title) {
+                    $this->updateAnswersTitle($title);
+                }
 
+                if ($origCategoryId !== $categoryId) {
+                    /**
+                     * If Submitted category ID is empty
+                     * then allow it ONLY if category support is optional ( value of CATEGORIES is 1 in !config.ini)
+                     */
+                    if ($categoryId > 0 || $this->Registry->Ini->CATEGORIES == 1) {
+                        $this->Resource[QuestionSchema::CATEGORY_ID] = $categoryId;
+                        $this->updateCategoryCounter($origCategoryId, $categoryId);
+                    }
+                }
+            }
         }
 
         $this->Resource->setEdited($this->Registry->Viewer, \strip_tags($formVals['reason']));
@@ -189,7 +229,7 @@ class Editor extends Edit
          * otherwise tidy removes rel="code"
          */
         $aEditorConfig = $this->Registry->Ini->getSection('EDITOR');
-        $tidyConfig = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
+        $tidyConfig    = ($aEditorConfig['ENABLE_CODE_EDITOR']) ? array('drop-proprietary-attributes' => false) : null;
 
         $this->Body = Utf8String::stringFactory($body)
             ->tidy($tidyConfig)
@@ -242,12 +282,83 @@ class Editor extends Edit
                     array(
                         '$set' => array(
                             'i_lm_ts' => time(),
-                            'i_etag' => time())
+                            'i_etag'  => time())
                     )
                 );
-            } catch (\MongoException $e) {
+            } catch ( \MongoException $e ) {
                 d('unable to update question ' . $e->getMessage());
             }
+        }
+
+        return $this;
+    }
+
+    /**
+     * If ID of category of question changes
+     * must update the counter of questions in the new category (+1)
+     * and decrease count in old category (-1)
+     *
+     * If question has any answers must update counter of answers in old category (-$numAnswers)
+     * and increase counter in new category (+$numAnswers)
+     *
+     * @param $oldCategoryId
+     * @param $newCategoryId
+     *
+     * @return $this
+     * @throws \InvalidArgumentException if $oldId or $newId is not an integer
+     * @internal param int $oldId
+     * @internal param int $newId
+     *
+     */
+    protected function updateCategoryCounter($oldCategoryId, $newCategoryId)
+    {
+        if (!is_int($oldCategoryId)) {
+            throw new \InvalidArgumentException('$oldCategoryId is not an integer');
+        }
+
+        if (!is_int($newCategoryId)) {
+            throw new \InvalidArgumentException('$newCategoryId is not an integer');
+        }
+
+        $CategoryUpdator = new \Lampcms\Category\Updator($this->Registry->Mongo);
+        $CategoryUpdator->removeQuestionById($this->Resource[QuestionSchema::PRIMARY], $oldCategoryId);
+        $CategoryUpdator->increaseQuestionCount($newCategoryId);
+
+        $answersCount = $this->Resource[QuestionSchema::NUM_ANSWERS];
+        d('Count of answers: ' . $answersCount);
+        if ($answersCount > 0) {
+            $CategoryUpdator->decreaseAnswerCount($oldCategoryId, $answersCount);
+            $CategoryUpdator->increaseAnswerCount($newCategoryId, $answersCount);
+        }
+
+        return $this;
+    }
+
+
+    /**
+     * Update all answers for the edited question
+     * with the new title.
+     * This method is called only if the title of the question
+     * has changed
+     *
+     * @param string $newTitle
+     *
+     * @return $this
+     */
+    protected function updateAnswersTitle($newTitle)
+    {
+        /**
+         * We called this method after we already made sure that
+         * the edit is for the Question , not for the Answer
+         * but it's so important to make sure that this is the Question edit
+         * that we will check it again here.
+         *
+         *
+         */
+        if ($this->Resource instanceof \Lampcms\Question) {
+            d('updating all questions with new title: ' . $newTitle);
+            $AnswerParser = new \Lampcms\AnswerParser($this->Registry);
+            $AnswerParser->updateTitle($this->Resource[QuestionSchema::PRIMARY], $newTitle);
         }
 
         return $this;
@@ -256,7 +367,6 @@ class Editor extends Edit
 
     protected function returnResult()
     {
-
         Responder::redirectToPage($this->Resource->getUrl());
     }
 }

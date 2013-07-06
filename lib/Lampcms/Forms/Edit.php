@@ -52,6 +52,7 @@
 
 namespace Lampcms\Forms;
 
+use Lampcms\Category\Renderer;
 
 /**
  * Class responsible
@@ -64,20 +65,91 @@ namespace Lampcms\Forms;
 class Edit extends Form
 {
 
-
     /**
      * Name of form template file
      * The name of actual template should be
-     * set in sub-class
+     * set in sub-class.
      *
      * @var string
      */
     protected $template = 'tplFormedit';
 
+    protected $selected = 0;
+
+    protected $isAnswer = false;
+
+    /**
+     * @param \Lampcms\Registry $R
+     * @param int               $selected the category id. This only applies to Question
+     * @param bool              $isAnswer if true then this edit form is for the Answer
+     *                                    otherwise the form is for the question
+     */
+    public function __construct(\Lampcms\Registry $R, $selected = 0, $isAnswer = false)
+    {
+        $this->selected = $selected;
+        $this->isAnswer = $isAnswer;
+
+        parent::__construct($R);
+    }
+
+
+    protected function init()
+    {
+        /**
+         * Skip this for when editing Answer
+         * this init adds categories drop-down
+         * menu and it is only used for Question.
+         */
+        if (!$this->isAnswer) {
+            $selectMenu = $clabel = $crequired = null;
+            /**
+             * Check if category is
+             * optional/required/none
+             * If required then add 3rd param 'true'
+             * also set "Select Category" only
+             * If selected is not passed here
+             */
+            $categs = $this->Registry->Ini->CATEGORIES;
+
+            if ($categs) {
+                $Menu   = new Renderer($this->Registry);
+                $clabel = '@@Select Category@@';
+                /**
+                 * If CATEGORIES in !config.ini is set to 2
+                 * then category selection is required.
+                 * Adding validator server-side
+                 * and HTML5 'required' tag client-side
+                 */
+                if (2 == $categs) {
+                    $crequired = true;
+                    $err       = '@@You must select a category@@';
+                    $this->addValidator('category', function ($val) use ($err) {
+
+                        if (strlen($val) < 1) {
+                            return $err;
+                        }
+
+                        return true;
+                    });
+                }
+
+                $selectMenu = $Menu->getSelectMenu($this->selected, $clabel, $crequired);
+                d('$selectMenu: ' . $selectMenu);
+            }
+
+            $this->setVar('category_menu', $selectMenu);
+            if (0 === strlen($categs)) {
+                $this->setVar('category_class', 'hide');
+            } else {
+                $this->setVar('category_class', 'category');
+            }
+        }
+    }
 
     /**
      * Concrete form validator for this form
      * (non-PHPdoc)
+     *
      * @see Form::doValidate()
      */
     protected function doValidate()

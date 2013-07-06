@@ -610,7 +610,6 @@ class Form extends LampcmsObject
      */
     public function getErrors()
     {
-
         return $this->aErrors;
     }
 

@@ -159,7 +159,8 @@ class Edit extends WebPage
     protected function makeForm()
     {
         d('cp');
-        $this->Form = new \Lampcms\Forms\Edit($this->Registry);
+        $isAnswer = ('ANSWERS' === $this->collection);
+        $this->Form = new \Lampcms\Forms\Edit($this->Registry, $this->Resource['i_cat'], $isAnswer);
         $body       = $this->Resource['b'];
 
         /**
@@ -171,7 +172,13 @@ class Edit extends WebPage
         $this->Form->id    = $this->Resource->getResourceId();
         $this->Form->rtype = $this->rtype;
 
-        if ('ANSWERS' === $this->collection) {
+        /**
+         * When editing ANSWER
+         * we don't want to show Title
+         * so adding 'hidden' class to html
+         *
+         */
+        if ($isAnswer) {
             $this->Form->hidden = ' hidden';
         } else {
             $this->Form->title    = $this->Resource['title'];
@@ -181,7 +188,8 @@ class Edit extends WebPage
             {
 
                 if (\mb_strlen($val) < $minTitle) {
-                    $err = 'Title must contain at least %s letters';
+                    $err = '@@Title must contain at least %s letters@@';
+
                     return \sprintf($err, $minTitle);
                 }
 

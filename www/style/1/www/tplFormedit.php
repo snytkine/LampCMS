@@ -79,7 +79,12 @@ class tplFormedit extends Lampcms\Template\Fast
         'formError' => '', // 16
         'hidden' => '', //17
         'id_title' => 'title_off', //18
-        'id' => '' //19
+        'id' => '', //19
+        'category' => '', //20
+        'category_class' => 'hide', //21
+        'category_l' => '@@Category@@', //22
+        'category_e' => '', //23
+        'category_menu' => '', //24
     );
 
     protected static $tpl = '
@@ -104,7 +109,15 @@ class tplFormedit extends Lampcms\Template\Fast
                 <div id="tmp_preview"></div>
             </div>
             <!-- // el body -->
-            
+
+             <!-- CATEGORY {category_class} -->
+            <div class="form_el %21$s">
+            	<label for="id_category">%22$s</label> <span class="f_err"  id="category_e">%23$s</span><br>
+                %24$s
+            	<div id="category_d" class="caption"></div>
+            </div>
+            <!-- //CATEGORY -->
+
             <div class="form_el"> 
             	<label for="id_reason">%11$s</label>: (* %2$s) <span class="f_err">%13$s</span><br> 
                 <input autocomplete="off" id="id_reason" type="text" name="reason" class="reason_c" size="80" value="%10$s">  

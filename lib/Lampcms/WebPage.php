@@ -477,6 +477,9 @@ abstract class WebPage extends Base
          *       To load style selected by user
          *
          */
+        /**
+         * If In debug mode OR running from github (not from build) then include non-minified version of css
+         */
         $css                         = (true === LAMPCMS_DEBUG || \strstr(VERSION_ID, 'package_version')) ? '/_main.css?t=' . time() : '/main.css';
         $this->aPageVars['main_css'] = '{_CSS_SITE_}{_DIR_}/style/' . STYLE_ID . '/' . VTEMPLATES_DIR . $css;
 
@@ -506,6 +509,9 @@ abstract class WebPage extends Base
          */
         $this->addMetaTag('fb', ('' !== (string)$Viewer->getFacebookToken()));
 
+        /**
+         * If running in debug mode OR from github (not from build) then include non-minified version of qa.js
+         */
         $js = (true === LAMPCMS_DEBUG || \strstr(VERSION_ID, 'package_version')) ? '/qa.js?t=' . time() : '/min/qa_' . VERSION_ID . '.js';
 
         $src = '{_JS_SITE_}{_DIR_}/js' . $js;

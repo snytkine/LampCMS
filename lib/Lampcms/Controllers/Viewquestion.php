@@ -394,7 +394,7 @@ class Viewquestion extends WebPage
             $this->aQuestion['nocomments'] = ' nocomments';
         }
 
-        $breadcrumb = (empty($this->aQuestion['i_cat'])) ? '' : $this->getBreadcrumb($this->aQuestion['i_cat']);
+        $breadcrumb = (empty($this->aQuestion[Schema::CATEGORY_ID])) ? '' : $this->getBreadcrumb($this->aQuestion[Schema::CATEGORY_ID]);
 
         $this->aPageVars['body'] = $breadcrumb . \tplQuestion::parse($this->aQuestion);
 

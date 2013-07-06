@@ -82,4 +82,6 @@ class Question extends Answer
     const APP_LINK = 'app_link';
 
     const ETAG = 'i_etag';
+
+    const CATEGORY_ID = 'i_cat';
 }

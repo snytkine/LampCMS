@@ -52,8 +52,8 @@
 
 namespace Lampcms;
 
-use Lampcms\String\HTMLStringParser;
 use Lampcms\Mongo\Schema\Answer as Schema;
+use Lampcms\String\HTMLStringParser;
 
 /**
  * Class responsible for parsing submitted
@@ -214,29 +214,29 @@ class Answerparser extends LampcmsObject
         $resourceStatus = ($Poster->isOnProbation()) ? Schema::PENDING : Schema::POSTED;
 
         $aData = array(
-            Schema::PRIMARY                                  => $this->Registry->Resource->create('ANSWER'),
-            Schema::QUESTION_ID                              => $qid,
-            Schema::POSTER_ID                                => $uid,
-            Schema::QUESTION_OWNER_ID                        => $this->Question->getOwnerId(),
-            Schema::TITLE                                    => $this->Question->getTitle(),
-            Schema::BODY_HASH                                => $hash,
-            Schema::POSTER_USERNAME                          => $username,
-            Schema::USER_PROFILE_URL                         => '<a href="' . $this->SubmittedAnswer->getUserObject()->getProfileUrl() . '">' . $username . '</a>',
-            Schema::AVATAR_URL                               => $this->SubmittedAnswer->getUserObject()->getAvatarSrc(),
-            Schema::WORDS_COUNT                              => $Body->asPlainText()->getWordsCount(),
-            Schema::UPVOTES_COUNT                            => 0,
-            Schema::DOWNVOTES_COUNT                          => 0,
-            Schema::VOTES_SCORE                              => 0,
-            Schema::CATEGORY_ID                              => $this->Question->getCategoryId(),
-            Schema::BODY                                     => $htmlBody,
-            Schema::CREATED_TIMESTAMP                        => time(),
-            Schema::LAST_MODIFIED_TIMESTAMP                  => time(),
-            Schema::TIME_STRING                              => date('F j, Y g:i a T'),
-            Schema::PLURAL_POSTFIX                           => 's',
-            Schema::IS_ACCEPTED                              => false,
-            Schema::IP_ADDRESS                               => $this->SubmittedAnswer->getIP(),
-            Schema::RESOURCE_STATUS_ID                       => $resourceStatus,
-            Schema::APP_NAME                                 => 'web'
+            Schema::PRIMARY                 => $this->Registry->Resource->create('ANSWER'),
+            Schema::QUESTION_ID             => $qid,
+            Schema::POSTER_ID               => $uid,
+            Schema::QUESTION_OWNER_ID       => $this->Question->getOwnerId(),
+            Schema::TITLE                   => $this->Question->getTitle(),
+            Schema::BODY_HASH               => $hash,
+            Schema::POSTER_USERNAME         => $username,
+            Schema::USER_PROFILE_URL        => '<a href="' . $this->SubmittedAnswer->getUserObject()->getProfileUrl() . '">' . $username . '</a>',
+            Schema::AVATAR_URL              => $this->SubmittedAnswer->getUserObject()->getAvatarSrc(),
+            Schema::WORDS_COUNT             => $Body->asPlainText()->getWordsCount(),
+            Schema::UPVOTES_COUNT           => 0,
+            Schema::DOWNVOTES_COUNT         => 0,
+            Schema::VOTES_SCORE             => 0,
+            Schema::CATEGORY_ID             => $this->Question->getCategoryId(),
+            Schema::BODY                    => $htmlBody,
+            Schema::CREATED_TIMESTAMP       => time(),
+            Schema::LAST_MODIFIED_TIMESTAMP => time(),
+            Schema::TIME_STRING             => date('F j, Y g:i a T'),
+            Schema::PLURAL_POSTFIX          => 's',
+            Schema::IS_ACCEPTED             => false,
+            Schema::IP_ADDRESS              => $this->SubmittedAnswer->getIP(),
+            Schema::RESOURCE_STATUS_ID      => $resourceStatus,
+            Schema::APP_NAME                => 'web'
         );
 
         if (!empty($aImages)) {
@@ -401,9 +401,33 @@ class Answerparser extends LampcmsObject
 
     protected function updateCategory()
     {
-
         $Updator = new \Lampcms\Category\Updator($this->Registry->Mongo);
         $Updator->addAnswer($this->Answer);
+
+        return $this;
+    }
+
+    /**
+     * Update Title of All Answers for particular question id
+     *
+     * @param int    $qid
+     * @param string $title
+     *
+     * @return $this
+     * @throws \InvalidArgumentException
+     */
+    public function updateTitle($qid, $title)
+    {
+        if (!is_int($qid)) {
+            throw new \InvalidArgumentException('$qid must be an integer. Was: ' . gettype($qid));
+        }
+
+        $update = array('$set' => array(Schema::TITLE => $title));
+
+        /**
+         * multiple => true is necessary to update ALL answers that match question id
+         */
+        $this->Registry->Mongo->ANSWERS->update(array(Schema::QUESTION_ID => $qid), $update, array('multiple' => true));
 
         return $this;
     }
@@ -442,8 +466,7 @@ class Answerparser extends LampcmsObject
         d('cp');
         $Question = $this->Question;
         d('cp');
-        $func = function() use ($Tags, $uid, $Question)
-        {
+        $func = function () use ($Tags, $uid, $Question) {
             $Tags->addTags($uid, $Question);
         };
         d('cp');

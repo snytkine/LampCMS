@@ -59,13 +59,13 @@ namespace Lampcms\Category;
  * as well as latest question array
  * is stored in a_latest tag
  *
- * @todo keep track of per category tags
- * CATEGORY_TAGS collection
- * increase/decrease count of tag
- * i_cat, tag, i_count
- * This collection will be updated only on questions add/remove
- * nothing to be done on answers.
- * Make use of generic _id
+ * @todo   keep track of per category tags
+ *         CATEGORY_TAGS collection
+ *         increase/decrease count of tag
+ *         i_cat, tag, i_count
+ *         This collection will be updated only on questions add/remove
+ *         nothing to be done on answers.
+ *         Make use of generic _id
  *
  * @author Dmitri Snytkine
  *
@@ -85,6 +85,7 @@ class Updator
      * with new question
      *
      * @param \Lampcms\Question $Q
+     *
      * @return \Lampcms\Category\Updator
      */
     public function addQuestion(\Lampcms\Question $Q)
@@ -94,21 +95,21 @@ class Updator
         if ($id > 0) {
             $this->ensureIndexes();
             $aLatest = array(
-                'qid' => $Q->getResourceId(),
+                'qid'   => $Q->getResourceId(),
                 'i_uid' => $Q->getOwnerId(),
-                'url' => $Q->getSeoUrl(),
+                'url'   => $Q->getSeoUrl(),
                 'title' => $Q->getTitle(),
-                'usr' => $Q['username'],
-                'avtr' => $Q['avtr'],
+                'usr'   => $Q['username'],
+                'avtr'  => $Q['avtr'],
                 'ulink' => $Q['ulink']
             );
 
             $update = array(
                 '$inc' => array('i_qcount' => 1),
                 '$set' => array(
-                    'i_qid' => $Q->getResourceId(),
-                    'i_ts' => time(),
-                    'hts' => date('F j, Y, g:i a T'),
+                    'i_qid'    => $Q->getResourceId(),
+                    'i_ts'     => time(),
+                    'hts'      => date('F j, Y, g:i a T'),
                     'a_latest' => $aLatest
                 )
             );
@@ -127,9 +128,9 @@ class Updator
      * then also remove a_latest as well as set i_qid to 0
      *
      * @todo if a_latest is removed we really
-     * need to replace it with another question
-     * that is the "new latest" which would be one
-     * posted before this one in the same category
+     *       need to replace it with another question
+     *       that is the "new latest" which would be one
+     *       posted before this one in the same category
      *
      * @param \Lampcms\Question $Q
      *
@@ -137,15 +138,60 @@ class Updator
      */
     public function removeQuestion(\Lampcms\Question $Q)
     {
+        $id  = $Q->getCategoryId();
+        $qid = $Q->getResourceId();
 
-        $id = $Q->getCategoryId();
-        if ($id > 0) {
-            $qid = $Q->getResourceId();
-            $this->Mongo->CATEGORY->update(array('id' => $id, 'i_qcount' => array('$gt' => 0)), array('$inc' => array('i_qcount' => -1)));
-            $this->Mongo->CATEGORY->update(array('id' => $id, 'i_qid' => $qid), array('$set' => array('i_qid' => 0, 'a_latest' => null)));
+        $this->removeQuestionById($qid, $id);
+
+        return $this;
+    }
+
+    /**
+     * @param int $qid   question id
+     * @param int $catId category id
+     *
+     * @throws \InvalidArgumentException
+     * @return $this
+     */
+    public function removeQuestionById($qid, $catId)
+    {
+        if (!is_int($qid)) {
+            throw new \InvalidArgumentException('$qid must be an integer. Was: ' . gettype($qid));
+        }
+
+        if (!is_int($catId)) {
+            throw new \InvalidArgumentException('$catId must be an integer. Was: ' . gettype($catId));
+        }
+
+        d('Removing questionID: ' . $qid . ' from category count for category: ' . $catId);
+
+        if ($catId > 0) {
+            $this->Mongo->CATEGORY->update(array('id' => $catId, 'i_qcount' => array('$gt' => 0)), array('$inc' => array('i_qcount' => -1)));
+            $this->Mongo->CATEGORY->update(array('id' => $catId, 'i_qid' => $qid), array('$set' => array('i_qid' => 0, 'a_latest' => null)));
         }
 
         return $this;
+    }
+
+    /**
+     * @param int $catId categoryID for which to increase count by 1
+     *
+     * @throws \InvalidArgumentException if param $catId is not an integer
+     */
+    public function increaseQuestionCount($catId)
+    {
+        if (!is_int($catId)) {
+            throw new \InvalidArgumentException('$catId must be an integer. Was: ' . gettype($catId));
+        }
+
+        if ($catId > 0) {
+            d('Increasing question count for categoryId: ' . $catId);
+            $update = array(
+                '$inc' => array('i_qcount' => 1)
+            );
+
+            $this->Mongo->CATEGORY->update(array('id' => $catId), $update, array('upsert' => true));
+        }
     }
 
     /**
@@ -168,13 +214,71 @@ class Updator
         return $this;
     }
 
+    /**
+     * Decrease number of answers in category
+     *
+     * @param $categoryId
+     * @param $count
+     *
+     * @throws \InvalidArgumentException if params are not integers
+     * @return $this
+     */
+    public function decreaseAnswerCount($categoryId, $count)
+    {
+        if (!is_int($categoryId)) {
+            throw new \InvalidArgumentException('$categoryId must be an integer. Was: ' . gettype($categoryId));
+        }
+
+        if (!is_int($count)) {
+            throw new \InvalidArgumentException('$count must be an integer. Was: ' . gettype($count));
+        }
+
+        if (($categoryId > 0) && ($count > 0)) {
+            $decrease = (0 - $count);
+            $this->Mongo->CATEGORY->update(array('id' => $categoryId, 'i_acount' => array('$gt' => $count)), array('$inc' => array('i_acount' => $decrease)));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Increase count of answers in a given category
+     *
+     * @param $categoryId
+     * @param $count
+     *
+     * @throws \InvalidArgumentException if params are not integers
+     */
+    public function increaseAnswerCount($categoryId, $count)
+    {
+        if (!is_int($categoryId)) {
+            throw new \InvalidArgumentException('$categoryId must be an integer. Was: ' . gettype($categoryId));
+        }
+
+        if (!is_int($count)) {
+            throw new \InvalidArgumentException('$count must be an integer. Was: ' . gettype($count));
+        }
+
+        if (($categoryId > 0) && ($count > 0)) {
+
+            $update = array('$inc' => array('i_acount' => $count));
+
+            $this->Mongo->CATEGORY->update(array('id' => $categoryId), $update, array("upsert" => true));
+        }
+    }
+
+    /**
+     * @param \Lampcms\Answer $A
+     *
+     * @return $this
+     */
     public function addAnswer(\Lampcms\Answer $A)
     {
         d('cp');
         $id = $A->getCategoryId();
         if ($id > 0) {
             $update = array('$inc' => array('i_acount' => 1),
-                '$set' => array('i_ts' => time(), 'hts' => date('F j, Y, g:i a T')));
+                            '$set' => array('i_ts' => time(), 'hts' => date('F j, Y, g:i a T')));
 
             $this->Mongo->CATEGORY->update(array('id' => $id), $update, array("upsert" => true));
         }

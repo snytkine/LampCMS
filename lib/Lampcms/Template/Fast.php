@@ -56,15 +56,15 @@ namespace Lampcms\Template;
 /**
  * Class for parsing vsprintf based templates
  *
- * @todo Template could have static function loopFilter()
- * and will be applied inside the loop()
- * this way it can possibly splice the array or
- * even modify the Iterator (cursor) before starting the loop
- * Could be helpful to limit the number of items to be looped
+ * @todo   Template could have static function loopFilter()
+ *         and will be applied inside the loop()
+ *         this way it can possibly splice the array or
+ *         even modify the Iterator (cursor) before starting the loop
+ *         Could be helpful to limit the number of items to be looped
  *
- * @todo recursively check if value is_array() and if yes
- * the parse it first with loop() and then replace the value
- * of that key with the parsed version.
+ * @todo   recursively check if value is_array() and if yes
+ *         the parse it first with loop() and then replace the value
+ *         of that key with the parsed version.
  *
  * This could be used for nested replies, should even
  * work with unlimited nesting levels
@@ -74,6 +74,7 @@ namespace Lampcms\Template;
  */
 class Fast
 {
+
     /**
      * Can override this static method in concrete template
      * It accepts array of $vars by reference
@@ -127,20 +128,21 @@ class Fast
      * Parse template, using input $aVars array of replacement
      * variables to be used in the vsprintf() function
      *
-     * @param array $aVars
+     * @param array   $aVars
      *
-     * @param bool $merge if true will apply default values
-     * as well as making sure the elements or input
-     * array are in the correct order. This is very important
-     * if you not sure that array of values you passing has
-     * named elements in correct order.
-     * If you are 100% sure that elements are in correct order
-     * then set this to false to save function call
+     * @param bool    $merge if true will apply default values
+     *                       as well as making sure the elements or input
+     *                       array are in the correct order. This is very important
+     *                       if you not sure that array of values you passing has
+     *                       named elements in correct order.
+     *                       If you are 100% sure that elements are in correct order
+     *                       then set this to false to save function call
      *
-     * @param Closure $func callback function to be applied
-     * to input array. The callback anonymous function MUST
-     * accept input array by reference and perform some
-     * operations on the actual array.
+     * @param Closure $func  callback function to be applied
+     *                       to input array. The callback anonymous function MUST
+     *                       accept input array by reference and perform some
+     *                       operations on the actual array.
+     *
      * @return string
      */
     public static function parse(array $aVars, $merge = true, $func = null)
@@ -192,11 +194,11 @@ class Fast
         $begin = $end = $t = '';
 
         if (true === LAMPCMS_DEBUG && static::$debug) {
-            $t = '  ';
+            $t            = '  ';
             $templateName = get_called_class();
             $templateName = LAMPCMS_WWW_DIR . 'style' . DIRECTORY_SEPARATOR . STYLE_ID . DIRECTORY_SEPARATOR . VTEMPLATES_DIR . DIRECTORY_SEPARATOR . $templateName;
-            $begin = sprintf("\n$t<!-- Template %s -->\n", $templateName);
-            $end = sprintf("\n$t<!-- // Template %s -->\n", $templateName);
+            $begin        = "\n$t<!-- Template $templateName -->\n";
+            $end          = "\n$t<!-- // Template $templateName -->\n";
         }
 
         $ret = static::replace($aVars);
@@ -212,6 +214,7 @@ class Fast
      * Sub-class may implement own way of replacing variables
      *
      * @param array $aVars
+     *
      * @return string parsed template
      */
     protected static function replace(array $aVars)
@@ -267,8 +270,8 @@ class Fast
 
         if (true === LAMPCMS_DEBUG && static::$debug) {
             $templateName = get_called_class();
-            $begin = sprintf("\n<!-- BEGIN LOOP in template: %s -->\n", $templateName);
-            $end = sprintf("\n<!-- // END  LOOP in template: %s -->\n", $templateName);
+            $begin        = "\n<!-- BEGIN LOOP in template: $templateName -->\n";
+            $end          = "\n<!-- // END  LOOP in template: $templateName -->\n";
         }
 
         return $begin . $s . $end;
@@ -326,7 +329,7 @@ class Fast
      * @see http://www.diveintojavascript.com/projects/javascript-sprintf
      *
      * @return array with keys 'tpl' and 'vars' representing
-     * the template on which this was called
+     *      the template on which this was called
      */
     public static function get()
     {

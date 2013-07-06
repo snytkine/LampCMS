@@ -107,7 +107,7 @@ class Askform extends Form
           return true;
           });*/
 
-
+        $selectMenu = $clabel = $crequired = null;
         /**
          * Check if category is
          * optional/required/none
@@ -116,7 +116,7 @@ class Askform extends Form
          * If selected is not passed here
          */
         $categs = $this->Registry->Ini->CATEGORIES;
-        $selectMenu = $clabel = $crequired = null;
+
         if ($categs) {
             $Menu = new Renderer($this->Registry);
             $clabel = '@@Select Category@@';
