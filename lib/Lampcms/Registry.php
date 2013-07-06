@@ -513,7 +513,7 @@ class Registry implements Interfaces\LampcmsObject
 
     /**
      * Return the language
-     * that will be used as currentLanguage
+     * that wil be used as currentLanguage
      * the value is computed in this order:
      * try $_SESSION['lang'],
      * try $_COOKIE['lang']

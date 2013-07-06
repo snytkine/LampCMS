@@ -193,6 +193,11 @@ class Editor extends Edit
                     if ($categoryId > 0 || $this->Registry->Ini->CATEGORIES == 1) {
                         $this->Resource[QuestionSchema::CATEGORY_ID] = $categoryId;
                         $this->updateCategoryCounter($origCategoryId, $categoryId);
+                        /**
+                         * Post onCategoryUpdate event
+                         * It will cause the CacheObserver to unset the cached categories html blocks
+                         */
+                        $this->Registry->Dispatcher->post($this->Resource, 'onCategoryUpdate');
                     }
                 }
             }
