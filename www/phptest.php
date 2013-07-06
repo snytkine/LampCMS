@@ -52,7 +52,7 @@
 if (version_compare(PHP_VERSION, '5.3.0') < 0) {
     $err = '<div class="err"><h2>Minimal requirement not met!</h2><h3>No soup for you!</h3>
 	<br>This program requires at least PHP version 5.3.0, your version of php: ' . PHP_VERSION . '</div>';
-    $s = sprintf($tpl, $err);
+    $s   = sprintf($tpl, $err);
     exit($s);
 }
 
@@ -122,8 +122,9 @@ padding: 5px;
 /**
  * Must be installed
  */
-$aRequired = array('gd' => 'Will not be able to generate CAPTCHA images and to store user-uploaded avatars',
-    'mongo' => 'Mongo extension is not installed. Please install from http://pecl.php.net/package/mongo');
+$aRequired = array('gd'     => 'Will not be able to generate CAPTCHA images and to store user-uploaded avatars',
+                   'mongo'  => 'Mongo extension is not installed. Please install from http://pecl.php.net/package/mongo',
+                   'libxml' => 'libxml extension is missing. Program will not work without it. (hint: find a way to install php-xml extension or recompile php with libxml support). Look here http://www.php.net/manual/en/book.libxml.php for more details');
 
 /**
  * At least one is required
@@ -131,12 +132,12 @@ $aRequired = array('gd' => 'Will not be able to generate CAPTCHA images and to s
 $aUnicode = array('mbstring', 'iconv');
 
 $aOptional = array(
-    'pdo' => 'Will not be able to use "Similar Questions" feature.',
+    'pdo'       => 'Will not be able to use "Similar Questions" feature.',
     'pdo_mysql' => 'Will not be able to use "Similar Questions" feature.',
-    'tidy' => 'Will NOT be able to fix bad html strings if user submits bad html',
-    'curl' => 'Will not be able to connect to external APIs like Facebook and Twitter or any other',
-    'oauth' => 'Will not be able to use Twitter, LinkedIn, Blogger and Tumblr API features',
-    'apc' => 'Will not be able to take advantage of script caching to gain up to 300% improvement in script loading time'
+    'tidy'      => 'Will NOT be able to fix bad html strings if user submits bad html',
+    'curl'      => 'Will not be able to connect to external APIs like Facebook and Twitter or any other',
+    'oauth'     => 'Will not be able to use Twitter, LinkedIn, Blogger and Tumblr API features',
+    'apc'       => 'Will not be able to take advantage of script caching to gain up to 300% improvement in script loading time'
 );
 
 function myfilter(&$val, $key)
@@ -147,11 +148,10 @@ function myfilter(&$val, $key)
 $aInstalled = get_loaded_extensions();
 array_walk($aInstalled, 'myfilter');
 
-
 foreach ($aRequired as $ext => $err) {
     $error = '';
     if (!in_array($ext, $aInstalled)) {
-        $error .= '<div class="err"><h2>Minimal requirement not met!</h2><h3>No soup for you!</h3>
+        $error .= '<div class="err"><h2>Minimal requirement not met!</h2><h3>LampCMS will not work on your server!</h3>
 		<div class="e2"><span class="ext">' . $ext . '</span><span class="s1">Not installed ' . $err . '</span></div><br>
 		<br>
 If you need help <a href="http://support.lampcms.com">Our support site</a></div>';
@@ -164,15 +164,15 @@ If you need help <a href="http://support.lampcms.com">Our support site</a></div>
 }
 
 if (!in_array('mbstring', $aInstalled) && !in_array('iconv', $aInstalled)) {
-    $err = '<div class="err"><h2>Minimal requirement not met!</h2><h3>No soup for you!</h3><br>
+    $err = '<div class="err"><h2>Minimal requirement not met!</h2><h3>Lampcms will not work on this server!</h3><br>
 	You don\'t have unicode support</br>
-	You need at least one these php extensions<br>
-	<strong>mbstring</strong> (preferred) OR <strong>iconv</strong>
-	<br>Make sure you have either one of there extensions installed<br>
+	You need <br>
+	<strong>mbstring</strong>  php extensions
+	<br>Make sure you have this extensions installed<br>
 	and enabled in php and then try this again
 	<br>
 If you need help visit <a href="http://support.lampcms.com">Our support site</a></div>';
-    $s = sprintf($tpl, $err);
+    $s   = sprintf($tpl, $err);
     exit($s);
 }
 
@@ -189,7 +189,7 @@ to index.php, click on <em>Create account</em> link and create account using
 the same email address as in EMAIL_ADMIN in !config.ini
 <br>This will create your administrator account.<br><br>
 Make sure to make the www/w/ directory writable<br>
-Read complete instuctions <a href="http://www.lampcms.com/installation/">here</a><br>
+Read complete instuctions <a href="http://www.lampcms.com/documentation.htm#installation">here</a><br>
 Enjoy!<br><br>
 If you get any errors visit <a href="http://support.lampcms.com">Our support site</a></p>';
 

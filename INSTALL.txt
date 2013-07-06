@@ -29,13 +29,15 @@ Actual Installation
 
 Set writable permissions for the /logs directory
 
-Set writable permissions for the /www/w directory
+Set writable permissions for the /www/w directory including all subdirectories
 
 
-In www directory rename bootstrap.dist.php
+In www directory rename bootstrap.dist.php to bootstrap.php
 
 For the most basic installation (if you are not interested in running multiple sites using a single instance of Lampcms library) 
 you don't even have to edit the bootstrap.php file
+
+For more advanced installation options read the comments in the bootstrap.php file
 
 
 Now inside config directory
