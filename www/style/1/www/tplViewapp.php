@@ -73,7 +73,7 @@ class tplViewapp extends Lampcms\Template\Fast
 			<div class="clearfix w90">
 				<h1>%1$s</h1>
 				%2$s
-				<div class="fl cb"><a href="/index.php?a=editapp&app_id=%3$s" class="bold">Edit Application settings</a></div>
+				<div class="fl cb"><a href="{_WEB_ROOT_}/{_editapp_}/%3$s" class="bold">Edit Application settings</a></div>
 			</div>
 		</div>';
 }

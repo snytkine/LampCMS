@@ -126,7 +126,9 @@ class Editapp extends WebPage
             d('$this->oApi: ' . print_r($this->oApi->getArrayCopy(), 1));
             $this->save();
             $this->Registry->Dispatcher->post($this->Form, 'onApiClientSave');
-            $url = '/index.php?a=viewapp&app_id=' . $this->oApi['_id'];
+            $url = '{_WEB_ROOT_}/{_viewapp_}/' . $this->oApi['_id'];
+            $mapper = $this->Router->getCallback();
+            $url = $mapper($url);
             Responder::redirectToPage($url);
         } else {
             $this->setForm();
@@ -146,16 +148,16 @@ class Editapp extends WebPage
      */
     protected function setApi()
     {
-        $appid      = $this->Request->get('app_id', 'i', null);
+        $appid      = $this->Router->getSegment(1, 'i', 0);
         $this->oApi = Clientdata::factory($this->Registry);
-        if ($appid) {
+        if (!empty($appid)) {
 
             $a = $this->Registry->Mongo->API_CLIENTS->findOne(array('_id'   => $appid,
                                                                     'i_uid' => $this->Registry->Viewer->getUid()));
             if (!empty($a)) {
                 $this->oApi->reload($a);
             } else {
-                d('not found by id ' . $appid);
+                d('APP not found by id ' . $appid.' for viewer '.$this->Registry->Viewer->getUid());
             }
         }
 
