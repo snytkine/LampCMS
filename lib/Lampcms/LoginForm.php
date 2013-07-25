@@ -200,7 +200,7 @@ class LoginForm
      */
     public static function makeSocialButtons(Registry $Registry)
     {
-        if (true || empty($_SESSION['social_buttons'])) {
+        if (empty($_SESSION['social_buttons'])) {
             $Ini           = $Registry->Ini;
             $socialBtns    = '';
 
