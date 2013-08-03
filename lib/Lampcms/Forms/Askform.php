@@ -51,9 +51,8 @@
 
 
 namespace Lampcms\Forms;
-
-use \Lampcms\Category\Renderer;
-use \Lampcms\String\HTMLString;
+use Lampcms\Category\Renderer;
+use Lampcms\String\HTMLString;
 
 
 /**
@@ -118,7 +117,7 @@ class Askform extends Form
         $categs = $this->Registry->Ini->CATEGORIES;
 
         if ($categs) {
-            $Menu = new Renderer($this->Registry);
+            $Menu   = new Renderer($this->Registry);
             $clabel = '@@Select Category@@';
             /**
              * If CATEGORIES in !config.ini is set to 2
@@ -128,9 +127,8 @@ class Askform extends Form
              */
             if (2 == $categs) {
                 $crequired = true;
-                $err = '@@You must select a category@@';
-                $this->addValidator('category', function($val) use ($err)
-                {
+                $err       = '@@You must select a category@@';
+                $this->addValidator('category', function ($val) use ($err) {
 
                     if (strlen($val) < 1) {
                         return $err;
@@ -171,6 +169,7 @@ class Askform extends Form
     /**
      * Concrete form validator for this form
      * (non-PHPdoc)
+     *
      * @see Form::doValidate()
      */
     protected function doValidate()
@@ -187,7 +186,7 @@ class Askform extends Form
      */
     protected function validateTitle()
     {
-        $t = $this->Registry->Request['title'];
+        $t   = $this->Registry->Request['title'];
         $min = $this->Registry->Ini->MIN_TITLE_CHARS;
         d('min title: ' . $min);
         if (\mb_strlen($t) < $min) {
@@ -207,12 +206,12 @@ class Askform extends Form
     protected function validateBody()
     {
 
-        $minChars = $this->Registry->Ini->MIN_QUESTION_CHARS;
-        $minWords = $this->Registry->Ini->MIN_QUESTION_WORDS;
-        $body = $this->Registry->Request->getUTF8('qbody');
+        $minChars    = $this->Registry->Ini->MIN_QUESTION_CHARS;
+        $minWords    = $this->Registry->Ini->MIN_QUESTION_WORDS;
+        $body        = $this->Registry->Request->getUTF8('qbody');
         $oHtmlString = HTMLString::stringFactory($body);
-        $wordCount = $oHtmlString->getWordsCount();
-        $len = $oHtmlString->length();
+        $wordCount   = $oHtmlString->getWordsCount();
+        $len         = $oHtmlString->length();
 
         if ($len < $minChars) {
             /**
@@ -241,17 +240,34 @@ class Askform extends Form
      */
     protected function validateTags()
     {
-        $min = $this->Registry->Ini->MIN_QUESTION_TAGS;
-        $max = $this->Registry->Ini->MAX_QUESTION_TAGS;
+        $min  = $this->Registry->Ini->MIN_QUESTION_TAGS;
+        $max  = $this->Registry->Ini->MAX_QUESTION_TAGS;
         $tags = $this->Registry->Request->get('tags', 's', '');
         $tags = \trim($tags);
-        /*if(($min > 0) && empty($tags)){
-              $this->setError('tags', 'You must include at least one tag');
-              }*/
+        d('tags: '.$tags);
+
+        /**
+         * If tags is an empty string by
+         * some minimum number of tags is required
+         * then set error and return - no need
+         * to do any more calculations.
+         */
+        if($min > 0 && '' === $tags){
+            /**
+             * @todo Translate string
+             */
+            $this->setError('tags', 'Question must have at least ' . $min . ' tag(s)');
+
+            return $this;
+        }
+
 
         \mb_regex_encoding('UTF-8');
         $aTags = \mb_split('([\s,;]+)', $tags);
+
         $count = count($aTags);
+        d('number of tags: ' . $count);
+        d('min required tags: '.$min.' max tags: '.$max);
 
         if ($count > $max) {
             /**
