@@ -84,6 +84,12 @@ class Editor extends Edit
     protected $aRequired = array('rid', 'rtype');
 
     /**
+     * @var object Utf8String Submitted parsed body converted to plaintext
+     * but still represented as an Utf8String object (not string)
+     */
+    protected $plainTextBody;
+
+    /**
      * Object Utf8String represents body
      * of question
      *
@@ -147,9 +153,10 @@ class Editor extends Edit
         $this->Registry->Dispatcher->post($this->Resource, 'onBeforeEdit');
 
         $formVals = $this->Form->getSubmittedValues();
-        d('formVals: ' . print_r($formVals, 1));
+        d('formVals: ' . json_encode($formVals));
 
-        $this->Resource[QuestionSchema::BODY]        = $this->makeBody($formVals['qbody']);
+        $htmlBody                                    = $this->makeBody($formVals['qbody']);
+        $this->Resource[QuestionSchema::BODY]        = $htmlBody;
         $this->Resource[QuestionSchema::WORDS_COUNT] = $this->Body->asPlainText()->getWordsCount();
 
         /**
@@ -159,6 +166,8 @@ class Editor extends Edit
          *            of answer will be removed
          */
         if ($this->Resource instanceof \Lampcms\Question) {
+            $hash = hash('md5', strtolower($htmlBody . json_encode($this->Resource[QuestionSchema::TAGS_ARRAY])));
+
             $origTitle      = $this->Resource[QuestionSchema::TITLE];
             $origCategoryId = $this->Resource[QuestionSchema::CATEGORY_ID];
             d('$origTitle: ' . $origTitle . ' $origCategoryId: ' . $origCategoryId);
@@ -171,6 +180,8 @@ class Editor extends Edit
             $this->Resource[QuestionSchema::TITLE]       = $title;
             $this->Resource[QuestionSchema::URL]         = $oTitle->toASCII()->makeLinkTitle()->valueOf();
             $this->Resource[QuestionSchema::TITLE_ARRAY] = \Lampcms\TitleTokenizer::factory($oTitle)->getArrayCopy();
+            $this->Resource[QuestionSchema::INTRO]       = $this->plainTextBody->truncate(150)->valueOf();
+            $this->Resource[QuestionSchema::BODY_HASH]   = $hash;
 
             /**
              *
@@ -244,8 +255,11 @@ class Editor extends Edit
         $Body = HTMLStringParser::stringFactory($this->Body)->parseCodeTags()->linkify()->reload()->setNofollow();
 
         if ($this->Resource instanceof \Lampcms\Question) {
-            $Body->unhilight()->hilightWords($this->Resource['a_tags']);
+            $Body->unhilight()->hilightWords($this->Resource[QuestionSchema::TAGS_ARRAY]);
         }
+
+        $this->plainTextBody = $this->Body->asPlainText();
+        d('plain text body: ' . $this->plainTextBody);
 
         $htmlBody = $Body->valueOf();
 

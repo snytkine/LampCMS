@@ -391,8 +391,6 @@ class QuestionParser extends LampcmsObject
      * Check to see if same user has already posted
      * exact same question
      *
-     * @todo translate the error message
-     *
      * @param int    $uid
      * @param string $hash hash of question body
      *
@@ -402,6 +400,10 @@ class QuestionParser extends LampcmsObject
     {
         $a = $this->Registry->Mongo->QUESTIONS->findOne(array(Schema::POSTER_ID => $uid, Schema::BODY_HASH => $hash));
         if (!empty($a)) {
+            /**
+             * @todo
+             * translate string OR throw special type of exception like DuplicateQuestionException
+             */
             $err = 'You have already asked exact same question  <span title="' . $a['hts'] . '" class="ts" rel="time">on ' . $a['hts'] .
                 '</span><br><a class="link" href="{_WEB_ROOT_}/{_viewquestion_}/' . $a['_id'] . '/' . $a['url'] . '">' . $a['title'] . '</a><br>
 			You cannot post the same exact question twice';
