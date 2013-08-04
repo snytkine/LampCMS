@@ -68,15 +68,6 @@ class Log
 
     const ERROR_LEVEL = 'error';
 
-    protected static $aLog = array();
-
-
-    public static function dump()
-    {
-        $s = \implode("\n<br>", self::$aLog);
-        echo $s;
-    }
-
     /**
      * Location of log file
      * it must point to actual file
@@ -208,8 +199,6 @@ class Log
         $string .= PHP_EOL . $str;
 
         $message = PHP_EOL . \strtoupper($logLevel) . ' ' . self::getTimeStamp() . $string;
-
-        self::$aLog[] = array($message, $logLevel);
 
         $res = \file_put_contents($logPath, $message, FILE_APPEND | LOCK_EX);
 
