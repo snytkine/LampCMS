@@ -110,7 +110,7 @@ class Validate
     public static function username($string)
     {
         d('$string: ' . $string);
-        $ret = (0 !== \preg_match('/([a-zA-Z0-9@])([a-zA-Z0-9\-]{1,18})([a-zA-Z0-9])$/A', $string, $m));
+        $ret = (0 !== \preg_match('/([a-zA-Z0-9@])([a-zA-Z0-9\-_.]{1,18})([a-zA-Z0-9])$/A', $string, $m));
 
         d('ret ' . $ret);
 

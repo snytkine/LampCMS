@@ -1837,16 +1837,6 @@ YUI({
 
                 body = form.one("textarea[name=com_body]");
                 numChars = body.get("value").length;
-                if (body && (numChars < 10 )) {
-
-                    alert('Comment must be at least 10 characters long');
-                    return;
-                }
-                if (body && (numChars > 600 )) {
-                    alert('Comment must be at under 600 chars long. Please remove '
-                        + (numChars - 600) + ' characters from your comment');
-                    return;
-                }
 
                 cfg = {
                     method:'POST',
