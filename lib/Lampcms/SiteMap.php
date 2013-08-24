@@ -283,6 +283,9 @@ class SiteMap extends LampcmsObject
     {
 
         $this->siteMapName = (null !== $this->siteMapName) ? $this->siteMapName : 'sitemap_' . date('Ymd') . '.xml';
+        /**
+         * If sitemap directory does not exist attempt to create it
+         */
         $xmlFile           = LAMPCMS_DATA_DIR . 'sitemap/' . $this->siteMapName;
 
         /**

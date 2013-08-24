@@ -105,10 +105,24 @@ class Ini extends \Lampcms\LampcmsArray
             throw new IniException('Unable to parse ini file: ' . $this->iniFile . ' probably a syntax error in file of file does not exist');
         }
 
-        //parent::__construct($aIni);
         $this->exchangeArray($aIni);
     }
 
+
+    public function getLogFilePath($prefix = '')
+    {
+        if (\substr(PHP_SAPI, 0, 3) === 'cli') {
+            $ret = $this->__get('LOG_DIR') . DIRECTORY_SEPARATOR . 'cli-php';
+        } elseif ((\substr(PHP_SAPI, 0, 3) === 'cgi')) {
+            $ret = $this->__get('LOG_DIR') . DIRECTORY_SEPARATOR . 'cgi-php';
+        } else {
+            $ret = $this->__get('LOG_DIR') . DIRECTORY_SEPARATOR . 'php';
+        }
+
+        $ret .= $prefix . '_' . date('m-d-Y') . '.log';
+
+        return $ret;
+    }
 
     /**
      * Get value of config var from
@@ -218,12 +232,15 @@ class Ini extends \Lampcms\LampcmsArray
 
             case 'LOG_FILE_PATH':
                 if (\substr(PHP_SAPI, 0, 3) === 'cli') {
-                    $ret = $this->__get('LOG_DIR') . DIRECTORY_SEPARATOR . 'cli-php.log';
+                    $ret = $this->__get('LOG_DIR') . DIRECTORY_SEPARATOR . 'cli-php';
                 } elseif ((\substr(PHP_SAPI, 0, 3) === 'cgi')) {
-                    $ret = $this->__get('LOG_DIR') . DIRECTORY_SEPARATOR . 'cgi-php.log';
+                    $ret = $this->__get('LOG_DIR') . DIRECTORY_SEPARATOR . 'cgi-php';
                 } else {
-                    $ret = $this->__get('LOG_DIR') . DIRECTORY_SEPARATOR . 'php.log';
+                    $ret = $this->__get('LOG_DIR') . DIRECTORY_SEPARATOR . 'php';
                 }
+
+                $ret .= LOG_PREFIX . '_' . date('m-d-Y') . '.log';
+
                 break;
 
             case 'POINTS':

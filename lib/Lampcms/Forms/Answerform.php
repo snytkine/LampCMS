@@ -88,8 +88,7 @@ class Answerform extends Form
      */
     public function getAnswerForm(\Lampcms\Question $Question)
     {
-
-        d('cp');
+        //d('cp');
         /**
          * A custom observer may cancel the onBeforeAnswerform event
          * in order to NOT display the form
@@ -101,13 +100,13 @@ class Answerform extends Form
          * has been flagged as spammer
          */
         $oNotification = $this->Registry->Dispatcher->post($Question, 'onBeforeAnswerForm');
-        d('cp');
+        //d('cp');
         if ($oNotification->isNotificationCancelled()) {
             d('onBeforeAnswerform cancelled by observer');
 
             return '';
         }
-        d('cp');
+        //d('cp');
         /**
          * If questions is closed then
          * instead of answer form return
@@ -117,7 +116,7 @@ class Answerform extends Form
 
             return \tplClosedby::parse($aClosed);
         }
-        d('cp');
+       //d('cp');
 
 
         $formTitle = (0 === $Question['i_ans']) ? '@@Be the first to answer this question@@' : '@@Your answer@@';
@@ -128,21 +127,21 @@ class Answerform extends Form
         //$this->setVar('preview', $this->Tr['Preview']);
 
         if ($this->Registry->Viewer->isGuest()) {
-            d('cp');
+            //d('cp');
             $this->qbody = '@@Please login to post your answer@@';
             $this->com_hand = ' com_hand';
             $this->readonly = 'readonly="readonly"';
             $this->disabled = ' disabled="disabled"';
 
             $oQuickReg = new \Lampcms\RegBlockQuickReg($this->Registry);
-            d('cp');
+            //d('cp');
             $socialButtons = LoginForm::makeSocialButtons($this->Registry);
 
             if (!empty($socialButtons)) {
                 $this->connectBlock = '<div class="com_connect"><h3>@@Join with account you already have@@</h3>' . $socialButtons . '</div>';
             }
         }
-        d('cp');
+        //d('cp');
         $form = $this->getForm();
 
         return $form;

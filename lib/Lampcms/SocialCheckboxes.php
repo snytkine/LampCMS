@@ -78,8 +78,7 @@ class SocialCheckboxes
      */
     public static function get(Registry $Registry)
     {
-
-        d('cp');
+        //d('cp');
         $oViewer = $Registry->Viewer;
         if ($oViewer->isGuest()) {
             d('User is guest, no social checkboxes to be added for guest');
@@ -95,7 +94,7 @@ class SocialCheckboxes
          * If has twitter observer module
          */
         if (\array_key_exists('twitter', $aFilters)) {
-            d('cp');
+            //d('cp');
             /**
              * The state of checkbox remembered from
              * the previous user action + must not have Twitter access revoked

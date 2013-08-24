@@ -140,9 +140,9 @@ class Cache extends \Lampcms\Event\Observer
         $this->oTtl      = new ArrayDefaults(array(), 0);
         $this->Tmp       = new ArrayDefaults(array());
         $this->skipCache = $Registry->Ini->SKIP_CACHE;
-        d('cp');
+
         if (!$this->skipCache) {
-            d('cp');
+
             $this->setCacheEngine(Mongo::factory($Registry));
             $Registry->Dispatcher->attach($this);
         }
@@ -193,7 +193,7 @@ class Cache extends \Lampcms\Event\Observer
         }
 
         if (\is_string($key)) {
-            d('cp');
+            //d('cp');
             $res = $this->getFromCache($key);
             if (false === $res) {
                 $res = $this->getKeyValue($key, $callback);

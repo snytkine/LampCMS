@@ -258,7 +258,6 @@ abstract class WebPage extends Base
      */
     public function __construct(Registry $Registry, Request $Request = null)
     {
-
         parent::__construct($Registry);
 
         $this->Request = (null !== $Request) ? $Request : $Registry->Request;
@@ -277,7 +276,7 @@ abstract class WebPage extends Base
             ->addJsTranslations();
 
         Cookie::sendFirstVisitCookie();
-        d('cp');
+        //d('cp');
         try {
             $this->checkLoginStatus()
                 ->checkAccessPermission()
@@ -292,7 +291,7 @@ abstract class WebPage extends Base
             $this->handleException($e);
         }
 
-        d('cp');
+        //d('cp');
 
         /**
          * Observer will be able to
@@ -302,8 +301,6 @@ abstract class WebPage extends Base
          */
 
         $this->Registry->Dispatcher->post($this, 'onPageView', $this->aPageVars);
-
-        //\Lampcms\Log::dump();
     }
 
 
@@ -427,7 +424,7 @@ abstract class WebPage extends Base
             \Lampcms\Forms\Form::validateToken($this->Registry);
         }
 
-        d('cp');
+        //d('cp');
 
         return $this;
     }
@@ -741,15 +738,15 @@ abstract class WebPage extends Base
             header("HTTP/1.0 404 Not Found");
         }
 
-        d('cp');
+        //d('cp');
         $this->addLoginBlock();
-        d('cp');
+        //d('cp');
         $this->addLastJs();
-        d('cp');
+        //d('cp');
         $this->addExtraCss();
-        d('cp');
+        //d('cp');
         $tpl = \tplMain::parse($this->aPageVars);
-        d('cp');
+        //d('cp');
 
         return $tpl;
     }

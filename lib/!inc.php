@@ -54,7 +54,7 @@ if (get_magic_quotes_gpc()) {
             unset($process[$key][$k]);
             if (is_array($v)) {
                 $process[$key][stripslashes($k)] = $v;
-                $process[]                       = &$process[$key][stripslashes($k)];
+                $process[]                       = & $process[$key][stripslashes($k)];
             } else {
                 $process[$key][stripslashes($k)] = stripslashes($v);
             }
@@ -93,7 +93,7 @@ function exception_handler($e)
             echo 'Error in Exception handler: : ' . $e->getMessage() . ' line ' . $e->getLine() . $e->getTraceAsString();
         }
     } else {
-        echo('Got exit signal in error_handler. Exception: '.get_class($e).' Error ' . $e->getMessage().' in:  '.$e->getFile().' line: '.$e->getLine()."\n<br>Trace: ".$e->getTraceAsString());
+        echo('Got exit signal in error_handler. Exception: ' . get_class($e) . ' Error ' . $e->getMessage() . ' in:  ' . $e->getFile() . ' line: ' . $e->getLine() . "\n<br>Trace: " . $e->getTraceAsString());
     }
 }
 
@@ -211,7 +211,7 @@ function LampcmsErrorHandler($errno, $errstr, $errfile, $errline)
                 return true;
             }
 
-            throw new \Lampcms\DevException($errstr.' in '.$errfile.' on line: '.$errline, null, $errno );
+            throw new \Lampcms\DevException($errstr . ' in ' . $errfile . ' on line: ' . $errline, null, $errno);
 
         }
     }
@@ -311,7 +311,74 @@ if ($debug || isset($aMyIPs[$myIP]) || defined('SPECIAL_LOG_FILE')) {
     ini_set('warn_plus_overloading', 0);
 }
 
-define('LOG_FILE_PATH', $Ini->LOG_FILE_PATH);
+/**
+ * getallheaders does not exist
+ * when php is run in fastcgi and php version < 5.4
+ * In this case define this function
+ */
+if (!function_exists('getallheaders')) {
+    function getallheaders()
+    {
+        $headers = '';
+        foreach ($_SERVER as $name => $value) {
+            if (substr($name, 0, 5) == 'HTTP_') {
+                $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+            }
+        }
+        return $headers;
+    }
+}
+
+/**
+ * Call json_encode but ONLY in debug mode
+ * This will save all the json_encode calls in non-debug
+ * mode when called from inside the d() method
+ * d() method does not do anything in non-debug mode
+ * but in log message has json_encode() to generate
+ * string for logging it is still called, using CPU
+ * Calling this method instead of directly calling json_encode
+ * will prevent running json_encode from log lines in non-debug mode
+ *
+ * @param object $o
+ *
+ * @return string
+ */
+function json_debug($o)
+{
+    if (defined('LAMPCMS_DEBUG') && true === LAMPCMS_DEBUG) {
+        return json_encode($o);
+    }
+
+    return '';
+}
+
+/**
+ * Log prefix is a special string
+ * that can be set in order to
+ * have it set in LOG_FILE_PATH
+ * The idea is to be able to path extra header
+ * in request that will then before a LOG_PREFIX
+ * This way requests from developers will be logged
+ * to unique per-developer log
+ * This can be very useful for debugging, even on
+ * production site because if every request is
+ * logged to a common file then it may be difficult
+ * to find your own log files in common log file
+ */
+$logPrefix = '';
+if (!defined('LOG_PREFIX')) {
+
+    $logHeader = $Ini->LOG_PREFIX_HEADER;
+    if (!empty($logHeader)) {
+        $headers = getallheaders();
+        if (array_key_exists($logHeader, $headers)) {
+            $logPrefix = $headers[$logHeader];
+
+        }
+    }
+}
+
+define('LOG_FILE_PATH', $Ini->getLogFilePath($logPrefix));
 
 /**
  * Empty the log file if
@@ -324,7 +391,7 @@ define('LOG_FILE_PATH', $Ini->LOG_FILE_PATH);
  */
 if ((true === LAMPCMS_DEBUG) && ('' !== LOG_FILE_PATH) && (true === (bool)$Ini->LOG_PER_SCRIPT) && !\Lampcms\Request::isAjax()) {
 
-    file_put_contents(LOG_FILE_PATH, PHP_SAPI . ' ' . print_r($_SERVER, 1), LOCK_EX);
+    file_put_contents(LOG_FILE_PATH, PHP_SAPI . ' ' . json_debug($_SERVER), LOCK_EX);
 }
 
 /**
@@ -332,12 +399,15 @@ if ((true === LAMPCMS_DEBUG) && ('' !== LOG_FILE_PATH) && (true === (bool)$Ini->
  * MUST BE CALLED after DEBUG MODE and LOG_FILE_PATH
  * has been defined
  *
+ * When script in run in non debug mode (production for example)
+ * all calls to d('some debug message') are simple discarded
+ *
  * @param string $message
  */
 function d($message)
 {
     if (defined('LAMPCMS_DEBUG') && true === LAMPCMS_DEBUG) {
-        \Lampcms\Log::d($message, 2);
+        \Lampcms\Log::d($message, 1);
     }
 }
 
@@ -348,7 +418,19 @@ function d($message)
  */
 function e($message)
 {
-    \Lampcms\Log::e($message, 2);
+    \Lampcms\Log::e($message, 1);
+}
+
+/**
+ * Log info message
+ * Info level log is always added
+ * in production or debug mode
+ *
+ * @param string $message
+ */
+function i($message)
+{
+    \Lampcms\Log::info($message, 1);
 }
 
 

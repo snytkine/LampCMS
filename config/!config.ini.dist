@@ -212,6 +212,19 @@ LOG_PER_SCRIPT = true
 ; If left blank default will be directory 'logs' sibling to www dir.
 LOG_DIR =
 ;
+; Special header name
+; if HTTP header with this name
+; is sent in request then
+; use the value for the log prefix
+; This is used to create personal log file
+; for a developer. Having each developer (even if
+; these is only one developer) have his personal log
+; makes it alot easier to debug because
+; log is not going to be filled with other requests
+; Leave blank if you don't want to use this feature
+;
+LOG_PREFIX_HEADER = "X-Dev-Log"
+;
 ; base url of your main website. Required value! Leading slash not required.
 SITE_URL="http://localhost"
 

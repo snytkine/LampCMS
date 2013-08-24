@@ -631,7 +631,7 @@ class Form extends LampcmsObject
      */
     public function getForm($useSubmittedVars = true)
     {
-        d('$this->aVars: ' . \json_encode($this->aVars));
+        d('$this->aVars: ' . \json_debug($this->aVars));
 
         if ($useSubmittedVars) {
             $this->prepareVars();

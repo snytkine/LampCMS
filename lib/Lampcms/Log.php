@@ -64,9 +64,11 @@ namespace Lampcms;
 class Log
 {
 
-    const DEBUG_LEVEL = 'debug';
+    const PREFIX_ERROR = '[ERROR] ';
 
-    const ERROR_LEVEL = 'error';
+    const PREFIX_INFO = '[INFO]';
+
+    const PREFIX_DEBUG = '[DEBUG]';
 
     /**
      * Location of log file
@@ -111,18 +113,18 @@ class Log
     /**
      * Our main logging function
      *
-     * @param string     $message    message to log
-     * @param int        $traceLevel this is useful
+     * @param string $message        message to log
+     * @param int    $traceLevel     this is useful
      *                               for extracting correct line from debug backtrace
      *                               you should normally not worry about this
      *                               This is useful in only some cases where you notice that
      *                               line number/method name is not logged correctly
      *
-     * @param string     $logLevel
+     * @param string $logType
      *
      * @return string message that was just logged
      */
-    public static function l($message, $traceLevel = 0, $logLevel = self::DEBUG_LEVEL)
+    public static function l($message, $traceLevel = 0, $logType = self::DEBUG_LEVEL)
     {
         $logPath = self::getLogPath();
 
@@ -135,7 +137,7 @@ class Log
          * automatically stringify array
          * in case we want to just add array to log
          */
-        $str = (\is_array($message)) ? \print_r($message, true) : $message;
+        $str = (\is_array($message)) ? \json_encode($message, true) : $message;
 
         $string = '';
         $line   = 'unknown';
@@ -174,6 +176,7 @@ class Log
         if (!empty($arrBacktrace[$level1])) {
             if (!empty($arrBacktrace[$level1]['class'])) {
                 $string .= $arrBacktrace[$level1]['class'];
+                $gotClass = true;
                 if (!empty($arrBacktrace[$level1]['type'])) {
                     $string .= $arrBacktrace[$level1]['type'];
                 }
@@ -185,20 +188,21 @@ class Log
         }
 
         if (!empty($arrBacktrace[$traceLevel])) {
-            if (!empty($arrBacktrace[$traceLevel]['file'])) {
-                $string .= PHP_EOL . $arrBacktrace[$traceLevel]['file'] . ' ';
+            if (!isset($gotClass) && !empty($arrBacktrace[$traceLevel]['file'])) {
+                $string .= $arrBacktrace[$traceLevel]['file'] . ' ';
             }
 
             if (!empty($arrBacktrace[$traceLevel]['line'])) {
                 $line = $arrBacktrace[$traceLevel]['line'];
             }
 
-            $string .= ' line: ' . $line;
+            $string .= '[' . $line . '] ';
         }
 
-        $string .= PHP_EOL . $str;
+        //$string .= PHP_EOL . $str;
+        $string .= $str;
 
-        $message = PHP_EOL . \strtoupper($logLevel) . ' ' . self::getTimeStamp() . $string;
+        $message = PHP_EOL . self::getTimeStamp() . ' ' . $logType . ' ' . $string;
 
         $res = \file_put_contents($logPath, $message, FILE_APPEND | LOCK_EX);
 
@@ -218,7 +222,7 @@ class Log
      *
      * @return string
      */
-    public static function d($message, $level = 1)
+    public static function d($message, $level = 0)
     {
 
         /**
@@ -226,7 +230,31 @@ class Log
          * to account to delegating from this
          * method to log() method
          */
-        return self::l($message, $level);
+        return self::l($message, ++$level, self::PREFIX_DEBUG);
+    }
+
+
+    /**
+     * Log debug message. The debug messages
+     * are NOT logged in normal production environment
+     * Debugging messages are logged
+     * ONLY when global constant LAMPCMS_DEBUG is set to true
+     *
+     *
+     * @param string $message message to log
+     * @param int    $level
+     *
+     * @return string
+     */
+    public static function info($message, $level = 0)
+    {
+
+        /**
+         * Increase backtrace level to one
+         * to account to delegating from this
+         * method to log() method
+         */
+        return self::l($message, ++$level, self::PREFIX_INFO);
     }
 
 
@@ -240,14 +268,14 @@ class Log
      *
      * @return string
      */
-    public static function e($message, $level = 1)
+    public static function e($message, $level = 0)
     {
         /**
          * Increase backtrace level to one
          * to account to delegating from this
          * method to log() method
          */
-        $message = self::l($message, $level, self::ERROR_LEVEL);
+        $message = self::l($message, ++$level, self::PREFIX_ERROR);
 
         self::notifyDeveloper($message);
 
