@@ -356,8 +356,8 @@ function json_debug($o)
  * Log prefix is a special string
  * that can be set in order to
  * have it set in LOG_FILE_PATH
- * The idea is to be able to path extra header
- * in request that will then before a LOG_PREFIX
+ * The idea is to be able to pass extra header
+ * in request that will then become a LOG_PREFIX
  * This way requests from developers will be logged
  * to unique per-developer log
  * This can be very useful for debugging, even on
@@ -373,7 +373,6 @@ if (!defined('LOG_PREFIX')) {
         $headers = getallheaders();
         if (array_key_exists($logHeader, $headers)) {
             $logPrefix = $headers[$logHeader];
-
         }
     }
 }
@@ -402,11 +401,73 @@ if ((true === LAMPCMS_DEBUG) && ('' !== LOG_FILE_PATH) && (true === (bool)$Ini->
  * When script in run in non debug mode (production for example)
  * all calls to d('some debug message') are simple discarded
  *
- * @param string $message
+ * Variable number of parameters can be given
+ * They will be converted to strings and result concatenated as one message
+ * to be logged
+ * If running NOT in debug mode then evaluation of passed objects
+ * will be avoided and function returns immediately without any overhead
  */
-function d($message)
+function d()
 {
     if (defined('LAMPCMS_DEBUG') && true === LAMPCMS_DEBUG) {
+        $args    = \func_get_args();
+        $message = '';
+        if (count($args) > 0) {
+
+            for ($i = 0; $i < count($args); $i += 1) {
+                $m = $args[$i];
+                $s = '';
+
+                switch ( gettype($m) ) {
+                    case 'string':
+                        $s = ' ' . $m;
+                        break;
+
+                    case 'object':
+                        if ($m instanceof \Closure) {
+                            $s = ' ' . $m();
+                        } elseif (\method_exists($m, '__toString')) {
+                            $s = ' ' . (string)$m;
+                        } else {
+                            $s = ' [OBJECT ' . \get_class($m) . ']';
+                        }
+                        break;
+
+                    case 'integer':
+                    case 'double':
+                        $s = ' ' . (string)$m;
+                        break;
+
+                    case 'array':
+                        $s = ' ' . \json_encode($m, true);
+                        break;
+
+                    case 'resource':
+                        $s = ' [RESOURCE]';
+                        break;
+
+                    case 'NULL':
+                        $s = ' [NULL]';
+                        break;
+
+                    case 'boolean':
+                        $s = $m ? ' [TRUE]' : ' [FALSE]';
+                        break;
+                }
+
+                $message .= $s;
+            }
+
+        } else {
+            /**
+             * Call to d() without arguments will
+             * result in adding ====
+             * This is a convenient way to add 'check point' log entries
+             * to confirm that script at least got to that part of the script
+             */
+            $message .= '====';
+        }
+
         \Lampcms\Log::d($message, 1);
     }
 }

@@ -107,7 +107,7 @@ class Mongo implements \Lampcms\Interfaces\Cache
     {
         $Ini     = $Registry->Ini;
         $aConfig = $Ini->getSection('CACHE_MONGO');
-        d('cp');
+        d();
         $Mongo = $Registry->Mongo->getMongo();
 
         $o = new self($Mongo, $aConfig['db'], $aConfig['collection']);
@@ -514,7 +514,7 @@ class Mongo implements \Lampcms\Interfaces\Cache
             $val = $a['d'];
 
             if (empty($val)) {
-                d('cp');
+                d();
                 return false;
             }
 
@@ -526,7 +526,7 @@ class Mongo implements \Lampcms\Interfaces\Cache
                 $val = gzinflate($val);
             }
         }
-        d('cp');
+        d();
 
         return (!empty($a['s'])) ? unserialize($val) : $val;
     }

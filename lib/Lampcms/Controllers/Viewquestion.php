@@ -161,6 +161,15 @@ class Viewquestion extends WebPage
      */
     protected $numAnswers = 0;
 
+    /**
+     *
+     * Viewer must have edit_profile
+     * permission to access this page
+     *
+     * @var string
+     */
+    protected $permission = 'edit_profile';
+
 
     /**
      * Main entry point

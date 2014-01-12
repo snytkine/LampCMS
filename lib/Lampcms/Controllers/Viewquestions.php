@@ -220,7 +220,7 @@ class Viewquestions extends WebPage
              */
             case $urlParts['SORT_VOTED']:
                 $this->pagerPath .= '/{_SORT_VOTED_}';
-                d('cp');
+                d();
                 $this->title   = '@@Questions with highest votes in past 7 days@@';
                 $this->typeDiv = Urhere::factory($this->Registry)->get('tplQtypesdiv', 'voted');
                 $where         = array(Schema::CREATED_TIMESTAMP => array('$gt' => (time() - 604800)));
@@ -401,7 +401,7 @@ class Viewquestions extends WebPage
 
         $sQlist                  = \tplQlist::parse(array($this->typeDiv, $sQdivs, $this->pagerLinks, $this->notAjaxPaginatable), false);
         $this->aPageVars['body'] = $sQlist;
-        d('cp');
+        d();
         /**
          * In case of Ajax can just send out sQlist as result
          */
@@ -436,7 +436,7 @@ class Viewquestions extends WebPage
     {
 
         $aFollowed = $this->Registry->Viewer['a_f_t'];
-        d('$aFollowed: ' . \json_encode($aFollowed));
+        d('$aFollowed: ', $aFollowed);
         if (!empty($aFollowed)) {
 
             $this->aPageVars['side'] = '<div id="usrtags" class="fl cb w90 pl10 mb10"><div class="pad8 lg cb fr rounded3 w90"><h4>@@Tags you follow@@</h4>' .

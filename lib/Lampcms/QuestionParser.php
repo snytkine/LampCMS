@@ -263,7 +263,7 @@ class QuestionParser extends LampcmsObject
          * as well as adding 'credit' div
          */
         $aExtraData = $this->Submitted->getExtraData();
-        d('$aExtraData: ' . print_r($aExtraData, 1));
+        d('$aExtraData: ', $aExtraData);
         if (\is_array($aExtraData) && !empty($aExtraData)) {
             $aData = array_merge($aData, $aExtraData);
         }
