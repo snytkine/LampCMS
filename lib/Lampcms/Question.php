@@ -611,7 +611,7 @@ class Question extends \Lampcms\Mongo\Doc implements Interfaces\Question, Interf
         try {
             $collViews->insert(array('qid'  => $qid,
                                      'uid'  => $viewerId,
-                                     'i_ts' => time()), array('safe' => true));
+                                     'i_ts' => time()));
 
             parent::offsetSet(Schema::NUM_VIEWS, ($iViews + (int)$inc));
 

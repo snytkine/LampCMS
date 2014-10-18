@@ -182,7 +182,7 @@ class Shred extends WebPage
             /**
              * Now delete actual question
              */
-            $res = $coll->remove(array('i_uid' => $uid), array('safe' => true));
+            $res = $coll->remove(array('i_uid' => $uid));
             d('questions removed: ' . print_r($res, 1));
         }
 
@@ -227,7 +227,7 @@ class Shred extends WebPage
                 }
             }
 
-            $res = $coll->remove(array('i_uid' => $this->Request['uid']), array('safe' => true));
+            $res = $coll->remove(array('i_uid' => $this->Request['uid']));
             d('questions removed: ' . print_r($res, 1));
         }
 
@@ -238,7 +238,7 @@ class Shred extends WebPage
     protected function deleteUserTags()
     {
         $coll = $this->Registry->Mongo->USER_TAGS;
-        $res = $coll->remove(array('_id' => $this->Request['uid']), array('safe' => true));
+        $res = $coll->remove(array('_id' => $this->Request['uid']));
         d('questions removed: ' . print_r($res, 1));
 
         return $this;
@@ -258,9 +258,7 @@ class Shred extends WebPage
     protected function deleteUser()
     {
 
-        $this->Registry->Mongo->USERS->update(array('_id' => $this->Request['uid']),
-            array('$set' => array('role' => 'deleted')),
-            array('safe' => true));
+        $this->Registry->Mongo->USERS->update(array('_id' => $this->Request['uid']), array('$set' => array('role' => 'deleted')));
 
         return $this;
     }
@@ -280,7 +278,7 @@ class Shred extends WebPage
             foreach ($IPS as $val) {
                 d('banning IP ' . $val);
                 try {
-                    $this->Registry->Mongo->BANNED_IP->insert(array('_id' => $val), array('safe' => true));
+                    $this->Registry->Mongo->BANNED_IP->insert(array('_id' => $val));
                 } catch (\MongoException $e) {
                     d('IP address ' . $val . ' already banned');
                 }

@@ -104,7 +104,7 @@ class DB extends \Lampcms\LampcmsObject
      *
      * @var array
      */
-    protected $aInsertOption = array('safe' => true);
+    protected $aInsertOption = array('w' => 1);
 
     /**
      * Prefix for collection names
@@ -266,7 +266,7 @@ class DB extends \Lampcms\LampcmsObject
      * By default mongo generates the unique value and it's an object
      * of type MongoId
      */
-    public function insertData($collName, array $aValues, $option = array('safe' => true))
+    public function insertData($collName, array $aValues, $option = array('w' => 1))
     {
         d('$option: ' . var_export($option, true));
 
@@ -374,9 +374,9 @@ class DB extends \Lampcms\LampcmsObject
 
         $ret = false;
 
-        if (empty($options['fsync']) && empty($options['safe'])) {
-            $options['fsync'] = true;
-        }
+       /* if (empty($options['fsync']) && empty($options['safe'])) {
+            $options['w'] = 1;
+        }*/
 
         $options['multiple'] = true;
 

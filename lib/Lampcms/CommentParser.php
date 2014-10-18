@@ -791,7 +791,7 @@ class CommentParser extends LampcmsObject
         d('aData: ' . print_r($aData, 1));
 
         try {
-            $coll->insert($aData, array('safe' => true));
+            $coll->insert($aData);
         } catch ( \MongoException $e ) {
             d('Unable to add record to COMMENTS_LIKES collection: ' . $e->getMessage());
 

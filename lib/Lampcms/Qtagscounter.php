@@ -192,7 +192,7 @@ class Qtagscounter extends LampcmsObject
                         if ($a && ($a['i_count'] > 0)) {
                             $this->coll->update(array("tag" => $tag), array('$inc' => array("i_count" => -1)));
                         } else {
-                            $this->coll->remove(array("tag" => $tag), array('safe' => true));
+                            $this->coll->remove(array("tag" => $tag));
                         }
                     } catch (\MongoException $e) {
                         e('unable to update (decrease count) QUESTION_TAGS : ' . $e->getMessage());
