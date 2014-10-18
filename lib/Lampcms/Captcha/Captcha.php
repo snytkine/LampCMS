@@ -308,7 +308,7 @@ class Captcha
         } catch ( DevException $e ) {
             e('Unable to use Captcha because of this error: ' . $e->getMessage());
 
-            return new Stub();
+            return new CaptchaStub();
         }
     }
 
