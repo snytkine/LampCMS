@@ -168,7 +168,7 @@ class Viewquestion extends WebPage
      *
      * @var string
      */
-    protected $permission = 'edit_profile';
+    protected $permission = 'view_question';
 
 
     /**
