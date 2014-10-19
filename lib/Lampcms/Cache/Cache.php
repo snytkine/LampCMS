@@ -608,7 +608,6 @@ class Cache extends \Lampcms\Event\Observer
      * Generated html string
      * of links to recent tags fom QA module
      *
-
      */
     public function qrecent()
     {

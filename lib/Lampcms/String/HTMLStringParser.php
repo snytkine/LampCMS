@@ -182,8 +182,7 @@ class HTMLStringParser extends HTMLString
     public function hilightWords(array $aWords)
     {
         $this->aWords = $aWords;
-        array_walk($aWords, function(&$key)
-        {
+        array_walk($aWords, function (&$key) {
             $key = \preg_quote($key);
         });
 
@@ -290,8 +289,7 @@ class HTMLStringParser extends HTMLString
     /**
      *
      * Parse text nodes and replace text that looks like
-     * url with the link to that url, adding rel="nofollow"
-     * is required and also shortening the anchor text
+     * url with the link to that url and also shortening the anchor text
      *
      * It will skip the nodes that should be excluded,
      * most importantly will skip the 'a' nodes - so it will
@@ -318,6 +316,18 @@ class HTMLStringParser extends HTMLString
         if (!in_array(strtolower($o->nodeName), $this->aExcluded)) {
             if (XML_TEXT_NODE == $o->nodeType) {
                 $nodeValue = $o->nodeValue;
+
+                /**
+                 * @todo
+                 * This \htmlspecialchars may not be necessary here and may actually
+                 * cause problems. In case some strange modifications to original text
+                 * are noticed try to comment this out.
+                 *
+                 * In reality by the time this function is called the input html
+                 * has already been properly normalized.
+                 */
+                $nodeValue = \htmlspecialchars($nodeValue, ENT_QUOTES, 'UTF-8', false);
+
                 /**
                  * Callback function to turn long
                  * text of the url (if longer than 50 chars) into shorter text,
@@ -329,19 +339,37 @@ class HTMLStringParser extends HTMLString
                  * This function is utf-8 safe!
                  *
                  * @var anonymous function
+                 * @return string modified string if input string was longer than 50 cars
                  */
-                $func = \create_function('$s', 'if(\mb_strlen($s) < 50 ){return $s;} return \mb_substr($s, 0, 32)."...".\mb_substr($s, -15);');
+                $trimmer = function ($s) {
+                    if (\mb_strlen($s) < 50) {
+                        return $s;
+                    }
 
-                /**
-                 * Even though this uses preg_replace and NOT mb_eregi_replace
-                 * this is safe because patterns here are NOT unicode
-                 * and cannot be confused with a part of any unicode chars
-                 * Even more important preg_replace is safe with the /e modifier
-                 * while mb_eregi_replace is not!
-                 * That's why we use preg_replace here!
-                 */
-                $text = \preg_replace("/(^|[\n ])([\w]*?)((ht|f)tp(s)?:\/\/[\w]+[^ \,\"\n\r\t<]*)/ise", "'\\1\\2<a href=\"\\3\">'.\$func('\\3').'</a>'", $nodeValue, -1, $count);
-                $text = \preg_replace("/(^|[\n ])([\w]*?)((www|ftp)\.[^ \,\"\t\n\r<]*)/ise", "'\\1\\2<a href=\"http://\\3\">'.\$func('\\3').'</a>'", $text, -1, $count2);
+                    return \mb_substr($s, 0, 32) . "..." . \mb_substr($s, -15);
+                };
+
+
+                $text = \preg_replace_callback('/(^|[\n ])([\w]*?)((ht|f)tp(s)?:\/\/[\w]+[^ \,\"\n\r\t<]*)/', function ($m) use ($trimmer) {
+                    if (\is_array($m) && isset($m[3])) {
+                        $m3 = $m[3];
+
+                        $res = $trimmer($m3);
+
+                        return $m[1] . $m[2] . '<a href="' . \htmlspecialchars($m3, ENT_QUOTES, 'UTF-8', false) . '">' . $res . '</a>';
+                    }
+                }, $nodeValue, -1, $count);
+
+
+               $text = \preg_replace_callback('/(^|[\n ])([\w]*?)((www|ftp)\.[^ \,\"\t\n\r<]*)/', function ($m) use ($trimmer) {
+                    if (\is_array($m) && isset($m[3])) {
+                        $m3 = $m[3];
+
+                        $res = $trimmer($m3);
+
+                        return $m[1] . $m[2] . '<a href="http://' . \htmlspecialchars($m3, ENT_QUOTES, 'UTF-8', false) . '">' . $res . '</a>';
+                    }
+                }, $text, -1, $count2);
 
                 /**
                  * Now replace the Node $o with the

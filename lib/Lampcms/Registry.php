@@ -113,6 +113,9 @@ class Registry implements Interfaces\LampcmsObject
      *
      * One thing this does is it updates
      * the i_im_ts value of Viewer
+     *
+     * @todo this is not a good practice to rely of object desctuctor to do things
+     *       Instead we should implicitly call this from end of script or as shutdown function
      */
     public function __destruct()
     {
