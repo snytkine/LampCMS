@@ -114,7 +114,7 @@ class Import
 
     protected function importBlocks()
     {
-        $handle = fopen($this->blocksFile, 'r');
+        $handle = \fopen($this->blocksFile, 'r');
         if (false === $handle) {
             throw new \Exception('Unable to read file: ' . $this->blocksFile);
 
@@ -134,7 +134,7 @@ class Import
         $row = 0;
         while (($data = fgetcsv($handle, 1000, ",")) !== false) {
             $num = count($data);
-            if ($num > 2 && is_numeric($data[0])) {
+            if ($num > 2 && \is_numeric($data[0])) {
                 $a = array(
                     's' => (float)$data[0],
                     'e' => (float)$data[1],

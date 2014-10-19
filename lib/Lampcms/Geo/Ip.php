@@ -159,7 +159,7 @@ class Ip
                 return false;
             }
         } else {
-            throw new \InvalidArgumentException('Param $ip must be double or string. Was: ' . gettype($ip));
+            throw new \InvalidArgumentException('Param $ip must be double or string. Was: ' . \gettype($ip));
         }
 
         if (8 === PHP_INT_SIZE) {

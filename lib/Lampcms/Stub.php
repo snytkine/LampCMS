@@ -54,13 +54,16 @@ namespace Lampcms;
 
 /**
  * A Dummy Stub Class in case we need it
+ * In is used to stand in other objects that in some cases
+ * could not be created, for example when php version does not
+ * have required extension.
  */
 class Stub extends \stdClass
 {
 
     public function __call($method, $args)
     {
-        d('non-existent method ' . $method . ' called with args: ' . var_export($args, true));
+        d('non-existent method ' . $method . ' called with args: ' . \var_export($args, true));
 
         return '';
     }

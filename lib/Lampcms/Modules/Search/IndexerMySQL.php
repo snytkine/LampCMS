@@ -166,7 +166,7 @@ class IndexerMySQL implements Indexer
             $res = $sth->execute();
         } catch (\Exception $e) {
 
-            $err = ('Exception: ' . get_class($e) . ' Unable to insert into mysql because: ' . $e->getMessage() . ' Err Code: ' . $e->getCode() . ' trace: ' . $e->getTraceAsString());
+            $err = ('Exception: ' . \get_class($e) . ' Unable to insert into mysql because: ' . $e->getMessage() . ' Err Code: ' . $e->getCode() . ' trace: ' . $e->getTraceAsString());
             //d('mysql error: '.$err);
 
             if ('42S02' === $e->getCode()) {
@@ -209,7 +209,7 @@ class IndexerMySQL implements Indexer
             $res = $sth->execute();
             //d('res: '.$res);
         } catch (\Exception $e) {
-            $err = ('Exception: ' . get_class($e) . ' Unable to delete question because: ' . $e->getMessage() . ' Err Code: ' . $e->getCode() . ' trace: ' . $e->getTraceAsString());
+            $err = ('Exception: ' . \get_class($e) . ' Unable to delete question because: ' . $e->getMessage() . ' Err Code: ' . $e->getCode() . ' trace: ' . $e->getTraceAsString());
             //d('mysql error: '.$err);
         }
 

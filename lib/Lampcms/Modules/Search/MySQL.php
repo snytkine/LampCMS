@@ -166,17 +166,20 @@ class MySQL implements Search
             $sth->bindParam(':subj', $this->term, \PDO::PARAM_STR);
             $sth->execute();
         } catch ( \Exception $e ) {
-            $err = ('Exception: ' . get_class($e) . ' Unable to select mysql because: ' . $e->getMessage() . ' Err Code: ' . $e->getCode() . ' trace: ' . $e->getTraceAsString());
+            $err = ('Exception: ' . \get_class($e) . ' Unable to select mysql because: ' . $e->getMessage() . ' Err Code: ' . $e->getCode() . ' trace: ' . $e->getTraceAsString());
             d('mysql error: ' . $err);
 
             if ('42S02' === $e->getCode()) {
                 if (true === TitleTagsTable::create($this->Registry)) {
 
                     return $this;
+
                 } else {
+
                     throw $e;
                 }
             } else {
+
                 throw $e;
             }
         }
@@ -383,16 +386,19 @@ class MySQL implements Search
             }
 
         } catch ( \Exception $e ) {
-            $err = ('Exception: ' . get_class($e) . ' Unable to select mysql because: ' . $e->getMessage() . ' Err Code: ' . $e->getCode() . ' trace: ' . $e->getTraceAsString());
+            $err = ('Exception: ' . \get_class($e) . ' Unable to select mysql because: ' . $e->getMessage() . ' Err Code: ' . $e->getCode() . ' trace: ' . $e->getTraceAsString());
             d('mysql error: ' . $err);
 
             if ('42S02' === $e->getCode()) {
                 if (true === TitleTagsTable::create($this->Registry)) {
+
                     return $this;
                 } else {
+
                     throw $e;
                 }
             } else {
+
                 throw $e;
             }
         }

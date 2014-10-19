@@ -80,11 +80,13 @@ class Factory
 
         if (!isset($o)) {
             e('Search feature is not implemented because no search providers are defined');
+
             return new Stub();
         }
 
         if (!($o instanceof Search)) {
-            throw new \Lampcms\DevException('Search provider class ' . get_class($o) . ' does not implement Search interface');
+
+            throw new \Lampcms\DevException('Search provider class ' . \get_class($o) . ' does not implement Search interface');
         }
 
         return $o;
