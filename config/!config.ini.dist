@@ -370,6 +370,8 @@ SMTP_HOST = "localhost"
 SMTP_PORT = 25
 ; Leave blank unless your server requires encryption
 ; in which case supported options are 'ssl' or 'tls'
+; IMPORTANT - your php must have support for ssl and/or tls otherwise you will get exception
+;
 SMTP_ENCRYPTION =
 ;
 ; If your smtp server requires authentication then enter SMTP_USERNAME and SMTP_PASSWORD below
@@ -378,7 +380,7 @@ SMTP_USERNAME =
 ;
 SMTP_PASSWORD =
 ;
-; ONLY of value of TRANSPORT is sendmail
+; ONLY if value of TRANSPORT is sendmail
 ; enter a full path to sendmail program on your server
 ; path to exim or postfix are also supported
 SENDMAIL_PATH = /usr/sbin/sendmail
