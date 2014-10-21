@@ -52,7 +52,7 @@
 
 namespace Lampcms\Mongo;
 
-use \Lampcms\DevException;
+use Lampcms\DevException;
 
 /**
  * Wrapped class for working with
@@ -148,26 +148,39 @@ class DB extends \Lampcms\LampcmsObject
              * this method because Mongo may raise notices
              * that we are not interested in.
              * We only care about actual exceptions
-              */
-            $ER         = \error_reporting(0);
-            $this->conn = new \Mongo($server, $aOptions);
+             */
+            $ER = \error_reporting(0);
+            /**
+             * Prefered way it to use MongoClient
+             * but some older versions on mongo php extension may still
+             * not have this class and only have Mongo class available
+             * Must use 'false' in class_exists so taht our autoloader will
+             * not kick-in in case native MongoClient class is not loaded
+             * because our own autoloader will end up throwing exception in this case becase
+             * we don't have our own MongoClient.php file anywhere.
+             */
+            if (\class_exists('\MongoClient', false)) {
+                $this->conn = new \MongoClient($server, $aOptions);
+            } else {
+                $this->conn = new \Mongo($server, $aOptions);
+            }
+            /**
+             * Return error reporting level to original value
+             */
             \error_reporting($ER);
 
         } catch ( \MongoConnectionException $e ) {
             $err = 'MongoConnectionException caught. Unable to connect to Mongo: ' . $e->getMessage();
             e($err);
             throw new DevException($err);
-        }
-        catch ( \MongoException $e ) {
+        } catch ( \MongoException $e ) {
             $err = 'MongoException caught. Unable to connect to Mongo: ' . $e->getMessage();
             e($err);
             throw new DevException($err);
-        }
-        catch ( DevException $e ) {
+        } catch ( DevException $e ) {
             $err = 'Unable to connect to Mongo: ' . $e->getMessage();
             e($err);
-        }
-        catch ( \Exception $e ) {
+        } catch ( \Exception $e ) {
             /**
              * This will not be a MongoException
              * because mongo connection process will not throw exception,
@@ -328,7 +341,7 @@ class DB extends \Lampcms\LampcmsObject
             throw new \InvalidArgumentException('Invalid collection name: ' . $collName . ' Collection name can only contain alphanumeric chars and underscores');
         }
 
-        $collName = $this->prefix.$collName;
+        $collName = $this->prefix . $collName;
 
         $whereCol = \filter_var($whereCol, FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_STRIP_LOW | FILTER_FLAG_STRIP_HIGH);
         $whereCol = \str_replace(';', '', $whereCol);
@@ -374,13 +387,13 @@ class DB extends \Lampcms\LampcmsObject
 
         $ret = false;
 
-       /* if (empty($options['fsync']) && empty($options['safe'])) {
-            $options['w'] = 1;
-        }*/
+        /* if (empty($options['fsync']) && empty($options['safe'])) {
+             $options['w'] = 1;
+         }*/
 
         $options['multiple'] = true;
 
-        $collName = $this->prefix.$collName;
+        $collName = $this->prefix . $collName;
 
         $coll = $this->getDb()->selectCollection($collName);
         try {

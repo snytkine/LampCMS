@@ -52,7 +52,7 @@
 
 namespace Lampcms\Cache;
 
-use \Lampcms\Registry;
+use Lampcms\Registry;
 
 
 /**
@@ -119,13 +119,13 @@ class Mongo implements \Lampcms\Interfaces\Cache
     /**
      * Constructor
      *
-     * @param \Lampcms\Cache\Mongo|\Mongo $Mongo      $Mongo
-     * @param string                      $db         name of database
+     * @param    \Mongo or \MongoClient $Mongo      Cannot use type hinting because MongoClient does not extend Mongo in php
+     * @param string $db                              name of database
      *
-     * @param string                      $collection name of collection
+     * @param string $collection                      name of collection
      *
-     * @param null                        $nameSpace
-     * @param bool                        $compress   is true then will store values compressed with gzip
+     * @param null   $nameSpace
+     * @param bool   $compress                        is true then will store values compressed with gzip
      *                                                to save space (extra processing overhead will be incured to compress/uncompress)
      *
      * @throws \LogicException
@@ -133,7 +133,7 @@ class Mongo implements \Lampcms\Interfaces\Cache
      * (may contain username/password)
      *           like this:
      */
-    public function __construct(\Mongo $Mongo, $db, $collection, $nameSpace = null, $compress = false)
+    public function __construct($Mongo, $db, $collection, $nameSpace = null, $compress = false)
     {
 
         if (!extension_loaded('mongo')) {
@@ -334,7 +334,6 @@ class Mongo implements \Lampcms\Interfaces\Cache
 
             $value        = serialize($value);
             $isSerialized = true;
-
 
         } elseif ($this->bCompress && is_array($value)) {
 
