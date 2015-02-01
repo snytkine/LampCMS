@@ -65,7 +65,11 @@ class tplCategoryDiv extends Lampcms\Template\Fast
     {
 
         if (!empty($a['hts'])) {
-            $reltime = \Lampcms\TimeAgo::format(new \DateTime($a['hts']));
+            try {
+                $reltime = \Lampcms\TimeAgo::format(new \DateTime($a['hts']));
+            } catch (\Exception $e){
+                $reltime = '';
+            }
             $a['time_ago'] = '<div class="cb fl timeago">' . $a['latest_label'] . ' ' . $reltime . '</div>';
         }
 

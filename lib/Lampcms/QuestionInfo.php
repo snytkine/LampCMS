@@ -89,7 +89,7 @@ class QuestionInfo extends LampcmsObject
         $ret = \tplQuestionInfo::parse(
             array(
                 'tags' => $tagsBlock,
-                'asked' => TimeAgo::format(new \DateTime($Question['hts'])) . ' ago',
+                'asked' => TimeAgo::format(new \DateTime(str_replace(' AEST', ' UTC+10', $Question['hts']))) . ' ago',
                 'updated' => TimeAgo::format(new \DateTime(date('r', $Question['i_lm_ts']))) . ' ago',
                 'views' => $this->Question['i_views'],
                 'ans_count' => $this->Question->getAnswerCount(),

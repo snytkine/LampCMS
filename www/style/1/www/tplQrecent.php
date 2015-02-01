@@ -47,7 +47,11 @@ class tplQrecent extends Lampcms\Template\Fast
         }
 
         if (!empty($a['a_latest'])) {
-            $reltime = \Lampcms\TimeAgo::format(new \DateTime($a['a_latest'][0]['t']));
+            try {
+                $reltime = \Lampcms\TimeAgo::format(new \DateTime($a['a_latest'][0]['t']));
+            } catch (\Exception $e){
+                $reltime = '';
+            }
             $a['last_poster'] = '<div class="lastposter fl cb">@@Latest answer by@@: ' . $a['a_latest'][0]['u'] . '<br>
 			<span title="' . $a['a_latest'][0]['t'] . '" class="ts">' . $reltime . '</span></div>';
         }
