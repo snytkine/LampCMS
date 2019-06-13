@@ -53,28 +53,26 @@ The design of MongoDB
 makes it very easy to "just add another server" 
 with almost no downtime.
 
-More info here: http://www.lampcms.com/features.htm
+More info [here](http://www.lampcms.com/features.htm)
 
 
 
 REQUIREMENTS
 =============
 
-
-A version of php is 5.3 or later. Recommended is 5.3.3 or later.
+A version of php is `5.3` or later. Recommended is `5.3.3` or later.
 
 MongoDB database
 
 MySQL database (yes, MySQL too, but only for one table)
 
-More on requirements here: More info here: http://www.lampcms.com/documentation.htm#requirements
+More on requirements here: More info [here](http://www.lampcms.com/documentation.htm#requirements)
 
 
 INSTALLATION
 ==============
 
-Installation instructions are here: http://www.lampcms.com/documentation.htm#installation
-
+Installation instructions are [here](http://www.lampcms.com/documentation.htm#installation)
 
 LICENSE
 =============
@@ -96,6 +94,6 @@ HELP
 ============
 
 If you have any questions, visit our
-support Q and A site here: http://support.lampcms.com
+support Q and A site [here](http://support.lampcms.com)
 
 
